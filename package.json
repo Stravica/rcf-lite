@@ -14,5 +14,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Stravica/rcf-build-lite.git"
+  },
+  "dependencies": {
+    "@stravica/rcf-schemas": "^0.1.0"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
   }
 }
