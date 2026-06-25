@@ -1,0 +1,40 @@
+{
+  "usId": "US-501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-005",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Assemble a build prompt",
+  "description": "A project owner or AI tool turns a Functional Build Specification into a single implementation prompt with the acceptance criteria and the architectural context the coding agent needs.",
+  "asA": "project owner or AI tool",
+  "iWant": "to turn a Functional Build Specification into a single implementation prompt",
+  "soThat": "a coding agent has everything it needs to implement the slice, traceable to the acceptance criteria it must satisfy",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-501-1",
+      "description": "Build assembly walks each AC in acIds to its parent user story and includes the Given/When/Then in the prompt",
+      "given": "an FBS id",
+      "when": "build assembly runs",
+      "then": "it walks each acceptance criterion in acIds to its parent user story and includes the criterion's Given/When/Then in the prompt",
+      "testable": true
+    },
+    {
+      "id": "AC-501-2",
+      "description": "Build assembly walks the referenced TACs and ADRs and includes their relevant content in the prompt",
+      "given": "an FBS that declares architectural context",
+      "when": "build assembly runs",
+      "then": "it walks the referenced TACs and ADRs and includes their relevant content in the prompt",
+      "testable": true
+    },
+    {
+      "id": "AC-501-3",
+      "description": "The assembled prompt is a single markdown document naming FBS, summary, approach, ACs and architectural context",
+      "given": "the assembled prompt",
+      "when": "it is produced",
+      "then": "it is a single markdown document naming the FBS, its summary and approach, the acceptance criteria, and the architectural context",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

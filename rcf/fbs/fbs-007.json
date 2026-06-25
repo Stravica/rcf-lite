@@ -1,0 +1,38 @@
+{
+  "fbsId": "FBS-007",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "CLI delete with reference safety",
+  "summary": "Land the delete verb with reference safety: refuse by default when dependants exist, list the blocking references, and cascade only when an explicit flag is set.",
+  "approach": "Reuse the query engine's reverse index to detect inbound references and children. The default path refuses and lists; the cascade path removes the sub-tree and cleans every parent reference, leaving the tree valid.",
+  "acIds": [
+    "AC-304-1",
+    "AC-304-2",
+    "AC-304-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-002",
+      "TAC-004"
+    ],
+    "adrIds": [
+      "ADR-004"
+    ]
+  },
+  "dependencies": [
+    "FBS-006",
+    "FBS-008"
+  ],
+  "estimatedSize": "medium",
+  "estimatedHours": 6,
+  "deliverables": [
+    "rcf delete verb with reference-safe default",
+    "Cascade flag with parent-reference cleanup"
+  ],
+  "riskLevel": "medium",
+  "domain": "crud",
+  "notes": "Delete depends on the query engine for the reverse index; that is why it sits after coverage and trace queries land.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

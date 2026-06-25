@@ -1,0 +1,67 @@
+{
+  "tadId": "TAD-001",
+  "prdId": "PRD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "systemOverview": {
+    "executiveSummary": "Build Lite is a Node 24 ESM toolset whose core is a set of local filesystem operations over a project's RCF documents. CRUD, query, view, the build loop and the MCP surface are all thin layers over a shared document store that reads and writes the on-disk rcf tree and validates against the published schemas at every boundary.",
+    "systemPurpose": "Run the full RCF method over in-repository documents and surface it through deterministic, structured operations for a non-engineering owner and for AI tooling.",
+    "architecturalApproach": "Layered. A document-store core owns load, validate and persist. A CLI binary, a view renderer, a query engine, a build adapter and an MCP server are all consumers of that core. No layer reaches the filesystem except through the store.",
+    "keyCapabilities": [
+      "Filesystem-backed RCF document store with schema validation at boundaries",
+      "Deterministic CRUD verbs over every document type",
+      "Diagram and HTML rendering of the whole tree",
+      "Traceability and query over the chain",
+      "Build-specification to implementation-prompt assembly",
+      "Local stdio MCP surface over the whole feature set"
+    ]
+  },
+  "componentIds": [
+    "TAC-001",
+    "TAC-002",
+    "TAC-003",
+    "TAC-004",
+    "TAC-005",
+    "TAC-006",
+    "TAC-007"
+  ],
+  "architecturalDecisionIds": [
+    "ADR-001",
+    "ADR-002",
+    "ADR-003",
+    "ADR-004",
+    "ADR-005"
+  ],
+  "architecturePrinciples": [
+    {
+      "name": "Filesystem is the source of truth",
+      "description": "Every read and write goes to the local rcf tree; no other store mirrors it.",
+      "rationale": "Guarantees the in-repository differentiator and keeps the tool harness-agnostic."
+    },
+    {
+      "name": "Validate at every boundary",
+      "description": "Documents are validated against the published schemas on load and before persist.",
+      "rationale": "A non-coder cannot catch a malformed document by eye; the tool must refuse to write invalid state."
+    },
+    {
+      "name": "Adapters are thin",
+      "description": "CLI, MCP and the build loop carry no business logic the core does not already own.",
+      "rationale": "One behaviour, many surfaces; no drift between how a verb behaves on the CLI versus over MCP."
+    },
+    {
+      "name": "Harness-agnostic",
+      "description": "The tool runs the same against any AI harness because behaviour lives on the local filesystem and not in a hosted surface.",
+      "rationale": "Survives a change of AI harness without re-implementation or migration."
+    }
+  ],
+  "integrationArchitecture": {
+    "apiDesign": "The store exposes a typed-by-convention internal API of document operations. The CLI maps verbs to those operations and renders results for a terminal. The MCP server maps tools to the same operations and returns structured results. No HTTP API is exposed.",
+    "eventModel": "None. Operations are synchronous filesystem reads and writes."
+  },
+  "operationalConcerns": {
+    "healthChecks": "Not applicable for a local binary; a validate command reports project health by validating every document and listing broken references.",
+    "logging": "Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics."
+  },
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

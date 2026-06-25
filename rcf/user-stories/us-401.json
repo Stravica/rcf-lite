@@ -1,0 +1,40 @@
+{
+  "usId": "US-401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-004",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Coverage report",
+  "description": "A project owner generates a coverage report over the tree, listing what is unspecified and untested without reading every document.",
+  "asA": "project owner",
+  "iWant": "a coverage report over the tree",
+  "soThat": "I can see at a glance what is unspecified or untested without reading every document",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-401-1",
+      "description": "Coverage lists every requirement that has no user story",
+      "given": "a loaded project",
+      "when": "coverage runs",
+      "then": "it lists every requirement that has no user story",
+      "testable": true
+    },
+    {
+      "id": "AC-401-2",
+      "description": "Coverage lists every acceptance criterion that has no test suite",
+      "given": "a loaded project",
+      "when": "coverage runs",
+      "then": "it lists every acceptance criterion that has no test suite",
+      "testable": true
+    },
+    {
+      "id": "AC-401-3",
+      "description": "A fully covered project reports complete coverage with no gaps",
+      "given": "a fully covered project",
+      "when": "coverage runs",
+      "then": "it reports complete coverage with no gaps",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

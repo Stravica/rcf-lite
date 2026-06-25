@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "projectName": "RCF Build Lite",
+  "description": "RCF tree for the RCF Build Lite product. Manifest declares the three root documents; every other document is discovered by walking from the roots.",
+  "prd": {
+    "id": "PRD-001",
+    "path": "prd.json"
+  },
+  "tad": {
+    "id": "TAD-001",
+    "path": "tad.json"
+  },
+  "bs": {
+    "id": "BS-001",
+    "path": "build-sequence.json"
+  }
+}

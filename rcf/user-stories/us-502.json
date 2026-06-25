@@ -1,0 +1,40 @@
+{
+  "usId": "US-502",
+  "prdId": "PRD-001",
+  "reqId": "REQ-005",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Build order respects dependencies",
+  "description": "A project owner or AI tool computes a build order that honours the dependency graph declared on FBS items, surfaces parallel-safe items, and detects cycles.",
+  "asA": "project owner or AI tool",
+  "iWant": "the build order to respect the dependency graph declared on the FBS items",
+  "soThat": "no slice is built before the work it depends on",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-502-1",
+      "description": "The computed order is a valid topological order in which dependencies precede dependents",
+      "given": "a set of FBS items with declared dependencies",
+      "when": "the build order is computed",
+      "then": "it is a valid ordering in which every dependency precedes the items that depend on it",
+      "testable": true
+    },
+    {
+      "id": "AC-502-2",
+      "description": "FBS items with no dependency between them are reported as parallel-safe",
+      "given": "FBS items with no dependency between them",
+      "when": "the build order is computed",
+      "then": "they are reported as parallel-safe",
+      "testable": true
+    },
+    {
+      "id": "AC-502-3",
+      "description": "A dependency cycle is detected and reported rather than producing a partial order",
+      "given": "a dependency cycle",
+      "when": "the build order is computed",
+      "then": "the cycle is detected and reported rather than producing a partial order",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

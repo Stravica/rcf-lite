@@ -1,0 +1,40 @@
+{
+  "usId": "US-503",
+  "prdId": "PRD-001",
+  "reqId": "REQ-005",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Mark a slice done",
+  "description": "A project owner or AI tool marks an FBS slice done so the Build Sequence reflects real progress and coverage stays honest.",
+  "asA": "project owner or AI tool",
+  "iWant": "to mark a build slice done once it is finished",
+  "soThat": "the build sequence reflects real progress and the coverage report stays honest",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-503-1",
+      "description": "Marking done advances the FBS execution status and the matching Build Sequence slot status, both validating",
+      "given": "a finished slice",
+      "when": "it is marked done",
+      "then": "the FBS execution status advances and the corresponding Build Sequence slot status is updated, both validating",
+      "testable": true
+    },
+    {
+      "id": "AC-503-2",
+      "description": "Mark-done on an unknown FBS id returns a not-found error and writes nothing",
+      "given": "a mark-done request for an unknown FBS id",
+      "when": "it runs",
+      "then": "a not-found error is returned and nothing is written",
+      "testable": true
+    },
+    {
+      "id": "AC-503-3",
+      "description": "Mark-done only changes execution status fields and leaves the rest of the documents untouched",
+      "given": "a mark-done operation",
+      "when": "it runs",
+      "then": "it changes only execution status fields and leaves the rest of the documents untouched",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

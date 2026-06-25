@@ -1,0 +1,40 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-003",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Read any document",
+  "description": "A project owner or AI tool reads any RCF document by id and gets its current content together with a validity report.",
+  "asA": "project owner or AI tool",
+  "iWant": "to read any RCF document by its id",
+  "soThat": "I can inspect a document's current content without opening files by hand",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "Reading a valid document returns it and reports it as valid",
+      "given": "a document id",
+      "when": "read runs",
+      "then": "the document is returned and reported as valid against its schema",
+      "testable": true
+    },
+    {
+      "id": "AC-301-2",
+      "description": "Reading an id with no file returns a structured not-found error naming the id",
+      "given": "an id with no file",
+      "when": "read runs",
+      "then": "a structured not-found error is returned naming the id",
+      "testable": true
+    },
+    {
+      "id": "AC-301-3",
+      "description": "Reading an invalid document returns both the content and the validation errors",
+      "given": "a document that exists but fails validation",
+      "when": "read runs",
+      "then": "the document is returned together with the validation errors, so the caller sees both content and the problem",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

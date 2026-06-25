@@ -1,0 +1,40 @@
+{
+  "usId": "US-201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Render the tree as a diagram",
+  "description": "A non-coding owner sees the whole RCF tree at a glance as a diagram of documents and the links between them.",
+  "asA": "project owner who cannot read code",
+  "iWant": "a diagram of the whole RCF tree showing documents and the links between them",
+  "soThat": "I can see what is specified at a glance",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-201-1",
+      "description": "The diagram shows PRD, requirements, user stories and architecture documents with chain edges",
+      "given": "a loaded project",
+      "when": "the diagram is generated",
+      "then": "it shows the PRD, every requirement, every user story, and the architecture documents, with edges following the chain",
+      "testable": true
+    },
+    {
+      "id": "AC-201-2",
+      "description": "Broken references are marked visibly rather than omitted",
+      "given": "a project with a broken reference",
+      "when": "the diagram is generated",
+      "then": "the broken link is marked visibly rather than omitted silently",
+      "testable": true
+    },
+    {
+      "id": "AC-201-3",
+      "description": "The diagram is produced as source that renders without a running server",
+      "given": "a valid project",
+      "when": "the diagram is generated",
+      "then": "it is produced as a diagram source that renders without a running server",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

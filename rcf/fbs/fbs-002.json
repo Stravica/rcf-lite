@@ -1,0 +1,41 @@
+{
+  "fbsId": "FBS-002",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "Tree walk and validate command",
+  "summary": "Walk from the manifest roots, resolve every child by id, and ship a CLI validate command that reports project health by running schema validation across the loaded tree and listing broken references.",
+  "approach": "Build the walker on top of the store. Surface every load failure as a structured error rather than a crash. The validate command is the first user-visible verb so its output sets the precedent for how errors render across the tool.",
+  "acIds": [
+    "AC-102-1",
+    "AC-102-2",
+    "AC-102-3",
+    "AC-701-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-001",
+      "TAC-007"
+    ],
+    "adrIds": [
+      "ADR-002"
+    ],
+    "schemas": [
+      "manifest.schema.json"
+    ]
+  },
+  "dependencies": [
+    "FBS-001"
+  ],
+  "estimatedSize": "small",
+  "estimatedHours": 4,
+  "deliverables": [
+    "Tree walker reaching every child from the roots",
+    "CLI validate command with structured-error output"
+  ],
+  "riskLevel": "low",
+  "domain": "projectStructure",
+  "notes": "This is where load-time validation behaviour becomes user-visible; the rendering it lands sets the pattern for every later surface.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

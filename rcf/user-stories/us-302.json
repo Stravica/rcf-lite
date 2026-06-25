@@ -1,0 +1,40 @@
+{
+  "usId": "US-302",
+  "prdId": "PRD-001",
+  "reqId": "REQ-003",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Create a document with parent linkage",
+  "description": "A project owner or AI tool creates a new RCF document and the tool maintains the parent linkage automatically.",
+  "asA": "project owner or AI tool",
+  "iWant": "to create a new RCF document and have its parent linkage maintained",
+  "soThat": "the tree stays consistent without me editing two files by hand",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-302-1",
+      "description": "Creating a requirement writes the file and updates the PRD requirementIds list, both validating",
+      "given": "a request to create a requirement under a PRD",
+      "when": "create runs",
+      "then": "the requirement file is written and the PRD's requirementIds list gains the new id, both validating",
+      "testable": true
+    },
+    {
+      "id": "AC-302-2",
+      "description": "Creating a document with a conflicting id writes nothing and returns a clear conflict error",
+      "given": "a request to create a document whose id already exists",
+      "when": "create runs",
+      "then": "no file is written and a clear conflict error is returned",
+      "testable": true
+    },
+    {
+      "id": "AC-302-3",
+      "description": "Creating an invalid document writes nothing and returns the validation error",
+      "given": "a request to create a document that would not validate",
+      "when": "create runs",
+      "then": "nothing is written and the validation error is returned",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

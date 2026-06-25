@@ -1,0 +1,39 @@
+{
+  "fbsId": "FBS-008",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "Coverage and trace queries",
+  "summary": "Land the coverage report and the trace-forward and trace-back queries, walking the intent chain only.",
+  "approach": "Build a walker over PRD to REQ to US to AC to TS to TC. Coverage flags every requirement without a story and every acceptance criterion without a test. Trace-forward and trace-back walk the chain from any given node, never touching the FBS layer.",
+  "acIds": [
+    "AC-401-1",
+    "AC-401-2",
+    "AC-401-3",
+    "AC-402-1",
+    "AC-402-2",
+    "AC-402-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-004"
+    ],
+    "adrIds": [
+      "ADR-004"
+    ]
+  },
+  "dependencies": [
+    "FBS-002"
+  ],
+  "estimatedSize": "medium",
+  "estimatedHours": 6,
+  "deliverables": [
+    "Coverage report covering requirements and acceptance criteria",
+    "Trace-forward and trace-back operations"
+  ],
+  "riskLevel": "low",
+  "domain": "traceability",
+  "notes": "The intent-chain-only rule is load-bearing; the walker rejects FBS edges at the type level.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-001",
+  "prdId": "PRD-001",
+  "title": "On-disk RCF project structure",
+  "description": "Build Lite initialises and maintains a project's RCF documents on the local filesystem, under a top-level rcf folder, with the project manifest declaring the three root documents (PRD, TAD, Build Sequence) and every other document discovered by walking from the roots. The local files are the single source of truth; no external store mirrors them.",
+  "category": "functional",
+  "domain": "projectStructure",
+  "priority": "must",
+  "rationale": "The in-repository differentiator depends on RCF documents living beside the code. A predictable on-disk layout is the foundation every other capability reads from and writes to.",
+  "tags": [
+    "structure",
+    "manifest",
+    "filesystem"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

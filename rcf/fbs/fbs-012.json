@@ -1,0 +1,45 @@
+{
+  "fbsId": "FBS-012",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "MCP server over the full surface",
+  "summary": "Stand up the local stdio MCP server exposing read, create, update, delete, coverage, trace, impact, view and build operations, with structured validation errors delivered to AI tool clients.",
+  "approach": "Wire each MCP tool to the same core operation the CLI verb uses. Register tool input and output shapes so clients can introspect. Open no network listener; communicate over stdio only. Serialise structured errors via the error and reporting component.",
+  "acIds": [
+    "AC-601-1",
+    "AC-601-2",
+    "AC-601-3",
+    "AC-602-1",
+    "AC-602-2",
+    "AC-602-3",
+    "AC-702-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-006",
+      "TAC-007"
+    ],
+    "adrIds": [
+      "ADR-005",
+      "ADR-004"
+    ]
+  },
+  "dependencies": [
+    "FBS-006",
+    "FBS-008",
+    "FBS-010"
+  ],
+  "estimatedSize": "large",
+  "estimatedHours": 10,
+  "deliverables": [
+    "Local stdio MCP server",
+    "Tool registrations for the full feature set",
+    "Structured-error serialisation for MCP clients"
+  ],
+  "riskLevel": "medium",
+  "domain": "mcp",
+  "notes": "AC-702-3 (structured errors over MCP) lands here because MCP is the surface where structured-object error delivery becomes load-bearing.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

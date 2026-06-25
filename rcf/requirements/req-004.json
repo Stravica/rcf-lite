@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-004",
+  "prdId": "PRD-001",
+  "title": "Traceability and query over the RCF chain",
+  "description": "Build Lite answers traceability questions over the RCF chain: coverage (which requirements lack stories, which acceptance criteria lack tests), trace forward (from a PRD or requirement down to acceptance criteria and tests), trace back (from a test or acceptance criterion up to its requirement and PRD), and impact analysis (what is affected if a given document changes). Queries walk the chain from the on-disk tree.",
+  "category": "functional",
+  "domain": "traceability",
+  "priority": "must",
+  "rationale": "Traceability is the confidence the framework is named for. The owner needs to know that nothing is unspecified and nothing is untested, and what an edit ripples into, without reading the documents end to end.",
+  "tags": [
+    "traceability",
+    "query",
+    "coverage"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

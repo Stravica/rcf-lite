@@ -1,0 +1,40 @@
+{
+  "usId": "US-202",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Browse the tree as a static page",
+  "description": "A project owner opens a static browsable page of the whole RCF tree locally, with each document shown as readable text and inter-document links navigating between sections.",
+  "asA": "project owner",
+  "iWant": "a browsable static page of the whole tree that I can open locally",
+  "soThat": "I can read each document's content and follow its links without a server or a JSON viewer",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-202-1",
+      "description": "The page is produced as static files that open in a browser with no server process",
+      "given": "a loaded project",
+      "when": "the page is generated",
+      "then": "it writes static files that open in a browser with no server process",
+      "testable": true
+    },
+    {
+      "id": "AC-202-2",
+      "description": "Each document's key fields are rendered as readable text, not raw JSON",
+      "given": "the page",
+      "when": "a document is shown",
+      "then": "its key fields are rendered as readable text, not raw JSON",
+      "testable": true
+    },
+    {
+      "id": "AC-202-3",
+      "description": "Inter-document links navigate between sections",
+      "given": "the page",
+      "when": "a document links to another",
+      "then": "the link navigates to that document's section",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

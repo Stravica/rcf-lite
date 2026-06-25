@@ -1,0 +1,48 @@
+{
+  "fbsId": "FBS-001",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "Document store core",
+  "summary": "Build the document store: id-to-path resolution, JSON parse, schema validation against the registered bundle, persist-after-validate, and a tree walk from the manifest roots.",
+  "approach": "Register the published schema bundle once at start-up. Resolve ids to paths by the recommended layout convention. Make load and save the only filesystem touch points. Return structured errors rather than throwing strings, so every surface can report them consistently.",
+  "acIds": [
+    "AC-101-1",
+    "AC-101-2",
+    "AC-101-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tadSections": [
+      "systemOverview",
+      "integrationArchitecture"
+    ],
+    "tacIds": [
+      "TAC-001"
+    ],
+    "adrIds": [
+      "ADR-001",
+      "ADR-002"
+    ],
+    "schemas": [
+      "manifest.schema.json",
+      "prd.schema.json"
+    ],
+    "externalDocs": [
+      "https://ajv.js.org/"
+    ]
+  },
+  "dependencies": [],
+  "estimatedSize": "medium",
+  "estimatedHours": 6,
+  "deliverables": [
+    "Document store module with load, save and walkTree",
+    "Schema bundle registration at start-up",
+    "Structured error type for validation and reference failures",
+    "Init command that refuses to overwrite an existing project without an explicit force flag"
+  ],
+  "riskLevel": "low",
+  "domain": "projectStructure",
+  "notes": "Everything else in the build sequence depends on this; keep the public surface small and stable. AC-101-2 (init refuses to overwrite an existing project) is grouped here as init-verb behaviour adjacent to AC-101-1; the spec did not assign it to any FBS in round 1.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

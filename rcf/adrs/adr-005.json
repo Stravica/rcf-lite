@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-005",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "MCP is local stdio only",
+  "context": "Remote MCP cannot see the user's local codebase or RCF documents, which breaks the in-repository differentiator and the source-of-truth rule. The product is local-first by design; the MCP surface must follow.",
+  "decision": "The MCP server uses local stdio transport only. No network listener is opened. Remote MCP is excluded.",
+  "consequences": "The harness gets the full feature set with filesystem access. There is no hosted MCP path. The trade matches the local-filesystem source-of-truth rule and keeps the product boundaries clean.",
+  "alternativesConsidered": [
+    {
+      "name": "Hosted MCP server",
+      "summary": "Run an MCP server over network transport with the user pointing it at a remote project.",
+      "reasonNotChosen": "Breaks the in-repository differentiator and the source-of-truth rule; a hosted surface would have to mirror or re-fetch the local tree."
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

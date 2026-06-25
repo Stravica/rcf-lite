@@ -1,0 +1,45 @@
+{
+  "tacId": "TAC-001",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Document store",
+  "purpose": "Own all reads, validation and writes of RCF documents on the local filesystem, and be the only component that touches the rcf tree.",
+  "responsibilities": [
+    "Resolve a document file path from a document id by convention",
+    "Load and parse a document and validate it against its schema",
+    "Walk from the roots to assemble the full in-memory tree",
+    "Persist a document only after it validates",
+    "Surface broken references and schema failures as structured errors"
+  ],
+  "internalStructure": "A loader resolves ids to paths and parses JSON. A validator wraps the published schema bundle and is registered once at start-up. A writer serialises and persists. A tree walker reads the manifest roots and follows the parent id lists to build the full document set in memory.",
+  "interfaces": [
+    {
+      "name": "loadDocument",
+      "kind": "function",
+      "description": "Resolve an id to a path, parse and validate, return the document or a structured error."
+    },
+    {
+      "name": "saveDocument",
+      "kind": "function",
+      "description": "Validate then persist a document; refuse to write if validation fails."
+    },
+    {
+      "name": "walkTree",
+      "kind": "function",
+      "description": "From the manifest roots, resolve every child by id and return the full tree."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "rcf-schemas",
+      "kind": "external",
+      "description": "The published schema package the validator registers at start-up."
+    }
+  ],
+  "tradeoffs": "Centralising all filesystem access in one component costs a small amount of indirection but guarantees that no consumer can write an unvalidated document or bypass the source-of-truth rule.",
+  "notes": "The store is intentionally synchronous where possible; a local CLI does not benefit from streaming and synchronous code is easier for contributors to follow.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

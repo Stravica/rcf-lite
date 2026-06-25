@@ -1,0 +1,37 @@
+{
+  "fbsId": "FBS-005",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "CLI read verbs",
+  "summary": "Land the read verb of the CLI: read any document by id and report its validity, with structured not-found errors for missing ids and combined content-plus-errors for invalid documents.",
+  "approach": "Map the read verb to the store's load operation. Render the document and its validation outcome together so the user can see content and any problems in one view.",
+  "acIds": [
+    "AC-301-1",
+    "AC-301-2",
+    "AC-301-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-002",
+      "TAC-001"
+    ],
+    "adrIds": [
+      "ADR-004"
+    ]
+  },
+  "dependencies": [
+    "FBS-002"
+  ],
+  "estimatedSize": "small",
+  "estimatedHours": 3,
+  "deliverables": [
+    "rcf read verb with structured outcome",
+    "Combined content and validation rendering"
+  ],
+  "riskLevel": "low",
+  "domain": "crud",
+  "notes": "Read is the simplest mutator-free verb; it locks the output shape later mutators reuse.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-001",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Local filesystem is the single source of truth",
+  "context": "RCF Build Lite must guarantee that a project's RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.",
+  "decision": "Every read and write targets the local rcf tree directly. No external service, cache or database mirrors the documents. The CLI, the MCP server and the build loop all reach the filesystem only through the document store.",
+  "consequences": "The tool works offline and stays harness-agnostic. There is no sync problem and no second source to drift. The cost is that any multi-user or hosted scenario is out of scope by construction, which matches the product boundaries.",
+  "alternativesConsidered": [
+    {
+      "name": "GitHub API as source of truth",
+      "summary": "Read and write documents through the GitHub contents API as v1 did.",
+      "reasonNotChosen": "Breaks the in-repository differentiator, requires network access and hit the API single-file fetch limit on large documents."
+    },
+    {
+      "name": "Local database index",
+      "summary": "Keep the files but maintain a database index for fast queries.",
+      "reasonNotChosen": "Introduces a second source of truth that can drift; query volumes for a single project do not justify it."
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

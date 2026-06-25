@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-003",
+  "prdId": "PRD-001",
+  "title": "Deterministic create, read, update and delete over RCF documents",
+  "description": "Build Lite provides deterministic create, read, update and delete operations for every RCF document type, operating directly on the local files. Operations are structural and predictable so an AI agent cannot fudge document shape: each operation validates before it writes and reports a clear error on failure.",
+  "category": "functional",
+  "domain": "crud",
+  "priority": "must",
+  "rationale": "Deterministic CRUD is the foundational primitive everything else sits on. Hand-writing the tree in this phase surfaces exactly which operations the owner and the agent need.",
+  "tags": [
+    "crud",
+    "cli",
+    "validation"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

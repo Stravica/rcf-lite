@@ -1,0 +1,40 @@
+{
+  "usId": "US-602",
+  "prdId": "PRD-001",
+  "reqId": "REQ-006",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "CRUD and build over MCP",
+  "description": "An AI tool running in a harness uses MCP tools to mutate the RCF tree and assemble build prompts with the same validation behaviour as the CLI.",
+  "asA": "AI tool running in a harness",
+  "iWant": "the CRUD and build operations exposed as MCP tools",
+  "soThat": "I can construct and maintain the RCF tree on the owner's behalf through structured tools that validate",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-602-1",
+      "description": "A create operation over MCP applies the same validation and parent-linkage behaviour as the CLI create verb",
+      "given": "a create operation over MCP",
+      "when": "it runs",
+      "then": "it applies the same validation and parent-linkage behaviour as the CLI create verb",
+      "testable": true
+    },
+    {
+      "id": "AC-602-2",
+      "description": "A build-assembly operation over MCP returns the assembled prompt for the named FBS",
+      "given": "a build-assembly operation over MCP",
+      "when": "it runs",
+      "then": "it returns the assembled prompt for the named FBS",
+      "testable": true
+    },
+    {
+      "id": "AC-602-3",
+      "description": "A mutating MCP operation that would write an invalid document writes nothing and returns the validation error",
+      "given": "any mutating MCP operation that would write an invalid document",
+      "when": "it runs",
+      "then": "nothing is written and the validation error is returned to the client",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

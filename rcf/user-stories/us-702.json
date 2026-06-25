@@ -1,0 +1,40 @@
+{
+  "usId": "US-702",
+  "prdId": "PRD-001",
+  "reqId": "REQ-007",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Clear validation errors",
+  "description": "A project owner or AI tool gets structured, readable validation errors that name the offending field and rule, with all failures in one document reported together.",
+  "asA": "project owner or AI tool",
+  "iWant": "validation failures reported as clear, structured errors",
+  "soThat": "I can understand and fix what is wrong without reading the schema",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-702-1",
+      "description": "A reported validation failure names the offending field and the rule it broke",
+      "given": "a validation failure",
+      "when": "it is reported",
+      "then": "the error names the offending field and the rule it broke",
+      "testable": true
+    },
+    {
+      "id": "AC-702-2",
+      "description": "Multiple validation failures in one document are returned together, not just the first",
+      "given": "multiple validation failures in one document",
+      "when": "they are reported",
+      "then": "all of them are returned together, not just the first",
+      "testable": true
+    },
+    {
+      "id": "AC-702-3",
+      "description": "Validation errors delivered to an AI tool over MCP are structured objects the tool can act on, not free text",
+      "given": "a validation error returned to an AI tool over MCP",
+      "when": "it is delivered",
+      "then": "it is a structured object the tool can act on, not a free-text string",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

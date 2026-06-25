@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-005",
+  "prdId": "PRD-001",
+  "title": "Specification-driven build loop",
+  "description": "Build Lite turns a Functional Build Specification into a single implementation prompt by walking the FBS, its acceptance criteria (to the parent user stories), and its declared architectural context (referenced TACs and ADRs), then assembles a markdown prompt for a coding agent. It marks a build slice done when the slice is finished.",
+  "category": "functional",
+  "domain": "build",
+  "priority": "must",
+  "rationale": "For someone who cannot read code, the specification-to-build loop is the only thing between them and a confident but wrong result. Assembling the prompt from the tree is what makes the output solid and traceable to an agreed decision.",
+  "tags": [
+    "build",
+    "sdd",
+    "fbs"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}
