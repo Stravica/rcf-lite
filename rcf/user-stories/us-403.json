@@ -1,0 +1,40 @@
+{
+  "usId": "US-403",
+  "prdId": "PRD-001",
+  "reqId": "REQ-004",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Impact analysis",
+  "description": "A project owner or AI tool asks what is affected if a document changes and gets the descendants and FBS slots that ripple from the edit.",
+  "asA": "project owner or AI tool",
+  "iWant": "to ask what is affected if I change a given document",
+  "soThat": "I understand the ripple of an edit before I make it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-403-1",
+      "description": "Impact analysis on a requirement returns descendant documents and FBS slots whose acceptance criteria fall under it",
+      "given": "a requirement id",
+      "when": "impact analysis runs",
+      "then": "it returns the descendant documents that depend on it and any FBS slots whose acceptance criteria fall under it",
+      "testable": true
+    },
+    {
+      "id": "AC-403-2",
+      "description": "Impact analysis on an architecture document returns the FBS items that reference it as context",
+      "given": "an architecture document id",
+      "when": "impact analysis runs",
+      "then": "it returns the FBS items that reference it as context",
+      "testable": true
+    },
+    {
+      "id": "AC-403-3",
+      "description": "Impact analysis on a document with no dependents reports an empty impact set",
+      "given": "a document with no dependents",
+      "when": "impact analysis runs",
+      "then": "it reports an empty impact set",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

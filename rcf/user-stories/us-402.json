@@ -1,0 +1,40 @@
+{
+  "usId": "US-402",
+  "prdId": "PRD-001",
+  "reqId": "REQ-004",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Trace forward and back",
+  "description": "A project owner or AI tool traces from any document forward to its descendants or back to its ancestors, walking only the intent chain.",
+  "asA": "project owner or AI tool",
+  "iWant": "to trace from any document forward to its descendants and back to its ancestors",
+  "soThat": "I can follow an agreed decision down to the work that satisfies it, or a piece of work up to the decision it serves",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-402-1",
+      "description": "Trace forward from a requirement returns the user stories, acceptance criteria and any test suites beneath it",
+      "given": "a requirement id",
+      "when": "trace forward runs",
+      "then": "it returns the user stories, acceptance criteria and any test suites beneath it",
+      "testable": true
+    },
+    {
+      "id": "AC-402-2",
+      "description": "Trace back from an acceptance criterion returns the parent user story, its requirement and the PRD",
+      "given": "an acceptance criterion id",
+      "when": "trace back runs",
+      "then": "it returns the parent user story, its requirement and the PRD",
+      "testable": true
+    },
+    {
+      "id": "AC-402-3",
+      "description": "Trace walks the intent chain only, never the FBS layer",
+      "given": "the trace",
+      "when": "it is computed",
+      "then": "it walks the intent chain (PRD to REQ to US to AC to TS to TC) and does not traverse the FBS layer",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

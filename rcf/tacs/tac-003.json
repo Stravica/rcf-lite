@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-003",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "View renderer",
+  "purpose": "Produce the diagram source and the static browsable page from a loaded RCF tree, with broken references marked visibly and no server required.",
+  "responsibilities": [
+    "Build a diagram from the chain edges between documents",
+    "Render each document as a readable section, not raw JSON",
+    "Mark broken references visibly in both diagram and page",
+    "Write static output files that open in a browser with no server process"
+  ],
+  "internalStructure": "A diagram builder walks the loaded tree and emits Mermaid source. A page builder renders each document into a templated HTML section and links between them by id. Output is written to a fixed view directory at the project root.",
+  "interfaces": [
+    {
+      "name": "renderDiagram",
+      "kind": "function",
+      "description": "Emit the diagram source for the whole tree."
+    },
+    {
+      "name": "renderPage",
+      "kind": "function",
+      "description": "Write the static browsable page to the view output directory."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Document store",
+      "kind": "tac",
+      "tacId": "TAC-001",
+      "description": "The renderer reads the loaded tree only through the store."
+    }
+  ],
+  "tradeoffs": "Mermaid is locked as the diagram format because it renders without a runtime and ships everywhere; a pluggable renderer would add an interface for a benefit the product does not yet need.",
+  "notes": "The fixed output directory keeps the configuration surface zero and the output discoverable.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

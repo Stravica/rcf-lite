@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-003",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Plain JavaScript, no TypeScript pin",
+  "context": "v1 was TypeScript-heavy and the build pipeline was a maintenance burden out of proportion to the project size. The product is small enough that boundary validation can carry the safety types would, and contributors should not have to set up a TypeScript toolchain to read or edit the code.",
+  "decision": "Build Lite is Node 24 ESM, plain JavaScript with JSDoc where types help. Schema validation at boundaries does the work compile-time types would otherwise do.",
+  "consequences": "Lower friction for contributors and a faster iteration loop. Some IDE assistance is given up. The team accepts that giving up in exchange for the simpler stack.",
+  "alternativesConsidered": [
+    {
+      "name": "TypeScript everywhere",
+      "summary": "Author the tool in TypeScript with a tsc build step.",
+      "reasonNotChosen": "Adds a toolchain dependency for a small project; boundary validation carries the safety guarantee instead."
+    },
+    {
+      "name": "JSDoc plus checkJs",
+      "summary": "Use JSDoc with TypeScript checkJs to get partial type checking without authoring TypeScript.",
+      "reasonNotChosen": "Worth considering later if friction grows; not the round-1 default because the schema bundle is already the load-bearing contract."
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

@@ -1,0 +1,40 @@
+{
+  "usId": "US-101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Initialise an RCF project on disk",
+  "description": "A project owner starts a new RCF project and gets the canonical on-disk structure created for them, ready to receive documents.",
+  "asA": "project owner starting a new RCF project",
+  "iWant": "to run a single initialise command that creates the rcf folder, the manifest and the root document placeholders",
+  "soThat": "I have a valid RCF project structure on disk without authoring any layout by hand",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-101-1",
+      "description": "Initialise creates the rcf folder and a manifest declaring the three roots",
+      "given": "an empty target directory",
+      "when": "the initialise command runs",
+      "then": "an rcf folder exists containing a manifest that declares prd, tad and bs root references and validates against the manifest schema",
+      "testable": true
+    },
+    {
+      "id": "AC-101-2",
+      "description": "Initialise refuses to overwrite an existing project",
+      "given": "a directory that already contains an rcf manifest",
+      "when": "the initialise command runs without an explicit force flag",
+      "then": "the command exits non-zero, makes no changes and reports that a project already exists",
+      "testable": true
+    },
+    {
+      "id": "AC-101-3",
+      "description": "Every document is discoverable by walking from the roots",
+      "given": "an initialised project with a PRD, a TAD and a Build Sequence",
+      "when": "the project is loaded",
+      "then": "all child documents are resolved by reading the parent id lists, with no child enumeration in the manifest",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

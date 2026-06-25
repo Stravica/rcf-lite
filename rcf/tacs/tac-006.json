@@ -1,0 +1,104 @@
+{
+  "tacId": "TAC-006",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "MCP server",
+  "purpose": "Expose store, query, view and build operations as local stdio MCP tools so an AI harness can drive the whole feature set without shelling out to the CLI.",
+  "responsibilities": [
+    "Register tools with structured input and output for every CRUD, query, view and build operation",
+    "Route each tool to the same core operation the CLI uses",
+    "Communicate over local stdio only and open no network listener",
+    "Serialise structured errors so an AI tool can act on them"
+  ],
+  "internalStructure": "A thin MCP adapter registers each tool with a schema for its input and output and maps each tool to a core function. Errors are converted to structured objects via the error and reporting component.",
+  "interfaces": [
+    {
+      "name": "rcf.read",
+      "kind": "mcpTool",
+      "description": "Read any RCF document by id over MCP."
+    },
+    {
+      "name": "rcf.create",
+      "kind": "mcpTool",
+      "description": "Create a document with parent linkage over MCP."
+    },
+    {
+      "name": "rcf.update",
+      "kind": "mcpTool",
+      "description": "Update fields on a document over MCP."
+    },
+    {
+      "name": "rcf.delete",
+      "kind": "mcpTool",
+      "description": "Delete a document with reference safety over MCP."
+    },
+    {
+      "name": "rcf.coverage",
+      "kind": "mcpTool",
+      "description": "Report coverage gaps over MCP."
+    },
+    {
+      "name": "rcf.trace",
+      "kind": "mcpTool",
+      "description": "Trace forward or back over MCP."
+    },
+    {
+      "name": "rcf.impact",
+      "kind": "mcpTool",
+      "description": "Report impact over MCP."
+    },
+    {
+      "name": "rcf.view",
+      "kind": "mcpTool",
+      "description": "Generate the diagram and the static page over MCP."
+    },
+    {
+      "name": "rcf.build.assemble",
+      "kind": "mcpTool",
+      "description": "Assemble a build prompt over MCP."
+    },
+    {
+      "name": "rcf.build.markDone",
+      "kind": "mcpTool",
+      "description": "Mark a slice done over MCP."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Document store",
+      "kind": "tac",
+      "tacId": "TAC-001",
+      "description": "CRUD tools route through the store."
+    },
+    {
+      "name": "View renderer",
+      "kind": "tac",
+      "tacId": "TAC-003",
+      "description": "The view tool routes to the renderer."
+    },
+    {
+      "name": "Query engine",
+      "kind": "tac",
+      "tacId": "TAC-004",
+      "description": "Coverage, trace and impact tools route to the query engine."
+    },
+    {
+      "name": "Build adapter",
+      "kind": "tac",
+      "tacId": "TAC-005",
+      "description": "Build tools route to the build adapter."
+    },
+    {
+      "name": "Error and reporting",
+      "kind": "tac",
+      "tacId": "TAC-007",
+      "description": "Structured errors are serialised for the MCP client."
+    }
+  ],
+  "tradeoffs": "Local stdio sacrifices the convenience of a hosted MCP but is the only transport that preserves filesystem access; the trade is locked by the differentiator.",
+  "notes": "The MCP surface mirrors the CLI verb set so behaviour is identical across surfaces.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

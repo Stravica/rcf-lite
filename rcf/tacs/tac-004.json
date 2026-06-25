@@ -1,0 +1,51 @@
+{
+  "tacId": "TAC-004",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Query engine",
+  "purpose": "Answer traceability questions over a loaded RCF tree without ever traversing the FBS layer.",
+  "responsibilities": [
+    "Compute coverage gaps across requirements, stories, criteria and tests",
+    "Trace forward from any document to its descendants along the intent chain",
+    "Trace back from any document to its ancestors along the intent chain",
+    "Compute impact sets across the intent chain and the architecture references on FBS",
+    "Never walk the FBS layer when computing intent-chain traces"
+  ],
+  "internalStructure": "A walker traverses the chain (PRD to REQ to US to AC to TS to TC) by id. Coverage and trace operations are layered over the walker. Impact analysis additionally inspects FBS contextRequirements references.",
+  "interfaces": [
+    {
+      "name": "coverage",
+      "kind": "function",
+      "description": "Report coverage gaps across the tree."
+    },
+    {
+      "name": "traceForward",
+      "kind": "function",
+      "description": "Trace from a document to its descendants along the intent chain."
+    },
+    {
+      "name": "traceBack",
+      "kind": "function",
+      "description": "Trace from a document back to its ancestors along the intent chain."
+    },
+    {
+      "name": "impact",
+      "kind": "function",
+      "description": "Compute the impact set of a change to a given document."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Document store",
+      "kind": "tac",
+      "tacId": "TAC-001",
+      "description": "All traversal reads through the store."
+    }
+  ],
+  "tradeoffs": "A general graph engine would be more expressive but the intent chain is small and a hand-rolled walker is easier to reason about and to keep correct.",
+  "notes": "Keeping the FBS out of intent traces is a load-bearing design rule, not an optimisation.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

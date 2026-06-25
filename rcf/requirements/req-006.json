@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-006",
+  "prdId": "PRD-001",
+  "title": "Local MCP surface over the full feature set",
+  "description": "Build Lite exposes its query, CRUD, view and build operations through a local stdio MCP server, so an AI harness can drive the whole feature set as structured tools. The MCP server is a thin adapter over the same operations the CLI uses; it carries no behaviour the core does not already own.",
+  "category": "functional",
+  "domain": "mcp",
+  "priority": "should",
+  "rationale": "The harness is where the owner's AI tooling lives. A local stdio MCP surface gives that tooling the full RCF feature set while preserving filesystem access and the source-of-truth rule. Remote MCP is excluded because it cannot see the user's codebase.",
+  "tags": [
+    "mcp",
+    "harness",
+    "stdio"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

@@ -1,0 +1,38 @@
+{
+  "tacId": "TAC-007",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Error and reporting",
+  "purpose": "The structured error type and the consistent rendering of errors across CLI and MCP surfaces.",
+  "responsibilities": [
+    "Define a structured error type carrying the offending field, the rule broken and the document id",
+    "Render errors as readable terminal output for the CLI",
+    "Serialise errors as structured objects for MCP clients",
+    "Aggregate multiple validation failures so all are reported together"
+  ],
+  "internalStructure": "A small error type and a pair of renderers (terminal and structured). The renderers are pure functions over the error type.",
+  "interfaces": [
+    {
+      "name": "RcfError",
+      "kind": "type",
+      "description": "The structured error type used throughout the tool."
+    },
+    {
+      "name": "renderForTerminal",
+      "kind": "function",
+      "description": "Render an RcfError as human-readable terminal output."
+    },
+    {
+      "name": "renderForMcp",
+      "kind": "function",
+      "description": "Serialise an RcfError as a structured object for an MCP client."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "A single error type across surfaces costs a small loss of surface-specific detail but guarantees that error reporting does not drift between CLI and MCP.",
+  "notes": "Validation failures aggregate; the renderers preserve the full list, not just the first.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

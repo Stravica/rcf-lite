@@ -1,0 +1,52 @@
+{
+  "tacId": "TAC-005",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Build adapter",
+  "purpose": "Walk an FBS and its references to assemble an implementation prompt, compute the dependency-respecting build order, and mark slices done.",
+  "responsibilities": [
+    "Walk acceptance criteria in acIds to their parent user stories",
+    "Walk referenced TACs and ADRs and include their relevant content",
+    "Assemble a single markdown prompt for the named FBS",
+    "Topologically sort the FBS dependency graph and detect cycles",
+    "Advance FBS execution status and the matching Build Sequence slot status when a slice is marked done"
+  ],
+  "internalStructure": "A prompt assembler composes a markdown document from the FBS, its acceptance criteria and the referenced architecture documents. A sorter computes the build order from FBS dependency lists. A mark-done operation updates execution status fields and writes through the store.",
+  "interfaces": [
+    {
+      "name": "assemblePrompt",
+      "kind": "function",
+      "description": "Assemble the implementation prompt for a named FBS."
+    },
+    {
+      "name": "buildOrder",
+      "kind": "function",
+      "description": "Compute the dependency-respecting order and parallel-safe groups."
+    },
+    {
+      "name": "markDone",
+      "kind": "function",
+      "description": "Advance the FBS and slot status when a slice is finished."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Document store",
+      "kind": "tac",
+      "tacId": "TAC-001",
+      "description": "Read FBS, AC, TAC and ADR through the store; write status updates through the store."
+    },
+    {
+      "name": "Query engine",
+      "kind": "tac",
+      "tacId": "TAC-004",
+      "description": "Reuse the walker to resolve AC to parent user stories."
+    }
+  ],
+  "tradeoffs": "The prompt is assembled as a single markdown document for simplicity and portability; a richer structured payload would be more flexible but would lock the consumer to a non-portable shape.",
+  "notes": "Mark-done is an explicit command so the tool stays offline and harness-agnostic; no PR-watching daemon is required.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

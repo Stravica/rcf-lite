@@ -1,0 +1,36 @@
+{
+  "fbsId": "FBS-003",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "Diagram rendering",
+  "summary": "Render the whole RCF tree as a Mermaid diagram with chain edges between documents and visible markers on broken references.",
+  "approach": "Walk the loaded tree once and emit Mermaid source for the chain. Treat broken references as first-class edges rendered with a distinct style so the owner cannot miss them. Output is written to the fixed view directory.",
+  "acIds": [
+    "AC-201-1",
+    "AC-201-2",
+    "AC-201-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-003"
+    ],
+    "adrIds": [
+      "ADR-001"
+    ]
+  },
+  "dependencies": [
+    "FBS-002"
+  ],
+  "estimatedSize": "small",
+  "estimatedHours": 4,
+  "deliverables": [
+    "Mermaid diagram source for the whole tree",
+    "Broken-reference markers in the diagram"
+  ],
+  "riskLevel": "low",
+  "domain": "view",
+  "notes": "Mermaid is locked; do not introduce a pluggable interface in this slice.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

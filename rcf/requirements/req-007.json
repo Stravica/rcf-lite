@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-007",
+  "prdId": "PRD-001",
+  "title": "Validation at every boundary",
+  "description": "Every RCF document is validated against the published schema package on load and before persist. No operation writes an invalid document. Validation failures are reported as clear, structured errors that name the offending field and the rule it broke.",
+  "category": "nonFunctional",
+  "domain": "quality",
+  "priority": "must",
+  "rationale": "A non-coder cannot catch a malformed document by eye. The tool must refuse to write invalid state and must explain why, so the owner can trust that what is on disk is always valid.",
+  "tags": [
+    "validation",
+    "quality",
+    "schemas"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

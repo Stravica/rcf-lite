@@ -1,0 +1,47 @@
+{
+  "fbsId": "FBS-006",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "CLI create and update verbs",
+  "summary": "Land the create and update verbs with validation-before-write, parent-linkage maintenance, conflict detection on create, and clear validation errors when a write is refused.",
+  "approach": "Both verbs share the validate-before-persist path. Create extends the parent's id list and writes both files only when both validate. Update advances updatedAt and refuses any write that would invalidate the document.",
+  "acIds": [
+    "AC-302-1",
+    "AC-302-2",
+    "AC-302-3",
+    "AC-303-1",
+    "AC-303-2",
+    "AC-303-3",
+    "AC-701-1",
+    "AC-701-2",
+    "AC-702-1",
+    "AC-702-2"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-002",
+      "TAC-001",
+      "TAC-007"
+    ],
+    "adrIds": [
+      "ADR-002",
+      "ADR-004"
+    ]
+  },
+  "dependencies": [
+    "FBS-005"
+  ],
+  "estimatedSize": "medium",
+  "estimatedHours": 8,
+  "deliverables": [
+    "rcf create verb with parent linkage and conflict detection",
+    "rcf update verb with safe field updates",
+    "Validation-error renderer covering both verbs"
+  ],
+  "riskLevel": "medium",
+  "domain": "crud",
+  "notes": "Cross-cutting validation criteria AC-701-1, AC-701-2, AC-702-1 and AC-702-2 land here because this is the first mutating surface.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

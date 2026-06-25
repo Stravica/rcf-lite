@@ -1,0 +1,55 @@
+{
+  "prdId": "PRD-001",
+  "productName": "RCF Build Lite",
+  "version": "0.1.0",
+  "status": "draft",
+  "executiveSummary": "RCF Build Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.",
+  "problemStatement": "Power vibe-coders build real applications without engineering teams. They cannot read code, so they cannot judge whether what an AI tool produces is trustworthy. The full RCF chain makes output trustworthy without reading code, but authoring that chain by hand is the very effort these users lack the time and discipline for. There is no tool that runs the full RCF method over in-repository documents and surfaces it through structured, deterministic operations.",
+  "targetUsers": [
+    "Power vibe-coders: product owners, founders and business voices building applications without engineering teams",
+    "AI coding tools that need a structured, deterministic surface over a project's RCF documents",
+    "Maintainers dogfooding RCF on the Build Lite repository itself"
+  ],
+  "inScope": [
+    "On-disk RCF project structure under a project rcf folder",
+    "Visual review surface rendering the whole RCF tree as a diagram and a browsable page",
+    "Deterministic create, read, update and delete on every RCF document type",
+    "Traceability and query: coverage, trace forward, trace back, impact analysis",
+    "SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge",
+    "Local stdio MCP surface exposing query, CRUD, view and build to AI tooling",
+    "Validation of every document against the published schema package at every boundary"
+  ],
+  "outOfScope": [
+    "The schema package itself, which is the separately published rcf-schemas contract",
+    "A hosted service: MCP is local stdio and the CLI is a local binary",
+    "A web application with a server, authentication or a database",
+    "Language-agnostic tooling: Build Lite is Node 24 ESM",
+    "The one-off v1 to v2 migration script, which is not a product feature",
+    "Generation of executable test code: verification artefacts accrue per implementation phase"
+  ],
+  "objectives": [
+    "Make the full RCF chain usable with minimal user effort while keeping the method full-strength",
+    "Guarantee the in-repository differentiator by operating directly on local files as the source of truth",
+    "Keep every RCF document valid against the published schemas at all times",
+    "Surface the whole tree visually so a non-coder can review what is being built in their name",
+    "Stay harness-agnostic so the tooling survives a change of AI harness"
+  ],
+  "constraints": [
+    "Node 24 ESM, plain JavaScript, no TypeScript pin",
+    "Apache 2.0 license",
+    "Depends on the published rcf-schemas package as an external contract",
+    "Local filesystem is the source of truth; no network source of truth",
+    "MCP transport is local stdio only"
+  ],
+  "requirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003",
+    "REQ-004",
+    "REQ-005",
+    "REQ-006",
+    "REQ-007"
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

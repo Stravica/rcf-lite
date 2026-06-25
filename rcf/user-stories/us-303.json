@@ -1,0 +1,40 @@
+{
+  "usId": "US-303",
+  "prdId": "PRD-001",
+  "reqId": "REQ-003",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Update fields safely",
+  "description": "A project owner or AI tool updates fields on an existing document; valid updates persist and invalid updates are refused without disturbing disk state.",
+  "asA": "project owner or AI tool",
+  "iWant": "to update fields on an existing document",
+  "soThat": "I can revise content without rewriting the whole document or risking an invalid result",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-303-1",
+      "description": "A valid update is persisted with updatedAt advanced and validates",
+      "given": "a valid field update",
+      "when": "update runs",
+      "then": "the document is rewritten with the change and its updatedAt timestamp advanced, and it validates",
+      "testable": true
+    },
+    {
+      "id": "AC-303-2",
+      "description": "An update that would invalidate the document leaves disk unchanged and returns the validation error",
+      "given": "an update that would make the document invalid",
+      "when": "update runs",
+      "then": "the document on disk is unchanged and the validation error is returned",
+      "testable": true
+    },
+    {
+      "id": "AC-303-3",
+      "description": "Updating a non-existent document returns a not-found error and writes nothing",
+      "given": "an update to a document that does not exist",
+      "when": "update runs",
+      "then": "a not-found error is returned and nothing is written",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

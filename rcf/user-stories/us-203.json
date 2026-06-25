@@ -1,0 +1,32 @@
+{
+  "usId": "US-203",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "View reflects current on-disk state",
+  "description": "A project owner regenerates the view and sees exactly what is currently on disk, never a stale snapshot.",
+  "asA": "project owner",
+  "iWant": "the view to reflect exactly what is on disk at the moment it is generated",
+  "soThat": "I never review a stale snapshot",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-203-1",
+      "description": "An edit on disk is present after the view is regenerated",
+      "given": "a document edited on disk",
+      "when": "the view is regenerated",
+      "then": "the change is present in the output",
+      "testable": true
+    },
+    {
+      "id": "AC-203-2",
+      "description": "The view is produced fresh from the on-disk tree and carries no cached prior state",
+      "given": "the view output",
+      "when": "it is generated",
+      "then": "it is produced fresh from the on-disk tree and carries no cached prior state",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

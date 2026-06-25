@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-002",
+  "prdId": "PRD-001",
+  "title": "Visual review surface",
+  "description": "Build Lite renders the whole RCF tree as a diagram and as a browsable static page, so a non-coding owner can see the documents and their links without reading any JSON. The view is read-only and generated from the on-disk tree on demand.",
+  "category": "functional",
+  "domain": "view",
+  "priority": "must",
+  "rationale": "The owner cannot review code and will not read raw JSON. A visual surface is the only way they can see and steer what is being built in their name. It is delivered first (Phase 3) so every later phase has a review surface.",
+  "tags": [
+    "view",
+    "diagram",
+    "review"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

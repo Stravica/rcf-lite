@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-002",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Validate against the published schema bundle at boundaries",
+  "context": "A non-coder cannot catch a malformed RCF document by eye, and an AI agent left unchecked can drift the document shape silently. Validation has to be a property of the tool, not a discipline of the user.",
+  "decision": "Register the published @stravica/rcf-schemas bundle once at start-up and validate every document on load and before persist. Refuse to write any document that does not validate.",
+  "consequences": "On-disk state is always valid. A small validation cost runs on every operation. The published schema package is the single source of truth for shape; local drift is impossible.",
+  "alternativesConsidered": [
+    {
+      "name": "Local copies of the schemas",
+      "summary": "Vendor the schemas into the tool repository and validate against the local copy.",
+      "reasonNotChosen": "Allows local copies to drift from the published contract; the whole point of publishing the schemas is that every consumer keys to the same version."
+    },
+    {
+      "name": "Validate only on persist",
+      "summary": "Skip validation on load to save the cost of validating documents already on disk.",
+      "reasonNotChosen": "Misses drift caused by edits made outside the tool; load validation is what makes broken trees visible to the owner."
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

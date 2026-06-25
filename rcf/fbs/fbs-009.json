@@ -1,0 +1,35 @@
+{
+  "fbsId": "FBS-009",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "Impact analysis",
+  "summary": "Land impact analysis that returns descendants on the intent chain and any FBS slots whose context references the document under inspection.",
+  "approach": "Combine the intent-chain walker with a lookup over FBS contextRequirements to surface architecture impact and FBS-slot impact in one operation. Empty results are explicit, not silent.",
+  "acIds": [
+    "AC-403-1",
+    "AC-403-2",
+    "AC-403-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-004"
+    ],
+    "adrIds": [
+      "ADR-004"
+    ]
+  },
+  "dependencies": [
+    "FBS-008"
+  ],
+  "estimatedSize": "small",
+  "estimatedHours": 4,
+  "deliverables": [
+    "Impact analysis covering intent-chain and FBS-context references"
+  ],
+  "riskLevel": "low",
+  "domain": "traceability",
+  "notes": "Impact is the only query that crosses into FBS context lookups; intent-chain traces still avoid it.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

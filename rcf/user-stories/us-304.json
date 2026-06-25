@@ -1,0 +1,40 @@
+{
+  "usId": "US-304",
+  "prdId": "PRD-001",
+  "reqId": "REQ-003",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Delete with reference safety",
+  "description": "A project owner or AI tool deletes a document and the tool refuses to silently orphan its dependants, offering a cascade flag for intentional sub-tree removal.",
+  "asA": "project owner or AI tool",
+  "iWant": "to delete a document without silently orphaning the documents that depend on it",
+  "soThat": "I cannot accidentally break the tree",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-304-1",
+      "description": "Deleting a document with dependants without the cascade flag is refused and the blocking references are listed",
+      "given": "a document with children or inbound references",
+      "when": "delete runs without a cascade flag",
+      "then": "nothing is deleted and the blocking references are listed",
+      "testable": true
+    },
+    {
+      "id": "AC-304-2",
+      "description": "Deleting with the cascade flag removes the sub-tree and cleans parent references, leaving the tree valid",
+      "given": "a document with children",
+      "when": "delete runs with a cascade flag",
+      "then": "the document and its children are removed and every parent reference to them is cleaned up, leaving the tree valid",
+      "testable": true
+    },
+    {
+      "id": "AC-304-3",
+      "description": "Deleting an unreferenced document removes the file and updates the parent id list",
+      "given": "a document with no references",
+      "when": "delete runs",
+      "then": "the file is removed and the parent id list is updated, leaving the tree valid",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

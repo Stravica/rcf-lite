@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-004",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Thin adapters over a shared core",
+  "context": "The same operations are reached from the CLI, the MCP server and the build loop. Putting behaviour in any surface guarantees drift between surfaces.",
+  "decision": "Put every behaviour in a shared core module set. The CLI, the MCP server and the build loop are thin adapters that map their surface verbs to core operations and render results. The core's internal API is the stable contract.",
+  "consequences": "One behaviour, many surfaces, no drift between how a verb behaves on the CLI versus over MCP. The adapters carry no business logic so they are small and easy to keep in step.",
+  "alternativesConsidered": [
+    {
+      "name": "Per-surface implementations",
+      "summary": "Implement each verb separately for the CLI and for MCP.",
+      "reasonNotChosen": "Guaranteed drift over time; the cost of duplication is paid forever in tests and bug reports."
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

@@ -1,0 +1,38 @@
+{
+  "fbsId": "FBS-004",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "HTML page rendering",
+  "summary": "Produce the static browsable page of the whole tree, rendering each document as a readable section and resolving inter-document links between sections.",
+  "approach": "Reuse the walker to emit a templated HTML page that opens directly in a browser with no server process. Each document gets a section with its key fields rendered as readable text; links between documents navigate by id.",
+  "acIds": [
+    "AC-202-1",
+    "AC-202-2",
+    "AC-202-3",
+    "AC-203-1",
+    "AC-203-2"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-003"
+    ],
+    "adrIds": [
+      "ADR-001"
+    ]
+  },
+  "dependencies": [
+    "FBS-002"
+  ],
+  "estimatedSize": "medium",
+  "estimatedHours": 6,
+  "deliverables": [
+    "Static HTML page covering every document",
+    "Section anchors and inter-document links"
+  ],
+  "riskLevel": "low",
+  "domain": "view",
+  "notes": "The page is generated fresh each run; no cached prior state lingers between regenerations.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

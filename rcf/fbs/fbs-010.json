@@ -1,0 +1,40 @@
+{
+  "fbsId": "FBS-010",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "Build adapter prompt assembly",
+  "summary": "Assemble the implementation prompt for a named FBS by walking its acceptance criteria, parent stories and referenced TACs and ADRs into a single markdown document; compute the dependency-respecting build order.",
+  "approach": "Reuse the walker to resolve each AC to its parent user story. Read each referenced TAC and ADR through the store. Compose a markdown document with the FBS summary and approach, the AC Given/When/Then, and the architectural context. Topologically sort the FBS dependency graph and detect cycles.",
+  "acIds": [
+    "AC-501-1",
+    "AC-501-2",
+    "AC-501-3",
+    "AC-502-1",
+    "AC-502-2",
+    "AC-502-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-005",
+      "TAC-004"
+    ],
+    "adrIds": [
+      "ADR-004"
+    ]
+  },
+  "dependencies": [
+    "FBS-008"
+  ],
+  "estimatedSize": "medium",
+  "estimatedHours": 8,
+  "deliverables": [
+    "Build prompt assembler emitting a single markdown prompt",
+    "Topological build order with parallel-safe groups and cycle detection"
+  ],
+  "riskLevel": "medium",
+  "domain": "build",
+  "notes": "The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

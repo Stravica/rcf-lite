@@ -1,0 +1,35 @@
+{
+  "fbsId": "FBS-011",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "title": "Mark-done on completion",
+  "summary": "Land the explicit rcf build done command that advances FBS execution status and the matching Build Sequence slot status, with not-found errors on unknown ids and writes scoped to status fields only.",
+  "approach": "Reuse the store to read and update both the FBS and the Build Sequence slot. Validate both documents after the status fields change. Do not touch any field outside execution status.",
+  "acIds": [
+    "AC-503-1",
+    "AC-503-2",
+    "AC-503-3"
+  ],
+  "status": "notStarted",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-005"
+    ],
+    "adrIds": [
+      "ADR-002"
+    ]
+  },
+  "dependencies": [
+    "FBS-010"
+  ],
+  "estimatedSize": "small",
+  "estimatedHours": 3,
+  "deliverables": [
+    "rcf build done command with paired status updates"
+  ],
+  "riskLevel": "low",
+  "domain": "build",
+  "notes": "Explicit-command design (not PR-watching) keeps the tool offline and harness-agnostic.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

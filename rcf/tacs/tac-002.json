@@ -1,0 +1,109 @@
+{
+  "tacId": "TAC-002",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "CLI binary",
+  "purpose": "The rcf command-line entry point. Map verbs to store, query, view or build operations and render results and errors for a terminal.",
+  "responsibilities": [
+    "Parse command-line arguments and route each verb to the matching core operation",
+    "Render results as readable terminal output by default",
+    "Honour quiet and verbose flags for scripting and diagnostics",
+    "Surface structured errors as human-readable messages with the underlying detail available"
+  ],
+  "internalStructure": "A small command router maps each verb (init, view, read, create, update, delete, coverage, trace, impact, build, validate) to a function in the store, query, view or build adapter. A formatter renders results for a terminal.",
+  "interfaces": [
+    {
+      "name": "init",
+      "kind": "command",
+      "description": "Initialise a new RCF project on disk."
+    },
+    {
+      "name": "view",
+      "kind": "command",
+      "description": "Generate the diagram and the static page."
+    },
+    {
+      "name": "read",
+      "kind": "command",
+      "description": "Read a document by id."
+    },
+    {
+      "name": "create",
+      "kind": "command",
+      "description": "Create a document with parent linkage."
+    },
+    {
+      "name": "update",
+      "kind": "command",
+      "description": "Update fields on a document."
+    },
+    {
+      "name": "delete",
+      "kind": "command",
+      "description": "Delete a document with reference safety."
+    },
+    {
+      "name": "coverage",
+      "kind": "command",
+      "description": "Report coverage gaps across the tree."
+    },
+    {
+      "name": "trace",
+      "kind": "command",
+      "description": "Trace forward or back along the intent chain."
+    },
+    {
+      "name": "impact",
+      "kind": "command",
+      "description": "Report what is affected by a document change."
+    },
+    {
+      "name": "build",
+      "kind": "command",
+      "description": "Assemble a build prompt or mark a slice done."
+    },
+    {
+      "name": "validate",
+      "kind": "command",
+      "description": "Validate every document and list broken references."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Document store",
+      "kind": "tac",
+      "tacId": "TAC-001",
+      "description": "All filesystem access goes through the store."
+    },
+    {
+      "name": "View renderer",
+      "kind": "tac",
+      "tacId": "TAC-003",
+      "description": "The view verb routes to the renderer."
+    },
+    {
+      "name": "Query engine",
+      "kind": "tac",
+      "tacId": "TAC-004",
+      "description": "The coverage, trace and impact verbs route to the query engine."
+    },
+    {
+      "name": "Build adapter",
+      "kind": "tac",
+      "tacId": "TAC-005",
+      "description": "The build verbs route to the build adapter."
+    },
+    {
+      "name": "Error and reporting",
+      "kind": "tac",
+      "tacId": "TAC-007",
+      "description": "Structured errors are rendered consistently."
+    }
+  ],
+  "tradeoffs": "A single binary keeps the install and discovery story simple; a fragmented set of binaries would be more orthogonal but is overkill for a single project.",
+  "notes": "Verbs are kept close to the spoken vocabulary of the method so a non-coder can guess the command from the document type.",
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

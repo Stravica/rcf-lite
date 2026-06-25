@@ -1,0 +1,40 @@
+{
+  "usId": "US-701",
+  "prdId": "PRD-001",
+  "reqId": "REQ-007",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Refuse invalid writes",
+  "description": "A project owner trusts that the tool refuses to write any document that does not validate, so on-disk state is always valid even when the owner cannot inspect it.",
+  "asA": "project owner",
+  "iWant": "the tool to refuse to write any document that does not validate against the schema",
+  "soThat": "what is on disk is always valid, even though I cannot check it myself",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-701-1",
+      "description": "A create or update that would produce an invalid document writes nothing",
+      "given": "any create or update that would produce an invalid document",
+      "when": "it runs",
+      "then": "nothing is written",
+      "testable": true
+    },
+    {
+      "id": "AC-701-2",
+      "description": "A successful write produces a document that validates against its schema",
+      "given": "a successful write",
+      "when": "it completes",
+      "then": "the written document validates against its schema",
+      "testable": true
+    },
+    {
+      "id": "AC-701-3",
+      "description": "Validation uses the published schema bundle registered once at start-up, not a local copy",
+      "given": "the validation step",
+      "when": "it runs",
+      "then": "it uses the published schema bundle registered once at start-up, not a local copy that could drift",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}

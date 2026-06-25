@@ -1,0 +1,40 @@
+{
+  "usId": "US-102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Load and walk the tree",
+  "description": "A project owner or an AI tool loads the whole RCF tree from on-disk files in one operation, producing a single validated in-memory view for later commands.",
+  "asA": "project owner or AI tool",
+  "iWant": "to load the whole RCF tree from the on-disk files in one operation",
+  "soThat": "every later command works against a single, validated in-memory view of the project",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-102-1",
+      "description": "Loading reads the manifest roots and resolves every child by walking parent id lists",
+      "given": "an initialised project",
+      "when": "the tree is loaded",
+      "then": "the manifest roots are read and every child is resolved by walking the parent id lists",
+      "testable": true
+    },
+    {
+      "id": "AC-102-2",
+      "description": "Missing or unparseable files are reported as structured errors and do not crash the load",
+      "given": "a document file that is missing or unparseable",
+      "when": "the tree is loaded",
+      "then": "the load reports a structured error naming the document id and the file path, and does not crash",
+      "testable": true
+    },
+    {
+      "id": "AC-102-3",
+      "description": "Broken references are reported as part of project health, not swallowed",
+      "given": "a reference to a document id that has no file",
+      "when": "the tree is loaded",
+      "then": "the broken reference is reported as part of project health, not swallowed",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-06-25T00:00:00Z",
+  "updatedAt": "2026-06-25T00:00:00Z"
+}
