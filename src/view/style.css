@@ -1,0 +1,277 @@
+/*
+ * RCF view stylesheet. Vanilla CSS, no preprocessor, no framework.
+ * Document-type colour tokens match the Mermaid classDef palette in
+ * mermaid-diagram.js so the diagram and the page agree visually.
+ */
+
+:root {
+  color-scheme: light;
+  --colour-text: #1f2937;
+  --colour-muted: #4b5563;
+  --colour-bg: #ffffff;
+  --colour-surface: #f9fafb;
+  --colour-border: #e5e7eb;
+  --colour-link: #1d4ed8;
+  --colour-broken-bg: #fee2e2;
+  --colour-broken-text: #7f1d1d;
+  --colour-broken-border: #dc2626;
+  --colour-prd: #fde68a;
+  --colour-req: #bbf7d0;
+  --colour-us: #bae6fd;
+  --colour-ac: #e0e7ff;
+  --colour-tad: #fecaca;
+  --colour-tac: #fed7aa;
+  --colour-adr: #fbcfe8;
+  --colour-bs: #ddd6fe;
+  --colour-fbs: #c7d2fe;
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.5;
+  color: var(--colour-text);
+  background: var(--colour-bg);
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+header {
+  border-bottom: 1px solid var(--colour-border);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  color: var(--colour-muted);
+  margin: 0 0 1rem;
+}
+
+nav.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+nav.toc a {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--colour-border);
+  border-radius: 4px;
+  background: var(--colour-surface);
+  text-decoration: none;
+  color: var(--colour-link);
+}
+
+nav.toc a:hover { background: #eef2ff; }
+
+main section {
+  margin-bottom: 3rem;
+}
+
+main section > h2 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid var(--colour-border);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.group-heading {
+  font-size: 1.15rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--colour-muted);
+}
+
+article.doc {
+  border: 1px solid var(--colour-border);
+  border-left-width: 5px;
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  background: var(--colour-surface);
+}
+
+article.doc h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+article.doc-prd { border-left-color: var(--colour-prd); }
+article.doc-req { border-left-color: var(--colour-req); }
+article.doc-us  { border-left-color: var(--colour-us); }
+article.doc-tad { border-left-color: var(--colour-tad); }
+article.doc-tac { border-left-color: var(--colour-tac); }
+article.doc-adr { border-left-color: var(--colour-adr); }
+article.doc-bs  { border-left-color: var(--colour-bs); }
+article.doc-fbs { border-left-color: var(--colour-fbs); }
+article.doc-ts  { border-left-color: var(--colour-ac); }
+
+article.doc p {
+  margin: 0.4rem 0;
+}
+
+article.doc h4 {
+  margin: 1rem 0 0.4rem;
+  font-size: 1rem;
+}
+
+article.doc h5 {
+  margin: 0.5rem 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.field-list {
+  margin: 0.75rem 0;
+}
+
+.field-list ul {
+  margin: 0.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.field-list dl dt {
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.field-list dl dd {
+  margin-left: 0;
+  margin-bottom: 0.25rem;
+}
+
+.acceptance-criteria .ac {
+  background: #ffffff;
+  border: 1px solid var(--colour-border);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ac-meta {
+  color: var(--colour-muted);
+  font-size: 0.875rem;
+}
+
+.ac-resolved {
+  background: #ffffff;
+  border: 1px solid var(--colour-border);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.ac-resolved.broken {
+  background: var(--colour-broken-bg);
+  border-color: var(--colour-broken-border);
+}
+
+.tc {
+  background: #ffffff;
+  border: 1px solid var(--colour-border);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.subdiagram {
+  margin: 1rem 0;
+}
+
+pre.mermaid {
+  background: #ffffff;
+  border: 1px solid var(--colour-border);
+  border-radius: 4px;
+  padding: 0.75rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+}
+
+details.raw-json {
+  margin-top: 1rem;
+}
+
+details.raw-json summary {
+  cursor: pointer;
+  color: var(--colour-link);
+  font-size: 0.875rem;
+}
+
+details.raw-json pre {
+  background: #f3f4f6;
+  padding: 0.75rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.8125rem;
+}
+
+a { color: var(--colour-link); }
+
+.broken {
+  background: var(--colour-broken-bg);
+  border: 1px solid var(--colour-broken-border);
+  color: var(--colour-broken-text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.broken ul {
+  margin: 0.25rem 0 0 1.25rem;
+}
+
+.broken-doc {
+  border-left-color: var(--colour-broken-border);
+}
+
+.tree-errors {
+  background: var(--colour-broken-bg);
+  border: 1px solid var(--colour-broken-border);
+  color: var(--colour-broken-text);
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+}
+
+.tree-errors h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  color: var(--colour-broken-text);
+  border: none;
+  padding: 0;
+}
+
+.status.notStarted { color: var(--colour-muted); }
+.status.inProgress { color: #0c4a6e; }
+.status.complete { color: #065f46; }
+.status.blocked { color: var(--colour-broken-text); }
+
+footer {
+  border-top: 1px solid var(--colour-border);
+  padding-top: 1rem;
+  color: var(--colour-muted);
+  font-size: 0.875rem;
+}
+
+code {
+  background: #f3f4f6;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.875rem;
+}
+
+@media print {
+  body { max-width: none; }
+  nav.toc { display: none; }
+  pre.mermaid { page-break-inside: avoid; }
+  article.doc { page-break-inside: avoid; }
+}

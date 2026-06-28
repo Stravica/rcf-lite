@@ -1,0 +1,235 @@
+// Project scaffolding. Creates a minimum valid rcf/ tree (manifest plus a
+// placeholder PRD, REQ, US, TAD, TAC, ADR, BS, FBS) so a fresh repo has a
+// schema-clean starting point. Every required field carries a TODO marker
+// so the owner can see what they need to fill in.
+//
+// AC-101-2: refuses to overwrite an existing project. If rcf/manifest.json
+// already exists, this function writes nothing and returns a usage error.
+//
+// The minimum-tree contents are dictated by the schemas: PRD requires at least
+// one requirementId, TAD requires at least one componentId and one ADR id,
+// BS requires at least one FBS slot, FBS requires at least one AC id, US
+// requires at least one AC. The placeholder set is the smallest tree that
+// satisfies every minItems constraint, and the renderer treats it as a
+// clean tree on subsequent walks.
+
+import { mkdir, stat, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+
+import { rcfError } from '../errors/index.js';
+
+const TIMESTAMP = '2026-01-01T00:00:00Z';
+
+function manifestTemplate(projectName) {
+  return {
+    version: '2.0.0',
+    projectName,
+    description: 'RCF project manifest. Roots are declared here; children are walked from the roots.',
+    prd: { id: 'PRD-001', path: 'prd.json' },
+    tad: { id: 'TAD-001', path: 'tad.json' },
+    bs: { id: 'BS-001', path: 'build-sequence.json' },
+  };
+}
+
+function prdTemplate(projectName) {
+  return {
+    prdId: 'PRD-001',
+    productName: projectName,
+    version: '0.1.0',
+    status: 'draft',
+    problemStatement: 'TODO: state the problem this product solves.',
+    objectives: ['TODO: add at least one objective.'],
+    requirementIds: ['REQ-001'],
+    createdAt: TIMESTAMP,
+    updatedAt: TIMESTAMP,
+  };
+}
+
+function reqTemplate() {
+  return {
+    reqId: 'REQ-001',
+    prdId: 'PRD-001',
+    title: 'TODO: name this requirement',
+    description: 'TODO: describe this requirement.',
+    category: 'functional',
+    domain: 'todo',
+    priority: 'must',
+    version: '0.1.0',
+    status: 'draft',
+    createdAt: TIMESTAMP,
+    updatedAt: TIMESTAMP,
+  };
+}
+
+function userStoryTemplate() {
+  return {
+    usId: 'US-101',
+    prdId: 'PRD-001',
+    reqId: 'REQ-001',
+    version: '0.1.0',
+    status: 'draft',
+    title: 'TODO: name this user story',
+    asA: 'TODO: name the user',
+    iWant: 'TODO: state the want',
+    soThat: 'TODO: state the value',
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'TODO: describe the first acceptance criterion',
+        testable: true,
+      },
+    ],
+    createdAt: TIMESTAMP,
+    updatedAt: TIMESTAMP,
+  };
+}
+
+function tadTemplate() {
+  return {
+    tadId: 'TAD-001',
+    prdId: 'PRD-001',
+    version: '0.1.0',
+    status: 'draft',
+    systemOverview: {
+      executiveSummary: 'TODO: one-paragraph system overview.',
+      systemPurpose: 'TODO: state the system purpose.',
+      architecturalApproach: 'TODO: state the architectural approach.',
+      keyCapabilities: ['TODO: list at least one key capability.'],
+    },
+    componentIds: ['TAC-001'],
+    architecturalDecisionIds: ['ADR-001'],
+    createdAt: TIMESTAMP,
+    updatedAt: TIMESTAMP,
+  };
+}
+
+function tacTemplate() {
+  return {
+    tacId: 'TAC-001',
+    prdId: 'PRD-001',
+    tadId: 'TAD-001',
+    version: '0.1.0',
+    status: 'draft',
+    name: 'TODO: name this component',
+    purpose: 'TODO: state the purpose of this component.',
+    responsibilities: ['TODO: list at least one responsibility.'],
+    createdAt: TIMESTAMP,
+    updatedAt: TIMESTAMP,
+  };
+}
+
+function adrTemplate() {
+  return {
+    adrId: 'ADR-001',
+    prdId: 'PRD-001',
+    tadId: 'TAD-001',
+    version: '0.1.0',
+    status: 'proposed',
+    title: 'TODO: name this architectural decision',
+    context: 'TODO: describe the context.',
+    decision: 'TODO: describe the decision.',
+    consequences: 'TODO: describe the consequences.',
+    createdAt: TIMESTAMP,
+    updatedAt: TIMESTAMP,
+  };
+}
+
+function buildSequenceTemplate() {
+  return {
+    bsId: 'BS-001',
+    prdId: 'PRD-001',
+    version: '0.1.0',
+    status: 'draft',
+    title: 'Initial build sequence',
+    buildPhilosophy: 'TODO: describe the build philosophy.',
+    generationStrategy: 'dependencyFirst',
+    fbs: [
+      { fbsId: 'FBS-001', order: 1, status: 'notStarted' },
+    ],
+    createdAt: TIMESTAMP,
+    updatedAt: TIMESTAMP,
+  };
+}
+
+function fbsTemplate() {
+  return {
+    fbsId: 'FBS-001',
+    prdId: 'PRD-001',
+    bsId: 'BS-001',
+    title: 'TODO: name this build session',
+    summary: 'TODO: describe what this build session delivers.',
+    acIds: ['AC-101-1'],
+    status: 'notStarted',
+    createdAt: TIMESTAMP,
+    updatedAt: TIMESTAMP,
+  };
+}
+
+async function exists(path) {
+  try {
+    await stat(path);
+    return true;
+  } catch (err) {
+    if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') return false;
+    throw err;
+  }
+}
+
+async function writeJson(path, data) {
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+}
+
+/**
+ * Scaffold a minimum valid rcf/ tree at `projectRoot`. Idempotent against an
+ * empty target; refuses if rcf/manifest.json already exists.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot - absolute path; created if missing
+ * @param {string} [args.projectName] - written into manifest and PRD
+ * @returns {Promise<{ created: string[] } | import('../errors/index.js').RcfError>}
+ */
+export async function initProject({ projectRoot, projectName = 'New RCF Project' }) {
+  if (typeof projectRoot !== 'string' || projectRoot.length === 0) {
+    return rcfError({
+      kind: 'usage',
+      message: 'initProject requires projectRoot',
+    });
+  }
+  const manifestPath = join(projectRoot, 'rcf', 'manifest.json');
+  if (await exists(manifestPath)) {
+    return rcfError({
+      kind: 'usage',
+      message: 'An RCF project already exists at this path (rcf/manifest.json present)',
+      filePath: 'rcf/manifest.json',
+    });
+  }
+  const dirs = [
+    'rcf',
+    'rcf/requirements',
+    'rcf/user-stories',
+    'rcf/tacs',
+    'rcf/adrs',
+    'rcf/fbs',
+  ];
+  for (const d of dirs) {
+    await mkdir(join(projectRoot, d), { recursive: true });
+  }
+
+  const files = [
+    ['rcf/manifest.json', manifestTemplate(projectName)],
+    ['rcf/prd.json', prdTemplate(projectName)],
+    ['rcf/requirements/req-001.json', reqTemplate()],
+    ['rcf/user-stories/us-101.json', userStoryTemplate()],
+    ['rcf/tad.json', tadTemplate()],
+    ['rcf/tacs/tac-001.json', tacTemplate()],
+    ['rcf/adrs/adr-001.json', adrTemplate()],
+    ['rcf/build-sequence.json', buildSequenceTemplate()],
+    ['rcf/fbs/fbs-001.json', fbsTemplate()],
+  ];
+  for (const [relPath, data] of files) {
+    await writeJson(join(projectRoot, relPath), data);
+  }
+
+  return { created: files.map(([p]) => p) };
+}

@@ -3,13 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "RCF Build Lite — CLI, MCP server, view tool, and SDD build adapter for the Requirements Confidence Framework. First consumer of @stravica/rcf-schemas.",
+  "description": "RCF Build Lite - CLI, MCP server, view tool, and SDD build adapter for the Requirements Confidence Framework. First consumer of @stravica/rcf-schemas.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=24.0.0"
   },
+  "bin": {
+    "rcf-view": "bin/rcf-view.js"
+  },
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test --test-concurrency=1 'test/**/*.test.js'",
+    "vendor": "node scripts/vendor-mermaid.mjs",
+    "rcf-view": "node bin/rcf-view.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +25,7 @@
   },
   "devDependencies": {
     "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "mermaid": "11.6.0"
   }
 }
