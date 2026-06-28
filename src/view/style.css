@@ -196,6 +196,19 @@ pre.mermaid {
   font-size: 0.875rem;
 }
 
+/*
+ * Master tree diagram is TD orientation per D13. With ~50+ doc nodes the
+ * Mermaid auto-layout produces a wide aspect ratio (11:1 on the live tree)
+ * which, when scaled to container width, collapses the vertical axis to
+ * an unreadable strip. Render the master at a fixed height so node labels
+ * remain legible; the container scrolls horizontally for very wide trees.
+ */
+#diagram pre.mermaid svg {
+  width: auto !important;
+  max-width: none !important;
+  height: 600px;
+}
+
 details.raw-json {
   margin-top: 1rem;
 }
