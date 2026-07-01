@@ -134,12 +134,18 @@ export function brokenReferenceSection(id) {
  * @param {string} args.summary - short label shown in the summary line
  * @param {string} args.className - class applied to the details wrapper
  * @param {string} args.body - the rendered body HTML
+ * @param {string} [args.status] - optional doc status, rendered as a pill
  * @returns {string}
  */
-export function detailsWrap({ id, summary, className, body }) {
+export function detailsWrap({
+  id, summary, className, body, status,
+}) {
+  const statusPill = status
+    ? `<span class="status ${escapeHtml(status)}">${escapeHtml(status)}</span>`
+    : '';
   return `
 <details class="doc-details ${className}" data-doc-id="${escapeHtml(id)}">
-  <summary>${escapeHtml(summary)}</summary>
+  <summary><span class="summary-label">${escapeHtml(summary)}</span>${statusPill}</summary>
   ${body}
 </details>`.trim();
 }
