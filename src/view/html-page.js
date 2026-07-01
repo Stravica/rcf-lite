@@ -57,6 +57,15 @@ export function renderPage(model) {
   <title>${escapeHtml(projectName)} - RCF review surface</title>
   <link rel="icon" type="image/svg+xml" href="${FAVICON_HREF}">
   <link rel="stylesheet" href="style.css">
+  <noscript>
+    <style>
+      /* Progressive enhancement per D12: no JS -> every tabpanel is
+         visible, stacked in DOM order. The tab bar becomes visual chrome
+         only (buttons do nothing) so we hide it. */
+      nav.tabs { display: none !important; }
+      section[role="tabpanel"][hidden] { display: block !important; }
+    </style>
+  </noscript>
 </head>
 <body>
   <header>

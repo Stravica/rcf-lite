@@ -50,7 +50,7 @@ test('renderPage emits a four-tab layout (D1, D2)', async () => {
     assert.match(html, new RegExp(`id="tab-${name}"`));
   }
   assert.match(html, /role="tablist"/);
-  const tabpanels = html.match(/role="tabpanel"/g) ?? [];
+  const tabpanels = html.match(/<section id="tab-\w+" role="tabpanel"/g) ?? [];
   assert.equal(tabpanels.length, 4);
 });
 
