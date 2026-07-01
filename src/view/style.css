@@ -270,6 +270,19 @@ article.doc h3 {
   letter-spacing: -0.01em;
 }
 
+/* When the article is embedded inside a doc-details wrapper, the parent
+ * details already carries the border + shadow + radius + background +
+ * coloured left accent. Strip the article's own card treatment so we
+ * don't render a card inside a card. Also hide the article's own h3 -
+ * the summary line already carries the title. */
+details.doc-details > article.doc {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  margin-bottom: 0;
+}
+
 details.doc-details > article.doc > h3 {
   display: none;
 }
