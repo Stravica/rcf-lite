@@ -2,6 +2,10 @@
  * RCF view stylesheet. Vanilla CSS, no preprocessor, no framework.
  * Document-type colour tokens match the Mermaid classDef palette in
  * mermaid-diagram.js so the diagram and the page agree visually.
+ *
+ * Phase 3.2: four-tab layout with a sticky tab bar; nested `<details>`
+ * drill-down under Requirements; max-width lifted to 1280px so wide
+ * displays are not wasted.
  */
 
 :root {
@@ -35,15 +39,14 @@ body {
   line-height: 1.5;
   color: var(--colour-text);
   background: var(--colour-bg);
-  max-width: 60rem;
+  max-width: 80rem;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 0 1.5rem 1.5rem;
 }
 
 header {
-  border-bottom: 1px solid var(--colour-border);
-  padding-bottom: 1rem;
-  margin-bottom: 2rem;
+  padding: 1.25rem 0 0;
+  margin-bottom: 1.5rem;
 }
 
 header h1 {
@@ -56,33 +59,57 @@ header h1 {
   margin: 0 0 1rem;
 }
 
-nav.toc {
+/* Sticky tab bar. Anchored to the top of the viewport once the header
+ * scrolls out. Background layered so content underneath does not bleed
+ * through. */
+nav.tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--colour-border);
+  position: sticky;
+  top: 0;
+  background: var(--colour-bg);
+  z-index: 10;
+  padding: 0.5rem 0 0;
 }
 
-nav.toc a {
-  display: inline-block;
-  padding: 0.3rem 0.6rem;
+nav.tabs button {
+  appearance: none;
   border: 1px solid var(--colour-border);
-  border-radius: 4px;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
   background: var(--colour-surface);
-  text-decoration: none;
   color: var(--colour-link);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-nav.toc a:hover { background: #eef2ff; }
-
-main section {
-  margin-bottom: 3rem;
+nav.tabs button[aria-selected="true"] {
+  background: var(--colour-bg);
+  color: var(--colour-text);
+  font-weight: 600;
+  border-bottom: 1px solid var(--colour-bg);
+  margin-bottom: -1px;
 }
 
-main section > h2 {
-  font-size: 1.5rem;
+nav.tabs button:hover { background: #eef2ff; }
+
+section[role="tabpanel"] {
+  padding-top: 1.5rem;
+}
+
+section[role="tabpanel"][hidden] {
+  display: none;
+}
+
+h2.tab-heading {
+  font-size: 1.4rem;
+  margin: 0 0 1rem;
   border-bottom: 1px solid var(--colour-border);
   padding-bottom: 0.4rem;
-  margin-bottom: 1rem;
 }
 
 .group-heading {
@@ -90,6 +117,14 @@ main section > h2 {
   margin-top: 2rem;
   margin-bottom: 1rem;
   color: var(--colour-muted);
+}
+
+.overview-diagram-wrap {
+  margin-bottom: 1.5rem;
+}
+
+pre.mermaid.overview-diagram {
+  padding: 1rem;
 }
 
 article.doc {
@@ -104,6 +139,12 @@ article.doc {
 article.doc h3 {
   margin: 0 0 0.75rem;
   font-size: 1.2rem;
+}
+
+/* When the article is embedded inside a doc-details wrapper, the summary
+ * already carries the title so the article's own h3 duplicates it. Hide it. */
+details.doc-details > article.doc > h3 {
+  display: none;
 }
 
 article.doc-prd { border-left-color: var(--colour-prd); }
@@ -149,17 +190,54 @@ article.doc h5 {
   margin-bottom: 0.25rem;
 }
 
-.acceptance-criteria .ac {
+.ac-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.ac-list .ac-item {
   background: #ffffff;
   border: 1px solid var(--colour-border);
+  border-left: 4px solid var(--colour-ac);
   border-radius: 4px;
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
 }
 
+.ac-list .ac-item p {
+  margin: 0.25rem 0;
+}
+
+.ac-list .ac-gwt p {
+  margin: 0.2rem 0;
+}
+
 .ac-meta {
   color: var(--colour-muted);
   font-size: 0.875rem;
+}
+
+.ac-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.ac-pills .ac-pill {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--colour-ac);
+  color: #3730a3;
+  text-decoration: none;
+  font-size: 0.85rem;
+  border: 1px solid #c7d2fe;
+}
+
+.ac-pills .ac-pill:hover {
+  background: #c7d2fe;
 }
 
 .ac-resolved {
@@ -196,17 +274,47 @@ pre.mermaid {
   font-size: 0.875rem;
 }
 
-/*
- * Master tree diagram is TD orientation per D13. With ~50+ doc nodes the
- * Mermaid auto-layout produces a wide aspect ratio (11:1 on the live tree)
- * which, when scaled to container width, collapses the vertical axis to
- * an unreadable strip. Render the master at a fixed height so node labels
- * remain legible; the container scrolls horizontally for very wide trees.
- */
-#diagram pre.mermaid svg {
-  width: auto !important;
-  max-width: none !important;
-  height: 600px;
+/* Doc-details: the drill-down wrapper. Closed by default (native HTML).
+ * When open, indent nested details a step so the tree structure is clear. */
+details.doc-details {
+  border: 1px solid var(--colour-border);
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  background: var(--colour-surface);
+}
+
+details.doc-details > summary {
+  cursor: pointer;
+  padding: 0.6rem 0.9rem;
+  font-weight: 500;
+  list-style-position: inside;
+}
+
+details.doc-details[open] > summary {
+  border-bottom: 1px solid var(--colour-border);
+}
+
+details.doc-details > article,
+details.doc-details > section,
+details.doc-details > .req-body,
+details.doc-details > .us-body {
+  padding: 0.75rem 1rem;
+}
+
+details.doc-details.doc-req-wrap { border-left: 4px solid var(--colour-req); }
+details.doc-details.doc-us-wrap { border-left: 4px solid var(--colour-us); }
+details.doc-details.doc-tac-wrap { border-left: 4px solid var(--colour-tac); }
+details.doc-details.doc-adr-wrap { border-left: 4px solid var(--colour-adr); }
+details.doc-details.doc-fbs-wrap { border-left: 4px solid var(--colour-fbs); }
+details.doc-details.doc-ts-wrap { border-left: 4px solid var(--colour-ac); }
+
+.nested-details {
+  margin-left: 1rem;
+}
+
+.nested-details > h4 {
+  margin: 0.5rem 0 0.5rem;
+  color: var(--colour-muted);
 }
 
 details.raw-json {
@@ -271,6 +379,7 @@ a { color: var(--colour-link); }
 footer {
   border-top: 1px solid var(--colour-border);
   padding-top: 1rem;
+  margin-top: 2rem;
   color: var(--colour-muted);
   font-size: 0.875rem;
 }
@@ -284,7 +393,10 @@ code {
 
 @media print {
   body { max-width: none; }
-  nav.toc { display: none; }
+  nav.tabs { display: none; }
+  section[role="tabpanel"][hidden] { display: block !important; }
   pre.mermaid { page-break-inside: avoid; }
   article.doc { page-break-inside: avoid; }
+  details.doc-details { break-inside: avoid; }
+  details.doc-details[open] > summary { border: none; }
 }
