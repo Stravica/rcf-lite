@@ -12,7 +12,7 @@
     "AC-203-1",
     "AC-203-2"
   ],
-  "status": "notStarted",
+  "status": "complete",
   "contextRequirements": {
     "tacIds": [
       "TAC-003"

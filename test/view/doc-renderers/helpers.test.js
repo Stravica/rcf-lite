@@ -98,11 +98,11 @@ test('detailsWrap emits a data-doc-id details block with summary and body', () =
   assert.match(out, /^<details/);
   assert.match(out, /data-doc-id="REQ-001"/);
   assert.match(out, /class="doc-details doc-req-wrap"/);
-  assert.match(out, /<summary>REQ-001 - Title<\/summary>/);
+  assert.match(out, /<summary><span class="summary-label">REQ-001 - Title<\/span><\/summary>/);
   assert.match(out, /<p>b<\/p>/);
 });
 
 test('detailsWrap escapes the summary text', () => {
   const out = detailsWrap({ id: 'X', summary: '<b>xss</b>', className: 'x', body: '' });
-  assert.match(out, /<summary>&lt;b&gt;xss&lt;\/b&gt;<\/summary>/);
+  assert.match(out, /<summary><span class="summary-label">&lt;b&gt;xss&lt;\/b&gt;<\/span><\/summary>/);
 });

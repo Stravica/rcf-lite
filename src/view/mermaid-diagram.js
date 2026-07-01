@@ -185,7 +185,10 @@ export function requirementSubdiagram(model, req) {
       const fbsList = model.fbsByAcId.get(ac.id) ?? [];
       for (const f of fbsList) {
         declare(f.fbsId);
-        lines.push(`  ${nodeId(f.fbsId)} -.->|delivers| ${nodeId(ac.id)}`);
+        // Edge direction reversed so LR layout places FBS to the right of
+        // its AC (reads "AC ... delivered by ... FBS"). Same relationship
+        // as the old FBS->AC edge; just laid out more naturally.
+        lines.push(`  ${nodeId(ac.id)} -.->|delivered by| ${nodeId(f.fbsId)}`);
       }
     }
   }

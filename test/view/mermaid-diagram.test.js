@@ -117,7 +117,7 @@ test('requirementSubdiagram carries chain edges and delivers back-links', async 
   const src = requirementSubdiagram(model, req);
   assert.match(src, /REQ-002 --> US-201/);
   assert.match(src, /US-201 --> AC-201-1/);
-  assert.match(src, /FBS-003 -\.->\|delivers\| AC-201-1/);
+  assert.match(src, /AC-201-1 -\.->\|delivered by\| FBS-003/);
   // Does NOT contain a different REQ's children.
   assert.doesNotMatch(src, /US-101/);
 });

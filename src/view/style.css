@@ -3,102 +3,191 @@
  * Document-type colour tokens match the Mermaid classDef palette in
  * mermaid-diagram.js so the diagram and the page agree visually.
  *
- * Phase 3.2: four-tab layout with a sticky tab bar; nested `<details>`
- * drill-down under Requirements; max-width lifted to 1280px so wide
- * displays are not wasted.
+ * Phase 3.3 polish: warmer surface palette, subtle card shadows + hover,
+ * sticky tab bar with backdrop-blur, indigo accent, wider spacing rhythm,
+ * refined typography stack. Same information density; nicer to look at.
  */
 
 :root {
   color-scheme: light;
-  --colour-text: #1f2937;
-  --colour-muted: #4b5563;
-  --colour-bg: #ffffff;
-  --colour-surface: #f9fafb;
-  --colour-border: #e5e7eb;
-  --colour-link: #1d4ed8;
+
+  /* Neutrals - slightly warmer than pure greys */
+  --colour-text: #0f172a;
+  --colour-heading: #0b1220;
+  --colour-muted: #6b7280;
+  --colour-subtle: #94a3b8;
+  --colour-bg: #fdfdfd;
+  --colour-surface: #f7f8fa;
+  --colour-surface-2: #eef1f6;
+  --colour-border: #e4e7ec;
+  --colour-border-strong: #cbd5e1;
+
+  /* Accent - indigo. Distinctive but professional. */
+  --colour-accent: #4f46e5;
+  --colour-accent-hover: #4338ca;
+  --colour-accent-subtle: #eef2ff;
+  --colour-link: var(--colour-accent);
+
+  /* Error / broken states */
   --colour-broken-bg: #fee2e2;
   --colour-broken-text: #7f1d1d;
   --colour-broken-border: #dc2626;
+
+  /* Doc-type palette - kept in sync with mermaid classDef */
   --colour-prd: #fde68a;
   --colour-req: #bbf7d0;
-  --colour-us: #bae6fd;
-  --colour-ac: #e0e7ff;
+  --colour-us:  #bae6fd;
+  --colour-ac:  #e0e7ff;
   --colour-tad: #fecaca;
   --colour-tac: #fed7aa;
   --colour-adr: #fbcfe8;
-  --colour-bs: #ddd6fe;
+  --colour-bs:  #ddd6fe;
   --colour-fbs: #c7d2fe;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 4px 10px rgba(15, 23, 42, 0.05), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.04);
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Transitions */
+  --t-fast: 120ms ease;
+  --t-med:  180ms ease;
 }
 
 * { box-sizing: border-box; }
 
-html { font-size: 16px; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  line-height: 1.5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
+  line-height: 1.55;
   color: var(--colour-text);
   background: var(--colour-bg);
   max-width: 80rem;
   margin: 0 auto;
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 2rem 3rem;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
+/* --------------------------------------------------------------------
+ * Header
+ * -------------------------------------------------------------------- */
+
 header {
-  padding: 1.25rem 0 0;
-  margin-bottom: 1.5rem;
+  padding: 2rem 0 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 header h1 {
-  margin: 0 0 0.25rem;
-  font-size: 1.75rem;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--colour-heading);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Small brand chip alongside the project name so the page has a bit of
+ * identity beyond the favicon. */
+header h1::before {
+  content: 'RCF';
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  background: var(--colour-accent);
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
 }
 
 .subtitle {
   color: var(--colour-muted);
-  margin: 0 0 1rem;
+  margin: 0;
+  font-size: 0.95rem;
 }
 
-/* Sticky tab bar. Anchored to the top of the viewport once the header
- * scrolls out. Background layered so content underneath does not bleed
- * through. */
+/* --------------------------------------------------------------------
+ * Tab bar (sticky, blurred backdrop)
+ * -------------------------------------------------------------------- */
+
 nav.tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
-  border-bottom: 1px solid var(--colour-border);
+  padding: 0.5rem 0.5rem 0;
   position: sticky;
   top: 0;
-  background: var(--colour-bg);
   z-index: 10;
-  padding: 0.5rem 0 0;
+  background: rgba(253, 253, 253, 0.85);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--colour-border);
+  margin: 0 -0.5rem;
 }
 
 nav.tabs button {
   appearance: none;
-  border: 1px solid var(--colour-border);
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
-  background: var(--colour-surface);
-  color: var(--colour-link);
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: transparent;
+  color: var(--colour-muted);
+  padding: 0.6rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
   font-family: inherit;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  margin-bottom: -1px;
+  position: relative;
+}
+
+nav.tabs button:hover {
+  background: var(--colour-accent-subtle);
+  color: var(--colour-accent-hover);
 }
 
 nav.tabs button[aria-selected="true"] {
   background: var(--colour-bg);
-  color: var(--colour-text);
+  color: var(--colour-heading);
   font-weight: 600;
-  border-bottom: 1px solid var(--colour-bg);
-  margin-bottom: -1px;
+  border-color: var(--colour-border);
+  border-bottom-color: var(--colour-bg);
 }
 
-nav.tabs button:hover { background: #eef2ff; }
+nav.tabs button[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  bottom: -1px;
+  height: 2px;
+  background: var(--colour-accent);
+  border-radius: 2px;
+}
+
+nav.tabs button:focus-visible {
+  outline: 2px solid var(--colour-accent);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------
+ * Panels + section headings
+ * -------------------------------------------------------------------- */
 
 section[role="tabpanel"] {
-  padding-top: 1.5rem;
+  padding-top: 2rem;
 }
 
 section[role="tabpanel"][hidden] {
@@ -106,43 +195,81 @@ section[role="tabpanel"][hidden] {
 }
 
 h2.tab-heading {
-  font-size: 1.4rem;
-  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--colour-heading);
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--colour-border);
-  padding-bottom: 0.4rem;
+  position: relative;
+}
+
+h2.tab-heading::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 3rem;
+  height: 2px;
+  background: var(--colour-accent);
+  border-radius: 2px;
 }
 
 .group-heading {
-  font-size: 1.15rem;
-  margin-top: 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 2.25rem;
   margin-bottom: 1rem;
-  color: var(--colour-muted);
+  color: var(--colour-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8rem;
 }
 
+/* --------------------------------------------------------------------
+ * Overview diagram
+ * -------------------------------------------------------------------- */
+
 .overview-diagram-wrap {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--colour-surface);
+  border: 1px solid var(--colour-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 pre.mermaid.overview-diagram {
-  padding: 1rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
+
+/* --------------------------------------------------------------------
+ * Doc article - the rendered doc body inside a card
+ * -------------------------------------------------------------------- */
 
 article.doc {
   border: 1px solid var(--colour-border);
   border-left-width: 5px;
-  padding: 1rem 1.25rem;
-  border-radius: 6px;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
-  background: var(--colour-surface);
+  background: var(--colour-bg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--t-med), transform var(--t-med);
 }
 
 article.doc h3 {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.85rem;
   font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--colour-heading);
+  letter-spacing: -0.01em;
 }
 
-/* When the article is embedded inside a doc-details wrapper, the summary
- * already carries the title so the article's own h3 duplicates it. Hide it. */
 details.doc-details > article.doc > h3 {
   display: none;
 }
@@ -157,94 +284,68 @@ article.doc-bs  { border-left-color: var(--colour-bs); }
 article.doc-fbs { border-left-color: var(--colour-fbs); }
 article.doc-ts  { border-left-color: var(--colour-ac); }
 
-article.doc p {
-  margin: 0.4rem 0;
-}
+article.doc p { margin: 0.45rem 0; }
+article.doc h4 { margin: 1.1rem 0 0.45rem; font-size: 1rem; font-weight: 600; color: var(--colour-heading); }
+article.doc h5 { margin: 0.6rem 0 0.3rem; font-size: 0.925rem; font-weight: 600; color: var(--colour-heading); }
 
-article.doc h4 {
-  margin: 1rem 0 0.4rem;
-  font-size: 1rem;
-}
+.field-list { margin: 0.85rem 0; }
+.field-list ul { margin: 0.3rem 0; padding-left: 1.5rem; }
+.field-list ul li { margin: 0.2rem 0; }
+.field-list dl dt { font-weight: 600; margin-top: 0.5rem; color: var(--colour-heading); }
+.field-list dl dd { margin-left: 0; margin-bottom: 0.35rem; }
 
-article.doc h5 {
-  margin: 0.5rem 0 0.25rem;
-  font-size: 0.95rem;
-}
+/* --------------------------------------------------------------------
+ * Acceptance criteria list (inside a US)
+ * -------------------------------------------------------------------- */
 
-.field-list {
-  margin: 0.75rem 0;
-}
-
-.field-list ul {
-  margin: 0.25rem 0;
-  padding-left: 1.5rem;
-}
-
-.field-list dl dt {
-  font-weight: bold;
-  margin-top: 0.5rem;
-}
-
-.field-list dl dd {
-  margin-left: 0;
-  margin-bottom: 0.25rem;
-}
-
-.ac-list {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
-}
+.ac-list { list-style: none; padding-left: 0; margin: 0; }
 
 .ac-list .ac-item {
-  background: #ffffff;
+  background: var(--colour-bg);
   border: 1px solid var(--colour-border);
   border-left: 4px solid var(--colour-ac);
-  border-radius: 4px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1.1rem;
+  margin-bottom: 0.6rem;
+  box-shadow: var(--shadow-sm);
 }
 
-.ac-list .ac-item p {
-  margin: 0.25rem 0;
-}
+.ac-list .ac-item p { margin: 0.3rem 0; }
+.ac-list .ac-gwt p { margin: 0.2rem 0; }
+.ac-meta { color: var(--colour-muted); font-size: 0.875rem; }
 
-.ac-list .ac-gwt p {
-  margin: 0.2rem 0;
-}
-
-.ac-meta {
-  color: var(--colour-muted);
-  font-size: 0.875rem;
-}
-
+/* AC pills (used in FBS -> AC nav on the Build tab) */
 .ac-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  margin: 0.5rem 0 0.75rem;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0.85rem;
 }
 
 .ac-pills .ac-pill {
   display: inline-block;
-  padding: 0.15rem 0.55rem;
+  padding: 0.22rem 0.7rem;
   border-radius: 999px;
   background: var(--colour-ac);
   color: #3730a3;
   text-decoration: none;
   font-size: 0.85rem;
+  font-weight: 500;
   border: 1px solid #c7d2fe;
+  transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
 }
 
 .ac-pills .ac-pill:hover {
   background: #c7d2fe;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .ac-resolved {
-  background: #ffffff;
+  background: var(--colour-bg);
   border: 1px solid var(--colour-border);
-  border-radius: 4px;
-  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.85rem;
   margin-bottom: 0.5rem;
 }
 
@@ -254,43 +355,109 @@ article.doc h5 {
 }
 
 .tc {
-  background: #ffffff;
+  background: var(--colour-bg);
   border: 1px solid var(--colour-border);
-  border-radius: 4px;
-  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.85rem;
   margin-bottom: 0.5rem;
 }
 
+/* --------------------------------------------------------------------
+ * Subdiagram (per-REQ, shown inside an expanded REQ)
+ * -------------------------------------------------------------------- */
+
 .subdiagram {
-  margin: 1rem 0;
+  margin: 1.25rem 0;
+  padding: 0.85rem;
+  background: var(--colour-surface);
+  border: 1px solid var(--colour-border);
+  border-radius: var(--radius-md);
 }
 
 pre.mermaid {
-  background: #ffffff;
-  border: 1px solid var(--colour-border);
-  border-radius: 4px;
-  padding: 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0;
   overflow-x: auto;
   font-size: 0.875rem;
+  margin: 0;
 }
 
-/* Doc-details: the drill-down wrapper. Closed by default (native HTML).
- * When open, indent nested details a step so the tree structure is clear. */
+/* --------------------------------------------------------------------
+ * Details drill-down wrappers (REQ / US / TAC / ADR / FBS / TS)
+ * -------------------------------------------------------------------- */
+
 details.doc-details {
   border: 1px solid var(--colour-border);
-  border-radius: 6px;
-  margin-bottom: 0.75rem;
-  background: var(--colour-surface);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.85rem;
+  background: var(--colour-bg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--t-med), border-color var(--t-med);
+}
+
+details.doc-details:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--colour-border-strong);
+}
+
+details.doc-details[open] {
+  box-shadow: var(--shadow-md);
 }
 
 details.doc-details > summary {
   cursor: pointer;
-  padding: 0.6rem 0.9rem;
+  padding: 0.75rem 1rem;
   font-weight: 500;
-  list-style-position: inside;
+  color: var(--colour-heading);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: var(--radius-md);
+  transition: background var(--t-fast);
+}
+
+details.doc-details > summary > .summary-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+details.doc-details > summary > .status {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+details.doc-details > summary:hover {
+  background: var(--colour-surface);
+}
+
+details.doc-details > summary::-webkit-details-marker { display: none; }
+
+/* Custom chevron */
+details.doc-details > summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-right: 2px solid var(--colour-muted);
+  border-bottom: 2px solid var(--colour-muted);
+  transform: rotate(-45deg);
+  transition: transform var(--t-fast);
+  flex-shrink: 0;
+  margin-right: 0.15rem;
+}
+
+details.doc-details[open] > summary::before {
+  transform: rotate(45deg);
 }
 
 details.doc-details[open] > summary {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
   border-bottom: 1px solid var(--colour-border);
 }
 
@@ -298,56 +465,152 @@ details.doc-details > article,
 details.doc-details > section,
 details.doc-details > .req-body,
 details.doc-details > .us-body {
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
 }
 
 details.doc-details.doc-req-wrap { border-left: 4px solid var(--colour-req); }
-details.doc-details.doc-us-wrap { border-left: 4px solid var(--colour-us); }
+details.doc-details.doc-us-wrap  { border-left: 4px solid var(--colour-us); }
 details.doc-details.doc-tac-wrap { border-left: 4px solid var(--colour-tac); }
 details.doc-details.doc-adr-wrap { border-left: 4px solid var(--colour-adr); }
 details.doc-details.doc-fbs-wrap { border-left: 4px solid var(--colour-fbs); }
-details.doc-details.doc-ts-wrap { border-left: 4px solid var(--colour-ac); }
+details.doc-details.doc-ts-wrap  { border-left: 4px solid var(--colour-ac); }
 
 .nested-details {
-  margin-left: 1rem;
+  margin: 0 1rem 1rem;
 }
 
 .nested-details > h4 {
-  margin: 0.5rem 0 0.5rem;
+  margin: 0.75rem 0 0.6rem;
   color: var(--colour-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
+/* Raw-JSON disclosure (dev-facing, quiet) */
 details.raw-json {
   margin-top: 1rem;
+  border-top: 1px dashed var(--colour-border);
+  padding-top: 0.75rem;
 }
 
 details.raw-json summary {
   cursor: pointer;
-  color: var(--colour-link);
-  font-size: 0.875rem;
+  color: var(--colour-muted);
+  font-size: 0.8125rem;
+  padding: 0.15rem 0;
 }
+
+details.raw-json summary:hover { color: var(--colour-accent); }
 
 details.raw-json pre {
-  background: #f3f4f6;
-  padding: 0.75rem;
-  border-radius: 4px;
+  background: var(--colour-surface-2);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
   overflow-x: auto;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--colour-border);
+  margin-top: 0.5rem;
 }
 
-a { color: var(--colour-link); }
+/* --------------------------------------------------------------------
+ * Links, code, status pills, broken states
+ * -------------------------------------------------------------------- */
 
+a {
+  color: var(--colour-link);
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+
+a:hover {
+  color: var(--colour-accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+code {
+  background: var(--colour-surface-2);
+  padding: 0.12rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #3730a3;
+}
+
+/* Status pill (compact, coloured by status) */
+.status {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+}
+
+.status.notStarted {
+  color: var(--colour-muted);
+  background: var(--colour-surface-2);
+  border-color: var(--colour-border);
+}
+
+.status.inProgress {
+  color: #0c4a6e;
+  background: #e0f2fe;
+  border-color: #bae6fd;
+}
+
+.status.complete {
+  color: #065f46;
+  background: #d1fae5;
+  border-color: #a7f3d0;
+}
+
+.status.verified {
+  color: #14532d;
+  background: #bbf7d0;
+  border-color: #86efac;
+}
+
+.status.blocked {
+  color: var(--colour-broken-text);
+  background: var(--colour-broken-bg);
+  border-color: var(--colour-broken-border);
+}
+
+.status.draft,
+.status.review,
+.status.needsRevision,
+.status.approved,
+.status.superseded,
+.status.deprecated,
+.status.proposed,
+.status.accepted {
+  color: var(--colour-muted);
+  background: var(--colour-surface-2);
+  border-color: var(--colour-border);
+}
+
+.status.approved,
+.status.accepted { color: #065f46; background: #d1fae5; border-color: #a7f3d0; }
+.status.deprecated,
+.status.superseded { color: var(--colour-muted); background: var(--colour-surface); border-color: var(--colour-border); }
+
+/* Broken doc / tree error banner */
 .broken {
   background: var(--colour-broken-bg);
   border: 1px solid var(--colour-broken-border);
   color: var(--colour-broken-text);
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.85rem;
 }
 
 .broken ul {
-  margin: 0.25rem 0 0 1.25rem;
+  margin: 0.3rem 0 0 1.35rem;
 }
 
 .broken-doc {
@@ -358,45 +621,60 @@ a { color: var(--colour-link); }
   background: var(--colour-broken-bg);
   border: 1px solid var(--colour-broken-border);
   color: var(--colour-broken-text);
-  padding: 1rem 1.25rem;
-  border-radius: 6px;
+  padding: 1.1rem 1.35rem;
+  border-radius: var(--radius-md);
   margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .tree-errors h2 {
   margin: 0 0 0.5rem;
   font-size: 1.15rem;
+  font-weight: 700;
   color: var(--colour-broken-text);
   border: none;
   padding: 0;
 }
 
-.status.notStarted { color: var(--colour-muted); }
-.status.inProgress { color: #0c4a6e; }
-.status.complete { color: #065f46; }
-.status.blocked { color: var(--colour-broken-text); }
+/* --------------------------------------------------------------------
+ * Footer
+ * -------------------------------------------------------------------- */
 
 footer {
   border-top: 1px solid var(--colour-border);
-  padding-top: 1rem;
-  margin-top: 2rem;
+  padding-top: 1.25rem;
+  margin-top: 3rem;
   color: var(--colour-muted);
-  font-size: 0.875rem;
+  font-size: 0.85rem;
 }
 
-code {
-  background: #f3f4f6;
-  padding: 0.1rem 0.3rem;
-  border-radius: 3px;
-  font-size: 0.875rem;
-}
+/* --------------------------------------------------------------------
+ * Print
+ * -------------------------------------------------------------------- */
 
 @media print {
-  body { max-width: none; }
+  body { max-width: none; padding: 0; }
   nav.tabs { display: none; }
   section[role="tabpanel"][hidden] { display: block !important; }
   pre.mermaid { page-break-inside: avoid; }
-  article.doc { page-break-inside: avoid; }
-  details.doc-details { break-inside: avoid; }
+  article.doc { page-break-inside: avoid; box-shadow: none; }
+  details.doc-details { break-inside: avoid; box-shadow: none; }
   details.doc-details[open] > summary { border: none; }
+  header h1::before { display: none; }
+}
+
+/* --------------------------------------------------------------------
+ * Responsive
+ * -------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  body { padding: 0 1rem 2rem; }
+  header h1 { font-size: 1.55rem; }
+  nav.tabs button { padding: 0.5rem 0.8rem; font-size: 0.9rem; }
+  article.doc { padding: 1rem 1.15rem; }
+  details.doc-details > article,
+  details.doc-details > section,
+  details.doc-details > .req-body,
+  details.doc-details > .us-body { padding: 0.75rem 1rem; }
+  .overview-diagram-wrap { padding: 1rem; }
 }

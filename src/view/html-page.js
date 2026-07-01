@@ -128,6 +128,7 @@ function renderRequirementsPanel(model, subdiagrams) {
       id: u.usId,
       summary: `${u.usId} - ${u.title ?? ''}`,
       className: 'doc-us-wrap',
+      status: u.status,
       body: renderUserStory(u, {
         raw: model.rawById.get(u.usId),
         errors: model.errorsById.get(u.usId),
@@ -141,6 +142,7 @@ function renderRequirementsPanel(model, subdiagrams) {
       id: r.reqId,
       summary: `${r.reqId} - ${r.title ?? ''}`,
       className: 'doc-req-wrap',
+      status: r.status,
       body: `${reqBody}\n${storiesSection}`,
     });
   }).join('\n');
@@ -151,6 +153,7 @@ function renderRequirementsPanel(model, subdiagrams) {
       id: u.usId,
       summary: `${u.usId} - ${u.title ?? ''}`,
       className: 'doc-us-wrap',
+      status: u.status,
       body: renderUserStory(u, {
         raw: model.rawById.get(u.usId),
         errors: model.errorsById.get(u.usId),
@@ -174,6 +177,7 @@ function renderArchitecturePanel(model) {
     id: t.tacId,
     summary: `${t.tacId} - ${t.name ?? ''}`,
     className: 'doc-tac-wrap',
+    status: t.status,
     body: renderTac(t, {
       raw: model.rawById.get(t.tacId),
       errors: model.errorsById.get(t.tacId),
@@ -184,6 +188,7 @@ function renderArchitecturePanel(model) {
     id: a.adrId,
     summary: `${a.adrId} - ${a.title ?? ''}`,
     className: 'doc-adr-wrap',
+    status: a.status,
     body: renderAdr(a, {
       raw: model.rawById.get(a.adrId),
       errors: model.errorsById.get(a.adrId),
@@ -211,6 +216,7 @@ function renderBuildPanel(model) {
     id: f.fbsId,
     summary: `${f.fbsId} - ${f.title ?? ''}`,
     className: 'doc-fbs-wrap',
+    status: f.status,
     body: renderFbs(f, {
       raw: model.rawById.get(f.fbsId),
       errors: model.errorsById.get(f.fbsId),

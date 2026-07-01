@@ -10,7 +10,7 @@
     "AC-101-2",
     "AC-101-3"
   ],
-  "status": "notStarted",
+  "status": "complete",
   "contextRequirements": {
     "tadSections": [
       "systemOverview",

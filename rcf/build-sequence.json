@@ -10,25 +10,25 @@
     {
       "fbsId": "FBS-001",
       "order": 1,
-      "status": "notStarted",
+      "status": "complete",
       "notes": "Document store core; everything depends on this."
     },
     {
       "fbsId": "FBS-002",
       "order": 2,
-      "status": "notStarted",
+      "status": "complete",
       "notes": "Tree walk and validate command."
     },
     {
       "fbsId": "FBS-003",
       "order": 3,
-      "status": "notStarted",
+      "status": "complete",
       "notes": "Diagram rendering."
     },
     {
       "fbsId": "FBS-004",
       "order": 4,
-      "status": "notStarted",
+      "status": "complete",
       "notes": "HTML page rendering."
     },
     {

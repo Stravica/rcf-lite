@@ -69,8 +69,8 @@ test('rendered overview diagram contains the PRD->REQ chain from the live tree',
   assert.match(html, /PRD-001 -\.-&gt; TAD-001/);
 });
 
-test('rendered per-REQ subdiagrams contain FBS -> AC delivers edges', async () => {
+test('rendered per-REQ subdiagrams contain AC -> FBS delivered-by edges', async () => {
   await renderView({ projectRoot: repoRoot });
   const html = await readFile(join(repoRoot, '.rcf-view', 'index.html'), 'utf8');
-  assert.match(html, /FBS-003 -\.-&gt;\|delivers\| AC-201-1/);
+  assert.match(html, /AC-201-1 -\.-&gt;\|delivered by\| FBS-003/);
 });
