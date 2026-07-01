@@ -1,9 +1,12 @@
-// Assembles index.html from doc-renderer output, the overview Mermaid block
-// and the per-REQ subdiagrams. Phase 3.2 emits a four-tab layout
-// (Overview, Requirements, Architecture, Build sequence) plus nested
-// `<details>` drill-down under Requirements. Client-side tabs and hash
-// routing are wired by an inline script at the end of `<body>`; if JS is
-// unavailable, every tabpanel is visible in DOM order (D12).
+// Assembles index.html from doc-renderer output and the per-REQ Mermaid
+// subdiagrams. Phase 3.2 introduced the four-tab layout (Overview,
+// Requirements, Architecture, Build sequence) plus nested `<details>`
+// drill-down under Requirements. Phase 3.6 dropped the top-of-overview
+// diagram - it was redundant with the PRD body's requirementIds list
+// and unwieldy past ~15 REQs. Overview tab now renders the PRD body
+// only. Client-side tabs + hash routing are wired by an inline script
+// at the end of `<body>`; if JS is unavailable, every tabpanel is
+// visible in DOM order (D12).
 
 import {
   renderAdr,
@@ -17,7 +20,7 @@ import {
   renderUserStory,
 } from './doc-renderers/index.js';
 import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
-import { allRequirementSubdiagrams, overviewDiagram } from './mermaid-diagram.js';
+import { allRequirementSubdiagrams } from './mermaid-diagram.js';
 
 // Inline SVG favicon: the Stravica monogram (terracotta rounded-square with
 // cream serif S), pinched from stravica.ai/assets/brand/logo-monogram.svg
@@ -34,7 +37,6 @@ const FAVICON_HREF =
  */
 export function renderPage(model) {
   const projectName = model.manifest?.projectName ?? model.prd?.productName ?? 'RCF project';
-  const overview = overviewDiagram(model);
   const subdiagrams = allRequirementSubdiagrams(model);
 
   const prdSection = model.prd
@@ -84,10 +86,6 @@ export function renderPage(model) {
     ${errorBanner}
     <section id="tab-overview" role="tabpanel" aria-labelledby="tab-overview-button">
       <h2 class="tab-heading">Overview</h2>
-      <div class="overview-diagram-wrap">
-        <pre class="mermaid overview-diagram">${escapeHtml(overview)}</pre>
-        <noscript><p><em>Overview diagram requires JavaScript to render. The document sections below are still usable.</em></p></noscript>
-      </div>
       <div class="prd-body">
         ${prdSection}
       </div>

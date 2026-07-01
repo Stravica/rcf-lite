@@ -112,19 +112,11 @@ test('inline script lazy-renders Mermaid on tab activation (D3, hidden-tab NaN f
   assert.match(html, /window\.mermaid\.run\(\{ nodes:/);
 });
 
-test('overview diagram carries click bindings whose hrefs use raw doc ids', async () => {
+test('per-REQ subdiagrams carry click bindings whose hrefs use raw doc ids', async () => {
   const { html } = await renderLive();
-  assert.match(html, /click PRD-001 &quot;#PRD-001&quot;/);
+  // With the top-of-overview diagram dropped in Phase 3.6, per-REQ subdiagrams
+  // are where click bindings now live. REQ-002's subdiagram covers US-201 and AC-201-1.
   assert.match(html, /click REQ-002 &quot;#REQ-002&quot;/);
-});
-
-test('overview diagram is orders-of-magnitude smaller than the tree (D3)', async () => {
-  const { model } = await renderLive();
-  const totalDocs = 1 + model.requirements.length + model.userStories.length + model.tacs.length
-    + model.adrs.length + model.fbsItems.length + 1 + 1;
-  const { overviewDiagram } = await import('../../src/view/mermaid-diagram.js');
-  const src = overviewDiagram(model);
-  const overviewNodes = src.split('\n').filter((l) => /^ {2}[A-Z]+-[\w-]+\[/.test(l)).length;
-  // Sanity: overview is at least 3x smaller than the full doc set.
-  assert.ok(overviewNodes * 3 <= totalDocs, `overview has ${overviewNodes} nodes vs ${totalDocs} docs`);
+  assert.match(html, /click US-201 &quot;#US-201&quot;/);
+  assert.match(html, /click AC-201-1 &quot;#AC-201-1&quot;/);
 });

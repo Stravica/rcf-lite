@@ -62,13 +62,6 @@ test('rendered index.html carries a hash anchor for every document in the live t
   }
 });
 
-test('rendered overview diagram contains the PRD->REQ chain from the live tree', async () => {
-  await renderView({ projectRoot: repoRoot });
-  const html = await readFile(join(repoRoot, '.rcf-view', 'index.html'), 'utf8');
-  assert.match(html, /PRD-001 --&gt; REQ-002/);
-  assert.match(html, /PRD-001 -\.-&gt; TAD-001/);
-});
-
 test('rendered per-REQ subdiagrams contain AC -> FBS delivered-by edges', async () => {
   await renderView({ projectRoot: repoRoot });
   const html = await readFile(join(repoRoot, '.rcf-view', 'index.html'), 'utf8');

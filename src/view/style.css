@@ -233,22 +233,6 @@ h2.tab-heading::before {
  * Overview diagram
  * -------------------------------------------------------------------- */
 
-.overview-diagram-wrap {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: var(--colour-surface);
-  border: 1px solid var(--colour-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-}
-
-pre.mermaid.overview-diagram {
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-
 /* --------------------------------------------------------------------
  * Doc article - the rendered doc body inside a card
  * -------------------------------------------------------------------- */
@@ -746,5 +730,4 @@ footer {
   details.doc-details > section,
   details.doc-details > .req-body,
   details.doc-details > .us-body { padding: 0.75rem 1rem; }
-  .overview-diagram-wrap { padding: 1rem; }
 }

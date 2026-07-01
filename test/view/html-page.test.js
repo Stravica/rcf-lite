@@ -20,13 +20,13 @@ test('renderPage emits a valid HTML5 document (AC-202-1)', async () => {
   assert.match(html, /<\/html>\s*$/);
 });
 
-test('renderPage includes the overview Mermaid block and per-REQ subdiagrams', async () => {
+test('renderPage includes one Mermaid block per requirement (per-REQ subdiagrams)', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  // 1 overview + N per-REQ subdiagrams (one per requirement).
+  // Phase 3.6 dropped the top-of-overview diagram; only per-REQ subdiagrams remain.
   const blocks = html.match(/class="mermaid[^"]*"/g) ?? [];
-  assert.equal(blocks.length, 1 + model.requirements.length);
+  assert.equal(blocks.length, model.requirements.length);
 });
 
 test('renderPage carries an anchor per document via data-doc-id or id', async () => {

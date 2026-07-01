@@ -1,7 +1,9 @@
-// Mermaid diagram emission. Phase 3.2 replaces the exhaustive master
-// diagram with a lightweight overview (PRD -> REQ family + TAD + BS) and
-// keeps the per-requirement subdiagrams for drill-down. Click bindings on
-// every diagram anchor into the hash-routed doc DOM (D5, D7).
+// Mermaid diagram emission. Phase 3.6 removed the top-of-Overview-tab
+// diagram: at ~7 REQs it was already stacking vertically and the PRD
+// body already lists the requirement links inline. Per-requirement
+// subdiagrams (REQ -> US -> AC + FBS delivery) remain - they add
+// actual structural information per REQ. Click bindings anchor into
+// the hash-routed doc DOM (D5, D7).
 //
 // Node classes match the CSS palette in style.css. Broken nodes carry the
 // `broken` class (dashed border, distinct colour). FBS-to-AC edges are
@@ -92,64 +94,6 @@ function emitClassAssignments(ids, model) {
     }
   }
   return lines;
-}
-
-/**
- * Build the overview diagram (`flowchart LR`): PRD -> each REQ (solid),
- * PRD -.-> TAD, PRD -.-> BS (dashed). ~10 nodes on the Phase 2 tree; the
- * whole point is a single-screen navigation surface (D3).
- *
- * @param {import('./tree-model.js').BuiltTreeModel} model
- * @returns {string}
- */
-export function overviewDiagram(model) {
-  /** @type {string[]} */
-  const lines = ['flowchart LR'];
-  /** @type {Set<string>} */
-  const declared = new Set();
-  /** @type {Set<string>} */
-  const allIds = new Set();
-
-  const declare = (id) => {
-    if (declared.has(id)) return;
-    declared.add(id);
-    allIds.add(id);
-    lines.push(`  ${nodeId(id)}[${nodeLabel(id, model)}]`);
-  };
-
-  // PRD -> REQs (solid).
-  if (model.prd?.prdId) {
-    declare(model.prd.prdId);
-    for (const reqId of model.prd.requirementIds ?? []) {
-      declare(reqId);
-      lines.push(`  ${nodeId(model.prd.prdId)} --> ${nodeId(reqId)}`);
-    }
-  }
-
-  // PRD -.-> TAD (dashed - different relationship).
-  if (model.prd?.prdId && model.tad?.tadId) {
-    declare(model.tad.tadId);
-    lines.push(`  ${nodeId(model.prd.prdId)} -.-> ${nodeId(model.tad.tadId)}`);
-  } else if (model.tad?.tadId) {
-    declare(model.tad.tadId);
-  }
-
-  // PRD -.-> BS (dashed).
-  if (model.prd?.prdId && model.bs?.bsId) {
-    declare(model.bs.bsId);
-    lines.push(`  ${nodeId(model.prd.prdId)} -.-> ${nodeId(model.bs.bsId)}`);
-  } else if (model.bs?.bsId) {
-    declare(model.bs.bsId);
-  }
-
-  // Click bindings.
-  for (const id of allIds) lines.push(emitClick(id));
-  // Class assignments.
-  lines.push(...emitClassAssignments([...allIds], model));
-  // Class definitions.
-  lines.push(CLASS_DEFS);
-
-  return lines.join('\n');
 }
 
 /**
