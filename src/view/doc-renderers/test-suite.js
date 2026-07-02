@@ -40,6 +40,6 @@ export function renderTestSuite(ts, ctx) {
   ${ts.acIds?.length ? `<section class="field-list"><h4>Acceptance criteria verified</h4><p>${docLinkList(ts.acIds)}</p></section>` : ''}
   ${fieldPara('Status', ts.status)}
   <section class="field-list"><h4>Test cases</h4>${tcs || '<em>no test cases</em>'}</section>
-  ${rawJsonDisclosure(ctx.raw, ts)}
+  ${rawJsonDisclosure(ctx.raw, ts, ts.id)}
 </article>`.trim();
 }

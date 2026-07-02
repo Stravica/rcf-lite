@@ -38,6 +38,6 @@ export function renderReq(req, ctx) {
   ${fieldPara('Rationale', req.rationale)}
   ${fieldList('Tags', req.tags)}
   ${subdiagram}
-  ${rawJsonDisclosure(ctx.raw, req)}
+  ${rawJsonDisclosure(ctx.raw, req, req.reqId)}
 </article>`.trim();
 }

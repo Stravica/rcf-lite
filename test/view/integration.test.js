@@ -1,7 +1,9 @@
-// Integration tests for renderView against fresh fixture trees built on the
-// fly via initProject. Covers the spec §9.4 view-layer integration matrix:
-// happy path, strict mode, default render-with-markers behaviour, and
-// fresh-each-run discipline (AC-203-1 / AC-203-2).
+// Integration tests for `renderModelToPage` against fresh fixture trees
+// built on the fly via `initProject`. Phase 3.8 removed the disk-write
+// path: this file was previously wired against the `.rcf-view/` output
+// convention (deleted). It now asserts the pure-render surface: walk
+// the tree, produce the full-page HTML plus the innerHTML content
+// payload, verify shape and error propagation.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,92 +12,64 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '../../src/store/init.js';
-import { renderView } from '../../src/view/index.js';
+import { renderModelToPage } from '../../src/view/index.js';
 
-async function exists(path) {
-  try {
-    await stat(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-test('renderView on a clean fresh tree returns exit 0 and writes 3 files', async () => {
+test('renderModelToPage on a clean fresh tree returns HTML with no errors', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-render-clean-'));
   await initProject({ projectRoot: root });
-  const result = await renderView({ projectRoot: root });
-  assert.equal(result.exitCode, 0);
-  assert.equal(result.written.length, 3);
+  const result = await renderModelToPage({ projectRoot: root });
   assert.deepEqual(result.errors, []);
-  assert.ok(await exists(join(root, '.rcf-view', 'index.html')));
-  assert.ok(await exists(join(root, '.rcf-view', 'style.css')));
-  assert.ok(await exists(join(root, '.rcf-view', 'mermaid.min.js')));
+  assert.match(result.fullPageHtml, /^<!DOCTYPE html>/);
+  assert.match(result.fullPageHtml, /<\/html>\s*$/);
+  assert.ok(result.contentHtml.length > 0);
+  assert.ok(!result.contentHtml.startsWith('<!DOCTYPE'));
 });
 
-test('renderView default mode renders broken trees with markers (AC-201-2, OQ7)', async () => {
+test('renderModelToPage default mode surfaces broken-tree errors alongside a render', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-render-broken-default-'));
   await initProject({ projectRoot: root });
-  // Post-3.7 the broken-reference surface is the child's parent field.
   const reqPath = join(root, 'rcf', 'requirements', 'req-001.json');
   const req = JSON.parse(await readFile(reqPath, 'utf8'));
   req.prdId = 'PRD-999';
   await writeFile(reqPath, JSON.stringify(req), 'utf8');
-  const result = await renderView({ projectRoot: root });
-  assert.equal(result.exitCode, 3);
-  assert.equal(result.written.length, 3);
-  const html = await readFile(join(root, '.rcf-view', 'index.html'), 'utf8');
-  assert.match(html, /PRD-999/);
-  assert.match(html, /Tree has \d+ error/);
+  const result = await renderModelToPage({ projectRoot: root });
+  assert.ok(result.errors.length > 0);
+  assert.match(result.fullPageHtml, /PRD-999/);
+  assert.match(result.fullPageHtml, /Tree has \d+ error/);
 });
 
-test('renderView --strict refuses to write on broken trees', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-broken-strict-'));
+test('renderModelToPage never writes to disk (Phase 3.8 regression)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-render-nofs-'));
   await initProject({ projectRoot: root });
-  const reqPath = join(root, 'rcf', 'requirements', 'req-001.json');
-  const req = JSON.parse(await readFile(reqPath, 'utf8'));
-  req.prdId = 'PRD-999';
-  await writeFile(reqPath, JSON.stringify(req), 'utf8');
-  const result = await renderView({ projectRoot: root, strict: true });
-  assert.equal(result.exitCode, 3);
-  assert.equal(result.written.length, 0);
-  assert.equal(await exists(join(root, '.rcf-view', 'index.html')), false);
+  await renderModelToPage({ projectRoot: root });
+  await assert.rejects(stat(join(root, '.rcf-view')), { code: 'ENOENT' });
 });
 
-test('renderView is fresh on every run (AC-203-1, AC-203-2)', async () => {
+test('renderModelToPage picks up manifest changes between calls (re-walk is fresh)', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-render-fresh-'));
   await initProject({ projectRoot: root, projectName: 'First' });
-  await renderView({ projectRoot: root });
-  const first = await readFile(join(root, '.rcf-view', 'index.html'), 'utf8');
-  // Rename the project.
+  const first = await renderModelToPage({ projectRoot: root });
   const manifestPath = join(root, 'rcf', 'manifest.json');
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   manifest.projectName = 'Second';
   await writeFile(manifestPath, JSON.stringify(manifest), 'utf8');
-  await renderView({ projectRoot: root });
-  const second = await readFile(join(root, '.rcf-view', 'index.html'), 'utf8');
-  assert.match(first, /First/);
-  assert.match(second, /Second/);
-  assert.doesNotMatch(second, /<title>First/);
+  const second = await renderModelToPage({ projectRoot: root });
+  assert.match(first.fullPageHtml, /First/);
+  assert.match(second.fullPageHtml, /Second/);
+  assert.doesNotMatch(second.fullPageHtml, /<title>First/);
 });
 
-test('renderView truncates stale output files on each run', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-trunc-'));
+test('renderModelToPage always wraps content in <div id="rcf-live-content"> (D13a)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-render-wrap-'));
   await initProject({ projectRoot: root });
-  await renderView({ projectRoot: root });
-  // Add a stale file in .rcf-view/ - the next run should remove it.
-  await writeFile(join(root, '.rcf-view', 'stale.txt'), 'old', 'utf8');
-  assert.equal(await exists(join(root, '.rcf-view', 'stale.txt')), true);
-  await renderView({ projectRoot: root });
-  assert.equal(await exists(join(root, '.rcf-view', 'stale.txt')), false);
+  const result = await renderModelToPage({ projectRoot: root });
+  assert.match(result.fullPageHtml, /<div id="rcf-live-content">/);
+  assert.match(result.fullPageHtml, /<script src="\/live-client\.js" defer><\/script>/);
 });
 
-test('renderView log sink receives verbose lines', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-verbose-'));
+test('renderModelToPage always emits the live-client script tag (D13a)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-render-script-'));
   await initProject({ projectRoot: root });
-  const lines = [];
-  await renderView({ projectRoot: root, verbose: true, log: (l) => lines.push(l) });
-  assert.ok(lines.some((l) => l.includes('walking tree')));
-  assert.ok(lines.some((l) => l.includes('loaded ')));
-  assert.ok(lines.some((l) => l.includes('wrote ')));
+  const result = await renderModelToPage({ projectRoot: root });
+  assert.match(result.fullPageHtml, /<script src="\/live-client\.js" defer>/);
 });

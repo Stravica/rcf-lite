@@ -39,6 +39,6 @@ export function renderAdr(adr, ctx) {
   ${alts ? `<section class="field-list"><h4>Alternatives considered</h4><ul>${alts}</ul></section>` : ''}
   ${supersededBy}
   ${related}
-  ${rawJsonDisclosure(ctx.raw, adr)}
+  ${rawJsonDisclosure(ctx.raw, adr, adr.adrId)}
 </article>`.trim();
 }

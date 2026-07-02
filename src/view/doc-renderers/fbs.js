@@ -48,7 +48,7 @@ export function renderFbs(fbs, ctx) {
   ${fieldPara('Build order', fbs.buildOrder)}
   ${fieldPara('Execution status', fbs.executionStatus)}
   ${fieldPara('Notes', fbs.notes)}
-  ${rawJsonDisclosure(ctx.raw, fbs)}
+  ${rawJsonDisclosure(ctx.raw, fbs, fbs.fbsId)}
 </article>`.trim();
 }
 

@@ -4,5 +4,4 @@ dist/
 coverage/
 .vault/
 *.log
-.rcf-view/
 .npmrc.local

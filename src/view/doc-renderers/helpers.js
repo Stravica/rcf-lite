@@ -80,13 +80,21 @@ export function fieldList(label, items) {
 /**
  * Render the "Show raw JSON" disclosure block for a document.
  *
+ * Phase 3.8 D13b: the raw-JSON disclosure now carries a stable
+ * `data-doc-id="{parentDocId}::raw"` attribute so the live-client can
+ * persist its open state across SSE swaps and page reloads. The main
+ * doc-details already get a `data-doc-id` via `detailsWrap`; this closes
+ * the last state-persistence gap.
+ *
  * @param {string|undefined} raw
  * @param {object} doc
+ * @param {string} parentDocId - the enclosing doc's display id (e.g. "REQ-002")
  * @returns {string}
  */
-export function rawJsonDisclosure(raw, doc) {
+export function rawJsonDisclosure(raw, doc, parentDocId) {
   const json = raw ?? JSON.stringify(doc, null, 2);
-  return `<details class="raw-json"><summary>Show raw JSON</summary><pre>${escapeHtml(json)}</pre></details>`;
+  const rawId = `${parentDocId ?? 'doc'}::raw`;
+  return `<details class="raw-json" data-doc-id="${escapeHtml(rawId)}"><summary>Show raw JSON</summary><pre>${escapeHtml(json)}</pre></details>`;
 }
 
 /**

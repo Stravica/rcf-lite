@@ -33,6 +33,6 @@ export function renderTac(tac, ctx) {
   ${deps ? `<section class="field-list"><h4>Dependencies</h4><ul>${deps}</ul></section>` : ''}
   ${fieldPara('Trade-offs', tac.tradeoffs)}
   ${fieldPara('Notes', tac.notes)}
-  ${rawJsonDisclosure(ctx.raw, tac)}
+  ${rawJsonDisclosure(ctx.raw, tac, tac.tacId)}
 </article>`.trim();
 }

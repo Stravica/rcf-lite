@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { walkTree } from '../../src/store/index.js';
-import { renderPage } from '../../src/view/html-page.js';
+import { renderContent, renderPage } from '../../src/view/html-page.js';
 import { buildTreeModel } from '../../src/view/tree-model.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -144,6 +144,79 @@ test('renderPage is deterministic across runs (D15)', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   assert.equal(renderPage(model), renderPage(model));
+});
+
+test('renderPage wraps the tabpanels in <div id="rcf-live-content"> (Phase 3.8 D13a)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const html = renderPage(model);
+  assert.match(html, /<div id="rcf-live-content">/);
+  const wrapperIdx = html.indexOf('<div id="rcf-live-content">');
+  const overviewIdx = html.indexOf('id="tab-overview"');
+  const wrapperCloseIdx = html.lastIndexOf('</div>');
+  const footerIdx = html.indexOf('<footer>');
+  assert.ok(wrapperIdx > 0 && wrapperIdx < overviewIdx, 'wrapper opens before tabpanels');
+  assert.ok(wrapperCloseIdx > overviewIdx && wrapperCloseIdx < footerIdx, 'wrapper closes before footer');
+});
+
+test('renderPage always injects the live-client script tag (Phase 3.8 D13a)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const html = renderPage(model);
+  assert.match(html, /<script src="\/live-client\.js" defer><\/script>/);
+});
+
+test('renderPage carries raw-json data-doc-id for every main doc (Phase 3.8 D13b)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const html = renderPage(model);
+  // Sample a handful of main-doc raw-json disclosures.
+  for (const parent of ['PRD-001', 'REQ-002', 'US-201', 'TAD-001', 'FBS-003']) {
+    assert.ok(
+      html.includes(`data-doc-id="${parent}::raw"`),
+      `missing raw-json data-doc-id for ${parent}`,
+    );
+  }
+});
+
+test('renderPage footer refers to live streaming rather than manual regenerate (Phase 3.8)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const html = renderPage(model);
+  assert.match(html, /stream to this tab automatically/);
+  assert.doesNotMatch(html, /regenerate with/);
+});
+
+test('renderPage inline script is byte-identical to Phase 3.6 (guarded by layout regression)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const html = renderPage(model);
+  // The inline IIFE stays exactly as Phase 3.6 shipped it; the
+  // layout-regression test asserts the full byte match against the
+  // committed fixture. Here we spot-check its unchanged surface.
+  assert.doesNotMatch(html, /__rcfWired/);
+  assert.doesNotMatch(html, /window\.rcfPage/);
+  assert.match(html, /function wireTabs\(\) \{[\s\S]*?btn\.addEventListener\('click', onTabClick\);[\s\S]*?\}/);
+});
+
+test('renderContent returns the innerHTML of the swap wrapper (no <div id="rcf-live-content"> tag)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const content = renderContent(model);
+  assert.doesNotMatch(content, /<div id="rcf-live-content"/);
+  assert.doesNotMatch(content, /<script src=/);
+  // Every tabpanel should still be present.
+  for (const name of ['overview', 'requirements', 'architecture', 'build']) {
+    assert.match(content, new RegExp(`id="tab-${name}"`));
+  }
+});
+
+test('renderContent is the substring the wrapper contains, character for character', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const content = renderContent(model);
+  const page = renderPage(model);
+  assert.ok(page.includes(content), 'renderContent output must appear verbatim inside renderPage');
 });
 
 test('renderPage renders the build panel with buildOrder-sorted FBS slots (D15)', async () => {

@@ -40,6 +40,6 @@ export function renderPrd(prd, ctx) {
   <h3>${escapeHtml(prd.prdId ?? 'PRD')} - ${escapeHtml(prd.productName ?? '')}</h3>
   ${broken}
   ${sections}
-  ${rawJsonDisclosure(ctx.raw, prd)}
+  ${rawJsonDisclosure(ctx.raw, prd, prd.prdId)}
 </article>`.trim();
 }

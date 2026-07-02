@@ -40,7 +40,7 @@ export function renderUserStory(us, ctx) {
       ${acItems}
     </ul>
   </section>
-  ${rawJsonDisclosure(ctx.raw, us)}
+  ${rawJsonDisclosure(ctx.raw, us, us.usId)}
 </article>`.trim();
 }
 

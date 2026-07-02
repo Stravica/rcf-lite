@@ -35,6 +35,6 @@ export function renderBuildSequence(bs, ctx) {
   ${fieldPara('Build philosophy', bs.buildPhilosophy)}
   ${fieldPara('Generation strategy', bs.generationStrategy)}
   <section class="field-list"><h4>FBS slots</h4><ol>${slotList}</ol></section>
-  ${rawJsonDisclosure(ctx.raw, bs)}
+  ${rawJsonDisclosure(ctx.raw, bs, bs.bsId)}
 </article>`.trim();
 }

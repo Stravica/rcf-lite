@@ -69,10 +69,20 @@ test('fieldList renders an unordered list', () => {
 });
 
 test('rawJsonDisclosure contains a details summary', () => {
-  const out = rawJsonDisclosure('{ "a": 1 }', { a: 1 });
+  const out = rawJsonDisclosure('{ "a": 1 }', { a: 1 }, 'REQ-042');
   assert.match(out, /<details/);
   assert.match(out, /Show raw JSON/);
   assert.match(out, /&quot;a&quot;/);
+});
+
+test('rawJsonDisclosure carries a data-doc-id for state persistence (D13b)', () => {
+  const out = rawJsonDisclosure('{}', {}, 'REQ-042');
+  assert.match(out, /data-doc-id="REQ-042::raw"/);
+});
+
+test('rawJsonDisclosure falls back to "doc" when parent id is missing (D13b)', () => {
+  const out = rawJsonDisclosure('{}', {});
+  assert.match(out, /data-doc-id="doc::raw"/);
 });
 
 test('brokenBanner is empty for empty error list', () => {

@@ -2,7 +2,7 @@
 
 RCF Build Lite - CLI, MCP server, `rcf view`, and `rcf build` SDD adapter for the [Requirements Confidence Framework (RCF)](https://stravica.ai/rcf). First consumer of `@stravica/rcf-schemas`.
 
-> **Status:** Phase 3. Document store foundations (FBS-001 + FBS-002) and visual review surface (FBS-003 + FBS-004) shipped. CRUD verbs land in Phase 4.
+> **Status:** Phase 3.8. Document store foundations (FBS-001 + FBS-002), visual review surface (FBS-003 + FBS-004), and the live-view server (Phase 3.8) shipped. CRUD verbs land in Phase 4.
 
 ## RCF tree
 
@@ -10,7 +10,7 @@ This repo dogfoods RCF: Build Lite's own PRD, requirements, user stories, accept
 
 ## rcf view
 
-Render the on-disk RCF tree as a Mermaid diagram and a browsable static HTML page so a non-coding owner can review what is specified without reading any JSON.
+Serve the on-disk RCF tree as a live HTML review surface so a non-coding owner can see what is specified and watch hand-edits, migration scripts and (post-Phase 4) CRUD verbs land in real time. Read-only; runs a long-running HTTP + SSE server on localhost that watches `rcf/` and pushes tree updates to the connected browser tab.
 
 ### Install
 
@@ -21,50 +21,50 @@ pnpm install
 pnpm run vendor   # copies node_modules/mermaid/dist/mermaid.min.js into src/view/vendored/
 ```
 
-The vendored Mermaid bundle (version `11.6.0`, see `scripts/vendor-mermaid.mjs`) is checked into source so the rendered page is browsable offline with no network at view-time.
+The vendored Mermaid bundle (version `11.6.0`, see `scripts/vendor-mermaid.mjs`) is checked into source so the rendered page has no external network dependency at view time.
 
 ### Usage
 
 From the repo root or any subdirectory:
 
 ```sh
-pnpm run rcf-view              # render the live tree
-pnpm exec rcf-view --strict    # CI mode: refuse to write on a broken tree
-pnpm exec rcf-view --help      # full flag and exit-code reference
+pnpm run rcf-view                       # start the server on 127.0.0.1:4373
+pnpm exec rcf-view --port 5000          # custom port
+pnpm exec rcf-view --strict             # CI mode: fail on a broken tree, exit 3
+pnpm exec rcf-view --help               # full flag and exit-code reference
 ```
 
-Output lands at `<project-root>/.rcf-view/`:
+The server binds `127.0.0.1` only and prints the URL on stdout. When stdout is a TTY and `CI` is unset, the platform default browser is auto-launched at the URL; pass `--no-open` to suppress. Any `*.json` change under `rcf/` triggers a debounced re-walk and pushes the fresh tree to the browser without a manual refresh. `<details>` open state and scroll position are persisted to `localStorage` and restored on every update and every reload.
 
-- `index.html` - the assembled page
-- `style.css` - the stylesheet
-- `mermaid.min.js` - the vendored client-side renderer
-
-Open `.rcf-view/index.html` in a browser; no server required. On a TTY run (with `CI` unset), the bin auto-launches the platform default browser at the rendered page. Pass `--no-open` to suppress.
-
-The default mode renders broken trees with visible markers (broken nodes in the diagram, broken-document banners in the page) and exits `3`. Pass `--strict` to refuse the render on tree errors. Exit code `3` is set in both modes when the tree is broken; only output presence differs.
+Ctrl-C (SIGINT) or SIGTERM triggers a clean shutdown: the watcher closes, all SSE connections receive a `shutdown` event, the port releases, and the process exits within a 2 second budget.
 
 ### Flags
 
 | Flag | Default | Effect |
 |---|---|---|
-| `--strict` | off | Refuse to write output on a broken tree. Exit code is still `3`. |
+| `--port <n>` | `4373` | Bind the HTTP server on the given port. Precedence: `--port` beats `RCF_VIEW_PORT` env beats the default. `EADDRINUSE` is a hard failure. |
+| `--strict` | off | Startup gate. Walk the tree once on boot; if it has structural errors, print them and exit `3` without opening the HTTP listener. Without `--strict`, the server starts regardless and streams walker errors to the client via `walker-error` SSE events. |
 | `--no-open` | off | Do not open the rendered page in a browser. Auto-open runs by default when stdout is a TTY and `CI` is unset. |
-| `--quiet` | off | Suppress non-error stdout. |
-| `--verbose` | off | Per-document and per-output-file log lines on stdout. |
+| `--verbose` | off | Log each watch event and each SSE broadcast to stderr. |
 | `--help` | off | Print the help and exit `0`. |
+
+### Security posture
+
+The view server binds `127.0.0.1` only - localhost trust. No CORS, no authentication, no rate limiting. **Do not expose it via SSH tunnel or reverse proxy without adding an auth layer first.** LAN or remote review is a future phase decision that must land auth alongside the address change.
 
 ### Exit codes
 
 | Code | Meaning |
 |---|---|
-| `0` | Success. Output written. |
-| `1` | Render failure (IO error or unexpected runtime). |
-| `2` | Usage error (unknown flag, no project root found). |
-| `3` | Validation failure or broken references. Output is still written under the default; `--strict` suppresses it. |
+| `0` | Normal shutdown. |
+| `1` | Render or runtime failure. |
+| `2` | Usage error (unknown flag, `EADDRINUSE`, no project root found). |
+| `3` | Validation failure or broken references (`--strict` mode, on the initial walk). |
+| `130` | SIGINT. |
 
 ## Depends on
 
-This repo consumes [`@stravica/rcf-schemas`](https://github.com/Stravica/rcf-schemas) - the language-neutral JSON Schema contract every RCF tool keys to. The package is published to GitHub Packages; resolving the `@stravica` scope requires the `.npmrc` in this repo plus a token with `read:packages`. See `test/schemas-smoke.test.js` for the import + validation path.
+This repo consumes [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas) - the language-neutral JSON Schema contract every RCF tool keys to. See `test/schemas-smoke.test.js` for the import + validation path.
 
 ## License
 

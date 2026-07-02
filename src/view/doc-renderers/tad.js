@@ -47,7 +47,7 @@ export function renderTad(tad, ctx) {
   ${optionalSections}
   <section class="field-list"><h4>Components (TACs)</h4><p>${docLinkList(componentIds)}</p></section>
   <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p>${docLinkList(architecturalDecisionIds)}</p></section>
-  ${rawJsonDisclosure(ctx.raw, tad)}
+  ${rawJsonDisclosure(ctx.raw, tad, tad.tadId)}
 </article>`.trim();
 }
 

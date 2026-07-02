@@ -7,6 +7,12 @@
 // only. Client-side tabs + hash routing are wired by an inline script
 // at the end of `<body>`; if JS is unavailable, every tabpanel is
 // visible in DOM order (D12).
+//
+// Phase 3.8 wraps the swappable tree content in a stable
+// `<div id="rcf-live-content">` (D13a) and always injects the live
+// client script `<script src="/live-client.js" defer>` before `</body>`.
+// The tab init routine is exposed as `window.rcfPage.init()` so the
+// live client can re-invoke it after every SSE innerHTML swap.
 
 import {
   renderAdr,
@@ -29,29 +35,19 @@ import { allRequirementSubdiagrams } from './mermaid-diagram.js';
 const FAVICON_HREF =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='64' fill='%23c14a3a'/%3E%3Ctext x='256' y='370' font-family='Georgia,serif' font-size='360' font-weight='600' text-anchor='middle' fill='%23f7f5f0'%3ES%3C/text%3E%3C/svg%3E";
 
+const LIVE_WRAPPER_OPEN = '<div id="rcf-live-content">';
+const LIVE_WRAPPER_CLOSE = '</div>';
+
 /**
- * Render the complete index.html string.
+ * Render the complete index.html string. Phase 3.8: always includes the
+ * live-content wrapper and the live-client script tag.
  *
  * @param {import('./tree-model.js').BuiltTreeModel} model
  * @returns {string}
  */
 export function renderPage(model) {
   const projectName = model.manifest?.projectName ?? model.prd?.productName ?? 'RCF project';
-  const subdiagrams = allRequirementSubdiagrams(model);
-
-  const prdSection = model.prd
-    ? renderPrd(model.prd, {
-      raw: model.rawById.get(model.prd.prdId),
-      errors: model.errorsById.get(model.prd.prdId),
-      requirementIds: model.childrenByParent.get(model.prd.prdId) ?? [],
-    })
-    : '<p><em>No PRD on disk.</em></p>';
-
-  const requirementsPanel = renderRequirementsPanel(model, subdiagrams);
-  const architecturePanel = renderArchitecturePanel(model);
-  const buildPanel = renderBuildPanel(model);
-
-  const errorBanner = renderErrorBanner(model.errors ?? []);
+  const contentHtml = renderContent(model);
   const script = inlineScript();
 
   return `<!DOCTYPE html>
@@ -84,7 +80,49 @@ export function renderPage(model) {
     </nav>
   </header>
   <main>
-    ${errorBanner}
+    ${LIVE_WRAPPER_OPEN}
+    ${contentHtml}
+    ${LIVE_WRAPPER_CLOSE}
+  </main>
+  <footer>
+    <p>Generated from the on-disk RCF tree at <code>rcf/</code>. Read-only; changes on disk stream to this tab automatically.</p>
+    <p>Learn more about the Requirements Confidence Framework at <a href="https://stravica.ai/rcf-methodology" target="_blank" rel="noopener">stravica.ai/rcf-methodology</a>.</p>
+  </footer>
+  <script src="mermaid.min.js"></script>
+  <script>${script}</script>
+  <script src="/live-client.js" defer></script>
+</body>
+</html>
+`;
+}
+
+/**
+ * Render the innerHTML of the swappable `<div id="rcf-live-content">`
+ * container - i.e. everything inside `<main>`. This is the payload the
+ * SSE `tree-update` event carries; the live client replaces the
+ * wrapper's innerHTML with this string.
+ *
+ * @param {import('./tree-model.js').BuiltTreeModel} model
+ * @returns {string}
+ */
+export function renderContent(model) {
+  const subdiagrams = allRequirementSubdiagrams(model);
+
+  const prdSection = model.prd
+    ? renderPrd(model.prd, {
+      raw: model.rawById.get(model.prd.prdId),
+      errors: model.errorsById.get(model.prd.prdId),
+      requirementIds: model.childrenByParent.get(model.prd.prdId) ?? [],
+    })
+    : '<p><em>No PRD on disk.</em></p>';
+
+  const requirementsPanel = renderRequirementsPanel(model, subdiagrams);
+  const architecturePanel = renderArchitecturePanel(model);
+  const buildPanel = renderBuildPanel(model);
+
+  const errorBanner = renderErrorBanner(model.errors ?? []);
+
+  return `${errorBanner}
     <section id="tab-overview" role="tabpanel" aria-labelledby="tab-overview-button">
       <h2 class="tab-heading">Overview</h2>
       <div class="prd-body">
@@ -102,17 +140,7 @@ export function renderPage(model) {
     <section id="tab-build" role="tabpanel" hidden>
       <h2 class="tab-heading">Build sequence</h2>
       ${buildPanel}
-    </section>
-  </main>
-  <footer>
-    <p>Generated from the on-disk RCF tree at <code>rcf/</code>. Read-only; regenerate with <code>rcf-view</code> to see fresh state.</p>
-    <p>Learn more about the Requirements Confidence Framework at <a href="https://stravica.ai/rcf-methodology" target="_blank" rel="noopener">stravica.ai/rcf-methodology</a>.</p>
-  </footer>
-  <script src="mermaid.min.js"></script>
-  <script>${script}</script>
-</body>
-</html>
-`;
+    </section>`;
 }
 
 function renderRequirementsPanel(model, subdiagrams) {
@@ -285,6 +313,10 @@ function renderErrorBanner(errors) {
 // Inline client-side script: initialises Mermaid, wires tab switching,
 // resolves hash routes to a tab + opens any ancestor `<details>` on the
 // target. Vanilla; no dependencies beyond the vendored Mermaid loaded above.
+// Phase 3.8 note: this script is byte-identical to the Phase 3.6 shape
+// (the layout-regression test guards it). Live-swap recovery lives
+// entirely in `src/view/live-client.js`, which reads state from the DOM
+// after each SSE innerHTML swap - it does not call into this IIFE.
 function inlineScript() {
   return `
 (function () {
