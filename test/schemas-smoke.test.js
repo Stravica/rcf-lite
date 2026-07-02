@@ -4,12 +4,12 @@ import assert from 'node:assert/strict';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
-// Smoke test for the @stravica/rcf-schemas dependency: proves the published
+// Smoke test for the @stravica-ai/rcf-schemas dependency: proves the published
 // package's schemas are importable and that the ajv validation path works
 // end to end. The exhaustive validation surface lives in rcf-schemas' own CI;
 // this only confirms Build Lite can consume the contract.
-import prdSchema from '@stravica/rcf-schemas/schemas/prd.schema.json' with { type: 'json' };
-import commonSchema from '@stravica/rcf-schemas/schemas/common.schema.json' with { type: 'json' };
+import prdSchema from '@stravica-ai/rcf-schemas/schemas/prd.schema.json' with { type: 'json' };
+import commonSchema from '@stravica-ai/rcf-schemas/schemas/common.schema.json' with { type: 'json' };
 
 function buildValidator() {
   const ajv = new Ajv2020({ allErrors: true });
@@ -20,7 +20,9 @@ function buildValidator() {
   return ajv.compile(prdSchema);
 }
 
-// A minimal PRD satisfying every required field in prd.schema.json.
+// A minimal PRD satisfying every required field in prd.schema.json@0.2.0.
+// Post-3.7 the PRD no longer carries `requirementIds` -- REQ children hold
+// the parent link via `prdId`.
 const validPrd = {
   prdId: 'PRD-001',
   productName: 'Acme Notes',
@@ -28,7 +30,6 @@ const validPrd = {
   status: 'draft',
   problemStatement: 'Notes are scattered across tools.',
   objectives: ['Single home for personal notes.'],
-  requirementIds: ['REQ-001'],
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
 };

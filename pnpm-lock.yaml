@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@stravica/rcf-schemas':
-        specifier: ^0.1.0
-        version: 0.1.0
+      '@stravica-ai/rcf-schemas':
+        specifier: ^0.2.0
+        version: 0.2.0
     devDependencies:
       ajv:
         specifier: ^8.20.0
@@ -57,8 +57,8 @@ packages:
   '@mermaid-js/parser@0.4.0':
     resolution: {integrity: sha512-wla8XOWvQAwuqy+gxiZqY+c7FokraOTHRWMsbB4AgRx9Sy7zKslNyejy7E+a77qHfey5GXw/ik3IXv/NHMJgaA==}
 
-  '@stravica/rcf-schemas@0.1.0':
-    resolution: {integrity: sha512-D+tJxapnj7dLhu3I6LpqHQzi9uaH0015gahgOypw29uFIvCnBtsiuMKVvLpNQaGwiiTAMKXpEAGEt+zSGdGQyQ==, tarball: https://npm.pkg.github.com/download/@stravica/rcf-schemas/0.1.0/00574cbf923a158bfcb21485ed4e8bb64809961f}
+  '@stravica-ai/rcf-schemas@0.2.0':
+    resolution: {integrity: sha512-V8uvFnBqORXioc+VRUX/ti8r80gVbHEGztPFJcwb8QkhHEP5uQXGtH3YERS64ZUW8z3+QeR1b9EdayBMubcohg==}
     engines: {node: '>=24.0.0'}
 
   '@types/d3-array@3.2.2':
@@ -577,7 +577,7 @@ snapshots:
     dependencies:
       langium: 3.3.1
 
-  '@stravica/rcf-schemas@0.1.0': {}
+  '@stravica-ai/rcf-schemas@0.2.0': {}
 
   '@types/d3-array@3.2.2': {}
 

@@ -7,7 +7,7 @@
 // renders them inline in the page so an owner can see what is broken.
 
 /**
- * @typedef {('validation'|'missingFile'|'parseFailure'|'ioFailure'|'usage')} ErrorKind
+ * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage')} ErrorKind
  */
 
 /**
@@ -23,6 +23,7 @@
 const VALID_KINDS = new Set([
   'validation',
   'missingFile',
+  'brokenReference',
   'parseFailure',
   'ioFailure',
   'usage',

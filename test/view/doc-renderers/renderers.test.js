@@ -18,7 +18,7 @@ import { renderTad } from '../../../src/view/doc-renderers/tad.js';
 import { renderTestSuite } from '../../../src/view/doc-renderers/test-suite.js';
 import { renderUserStory } from '../../../src/view/doc-renderers/user-story.js';
 
-test('renderPrd emits a doc-prd article with the prd anchor', () => {
+test('renderPrd emits a doc-prd article with the prd anchor and computed child links (D15)', () => {
   const html = renderPrd(
     {
       prdId: 'PRD-001',
@@ -26,9 +26,8 @@ test('renderPrd emits a doc-prd article with the prd anchor', () => {
       executiveSummary: 'one paragraph',
       problemStatement: 'p',
       objectives: ['o'],
-      requirementIds: ['REQ-001', 'REQ-002'],
     },
-    { raw: '{}' },
+    { raw: '{}', requirementIds: ['REQ-001', 'REQ-002'] },
   );
   assert.match(html, /id="PRD-001"/);
   assert.match(html, /doc-prd/);
@@ -104,7 +103,7 @@ test('renderUserStory shows a not-yet-delivered note when no FBS covers an AC', 
   assert.match(html, /not yet delivered by any FBS/);
 });
 
-test('renderTad iterates architecturePrinciples and lists components and ADRs', () => {
+test('renderTad iterates architecturePrinciples and lists computed TAC / ADR children (D15)', () => {
   const html = renderTad(
     {
       tadId: 'TAD-001',
@@ -118,10 +117,8 @@ test('renderTad iterates architecturePrinciples and lists components and ADRs', 
         { name: 'P1', description: 'd1', rationale: 'r1' },
         { name: 'P2', description: 'd2', rationale: 'r2' },
       ],
-      componentIds: ['TAC-001', 'TAC-002'],
-      architecturalDecisionIds: ['ADR-001'],
     },
-    { raw: '{}' },
+    { raw: '{}', componentIds: ['TAC-001', 'TAC-002'], architecturalDecisionIds: ['ADR-001'] },
   );
   assert.match(html, /id="TAD-001"/);
   assert.match(html, /P1/);
@@ -141,11 +138,9 @@ test('renderTad renders optional sections present in the document', () => {
         architecturalApproach: 'z',
         keyCapabilities: ['c'],
       },
-      componentIds: ['TAC-001'],
-      architecturalDecisionIds: ['ADR-001'],
       integrationArchitecture: { apiDesign: 'rest', eventModel: 'none' },
     },
-    { raw: '{}' },
+    { raw: '{}', componentIds: ['TAC-001'], architecturalDecisionIds: ['ADR-001'] },
   );
   assert.match(html, /Integration architecture/);
   assert.match(html, /apiDesign/);
@@ -189,19 +184,21 @@ test('renderAdr emits context, decision and consequences', () => {
   assert.match(html, /Alternatives considered/);
 });
 
-test('renderBuildSequence renders ordered FBS slots with links', () => {
+test('renderBuildSequence renders ordered FBS slots from computed ctx.slots (D15)', () => {
   const html = renderBuildSequence(
     {
       bsId: 'BS-001',
       title: 'X',
       buildPhilosophy: 'p',
       generationStrategy: 'dependencyFirst',
-      fbs: [
-        { fbsId: 'FBS-001', order: 1, status: 'notStarted' },
-        { fbsId: 'FBS-002', order: 2, status: 'notStarted' },
+    },
+    {
+      raw: '{}',
+      slots: [
+        { fbsId: 'FBS-001', buildOrder: 1, executionStatus: 'notStarted', title: 'Setup' },
+        { fbsId: 'FBS-002', buildOrder: 2, executionStatus: 'notStarted', title: 'Walk' },
       ],
     },
-    { raw: '{}' },
   );
   assert.match(html, /id="BS-001"/);
   assert.match(html, /href="#FBS-001"/);
@@ -219,7 +216,9 @@ test('renderFbs resolves AC ids into Given/When/Then text and emits AC pills (D8
       summary: 's',
       acIds: ['AC-201-1'],
       contextRequirements: { tacIds: ['TAC-003'], adrIds: ['ADR-001'] },
-      dependencies: ['FBS-002'],
+      dependsOnFbsIds: ['FBS-002'],
+      buildOrder: 3,
+      executionStatus: 'notStarted',
       estimatedSize: 'small',
       estimatedHours: 4,
       deliverables: ['d'],
@@ -243,17 +242,99 @@ test('renderFbs marks an unresolved AC reference inline', () => {
   assert.match(html, /unresolved/);
 });
 
-test('renderTestSuite emits test cases as Given/When/Then blocks', () => {
+test('renderBuildSequence handles an empty slot list gracefully', () => {
+  const html = renderBuildSequence(
+    { bsId: 'BS-001', title: 'X', buildPhilosophy: 'p', generationStrategy: 'dependencyFirst' },
+    { raw: '{}', slots: [] },
+  );
+  assert.match(html, /id="BS-001"/);
+  assert.match(html, /FBS slots/);
+});
+
+test('renderBuildSequence sorts slots by buildOrder ascending regardless of input order', () => {
+  const html = renderBuildSequence(
+    { bsId: 'BS-001', title: 'X', buildPhilosophy: 'p', generationStrategy: 'dependencyFirst' },
+    {
+      raw: '{}',
+      slots: [
+        { fbsId: 'FBS-002', buildOrder: 2, executionStatus: 'notStarted' },
+        { fbsId: 'FBS-001', buildOrder: 1, executionStatus: 'complete' },
+      ],
+    },
+  );
+  const firstIdx = html.indexOf('FBS-001');
+  const secondIdx = html.indexOf('FBS-002');
+  assert.ok(firstIdx < secondIdx, 'FBS-001 (buildOrder 1) should appear before FBS-002 (buildOrder 2)');
+});
+
+test('renderFbs shows the dependsOnFbsIds list (renamed from dependencies, D6)', () => {
+  const html = renderFbs(
+    {
+      fbsId: 'FBS-004',
+      title: 'View surface',
+      summary: 's',
+      acIds: ['AC-201-1'],
+      dependsOnFbsIds: ['FBS-001', 'FBS-002'],
+      buildOrder: 4,
+      executionStatus: 'notStarted',
+    },
+    { raw: '{}', usByAcId: new Map() },
+  );
+  assert.match(html, /Depends on/);
+  assert.match(html, /href="#FBS-001"/);
+  assert.match(html, /href="#FBS-002"/);
+});
+
+test('renderPrd falls back to no-requirements block when ctx supplies no requirementIds', () => {
+  const html = renderPrd(
+    {
+      prdId: 'PRD-001',
+      productName: 'Acme',
+      problemStatement: 'p',
+      objectives: ['o'],
+    },
+    { raw: '{}' },
+  );
+  assert.match(html, /Requirements/);
+  assert.match(html, /none/);
+});
+
+test('renderTestSuite tolerates an empty testCases array', () => {
   const html = renderTestSuite(
     {
-      tsId: 'TS-001',
-      acId: 'AC-201-1',
-      testCases: [{ tcId: 'TC-001', given: 'g', when: 'w', then: 't' }],
+      id: 'TS-042',
+      usId: 'US-401',
+      title: 'Placeholder suite',
+      purpose: 'p',
+      testLevel: 'unit',
+      acIds: ['AC-401-1'],
+      testCases: [],
+      status: 'draft',
+    },
+    { raw: '{}' },
+  );
+  assert.match(html, /id="TS-042"/);
+  assert.match(html, /no test cases/);
+});
+
+test('renderTestSuite uses the id field, lists acIds, and renders inline TCs (D9)', () => {
+  const html = renderTestSuite(
+    {
+      id: 'TS-001',
+      usId: 'US-201',
+      title: 'Diagram smoke',
+      purpose: 'p',
+      testLevel: 'unit',
+      acIds: ['AC-201-1'],
+      testCases: [
+        { id: 'TC-001-happy', acId: 'AC-201-1', description: 'renders LR', status: 'pending' },
+      ],
+      status: 'draft',
     },
     { raw: '{}' },
   );
   assert.match(html, /id="TS-001"/);
-  assert.match(html, /TC-001/);
-  assert.match(html, /Given/);
+  assert.match(html, /TC-001-happy/);
   assert.match(html, /href="#AC-201-1"/);
+  assert.match(html, /href="#US-201"/);
 });

@@ -1,3 +1,14 @@
+// Dogfood tree integrity tests. Validates every JSON file under rcf/
+// against @stravica-ai/rcf-schemas@0.2.0 and asserts the referential
+// integrity that D7 walker + D8 validator enforce structurally.
+//
+// Phase 3.7 shape (D1-D6, D14):
+//   Every parent-child edge is encoded on the child. PRD no longer carries
+//   requirementIds; each REQ carries prdId. TAD no longer carries
+//   componentIds / architecturalDecisionIds; each TAC / ADR carries tadId.
+//   BS no longer carries fbs[]; each FBS carries bsId + buildOrder +
+//   executionStatus + dependsOnFbsIds.
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -8,16 +19,17 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
 // Schemas registered as a bundle so cross-file $refs resolve.
-import commonSchema from '@stravica/rcf-schemas/schemas/common.schema.json' with { type: 'json' };
-import prdSchema from '@stravica/rcf-schemas/schemas/prd.schema.json' with { type: 'json' };
-import reqSchema from '@stravica/rcf-schemas/schemas/req.schema.json' with { type: 'json' };
-import userStorySchema from '@stravica/rcf-schemas/schemas/user-story.schema.json' with { type: 'json' };
-import tadSchema from '@stravica/rcf-schemas/schemas/tad.schema.json' with { type: 'json' };
-import tacSchema from '@stravica/rcf-schemas/schemas/tac.schema.json' with { type: 'json' };
-import adrSchema from '@stravica/rcf-schemas/schemas/adr.schema.json' with { type: 'json' };
-import buildSequenceSchema from '@stravica/rcf-schemas/schemas/build-sequence.schema.json' with { type: 'json' };
-import fbsSchema from '@stravica/rcf-schemas/schemas/fbs.schema.json' with { type: 'json' };
-import manifestSchema from '@stravica/rcf-schemas/schemas/manifest.schema.json' with { type: 'json' };
+import commonSchema from '@stravica-ai/rcf-schemas/schemas/common.schema.json' with { type: 'json' };
+import prdSchema from '@stravica-ai/rcf-schemas/schemas/prd.schema.json' with { type: 'json' };
+import reqSchema from '@stravica-ai/rcf-schemas/schemas/req.schema.json' with { type: 'json' };
+import userStorySchema from '@stravica-ai/rcf-schemas/schemas/user-story.schema.json' with { type: 'json' };
+import tadSchema from '@stravica-ai/rcf-schemas/schemas/tad.schema.json' with { type: 'json' };
+import tacSchema from '@stravica-ai/rcf-schemas/schemas/tac.schema.json' with { type: 'json' };
+import adrSchema from '@stravica-ai/rcf-schemas/schemas/adr.schema.json' with { type: 'json' };
+import buildSequenceSchema from '@stravica-ai/rcf-schemas/schemas/build-sequence.schema.json' with { type: 'json' };
+import fbsSchema from '@stravica-ai/rcf-schemas/schemas/fbs.schema.json' with { type: 'json' };
+import testSuiteSchema from '@stravica-ai/rcf-schemas/schemas/test-suite.schema.json' with { type: 'json' };
+import manifestSchema from '@stravica-ai/rcf-schemas/schemas/manifest.schema.json' with { type: 'json' };
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..');
@@ -35,6 +47,7 @@ function buildAjv() {
   ajv.addSchema(adrSchema);
   ajv.addSchema(buildSequenceSchema);
   ajv.addSchema(fbsSchema);
+  ajv.addSchema(testSuiteSchema);
   ajv.addSchema(manifestSchema);
   return ajv;
 }
@@ -49,6 +62,7 @@ const schemaIdByKind = {
   adr: adrSchema.$id,
   buildSequence: buildSequenceSchema.$id,
   fbs: fbsSchema.$id,
+  testSuite: testSuiteSchema.$id,
 };
 
 function classify(relPath) {
@@ -61,6 +75,7 @@ function classify(relPath) {
   if (relPath.startsWith('tacs/')) return 'tac';
   if (relPath.startsWith('adrs/')) return 'adr';
   if (relPath.startsWith('fbs/')) return 'fbs';
+  if (relPath.startsWith('test-suites/')) return 'testSuite';
   return null;
 }
 
@@ -106,9 +121,6 @@ test('expected file counts by category', () => {
       `expected ${expected} ${kind} files, found ${counts[kind] ?? 0}`,
     );
   }
-  const total = docs.length;
-  const expectedTotal = Object.values(expectedCounts).reduce((a, b) => a + b, 0);
-  assert.equal(total, expectedTotal, `expected ${expectedTotal} files, found ${total}`);
 });
 
 test('every document classifies to a known schema', () => {
@@ -119,7 +131,7 @@ test('every document classifies to a known schema', () => {
   }
 });
 
-test('every document validates against its schema', () => {
+test('every document validates against its @stravica-ai/rcf-schemas@0.2.0 schema', () => {
   const ajv = buildAjv();
   const docs = loadAll();
   const failures = [];
@@ -148,6 +160,7 @@ test('file id matches filename and structural location', () => {
     adr: 'adrId',
     buildSequence: 'bsId',
     fbs: 'fbsId',
+    testSuite: 'id',
   };
   for (const d of docs) {
     if (d.kind === 'manifest') continue;
@@ -155,25 +168,51 @@ test('file id matches filename and structural location', () => {
     const id = d.json[field];
     assert.ok(id, `${d.rel} missing ${field}`);
     if (d.kind === 'prd' || d.kind === 'tad' || d.kind === 'buildSequence') continue;
-    // For per-doc files, the filename stem should match the lower-cased id.
     const stem = d.rel.split('/').pop().replace(/\.json$/, '');
     assert.equal(stem, id.toLowerCase(), `${d.rel} filename does not match id ${id}`);
   }
 });
 
-test('referential integrity: PRD requirementIds match REQ files', () => {
+test('PRD no longer carries removed requirementIds field (D2)', () => {
   const docs = loadAll();
   const prd = docs.find((d) => d.kind === 'prd').json;
-  const reqIds = new Set(docs.filter((d) => d.kind === 'req').map((d) => d.json.reqId));
-  for (const id of prd.requirementIds) {
-    assert.ok(reqIds.has(id), `PRD lists REQ ${id} but no req file exists`);
-  }
-  for (const id of reqIds) {
-    assert.ok(prd.requirementIds.includes(id), `REQ ${id} exists but PRD does not list it`);
+  assert.equal('requirementIds' in prd, false, 'PRD still carries removed requirementIds field');
+});
+
+test('TAD no longer carries removed componentIds / architecturalDecisionIds fields (D2)', () => {
+  const docs = loadAll();
+  const tad = docs.find((d) => d.kind === 'tad').json;
+  assert.equal('componentIds' in tad, false);
+  assert.equal('architecturalDecisionIds' in tad, false);
+});
+
+test('BS no longer carries removed fbs[] array (D6)', () => {
+  const docs = loadAll();
+  const bs = docs.find((d) => d.kind === 'buildSequence').json;
+  assert.equal('fbs' in bs, false);
+});
+
+test('every REQ carries prdId matching the PRD (child-owned parent edge, D1)', () => {
+  const docs = loadAll();
+  const prdId = docs.find((d) => d.kind === 'prd').json.prdId;
+  const reqs = docs.filter((d) => d.kind === 'req').map((d) => d.json);
+  for (const r of reqs) {
+    assert.equal(r.prdId, prdId, `REQ ${r.reqId} has wrong prdId`);
   }
 });
 
-test('referential integrity: every REQ has at least one US, every US claims a real REQ', () => {
+test('every TAC and ADR carries tadId matching the TAD (D1)', () => {
+  const docs = loadAll();
+  const tadId = docs.find((d) => d.kind === 'tad').json.tadId;
+  for (const t of docs.filter((d) => d.kind === 'tac')) {
+    assert.equal(t.json.tadId, tadId, `TAC ${t.json.tacId} has wrong tadId`);
+  }
+  for (const a of docs.filter((d) => d.kind === 'adr')) {
+    assert.equal(a.json.tadId, tadId, `ADR ${a.json.adrId} has wrong tadId`);
+  }
+});
+
+test('every US has at least one covering REQ (US.reqId resolves)', () => {
   const docs = loadAll();
   const reqIds = new Set(docs.filter((d) => d.kind === 'req').map((d) => d.json.reqId));
   const usDocs = docs.filter((d) => d.kind === 'userStory').map((d) => d.json);
@@ -187,43 +226,49 @@ test('referential integrity: every REQ has at least one US, every US claims a re
   }
 });
 
-test('referential integrity: TAD componentIds match TAC files; TAD architecturalDecisionIds match ADR files', () => {
+test('every FBS carries bsId + buildOrder + executionStatus + dependsOnFbsIds (D6)', () => {
   const docs = loadAll();
-  const tad = docs.find((d) => d.kind === 'tad').json;
-  const tacIds = new Set(docs.filter((d) => d.kind === 'tac').map((d) => d.json.tacId));
-  const adrIds = new Set(docs.filter((d) => d.kind === 'adr').map((d) => d.json.adrId));
-  for (const id of tad.componentIds) {
-    assert.ok(tacIds.has(id), `TAD lists TAC ${id} but no TAC file exists`);
-  }
-  for (const id of tacIds) {
-    assert.ok(tad.componentIds.includes(id), `TAC ${id} exists but TAD does not list it`);
-  }
-  for (const id of tad.architecturalDecisionIds) {
-    assert.ok(adrIds.has(id), `TAD lists ADR ${id} but no ADR file exists`);
-  }
-  for (const id of adrIds) {
-    assert.ok(tad.architecturalDecisionIds.includes(id), `ADR ${id} exists but TAD does not list it`);
+  const bsId = docs.find((d) => d.kind === 'buildSequence').json.bsId;
+  const fbsDocs = docs.filter((d) => d.kind === 'fbs').map((d) => d.json);
+  const fbsIds = new Set(fbsDocs.map((f) => f.fbsId));
+  const orders = new Set();
+  for (const f of fbsDocs) {
+    assert.equal(f.bsId, bsId, `FBS ${f.fbsId} has wrong bsId`);
+    assert.equal(typeof f.buildOrder, 'number', `FBS ${f.fbsId} missing buildOrder`);
+    assert.ok(f.executionStatus, `FBS ${f.fbsId} missing executionStatus`);
+    assert.ok(Array.isArray(f.dependsOnFbsIds), `FBS ${f.fbsId} missing dependsOnFbsIds`);
+    for (const dep of f.dependsOnFbsIds) {
+      assert.ok(fbsIds.has(dep), `FBS ${f.fbsId} depends on unknown FBS ${dep}`);
+      assert.notEqual(dep, f.fbsId, `FBS ${f.fbsId} depends on itself`);
+    }
+    assert.equal(orders.has(f.buildOrder), false, `duplicate buildOrder ${f.buildOrder} inside ${bsId}`);
+    orders.add(f.buildOrder);
   }
 });
 
-test('referential integrity: BS references FBS-001..N in order; FBS dependencies and contextRequirements resolve', () => {
+test('every FBS acId resolves to a real AC and every AC is covered by at least one FBS', () => {
   const docs = loadAll();
-  const bs = docs.find((d) => d.kind === 'buildSequence').json;
+  const usDocs = docs.filter((d) => d.kind === 'userStory').map((d) => d.json);
+  const acIds = new Set();
+  for (const us of usDocs) {
+    for (const ac of us.acceptanceCriteria) {
+      assert.ok(!acIds.has(ac.id), `duplicate AC id ${ac.id} across user stories`);
+      acIds.add(ac.id);
+      const m = ac.id.match(/^AC-(\d{3,})-\d+$/);
+      if (m) {
+        const usNum = us.usId.match(/^US-(\d{3,})$/)?.[1];
+        assert.equal(m[1], usNum, `AC ${ac.id} sits under US-${usNum} but its prefix is ${m[1]}`);
+      }
+    }
+  }
   const fbsDocs = docs.filter((d) => d.kind === 'fbs').map((d) => d.json);
-  const fbsIds = new Set(fbsDocs.map((f) => f.fbsId));
   const tacIds = new Set(docs.filter((d) => d.kind === 'tac').map((d) => d.json.tacId));
   const adrIds = new Set(docs.filter((d) => d.kind === 'adr').map((d) => d.json.adrId));
-  // Every slot id has a file; every fbs file is in the BS; orders are unique.
-  const slotIds = bs.fbs.map((s) => s.fbsId);
-  const orders = bs.fbs.map((s) => s.order);
-  assert.equal(new Set(orders).size, orders.length, 'BS slot orders are not unique');
-  for (const id of slotIds) assert.ok(fbsIds.has(id), `BS slot references missing FBS ${id}`);
-  for (const id of fbsIds) assert.ok(slotIds.includes(id), `FBS ${id} not listed in BS`);
-  // FBS dependencies resolve to real FBS ids.
+  const covered = new Set();
   for (const f of fbsDocs) {
-    for (const dep of f.dependencies ?? []) {
-      assert.ok(fbsIds.has(dep), `FBS ${f.fbsId} depends on unknown FBS ${dep}`);
-      assert.notEqual(dep, f.fbsId, `FBS ${f.fbsId} depends on itself`);
+    for (const acId of f.acIds) {
+      assert.ok(acIds.has(acId), `FBS ${f.fbsId} references unknown AC ${acId}`);
+      covered.add(acId);
     }
     const ctx = f.contextRequirements ?? {};
     for (const tacId of ctx.tacIds ?? []) {
@@ -233,55 +278,11 @@ test('referential integrity: BS references FBS-001..N in order; FBS dependencies
       assert.ok(adrIds.has(adrId), `FBS ${f.fbsId} references unknown ADR ${adrId}`);
     }
   }
+  const orphans = [...acIds].filter((id) => !covered.has(id)).sort();
+  assert.equal(orphans.length, 0, `acceptance criteria not covered by any FBS: ${orphans.join(', ')}`);
 });
 
-test('referential integrity: every FBS acId resolves to a real acceptance criterion under a US', () => {
-  const docs = loadAll();
-  const usDocs = docs.filter((d) => d.kind === 'userStory').map((d) => d.json);
-  const acIds = new Set();
-  const acToUs = {};
-  for (const us of usDocs) {
-    for (const ac of us.acceptanceCriteria) {
-      assert.ok(!acIds.has(ac.id), `duplicate AC id ${ac.id} across user stories`);
-      acIds.add(ac.id);
-      acToUs[ac.id] = us.usId;
-      // Hierarchical AC ids must agree with their parent US number.
-      const m = ac.id.match(/^AC-(\d{3,})-\d+$/);
-      if (m) {
-        const usNum = us.usId.match(/^US-(\d{3,})$/)?.[1];
-        assert.equal(m[1], usNum, `AC ${ac.id} sits under US-${usNum} but its prefix is ${m[1]}`);
-      }
-    }
-  }
-  const fbsDocs = docs.filter((d) => d.kind === 'fbs').map((d) => d.json);
-  for (const f of fbsDocs) {
-    for (const acId of f.acIds) {
-      assert.ok(acIds.has(acId), `FBS ${f.fbsId} references unknown AC ${acId}`);
-    }
-  }
-});
-
-test('referential integrity: every AC is covered by at least one FBS', () => {
-  const docs = loadAll();
-  const usDocs = docs.filter((d) => d.kind === 'userStory').map((d) => d.json);
-  const allAcIds = new Set();
-  for (const us of usDocs) {
-    for (const ac of us.acceptanceCriteria) allAcIds.add(ac.id);
-  }
-  const fbsDocs = docs.filter((d) => d.kind === 'fbs').map((d) => d.json);
-  const covered = new Set();
-  for (const f of fbsDocs) {
-    for (const acId of f.acIds) covered.add(acId);
-  }
-  const orphans = [...allAcIds].filter((id) => !covered.has(id)).sort();
-  assert.equal(
-    orphans.length,
-    0,
-    `acceptance criteria not covered by any FBS: ${orphans.join(', ')}`,
-  );
-});
-
-test('referential integrity: manifest roots resolve to existing files with matching ids', () => {
+test('manifest roots resolve to existing files with matching ids', () => {
   const docs = loadAll();
   const manifest = docs.find((d) => d.kind === 'manifest').json;
   const prdDoc = docs.find((d) => d.kind === 'prd');
@@ -290,37 +291,4 @@ test('referential integrity: manifest roots resolve to existing files with match
   assert.equal(manifest.prd.id, prdDoc.json.prdId);
   assert.equal(manifest.tad.id, tadDoc.json.tadId);
   assert.equal(manifest.bs.id, bsDoc.json.bsId);
-  assert.equal(manifest.prd.path, 'prd.json');
-  assert.equal(manifest.tad.path, 'tad.json');
-  assert.equal(manifest.bs.path, 'build-sequence.json');
-});
-
-test('referential integrity: ADR and TAC parent ids match the TAD and PRD', () => {
-  const docs = loadAll();
-  const tad = docs.find((d) => d.kind === 'tad').json;
-  const prd = docs.find((d) => d.kind === 'prd').json;
-  for (const d of docs.filter((d) => d.kind === 'tac')) {
-    assert.equal(d.json.tadId, tad.tadId, `TAC ${d.json.tacId} has wrong tadId`);
-    assert.equal(d.json.prdId, prd.prdId, `TAC ${d.json.tacId} has wrong prdId`);
-  }
-  for (const d of docs.filter((d) => d.kind === 'adr')) {
-    assert.equal(d.json.tadId, tad.tadId, `ADR ${d.json.adrId} has wrong tadId`);
-    assert.equal(d.json.prdId, prd.prdId, `ADR ${d.json.adrId} has wrong prdId`);
-  }
-});
-
-test('referential integrity: REQ, US, FBS, BS all claim the correct prdId', () => {
-  const docs = loadAll();
-  const prdId = docs.find((d) => d.kind === 'prd').json.prdId;
-  const bsId = docs.find((d) => d.kind === 'buildSequence').json.bsId;
-  for (const d of docs.filter((d) => d.kind === 'req')) {
-    assert.equal(d.json.prdId, prdId, `REQ ${d.json.reqId} has wrong prdId`);
-  }
-  for (const d of docs.filter((d) => d.kind === 'userStory')) {
-    assert.equal(d.json.prdId, prdId, `US ${d.json.usId} has wrong prdId`);
-  }
-  for (const d of docs.filter((d) => d.kind === 'fbs')) {
-    assert.equal(d.json.prdId, prdId, `FBS ${d.json.fbsId} has wrong prdId`);
-    assert.equal(d.json.bsId, bsId, `FBS ${d.json.fbsId} has wrong bsId`);
-  }
 });

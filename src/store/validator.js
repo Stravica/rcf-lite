@@ -1,24 +1,25 @@
-// Schema validator. Registers the @stravica/rcf-schemas@0.1.0 bundle once
+// Schema validator. Registers the @stravica-ai/rcf-schemas@0.2.0 bundle once
 // at start-up and exposes a single `validateDocument` entry point. Returns
 // `null` on success or a structured `validation` error on failure.
 //
 // Validation runs on load (FBS-001 / AC-701-3): the published bundle is the
-// contract, not a local copy.
+// contract, not a local copy. Referential-integrity checking lives in the
+// walker (D8); this module is schema-shape-only.
 
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
-import commonSchema from '@stravica/rcf-schemas/schemas/common.schema.json' with { type: 'json' };
-import manifestSchema from '@stravica/rcf-schemas/schemas/manifest.schema.json' with { type: 'json' };
-import prdSchema from '@stravica/rcf-schemas/schemas/prd.schema.json' with { type: 'json' };
-import reqSchema from '@stravica/rcf-schemas/schemas/req.schema.json' with { type: 'json' };
-import userStorySchema from '@stravica/rcf-schemas/schemas/user-story.schema.json' with { type: 'json' };
-import tadSchema from '@stravica/rcf-schemas/schemas/tad.schema.json' with { type: 'json' };
-import tacSchema from '@stravica/rcf-schemas/schemas/tac.schema.json' with { type: 'json' };
-import adrSchema from '@stravica/rcf-schemas/schemas/adr.schema.json' with { type: 'json' };
-import buildSequenceSchema from '@stravica/rcf-schemas/schemas/build-sequence.schema.json' with { type: 'json' };
-import fbsSchema from '@stravica/rcf-schemas/schemas/fbs.schema.json' with { type: 'json' };
-import testSuiteSchema from '@stravica/rcf-schemas/schemas/test-suite.schema.json' with { type: 'json' };
+import commonSchema from '@stravica-ai/rcf-schemas/schemas/common.schema.json' with { type: 'json' };
+import manifestSchema from '@stravica-ai/rcf-schemas/schemas/manifest.schema.json' with { type: 'json' };
+import prdSchema from '@stravica-ai/rcf-schemas/schemas/prd.schema.json' with { type: 'json' };
+import reqSchema from '@stravica-ai/rcf-schemas/schemas/req.schema.json' with { type: 'json' };
+import userStorySchema from '@stravica-ai/rcf-schemas/schemas/user-story.schema.json' with { type: 'json' };
+import tadSchema from '@stravica-ai/rcf-schemas/schemas/tad.schema.json' with { type: 'json' };
+import tacSchema from '@stravica-ai/rcf-schemas/schemas/tac.schema.json' with { type: 'json' };
+import adrSchema from '@stravica-ai/rcf-schemas/schemas/adr.schema.json' with { type: 'json' };
+import buildSequenceSchema from '@stravica-ai/rcf-schemas/schemas/build-sequence.schema.json' with { type: 'json' };
+import fbsSchema from '@stravica-ai/rcf-schemas/schemas/fbs.schema.json' with { type: 'json' };
+import testSuiteSchema from '@stravica-ai/rcf-schemas/schemas/test-suite.schema.json' with { type: 'json' };
 
 import { rcfError } from '../errors/index.js';
 
@@ -49,7 +50,9 @@ const ID_FIELD = {
   adr: 'adrId',
   buildSequence: 'bsId',
   fbs: 'fbsId',
-  testSuite: 'tsId',
+  // Test Suite uses the plain `id` field (see @stravica-ai/rcf-schemas@0.2.0
+  // test-suite.schema.json). No `tsId` field.
+  testSuite: 'id',
 };
 
 let cachedAjv = null;

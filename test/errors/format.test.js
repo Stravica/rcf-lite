@@ -95,3 +95,35 @@ test('formatErrors strict mode omits the --strict pointer', () => {
 test('formatErrors returns empty string when no errors', () => {
   assert.equal(formatErrors([]), '');
 });
+
+test('rcfError accepts brokenReference as a valid kind (D8)', () => {
+  const err = rcfError({
+    kind: 'brokenReference',
+    message: 'REQ REQ-001 references unknown PRD PRD-001',
+    documentId: 'REQ-001',
+    filePath: 'rcf/requirements/req-001.json',
+    field: 'prdId',
+    rule: 'resolveTo:prd',
+  });
+  assert.equal(err.kind, 'brokenReference');
+  assert.equal(err.field, 'prdId');
+});
+
+test('formatError renders brokenReference errors on stderr with file + field', () => {
+  const err = rcfError({
+    kind: 'brokenReference',
+    message: 'REQ REQ-001 references unknown PRD PRD-999',
+    documentId: 'REQ-001',
+    filePath: 'rcf/requirements/req-001.json',
+    field: 'prdId',
+  });
+  const line = formatError(err, { verbose: true });
+  assert.match(line, /brokenReference/);
+  assert.match(line, /REQ-001/);
+  assert.match(line, /field=prdId/);
+});
+
+test('isRcfError accepts brokenReference kind', () => {
+  const err = { kind: 'brokenReference', message: 'x' };
+  assert.equal(isRcfError(err), true);
+});

@@ -41,15 +41,6 @@
     "Local filesystem is the source of truth; no network source of truth",
     "MCP transport is local stdio only"
   ],
-  "requirementIds": [
-    "REQ-001",
-    "REQ-002",
-    "REQ-003",
-    "REQ-004",
-    "REQ-005",
-    "REQ-006",
-    "REQ-007"
-  ],
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z"
 }

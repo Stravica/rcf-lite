@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "RCF Build Lite - CLI, MCP server, view tool, and SDD build adapter for the Requirements Confidence Framework. First consumer of @stravica/rcf-schemas.",
+  "description": "RCF Build Lite - CLI, MCP server, view tool, and SDD build adapter for the Requirements Confidence Framework. First consumer of @stravica-ai/rcf-schemas.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=24.0.0"
@@ -21,7 +21,7 @@
     "url": "git+https://github.com/Stravica/rcf-build-lite.git"
   },
   "dependencies": {
-    "@stravica/rcf-schemas": "^0.1.0"
+    "@stravica-ai/rcf-schemas": "^0.2.0"
   },
   "devDependencies": {
     "ajv": "^8.20.0",

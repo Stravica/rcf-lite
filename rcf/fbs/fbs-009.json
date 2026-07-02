@@ -10,7 +10,6 @@
     "AC-403-2",
     "AC-403-3"
   ],
-  "status": "notStarted",
   "contextRequirements": {
     "tacIds": [
       "TAC-004"
@@ -19,9 +18,6 @@
       "ADR-004"
     ]
   },
-  "dependencies": [
-    "FBS-008"
-  ],
   "estimatedSize": "small",
   "estimatedHours": 4,
   "deliverables": [
@@ -31,5 +27,10 @@
   "domain": "traceability",
   "notes": "Impact is the only query that crosses into FBS context lookups; intent-chain traces still avoid it.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 9,
+  "executionStatus": "notStarted",
+  "dependsOnFbsIds": [
+    "FBS-008"
+  ]
 }

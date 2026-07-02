@@ -43,6 +43,7 @@ export function renderPage(model) {
     ? renderPrd(model.prd, {
       raw: model.rawById.get(model.prd.prdId),
       errors: model.errorsById.get(model.prd.prdId),
+      requirementIds: model.childrenByParent.get(model.prd.prdId) ?? [],
     })
     : '<p><em>No PRD on disk.</em></p>';
 
@@ -167,10 +168,15 @@ function renderRequirementsPanel(model, subdiagrams) {
 }
 
 function renderArchitecturePanel(model) {
+  const tadChildren = model.tad ? (model.childrenByParent.get(model.tad.tadId) ?? []) : [];
+  const componentIds = tadChildren.filter((id) => id.startsWith('TAC-'));
+  const architecturalDecisionIds = tadChildren.filter((id) => id.startsWith('ADR-'));
   const tadSection = model.tad
     ? renderTad(model.tad, {
       raw: model.rawById.get(model.tad.tadId),
       errors: model.errorsById.get(model.tad.tadId),
+      componentIds,
+      architecturalDecisionIds,
     })
     : '<p><em>No TAD on disk.</em></p>';
 
@@ -206,10 +212,22 @@ ${adrBlocks || '<p><em>No ADRs on disk.</em></p>'}
 }
 
 function renderBuildPanel(model) {
+  const bsSlots = model.bs
+    ? [...model.fbsItems]
+      .filter((f) => f.bsId === model.bs.bsId)
+      .sort((a, b) => (a.buildOrder ?? 0) - (b.buildOrder ?? 0))
+      .map((f) => ({
+        fbsId: f.fbsId,
+        buildOrder: f.buildOrder,
+        executionStatus: f.executionStatus,
+        title: f.title,
+      }))
+    : [];
   const bsSection = model.bs
     ? renderBuildSequence(model.bs, {
       raw: model.rawById.get(model.bs.bsId),
       errors: model.errorsById.get(model.bs.bsId),
+      slots: bsSlots,
     })
     : '<p><em>No build sequence on disk.</em></p>';
 
@@ -217,7 +235,7 @@ function renderBuildPanel(model) {
     id: f.fbsId,
     summary: `${f.fbsId} - ${f.title ?? ''}`,
     className: 'doc-fbs-wrap',
-    status: f.status,
+    status: f.executionStatus,
     body: renderFbs(f, {
       raw: model.rawById.get(f.fbsId),
       errors: model.errorsById.get(f.fbsId),
@@ -226,12 +244,13 @@ function renderBuildPanel(model) {
   })).join('\n');
 
   const tsBlocks = model.testSuites.map((ts) => detailsWrap({
-    id: ts.tsId,
-    summary: `${ts.tsId} - test suite`,
+    id: ts.id,
+    summary: `${ts.id} - ${ts.title ?? 'test suite'}`,
     className: 'doc-ts-wrap',
+    status: ts.status,
     body: renderTestSuite(ts, {
-      raw: model.rawById.get(ts.tsId),
-      errors: model.errorsById.get(ts.tsId),
+      raw: model.rawById.get(ts.id),
+      errors: model.errorsById.get(ts.id),
     }),
   })).join('\n');
 

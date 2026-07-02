@@ -1,6 +1,9 @@
-// Normalise a walked tree into the structure the renderers consume. The model
-// adds derived maps (storiesByReqId, fbsByAcId, contextLinks) so each
-// renderer can pull what it needs in O(1) without re-scanning the tree.
+// Normalise a walked tree into the structure the renderers consume. Post-3.7
+// the load-bearing relationship maps (`parentByChild`, `childrenByParent`,
+// `fbsByAcId`, `dependentsByFbsId`, `tsByAcId`, `tcsByAcId`, `usByTacId`) are
+// computed by the walker itself; the tree-model layers view-specific
+// convenience maps on top (storiesByReqId as REQ-doc list, usByAcId as
+// AC->US pointer, acIdsByUsId as US->AC[] list, errorsById as error index).
 //
 // The tree-model is also where broken references are recorded as a Set of
 // ids the renderer marks with the "broken" class in the diagram and the
@@ -21,6 +24,12 @@
  * @property {Map<string, object>} byId
  * @property {Map<string, string>} rawById
  * @property {Set<string>} brokenIds
+ * @property {Map<string, string>} parentByChild
+ * @property {Map<string, string[]>} childrenByParent
+ * @property {Map<string, string[]>} dependentsByFbsId
+ * @property {Map<string, string[]>} tsByAcId
+ * @property {Map<string, Array<{ tsId: string, tcId: string }>>} tcsByAcId
+ * @property {Map<string, string[]>} usByTacId
  * @property {Map<string, object[]>} storiesByReqId
  * @property {Map<string, object[]>} fbsByAcId
  * @property {Map<string, string[]>} acIdsByUsId
@@ -28,6 +37,8 @@
  * @property {Map<string, import('../errors/index.js').RcfError[]>} errorsById
  * @property {import('../errors/index.js').RcfError[]} errors
  */
+
+const emptyMap = () => new Map();
 
 /**
  * Build the render-ready tree model from a walker result plus the error
@@ -39,6 +50,8 @@
  * @returns {BuiltTreeModel}
  */
 export function buildTreeModel({ tree, errors }) {
+  // storiesByReqId: keyed on REQ id, values are US doc arrays (renderers want
+  // the whole US doc, not just the id, to render titles + drilldowns).
   const storiesByReqId = new Map();
   for (const us of tree.userStories) {
     if (!us?.reqId) continue;
@@ -61,6 +74,8 @@ export function buildTreeModel({ tree, errors }) {
     acIdsByUsId.set(us.usId, acIds);
   }
 
+  // fbsByAcId: renderers want the whole FBS doc so they can print id + title.
+  // The walker's `fbsByAcId` is id-list only; the view layer's is object-list.
   const fbsByAcId = new Map();
   for (const f of tree.fbsItems) {
     for (const acId of f.acIds ?? []) {
@@ -95,6 +110,12 @@ export function buildTreeModel({ tree, errors }) {
     byId: tree.byId,
     rawById: tree.rawById,
     brokenIds: tree.brokenIds,
+    parentByChild: tree.parentByChild ?? emptyMap(),
+    childrenByParent: tree.childrenByParent ?? emptyMap(),
+    dependentsByFbsId: tree.dependentsByFbsId ?? emptyMap(),
+    tsByAcId: tree.tsByAcId ?? emptyMap(),
+    tcsByAcId: tree.tcsByAcId ?? emptyMap(),
+    usByTacId: tree.usByTacId ?? emptyMap(),
     storiesByReqId,
     fbsByAcId,
     acIdsByUsId,

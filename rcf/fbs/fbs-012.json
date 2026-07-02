@@ -14,7 +14,6 @@
     "AC-602-3",
     "AC-702-3"
   ],
-  "status": "notStarted",
   "contextRequirements": {
     "tacIds": [
       "TAC-006",
@@ -25,11 +24,6 @@
       "ADR-004"
     ]
   },
-  "dependencies": [
-    "FBS-006",
-    "FBS-008",
-    "FBS-010"
-  ],
   "estimatedSize": "large",
   "estimatedHours": 10,
   "deliverables": [
@@ -41,5 +35,12 @@
   "domain": "mcp",
   "notes": "AC-702-3 (structured errors over MCP) lands here because MCP is the surface where structured-object error delivery becomes load-bearing.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 12,
+  "executionStatus": "notStarted",
+  "dependsOnFbsIds": [
+    "FBS-006",
+    "FBS-008",
+    "FBS-010"
+  ]
 }

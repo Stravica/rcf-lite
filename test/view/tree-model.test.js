@@ -62,9 +62,42 @@ test('buildTreeModel records brokenIds and errorsById for broken trees', async (
     byId: new Map(),
     rawById: new Map(),
     brokenIds: new Set(['REQ-099']),
+    parentByChild: new Map(),
+    childrenByParent: new Map(),
+    fbsByAcId: new Map(),
+    dependentsByFbsId: new Map(),
+    tsByAcId: new Map(),
+    tcsByAcId: new Map(),
+    usByTacId: new Map(),
   };
-  const errors = [{ kind: 'missingFile', message: 'gone', documentId: 'REQ-099' }];
+  const errors = [{ kind: 'brokenReference', message: 'gone', documentId: 'REQ-099' }];
   const model = buildTreeModel({ tree: fakeTree, errors });
   assert.ok(model.brokenIds.has('REQ-099'));
   assert.ok(model.errorsById.get('REQ-099'));
+});
+
+test('buildTreeModel exposes the walker-computed parentByChild and childrenByParent maps (D7)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  // Every REQ hangs off PRD-001 in the dogfood tree.
+  assert.equal(model.parentByChild.get('REQ-001'), 'PRD-001');
+  const prdChildren = model.childrenByParent.get('PRD-001') ?? [];
+  assert.ok(prdChildren.includes('REQ-001'));
+  assert.ok(prdChildren.includes('REQ-007'));
+});
+
+test('buildTreeModel passes the walker-computed dependentsByFbsId map through (D4)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  // The dogfood tree carries FBS-002 depending on FBS-001; the dependents
+  // inversion maps FBS-001 -> [FBS-002, ...].
+  const deps = model.dependentsByFbsId.get('FBS-001') ?? [];
+  assert.ok(deps.includes('FBS-002'), `expected FBS-002 among dependents of FBS-001, got ${deps.join(',')}`);
+});
+
+test('buildTreeModel exposes empty tsByAcId / tcsByAcId when no TS files exist', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  assert.equal(model.tsByAcId.size, 0);
+  assert.equal(model.tcsByAcId.size, 0);
 });

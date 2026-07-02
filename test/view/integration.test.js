@@ -36,26 +36,26 @@ test('renderView on a clean fresh tree returns exit 0 and writes 3 files', async
 test('renderView default mode renders broken trees with markers (AC-201-2, OQ7)', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-render-broken-default-'));
   await initProject({ projectRoot: root });
-  // Break a reference.
-  const prdPath = join(root, 'rcf', 'prd.json');
-  const prd = JSON.parse(await readFile(prdPath, 'utf8'));
-  prd.requirementIds = ['REQ-099'];
-  await writeFile(prdPath, JSON.stringify(prd), 'utf8');
+  // Post-3.7 the broken-reference surface is the child's parent field.
+  const reqPath = join(root, 'rcf', 'requirements', 'req-001.json');
+  const req = JSON.parse(await readFile(reqPath, 'utf8'));
+  req.prdId = 'PRD-999';
+  await writeFile(reqPath, JSON.stringify(req), 'utf8');
   const result = await renderView({ projectRoot: root });
   assert.equal(result.exitCode, 3);
   assert.equal(result.written.length, 3);
   const html = await readFile(join(root, '.rcf-view', 'index.html'), 'utf8');
-  assert.match(html, /REQ-099/);
+  assert.match(html, /PRD-999/);
   assert.match(html, /Tree has \d+ error/);
 });
 
 test('renderView --strict refuses to write on broken trees', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-render-broken-strict-'));
   await initProject({ projectRoot: root });
-  const prdPath = join(root, 'rcf', 'prd.json');
-  const prd = JSON.parse(await readFile(prdPath, 'utf8'));
-  prd.requirementIds = ['REQ-099'];
-  await writeFile(prdPath, JSON.stringify(prd), 'utf8');
+  const reqPath = join(root, 'rcf', 'requirements', 'req-001.json');
+  const req = JSON.parse(await readFile(reqPath, 'utf8'));
+  req.prdId = 'PRD-999';
+  await writeFile(reqPath, JSON.stringify(req), 'utf8');
   const result = await renderView({ projectRoot: root, strict: true });
   assert.equal(result.exitCode, 3);
   assert.equal(result.written.length, 0);

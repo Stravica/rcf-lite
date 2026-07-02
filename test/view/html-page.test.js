@@ -124,8 +124,15 @@ test('renderPage carries a tree-errors banner when errors are present', async ()
       byId: new Map(),
       rawById: new Map(),
       brokenIds: new Set(),
+      parentByChild: new Map(),
+      childrenByParent: new Map(),
+      fbsByAcId: new Map(),
+      dependentsByFbsId: new Map(),
+      tsByAcId: new Map(),
+      tcsByAcId: new Map(),
+      usByTacId: new Map(),
     },
-    errors: [{ kind: 'missingFile', message: 'gone', documentId: 'REQ-099' }],
+    errors: [{ kind: 'brokenReference', message: 'gone', documentId: 'REQ-099' }],
   };
   const model = buildTreeModel(result);
   const html = renderPage(model);
@@ -137,4 +144,26 @@ test('renderPage is deterministic across runs (D15)', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   assert.equal(renderPage(model), renderPage(model));
+});
+
+test('renderPage renders the build panel with buildOrder-sorted FBS slots (D15)', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const html = renderPage(model);
+  // The dogfood tree has FBS-001..FBS-012 in buildOrder 1..12.
+  const buildTabIdx = html.indexOf('id="tab-build"');
+  const slice = html.slice(buildTabIdx);
+  const fbs001Idx = slice.indexOf('href="#FBS-001"');
+  const fbs002Idx = slice.indexOf('href="#FBS-002"');
+  assert.ok(fbs001Idx > 0);
+  assert.ok(fbs002Idx > 0);
+  assert.ok(fbs001Idx < fbs002Idx);
+});
+
+test('renderPage still emits the PRD requirement link list from the computed childrenByParent map', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const html = renderPage(model);
+  assert.match(html, /href="#REQ-001"/);
+  assert.match(html, /href="#REQ-007"/);
 });

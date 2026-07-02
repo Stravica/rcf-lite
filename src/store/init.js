@@ -6,12 +6,14 @@
 // AC-101-2: refuses to overwrite an existing project. If rcf/manifest.json
 // already exists, this function writes nothing and returns a usage error.
 //
-// The minimum-tree contents are dictated by the schemas: PRD requires at least
-// one requirementId, TAD requires at least one componentId and one ADR id,
-// BS requires at least one FBS slot, FBS requires at least one AC id, US
-// requires at least one AC. The placeholder set is the smallest tree that
-// satisfies every minItems constraint, and the renderer treats it as a
-// clean tree on subsequent walks.
+// Phase 3.7 D14 shape: parent-child edges live on the child. The PRD
+// no longer carries `requirementIds`; each REQ carries `prdId` (already
+// present). The TAD no longer carries `componentIds` /
+// `architecturalDecisionIds`; each TAC / ADR carries `tadId`. The BS
+// no longer carries `fbs[]`; each FBS carries `bsId`, `buildOrder`,
+// `executionStatus` and `dependsOnFbsIds`. The empty `rcf/test-suites/`
+// directory is scaffolded so a future authored TS drops into a
+// pre-existing shape.
 
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -39,7 +41,6 @@ function prdTemplate(projectName) {
     status: 'draft',
     problemStatement: 'TODO: state the problem this product solves.',
     objectives: ['TODO: add at least one objective.'],
-    requirementIds: ['REQ-001'],
     createdAt: TIMESTAMP,
     updatedAt: TIMESTAMP,
   };
@@ -96,8 +97,6 @@ function tadTemplate() {
       architecturalApproach: 'TODO: state the architectural approach.',
       keyCapabilities: ['TODO: list at least one key capability.'],
     },
-    componentIds: ['TAC-001'],
-    architecturalDecisionIds: ['ADR-001'],
     createdAt: TIMESTAMP,
     updatedAt: TIMESTAMP,
   };
@@ -143,9 +142,6 @@ function buildSequenceTemplate() {
     title: 'Initial build sequence',
     buildPhilosophy: 'TODO: describe the build philosophy.',
     generationStrategy: 'dependencyFirst',
-    fbs: [
-      { fbsId: 'FBS-001', order: 1, status: 'notStarted' },
-    ],
     createdAt: TIMESTAMP,
     updatedAt: TIMESTAMP,
   };
@@ -156,10 +152,12 @@ function fbsTemplate() {
     fbsId: 'FBS-001',
     prdId: 'PRD-001',
     bsId: 'BS-001',
+    buildOrder: 1,
+    executionStatus: 'notStarted',
     title: 'TODO: name this build session',
     summary: 'TODO: describe what this build session delivers.',
     acIds: ['AC-101-1'],
-    status: 'notStarted',
+    dependsOnFbsIds: [],
     createdAt: TIMESTAMP,
     updatedAt: TIMESTAMP,
   };
@@ -211,6 +209,7 @@ export async function initProject({ projectRoot, projectName = 'New RCF Project'
     'rcf/tacs',
     'rcf/adrs',
     'rcf/fbs',
+    'rcf/test-suites',
   ];
   for (const d of dirs) {
     await mkdir(join(projectRoot, d), { recursive: true });

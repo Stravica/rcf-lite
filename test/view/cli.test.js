@@ -67,13 +67,15 @@ test('rcf-view on a clean fresh project exits 0 and writes output', async () => 
 test('rcf-view on a broken tree exits 3, writes output by default (OQ7)', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-broken-'));
   await initProject({ projectRoot: tmp });
-  const prdPath = join(tmp, 'rcf', 'prd.json');
-  const prd = JSON.parse(await readFile(prdPath, 'utf8'));
-  prd.requirementIds = ['REQ-099'];
-  await writeFile(prdPath, JSON.stringify(prd), 'utf8');
+  // Post-3.7 the broken-reference surface is the child's parent field:
+  // point REQ-001 at a non-existent PRD.
+  const reqPath = join(tmp, 'rcf', 'requirements', 'req-001.json');
+  const req = JSON.parse(await readFile(reqPath, 'utf8'));
+  req.prdId = 'PRD-999';
+  await writeFile(reqPath, JSON.stringify(req), 'utf8');
   const { code, stderr } = await runBin(tmp);
   assert.equal(code, 3);
-  assert.match(stderr, /missingFile/);
+  assert.match(stderr, /brokenReference/);
   assert.match(stderr, /Pass --strict/);
   const s = await stat(join(tmp, '.rcf-view', 'index.html'));
   assert.ok(s.isFile());
@@ -82,10 +84,10 @@ test('rcf-view on a broken tree exits 3, writes output by default (OQ7)', async 
 test('rcf-view --strict on a broken tree exits 3 with no output', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-strict-'));
   await initProject({ projectRoot: tmp });
-  const prdPath = join(tmp, 'rcf', 'prd.json');
-  const prd = JSON.parse(await readFile(prdPath, 'utf8'));
-  prd.requirementIds = ['REQ-099'];
-  await writeFile(prdPath, JSON.stringify(prd), 'utf8');
+  const reqPath = join(tmp, 'rcf', 'requirements', 'req-001.json');
+  const req = JSON.parse(await readFile(reqPath, 'utf8'));
+  req.prdId = 'PRD-999';
+  await writeFile(reqPath, JSON.stringify(req), 'utf8');
   const { code, stderr } = await runBin(tmp, ['--strict']);
   assert.equal(code, 3);
   assert.match(stderr, /output not written/);

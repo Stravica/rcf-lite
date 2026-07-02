@@ -13,7 +13,6 @@
     "AC-502-2",
     "AC-502-3"
   ],
-  "status": "notStarted",
   "contextRequirements": {
     "tacIds": [
       "TAC-005",
@@ -23,9 +22,6 @@
       "ADR-004"
     ]
   },
-  "dependencies": [
-    "FBS-008"
-  ],
   "estimatedSize": "medium",
   "estimatedHours": 8,
   "deliverables": [
@@ -36,5 +32,10 @@
   "domain": "build",
   "notes": "The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 10,
+  "executionStatus": "notStarted",
+  "dependsOnFbsIds": [
+    "FBS-008"
+  ]
 }

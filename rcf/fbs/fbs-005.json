@@ -10,7 +10,6 @@
     "AC-301-2",
     "AC-301-3"
   ],
-  "status": "notStarted",
   "contextRequirements": {
     "tacIds": [
       "TAC-002",
@@ -20,9 +19,6 @@
       "ADR-004"
     ]
   },
-  "dependencies": [
-    "FBS-002"
-  ],
   "estimatedSize": "small",
   "estimatedHours": 3,
   "deliverables": [
@@ -33,5 +29,10 @@
   "domain": "crud",
   "notes": "Read is the simplest mutator-free verb; it locks the output shape later mutators reuse.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 5,
+  "executionStatus": "notStarted",
+  "dependsOnFbsIds": [
+    "FBS-002"
+  ]
 }

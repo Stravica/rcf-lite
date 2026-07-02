@@ -5,7 +5,7 @@
 // This is the only place that touches the filesystem on the read path; the
 // walker, the validate command and the view layer all go through it.
 
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { rcfError } from '../errors/index.js';
@@ -140,6 +140,42 @@ export async function loadDocument({ projectRoot, id }) {
     return { ...validationError, documentId: id };
   }
   return { doc, raw, kind: resolved.kind, filePath: `rcf/${resolved.relPath}` };
+}
+
+/**
+ * Enumerate every `*.json` filename under `rcf/<subdir>/`, sorted. Not a
+ * discovery mechanism for tree topology (topology comes from parent-id
+ * fields); this is just the load-time enumeration required to bring every
+ * on-disk file into memory. Callers derive the document id from the
+ * filename stem in upper case (per the layout convention).
+ *
+ * Returns `{ files: string[] }` on success. Missing subdir returns
+ * `{ files: [] }` (an empty children collection is a valid tree state).
+ * IO failure returns `{ error: RcfError }`.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @param {string} args.subdir - subdir under `rcf/`, e.g. `requirements`
+ * @returns {Promise<{ files: string[] } | { error: import('../errors/index.js').RcfError }>}
+ */
+export async function listSubdirJsonFiles({ projectRoot, subdir }) {
+  let entries;
+  try {
+    entries = await readdir(join(projectRoot, 'rcf', subdir));
+  } catch (err) {
+    if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') {
+      return { files: [] };
+    }
+    return {
+      error: rcfError({
+        kind: 'ioFailure',
+        message: `Failed to read directory: ${/** @type {Error} */ (err).message}`,
+        filePath: `rcf/${subdir}`,
+      }),
+    };
+  }
+  const files = entries.filter((e) => e.endsWith('.json')).sort();
+  return { files };
 }
 
 /**

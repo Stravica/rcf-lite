@@ -40,12 +40,13 @@ export function renderFbs(fbs, ctx) {
   ${acPills}
   <section class="field-list"><h4>Acceptance criteria delivered</h4>${acBlocks}</section>
   ${ctxBlocks}
-  ${fbs.dependencies?.length ? `<section class="field-list"><h4>Depends on</h4><p>${docLinkList(fbs.dependencies)}</p></section>` : ''}
+  ${fbs.dependsOnFbsIds?.length ? `<section class="field-list"><h4>Depends on</h4><p>${docLinkList(fbs.dependsOnFbsIds)}</p></section>` : ''}
   ${fieldPara('Estimated size', fbs.estimatedSize)}
   ${fieldPara('Estimated hours', fbs.estimatedHours)}
   ${fieldList('Deliverables', fbs.deliverables)}
   ${fieldPara('Risk level', fbs.riskLevel)}
-  ${fieldPara('Status', fbs.status)}
+  ${fieldPara('Build order', fbs.buildOrder)}
+  ${fieldPara('Execution status', fbs.executionStatus)}
   ${fieldPara('Notes', fbs.notes)}
   ${rawJsonDisclosure(ctx.raw, fbs)}
 </article>`.trim();

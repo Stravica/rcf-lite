@@ -13,7 +13,6 @@
     "AC-402-2",
     "AC-402-3"
   ],
-  "status": "notStarted",
   "contextRequirements": {
     "tacIds": [
       "TAC-004"
@@ -22,9 +21,6 @@
       "ADR-004"
     ]
   },
-  "dependencies": [
-    "FBS-002"
-  ],
   "estimatedSize": "medium",
   "estimatedHours": 6,
   "deliverables": [
@@ -35,5 +31,10 @@
   "domain": "traceability",
   "notes": "The intent-chain-only rule is load-bearing; the walker rejects FBS edges at the type level.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 8,
+  "executionStatus": "notStarted",
+  "dependsOnFbsIds": [
+    "FBS-002"
+  ]
 }

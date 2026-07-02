@@ -12,7 +12,6 @@
     "AC-203-1",
     "AC-203-2"
   ],
-  "status": "complete",
   "contextRequirements": {
     "tacIds": [
       "TAC-003"
@@ -21,9 +20,6 @@
       "ADR-001"
     ]
   },
-  "dependencies": [
-    "FBS-002"
-  ],
   "estimatedSize": "medium",
   "estimatedHours": 6,
   "deliverables": [
@@ -34,5 +30,10 @@
   "domain": "view",
   "notes": "The page is generated fresh each run; no cached prior state lingers between regenerations.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 4,
+  "executionStatus": "complete",
+  "dependsOnFbsIds": [
+    "FBS-002"
+  ]
 }

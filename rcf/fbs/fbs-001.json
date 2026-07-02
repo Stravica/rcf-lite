@@ -10,7 +10,6 @@
     "AC-101-2",
     "AC-101-3"
   ],
-  "status": "complete",
   "contextRequirements": {
     "tadSections": [
       "systemOverview",
@@ -31,7 +30,6 @@
       "https://ajv.js.org/"
     ]
   },
-  "dependencies": [],
   "estimatedSize": "medium",
   "estimatedHours": 6,
   "deliverables": [
@@ -44,5 +42,8 @@
   "domain": "projectStructure",
   "notes": "Everything else in the build sequence depends on this; keep the public surface small and stable. AC-101-2 (init refuses to overwrite an existing project) is grouped here as init-verb behaviour adjacent to AC-101-1; the spec did not assign it to any FBS in round 1.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 1,
+  "executionStatus": "complete",
+  "dependsOnFbsIds": []
 }

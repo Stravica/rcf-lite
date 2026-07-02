@@ -1,5 +1,7 @@
 // TAD renderer. Curated fields per spec D11; iterates the architecturePrinciples[]
-// array rather than hard-coding a count.
+// array rather than hard-coding a count. Post-3.7 (D15) the child TAC / ADR
+// lists are not read from removed parent fields (`componentIds`,
+// `architecturalDecisionIds`) but from computed lists supplied via ctx.
 
 import {
   anchorIdFor,
@@ -16,6 +18,8 @@ import {
  * @param {object} ctx
  * @param {string|undefined} ctx.raw
  * @param {import('../../errors/index.js').RcfError[]} [ctx.errors]
+ * @param {string[]} [ctx.componentIds] - computed TAC children
+ * @param {string[]} [ctx.architecturalDecisionIds] - computed ADR children
  * @returns {string}
  */
 export function renderTad(tad, ctx) {
@@ -23,6 +27,8 @@ export function renderTad(tad, ctx) {
   const anchor = anchorIdFor(tad.tadId ?? 'TAD');
   const broken = ctx.errors?.length ? brokenBanner(ctx.errors) : '';
   const overview = tad.systemOverview ?? {};
+  const componentIds = ctx.componentIds ?? [];
+  const architecturalDecisionIds = ctx.architecturalDecisionIds ?? [];
   const principles = (tad.architecturePrinciples ?? []).map((p) => `
 <li>
   <strong>${escapeHtml(p.name)}.</strong> ${escapeHtml(p.description)}
@@ -39,8 +45,8 @@ export function renderTad(tad, ctx) {
   ${fieldList('Key capabilities', overview.keyCapabilities)}
   ${principles ? `<section class="field-list"><h4>Architecture principles</h4><ul>${principles}</ul></section>` : ''}
   ${optionalSections}
-  <section class="field-list"><h4>Components (TACs)</h4><p>${docLinkList(tad.componentIds)}</p></section>
-  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p>${docLinkList(tad.architecturalDecisionIds)}</p></section>
+  <section class="field-list"><h4>Components (TACs)</h4><p>${docLinkList(componentIds)}</p></section>
+  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p>${docLinkList(architecturalDecisionIds)}</p></section>
   ${rawJsonDisclosure(ctx.raw, tad)}
 </article>`.trim();
 }

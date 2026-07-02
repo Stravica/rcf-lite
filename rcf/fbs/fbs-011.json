@@ -10,7 +10,6 @@
     "AC-503-2",
     "AC-503-3"
   ],
-  "status": "notStarted",
   "contextRequirements": {
     "tacIds": [
       "TAC-005"
@@ -19,9 +18,6 @@
       "ADR-002"
     ]
   },
-  "dependencies": [
-    "FBS-010"
-  ],
   "estimatedSize": "small",
   "estimatedHours": 3,
   "deliverables": [
@@ -31,5 +27,10 @@
   "domain": "build",
   "notes": "Explicit-command design (not PR-watching) keeps the tool offline and harness-agnostic.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 11,
+  "executionStatus": "notStarted",
+  "dependsOnFbsIds": [
+    "FBS-010"
+  ]
 }

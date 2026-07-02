@@ -4,7 +4,14 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { loadDocument, loadRootDocument, pathForId, rootPathFor, subdirFor } from '../../src/store/loader.js';
+import {
+  listSubdirJsonFiles,
+  loadDocument,
+  loadRootDocument,
+  pathForId,
+  rootPathFor,
+  subdirFor,
+} from '../../src/store/loader.js';
 
 async function makeFixtureRoot(name) {
   const root = await mkdtemp(join(tmpdir(), `rcf-loader-${name}-`));
@@ -97,6 +104,29 @@ test('loadDocument flags unknown id shapes as usage errors', async () => {
   const result = await loadDocument({ projectRoot: root, id: 'XYZ-999' });
   assert.equal(result.kind, 'usage');
   assert.equal(result.documentId, 'XYZ-999');
+});
+
+test('pathForId maps TS-* to the test-suite kind and path', () => {
+  assert.deepEqual(pathForId('TS-001'), { kind: 'testSuite', relPath: 'test-suites/ts-001.json' });
+});
+
+test('subdirFor maps testSuite to test-suites', () => {
+  assert.equal(subdirFor('testSuite'), 'test-suites');
+});
+
+test('listSubdirJsonFiles returns sorted json filenames', async () => {
+  const root = await makeFixtureRoot('list-subdir');
+  await writeFile(join(root, 'rcf', 'requirements', 'req-002.json'), '{}', 'utf8');
+  await writeFile(join(root, 'rcf', 'requirements', 'req-001.json'), '{}', 'utf8');
+  await writeFile(join(root, 'rcf', 'requirements', 'note.md'), 'ignored', 'utf8');
+  const result = await listSubdirJsonFiles({ projectRoot: root, subdir: 'requirements' });
+  assert.deepEqual(result, { files: ['req-001.json', 'req-002.json'] });
+});
+
+test('listSubdirJsonFiles returns empty files list for a missing subdir', async () => {
+  const root = await makeFixtureRoot('missing-subdir');
+  const result = await listSubdirJsonFiles({ projectRoot: root, subdir: 'test-suites' });
+  assert.deepEqual(result, { files: [] });
 });
 
 test('loadRootDocument loads the manifest', async () => {

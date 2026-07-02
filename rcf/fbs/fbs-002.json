@@ -11,7 +11,6 @@
     "AC-102-3",
     "AC-701-3"
   ],
-  "status": "complete",
   "contextRequirements": {
     "tacIds": [
       "TAC-001",
@@ -24,9 +23,6 @@
       "manifest.schema.json"
     ]
   },
-  "dependencies": [
-    "FBS-001"
-  ],
   "estimatedSize": "small",
   "estimatedHours": 4,
   "deliverables": [
@@ -37,5 +33,10 @@
   "domain": "projectStructure",
   "notes": "This is where load-time validation behaviour becomes user-visible; the rendering it lands sets the pattern for every later surface.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 2,
+  "executionStatus": "complete",
+  "dependsOnFbsIds": [
+    "FBS-001"
+  ]
 }

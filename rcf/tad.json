@@ -16,22 +16,6 @@
       "Local stdio MCP surface over the whole feature set"
     ]
   },
-  "componentIds": [
-    "TAC-001",
-    "TAC-002",
-    "TAC-003",
-    "TAC-004",
-    "TAC-005",
-    "TAC-006",
-    "TAC-007"
-  ],
-  "architecturalDecisionIds": [
-    "ADR-001",
-    "ADR-002",
-    "ADR-003",
-    "ADR-004",
-    "ADR-005"
-  ],
   "architecturePrinciples": [
     {
       "name": "Filesystem is the source of truth",
@@ -63,5 +47,5 @@
     "logging": "Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics."
   },
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z"
 }

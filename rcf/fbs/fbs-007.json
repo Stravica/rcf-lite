@@ -10,7 +10,6 @@
     "AC-304-2",
     "AC-304-3"
   ],
-  "status": "notStarted",
   "contextRequirements": {
     "tacIds": [
       "TAC-002",
@@ -20,10 +19,6 @@
       "ADR-004"
     ]
   },
-  "dependencies": [
-    "FBS-006",
-    "FBS-008"
-  ],
   "estimatedSize": "medium",
   "estimatedHours": 6,
   "deliverables": [
@@ -34,5 +29,11 @@
   "domain": "crud",
   "notes": "Delete depends on the query engine for the reverse index; that is why it sits after coverage and trace queries land.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-02T10:22:43Z",
+  "buildOrder": 7,
+  "executionStatus": "notStarted",
+  "dependsOnFbsIds": [
+    "FBS-006",
+    "FBS-008"
+  ]
 }
