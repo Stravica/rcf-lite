@@ -14,6 +14,12 @@
 // `executionStatus` and `dependsOnFbsIds`. The empty `rcf/test-suites/`
 // directory is scaffolded so a future authored TS drops into a
 // pre-existing shape.
+//
+// Phase 4 D5: `seed` accepts overrides for the four interactive prompts
+// (`prdProblemStatement`, `reqTitle`, `usTitle`, and any of the values
+// the interactive `rcf init` UX collects). When `seed.interactive` is
+// truthy the ADR-001 template starts in `draft` rather than `proposed`,
+// matching interactive-mode intent (D22 amendment).
 
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -33,25 +39,27 @@ function manifestTemplate(projectName) {
   };
 }
 
-function prdTemplate(projectName) {
+function prdTemplate(projectName, seed) {
   return {
     prdId: 'PRD-001',
     productName: projectName,
     version: '0.1.0',
     status: 'draft',
-    problemStatement: 'TODO: state the problem this product solves.',
-    objectives: ['TODO: add at least one objective.'],
+    problemStatement: seed?.prdProblemStatement ?? 'TODO: state the problem this product solves.',
+    objectives: seed?.prdProblemStatement
+      ? [seed.prdProblemStatement]
+      : ['TODO: add at least one objective.'],
     createdAt: TIMESTAMP,
     updatedAt: TIMESTAMP,
   };
 }
 
-function reqTemplate() {
+function reqTemplate(seed) {
   return {
     reqId: 'REQ-001',
     prdId: 'PRD-001',
-    title: 'TODO: name this requirement',
-    description: 'TODO: describe this requirement.',
+    title: seed?.reqTitle ?? 'TODO: name this requirement',
+    description: seed?.reqTitle ?? 'TODO: describe this requirement.',
     category: 'functional',
     domain: 'todo',
     priority: 'must',
@@ -62,17 +70,22 @@ function reqTemplate() {
   };
 }
 
-function userStoryTemplate() {
+function userStoryTemplate(seed) {
+  const interactive = Boolean(seed?.interactive);
   return {
     usId: 'US-101',
     prdId: 'PRD-001',
     reqId: 'REQ-001',
     version: '0.1.0',
     status: 'draft',
-    title: 'TODO: name this user story',
-    asA: 'TODO: name the user',
-    iWant: 'TODO: state the want',
-    soThat: 'TODO: state the value',
+    title: seed?.usTitle ?? 'TODO: name this user story',
+    // Interactive mode leaves the As-a / I want / So that fields as
+    // minimal "-" placeholders (schema requires minLength: 1 so an empty
+    // string would fail validation; the spec's "empty is allowed"
+    // claim on this field was inaccurate on inspection).
+    asA: interactive ? '-' : 'TODO: name the user',
+    iWant: interactive ? '-' : 'TODO: state the want',
+    soThat: interactive ? '-' : 'TODO: state the value',
     acceptanceCriteria: [
       {
         id: 'AC-101-1',
@@ -117,13 +130,16 @@ function tacTemplate() {
   };
 }
 
-function adrTemplate() {
+function adrTemplate(seed) {
   return {
     adrId: 'ADR-001',
     prdId: 'PRD-001',
     tadId: 'TAD-001',
     version: '0.1.0',
-    status: 'proposed',
+    // Interactive-mode `rcf init` seeds ADR-001 in `draft`
+    // (Phase 3.7 D2 grew the enum; Phase 4 D22 uses it here);
+    // non-interactive mode keeps the historical `proposed` value.
+    status: seed?.interactive ? 'draft' : 'proposed',
     title: 'TODO: name this architectural decision',
     context: 'TODO: describe the context.',
     decision: 'TODO: describe the decision.',
@@ -185,9 +201,14 @@ async function writeJson(path, data) {
  * @param {object} args
  * @param {string} args.projectRoot - absolute path; created if missing
  * @param {string} [args.projectName] - written into manifest and PRD
+ * @param {object} [args.seed] - optional interactive-mode overrides
+ * @param {boolean} [args.seed.interactive]
+ * @param {string} [args.seed.prdProblemStatement]
+ * @param {string} [args.seed.reqTitle]
+ * @param {string} [args.seed.usTitle]
  * @returns {Promise<{ created: string[] } | import('../errors/index.js').RcfError>}
  */
-export async function initProject({ projectRoot, projectName = 'New RCF Project' }) {
+export async function initProject({ projectRoot, projectName = 'New RCF Project', seed = null }) {
   if (typeof projectRoot !== 'string' || projectRoot.length === 0) {
     return rcfError({
       kind: 'usage',
@@ -217,12 +238,12 @@ export async function initProject({ projectRoot, projectName = 'New RCF Project'
 
   const files = [
     ['rcf/manifest.json', manifestTemplate(projectName)],
-    ['rcf/prd.json', prdTemplate(projectName)],
-    ['rcf/requirements/req-001.json', reqTemplate()],
-    ['rcf/user-stories/us-101.json', userStoryTemplate()],
+    ['rcf/prd.json', prdTemplate(projectName, seed)],
+    ['rcf/requirements/req-001.json', reqTemplate(seed)],
+    ['rcf/user-stories/us-101.json', userStoryTemplate(seed)],
     ['rcf/tad.json', tadTemplate()],
     ['rcf/tacs/tac-001.json', tacTemplate()],
-    ['rcf/adrs/adr-001.json', adrTemplate()],
+    ['rcf/adrs/adr-001.json', adrTemplate(seed)],
     ['rcf/build-sequence.json', buildSequenceTemplate()],
     ['rcf/fbs/fbs-001.json', fbsTemplate()],
   ];
