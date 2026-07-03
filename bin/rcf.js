@@ -14,12 +14,15 @@ import { dirname, resolve } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { main as coverageMain } from '../src/cli/coverage.js';
 import { main as createMain } from '../src/cli/create.js';
 import { main as deleteMain } from '../src/cli/delete.js';
 import { main as helpMain, TOP_LEVEL_HELP } from '../src/cli/help.js';
+import { main as impactMain } from '../src/cli/impact.js';
 import { main as initMain } from '../src/cli/init.js';
 import { main as linkMain } from '../src/cli/link.js';
 import { main as readMain } from '../src/cli/read.js';
+import { main as traceMain } from '../src/cli/trace.js';
 import { main as updateMain } from '../src/cli/update.js';
 import { main as validateMain } from '../src/cli/validate.js';
 import { main as viewMain } from '../src/cli/view.js';
@@ -36,6 +39,9 @@ const SUBCOMMANDS = {
   delete: deleteMain,
   link: (argv, deps) => linkMain(argv, { ...deps, remove: false }),
   unlink: (argv, deps) => linkMain(argv, { ...deps, remove: true }),
+  coverage: coverageMain,
+  trace: traceMain,
+  impact: impactMain,
   help: helpMain,
 };
 

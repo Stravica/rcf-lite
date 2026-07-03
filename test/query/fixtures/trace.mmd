@@ -1,0 +1,58 @@
+flowchart LR
+  REQ-002["REQ-002"]
+  US-201["US-201"]
+  US-202["US-202"]
+  US-203["US-203"]
+  AC-201-1["AC-201-1"]
+  AC-201-2["AC-201-2"]
+  AC-201-3["AC-201-3"]
+  AC-202-1["AC-202-1"]
+  AC-202-2["AC-202-2"]
+  AC-202-3["AC-202-3"]
+  AC-203-1["AC-203-1"]
+  AC-203-2["AC-203-2"]
+  FBS-003["FBS-003"]
+  FBS-004["FBS-004"]
+  REQ-002 --> US-201
+  REQ-002 --> US-202
+  REQ-002 --> US-203
+  US-201 --> AC-201-1
+  US-201 --> AC-201-2
+  US-201 --> AC-201-3
+  US-202 --> AC-202-1
+  US-202 --> AC-202-2
+  US-202 --> AC-202-3
+  US-203 --> AC-203-1
+  US-203 --> AC-203-2
+  AC-201-1 -.-> FBS-003
+  AC-201-2 -.-> FBS-003
+  AC-201-3 -.-> FBS-003
+  AC-202-1 -.-> FBS-004
+  AC-202-2 -.-> FBS-004
+  AC-202-3 -.-> FBS-004
+  AC-203-1 -.-> FBS-004
+  AC-203-2 -.-> FBS-004
+  class REQ-002 req;
+  class US-201 us;
+  class US-202 us;
+  class US-203 us;
+  class AC-201-1 ac;
+  class AC-201-2 ac;
+  class AC-201-3 ac;
+  class AC-202-1 ac;
+  class AC-202-2 ac;
+  class AC-202-3 ac;
+  class AC-203-1 ac;
+  class AC-203-2 ac;
+  class FBS-003 fbs;
+  class FBS-004 fbs;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;

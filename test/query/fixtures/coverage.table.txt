@@ -1,0 +1,61 @@
+Coverage mode: shallow-any
+Requirements: 7  covered: 0  uncovered: 7
+
+Requirement  Covered  AC        AC covered  Test cases
+-----------  -------  --------  ----------  ----------
+REQ-001      no       AC-101-1  no          -
+                      AC-101-2  no          -
+                      AC-101-3  no          -
+                      AC-102-1  no          -
+                      AC-102-2  no          -
+                      AC-102-3  no          -
+REQ-002      no       AC-201-1  no          -
+                      AC-201-2  no          -
+                      AC-201-3  no          -
+                      AC-202-1  no          -
+                      AC-202-2  no          -
+                      AC-202-3  no          -
+                      AC-203-1  no          -
+                      AC-203-2  no          -
+REQ-003      no       AC-301-1  no          -
+                      AC-301-2  no          -
+                      AC-301-3  no          -
+                      AC-302-1  no          -
+                      AC-302-2  no          -
+                      AC-302-3  no          -
+                      AC-303-1  no          -
+                      AC-303-2  no          -
+                      AC-303-3  no          -
+                      AC-304-1  no          -
+                      AC-304-2  no          -
+                      AC-304-3  no          -
+REQ-004      no       AC-401-1  no          -
+                      AC-401-2  no          -
+                      AC-401-3  no          -
+                      AC-402-1  no          -
+                      AC-402-2  no          -
+                      AC-402-3  no          -
+                      AC-403-1  no          -
+                      AC-403-2  no          -
+                      AC-403-3  no          -
+REQ-005      no       AC-501-1  no          -
+                      AC-501-2  no          -
+                      AC-501-3  no          -
+                      AC-502-1  no          -
+                      AC-502-2  no          -
+                      AC-502-3  no          -
+                      AC-503-1  no          -
+                      AC-503-2  no          -
+                      AC-503-3  no          -
+REQ-006      no       AC-601-1  no          -
+                      AC-601-2  no          -
+                      AC-601-3  no          -
+                      AC-602-1  no          -
+                      AC-602-2  no          -
+                      AC-602-3  no          -
+REQ-007      no       AC-701-1  no          -
+                      AC-701-2  no          -
+                      AC-701-3  no          -
+                      AC-702-1  no          -
+                      AC-702-2  no          -
+                      AC-702-3  no          -

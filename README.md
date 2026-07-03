@@ -62,6 +62,53 @@ The view server binds `127.0.0.1` only - localhost trust. No CORS, no authentica
 | `3` | Validation failure or broken references (`--strict` mode, on the initial walk). |
 | `130` | SIGINT. |
 
+## Traceability + query (Phase 5)
+
+Three read-only verbs answer the deterministic traceability questions over the RCF tree. All three support `--format table|json|mermaid` (table default) and share the exit-code convention (`0`/`1`/`2`/`3`/`4`).
+
+### `rcf coverage [scope-id] [--strict]`
+
+Structural coverage over the REQ chain `PRD -> REQ -> US -> AC -> TS -> TC`. Default is shallow-any (any AC covered by any TC = REQ covered); `--strict` flips to per-AC-strict and exits `4` on any gap (CI-gate friendly). Optional positional scopes to a PRD / REQ / US subtree; below-AC ids (AC / TS / TC / FBS / TAC / ADR / BS / TAD) are refused with exit `2`.
+
+This verb is a mechanical / deterministic structural check. It does NOT answer "does the AC set adequately capture the REQ's intent?" - that non-deterministic question belongs to a later prompting + MCP resources phase (Phase 7+).
+
+```sh
+pnpm exec rcf coverage
+pnpm exec rcf coverage --strict --format json
+pnpm exec rcf coverage REQ-002
+```
+
+### `rcf trace <id> [--forward|--back|--both]`
+
+Walk the graph from `<id>` forward (descendants; parent-child + cross-links), backward (ancestors up to the root; parent-child only per §D8), or both. Default is `--forward`. `--both` emits `{pivot, ancestors, descendants}` around the pivot.
+
+```sh
+pnpm exec rcf trace REQ-002 --forward
+pnpm exec rcf trace AC-201-1 --back
+pnpm exec rcf trace US-201 --both --format mermaid
+```
+
+### `rcf impact <id>`
+
+`trace-forward` + `trace-back` + a labelled `actionNeeded` column per node. Answers "if `<id>` changes, what should we re-verify / re-approve" with static rules:
+
+| Kind | Label |
+|---|---|
+| PRD | re-approve |
+| TAD | review-arch |
+| BS | review-plan |
+| REQ / US | review-scope |
+| AC | re-approve |
+| TS | re-verify |
+| TC | re-run |
+| FBS | re-execute |
+| TAC / ADR | review-context |
+
+```sh
+pnpm exec rcf impact TAC-005
+pnpm exec rcf impact AC-201-1 --format json
+```
+
 ## Depends on
 
 This repo consumes [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas) - the language-neutral JSON Schema contract every RCF tool keys to. See `test/schemas-smoke.test.js` for the import + validation path.

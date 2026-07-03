@@ -1,0 +1,18 @@
+Impact pivot: TAC-001
+
+Id       Kind  Role        Action needed
+-------  ----  ----------  -------------
+TAC-001  tac   pivot       -
+TAD-001  tad   ancestor    review-arch
+FBS-001  fbs   descendant  re-execute
+FBS-002  fbs   descendant  re-execute
+FBS-005  fbs   descendant  re-execute
+FBS-006  fbs   descendant  re-execute
+FBS-003  fbs   descendant  re-execute
+FBS-004  fbs   descendant  re-execute
+FBS-008  fbs   descendant  re-execute
+FBS-007  fbs   descendant  re-execute
+FBS-012  fbs   descendant  re-execute
+FBS-009  fbs   descendant  re-execute
+FBS-010  fbs   descendant  re-execute
+FBS-011  fbs   descendant  re-execute

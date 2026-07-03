@@ -1,0 +1,333 @@
+{
+  "ok": false,
+  "strict": false,
+  "totals": {
+    "requirements": 7,
+    "covered": 0,
+    "uncovered": 7
+  },
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "covered": false,
+      "acs": [
+        {
+          "id": "AC-101-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-101-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-101-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-102-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-102-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-102-3",
+          "covered": false,
+          "testCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "covered": false,
+      "acs": [
+        {
+          "id": "AC-201-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-201-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-201-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-202-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-202-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-202-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-203-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-203-2",
+          "covered": false,
+          "testCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "covered": false,
+      "acs": [
+        {
+          "id": "AC-301-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-301-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-301-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-302-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-302-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-302-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-303-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-303-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-303-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-304-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-304-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-304-3",
+          "covered": false,
+          "testCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "covered": false,
+      "acs": [
+        {
+          "id": "AC-401-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-401-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-401-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-402-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-402-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-402-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-403-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-403-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-403-3",
+          "covered": false,
+          "testCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "covered": false,
+      "acs": [
+        {
+          "id": "AC-501-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-501-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-501-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-502-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-502-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-502-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-503-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-503-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-503-3",
+          "covered": false,
+          "testCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "covered": false,
+      "acs": [
+        {
+          "id": "AC-601-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-601-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-601-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-602-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-602-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-602-3",
+          "covered": false,
+          "testCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "covered": false,
+      "acs": [
+        {
+          "id": "AC-701-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-701-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-701-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-702-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-702-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-702-3",
+          "covered": false,
+          "testCases": []
+        }
+      ]
+    }
+  ]
+}

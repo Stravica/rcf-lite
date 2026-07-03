@@ -1,0 +1,174 @@
+{
+  "pivot": "REQ-002",
+  "direction": "forward",
+  "found": true,
+  "nodes": [
+    {
+      "id": "REQ-002",
+      "kind": "req",
+      "depth": 0
+    },
+    {
+      "id": "US-201",
+      "kind": "userStory",
+      "depth": 1
+    },
+    {
+      "id": "US-202",
+      "kind": "userStory",
+      "depth": 1
+    },
+    {
+      "id": "US-203",
+      "kind": "userStory",
+      "depth": 1
+    },
+    {
+      "id": "AC-201-1",
+      "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "AC-201-2",
+      "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "AC-201-3",
+      "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "AC-202-1",
+      "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "AC-202-2",
+      "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "AC-202-3",
+      "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "AC-203-1",
+      "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "AC-203-2",
+      "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "FBS-003",
+      "kind": "fbs",
+      "depth": 3
+    },
+    {
+      "id": "FBS-004",
+      "kind": "fbs",
+      "depth": 3
+    }
+  ],
+  "edges": [
+    {
+      "from": "REQ-002",
+      "to": "US-201",
+      "kind": "parentChild"
+    },
+    {
+      "from": "REQ-002",
+      "to": "US-202",
+      "kind": "parentChild"
+    },
+    {
+      "from": "REQ-002",
+      "to": "US-203",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-201",
+      "to": "AC-201-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-201",
+      "to": "AC-201-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-201",
+      "to": "AC-201-3",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-202",
+      "to": "AC-202-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-202",
+      "to": "AC-202-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-202",
+      "to": "AC-202-3",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-203",
+      "to": "AC-203-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-203",
+      "to": "AC-203-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-201-1",
+      "to": "FBS-003",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-201-2",
+      "to": "FBS-003",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-201-3",
+      "to": "FBS-003",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-1",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-2",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-3",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-203-1",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-203-2",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    }
+  ]
+}

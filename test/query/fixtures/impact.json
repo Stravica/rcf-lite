@@ -1,0 +1,187 @@
+{
+  "pivot": "TAC-001",
+  "found": true,
+  "nodes": [
+    {
+      "id": "TAC-001",
+      "kind": "tac",
+      "role": "pivot",
+      "actionNeeded": null
+    },
+    {
+      "id": "TAD-001",
+      "kind": "tad",
+      "role": "ancestor",
+      "actionNeeded": "review-arch"
+    },
+    {
+      "id": "FBS-001",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-002",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-005",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-006",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-003",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-004",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-008",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-007",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-012",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-009",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-010",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    },
+    {
+      "id": "FBS-011",
+      "kind": "fbs",
+      "role": "descendant",
+      "actionNeeded": "re-execute"
+    }
+  ],
+  "edges": [
+    {
+      "from": "TAC-001",
+      "to": "TAD-001",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TAC-001",
+      "to": "FBS-001",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TAC-001",
+      "to": "FBS-002",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TAC-001",
+      "to": "FBS-005",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TAC-001",
+      "to": "FBS-006",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-001",
+      "to": "FBS-002",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-002",
+      "to": "FBS-003",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-002",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-002",
+      "to": "FBS-005",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-002",
+      "to": "FBS-008",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-005",
+      "to": "FBS-006",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-006",
+      "to": "FBS-007",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-006",
+      "to": "FBS-012",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-008",
+      "to": "FBS-007",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-008",
+      "to": "FBS-009",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-008",
+      "to": "FBS-010",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-008",
+      "to": "FBS-012",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-010",
+      "to": "FBS-011",
+      "kind": "crossLink"
+    },
+    {
+      "from": "FBS-010",
+      "to": "FBS-012",
+      "kind": "crossLink"
+    }
+  ]
+}

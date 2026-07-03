@@ -1,0 +1,58 @@
+flowchart LR
+  TAC-001["TAC-001"]
+  TAD-001["TAD-001"]
+  FBS-001["FBS-001"]
+  FBS-002["FBS-002"]
+  FBS-005["FBS-005"]
+  FBS-006["FBS-006"]
+  FBS-003["FBS-003"]
+  FBS-004["FBS-004"]
+  FBS-008["FBS-008"]
+  FBS-007["FBS-007"]
+  FBS-012["FBS-012"]
+  FBS-009["FBS-009"]
+  FBS-010["FBS-010"]
+  FBS-011["FBS-011"]
+  TAC-001 --> TAD-001
+  TAC-001 -.-> FBS-001
+  TAC-001 -.-> FBS-002
+  TAC-001 -.-> FBS-005
+  TAC-001 -.-> FBS-006
+  FBS-001 -.-> FBS-002
+  FBS-002 -.-> FBS-003
+  FBS-002 -.-> FBS-004
+  FBS-002 -.-> FBS-005
+  FBS-002 -.-> FBS-008
+  FBS-005 -.-> FBS-006
+  FBS-006 -.-> FBS-007
+  FBS-006 -.-> FBS-012
+  FBS-008 -.-> FBS-007
+  FBS-008 -.-> FBS-009
+  FBS-008 -.-> FBS-010
+  FBS-008 -.-> FBS-012
+  FBS-010 -.-> FBS-011
+  FBS-010 -.-> FBS-012
+  class TAC-001 tac;
+  class TAD-001 tad;
+  class FBS-001 fbs;
+  class FBS-002 fbs;
+  class FBS-005 fbs;
+  class FBS-006 fbs;
+  class FBS-003 fbs;
+  class FBS-004 fbs;
+  class FBS-008 fbs;
+  class FBS-007 fbs;
+  class FBS-012 fbs;
+  class FBS-009 fbs;
+  class FBS-010 fbs;
+  class FBS-011 fbs;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;

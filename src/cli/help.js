@@ -16,6 +16,9 @@ Commands:
   delete <id>         Delete a document (refuses on dependents by default)
   link <us-id>        Link a US to a TAC (appends to tacIds; idempotent)
   unlink <us-id>      Unlink a US from a TAC
+  coverage            Structural coverage report (PRD -> REQ -> US -> AC -> TS -> TC)
+  trace <id>          Walk the graph forward / back / both from an id
+  impact <id>         Impact fan-out with per-node action label
   help [command]      Print help for a command
 
 Options:
@@ -135,6 +138,64 @@ Options:
   --help                    Print this help
 `;
 
+const COVERAGE_HELP = `Usage: rcf coverage [scope-id] [options]
+
+Report structural coverage over the REQ chain (PRD -> REQ -> US -> AC
+-> TS -> TC). Default is shallow-any (any AC covered by any TC = REQ
+covered); --strict flips to per-AC-strict (every AC has TC coverage).
+
+This is a mechanical / deterministic structural check. It does NOT
+answer 'does the AC set adequately capture the REQ's intent?' - that
+non-deterministic question is out of scope for Phase 5.
+
+Positional:
+  scope-id                  Optional PRD / REQ / US id to scope
+                            coverage to a subtree. Below-AC ids
+                            (AC / TS / TC / FBS / TAC / ADR / BS /
+                            TAD) are refused with exit 2.
+
+Options:
+  --strict                  Per-AC-strict mode; exits 4 on any gap
+  --format <format>         table (default) | json | mermaid
+  --help                    Print this help
+`;
+
+const TRACE_HELP = `Usage: rcf trace <id> [options]
+
+Walk the graph from <id> forward (descendants), backward (ancestors),
+or both. Default is --forward.
+
+Options:
+  --forward                 Walk descendants (default)
+  --back                    Walk ancestors up to the root PRD / TAD / BS
+  --both                    Emit ancestors + descendants around <id>
+  --format <format>         table (default) | json | mermaid
+  --help                    Print this help
+
+Notes:
+  --forward, --back and --both are mutually exclusive.
+  Cross-links are NOT traversed by --back (fan-out is what 'impact' is for).
+`;
+
+const IMPACT_HELP = `Usage: rcf impact <id> [options]
+
+Report the fan-out for 'if <id> changes'. Emits ancestors (up to the
+root PRD / TAD / BS) plus descendants (down to test-leaves) with a
+per-node action label:
+  re-run          test needs to be re-executed
+  re-verify       suite ownership; check whether the change invalidates
+  re-approve      the AC or PRD approval scope needs re-signing
+  review-scope    US / REQ scope needs re-checking
+  review-arch     TAD architectural context needs revisiting
+  review-plan     BS build queue may need re-ordering
+  re-execute      FBS delivery re-runs against updated AC
+  review-context  TAC / ADR referenced by an affected FBS
+
+Options:
+  --format <format>         table (default) | json | mermaid
+  --help                    Print this help
+`;
+
 // BUG-011 fix: `rcf help view` previously printed a pointer
 // (`See 'rcf view --help' for view options.`). Every other subcommand's
 // help block renders inline; wire `view` through to the same block that
@@ -150,6 +211,9 @@ const HELP_MAP = {
   delete: DELETE_HELP,
   link: LINK_HELP,
   unlink: UNLINK_HELP,
+  coverage: COVERAGE_HELP,
+  trace: TRACE_HELP,
+  impact: IMPACT_HELP,
   view: VIEW_HELP,
 };
 

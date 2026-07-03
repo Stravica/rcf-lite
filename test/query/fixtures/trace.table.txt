@@ -1,0 +1,18 @@
+Trace pivot: REQ-002  direction: forward
+
+Depth  Id        Kind       Title
+-----  --------  ---------  -----
+0      REQ-002   req
+1      US-201    userStory
+1      US-202    userStory
+1      US-203    userStory
+2      AC-201-1  ac
+2      AC-201-2  ac
+2      AC-201-3  ac
+2      AC-202-1  ac
+2      AC-202-2  ac
+2      AC-202-3  ac
+2      AC-203-1  ac
+2      AC-203-2  ac
+3      FBS-003   fbs
+3      FBS-004   fbs
