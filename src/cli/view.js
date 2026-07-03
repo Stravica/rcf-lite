@@ -1,24 +1,22 @@
-#!/usr/bin/env node
-// rcf view standalone bin. Phase 3.8 replaced the static-write behaviour
-// wholesale: running the bin starts a long-running HTTP + SSE server on
-// 127.0.0.1 that watches `rcf/` and streams tree updates to the connected
-// browser tab. There is no `--watch` flag and no `.rcf-view/` output
-// directory. See specs/phase-3.8-live-view.md D9 for the CLI shape.
+// `rcf view` subcommand handler. Wraps the Phase 3.8 HTTP + SSE server
+// (`src/server/index.js`) behind the unified bin surface. Phase 4 §D23
+// deletes the standalone `bin/rcf-view.js`; every call site becomes
+// `pnpm run rcf view` / `rcf view`, and the pure helpers formerly
+// exported from that bin now live here so the CLI tests can still
+// exercise them without spawning a subprocess.
 
 import { spawn } from 'node:child_process';
 import { platform } from 'node:process';
-import process from 'node:process';
-import { pathToFileURL } from 'node:url';
 
-import { formatErrors } from '../src/errors/index.js';
-import { walkTree } from '../src/store/index.js';
-import { findProjectRoot } from '../src/view/index.js';
-import { startServer } from '../src/server/index.js';
+import { formatErrors } from '../errors/index.js';
+import { walkTree } from '../store/index.js';
+import { findProjectRoot } from '../view/index.js';
+import { startServer } from '../server/index.js';
 
-const DEFAULT_PORT = 4373;
-const SHUTDOWN_BUDGET_MS = 2000;
+export const DEFAULT_PORT = 4373;
+export const SHUTDOWN_BUDGET_MS = 2000;
 
-const HELP = `Usage: rcf-view [options]
+const HELP = `Usage: rcf view [options]
 
 Serve the on-disk RCF tree as a live HTML review surface. Runs a
 long-running HTTP + SSE server on 127.0.0.1 that watches rcf/ and pushes
@@ -61,6 +59,14 @@ Exit codes:
   130 SIGINT
 `;
 
+/**
+ * Parse the view subcommand argv. Hand-rolled so the CLI can pass
+ * through argv slices without re-tokenising via parseArgs. Kept in the
+ * same shape as the Phase 3.8 rcf-view bin for test compatibility.
+ *
+ * @param {string[]} argv
+ * @returns {{ opts: object, errors: string[] }}
+ */
 export function parseArgs(argv) {
   const opts = {
     strict: false,
@@ -109,7 +115,7 @@ export function parseArgs(argv) {
 }
 
 /**
- * Resolve the port precedence: --port beats RCF_VIEW_PORT beats default.
+ * Resolve port precedence: --port beats RCF_VIEW_PORT env beats default.
  *
  * @param {number | null} flagPort
  * @param {NodeJS.ProcessEnv} env
@@ -151,13 +157,6 @@ export function openerFor(plat, target) {
  * spawn failures fall through to a stderr warning.
  *
  * @param {object} args
- * @param {string} args.target - URL (Phase 3.8) or file path (legacy).
- * @param {boolean} args.noOpen
- * @param {NodeJS.WriteStream} args.stream
- * @param {NodeJS.ProcessEnv} args.env
- * @param {NodeJS.WriteStream} args.stderr
- * @param {(cmd: string, args: string[], opts: object) => object} [args.spawnFn]
- * @param {string} [args.platformName]
  * @returns {boolean}
  */
 export function maybeAutoOpen({ target, noOpen, stream, env, stderr, spawnFn = spawn, platformName = platform }) {
@@ -177,8 +176,10 @@ export function maybeAutoOpen({ target, noOpen, stream, env, stderr, spawnFn = s
 }
 
 /**
- * Main entry. Returns a Promise resolving to an exit code.
- * @param {string[]} argv
+ * Main entry for the `rcf view` subcommand. Mirrors the shape of the
+ * old bin/rcf-view.js main().
+ *
+ * @param {string[]} argv - the argv slice *after* the "view" positional
  * @param {object} [deps]
  * @returns {Promise<number>}
  */
@@ -204,11 +205,11 @@ export async function main(argv, deps = {}) {
     return 2;
   }
 
-  const cwd = process.cwd();
+  const cwd = deps.cwd ?? process.cwd();
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
     stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor).\n');
-    stderr.write('Run `rcf init` (Phase 4) or create rcf/manifest.json to start.\n');
+    stderr.write('Run `rcf init` or create rcf/manifest.json to start.\n');
     return 2;
   }
 
@@ -231,11 +232,11 @@ export async function main(argv, deps = {}) {
     });
   } catch (err) {
     if (/** @type {NodeJS.ErrnoException} */ (err).code === 'EADDRINUSE') {
-      stderr.write(`[error] usage port ${resolvedPort} is in use (another rcf-view process, or a different service).\n`);
+      stderr.write(`[error] usage port ${resolvedPort} is in use (another rcf view process, or a different service).\n`);
       stderr.write('Pass --port <n> or set RCF_VIEW_PORT to pick a free port.\n');
       return 2;
     }
-    stderr.write(`[error] ioFailure server failed to start: ${/** @type {Error} */ (err).message}\n`);
+    stderr.write(`[error] ioFailure server failed to start: ${err.message}\n`);
     return 1;
   }
 
@@ -266,7 +267,7 @@ export async function main(argv, deps = {}) {
       try {
         await server.close();
       } catch (err) {
-        stderr.write(`[warn] shutdown error: ${/** @type {Error} */ (err).message}\n`);
+        stderr.write(`[warn] shutdown error: ${err.message}\n`);
       }
       clearTimeout(forceExit);
       if (!forced) resolve(sig === 'SIGINT' ? 130 : 0);
@@ -274,14 +275,4 @@ export async function main(argv, deps = {}) {
     onSignal('SIGINT', () => { handle('SIGINT'); });
     onSignal('SIGTERM', () => { handle('SIGTERM'); });
   });
-}
-
-const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMain) {
-  main(process.argv.slice(2))
-    .then((code) => process.exit(code))
-    .catch((err) => {
-      process.stderr.write(`[error] ioFailure unexpected: ${err.message}\n`);
-      process.exit(1);
-    });
 }

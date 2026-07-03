@@ -9,12 +9,12 @@
     "node": ">=24.0.0"
   },
   "bin": {
-    "rcf-view": "bin/rcf-view.js"
+    "rcf": "bin/rcf.js"
   },
   "scripts": {
     "test": "node --test --test-concurrency=1 'test/**/*.test.js'",
     "vendor": "node scripts/vendor-mermaid.mjs",
-    "rcf-view": "node bin/rcf-view.js"
+    "rcf": "node bin/rcf.js"
   },
   "repository": {
     "type": "git",

@@ -8,3 +8,4 @@ export { loadDocument, loadRootDocument, pathForId, rootPathFor, subdirFor } fro
 export { validateDocument, idFieldFor, documentIdOf, knownKinds } from './validator.js';
 export { walkTree } from './walker.js';
 export { initProject } from './init.js';
+export { nextIdForKind, createDocument, updateDocument, deleteDocument, deriveSlug } from './writer.js';

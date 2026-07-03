@@ -1,8 +1,7 @@
-// CLI test for bin/rcf-view.js. Phase 3.8 rewrote the bin as a
-// server-only surface. The subprocess starts a long-running HTTP + SSE
-// server; each test either drives the child via SIGINT after asserting
-// state, or exercises the exported pure functions (parseArgs,
-// resolvePort, openerFor, maybeAutoOpen) synchronously.
+// CLI test for `rcf view` under the unified `bin/rcf.js`. Phase 4 §D23
+// deletes the standalone `bin/rcf-view.js`; the server behaviour lives
+// behind `rcf view`. Pure helpers now live in `src/cli/view.js`; the
+// subprocess tests drive them via `bin/rcf.js view`.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -20,16 +19,16 @@ import {
   openerFor,
   parseArgs,
   resolvePort,
-} from '../../bin/rcf-view.js';
+} from '../../src/cli/view.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
-const bin = resolve(repoRoot, 'bin', 'rcf-view.js');
+const bin = resolve(repoRoot, 'bin', 'rcf.js');
 
 async function runBin(cwd, args = [], env = {}) {
   try {
-    const { stdout, stderr } = await exec(process.execPath, [bin, ...args], {
+    const { stdout, stderr } = await exec(process.execPath, [bin, 'view', ...args], {
       cwd,
       encoding: 'utf8',
       env: { ...process.env, ...env, CI: '1' },
@@ -52,7 +51,7 @@ async function freePort() {
 }
 
 async function spawnServer(cwd, args = [], env = {}) {
-  const child = spawn(process.execPath, [bin, ...args], {
+  const child = spawn(process.execPath, [bin, 'view', ...args], {
     cwd,
     env: { ...process.env, ...env, CI: '1' },
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -92,44 +91,44 @@ async function spawnServer(cwd, args = [], env = {}) {
   };
 }
 
-test('rcf-view --help exits 0 in any directory', async () => {
+test('rcf view --help exits 0 in any directory', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-help-'));
   const { code, stdout } = await runBin(tmp, ['--help']);
   assert.equal(code, 0);
-  assert.match(stdout, /Usage: rcf-view/);
+  assert.match(stdout, /Usage: rcf view/);
   assert.match(stdout, /--port/);
   assert.match(stdout, /--strict/);
   assert.match(stdout, /--no-open/);
   assert.match(stdout, /Exit codes/);
 });
 
-test('rcf-view --help documents the localhost-only trust posture', async () => {
+test('rcf view --help documents the localhost-only trust posture', async () => {
   const { stdout } = await runBin(process.cwd(), ['--help']);
   assert.match(stdout, /127\.0\.0\.1/);
   assert.match(stdout, /no auth/i);
 });
 
-test('rcf-view --help documents Ctrl-C shutdown', async () => {
+test('rcf view --help documents Ctrl-C shutdown', async () => {
   const { stdout } = await runBin(process.cwd(), ['--help']);
   assert.match(stdout, /Ctrl-C|SIGINT/);
   assert.match(stdout, /Shutdown/);
 });
 
-test('rcf-view in a directory with no project exits 2 (usage)', async () => {
+test('rcf view in a directory with no project exits 2 (usage)', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-noproject-'));
   const { code, stderr } = await runBin(tmp);
   assert.equal(code, 2);
   assert.match(stderr, /no project root found/);
 });
 
-test('rcf-view --unknown-flag exits 2 (usage)', async () => {
+test('rcf view --unknown-flag exits 2 (usage)', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-bad-flag-'));
   const { code, stderr } = await runBin(tmp, ['--whatever']);
   assert.equal(code, 2);
   assert.match(stderr, /unknown option/);
 });
 
-test('rcf-view --port without a value exits 2', async () => {
+test('rcf view --port without a value exits 2', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-port-noval-'));
   await initProject({ projectRoot: tmp });
   const { code, stderr } = await runBin(tmp, ['--port']);
@@ -137,7 +136,7 @@ test('rcf-view --port without a value exits 2', async () => {
   assert.match(stderr, /--port requires/);
 });
 
-test('rcf-view on a broken tree without --strict starts the server anyway', async () => {
+test('rcf view on a broken tree without --strict starts the server anyway', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-broken-'));
   await initProject({ projectRoot: tmp });
   const reqPath = join(tmp, 'rcf', 'requirements', 'req-001.json');
@@ -157,7 +156,7 @@ test('rcf-view on a broken tree without --strict starts the server anyway', asyn
   }
 });
 
-test('rcf-view --strict on a broken tree exits 3 and never binds a listener', async () => {
+test('rcf view --strict on a broken tree exits 3 and never binds a listener', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-strict-broken-'));
   await initProject({ projectRoot: tmp });
   const reqPath = join(tmp, 'rcf', 'requirements', 'req-001.json');
@@ -174,7 +173,7 @@ test('rcf-view --strict on a broken tree exits 3 and never binds a listener', as
   await new Promise((r) => check.close(r));
 });
 
-test('rcf-view --strict on a clean tree starts the listener normally', async () => {
+test('rcf view --strict on a clean tree starts the listener normally', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-strict-clean-'));
   await initProject({ projectRoot: tmp });
   const port = await freePort();
@@ -188,7 +187,7 @@ test('rcf-view --strict on a clean tree starts the listener normally', async () 
   }
 });
 
-test('rcf-view --port respects the flag', async () => {
+test('rcf view --port respects the flag', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-portflag-'));
   await initProject({ projectRoot: tmp });
   const port = await freePort();
@@ -202,7 +201,7 @@ test('rcf-view --port respects the flag', async () => {
   }
 });
 
-test('rcf-view RCF_VIEW_PORT env var respected; --port beats env', async () => {
+test('rcf view RCF_VIEW_PORT env var respected; --port beats env', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-portenv-'));
   await initProject({ projectRoot: tmp });
   const envPort = await freePort();
@@ -223,7 +222,7 @@ test('rcf-view RCF_VIEW_PORT env var respected; --port beats env', async () => {
   }
 });
 
-test('rcf-view RCF_VIEW_PORT env used when --port is absent', async () => {
+test('rcf view RCF_VIEW_PORT env used when --port is absent', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-env-only-'));
   await initProject({ projectRoot: tmp });
   const port = await freePort();
@@ -237,7 +236,7 @@ test('rcf-view RCF_VIEW_PORT env used when --port is absent', async () => {
   }
 });
 
-test('rcf-view EADDRINUSE on the requested port exits 2 with a clear error', async () => {
+test('rcf view EADDRINUSE on the requested port exits 2 with a clear error', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-eaddrinuse-'));
   await initProject({ projectRoot: tmp });
   const busy = createServer();
@@ -252,7 +251,7 @@ test('rcf-view EADDRINUSE on the requested port exits 2 with a clear error', asy
   }
 });
 
-test('rcf-view never writes any files to disk (regression against static mode)', async () => {
+test('rcf view never writes any files to disk (regression against static mode)', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-nofs-'));
   await initProject({ projectRoot: tmp });
   const port = await freePort();
@@ -266,7 +265,7 @@ test('rcf-view never writes any files to disk (regression against static mode)',
   await assert.rejects(stat(join(tmp, '.rcf-view')), { code: 'ENOENT' });
 });
 
-test('rcf-view SIGINT triggers a clean shutdown within the 2s budget', async () => {
+test('rcf view SIGINT triggers a clean shutdown within the 2s budget', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-sigint-'));
   await initProject({ projectRoot: tmp });
   const port = await freePort();
@@ -283,7 +282,7 @@ test('rcf-view SIGINT triggers a clean shutdown within the 2s budget', async () 
   await new Promise((r) => check.close(r));
 });
 
-test('rcf-view runs from a subdirectory and walks upward to the project root', async () => {
+test('rcf view runs from a subdirectory and walks upward to the project root', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-sub-'));
   await initProject({ projectRoot: tmp });
   const subDir = join(tmp, 'rcf', 'requirements');

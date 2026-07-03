@@ -278,6 +278,21 @@ function invertGraph(tree) {
     }
   }
 
+  // Populate parentByChild for inline AC / TC ids so CRUD verbs
+  // (Phase 4) can resolve an inline id to its owning US / TS via the
+  // same map that resolves standalone child docs. `childrenByParent` is
+  // deliberately NOT extended: it still names authored child docs only.
+  for (const us of tree.userStories) {
+    for (const ac of us.acceptanceCriteria ?? []) {
+      if (ac?.id) tree.parentByChild.set(ac.id, us.usId);
+    }
+  }
+  for (const ts of tree.testSuites) {
+    for (const tc of ts.testCases ?? []) {
+      if (tc?.id) tree.parentByChild.set(tc.id, ts.id);
+    }
+  }
+
   // Sort children lists deterministically.
   for (const [k, list] of tree.childrenByParent) {
     tree.childrenByParent.set(k, [...list].sort());
