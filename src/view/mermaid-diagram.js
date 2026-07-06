@@ -62,6 +62,8 @@ function classForId(id) {
   if (id.startsWith('ADR-')) return 'adr';
   if (id.startsWith('BS-')) return 'bs';
   if (id.startsWith('FBS-')) return 'fbs';
+  if (id.startsWith('TS-')) return 'ts';
+  if (id.startsWith('TC-')) return 'tc';
   return 'unknown';
 }
 
@@ -75,6 +77,8 @@ const CLASS_DEFS = `
   classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
   classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;
 `.trim();
 

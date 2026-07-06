@@ -119,10 +119,13 @@ export function formatError(err, opts = {}) {
 }
 
 /**
- * Render a list of errors plus a summary line. The summary line carries the
- * count and a pointer at --strict only when the caller is in default mode
- * (so the caller gets the hint exactly once and not after they used the
- * flag already).
+ * Render a list of errors plus a summary line. Callers that refuse to
+ * produce output on errors (the view's --strict startup gate) pass
+ * `strict: true` and get "output not written" appended; every other
+ * caller gets a plain count. The summary never advertises flags - the
+ * verbs sharing this formatter have different (or no) strictness flags,
+ * so a flag hint here is wrong for most of them (validate has no
+ * --strict at all).
  *
  * When the caller renders only a subset of a larger error list (e.g.
  * `validate --quiet` shows the first 3 of N), pass the true total via
@@ -144,7 +147,7 @@ export function formatErrors(errors, opts = {}) {
   const noun = count === 1 ? 'error' : 'errors';
   const summary = strict
     ? `[error] ${count} ${noun} found; output not written.`
-    : `[error] ${count} ${noun} found; output written with broken-section markers. Pass --strict to refuse the render.`;
+    : `[error] ${count} ${noun} found.`;
   lines.push(summary);
   return lines.join('\n');
 }

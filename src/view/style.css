@@ -43,6 +43,8 @@
   --colour-adr: #fbcfe8;
   --colour-bs:  #ddd6fe;
   --colour-fbs: #c7d2fe;
+  --colour-ts:  #99f6e4;
+  --colour-tc:  #d9f99d;
 
   /* Elevation */
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.03);
@@ -281,7 +283,7 @@ article.doc-tac { border-left-color: var(--colour-tac); }
 article.doc-adr { border-left-color: var(--colour-adr); }
 article.doc-bs  { border-left-color: var(--colour-bs); }
 article.doc-fbs { border-left-color: var(--colour-fbs); }
-article.doc-ts  { border-left-color: var(--colour-ac); }
+article.doc-ts  { border-left-color: var(--colour-ts); }
 
 article.doc p { margin: 0.45rem 0; }
 article.doc h4 { margin: 1.1rem 0 0.45rem; font-size: 1rem; font-weight: 600; color: var(--colour-heading); }
@@ -478,7 +480,7 @@ details.doc-details.doc-us-wrap  { border-left: 4px solid var(--colour-us); }
 details.doc-details.doc-tac-wrap { border-left: 4px solid var(--colour-tac); }
 details.doc-details.doc-adr-wrap { border-left: 4px solid var(--colour-adr); }
 details.doc-details.doc-fbs-wrap { border-left: 4px solid var(--colour-fbs); }
-details.doc-details.doc-ts-wrap  { border-left: 4px solid var(--colour-ac); }
+details.doc-details.doc-ts-wrap  { border-left: 4px solid var(--colour-ts); }
 
 .nested-details {
   margin: 0 1rem 1rem;

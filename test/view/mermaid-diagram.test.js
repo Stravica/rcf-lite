@@ -43,6 +43,18 @@ test('requirementSubdiagram emits click bindings for every node (D7)', async () 
   assert.match(src, /click AC-201-1 "#AC-201-1";/);
 });
 
+test('requirementSubdiagram palette carries distinct ts / tc classDefs', async () => {
+  const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const req = model.requirements.find((r) => r.reqId === 'REQ-002');
+  const src = requirementSubdiagram(model, req);
+  // The classDef block is appended to every diagram; ts / tc must be
+  // present with their own fills, not aliases of us / ac (palette kept
+  // in sync with src/query/formatters/mermaid.js).
+  assert.match(src, /classDef ts fill:#99f6e4/);
+  assert.match(src, /classDef tc fill:#d9f99d/);
+});
+
 test('allRequirementSubdiagrams returns one diagram per REQ', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);

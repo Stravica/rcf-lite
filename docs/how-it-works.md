@@ -139,7 +139,7 @@ The tool is built to be operated by agents, so its contracts are explicit:
 
 (`rcf view`, a long-running server, additionally exits 130 on Ctrl-C.)
 
-**Machine output.** The query verbs take `--format json`, the write verbs `--json` / `--dry-run`. JSON shapes are stable by convention: they change only deliberately and with notice in the changelog, not as a side effect.
+**Machine output.** The query verbs (`rcf coverage`, `rcf trace`, `rcf impact`) and `rcf build` take `--format json`; `rcf validate` takes `--json`; the write verbs (`rcf create`, `rcf update`, `rcf delete`, `rcf link`, `rcf unlink`) take `--dry-run` to print the intended writes without executing. JSON shapes are stable by convention: they change only deliberately and with notice in the changelog, not as a side effect.
 
 **MCP.** `rcf mcp` serves the same contract over the Model Context Protocol - local stdio only, project root fixed at startup, protocol revision `2025-11-25`. The server declares tools, resources and prompts:
 

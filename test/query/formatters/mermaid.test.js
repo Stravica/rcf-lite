@@ -73,8 +73,27 @@ test('classForId matches the live-view palette prefixes', () => {
   assert.equal(classForId('ADR-003'), 'adr');
   assert.equal(classForId('BS-001'), 'bs');
   assert.equal(classForId('FBS-014'), 'fbs');
+  // TS and TC have their own classes - they must not borrow us / ac.
+  assert.equal(classForId('TS-001'), 'ts');
+  assert.equal(classForId('TC-001-happy'), 'tc');
   // CLASS_DEFS carries the full palette + broken class.
+  assert.match(CLASS_DEFS, /classDef ts /);
+  assert.match(CLASS_DEFS, /classDef tc /);
   assert.match(CLASS_DEFS, /classDef broken/);
+});
+
+test('coverage mermaid assigns the tc class to test-case nodes', () => {
+  const result = {
+    ok: true, strict: false,
+    totals: { requirements: 1, covered: 1, uncovered: 0 },
+    requirements: [{
+      id: 'REQ-001', covered: true,
+      acs: [{ id: 'AC-001-1', covered: true, testCases: ['TC-001-happy'] }],
+    }],
+  };
+  const out = formatMermaid(result, 'coverage');
+  assert.match(out, /class TC-001-happy tc;/);
+  assert.doesNotMatch(out, /class TC-001-happy ac;/);
 });
 
 test('impact mermaid does not emit the actionNeeded column (intent surfaces via node classes)', () => {

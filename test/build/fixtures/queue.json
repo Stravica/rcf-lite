@@ -8,14 +8,14 @@
   },
   "totals": {
     "items": 12,
-    "notStarted": 1,
+    "notStarted": 0,
     "inProgress": 0,
-    "complete": 11,
+    "complete": 12,
     "verified": 0,
-    "actionable": 1,
+    "actionable": 0,
     "blocked": 0
   },
-  "nextActionable": "FBS-012",
+  "nextActionable": null,
   "items": [
     {
       "fbsId": "FBS-001",
@@ -141,13 +141,13 @@
       "fbsId": "FBS-012",
       "buildOrder": 12,
       "title": "MCP server over the full surface",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-006",
         "FBS-008",
         "FBS-010"
       ],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     }
   ]

@@ -163,6 +163,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
   classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;reqId&quot;: &quot;REQ-001&quot;,
@@ -402,6 +404,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
   classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;reqId&quot;: &quot;REQ-002&quot;,
@@ -724,6 +728,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
   classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;reqId&quot;: &quot;REQ-003&quot;,
@@ -1102,6 +1108,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
   classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;reqId&quot;: &quot;REQ-004&quot;,
@@ -1413,6 +1421,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
   classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;reqId&quot;: &quot;REQ-005&quot;,
@@ -1702,6 +1712,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
   classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;reqId&quot;: &quot;REQ-006&quot;,
@@ -1930,6 +1942,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
   classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;reqId&quot;: &quot;REQ-007&quot;,
@@ -2920,7 +2934,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status notStarted">notStarted</span> - MCP server over the full surface</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -3910,7 +3924,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-012">
-  <summary><span class="summary-label">FBS-012 - MCP server over the full surface</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-012 - MCP server over the full surface</span><span class="status complete">complete</span></summary>
   <article id="FBS-012" class="doc doc-fbs">
   <h3>FBS-012 - MCP server over the full surface</h3>
   
@@ -3967,7 +3981,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Deliverables</h4><ul><li>Local stdio MCP server</li><li>Tool registrations for the full feature set</li><li>Structured-error serialisation for MCP clients</li></ul></section>
   <p><strong>Risk level:</strong> medium</p>
   <p><strong>Build order:</strong> 12</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> AC-702-3 (structured errors over MCP) lands here because MCP is the surface where structured-object error delivery becomes load-bearing.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-012&quot;,
@@ -4006,9 +4020,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;domain&quot;: &quot;mcp&quot;,
   &quot;notes&quot;: &quot;AC-702-3 (structured errors over MCP) lands here because MCP is the surface where structured-object error delivery becomes load-bearing.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-06T16:09:33.696Z&quot;,
   &quot;buildOrder&quot;: 12,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-006&quot;,
     &quot;FBS-008&quot;,

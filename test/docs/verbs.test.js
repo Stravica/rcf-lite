@@ -68,3 +68,17 @@ test('the how-it-works verb map names every shipped subcommand', async () => {
     assert.equal(text.includes(`\`${verb}\``), true, `how-it-works.md verb map is missing \`${verb}\``);
   }
 });
+
+test('the how-it-works machine-output claims match each verb\'s real flag surface', () => {
+  // how-it-works.md §6: query verbs + build take `--format json`,
+  // validate takes `--json`, the write verbs take `--dry-run`. Assert
+  // against HELP_MAP so a flag rename fails CI until the sentence moves
+  // in the same PR.
+  for (const verb of ['coverage', 'trace', 'impact', 'build']) {
+    assert.match(HELP_MAP[verb], /--format/, `${verb} help lost --format; update how-it-works.md §6`);
+  }
+  assert.match(HELP_MAP.validate, /--json/, 'validate help lost --json; update how-it-works.md §6');
+  for (const verb of ['create', 'update', 'delete', 'link', 'unlink']) {
+    assert.match(HELP_MAP[verb], /--dry-run/, `${verb} help lost --dry-run; update how-it-works.md §6`);
+  }
+});

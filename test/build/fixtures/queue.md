@@ -15,8 +15,8 @@ Generation strategy: dependencyFirst
 | 9 | FBS-009 | Impact analysis | complete | complete |  |
 | 10 | FBS-010 | Build adapter prompt assembly | complete | complete |  |
 | 11 | FBS-011 | Mark-done on completion | complete | complete |  |
-| 12 | FBS-012 | MCP server over the full surface | notStarted | actionable |  |
+| 12 | FBS-012 | MCP server over the full surface | complete | complete |  |
 
-Totals: items 12 | notStarted 1 | inProgress 0 | complete 11 | verified 0 | actionable 1 | blocked 0
+Totals: items 12 | notStarted 0 | inProgress 0 | complete 12 | verified 0 | actionable 0 | blocked 0
 
-Next actionable: FBS-012
+Next actionable: none

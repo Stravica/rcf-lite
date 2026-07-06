@@ -74,21 +74,24 @@ test('formatError verbose mode appends field and rule', () => {
   assert.match(line, /rule=enum/);
 });
 
-test('formatErrors includes default --strict pointer', () => {
+test('formatErrors default summary is a plain count with no flag hint', () => {
   const errs = [
     rcfError({ kind: 'validation', message: 'a', documentId: 'REQ-001' }),
     rcfError({ kind: 'missingFile', message: 'b', documentId: 'FBS-099' }),
   ];
   const out = formatErrors(errs);
-  assert.match(out, /2 errors found/);
-  assert.match(out, /Pass --strict/);
+  assert.match(out, /2 errors found\./);
+  // The shared formatter serves verbs with different (or no) strictness
+  // flags - validate has no --strict - so the summary must not name one.
+  assert.doesNotMatch(out, /--strict/);
+  assert.doesNotMatch(out, /render/);
 });
 
-test('formatErrors strict mode omits the --strict pointer', () => {
+test('formatErrors strict mode reports output not written, no flag hint', () => {
   const errs = [rcfError({ kind: 'validation', message: 'a', documentId: 'REQ-001' })];
   const out = formatErrors(errs, { strict: true });
   assert.match(out, /1 error found/);
-  assert.doesNotMatch(out, /Pass --strict/);
+  assert.doesNotMatch(out, /--strict/);
   assert.match(out, /output not written/);
 });
 
