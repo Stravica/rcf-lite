@@ -159,6 +159,43 @@ projects what the tree says; whether an FBS is well-specified or a
 bundle sufficient for a harness to succeed is semantic judgement and
 belongs to the Phase 7+ prompting + MCP surface.
 
+## MCP server (Phase 7)
+
+`rcf mcp` serves the project over the Model Context Protocol - local
+stdio only, no HTTP, no docker, no sessions. An MCP-capable harness
+launches it as a subprocess in the project directory; one client config
+line:
+
+```json
+{
+  "mcpServers": {
+    "rcf": { "command": "rcf", "args": ["mcp"] }
+  }
+}
+```
+
+Run `rcf init` once first - the server needs an existing `rcf/` tree
+and resolves the project root at startup (`--project-root <path>` to
+point elsewhere). Multi-project setups run one server entry per
+project.
+
+Eleven tools, each a thin in-process wrapper over the same pure
+modules the CLI uses (identical JSON envelopes, no reshaping):
+`rcf_validate`, `rcf_coverage`, `rcf_trace`, `rcf_impact`, `rcf_read`,
+`rcf_create`, `rcf_update`, `rcf_delete`, `rcf_link`, `rcf_unlink`,
+and `rcf_build` (FBS ids only - the FBS is the queue unit). Strict
+coverage gaps and blocked bundles come back as data in the envelope,
+not tool errors.
+
+Resources: `rcf://tree` (document index), `rcf://doc/<id>` (every
+document, inline ACs / TCs included) and `rcf://docs/<slug>` (the
+methodology docs from `guidance/`). Prompts: the two agent playbooks
+(`rcf_execute_build_cycle`, `rcf_elicit_requirements`).
+
+stdout carries protocol messages only; logging goes to stderr
+(`--verbose` for per-request lines). The server exits when the client
+closes stdin.
+
 ## Depends on
 
 This repo consumes [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas) - the language-neutral JSON Schema contract every RCF tool keys to. See `test/schemas-smoke.test.js` for the import + validation path.

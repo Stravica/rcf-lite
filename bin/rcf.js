@@ -22,6 +22,7 @@ import { main as helpMain, TOP_LEVEL_HELP } from '../src/cli/help.js';
 import { main as impactMain } from '../src/cli/impact.js';
 import { main as initMain } from '../src/cli/init.js';
 import { main as linkMain } from '../src/cli/link.js';
+import { main as mcpMain } from '../src/cli/mcp.js';
 import { main as readMain } from '../src/cli/read.js';
 import { main as traceMain } from '../src/cli/trace.js';
 import { main as updateMain } from '../src/cli/update.js';
@@ -44,6 +45,7 @@ const SUBCOMMANDS = {
   trace: traceMain,
   impact: impactMain,
   build: buildMain,
+  mcp: mcpMain,
   help: helpMain,
 };
 
