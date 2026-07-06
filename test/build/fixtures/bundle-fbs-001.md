@@ -174,6 +174,8 @@ This bundle is the work order for one pass of the RCF five-stage build
 cycle: Define -> Build -> Review -> Test -> Finalise. The tool assembles
 and referees; the harness executes. Every stage ends in a commit.
 
+Deep guidance: rcf://docs/build-cycle and the rcf_execute_build_cycle prompt, or guidance/build-cycle-playbook.md in the rcf-build-lite repo.
+
 ### Stage 1 - Define
 
 Satisfied by this bundle: the FBS, acceptance criteria, ancestry and

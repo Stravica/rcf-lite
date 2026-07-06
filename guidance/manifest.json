@@ -1,0 +1,12 @@
+{
+  "docs": [
+    {"slug": "overview", "file": "overview.md", "title": "RCF overview"},
+    {"slug": "document-model", "file": "document-model.md", "title": "RCF document model"},
+    {"slug": "build-cycle", "file": "build-cycle.md", "title": "The RCF 5-stage build cycle"},
+    {"slug": "harness-template", "file": "harness-template.md", "title": "Drop-in harness template"}
+  ],
+  "prompts": [
+    {"name": "rcf_execute_build_cycle", "file": "build-cycle-playbook.md", "description": "How to execute the RCF 5-stage build cycle well: per-stage guidance, referee commands, failure modes, escalation rules. Fetch once per session, then drive rcf build --next."},
+    {"name": "rcf_elicit_requirements", "file": "elicitation-playbook.md", "description": "How to draw a valid RCF tree out of a conversation: question frames for PRD / REQ / US / AC, the testable-AC quality bar, TAC / ADR capture, FBS queue construction, and when to stop."}
+  ]
+}

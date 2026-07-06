@@ -343,6 +343,9 @@ function pushRunbook(lines, bundle) {
   lines.push('This bundle is the work order for one pass of the RCF five-stage build');
   lines.push('cycle: Define -> Build -> Review -> Test -> Finalise. The tool assembles');
   lines.push('and referees; the harness executes. Every stage ends in a commit.', '');
+  // Deep-layer pointer (Phase 7.5 §D5.4, OQ-P7.5-3): the runbook is the
+  // terse just-in-time layer; the playbook is the deep layer.
+  lines.push('Deep guidance: rcf://docs/build-cycle and the rcf_execute_build_cycle prompt, or guidance/build-cycle-playbook.md in the rcf-build-lite repo.', '');
 
   lines.push('### Stage 1 - Define', '');
   lines.push('Satisfied by this bundle: the FBS, acceptance criteria, ancestry and');
