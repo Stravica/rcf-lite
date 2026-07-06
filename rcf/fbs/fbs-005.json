@@ -29,9 +29,9 @@
   "domain": "crud",
   "notes": "Read is the simplest mutator-free verb; it locks the output shape later mutators reuse.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-02T10:22:43Z",
+  "updatedAt": "2026-07-06T10:52:42.550Z",
   "buildOrder": 5,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "dependsOnFbsIds": [
     "FBS-002"
   ]

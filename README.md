@@ -109,6 +109,56 @@ pnpm exec rcf impact TAC-005
 pnpm exec rcf impact AC-201-1 --format json
 ```
 
+## Build loop (SDD adapter, Phase 6)
+
+The FBS documents are the build queue: each Feature Build Spec carries a
+`buildOrder`, an `executionStatus` lifecycle and a `dependsOnFbsIds[]`
+dependency edge. `rcf build` is the thin in-tree SDD adapter over that
+queue - it assembles each FBS item into an implementable spec bundle,
+selects the next actionable item, and records lifecycle transitions.
+One verb, four modes:
+
+```sh
+pnpm exec rcf build                            # queue overview (the FBS queue as a table)
+pnpm exec rcf build FBS-005                    # spec bundle for one FBS item
+pnpm exec rcf build --next                     # bundle for the next actionable item
+pnpm exec rcf build FBS-005 --mark complete    # record a lifecycle transition
+```
+
+A bundle is a seven-section markdown document (json via `--format json`;
+file sink via `--out <path>`): header, queue and dependency context, the
+work, acceptance criteria with full US/REQ ancestry, architectural
+context (TAC / ADR / TAD / PRD sections), the existing test surface per
+AC, and the five-stage build-cycle runbook (Define -> Build -> Review ->
+Test -> Finalise, each stage commits) as the implementing harness's work
+order.
+
+An item is *actionable* when it is `notStarted` and every dependency is
+`complete` or `verified`; `--next` picks the lowest `buildOrder`
+actionable item. A bundle for a blocked item renders with a BLOCKED
+warning (read-ahead is legitimate); `--strict` refuses it with exit 4.
+
+The lifecycle is forward-only:
+
+```
+notStarted -> inProgress -> complete -> verified
+```
+
+`--mark` validates the transition (forward jumps allowed, backward
+refused with exit 4; same-status is an idempotent no-op) and writes
+through the standard update path - schema-validated, `updatedAt`
+bumped. Deliberate corrections go through the escape hatch:
+`rcf update <fbs-id> --set executionStatus=<status>`. The standing
+discipline: whoever drives the loop marks `complete` on PR merge and
+`verified` after post-merge verification, every phase - the tool ships
+the marking primitive, not a VCS trigger.
+
+Bundle assembly is mechanical and deterministic: byte-identical output
+for the same tree state, no wall-clock, no network, no model calls. It
+projects what the tree says; whether an FBS is well-specified or a
+bundle sufficient for a harness to succeed is semantic judgement and
+belongs to the Phase 7+ prompting + MCP surface.
+
 ## Depends on
 
 This repo consumes [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas) - the language-neutral JSON Schema contract every RCF tool keys to. See `test/schemas-smoke.test.js` for the import + validation path.

@@ -1,0 +1,236 @@
+{
+  "ok": true,
+  "mode": "bundle",
+  "fbs": {
+    "fbsId": "FBS-001",
+    "title": "Document store core",
+    "buildOrder": 1,
+    "executionStatus": "complete",
+    "summary": "Build the document store: id-to-path resolution, JSON parse, schema validation against the registered bundle, persist-after-validate, and a tree walk from the manifest roots.",
+    "approach": "Register the published schema bundle once at start-up. Resolve ids to paths by the recommended layout convention. Make load and save the only filesystem touch points. Return structured errors rather than throwing strings, so every surface can report them consistently.",
+    "deliverables": [
+      "Document store module with load, save and walkTree",
+      "Schema bundle registration at start-up",
+      "Structured error type for validation and reference failures",
+      "Init command that refuses to overwrite an existing project without an explicit force flag"
+    ],
+    "notes": "Everything else in the build sequence depends on this; keep the public surface small and stable. AC-101-2 (init refuses to overwrite an existing project) is grouped here as init-verb behaviour adjacent to AC-101-1; the spec did not assign it to any FBS in round 1.",
+    "estimatedSize": "medium",
+    "estimatedHours": 6,
+    "riskLevel": "low",
+    "domain": "projectStructure",
+    "updatedAt": "2026-07-02T10:22:43Z"
+  },
+  "queue": {
+    "position": 1,
+    "total": 12
+  },
+  "bs": {
+    "bsId": "BS-001",
+    "title": "RCF Build Lite initial delivery",
+    "buildPhilosophy": "Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.",
+    "generationStrategy": "dependencyFirst"
+  },
+  "prd": {
+    "prdId": "PRD-001",
+    "productName": "RCF Build Lite"
+  },
+  "blockedBy": [],
+  "dependencies": [],
+  "dependents": [
+    "FBS-002"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-101-1",
+      "description": "Initialise creates the rcf folder and a manifest declaring the three roots",
+      "given": "an empty target directory",
+      "when": "the initialise command runs",
+      "then": "an rcf folder exists containing a manifest that declares prd, tad and bs root references and validates against the manifest schema",
+      "testable": true,
+      "usId": "US-101",
+      "reqId": "REQ-001"
+    },
+    {
+      "id": "AC-101-2",
+      "description": "Initialise refuses to overwrite an existing project",
+      "given": "a directory that already contains an rcf manifest",
+      "when": "the initialise command runs without an explicit force flag",
+      "then": "the command exits non-zero, makes no changes and reports that a project already exists",
+      "testable": true,
+      "usId": "US-101",
+      "reqId": "REQ-001"
+    },
+    {
+      "id": "AC-101-3",
+      "description": "Every document is discoverable by walking from the roots",
+      "given": "an initialised project with a PRD, a TAD and a Build Sequence",
+      "when": "the project is loaded",
+      "then": "all child documents are resolved by reading the parent id lists, with no child enumeration in the manifest",
+      "testable": true,
+      "usId": "US-101",
+      "reqId": "REQ-001"
+    }
+  ],
+  "userStories": [
+    {
+      "usId": "US-101",
+      "title": "Initialise an RCF project on disk",
+      "asA": "project owner starting a new RCF project",
+      "iWant": "to run a single initialise command that creates the rcf folder, the manifest and the root document placeholders",
+      "soThat": "I have a valid RCF project structure on disk without authoring any layout by hand",
+      "status": "draft"
+    }
+  ],
+  "requirements": [
+    {
+      "reqId": "REQ-001",
+      "title": "On-disk RCF project structure",
+      "description": "Build Lite initialises and maintains a project's RCF documents on the local filesystem, under a top-level rcf folder, with the project manifest declaring the three root documents (PRD, TAD, Build Sequence) and every other document discovered by walking from the roots. The local files are the single source of truth; no external store mirrors them.",
+      "category": "functional",
+      "priority": "must",
+      "rationale": "The in-repository differentiator depends on RCF documents living beside the code. A predictable on-disk layout is the foundation every other capability reads from and writes to."
+    }
+  ],
+  "context": {
+    "tacs": [
+      {
+        "tacId": "TAC-001",
+        "name": "Document store",
+        "purpose": "Own all reads, validation and writes of RCF documents on the local filesystem, and be the only component that touches the rcf tree.",
+        "responsibilities": [
+          "Resolve a document file path from a document id by convention",
+          "Load and parse a document and validate it against its schema",
+          "Walk from the roots to assemble the full in-memory tree",
+          "Persist a document only after it validates",
+          "Surface broken references and schema failures as structured errors"
+        ],
+        "interfaces": [
+          {
+            "name": "loadDocument",
+            "kind": "function",
+            "description": "Resolve an id to a path, parse and validate, return the document or a structured error."
+          },
+          {
+            "name": "saveDocument",
+            "kind": "function",
+            "description": "Validate then persist a document; refuse to write if validation fails."
+          },
+          {
+            "name": "walkTree",
+            "kind": "function",
+            "description": "From the manifest roots, resolve every child by id and return the full tree."
+          }
+        ],
+        "dependencies": [
+          {
+            "name": "rcf-schemas",
+            "kind": "external",
+            "description": "The published schema package the validator registers at start-up."
+          }
+        ],
+        "tradeoffs": "Centralising all filesystem access in one component costs a small amount of indirection but guarantees that no consumer can write an unvalidated document or bypass the source-of-truth rule.",
+        "notes": "The store is intentionally synchronous where possible; a local CLI does not benefit from streaming and synchronous code is easier for contributors to follow."
+      }
+    ],
+    "adrs": [
+      {
+        "adrId": "ADR-001",
+        "title": "Local filesystem is the single source of truth",
+        "status": "accepted",
+        "context": "RCF Build Lite must guarantee that a project's RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.",
+        "decision": "Every read and write targets the local rcf tree directly. No external service, cache or database mirrors the documents. The CLI, the MCP server and the build loop all reach the filesystem only through the document store.",
+        "consequences": "The tool works offline and stays harness-agnostic. There is no sync problem and no second source to drift. The cost is that any multi-user or hosted scenario is out of scope by construction, which matches the product boundaries.",
+        "alternativesConsidered": [
+          {
+            "name": "GitHub API as source of truth",
+            "summary": "Read and write documents through the GitHub contents API as v1 did.",
+            "reasonNotChosen": "Breaks the in-repository differentiator, requires network access and hit the API single-file fetch limit on large documents."
+          },
+          {
+            "name": "Local database index",
+            "summary": "Keep the files but maintain a database index for fast queries.",
+            "reasonNotChosen": "Introduces a second source of truth that can drift; query volumes for a single project do not justify it."
+          }
+        ]
+      },
+      {
+        "adrId": "ADR-002",
+        "title": "Validate against the published schema bundle at boundaries",
+        "status": "accepted",
+        "context": "A non-coder cannot catch a malformed RCF document by eye, and an AI agent left unchecked can drift the document shape silently. Validation has to be a property of the tool, not a discipline of the user.",
+        "decision": "Register the published @stravica/rcf-schemas bundle once at start-up and validate every document on load and before persist. Refuse to write any document that does not validate.",
+        "consequences": "On-disk state is always valid. A small validation cost runs on every operation. The published schema package is the single source of truth for shape; local drift is impossible.",
+        "alternativesConsidered": [
+          {
+            "name": "Local copies of the schemas",
+            "summary": "Vendor the schemas into the tool repository and validate against the local copy.",
+            "reasonNotChosen": "Allows local copies to drift from the published contract; the whole point of publishing the schemas is that every consumer keys to the same version."
+          },
+          {
+            "name": "Validate only on persist",
+            "summary": "Skip validation on load to save the cost of validating documents already on disk.",
+            "reasonNotChosen": "Misses drift caused by edits made outside the tool; load validation is what makes broken trees visible to the owner."
+          }
+        ]
+      }
+    ],
+    "tadSections": {
+      "systemOverview": {
+        "executiveSummary": "Build Lite is a Node 24 ESM toolset whose core is a set of local filesystem operations over a project's RCF documents. CRUD, query, view, the build loop and the MCP surface are all thin layers over a shared document store that reads and writes the on-disk rcf tree and validates against the published schemas at every boundary.",
+        "systemPurpose": "Run the full RCF method over in-repository documents and surface it through deterministic, structured operations for a non-engineering owner and for AI tooling.",
+        "architecturalApproach": "Layered. A document-store core owns load, validate and persist. A CLI binary, a view renderer, a query engine, a build adapter and an MCP server are all consumers of that core. No layer reaches the filesystem except through the store.",
+        "keyCapabilities": [
+          "Filesystem-backed RCF document store with schema validation at boundaries",
+          "Deterministic CRUD verbs over every document type",
+          "Diagram and HTML rendering of the whole tree",
+          "Traceability and query over the chain",
+          "Build-specification to implementation-prompt assembly",
+          "Local stdio MCP surface over the whole feature set"
+        ]
+      },
+      "integrationArchitecture": {
+        "apiDesign": "The store exposes a typed-by-convention internal API of document operations. The CLI maps verbs to those operations and renders results for a terminal. The MCP server maps tools to the same operations and returns structured results. No HTTP API is exposed.",
+        "eventModel": "None. Operations are synchronous filesystem reads and writes."
+      }
+    },
+    "prdSections": {},
+    "unresolvedSections": [],
+    "passThrough": {
+      "existingModules": [],
+      "schemas": [
+        "manifest.schema.json",
+        "prd.schema.json"
+      ],
+      "externalDocs": [
+        "https://ajv.js.org/"
+      ],
+      "other": []
+    }
+  },
+  "tests": [
+    {
+      "acId": "AC-101-1",
+      "covered": false,
+      "suites": [],
+      "cases": []
+    },
+    {
+      "acId": "AC-101-2",
+      "covered": false,
+      "suites": [],
+      "cases": []
+    },
+    {
+      "acId": "AC-101-3",
+      "covered": false,
+      "suites": [],
+      "cases": []
+    }
+  ],
+  "completionContract": {
+    "markInProgress": "rcf build FBS-001 --mark inProgress",
+    "markComplete": "rcf build FBS-001 --mark complete",
+    "markVerified": "rcf build FBS-001 --mark verified"
+  }
+}

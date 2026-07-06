@@ -2920,7 +2920,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status notStarted">notStarted</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status notStarted">notStarted</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status notStarted">notStarted</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status notStarted">notStarted</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status notStarted">notStarted</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status notStarted">notStarted</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status notStarted">notStarted</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status notStarted">notStarted</span> - MCP server over the full surface</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status notStarted">notStarted</span> - MCP server over the full surface</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -3281,7 +3281,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-005">
-  <summary><span class="summary-label">FBS-005 - CLI read verbs</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-005 - CLI read verbs</span><span class="status complete">complete</span></summary>
   <article id="FBS-005" class="doc doc-fbs">
   <h3>FBS-005 - CLI read verbs</h3>
   
@@ -3314,7 +3314,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Deliverables</h4><ul><li>rcf read verb with structured outcome</li><li>Combined content and validation rendering</li></ul></section>
   <p><strong>Risk level:</strong> low</p>
   <p><strong>Build order:</strong> 5</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> Read is the simplest mutator-free verb; it locks the output shape later mutators reuse.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-005&quot;,
@@ -3347,9 +3347,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;domain&quot;: &quot;crud&quot;,
   &quot;notes&quot;: &quot;Read is the simplest mutator-free verb; it locks the output shape later mutators reuse.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-06T10:52:42.550Z&quot;,
   &quot;buildOrder&quot;: 5,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-002&quot;
   ]
@@ -3358,7 +3358,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-006">
-  <summary><span class="summary-label">FBS-006 - CLI create and update verbs</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-006 - CLI create and update verbs</span><span class="status complete">complete</span></summary>
   <article id="FBS-006" class="doc doc-fbs">
   <h3>FBS-006 - CLI create and update verbs</h3>
   
@@ -3433,7 +3433,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Deliverables</h4><ul><li>rcf create verb with parent linkage and conflict detection</li><li>rcf update verb with safe field updates</li><li>Validation-error renderer covering both verbs</li></ul></section>
   <p><strong>Risk level:</strong> medium</p>
   <p><strong>Build order:</strong> 6</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> Cross-cutting validation criteria AC-701-1, AC-701-2, AC-702-1 and AC-702-2 land here because this is the first mutating surface.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-006&quot;,
@@ -3476,9 +3476,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;domain&quot;: &quot;crud&quot;,
   &quot;notes&quot;: &quot;Cross-cutting validation criteria AC-701-1, AC-701-2, AC-702-1 and AC-702-2 land here because this is the first mutating surface.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-06T10:52:42.640Z&quot;,
   &quot;buildOrder&quot;: 6,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-005&quot;
   ]
@@ -3487,7 +3487,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-007">
-  <summary><span class="summary-label">FBS-007 - CLI delete with reference safety</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-007 - CLI delete with reference safety</span><span class="status complete">complete</span></summary>
   <article id="FBS-007" class="doc doc-fbs">
   <h3>FBS-007 - CLI delete with reference safety</h3>
   
@@ -3520,7 +3520,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Deliverables</h4><ul><li>rcf delete verb with reference-safe default</li><li>Cascade flag with parent-reference cleanup</li></ul></section>
   <p><strong>Risk level:</strong> medium</p>
   <p><strong>Build order:</strong> 7</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> Delete depends on the query engine for the reverse index; that is why it sits after coverage and trace queries land.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-007&quot;,
@@ -3553,9 +3553,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;domain&quot;: &quot;crud&quot;,
   &quot;notes&quot;: &quot;Delete depends on the query engine for the reverse index; that is why it sits after coverage and trace queries land.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-06T10:52:42.730Z&quot;,
   &quot;buildOrder&quot;: 7,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-006&quot;,
     &quot;FBS-008&quot;
@@ -3565,7 +3565,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-008">
-  <summary><span class="summary-label">FBS-008 - Coverage and trace queries</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-008 - Coverage and trace queries</span><span class="status complete">complete</span></summary>
   <article id="FBS-008" class="doc doc-fbs">
   <h3>FBS-008 - Coverage and trace queries</h3>
   
@@ -3616,7 +3616,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Deliverables</h4><ul><li>Coverage report covering requirements and acceptance criteria</li><li>Trace-forward and trace-back operations</li></ul></section>
   <p><strong>Risk level:</strong> low</p>
   <p><strong>Build order:</strong> 8</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> The intent-chain-only rule is load-bearing; the walker rejects FBS edges at the type level.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-008&quot;,
@@ -3651,9 +3651,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;domain&quot;: &quot;traceability&quot;,
   &quot;notes&quot;: &quot;The intent-chain-only rule is load-bearing; the walker rejects FBS edges at the type level.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-06T10:52:42.819Z&quot;,
   &quot;buildOrder&quot;: 8,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-002&quot;
   ]
@@ -3662,7 +3662,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-009">
-  <summary><span class="summary-label">FBS-009 - Impact analysis</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-009 - Impact analysis</span><span class="status complete">complete</span></summary>
   <article id="FBS-009" class="doc doc-fbs">
   <h3>FBS-009 - Impact analysis</h3>
   
@@ -3695,7 +3695,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Deliverables</h4><ul><li>Impact analysis covering intent-chain and FBS-context references</li></ul></section>
   <p><strong>Risk level:</strong> low</p>
   <p><strong>Build order:</strong> 9</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> Impact is the only query that crosses into FBS context lookups; intent-chain traces still avoid it.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-009&quot;,
@@ -3726,9 +3726,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;domain&quot;: &quot;traceability&quot;,
   &quot;notes&quot;: &quot;Impact is the only query that crosses into FBS context lookups; intent-chain traces still avoid it.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-06T10:52:42.909Z&quot;,
   &quot;buildOrder&quot;: 9,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-008&quot;
   ]
@@ -3737,7 +3737,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-010">
-  <summary><span class="summary-label">FBS-010 - Build adapter prompt assembly</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-010 - Build adapter prompt assembly</span><span class="status complete">complete</span></summary>
   <article id="FBS-010" class="doc doc-fbs">
   <h3>FBS-010 - Build adapter prompt assembly</h3>
   
@@ -3788,7 +3788,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Deliverables</h4><ul><li>Build prompt assembler emitting a single markdown prompt</li><li>Topological build order with parallel-safe groups and cycle detection</li></ul></section>
   <p><strong>Risk level:</strong> medium</p>
   <p><strong>Build order:</strong> 10</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-010&quot;,
@@ -3824,9 +3824,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;domain&quot;: &quot;build&quot;,
   &quot;notes&quot;: &quot;The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-06T10:53:15.552Z&quot;,
   &quot;buildOrder&quot;: 10,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-008&quot;
   ]
@@ -3835,7 +3835,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-011">
-  <summary><span class="summary-label">FBS-011 - Mark-done on completion</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-011 - Mark-done on completion</span><span class="status complete">complete</span></summary>
   <article id="FBS-011" class="doc doc-fbs">
   <h3>FBS-011 - Mark-done on completion</h3>
   
@@ -3868,7 +3868,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Deliverables</h4><ul><li>rcf build done command with paired status updates</li></ul></section>
   <p><strong>Risk level:</strong> low</p>
   <p><strong>Build order:</strong> 11</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> Explicit-command design (not PR-watching) keeps the tool offline and harness-agnostic.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-011&quot;,
@@ -3899,9 +3899,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;domain&quot;: &quot;build&quot;,
   &quot;notes&quot;: &quot;Explicit-command design (not PR-watching) keeps the tool offline and harness-agnostic.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-06T10:53:15.636Z&quot;,
   &quot;buildOrder&quot;: 11,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-010&quot;
   ]

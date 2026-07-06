@@ -2,6 +2,7 @@
 // only (Phase 4 §D17). Long-form docs land in Phase 8; this help block
 // is the sole documentation surface for the phase.
 
+import { HELP as BUILD_HELP } from './build.js';
 import { HELP as VIEW_HELP } from './view.js';
 
 const TOP_LEVEL = `Usage: rcf <command> [options]
@@ -19,6 +20,7 @@ Commands:
   coverage            Structural coverage report (PRD -> REQ -> US -> AC -> TS -> TC)
   trace <id>          Walk the graph forward / back / both from an id
   impact <id>         Impact fan-out with per-node action label
+  build [fbs-id]      Assemble FBS spec bundles and drive the build queue
   help [command]      Print help for a command
 
 Options:
@@ -214,6 +216,7 @@ const HELP_MAP = {
   coverage: COVERAGE_HELP,
   trace: TRACE_HELP,
   impact: IMPACT_HELP,
+  build: BUILD_HELP,
   view: VIEW_HELP,
 };
 

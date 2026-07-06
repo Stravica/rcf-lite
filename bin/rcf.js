@@ -14,6 +14,7 @@ import { dirname, resolve } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { main as buildMain } from '../src/cli/build.js';
 import { main as coverageMain } from '../src/cli/coverage.js';
 import { main as createMain } from '../src/cli/create.js';
 import { main as deleteMain } from '../src/cli/delete.js';
@@ -42,6 +43,7 @@ const SUBCOMMANDS = {
   coverage: coverageMain,
   trace: traceMain,
   impact: impactMain,
+  build: buildMain,
   help: helpMain,
 };
 
