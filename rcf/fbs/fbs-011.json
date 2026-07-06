@@ -27,9 +27,9 @@
   "domain": "build",
   "notes": "Explicit-command design (not PR-watching) keeps the tool offline and harness-agnostic.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-02T10:22:43Z",
+  "updatedAt": "2026-07-06T10:52:42.461Z",
   "buildOrder": 11,
-  "executionStatus": "notStarted",
+  "executionStatus": "inProgress",
   "dependsOnFbsIds": [
     "FBS-010"
   ]

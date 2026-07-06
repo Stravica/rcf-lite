@@ -29,9 +29,9 @@
   "domain": "crud",
   "notes": "Delete depends on the query engine for the reverse index; that is why it sits after coverage and trace queries land.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-02T10:22:43Z",
+  "updatedAt": "2026-07-06T10:52:42.730Z",
   "buildOrder": 7,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "dependsOnFbsIds": [
     "FBS-006",
     "FBS-008"

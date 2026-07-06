@@ -39,9 +39,9 @@
   "domain": "crud",
   "notes": "Cross-cutting validation criteria AC-701-1, AC-701-2, AC-702-1 and AC-702-2 land here because this is the first mutating surface.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-02T10:22:43Z",
+  "updatedAt": "2026-07-06T10:52:42.640Z",
   "buildOrder": 6,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "dependsOnFbsIds": [
     "FBS-005"
   ]
