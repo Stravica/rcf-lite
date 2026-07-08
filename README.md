@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://nodejs.org)
 
-RCF Build Lite - CLI, MCP server, live HTML view (`rcf view`) and `rcf build` SDD adapter for the [Requirements Confidence Framework (RCF)](https://stravica.ai/rcf-methodology): an unbroken, machine-checkable chain from product intent to test evidence, kept as JSON files in your own repository. First consumer of [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas).
+The CLI, MCP server, live HTML view (`rcf view`) and `rcf build` SDD adapter for the [Requirements Confidence Framework (RCF)](https://stravica.ai/rcf-methodology): an unbroken, machine-checkable chain from product intent to test evidence, kept as JSON files in your own repository. First consumer of [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas).
 
 ## Start here: hand this to your coding agent
 
@@ -17,8 +17,9 @@ I want to build [describe your product idea in a sentence or two].
 Before writing any code, set up RCF Build Lite so this project runs
 against a real requirements spine:
 
-1. Clone https://github.com/Stravica/rcf-build-lite and follow its
-   docs/install.md (install from source; the package is not on npm yet).
+1. Install RCF Build Lite: npm install -g @stravica-ai/rcf-build-lite
+   (or run it through npx). The repo is
+   https://github.com/Stravica/rcf-build-lite.
 2. Read docs/getting-started.md and docs/how-it-works.md from that repo.
 3. Initialise an RCF tree in my project with rcf init, and paste the
    fragment from guidance/harness-template.md into this project's
@@ -31,13 +32,13 @@ against a real requirements spine:
    then execute the spec bundle it prints, stage by stage.
 ```
 
-Working by hand instead? [docs/getting-started.md](docs/getting-started.md) is the same journey at human pace.
+If you'd rather drive it by hand, [docs/getting-started.md](docs/getting-started.md) covers the same ground at human pace.
 
-**Status:** pre-publish. The v0.1 surface has shipped - thirteen working verbs plus `mcp` and `help`, the agent guidance pack, 600-plus tests; not yet published to npm, so installation is from source ([docs/install.md](docs/install.md)).
+**Status:** v0.1 is on npm as [`@stravica-ai/rcf-build-lite`](https://www.npmjs.com/package/@stravica-ai/rcf-build-lite). Thirteen working verbs plus `mcp` and `help`, the agent guidance pack, and a 700-plus test suite. Install with `npm install -g @stravica-ai/rcf-build-lite`, or run it directly with `npx @stravica-ai/rcf-build-lite`; [docs/install.md](docs/install.md) covers prerequisites and agent-harness wiring.
 
 ## This repo runs on it
 
-Build Lite's own PRD, requirements, user stories, acceptance criteria, TAD and build queue live as JSON under [`rcf/`](./rcf), validated against [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas). The roots are declared in [`rcf/manifest.json`](./rcf/manifest.json); everything else is discovered by walking the tree. The build queue in there is the one that drove the tool's own phases - the artefacts are the demo.
+Build Lite's own PRD, requirements, user stories, acceptance criteria, TAD and build queue live as JSON under [`rcf/`](./rcf), validated against [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas). The roots are declared in [`rcf/manifest.json`](./rcf/manifest.json); everything else is discovered by walking the tree. The build queue in there is the one that drove the tool's own development. The artefacts are the demo.
 
 ## Quickstart
 
@@ -54,7 +55,7 @@ Then scaffold your own project: [docs/getting-started.md](docs/getting-started.m
 
 | Doc | One line |
 |---|---|
-| [docs/install.md](docs/install.md) | Prerequisites, source install, verify, wire into an agent harness |
+| [docs/install.md](docs/install.md) | Prerequisites, install, verify, wire into an agent harness |
 | [docs/getting-started.md](docs/getting-started.md) | Empty directory to a validated, queried, building RCF project |
 | [docs/how-it-works.md](docs/how-it-works.md) | The document chain, the files, the fifteen verbs, the agent contract |
 | [docs/why-it-exists.md](docs/why-it-exists.md) | The confidence gap, and why files plus a CLI is the answer |

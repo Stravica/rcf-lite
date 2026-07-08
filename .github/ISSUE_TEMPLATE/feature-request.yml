@@ -13,7 +13,7 @@ body:
     id: proposal
     attributes:
       label: Proposed verb or surface
-      description: How you imagine it working - a new verb, a flag on an existing verb, a change to an output format. A sketch is fine.
+      description: How you imagine it working, whether that is a new verb, a flag on an existing verb, or a change to an output format. A sketch is fine.
     validations:
       required: true
   - type: textarea
