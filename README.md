@@ -66,6 +66,19 @@ Then scaffold your own project: [docs/getting-started.md](docs/getting-started.m
 
 [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas) - the language-neutral JSON Schema contract every RCF tool keys to.
 
+## Roadmap
+
+RCF v1 is spec-first: the traceability chain (PRD → REQ → US → AC → TS → TC) is complete on the spec side and stops at TC's `testPointer` field. Tests are trusted to verify code intent; the graph does not extend into source paths yet.
+
+**Phase 10 (planned) - spec ↔ code bridge.** Two additions that close the gap without breaking the deterministic, no-LLM boundary:
+
+- **Test-coverage bridge.** `rcf coverage --with-code` composes AC → TC → source paths from standard coverage output (LCOV / jest / nyc / pytest-cov / go coverage). A new `rcf trace <path>` walks backward from a source file to the ACs it exercises.
+- **FBS post-hoc paths.** `rcf build --mark complete` captures paths touched since `--mark inProgress` into an optional `implementedInPaths[]` field on the FBS.
+
+## Contributing
+
+Not accepting external code contributions at this stage of the project. Bug reports and feature discussion via [Issues](https://github.com/Stravica/rcf-build-lite/issues) are welcome. [CONTRIBUTING.md](./CONTRIBUTING.md) covers the development setup and house rules that will apply when that changes.
+
 ## License
 
 Apache 2.0 - see [LICENSE](./LICENSE).

@@ -2,6 +2,8 @@
 
 Thanks for taking the time to contribute. This document covers how to get a working development setup, the one house rule that makes this repository unusual, and what we expect from a pull request.
 
+**Current status:** the project is not accepting external code contributions yet. Bug reports and feature discussion via Issues are very welcome, and everything below describes the setup and conventions that will apply when code contributions open.
+
 ## Development setup
 
 You need:
