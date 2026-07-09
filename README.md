@@ -15,16 +15,11 @@ Three steps before you start your coding agent, then one prompt inside the sessi
 2. In your project directory, run `rcf init` (or `npx @stravica-ai/rcf-build-lite init` without the install). One command sets everything up: the requirements files, the MCP server entry and your agent's instructions.
 3. Start your coding agent session in that directory - or restart the one you have open, so it picks up the new configuration.
 
-Then copy this prompt, fill in the first line, and hand it over:
+Then hand your agent this prompt, filled in. The setup you just ran has already taught it how to work; all it needs from you is the idea:
 
 ```text
 I want to build [describe your product idea in a sentence or two].
-
-Before writing any code, interview me about what I want. Capture it
-as clear, testable requirements, keep them linked to the code and
-tests as we build, and use the tools already set up in this project
-to guide the process. Show me what you have captured for my review,
-then work through the build step by step.
+Let's get started.
 ```
 
 If you'd rather drive it by hand, [docs/getting-started.md](docs/getting-started.md) covers the same ground at human pace.
