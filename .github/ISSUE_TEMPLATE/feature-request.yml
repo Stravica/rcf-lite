@@ -1,0 +1,25 @@
+name: Feature request
+description: Propose a change to the RCF Build Lite surface
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that the tool does not support today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed verb or surface
+      description: How you imagine it working, whether that is a new verb, a flag on an existing verb, or a change to an output format. A sketch is fine.
+    validations:
+      required: true
+  - type: textarea
+    id: methodology-fit
+    attributes:
+      label: RCF methodology fit
+      description: How the proposal fits the RCF document chain and traceability model. Which document types or links does it touch?
+    validations:
+      required: true

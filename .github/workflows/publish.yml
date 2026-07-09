@@ -1,14 +1,13 @@
-name: ci
+name: publish
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    tags: ['v*']
+permissions:
+  contents: read
+  id-token: write
 jobs:
-  test:
+  publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
@@ -17,6 +16,10 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
+          registry-url: 'https://registry.npmjs.org/'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+      # npm performs the publish step: trusted publishing (OIDC) requires npm >= 11.5.1
+      # (bundled with current Node 24 releases); pnpm 9 predates OIDC support in pnpm.
+      - run: npm publish --provenance --access public

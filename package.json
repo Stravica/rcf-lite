@@ -1,15 +1,36 @@
 {
-  "name": "@stravica/rcf-build-lite",
-  "version": "0.0.0",
-  "private": true,
+  "name": "@stravica-ai/rcf-build-lite",
+  "version": "0.1.0",
   "type": "module",
   "description": "RCF Build Lite - CLI, MCP server, view tool, and SDD build adapter for the Requirements Confidence Framework. First consumer of @stravica-ai/rcf-schemas.",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/Stravica/rcf-build-lite",
+  "bugs": "https://github.com/Stravica/rcf-build-lite/issues",
+  "keywords": [
+    "rcf",
+    "requirements",
+    "traceability",
+    "mcp",
+    "cli",
+    "sdd"
+  ],
   "engines": {
     "node": ">=24.0.0"
   },
   "bin": {
     "rcf": "bin/rcf.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "guidance",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "scripts": {
     "test": "node --test --test-concurrency=1 'test/**/*.test.js'",
