@@ -5,13 +5,17 @@
 import { parseArgs } from 'node:util';
 
 import { formatErrors } from '../errors/index.js';
-import { walkTree } from '../store/index.js';
+import { checkCodeNodeResolution, walkTree } from '../store/index.js';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {
   quiet: { type: 'boolean' },
   json: { type: 'boolean' },
   help: { type: 'boolean' },
+  // Phase 10 (X2 CodeNode bridge, spec D8): skip the Code Node staleness
+  // pass (spec-graph checks only). The default remains full validation -
+  // the staleCode floor is only a floor if it runs by default.
+  'no-code': { type: 'boolean' },
 };
 
 const HELP = `Usage: rcf validate [options]
@@ -19,6 +23,8 @@ const HELP = `Usage: rcf validate [options]
 Options:
   --quiet                   Only summary line + first 3 issues
   --json                    Emit machine-readable envelope
+  --no-code                 Skip the Code Node staleness pass (spec-graph
+                             checks only; the default runs full validation)
   --help                    Print this help
 `;
 
@@ -108,6 +114,15 @@ export async function main(argv, deps = {}) {
     return 2;
   }
   const { tree, errors } = await walkTree({ projectRoot });
+  // Phase 10 (X2 CodeNode bridge, spec D6): staleness pass. Every Code
+  // Node's declared path/symbol is checked against the working tree;
+  // unresolved ones surface as `staleCode` errors folded into the same
+  // exit path as schema / referential-integrity errors. This is the X2
+  // detection claim: links that break visibly.
+  if (!flags['no-code']) {
+    const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
+    errors.push(...staleErrors);
+  }
   if (flags.json) {
     const issues = errors.map((e) => ({
       id: e.documentId ?? null,

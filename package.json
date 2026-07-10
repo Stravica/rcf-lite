@@ -42,7 +42,7 @@
     "url": "git+https://github.com/Stravica/rcf-build-lite.git"
   },
   "dependencies": {
-    "@stravica-ai/rcf-schemas": "^0.2.1",
+    "@stravica-ai/rcf-schemas": "^0.3.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1"
   },

@@ -48,6 +48,10 @@ function pickTitle(doc, id) {
   if (typeof doc.title === 'string') return doc.title;
   if (typeof doc.name === 'string') return doc.name;
   if (typeof doc.productName === 'string') return doc.productName;
+  // Phase 10 (X2 CodeNode bridge): CN documents often carry no title, but
+  // `path` is the identity that matters visually - show it in preference to
+  // falling straight back to the bare id.
+  if (typeof doc.path === 'string') return doc.path;
   if (typeof doc.description === 'string') return doc.description;
   return id;
 }
@@ -64,6 +68,8 @@ function classForId(id) {
   if (id.startsWith('FBS-')) return 'fbs';
   if (id.startsWith('TS-')) return 'ts';
   if (id.startsWith('TC-')) return 'tc';
+  // Phase 10 (X2 CodeNode bridge, spec D12): CN cosmetic class.
+  if (id.startsWith('CN-')) return 'cn';
   return 'unknown';
 }
 
@@ -79,6 +85,7 @@ const CLASS_DEFS = `
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
   classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
   classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;
 `.trim();
 
@@ -137,6 +144,14 @@ export function requirementSubdiagram(model, req) {
         // its AC (reads "AC ... delivered by ... FBS"). Same relationship
         // as the old FBS->AC edge; just laid out more naturally.
         lines.push(`  ${nodeId(ac.id)} -.->|delivered by| ${nodeId(f.fbsId)}`);
+      }
+      // Phase 10 (X2 CodeNode bridge, spec D12): Code Nodes implementing
+      // this AC. Empty when no code-nodes/ dir exists, so a spec-only tree
+      // renders byte-identical to pre-Phase-10 output.
+      const cnList = model.cnByAcId?.get(ac.id) ?? [];
+      for (const cnId of cnList) {
+        declare(cnId);
+        lines.push(`  ${nodeId(ac.id)} -.->|implemented by| ${nodeId(cnId)}`);
       }
     }
   }

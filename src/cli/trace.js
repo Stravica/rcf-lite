@@ -24,18 +24,24 @@ const OPTION_SPEC = {
   both: { type: 'boolean' },
   format: { type: 'string' },
   help: { type: 'boolean' },
+  // Phase 10 (X2 CodeNode bridge): extend a forward/both trace into the
+  // code layer. A backward trace from a <path> reaches code automatically.
+  'to-code': { type: 'boolean' },
 };
 
-const HELP = `Usage: rcf trace <id> [options]
+const HELP = `Usage: rcf trace <id|path> [options]
 
 Walk the graph from <id> forward (descendants), backward (ancestors),
-or both. Default is --forward.
+or both. Default is --forward. When <id> is not a known document id, it
+is tried as a source path (optionally #symbol-suffixed) and traced
+backward from the matching Code Node(s) up to the root PRD / TAD / BS.
 
 Options:
   --forward                 Walk descendants (default)
   --back                    Walk ancestors up to the root PRD / TAD / BS
   --both                    Emit ancestors + descendants around <id>
   --format <format>         table (default) | json | mermaid
+  --to-code                 Extend the forward fan-out into Code Nodes
   --help                    Print this help
 
 Notes:
@@ -110,12 +116,33 @@ export async function main(argv, deps = {}) {
     return 3;
   }
 
+  const includeCode = Boolean(flags['to-code']);
+
+  // Phase 10 (X2 CodeNode bridge): path mode. If the positional is not a
+  // known document id, try resolving it as a source path to one or more
+  // Code Nodes, then trace each backward (path -> CN -> AC -> US -> REQ ->
+  // PRD). This is the `rcf trace <path>` blast-radius-from-code query.
   if (!kindOf(tree, id)) {
-    stderr.write(`[error] usage trace: id ${id} not found\n`);
-    return 2;
+    const cnIds = resolveCodeNodesForPath(tree, id);
+    if (cnIds.length === 0) {
+      stderr.write(`[error] usage trace: id ${id} not found (no document or code node matches)\n`);
+      return 2;
+    }
+    const chunks = [];
+    for (const cnId of cnIds) {
+      const cn = tree.byId.get(cnId);
+      const res = computeTrace(tree, { id: cnId, direction: 'back' });
+      let out;
+      if (format === 'json') out = formatJson(res, 'trace');
+      else if (format === 'mermaid') out = formatMermaid(res, 'trace');
+      else out = `# ${cnId}  (${cn?.path ?? '?'})\n${formatTable(res, 'trace')}`;
+      chunks.push(out);
+    }
+    stdout.write(chunks.join('\n'));
+    return 0;
   }
 
-  const result = computeTrace(tree, { id, direction });
+  const result = computeTrace(tree, { id, direction, includeCode });
 
   let output;
   if (format === 'json') output = formatJson(result, 'trace');
@@ -123,4 +150,23 @@ export async function main(argv, deps = {}) {
   else output = formatTable(result, 'trace');
   stdout.write(output);
   return 0;
+}
+
+/**
+ * Phase 10: resolve a source-path query to Code Node ids. Matches a CN
+ * when its `path` equals the query (file-level or file#symbol form) or
+ * when the query names the file that a symbol-level CN lives in.
+ *
+ * @param {object} tree - walker TreeModel
+ * @param {string} query - a repo-relative path, optionally #symbol-suffixed
+ * @returns {string[]} matching CN ids, sorted
+ */
+function resolveCodeNodesForPath(tree, query) {
+  const out = [];
+  for (const cn of tree.codeNodes ?? []) {
+    const cnPath = cn.path ?? '';
+    const cnFile = cnPath.split('#')[0];
+    if (cnPath === query || cnFile === query) out.push(cn.cnId);
+  }
+  return out.sort();
 }

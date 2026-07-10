@@ -24,6 +24,7 @@ const CLASS_DEFS = `
   classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
   classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
   classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;
 `.trim();
 
@@ -39,6 +40,8 @@ function classForId(id) {
   if (id.startsWith('FBS-')) return 'fbs';
   if (id.startsWith('TS-')) return 'ts';
   if (id.startsWith('TC-')) return 'tc';
+  // Phase 10 (X2 CodeNode bridge, spec D12): CN cosmetic class.
+  if (id.startsWith('CN-')) return 'cn';
   return 'unknown';
 }
 

@@ -8,4 +8,6 @@ export { loadDocument, loadRootDocument, pathForId, rootPathFor, subdirFor } fro
 export { validateDocument, idFieldFor, documentIdOf, knownKinds } from './validator.js';
 export { netNewErrors, simulateWriteErrors, walkTree } from './walker.js';
 export { initProject } from './init.js';
+// Phase 10 (X2 CodeNode bridge): Code Node working-tree staleness check.
+export { checkCodeNodeResolution, splitCnPath } from './cn-resolve.js';
 export { nextIdForKind, createDocument, updateDocument, deleteDocument, deriveSlug } from './writer.js';

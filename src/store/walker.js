@@ -49,7 +49,10 @@ import { validateDocument } from './validator.js';
  * @property {import('../errors/index.js').RcfError[]} errors
  */
 
-const CHILD_KINDS = ['req', 'userStory', 'tac', 'adr', 'fbs', 'testSuite'];
+// Phase 10 (X2 CodeNode bridge): 'codeNode' appended. The load-then-invert
+// engine treats it exactly like any other child kind - extending the graph
+// into code is additive, not a rewrite (PoC-proven, poc/codenode-bridge).
+const CHILD_KINDS = ['req', 'userStory', 'tac', 'adr', 'fbs', 'testSuite', 'codeNode'];
 
 const ID_FIELD_BY_KIND = {
   prd: 'prdId',
@@ -62,6 +65,8 @@ const ID_FIELD_BY_KIND = {
   fbs: 'fbsId',
   // Test Suite uses the plain `id` field (see 0.2.0 test-suite schema).
   testSuite: 'id',
+  // Phase 10: Code Node.
+  codeNode: 'cnId',
 };
 
 function idOfDoc(doc, kind) {
@@ -83,6 +88,8 @@ function newTree() {
     adrs: [],
     fbsItems: [],
     testSuites: [],
+    // Phase 10 (X2 CodeNode bridge): Code Nodes.
+    codeNodes: [],
     byId: new Map(),
     rawById: new Map(),
     kindById: new Map(),
@@ -99,6 +106,11 @@ function newTree() {
     tsByAcId: new Map(),
     tcsByAcId: new Map(),
     usByTacId: new Map(),
+    // Phase 10: cnByAcId (AC -> CNs implementing it); dependentsByCnId
+    // (CN -> CNs that declare it in dependencies[]). Mirrors
+    // fbsByAcId / dependentsByFbsId for the code layer.
+    cnByAcId: new Map(),
+    dependentsByCnId: new Map(),
   };
 }
 
@@ -125,6 +137,8 @@ function recordDoc(tree, id, doc, raw, kind) {
     case 'adr': tree.adrs.push(doc); break;
     case 'fbs': tree.fbsItems.push(doc); break;
     case 'testSuite': tree.testSuites.push(doc); break;
+    // Phase 10: Code Node.
+    case 'codeNode': tree.codeNodes.push(doc); break;
     default: break;
   }
 }
@@ -231,6 +245,7 @@ export async function walkTree({ projectRoot }) {
   tree.adrs = sortById(tree.adrs, 'adrId');
   tree.fbsItems = sortById(tree.fbsItems, 'fbsId');
   tree.testSuites = sortById(tree.testSuites, 'id');
+  tree.codeNodes = sortById(tree.codeNodes, 'cnId'); // Phase 10
 
   // Referential integrity + graph inversion.
   invertGraph(tree);
@@ -316,11 +331,24 @@ function invertGraph(tree) {
     }
   }
 
+  // Phase 10 (X2 CodeNode bridge): invert Code Node edges.
+  //   CN.implementsAcIds -> cnByAcId (keyed on AC, value = implementing CN)
+  //   CN.dependencies     -> dependentsByCnId (keyed on the dependency CN,
+  //                          value = the CN that declares the dependency)
+  for (const cn of tree.codeNodes) {
+    for (const acId of cn.implementsAcIds ?? []) {
+      if (acIds.has(acId)) pushToMap(tree.cnByAcId, acId, cn.cnId);
+    }
+    for (const depId of cn.dependencies ?? []) {
+      if (isKind(depId, 'codeNode')) pushToMap(tree.dependentsByCnId, depId, cn.cnId);
+    }
+  }
+
   // Sort children lists deterministically.
   for (const [k, list] of tree.childrenByParent) {
     tree.childrenByParent.set(k, [...list].sort());
   }
-  for (const map of [tree.fbsByAcId, tree.dependentsByFbsId, tree.tsByAcId, tree.usByTacId]) {
+  for (const map of [tree.fbsByAcId, tree.dependentsByFbsId, tree.tsByAcId, tree.usByTacId, tree.cnByAcId, tree.dependentsByCnId]) {
     for (const [k, list] of map) map.set(k, [...list].sort());
   }
 }
@@ -418,6 +446,7 @@ export function simulateWriteErrors({ tree, preErrors = [], upserts = [], delete
   post.adrs = sortById(post.adrs, 'adrId');
   post.fbsItems = sortById(post.fbsItems, 'fbsId');
   post.testSuites = sortById(post.testSuites, 'id');
+  post.codeNodes = sortById(post.codeNodes, 'cnId'); // Phase 10
   invertGraph(post);
   collectBrokenReferences(post, errors);
 
@@ -680,6 +709,36 @@ function collectBrokenReferences(tree, errors) {
           }));
         }
       }
+    }
+  }
+
+  // Phase 10 (X2 CodeNode bridge): Code Node cross-link integrity.
+  //   implementsAcIds -> AC (must resolve to a known acceptance criterion)
+  //   dependencies    -> CN (must resolve to a known code node)
+  for (const cn of tree.codeNodes) {
+    for (const [i, acId] of (cn.implementsAcIds ?? []).entries()) {
+      if (!acIds.has(acId)) {
+        errors.push(rcfError({
+          kind: 'brokenReference',
+          message: `CN ${cn.cnId} references unknown acceptance criterion ${acId}`,
+          documentId: cn.cnId,
+          filePath: `rcf/code-nodes/${(cn.cnId ?? '').toLowerCase()}.json`,
+          field: `implementsAcIds[${i}]`,
+          rule: 'resolveTo:ac',
+        }));
+        tree.brokenIds.add(acId);
+      }
+    }
+    for (const [i, depId] of (cn.dependencies ?? []).entries()) {
+      check({
+        docId: cn.cnId,
+        docKind: 'codeNode',
+        fromField: `dependencies[${i}]`,
+        targetId: depId,
+        expectedKind: 'codeNode',
+        filePath: `rcf/code-nodes/${(cn.cnId ?? '').toLowerCase()}.json`,
+        message: `CN ${cn.cnId} depends on unknown code node ${depId}`,
+      });
     }
   }
 }

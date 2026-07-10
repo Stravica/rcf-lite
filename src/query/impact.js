@@ -61,14 +61,16 @@ import { computeTrace, kindOf } from './trace.js';
  * @param {TreeModel} tree
  * @param {object} opts
  * @param {string} opts.id
+ * @param {boolean} [opts.includeCode] - Phase 10: extend the forward fan-out
+ *   into Code Nodes.
  * @returns {ImpactResult}
  */
-export function computeImpact(tree, { id }) {
+export function computeImpact(tree, { id, includeCode = false }) {
   const pivotKind = kindOf(tree, id);
   if (!pivotKind) return { pivot: id, found: false };
 
   const back = computeTrace(tree, { id, direction: 'back' });
-  const fwd = computeTrace(tree, { id, direction: 'forward' });
+  const fwd = computeTrace(tree, { id, direction: 'forward', includeCode });
 
   /** @type {ImpactNode[]} */
   const nodes = [];
@@ -157,6 +159,9 @@ export function labelFor(kind, role) {
     case 'fbs': return 're-execute';
     case 'tac': return 'review-context';
     case 'adr': return 'review-context';
+    // Phase 10 (X2 CodeNode bridge): a code node reached forward from a
+    // spec change is source that may need re-implementation + re-test.
+    case 'codeNode': return 're-verify-code';
     default: return null;
   }
 }

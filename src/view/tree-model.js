@@ -36,6 +36,8 @@
  * @property {Map<string, object>} usByAcId
  * @property {Map<string, import('../errors/index.js').RcfError[]>} errorsById
  * @property {import('../errors/index.js').RcfError[]} errors
+ * @property {object[]} codeNodes - Phase 10 (X2 CodeNode bridge)
+ * @property {Map<string, string[]>} cnByAcId - Phase 10: AC -> implementing CN ids
  */
 
 const emptyMap = () => new Map();
@@ -122,6 +124,10 @@ export function buildTreeModel({ tree, errors }) {
     usByAcId,
     errorsById,
     errors,
+    // Phase 10 (X2 CodeNode bridge): forwarded as-is; empty when no
+    // code-nodes/ dir exists, so every spec-only view stays byte-identical.
+    codeNodes: tree.codeNodes ?? [],
+    cnByAcId: tree.cnByAcId ?? emptyMap(),
   };
 }
 

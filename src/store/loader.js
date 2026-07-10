@@ -27,6 +27,8 @@ export function subdirFor(kind) {
     case 'adr': return 'adrs';
     case 'fbs': return 'fbs';
     case 'testSuite': return 'test-suites';
+    // Phase 10 (X2 CodeNode bridge): Code Node document type.
+    case 'codeNode': return 'code-nodes';
     default: return null;
   }
 }
@@ -52,6 +54,8 @@ export function pathForId(id) {
   if (id.startsWith('ADR-')) return { kind: 'adr', relPath: `adrs/${id.toLowerCase()}.json` };
   if (id.startsWith('FBS-')) return { kind: 'fbs', relPath: `fbs/${id.toLowerCase()}.json` };
   if (id.startsWith('TS-')) return { kind: 'testSuite', relPath: `test-suites/${id.toLowerCase()}.json` };
+  // Phase 10 (X2 CodeNode bridge): Code Node document type.
+  if (id.startsWith('CN-')) return { kind: 'codeNode', relPath: `code-nodes/${id.toLowerCase()}.json` };
   if (id === 'PRD-001' || id.startsWith('PRD-')) return { kind: 'prd', relPath: 'prd.json' };
   if (id === 'TAD-001' || id.startsWith('TAD-')) return { kind: 'tad', relPath: 'tad.json' };
   if (id === 'BS-001' || id.startsWith('BS-')) return { kind: 'buildSequence', relPath: 'build-sequence.json' };

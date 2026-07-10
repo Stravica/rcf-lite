@@ -77,15 +77,18 @@ export function kindOf(tree, id) {
  * @param {object} opts
  * @param {string} opts.id
  * @param {TraceDirection} [opts.direction]
+ * @param {boolean} [opts.includeCode] - Phase 10: extend the forward fan-out
+ *   into Code Nodes (AC -> implementing CN -> transitive dependents). Opt-in
+ *   so spec-only queries stay byte-identical (spec D9).
  * @returns {TraceResult}
  */
-export function computeTrace(tree, { id, direction = 'forward' }) {
+export function computeTrace(tree, { id, direction = 'forward', includeCode = false }) {
   const kind = kindOf(tree, id);
   if (!kind) {
     return { pivot: id, direction, found: false };
   }
   if (direction === 'forward') {
-    const { nodes, edges } = walkForward(tree, id, kind);
+    const { nodes, edges } = walkForward(tree, id, kind, includeCode);
     return { pivot: id, direction, found: true, nodes, edges };
   }
   if (direction === 'back') {
@@ -94,7 +97,7 @@ export function computeTrace(tree, { id, direction = 'forward' }) {
   }
   // both
   const back = walkBack(tree, id, kind);
-  const fwd = walkForward(tree, id, kind);
+  const fwd = walkForward(tree, id, kind, includeCode);
   // Both arrays exclude the pivot; pivot is the anchor between them
   // (spec §D9: two arrays around a single pivot id).
   return {
@@ -114,9 +117,10 @@ export function computeTrace(tree, { id, direction = 'forward' }) {
  * @param {TreeModel} tree
  * @param {string} pivot
  * @param {string} pivotKind
+ * @param {boolean} [includeCode] - Phase 10 opt-in for the code layer.
  * @returns {{nodes: TraceNode[], edges: TraceEdge[]}}
  */
-function walkForward(tree, pivot, pivotKind) {
+function walkForward(tree, pivot, pivotKind, includeCode = false) {
   /** @type {TraceNode[]} */
   const nodes = [{ id: pivot, kind: pivotKind, depth: 0 }];
   /** @type {TraceEdge[]} */
@@ -130,7 +134,7 @@ function walkForward(tree, pivot, pivotKind) {
     const cur = queue.shift();
     if (!cur) break;
     const curDepth = depthById.get(cur) ?? 0;
-    const children = forwardChildrenOf(tree, cur);
+    const children = forwardChildrenOf(tree, cur, includeCode);
     for (const child of children) {
       // Always emit the edge (even if child already visited via a
       // different parent) so the graph is complete; only enqueue and
@@ -213,6 +217,31 @@ function walkBack(tree, pivot, pivotKind) {
     }
   }
 
+  // Phase 10 (X2 CodeNode bridge): CN special-case. A code node's parents
+  // are the ACs it implements (a cross-link, not a parent-child edge).
+  // Insert each AC below its US, then continue up via parentByChild
+  // (AC -> US -> REQ -> PRD). This is exactly the `rcf trace <path>`
+  // backward query: from a source location up to every requirement that
+  // location serves.
+  if (pivotKind === 'codeNode') {
+    const cn = tree.byId.get(pivot);
+    let depth = -1;
+    for (const acId of cn?.implementsAcIds ?? []) {
+      if (seen.has(acId)) continue;
+      addStep(pivot, acId, 'crossLink', depth);
+      let cur = acId;
+      let up = depth - 1;
+      while (cur) {
+        const parent = tree.parentByChild.get(cur);
+        if (!parent || seen.has(parent)) break;
+        addStep(cur, parent, 'parentChild', up);
+        cur = parent;
+        up -= 1;
+      }
+    }
+    return { nodes, edges };
+  }
+
   let cur = pivot;
   let depth = -1;
   while (cur) {
@@ -237,9 +266,10 @@ function walkBack(tree, pivot, pivotKind) {
  *
  * @param {TreeModel} tree
  * @param {string} id
+ * @param {boolean} [includeCode] - Phase 10 opt-in for the code layer.
  * @returns {{id: string, edgeKind: 'parentChild' | 'crossLink'}[]}
  */
-function forwardChildrenOf(tree, id) {
+function forwardChildrenOf(tree, id, includeCode = false) {
   const kind = kindOf(tree, id);
   const doc = tree.byId.get(id);
   /** @type {{id: string, edgeKind: 'parentChild' | 'crossLink'}[]} */
@@ -267,6 +297,17 @@ function forwardChildrenOf(tree, id) {
     for (const tsId of tree.tsByAcId.get(id) ?? []) push(tsId, 'crossLink');
     for (const entry of tree.tcsByAcId.get(id) ?? []) push(entry.tcId, 'crossLink');
     for (const fbsId of tree.fbsByAcId.get(id) ?? []) push(fbsId, 'crossLink');
+    // Phase 10 (X2 CodeNode bridge): AC -> implementing Code Nodes. This is
+    // the seam that carries a forward trace/impact from spec into source.
+    // Opt-in (includeCode) so spec-only queries stay byte-identical.
+    if (includeCode) {
+      for (const cnId of tree.cnByAcId?.get(id) ?? []) push(cnId, 'crossLink');
+    }
+  }
+  // Phase 10: CN -> dependent Code Nodes. Forward from a code node is the
+  // blast radius: everything that declares this node in its dependencies[].
+  if (kind === 'codeNode' && includeCode) {
+    for (const depId of tree.dependentsByCnId?.get(id) ?? []) push(depId, 'crossLink');
   }
   if (kind === 'tac') {
     for (const usId of tree.usByTacId.get(id) ?? []) push(usId, 'crossLink');

@@ -20,11 +20,14 @@ import adrSchema from '@stravica-ai/rcf-schemas/schemas/adr.schema.json' with { 
 import buildSequenceSchema from '@stravica-ai/rcf-schemas/schemas/build-sequence.schema.json' with { type: 'json' };
 import fbsSchema from '@stravica-ai/rcf-schemas/schemas/fbs.schema.json' with { type: 'json' };
 import testSuiteSchema from '@stravica-ai/rcf-schemas/schemas/test-suite.schema.json' with { type: 'json' };
+// Phase 10 (X2 CodeNode bridge): 11th document kind, delivered in
+// @stravica-ai/rcf-schemas@0.3.0.
+import cnSchema from '@stravica-ai/rcf-schemas/schemas/cn.schema.json' with { type: 'json' };
 
 import { rcfError } from '../errors/index.js';
 
 /**
- * @typedef {('manifest'|'prd'|'req'|'userStory'|'tad'|'tac'|'adr'|'buildSequence'|'fbs'|'testSuite')} DocKind
+ * @typedef {('manifest'|'prd'|'req'|'userStory'|'tad'|'tac'|'adr'|'buildSequence'|'fbs'|'testSuite'|'codeNode')} DocKind
  */
 
 const SCHEMAS = {
@@ -38,6 +41,8 @@ const SCHEMAS = {
   buildSequence: buildSequenceSchema,
   fbs: fbsSchema,
   testSuite: testSuiteSchema,
+  // Phase 10: Code Node.
+  codeNode: cnSchema,
 };
 
 const ID_FIELD = {
@@ -53,6 +58,8 @@ const ID_FIELD = {
   // Test Suite uses the plain `id` field (see @stravica-ai/rcf-schemas@0.2.0
   // test-suite.schema.json). No `tsId` field.
   testSuite: 'id',
+  // Phase 10: Code Node.
+  codeNode: 'cnId',
 };
 
 let cachedAjv = null;

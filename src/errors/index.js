@@ -7,7 +7,7 @@
 // renders them inline in the page so an owner can see what is broken.
 
 /**
- * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage')} ErrorKind
+ * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage'|'staleCode')} ErrorKind
  */
 
 /**
@@ -28,6 +28,11 @@ const VALID_KINDS = new Set([
   'parseFailure',
   'ioFailure',
   'usage',
+  // Phase 10 (X2 CodeNode bridge): a Code Node's declared path/symbol no
+  // longer resolves against the working tree (file renamed/moved, or symbol
+  // renamed/removed). This is the X2 advantage over sidecar approaches:
+  // the breakage is mechanically detectable at `rcf validate` time.
+  'staleCode',
 ]);
 
 /**

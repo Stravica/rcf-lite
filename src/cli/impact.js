@@ -21,6 +21,9 @@ import {
 const OPTION_SPEC = {
   format: { type: 'string' },
   help: { type: 'boolean' },
+  // Phase 10 (X2 CodeNode bridge): extend the forward fan-out into the code
+  // layer (AC -> implementing Code Nodes -> transitively dependent CNs).
+  'to-code': { type: 'boolean' },
 };
 
 const HELP = `Usage: rcf impact <id> [options]
@@ -36,9 +39,11 @@ per-node action label:
   review-plan     BS build queue may need re-ordering
   re-execute      FBS delivery re-runs against updated AC
   review-context  TAC / ADR referenced by an affected FBS
+  re-verify-code  code node reached from a spec change (--to-code)
 
 Options:
   --format <format>         table (default) | json | mermaid
+  --to-code                 Extend the forward fan-out into Code Nodes
   --help                    Print this help
 `;
 
@@ -103,7 +108,7 @@ export async function main(argv, deps = {}) {
     return 2;
   }
 
-  const result = computeImpact(tree, { id });
+  const result = computeImpact(tree, { id, includeCode: Boolean(flags['to-code']) });
 
   let output;
   if (format === 'json') output = formatJson(result, 'impact');
