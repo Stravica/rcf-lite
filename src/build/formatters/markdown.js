@@ -358,7 +358,12 @@ function pushRunbook(lines, bundle) {
   lines.push('### Stage 2 - Build', '');
   lines.push('Implement to the acceptance criteria in section 4 using the architectural');
   lines.push('context in section 5. The bundle is the spec: deviation is escalation to');
-  lines.push('the operator of the loop, not improvisation. Commit at stage end.', '');
+  lines.push('the operator of the loop, not improvisation. As you implement, author or');
+  lines.push('update Code Nodes for the source you write:', '');
+  lines.push('    rcf create cn --path <file>[#symbol] --acs <ac-ids>', '');
+  lines.push('Do this now, not as an afterthought: comprehension of which symbols serve');
+  lines.push('which acceptance criteria is cheapest to capture while you are writing the');
+  lines.push('code, and Stage 5 refuses completion without it. Commit at stage end.', '');
 
   lines.push('### Stage 3 - Review', '');
   lines.push('Mechanical referee pass:', '');
@@ -377,6 +382,10 @@ function pushRunbook(lines, bundle) {
   lines.push('CI green; PR raised and merged per the driving workflow\'s convention.');
   lines.push('After the merge:', '');
   lines.push(`    rcf build ${fbsId} --mark complete`, '');
+  lines.push('This refuses (exit 3, missingCodeNodes) if any in-scope acceptance');
+  lines.push('criterion still carries no Code Node - go back to Stage 2 and author it,');
+  lines.push('or, for a genuinely no-code spec (docs-only, config-only), declare:', '');
+  lines.push(`    rcf build ${fbsId} --mark complete --no-code-nodes`, '');
   lines.push('After post-merge verification:', '');
   lines.push(`    rcf build ${fbsId} --mark verified`);
 }

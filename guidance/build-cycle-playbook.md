@@ -56,6 +56,7 @@ What good looks like:
 
 - Implement to the section-4 ACs using the section-5 context. The TACs name the components and boundaries you are expected to respect; the ADRs name decisions already taken, which you follow rather than relitigate.
 - The bundle is the spec. When the code teaches you the spec is wrong, stop and escalate; do not quietly ship your improved version.
+- As each AC lands, author or update its Code Node: `rcf create cn --path <file>[#symbol] --acs <ac-ids>`. Do this now - the mapping from symbol to AC is exactly what you are holding in your head mid-implementation, and Stage 5 refuses completion without it (section 9).
 - Small commits inside the stage are fine; the stage-end commit is mandatory.
 
 Referee: none new at this stage. The bundle stays open; you check yourself against it.
@@ -125,7 +126,7 @@ Stage end: commit.
 What good looks like:
 
 - CI green on the branch; PR raised and merged per the driving workflow's convention.
-- `rcf build <fbs-id> --mark complete` after the merge, never before it.
+- `rcf build <fbs-id> --mark complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build <fbs-id> --mark complete --no-code-nodes` once.
 - `rcf build <fbs-id> --mark verified` after post-merge verification: the merged artefact observed doing the right thing, not just the pre-merge tests remembered fondly.
 
 Referee: CI, plus the mark commands' own refusals (section 9).
@@ -134,6 +135,7 @@ Failure modes:
 
 - **AC-skipping at the finish line.** Symptom: a section-4 AC has no corresponding diff or test, discovered at PR time or never. Correction: a per-AC checklist pass before this stage ends; every AC id gets a tick against a diff location and a test.
 - **Marking complete pre-merge.** Symptom: `--mark complete` while the PR is still open. Correction: the merge is the event; the mark records it, it does not predict it.
+- **Reaching for `--no-code-nodes` out of impatience.** Symptom: the flag on a spec that plainly produced code. Correction: it declares a fact (no traceable code exists), not an escape from the CN-authoring step you skipped in Stage 2 - go back and author the CN instead.
 
 Stage end: the merge is the commit.
 

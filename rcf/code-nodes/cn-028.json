@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-028",
+  "path": "src/build/mark.js",
+  "title": "Lifecycle mark transition planner (file-level)",
+  "description": "Plans a forward-only lifecycle transition for one FBS item, including the Phase 10 mark-complete Code Node gate.",
+  "implementsAcIds": [
+    "AC-503-1",
+    "AC-503-2",
+    "AC-503-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:57.133Z",
+  "updatedAt": "2026-07-10T11:15:57.133Z"
+}

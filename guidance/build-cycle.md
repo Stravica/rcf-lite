@@ -8,7 +8,7 @@ The normative statement of the cycle. Every FBS item is delivered by one pass of
 Entry: you hold the item's spec bundle. Exit: your plan is confirmed against every in-scope acceptance criterion in the bundle's section 4, and pickup is recorded with `rcf build <fbs-id> --mark inProgress`. Referee: the bundle itself, plus `rcf validate` on a clean tree.
 
 **2. Build.**
-Entry: a confirmed plan. Exit: the acceptance criteria are implemented, using the bundle's architectural context, with nothing beyond them; deviation from the bundle is escalation, not improvisation. Referee: none at this stage beyond the bundle as the spec.
+Entry: a confirmed plan. Exit: the acceptance criteria are implemented, using the bundle's architectural context, with nothing beyond them; deviation from the bundle is escalation, not improvisation. Author or update Code Nodes (`rcf create cn --path <file>[#symbol] --acs <ac-ids>`) for the source as you write it - comprehension of which symbols serve which ACs is cheapest to capture now, and Stage 5 refuses completion without it. Referee: none at this stage beyond the bundle as the spec.
 
 **3. Review.**
 Entry: the implementation is complete. Exit: `rcf validate` comes back clean and the diff has been re-read against every in-scope acceptance criterion, with deviations documented. Referee: `rcf validate`.
@@ -17,7 +17,7 @@ Entry: the implementation is complete. Exit: `rcf validate` comes back clean and
 Entry: a reviewed diff. Exit: TS / TC documents and the tests they point to exist for the in-scope acceptance criteria, and `rcf coverage --strict` covers them. Referee: `rcf coverage --strict`.
 
 **5. Finalise.**
-Entry: covered, reviewed work. Exit: CI green and the work merged per the driving workflow's convention, then `rcf build <fbs-id> --mark complete` after the merge and `rcf build <fbs-id> --mark verified` after post-merge verification. Referee: CI, plus the mark commands' own refusals.
+Entry: covered, reviewed work. Exit: CI green and the work merged per the driving workflow's convention, then `rcf build <fbs-id> --mark complete` after the merge and `rcf build <fbs-id> --mark verified` after post-merge verification. `--mark complete` refuses (exit 3, missingCodeNodes) if any in-scope acceptance criterion still carries no Code Node - go back to Stage 2, or declare `--no-code-nodes` for a genuinely no-code spec. Referee: CI, plus the mark commands' own refusals.
 
 ## Every stage commits
 

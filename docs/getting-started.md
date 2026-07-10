@@ -428,11 +428,11 @@ head -12 fbs-001-bundle.md
 
 ```
 
-Whoever drives the loop records lifecycle transitions as the work moves:
+Whoever drives the loop records lifecycle transitions as the work moves. Marking a spec `complete` runs the Code Node gate: it refuses when any of the spec's acceptance criteria carries no Code Node (see [code-nodes.md](code-nodes.md)), because a spec-to-code chain with optional links is not a chain. This walkthrough has no real application code to point Code Nodes at, so it declares FBS-001 with `--no-code-nodes` - in a real codebase you would author the Code Nodes first (`rcf create cn --path ... --acs ...`) and drop the flag:
 
 ```sh
 rcf build FBS-001 --mark inProgress
-rcf build FBS-001 --mark complete
+rcf build FBS-001 --mark complete --no-code-nodes
 ```
 
 ```

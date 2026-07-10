@@ -42,6 +42,9 @@ const KIND_ALIASES = {
   ts: 'testSuite',
   testSuite: 'testSuite',
   tc: 'tc',
+  // Phase 10 (X2 CodeNode bridge): Code Node.
+  cn: 'codeNode',
+  codeNode: 'codeNode',
 };
 
 function canonicalKind(kind) {
@@ -139,6 +142,10 @@ export function nextIdForKind(tree, kind, opts = {}) {
       return nextFlatId('FBS', [...tree.fbsItems.map((d) => d.fbsId), ...invalidIdsOfKind(tree, 'fbs')]);
     case 'testSuite':
       return nextFlatId('TS', [...tree.testSuites.map((d) => d.id), ...invalidIdsOfKind(tree, 'testSuite')]);
+    // Phase 10 (X2 CodeNode bridge): Code Node. Flat namespace like
+    // REQ/TAC/ADR/FBS/TS - no parent required (D13).
+    case 'codeNode':
+      return nextFlatId('CN', [...(tree.codeNodes ?? []).map((d) => d.cnId), ...invalidIdsOfKind(tree, 'codeNode')]);
     case 'userStory': {
       const reqId = opts.parentId;
       const match = /^REQ-(\d+)$/.exec(reqId ?? '');
@@ -320,6 +327,11 @@ export async function createDocument({ projectRoot, tree, kind, body, options = 
   if (canonical === 'tc') {
     return await createInlineTc({ projectRoot, tree, options, body, walkErrors });
   }
+  // Phase 10 (X2 CodeNode bridge): CN has no parent field (D13) - its
+  // identity is `path`, not a position in the PRD/REQ/US tree.
+  if (canonical === 'codeNode') {
+    return await createCn({ projectRoot, tree, options, body, walkErrors });
+  }
 
   if (!parentField) {
     return rcfError({
@@ -460,6 +472,127 @@ export async function createDocument({ projectRoot, tree, kind, body, options = 
     return rcfError({
       kind: 'ioFailure',
       message: `create ${kind}: write failed: ${err.message}`,
+      filePath: relPath,
+      stack: err.stack,
+    });
+  }
+  return { id, filePath: relPath, body: finalBody };
+}
+
+/**
+ * Create a Code Node (Phase 10, X2 CodeNode bridge, D13). CN has no
+ * parent field - identity is `path`, optionally `#symbol`-suffixed
+ * (D2). `implementsAcIds` MAY be empty (an orphan CN is legitimate,
+ * D3); every non-empty entry must resolve to a known AC.
+ * `dependencies` MAY be empty; every entry must resolve to an existing
+ * CN and may not self-reference.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @param {TreeModel} args.tree
+ * @param {object} args.options
+ * @param {string} [args.options.id]
+ * @param {boolean} [args.options.dryRun]
+ * @param {object} args.body
+ * @param {string} args.body.path - required
+ * @param {string[]} [args.body.implementsAcIds]
+ * @param {string[]} [args.body.dependencies]
+ * @param {RcfError[]} [args.walkErrors]
+ * @returns {Promise<{ id: string, filePath: string, body: object } | RcfError>}
+ */
+async function createCn({ projectRoot, tree, options, body, walkErrors = [] }) {
+  const path = body?.path;
+  if (typeof path !== 'string' || path.length === 0) {
+    return rcfError({ kind: 'usage', message: 'create cn: --path is required' });
+  }
+
+  let id = options.id;
+  if (id) {
+    if (tree.byId.has(id) || tree.invalidDocs?.has(id)) {
+      return rcfError({ kind: 'usage', message: `create cn: id ${id} is already taken`, documentId: id });
+    }
+  } else {
+    id = nextIdForKind(tree, 'codeNode');
+  }
+
+  const implementsAcIds = body.implementsAcIds ?? [];
+  const allAcIds = collectAllAcIds(tree);
+  for (const acId of implementsAcIds) {
+    if (!allAcIds.has(acId)) {
+      return rcfError({
+        kind: 'brokenReference',
+        message: `create cn: implementsAcIds entry ${acId} does not resolve to a known AC`,
+        documentId: acId,
+        field: 'implementsAcIds',
+        rule: 'resolveTo:ac',
+      });
+    }
+  }
+
+  const dependencies = body.dependencies ?? [];
+  for (const depId of dependencies) {
+    if (depId === id) {
+      return rcfError({
+        kind: 'usage',
+        message: `create cn: dependencies entry ${depId} cannot be the node's own id`,
+        documentId: id,
+        field: 'dependencies',
+      });
+    }
+    if (tree.kindById.get(depId) !== 'codeNode') {
+      return rcfError({
+        kind: 'brokenReference',
+        message: `create cn: dependencies entry ${depId} does not resolve to a known code node`,
+        documentId: depId,
+        field: 'dependencies',
+        rule: 'resolveTo:codeNode',
+      });
+    }
+  }
+
+  const now = nowIso();
+  const finalBody = {
+    cnId: id,
+    path,
+    ...(body.title !== undefined ? { title: body.title } : {}),
+    ...(body.description !== undefined ? { description: body.description } : {}),
+    implementsAcIds,
+    dependencies,
+    version: body.version ?? '0.1.0',
+    status: body.status ?? 'draft',
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  const relPath = relativePathForChild('codeNode', id);
+  const validation = validateDocument({ doc: finalBody, kind: 'codeNode', filePath: relPath });
+  if (validation) return { ...validation, documentId: id };
+
+  const absPath = pathForKindFile(projectRoot, 'codeNode', id);
+  if (await fileExistsOnDisk(absPath)) {
+    return rcfError({
+      kind: 'usage',
+      message: `create cn: ${relPath} already exists on disk but did not load; repair or delete it first`,
+      documentId: id,
+      filePath: relPath,
+    });
+  }
+  const gateErr = postWriteGate({
+    tree,
+    walkErrors,
+    upserts: [{ kind: 'codeNode', id, doc: finalBody }],
+    verb: 'create cn',
+  });
+  if (gateErr) return { ...gateErr, documentId: id };
+  if (options.dryRun) {
+    return { id, filePath: relPath, body: finalBody, dryRun: true };
+  }
+  try {
+    await writeJsonAtomic(absPath, finalBody);
+  } catch (err) {
+    return rcfError({
+      kind: 'ioFailure',
+      message: `create cn: write failed: ${err.message}`,
       filePath: relPath,
       stack: err.stack,
     });
@@ -945,6 +1078,25 @@ function checkCrossLinks(tree, kind, doc, docId) {
       }
     }
   }
+  // Phase 10 (X2 CodeNode bridge): CN cross-link resolution on update.
+  if (kind === 'codeNode') {
+    for (const acId of doc.implementsAcIds ?? []) {
+      if (!allAcIds.has(acId)) {
+        return rcfError({
+          kind: 'brokenReference', message: `update: implementsAcIds entry ${acId} does not resolve to a known AC`,
+          documentId: docId, field: 'implementsAcIds', rule: 'resolveTo:ac',
+        });
+      }
+    }
+    for (const depId of doc.dependencies ?? []) {
+      if (depId === docId || tree.kindById.get(depId) !== 'codeNode') {
+        return rcfError({
+          kind: 'brokenReference', message: `update: dependencies entry ${depId} is invalid`,
+          documentId: docId, field: 'dependencies', rule: 'resolveTo:codeNode',
+        });
+      }
+    }
+  }
   return null;
 }
 
@@ -1084,6 +1236,9 @@ export async function deleteDocument({ projectRoot, tree, id, options = {}, walk
     case 'adr': return await deleteAdr({ projectRoot, tree, id, options, walkErrors });
     case 'fbs': return await deleteFbs({ projectRoot, tree, id, cascade, options, walkErrors });
     case 'testSuite': return await deleteTs({ projectRoot, tree, id, options, walkErrors });
+    // Phase 10 (X2 CodeNode bridge, D13): refused while depended-on,
+    // mirroring the FBS dependsOnFbsIds pattern.
+    case 'codeNode': return await deleteCn({ projectRoot, tree, id, cascade, options, walkErrors });
     default:
       return rcfError({ kind: 'usage', message: `delete: unsupported kind ${kind}`, documentId: id });
   }
@@ -1229,6 +1384,54 @@ async function deleteFbs({ projectRoot, tree, id, cascade, options, walkErrors =
   if (!options.dryRun) {
     try { await unlink(pathForKindFile(projectRoot, 'fbs', id)); } catch (err) {
       return rcfError({ kind: 'ioFailure', message: `delete: unlink failed: ${err.message}`, filePath: fbsRel, stack: err.stack });
+    }
+  }
+  return { deleted: [id], mutated, plan: buildPlanLines([id], mutated) };
+}
+
+/**
+ * Delete a Code Node (Phase 10, D13). Refused by default while another
+ * CN depends on it (dependentsByCnId); --cascade drops the dependency
+ * edge from every dependent CN's `dependencies[]` before removing the
+ * file, mirroring `deleteFbs`.
+ */
+async function deleteCn({ projectRoot, tree, id, cascade, options, walkErrors = [] }) {
+  const dependents = (tree.dependentsByCnId.get(id) ?? []).slice();
+  if (!cascade && dependents.length > 0) {
+    return refuseWithDependents(id, { cnDependents: dependents });
+  }
+  const pending = [];
+  if (cascade) {
+    for (const depCnId of dependents) {
+      const dep = tree.byId.get(depCnId);
+      const next = {
+        ...dep,
+        dependencies: (dep.dependencies ?? []).filter((d) => d !== id),
+        updatedAt: nowIso(),
+      };
+      const relPath = `rcf/code-nodes/${depCnId.toLowerCase()}.json`;
+      const validation = validateDocument({ doc: next, kind: 'codeNode', filePath: relPath });
+      if (validation) return { ...validation, documentId: depCnId };
+      pending.push({ kind: 'codeNode', id: depCnId, doc: next, relPath });
+    }
+  }
+  const gateErr = postWriteGate({
+    tree,
+    walkErrors,
+    upserts: pending.map((p) => ({ kind: p.kind, id: p.id, doc: p.doc })),
+    deletes: [id],
+    verb: 'delete',
+  });
+  if (gateErr) return gateErr;
+  const mutated = [];
+  for (const p of pending) {
+    if (!options.dryRun) await writeJsonAtomic(pathForKindFile(projectRoot, p.kind, p.id), p.doc);
+    mutated.push({ id: p.id, filePath: p.relPath });
+  }
+  const cnRel = `rcf/code-nodes/${id.toLowerCase()}.json`;
+  if (!options.dryRun) {
+    try { await unlink(pathForKindFile(projectRoot, 'codeNode', id)); } catch (err) {
+      return rcfError({ kind: 'ioFailure', message: `delete: unlink failed: ${err.message}`, filePath: cnRel, stack: err.stack });
     }
   }
   return { deleted: [id], mutated, plan: buildPlanLines([id], mutated) };

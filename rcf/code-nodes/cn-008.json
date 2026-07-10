@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-008",
+  "path": "src/store/validator.js",
+  "title": "Schema validator module (file-level)",
+  "description": "File-level Code Node over the whole validator module. Parallel to symbol-level Code Nodes over getAjv/validateDocument for the granularity comparison.",
+  "implementsAcIds": [
+    "AC-701-2",
+    "AC-701-3",
+    "AC-702-1",
+    "AC-702-2"
+  ],
+  "dependencies": [
+    "CN-004"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:14:05.435Z",
+  "updatedAt": "2026-07-10T11:14:05.435Z"
+}

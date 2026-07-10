@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-020",
+  "path": "src/cli/create.js",
+  "title": "rcf create subcommand (file-level)",
+  "description": "CLI parsing, per-kind mandatory-field checks and defaults for the create verb; delegates persistence to the writer.",
+  "implementsAcIds": [
+    "AC-302-1",
+    "AC-302-2",
+    "AC-302-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:41.086Z",
+  "updatedAt": "2026-07-10T11:15:41.086Z"
+}

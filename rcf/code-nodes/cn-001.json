@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-001",
+  "path": "src/store/validator.js#getAjv",
+  "title": "Ajv instance builder registering the published schema bundle once",
+  "description": "Builds and caches the single Ajv 2020 instance, registering the published @stravica-ai/rcf-schemas bundle at start-up. Satisfies the 'published bundle, registered once' clause.",
+  "implementsAcIds": [
+    "AC-701-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:13:55.704Z",
+  "updatedAt": "2026-07-10T11:13:55.704Z"
+}

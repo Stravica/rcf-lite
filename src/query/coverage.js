@@ -45,15 +45,26 @@
  * Compute coverage over the tree. Returns a stable CoverageResult
  * envelope suitable for the JSON / table / mermaid emitters.
  *
+ * Phase 10 (X2 CodeNode bridge, D11): `opts.withCode` layers an
+ * INFORMATIONAL code axis onto every AC - `codeClass` is one of
+ * `implemented-and-covered` / `implemented-uncovered` / `unimplemented`
+ * (deterministic edge counting via `tree.cnByAcId` / `tree.tcsByAcId`),
+ * plus a tree-wide `codeNodeOrphans` list (CN docs with empty
+ * `implementsAcIds`). None of this blocks - `ok` / exit code are
+ * unaffected by the code axis (spec D11: the mark-complete gate, not
+ * coverage, is where CN completeness is enforced).
+ *
  * @param {TreeModel} tree
  * @param {object} [opts]
  * @param {boolean} [opts.strict] - per-AC-strict mode
  * @param {string} [opts.scopeId] - optional PRD / REQ / US id to scope
+ * @param {boolean} [opts.withCode] - layer the code-axis classification
  * @returns {CoverageResult}
  */
 export function computeCoverage(tree, opts = {}) {
   const strict = Boolean(opts.strict);
   const scopeId = opts.scopeId ?? null;
+  const withCode = Boolean(opts.withCode);
   const reqs = selectRequirements(tree, scopeId);
 
   /** @type {ReqCoverage[]} */
@@ -62,14 +73,14 @@ export function computeCoverage(tree, opts = {}) {
   let uncovered = 0;
 
   for (const req of reqs) {
-    const acs = collectAcs(tree, req.reqId);
+    const acs = collectAcs(tree, req.reqId, { withCode, tree });
     const isCovered = decideReqCoverage(acs, strict);
     if (isCovered) covered += 1;
     else uncovered += 1;
     requirements.push({ id: req.reqId, covered: isCovered, acs });
   }
 
-  return {
+  const result = {
     ok: uncovered === 0,
     strict,
     totals: {
@@ -79,6 +90,43 @@ export function computeCoverage(tree, opts = {}) {
     },
     requirements,
   };
+
+  if (withCode) {
+    result.withCode = true;
+    result.codeNodeOrphans = collectCodeNodeOrphans(tree);
+    result.codeTotals = summariseCodeClasses(requirements);
+  }
+
+  return result;
+}
+
+/**
+ * CN docs whose `implementsAcIds` is empty - a legitimate, common state
+ * (utilities, glue, wiring), reported informationally (D3/D11).
+ * @param {TreeModel} tree
+ * @returns {string[]}
+ */
+function collectCodeNodeOrphans(tree) {
+  return (tree.codeNodes ?? [])
+    .filter((cn) => (cn.implementsAcIds ?? []).length === 0)
+    .map((cn) => cn.cnId)
+    .sort();
+}
+
+/**
+ * @param {ReqCoverage[]} requirements
+ * @returns {{ implementedAndCovered: number, implementedUncovered: number, unimplemented: number }}
+ */
+function summariseCodeClasses(requirements) {
+  const totals = { implementedAndCovered: 0, implementedUncovered: 0, unimplemented: 0 };
+  for (const req of requirements) {
+    for (const ac of req.acs) {
+      if (ac.codeClass === 'implemented-and-covered') totals.implementedAndCovered += 1;
+      else if (ac.codeClass === 'implemented-uncovered') totals.implementedUncovered += 1;
+      else if (ac.codeClass === 'unimplemented') totals.unimplemented += 1;
+    }
+  }
+  return totals;
 }
 
 /**
@@ -114,13 +162,16 @@ function selectRequirements(tree, scopeId) {
 
 /**
  * Collect every AC under a REQ (across all its USs) with per-AC coverage
- * signal + the list of TC ids referencing that AC.
+ * signal + the list of TC ids referencing that AC. Phase 10: when
+ * `withCode`, also attaches `cnIds` and the D11 `codeClass`.
  *
  * @param {TreeModel} tree
  * @param {string} reqId
+ * @param {{ withCode?: boolean }} [opts]
  * @returns {AcCoverage[]}
  */
-function collectAcs(tree, reqId) {
+function collectAcs(tree, reqId, opts = {}) {
+  const withCode = Boolean(opts.withCode);
   /** @type {AcCoverage[]} */
   const acs = [];
   const usIds = tree.childrenByParent.get(reqId) ?? [];
@@ -130,7 +181,17 @@ function collectAcs(tree, reqId) {
     for (const ac of us.acceptanceCriteria ?? []) {
       if (!ac?.id) continue;
       const tcs = (tree.tcsByAcId.get(ac.id) ?? []).map((entry) => entry.tcId);
-      acs.push({ id: ac.id, covered: tcs.length > 0, testCases: [...tcs].sort() });
+      const entry = { id: ac.id, covered: tcs.length > 0, testCases: [...tcs].sort() };
+      if (withCode) {
+        const cnIds = [...(tree.cnByAcId?.get(ac.id) ?? [])].sort();
+        entry.cnIds = cnIds;
+        entry.codeClass = cnIds.length === 0
+          ? 'unimplemented'
+          : tcs.length > 0
+            ? 'implemented-and-covered'
+            : 'implemented-uncovered';
+      }
+      acs.push(entry);
     }
   }
   return acs;

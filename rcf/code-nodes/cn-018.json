@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-018",
+  "path": "src/watch/index.js",
+  "title": "Filesystem watcher (file-level)",
+  "description": "Watches the rcf tree for on-disk changes and emits create/update/delete events, coalesced, that the live view streams to the browser so it reflects current state without a manual refresh.",
+  "implementsAcIds": [
+    "AC-203-1",
+    "AC-203-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:40.910Z",
+  "updatedAt": "2026-07-10T11:15:40.910Z"
+}

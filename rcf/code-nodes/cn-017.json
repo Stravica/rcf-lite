@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-017",
+  "path": "src/view/html-page.js",
+  "title": "Static HTML page renderer (file-level)",
+  "description": "Renders the whole RCF tree as a single browsable static HTML page: tabs per document kind, raw-JSON disclosures, broken-reference banners.",
+  "implementsAcIds": [
+    "AC-202-1",
+    "AC-202-2",
+    "AC-202-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:32.956Z",
+  "updatedAt": "2026-07-10T11:15:32.956Z"
+}

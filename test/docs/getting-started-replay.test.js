@@ -77,7 +77,7 @@ const SEQUENCE = {
   s7Build: ['build'],
   s7BuildNextOut: ['build', '--next', '--out', 'fbs-001-bundle.md'],
   s7MarkInProgress: ['build', 'FBS-001', '--mark', 'inProgress'],
-  s7MarkComplete: ['build', 'FBS-001', '--mark', 'complete'],
+  s7MarkComplete: ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes'],
   s7MarkBackward: ['build', 'FBS-001', '--mark', 'inProgress'],
 };
 

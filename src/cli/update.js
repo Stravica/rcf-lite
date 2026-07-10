@@ -7,7 +7,8 @@ import { readFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
 import { isRcfError, writeUnexpectedFailure } from '../errors/index.js';
-import { updateDocument, walkTree } from '../store/index.js';
+import { splitCnPath, updateDocument, walkTree } from '../store/index.js';
+import { deriveFileDeps, mapDerivedDepsToCnIds } from '../store/derive-deps.js';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {
@@ -17,6 +18,9 @@ const OPTION_SPEC = {
   'dry-run': { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
+  // Phase 10 (X2 CodeNode bridge, D5): re-derive a CN's file-level
+  // dependencies via dependency-cruiser, merged into dependencies[].
+  'derive-deps': { type: 'boolean' },
 };
 
 const HELP = `Usage: rcf update <id> [options]
@@ -28,6 +32,9 @@ Options:
   --json                    Parse --set values as JSON (default: string)
   --dry-run                 Print intended writes without executing
   --quiet                   Suppress non-error stdout
+  --derive-deps             CN only: re-derive file-level dependencies via
+                            dependency-cruiser and merge into dependencies[]
+                            (dev-time assist; never a runtime dependency)
   --help                    Print this help
 `;
 
@@ -99,6 +106,27 @@ export async function main(argv, deps = {}) {
     } catch (err) {
       stderr.write(`[error] usage update: cannot read --from-file: ${err.message}\n`);
       return 2;
+    }
+  }
+  if (flags['derive-deps']) {
+    if (walkResult.tree.kindById.get(id) !== 'codeNode') {
+      stderr.write('[error] usage update: --derive-deps only applies to cn ids\n');
+      return 2;
+    }
+    const setPath = sets.find((s) => s.path === 'path')?.value;
+    const currentPath = typeof setPath === 'string' ? setPath : walkResult.tree.byId.get(id)?.path;
+    const { file } = splitCnPath(currentPath ?? '');
+    const derived = await deriveFileDeps({ projectRoot, filePath: file });
+    if (!derived.ok) {
+      stderr.write(`[error] usage update: --derive-deps: ${derived.message}\n`);
+      return 2;
+    }
+    const { cnIds, unmatched } = mapDerivedDepsToCnIds(walkResult.tree, derived.deps);
+    const existing = walkResult.tree.byId.get(id)?.dependencies ?? [];
+    const merged = [...new Set([...existing, ...cnIds])].filter((d) => d !== id).sort();
+    sets.push({ path: 'dependencies', value: merged });
+    if (unmatched.length > 0 && !flags.quiet) {
+      stdout.write(`[info] --derive-deps: ${unmatched.length} file-level import(s) have no matching CN yet, skipped: ${unmatched.join(', ')}\n`);
     }
   }
   if (sets.length === 0 && !patch) {

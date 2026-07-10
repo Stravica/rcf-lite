@@ -49,6 +49,7 @@ Then scaffold your own project: [docs/getting-started.md](docs/getting-started.m
 | [docs/getting-started.md](docs/getting-started.md) | Empty directory to a validated, queried, building RCF project |
 | [docs/how-it-works.md](docs/how-it-works.md) | The document chain, the files, the fifteen verbs, the agent contract |
 | [docs/why-it-exists.md](docs/why-it-exists.md) | The confidence gap, and why files plus a CLI is the answer |
+| [docs/code-nodes.md](docs/code-nodes.md) | The spec-to-code bridge: Code Nodes, staleness detection, the mark-complete gate, honest limits |
 
 [docs/README.md](docs/README.md) is the index; `rcf help <verb>` is the flag reference; [guidance/](guidance/README.md) is the agent-facing method pack.
 
@@ -56,14 +57,13 @@ Then scaffold your own project: [docs/getting-started.md](docs/getting-started.m
 
 [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas) - the language-neutral JSON Schema contract every RCF tool keys to.
 
+## One graph, into code
+
+The traceability chain (PRD → REQ → US → AC → TS → TC) now extends one layer further: **Code Nodes** (`CN-*`) make source code a first-class node in the same graph, so `rcf validate` catches a dangling spec-to-code link exactly the way it already catches a dangling spec-to-spec one - the link is only "unbreakable" if breakage is detectable. `rcf trace <path>` walks backward from a source file (or `path#symbol`) to the requirements it serves; `--to-code` on `trace` / `impact` extends the forward blast radius into the code that implements a change; `rcf build --mark complete` refuses when a build spec's acceptance criteria carry no Code Node. Spec-only trees (no `code-nodes/` directory) behave exactly as before - the code layer is additive, not a rewrite. Full detail, including what this deliberately does not detect: [docs/code-nodes.md](docs/code-nodes.md).
+
 ## Roadmap
 
-RCF v1 is spec-first: the traceability chain (PRD → REQ → US → AC → TS → TC) is complete on the spec side and stops at TC's `testPointer` field. Tests are trusted to verify code intent; the graph does not extend into source paths yet.
-
-**Phase 10 (planned) - spec ↔ code bridge.** Two additions that close the gap without breaking the deterministic, no-LLM boundary:
-
-- **Test-coverage bridge.** `rcf coverage --with-code` composes AC → TC → source paths from standard coverage output (LCOV / jest / nyc / pytest-cov / go coverage). A new `rcf trace <path>` walks backward from a source file to the ACs it exercises.
-- **FBS post-hoc paths.** `rcf build --mark complete` captures paths touched since `--mark inProgress` into an optional `implementedInPaths[]` field on the FBS.
+Symbol-level call-graph auto-derivation, semantic-drift detection, and mechanical CN generators (test-coverage-derived, diff-derived) are deliberately out of scope for now - see [docs/code-nodes.md](docs/code-nodes.md#9-honest-limits) for why, and what a harness layer above `rcf` could add.
 
 ## Contributing
 

@@ -48,11 +48,13 @@ function headingSlugs(text) {
   return slugs;
 }
 
-test('the docs set exists: README.md plus the five docs/ files', async () => {
+test('the docs set exists: README.md plus the docs/ files', async () => {
   const names = (await docFiles()).map((f) => f.name).sort();
   assert.deepEqual(names, [
     'README.md',
     'docs/README.md',
+    // Phase 10 (X2 CodeNode bridge, D19): in-repo docs for the CN layer.
+    'docs/code-nodes.md',
     'docs/getting-started.md',
     'docs/how-it-works.md',
     'docs/install.md',

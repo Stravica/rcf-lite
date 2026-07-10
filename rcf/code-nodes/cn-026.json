@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-026",
+  "path": "src/build/bundle.js",
+  "title": "Spec bundle assembler (file-level)",
+  "description": "Assembles the deterministic spec bundle for one FBS item: header, queue context, the work, acceptance criteria with ancestry, architectural context, existing test surface and the build-cycle runbook.",
+  "implementsAcIds": [
+    "AC-501-1",
+    "AC-501-2",
+    "AC-501-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:56.956Z",
+  "updatedAt": "2026-07-10T11:15:56.956Z"
+}

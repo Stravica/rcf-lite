@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-011",
+  "path": "src/store/writer.js#postWriteGate",
+  "title": "Post-write refusal gate",
+  "description": "Runs a change-set through the tree simulation and refuses the write if any error appears post-write that was not present pre-write. The enforcement point for 'refuse invalid writes'.",
+  "implementsAcIds": [
+    "AC-701-1"
+  ],
+  "dependencies": [
+    "CN-009",
+    "CN-002",
+    "CN-003"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:14:23.483Z",
+  "updatedAt": "2026-07-10T11:14:23.483Z"
+}

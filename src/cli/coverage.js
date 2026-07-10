@@ -28,6 +28,8 @@ const OPTION_SPEC = {
   strict: { type: 'boolean' },
   format: { type: 'string' },
   help: { type: 'boolean' },
+  // Phase 10 (X2 CodeNode bridge, D11): layer the code axis onto coverage.
+  'with-code': { type: 'boolean' },
 };
 
 const HELP = `Usage: rcf coverage [scope-id] [options]
@@ -49,6 +51,13 @@ Positional:
 
 Options:
   --strict                  Per-AC-strict mode; exits 4 on any gap
+  --with-code               Layer the code axis onto every AC: one of
+                            implemented-and-covered / implemented-uncovered
+                            / unimplemented, plus a tree-wide list of
+                            CN-orphaned code nodes. INFORMATIONAL ONLY -
+                            never blocks or affects the exit code (D11;
+                            the mark-complete gate is where CN
+                            completeness is enforced).
   --format <format>         table (default) | json | mermaid
   --help                    Print this help
 `;
@@ -120,7 +129,9 @@ export async function main(argv, deps = {}) {
     }
   }
 
-  const result = computeCoverage(tree, { strict: Boolean(flags.strict), scopeId });
+  const result = computeCoverage(tree, {
+    strict: Boolean(flags.strict), scopeId, withCode: Boolean(flags['with-code']),
+  });
 
   let output;
   if (format === 'json') output = formatJson(result, 'coverage');

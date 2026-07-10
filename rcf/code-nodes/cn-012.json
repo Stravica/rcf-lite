@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-012",
+  "path": "src/store/writer.js",
+  "title": "Persistence / CRUD writer module (file-level)",
+  "description": "File-level Code Node over the whole writer module. Parallel to symbol-level Code Nodes over postWriteGate/createDocument for the granularity comparison.",
+  "implementsAcIds": [
+    "AC-701-1",
+    "AC-701-2"
+  ],
+  "dependencies": [
+    "CN-008",
+    "CN-004"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:14:23.587Z",
+  "updatedAt": "2026-07-10T11:14:23.587Z"
+}

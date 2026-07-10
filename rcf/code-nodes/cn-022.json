@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-022",
+  "path": "src/cli/delete.js",
+  "title": "rcf delete subcommand (file-level)",
+  "description": "Refuses a delete by default when the target has dependents; --cascade opts in and drops backrefs; --dry-run plans without executing.",
+  "implementsAcIds": [
+    "AC-304-1",
+    "AC-304-2",
+    "AC-304-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:41.262Z",
+  "updatedAt": "2026-07-10T11:15:41.262Z"
+}

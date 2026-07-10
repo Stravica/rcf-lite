@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-007",
+  "path": "src/mcp/map-errors.js#issueFromRcfError",
+  "title": "MCP structured-issue mapper",
+  "description": "Maps an RcfError to the structured issue object delivered to an AI tool over MCP, so validation errors reach the tool as actionable objects, not free text.",
+  "implementsAcIds": [
+    "AC-702-3"
+  ],
+  "dependencies": [
+    "CN-003"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:14:05.346Z",
+  "updatedAt": "2026-07-10T11:14:05.346Z"
+}

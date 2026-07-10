@@ -6,7 +6,8 @@ import { readFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
 import { writeUnexpectedFailure } from '../errors/index.js';
-import { createDocument, deriveSlug, walkTree } from '../store/index.js';
+import { createDocument, deriveSlug, splitCnPath, walkTree } from '../store/index.js';
+import { deriveFileDeps, mapDerivedDepsToCnIds } from '../store/derive-deps.js';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {
@@ -25,16 +26,30 @@ const OPTION_SPEC = {
   'dry-run': { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
+  // Phase 10 (X2 CodeNode bridge): `rcf create cn` flags.
+  path: { type: 'string' },
+  deps: { type: 'string' },
+  'derive-deps': { type: 'boolean' },
 };
 
 const HELP = `Usage: rcf create <kind> [options]
 
-Kinds: req | us | ac | tac | adr | fbs | ts | tc
+Kinds: req | us | ac | tac | adr | fbs | ts | tc | cn
 
 See 'rcf help create' for the full option list.
+
+Code Node (cn) options:
+  --path <path>             Repo-relative source path, optionally
+                            #symbol-suffixed (required)
+  --acs <ids>               Comma-separated AC ids this node implements
+                            (may be empty - an orphan CN is legitimate)
+  --deps <ids>              Comma-separated CN ids this node depends on
+  --derive-deps             Assist --deps with dependency-cruiser file-level
+                            analysis (dev-time only; never a runtime dep -
+                            errors helpfully when the tool is not resolvable)
 `;
 
-const VALID_KINDS = new Set(['req', 'us', 'ac', 'tac', 'adr', 'fbs', 'ts', 'tc']);
+const VALID_KINDS = new Set(['req', 'us', 'ac', 'tac', 'adr', 'fbs', 'ts', 'tc', 'cn']);
 // Root-singleton kinds: created by `rcf init`, not by `rcf create`. When
 // a user reaches for `rcf create prd|tad|bs|manifest`, we return a clearer
 // message that points them at `rcf init` (BUG-010).
@@ -121,7 +136,17 @@ export async function main(argv, deps = {}) {
   if (flags.description !== undefined) body.description = flags.description;
   if (flags.purpose !== undefined) body.purpose = flags.purpose;
   if (flags['test-level'] !== undefined) body.testLevel = flags['test-level'];
-  if (flags.acs !== undefined) body.acIds = flags.acs.split(',').map((s) => s.trim()).filter(Boolean);
+  // Phase 10: `cn`'s AC cross-link field is `implementsAcIds`, not `acIds`
+  // (fbs/ts share `acIds`) - --acs maps to whichever the kind expects.
+  if (flags.acs !== undefined) {
+    const ids = flags.acs.split(',').map((s) => s.trim()).filter(Boolean);
+    if (kind === 'cn') body.implementsAcIds = ids;
+    else body.acIds = ids;
+  }
+  if (kind === 'cn') {
+    if (flags.path !== undefined) body.path = flags.path;
+    if (flags.deps !== undefined) body.dependencies = flags.deps.split(',').map((s) => s.trim()).filter(Boolean);
+  }
 
   const options = {
     id: flags.id,
@@ -134,6 +159,29 @@ export async function main(argv, deps = {}) {
     if (!body.description) {
       stderr.write(`[error] usage create ${kind}: --description is required\n`);
       return 2;
+    }
+  } else if (kind === 'cn') {
+    if (!body.path) {
+      stderr.write('[error] usage create cn: --path is required\n');
+      return 2;
+    }
+    // Phase 10 D5: --derive-deps assist. Optional, dev-time only, never a
+    // runtime dependency - errors helpfully (exit 2) when the tool cannot
+    // be resolved rather than silently degrading or reaching for the
+    // network to install it.
+    if (flags['derive-deps']) {
+      const { file } = splitCnPath(body.path);
+      const derived = await deriveFileDeps({ projectRoot, filePath: file });
+      if (!derived.ok) {
+        stderr.write(`[error] usage create cn: --derive-deps: ${derived.message}\n`);
+        return 2;
+      }
+      const { cnIds, unmatched } = mapDerivedDepsToCnIds(walkResult.tree, derived.deps);
+      const existing = Array.isArray(body.dependencies) ? body.dependencies : [];
+      body.dependencies = [...new Set([...existing, ...cnIds])].sort();
+      if (unmatched.length > 0 && !flags.quiet) {
+        stdout.write(`[info] --derive-deps: ${unmatched.length} file-level import(s) have no matching CN yet, skipped: ${unmatched.join(', ')}\n`);
+      }
     }
   } else if (!body.title) {
     stderr.write(`[error] usage create ${kind}: --title is required\n`);

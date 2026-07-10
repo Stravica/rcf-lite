@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-002",
+  "path": "src/store/walker.js#netNewErrors",
+  "title": "Net-new error diff between pre- and post-write error sets",
+  "description": "Diffs post-write errors against pre-write errors on the full structured tuple, so an operation is refused only when it introduces breakage not already present.",
+  "implementsAcIds": [
+    "AC-701-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:13:55.793Z",
+  "updatedAt": "2026-07-10T11:13:55.793Z"
+}

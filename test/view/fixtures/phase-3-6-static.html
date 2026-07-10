@@ -114,44 +114,62 @@
   US-101 --&gt; AC-101-1
   FBS-001[&quot;FBS-001&lt;br/&gt;Document store core&quot;]
   AC-101-1 -.-&gt;|delivered by| FBS-001
+  CN-014[&quot;CN-014&lt;br/&gt;Project scaffold initialiser (file-level)&quot;]
+  AC-101-1 -.-&gt;|implemented by| CN-014
   AC-101-2[&quot;AC-101-2&quot;]
   US-101 --&gt; AC-101-2
   AC-101-2 -.-&gt;|delivered by| FBS-001
+  AC-101-2 -.-&gt;|implemented by| CN-014
   AC-101-3[&quot;AC-101-3&quot;]
   US-101 --&gt; AC-101-3
   AC-101-3 -.-&gt;|delivered by| FBS-001
+  AC-101-3 -.-&gt;|implemented by| CN-014
   US-102[&quot;US-102&lt;br/&gt;Load and walk the tree&quot;]
   REQ-001 --&gt; US-102
   AC-102-1[&quot;AC-102-1&quot;]
   US-102 --&gt; AC-102-1
   FBS-002[&quot;FBS-002&lt;br/&gt;Tree walk and validate command&quot;]
   AC-102-1 -.-&gt;|delivered by| FBS-002
+  CN-004[&quot;CN-004&lt;br/&gt;Tree walker module (file-level)&quot;]
+  AC-102-1 -.-&gt;|implemented by| CN-004
+  CN-015[&quot;CN-015&lt;br/&gt;Document loader module (file-level)&quot;]
+  AC-102-1 -.-&gt;|implemented by| CN-015
   AC-102-2[&quot;AC-102-2&quot;]
   US-102 --&gt; AC-102-2
   AC-102-2 -.-&gt;|delivered by| FBS-002
+  AC-102-2 -.-&gt;|implemented by| CN-004
+  AC-102-2 -.-&gt;|implemented by| CN-015
   AC-102-3[&quot;AC-102-3&quot;]
   US-102 --&gt; AC-102-3
   AC-102-3 -.-&gt;|delivered by| FBS-002
+  AC-102-3 -.-&gt;|implemented by| CN-004
+  AC-102-3 -.-&gt;|implemented by| CN-015
   click REQ-001 &quot;#REQ-001&quot;;
   click US-101 &quot;#US-101&quot;;
   click AC-101-1 &quot;#AC-101-1&quot;;
   click FBS-001 &quot;#FBS-001&quot;;
+  click CN-014 &quot;#CN-014&quot;;
   click AC-101-2 &quot;#AC-101-2&quot;;
   click AC-101-3 &quot;#AC-101-3&quot;;
   click US-102 &quot;#US-102&quot;;
   click AC-102-1 &quot;#AC-102-1&quot;;
   click FBS-002 &quot;#FBS-002&quot;;
+  click CN-004 &quot;#CN-004&quot;;
+  click CN-015 &quot;#CN-015&quot;;
   click AC-102-2 &quot;#AC-102-2&quot;;
   click AC-102-3 &quot;#AC-102-3&quot;;
   class REQ-001 req;
   class US-101 us;
   class AC-101-1 ac;
   class FBS-001 fbs;
+  class CN-014 cn;
   class AC-101-2 ac;
   class AC-101-3 ac;
   class US-102 us;
   class AC-102-1 ac;
   class FBS-002 fbs;
+  class CN-004 cn;
+  class CN-015 cn;
   class AC-102-2 ac;
   class AC-102-3 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
@@ -342,59 +360,76 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-201 --&gt; AC-201-1
   FBS-003[&quot;FBS-003&lt;br/&gt;Diagram rendering&quot;]
   AC-201-1 -.-&gt;|delivered by| FBS-003
+  CN-016[&quot;CN-016&lt;br/&gt;Mermaid diagram emission (file-level)&quot;]
+  AC-201-1 -.-&gt;|implemented by| CN-016
   AC-201-2[&quot;AC-201-2&quot;]
   US-201 --&gt; AC-201-2
   AC-201-2 -.-&gt;|delivered by| FBS-003
+  AC-201-2 -.-&gt;|implemented by| CN-016
   AC-201-3[&quot;AC-201-3&quot;]
   US-201 --&gt; AC-201-3
   AC-201-3 -.-&gt;|delivered by| FBS-003
+  AC-201-3 -.-&gt;|implemented by| CN-016
   US-202[&quot;US-202&lt;br/&gt;Browse the tree as a static page&quot;]
   REQ-002 --&gt; US-202
   AC-202-1[&quot;AC-202-1&quot;]
   US-202 --&gt; AC-202-1
   FBS-004[&quot;FBS-004&lt;br/&gt;HTML page rendering&quot;]
   AC-202-1 -.-&gt;|delivered by| FBS-004
+  CN-017[&quot;CN-017&lt;br/&gt;Static HTML page renderer (file-level)&quot;]
+  AC-202-1 -.-&gt;|implemented by| CN-017
   AC-202-2[&quot;AC-202-2&quot;]
   US-202 --&gt; AC-202-2
   AC-202-2 -.-&gt;|delivered by| FBS-004
+  AC-202-2 -.-&gt;|implemented by| CN-017
   AC-202-3[&quot;AC-202-3&quot;]
   US-202 --&gt; AC-202-3
   AC-202-3 -.-&gt;|delivered by| FBS-004
+  AC-202-3 -.-&gt;|implemented by| CN-017
   US-203[&quot;US-203&lt;br/&gt;View reflects current on-disk state&quot;]
   REQ-002 --&gt; US-203
   AC-203-1[&quot;AC-203-1&quot;]
   US-203 --&gt; AC-203-1
   AC-203-1 -.-&gt;|delivered by| FBS-004
+  CN-018[&quot;CN-018&lt;br/&gt;Filesystem watcher (file-level)&quot;]
+  AC-203-1 -.-&gt;|implemented by| CN-018
   AC-203-2[&quot;AC-203-2&quot;]
   US-203 --&gt; AC-203-2
   AC-203-2 -.-&gt;|delivered by| FBS-004
+  AC-203-2 -.-&gt;|implemented by| CN-018
   click REQ-002 &quot;#REQ-002&quot;;
   click US-201 &quot;#US-201&quot;;
   click AC-201-1 &quot;#AC-201-1&quot;;
   click FBS-003 &quot;#FBS-003&quot;;
+  click CN-016 &quot;#CN-016&quot;;
   click AC-201-2 &quot;#AC-201-2&quot;;
   click AC-201-3 &quot;#AC-201-3&quot;;
   click US-202 &quot;#US-202&quot;;
   click AC-202-1 &quot;#AC-202-1&quot;;
   click FBS-004 &quot;#FBS-004&quot;;
+  click CN-017 &quot;#CN-017&quot;;
   click AC-202-2 &quot;#AC-202-2&quot;;
   click AC-202-3 &quot;#AC-202-3&quot;;
   click US-203 &quot;#US-203&quot;;
   click AC-203-1 &quot;#AC-203-1&quot;;
+  click CN-018 &quot;#CN-018&quot;;
   click AC-203-2 &quot;#AC-203-2&quot;;
   class REQ-002 req;
   class US-201 us;
   class AC-201-1 ac;
   class FBS-003 fbs;
+  class CN-016 cn;
   class AC-201-2 ac;
   class AC-201-3 ac;
   class US-202 us;
   class AC-202-1 ac;
   class FBS-004 fbs;
+  class CN-017 cn;
   class AC-202-2 ac;
   class AC-202-3 ac;
   class US-203 us;
   class AC-203-1 ac;
+  class CN-018 cn;
   class AC-203-2 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
@@ -640,85 +675,109 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-301 --&gt; AC-301-1
   FBS-005[&quot;FBS-005&lt;br/&gt;CLI read verbs&quot;]
   AC-301-1 -.-&gt;|delivered by| FBS-005
+  CN-019[&quot;CN-019&lt;br/&gt;rcf read subcommand (file-level)&quot;]
+  AC-301-1 -.-&gt;|implemented by| CN-019
   AC-301-2[&quot;AC-301-2&quot;]
   US-301 --&gt; AC-301-2
   AC-301-2 -.-&gt;|delivered by| FBS-005
+  AC-301-2 -.-&gt;|implemented by| CN-019
   AC-301-3[&quot;AC-301-3&quot;]
   US-301 --&gt; AC-301-3
   AC-301-3 -.-&gt;|delivered by| FBS-005
+  AC-301-3 -.-&gt;|implemented by| CN-019
   US-302[&quot;US-302&lt;br/&gt;Create a document with parent linkage&quot;]
   REQ-003 --&gt; US-302
   AC-302-1[&quot;AC-302-1&quot;]
   US-302 --&gt; AC-302-1
   FBS-006[&quot;FBS-006&lt;br/&gt;CLI create and update verbs&quot;]
   AC-302-1 -.-&gt;|delivered by| FBS-006
+  CN-020[&quot;CN-020&lt;br/&gt;rcf create subcommand (file-level)&quot;]
+  AC-302-1 -.-&gt;|implemented by| CN-020
   AC-302-2[&quot;AC-302-2&quot;]
   US-302 --&gt; AC-302-2
   AC-302-2 -.-&gt;|delivered by| FBS-006
+  AC-302-2 -.-&gt;|implemented by| CN-020
   AC-302-3[&quot;AC-302-3&quot;]
   US-302 --&gt; AC-302-3
   AC-302-3 -.-&gt;|delivered by| FBS-006
+  AC-302-3 -.-&gt;|implemented by| CN-020
   US-303[&quot;US-303&lt;br/&gt;Update fields safely&quot;]
   REQ-003 --&gt; US-303
   AC-303-1[&quot;AC-303-1&quot;]
   US-303 --&gt; AC-303-1
   AC-303-1 -.-&gt;|delivered by| FBS-006
+  CN-021[&quot;CN-021&lt;br/&gt;rcf update subcommand (file-level)&quot;]
+  AC-303-1 -.-&gt;|implemented by| CN-021
   AC-303-2[&quot;AC-303-2&quot;]
   US-303 --&gt; AC-303-2
   AC-303-2 -.-&gt;|delivered by| FBS-006
+  AC-303-2 -.-&gt;|implemented by| CN-021
   AC-303-3[&quot;AC-303-3&quot;]
   US-303 --&gt; AC-303-3
   AC-303-3 -.-&gt;|delivered by| FBS-006
+  AC-303-3 -.-&gt;|implemented by| CN-021
   US-304[&quot;US-304&lt;br/&gt;Delete with reference safety&quot;]
   REQ-003 --&gt; US-304
   AC-304-1[&quot;AC-304-1&quot;]
   US-304 --&gt; AC-304-1
   FBS-007[&quot;FBS-007&lt;br/&gt;CLI delete with reference safety&quot;]
   AC-304-1 -.-&gt;|delivered by| FBS-007
+  CN-022[&quot;CN-022&lt;br/&gt;rcf delete subcommand (file-level)&quot;]
+  AC-304-1 -.-&gt;|implemented by| CN-022
   AC-304-2[&quot;AC-304-2&quot;]
   US-304 --&gt; AC-304-2
   AC-304-2 -.-&gt;|delivered by| FBS-007
+  AC-304-2 -.-&gt;|implemented by| CN-022
   AC-304-3[&quot;AC-304-3&quot;]
   US-304 --&gt; AC-304-3
   AC-304-3 -.-&gt;|delivered by| FBS-007
+  AC-304-3 -.-&gt;|implemented by| CN-022
   click REQ-003 &quot;#REQ-003&quot;;
   click US-301 &quot;#US-301&quot;;
   click AC-301-1 &quot;#AC-301-1&quot;;
   click FBS-005 &quot;#FBS-005&quot;;
+  click CN-019 &quot;#CN-019&quot;;
   click AC-301-2 &quot;#AC-301-2&quot;;
   click AC-301-3 &quot;#AC-301-3&quot;;
   click US-302 &quot;#US-302&quot;;
   click AC-302-1 &quot;#AC-302-1&quot;;
   click FBS-006 &quot;#FBS-006&quot;;
+  click CN-020 &quot;#CN-020&quot;;
   click AC-302-2 &quot;#AC-302-2&quot;;
   click AC-302-3 &quot;#AC-302-3&quot;;
   click US-303 &quot;#US-303&quot;;
   click AC-303-1 &quot;#AC-303-1&quot;;
+  click CN-021 &quot;#CN-021&quot;;
   click AC-303-2 &quot;#AC-303-2&quot;;
   click AC-303-3 &quot;#AC-303-3&quot;;
   click US-304 &quot;#US-304&quot;;
   click AC-304-1 &quot;#AC-304-1&quot;;
   click FBS-007 &quot;#FBS-007&quot;;
+  click CN-022 &quot;#CN-022&quot;;
   click AC-304-2 &quot;#AC-304-2&quot;;
   click AC-304-3 &quot;#AC-304-3&quot;;
   class REQ-003 req;
   class US-301 us;
   class AC-301-1 ac;
   class FBS-005 fbs;
+  class CN-019 cn;
   class AC-301-2 ac;
   class AC-301-3 ac;
   class US-302 us;
   class AC-302-1 ac;
   class FBS-006 fbs;
+  class CN-020 cn;
   class AC-302-2 ac;
   class AC-302-3 ac;
   class US-303 us;
   class AC-303-1 ac;
+  class CN-021 cn;
   class AC-303-2 ac;
   class AC-303-3 ac;
   class US-304 us;
   class AC-304-1 ac;
   class FBS-007 fbs;
+  class CN-022 cn;
   class AC-304-2 ac;
   class AC-304-3 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
@@ -1043,63 +1102,81 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-401 --&gt; AC-401-1
   FBS-008[&quot;FBS-008&lt;br/&gt;Coverage and trace queries&quot;]
   AC-401-1 -.-&gt;|delivered by| FBS-008
+  CN-023[&quot;CN-023&lt;br/&gt;Coverage compute module (file-level)&quot;]
+  AC-401-1 -.-&gt;|implemented by| CN-023
   AC-401-2[&quot;AC-401-2&quot;]
   US-401 --&gt; AC-401-2
   AC-401-2 -.-&gt;|delivered by| FBS-008
+  AC-401-2 -.-&gt;|implemented by| CN-023
   AC-401-3[&quot;AC-401-3&quot;]
   US-401 --&gt; AC-401-3
   AC-401-3 -.-&gt;|delivered by| FBS-008
+  AC-401-3 -.-&gt;|implemented by| CN-023
   US-402[&quot;US-402&lt;br/&gt;Trace forward and back&quot;]
   REQ-004 --&gt; US-402
   AC-402-1[&quot;AC-402-1&quot;]
   US-402 --&gt; AC-402-1
   AC-402-1 -.-&gt;|delivered by| FBS-008
+  CN-024[&quot;CN-024&lt;br/&gt;Trace compute module (file-level)&quot;]
+  AC-402-1 -.-&gt;|implemented by| CN-024
   AC-402-2[&quot;AC-402-2&quot;]
   US-402 --&gt; AC-402-2
   AC-402-2 -.-&gt;|delivered by| FBS-008
+  AC-402-2 -.-&gt;|implemented by| CN-024
   AC-402-3[&quot;AC-402-3&quot;]
   US-402 --&gt; AC-402-3
   AC-402-3 -.-&gt;|delivered by| FBS-008
+  AC-402-3 -.-&gt;|implemented by| CN-024
   US-403[&quot;US-403&lt;br/&gt;Impact analysis&quot;]
   REQ-004 --&gt; US-403
   AC-403-1[&quot;AC-403-1&quot;]
   US-403 --&gt; AC-403-1
   FBS-009[&quot;FBS-009&lt;br/&gt;Impact analysis&quot;]
   AC-403-1 -.-&gt;|delivered by| FBS-009
+  CN-025[&quot;CN-025&lt;br/&gt;Impact compute module (file-level)&quot;]
+  AC-403-1 -.-&gt;|implemented by| CN-025
   AC-403-2[&quot;AC-403-2&quot;]
   US-403 --&gt; AC-403-2
   AC-403-2 -.-&gt;|delivered by| FBS-009
+  AC-403-2 -.-&gt;|implemented by| CN-025
   AC-403-3[&quot;AC-403-3&quot;]
   US-403 --&gt; AC-403-3
   AC-403-3 -.-&gt;|delivered by| FBS-009
+  AC-403-3 -.-&gt;|implemented by| CN-025
   click REQ-004 &quot;#REQ-004&quot;;
   click US-401 &quot;#US-401&quot;;
   click AC-401-1 &quot;#AC-401-1&quot;;
   click FBS-008 &quot;#FBS-008&quot;;
+  click CN-023 &quot;#CN-023&quot;;
   click AC-401-2 &quot;#AC-401-2&quot;;
   click AC-401-3 &quot;#AC-401-3&quot;;
   click US-402 &quot;#US-402&quot;;
   click AC-402-1 &quot;#AC-402-1&quot;;
+  click CN-024 &quot;#CN-024&quot;;
   click AC-402-2 &quot;#AC-402-2&quot;;
   click AC-402-3 &quot;#AC-402-3&quot;;
   click US-403 &quot;#US-403&quot;;
   click AC-403-1 &quot;#AC-403-1&quot;;
   click FBS-009 &quot;#FBS-009&quot;;
+  click CN-025 &quot;#CN-025&quot;;
   click AC-403-2 &quot;#AC-403-2&quot;;
   click AC-403-3 &quot;#AC-403-3&quot;;
   class REQ-004 req;
   class US-401 us;
   class AC-401-1 ac;
   class FBS-008 fbs;
+  class CN-023 cn;
   class AC-401-2 ac;
   class AC-401-3 ac;
   class US-402 us;
   class AC-402-1 ac;
+  class CN-024 cn;
   class AC-402-2 ac;
   class AC-402-3 ac;
   class US-403 us;
   class AC-403-1 ac;
   class FBS-009 fbs;
+  class CN-025 cn;
   class AC-403-2 ac;
   class AC-403-3 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
@@ -1357,63 +1434,81 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-501 --&gt; AC-501-1
   FBS-010[&quot;FBS-010&lt;br/&gt;Build adapter prompt assembly&quot;]
   AC-501-1 -.-&gt;|delivered by| FBS-010
+  CN-026[&quot;CN-026&lt;br/&gt;Spec bundle assembler (file-level)&quot;]
+  AC-501-1 -.-&gt;|implemented by| CN-026
   AC-501-2[&quot;AC-501-2&quot;]
   US-501 --&gt; AC-501-2
   AC-501-2 -.-&gt;|delivered by| FBS-010
+  AC-501-2 -.-&gt;|implemented by| CN-026
   AC-501-3[&quot;AC-501-3&quot;]
   US-501 --&gt; AC-501-3
   AC-501-3 -.-&gt;|delivered by| FBS-010
+  AC-501-3 -.-&gt;|implemented by| CN-026
   US-502[&quot;US-502&lt;br/&gt;Build order respects dependencies&quot;]
   REQ-005 --&gt; US-502
   AC-502-1[&quot;AC-502-1&quot;]
   US-502 --&gt; AC-502-1
   AC-502-1 -.-&gt;|delivered by| FBS-010
+  CN-027[&quot;CN-027&lt;br/&gt;Build queue compute module (file-level)&quot;]
+  AC-502-1 -.-&gt;|implemented by| CN-027
   AC-502-2[&quot;AC-502-2&quot;]
   US-502 --&gt; AC-502-2
   AC-502-2 -.-&gt;|delivered by| FBS-010
+  AC-502-2 -.-&gt;|implemented by| CN-027
   AC-502-3[&quot;AC-502-3&quot;]
   US-502 --&gt; AC-502-3
   AC-502-3 -.-&gt;|delivered by| FBS-010
+  AC-502-3 -.-&gt;|implemented by| CN-027
   US-503[&quot;US-503&lt;br/&gt;Mark a slice done&quot;]
   REQ-005 --&gt; US-503
   AC-503-1[&quot;AC-503-1&quot;]
   US-503 --&gt; AC-503-1
   FBS-011[&quot;FBS-011&lt;br/&gt;Mark-done on completion&quot;]
   AC-503-1 -.-&gt;|delivered by| FBS-011
+  CN-028[&quot;CN-028&lt;br/&gt;Lifecycle mark transition planner (file-level)&quot;]
+  AC-503-1 -.-&gt;|implemented by| CN-028
   AC-503-2[&quot;AC-503-2&quot;]
   US-503 --&gt; AC-503-2
   AC-503-2 -.-&gt;|delivered by| FBS-011
+  AC-503-2 -.-&gt;|implemented by| CN-028
   AC-503-3[&quot;AC-503-3&quot;]
   US-503 --&gt; AC-503-3
   AC-503-3 -.-&gt;|delivered by| FBS-011
+  AC-503-3 -.-&gt;|implemented by| CN-028
   click REQ-005 &quot;#REQ-005&quot;;
   click US-501 &quot;#US-501&quot;;
   click AC-501-1 &quot;#AC-501-1&quot;;
   click FBS-010 &quot;#FBS-010&quot;;
+  click CN-026 &quot;#CN-026&quot;;
   click AC-501-2 &quot;#AC-501-2&quot;;
   click AC-501-3 &quot;#AC-501-3&quot;;
   click US-502 &quot;#US-502&quot;;
   click AC-502-1 &quot;#AC-502-1&quot;;
+  click CN-027 &quot;#CN-027&quot;;
   click AC-502-2 &quot;#AC-502-2&quot;;
   click AC-502-3 &quot;#AC-502-3&quot;;
   click US-503 &quot;#US-503&quot;;
   click AC-503-1 &quot;#AC-503-1&quot;;
   click FBS-011 &quot;#FBS-011&quot;;
+  click CN-028 &quot;#CN-028&quot;;
   click AC-503-2 &quot;#AC-503-2&quot;;
   click AC-503-3 &quot;#AC-503-3&quot;;
   class REQ-005 req;
   class US-501 us;
   class AC-501-1 ac;
   class FBS-010 fbs;
+  class CN-026 cn;
   class AC-501-2 ac;
   class AC-501-3 ac;
   class US-502 us;
   class AC-502-1 ac;
+  class CN-027 cn;
   class AC-502-2 ac;
   class AC-502-3 ac;
   class US-503 us;
   class AC-503-1 ac;
   class FBS-011 fbs;
+  class CN-028 cn;
   class AC-503-2 ac;
   class AC-503-3 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
@@ -1671,27 +1766,35 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-601 --&gt; AC-601-1
   FBS-012[&quot;FBS-012&lt;br/&gt;MCP server over the full surface&quot;]
   AC-601-1 -.-&gt;|delivered by| FBS-012
+  CN-029[&quot;CN-029&lt;br/&gt;MCP tool registry (file-level)&quot;]
+  AC-601-1 -.-&gt;|implemented by| CN-029
   AC-601-2[&quot;AC-601-2&quot;]
   US-601 --&gt; AC-601-2
   AC-601-2 -.-&gt;|delivered by| FBS-012
+  AC-601-2 -.-&gt;|implemented by| CN-029
   AC-601-3[&quot;AC-601-3&quot;]
   US-601 --&gt; AC-601-3
   AC-601-3 -.-&gt;|delivered by| FBS-012
+  AC-601-3 -.-&gt;|implemented by| CN-029
   US-602[&quot;US-602&lt;br/&gt;CRUD and build over MCP&quot;]
   REQ-006 --&gt; US-602
   AC-602-1[&quot;AC-602-1&quot;]
   US-602 --&gt; AC-602-1
   AC-602-1 -.-&gt;|delivered by| FBS-012
+  AC-602-1 -.-&gt;|implemented by| CN-029
   AC-602-2[&quot;AC-602-2&quot;]
   US-602 --&gt; AC-602-2
   AC-602-2 -.-&gt;|delivered by| FBS-012
+  AC-602-2 -.-&gt;|implemented by| CN-029
   AC-602-3[&quot;AC-602-3&quot;]
   US-602 --&gt; AC-602-3
   AC-602-3 -.-&gt;|delivered by| FBS-012
+  AC-602-3 -.-&gt;|implemented by| CN-029
   click REQ-006 &quot;#REQ-006&quot;;
   click US-601 &quot;#US-601&quot;;
   click AC-601-1 &quot;#AC-601-1&quot;;
   click FBS-012 &quot;#FBS-012&quot;;
+  click CN-029 &quot;#CN-029&quot;;
   click AC-601-2 &quot;#AC-601-2&quot;;
   click AC-601-3 &quot;#AC-601-3&quot;;
   click US-602 &quot;#US-602&quot;;
@@ -1702,6 +1805,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class US-601 us;
   class AC-601-1 ac;
   class FBS-012 fbs;
+  class CN-029 cn;
   class AC-601-2 ac;
   class AC-601-3 ac;
   class US-602 us;
@@ -1896,49 +2000,111 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-701 --&gt; AC-701-1
   FBS-006[&quot;FBS-006&lt;br/&gt;CLI create and update verbs&quot;]
   AC-701-1 -.-&gt;|delivered by| FBS-006
+  CN-002[&quot;CN-002&lt;br/&gt;Net-new error diff between pre- and post-writ...&quot;]
+  AC-701-1 -.-&gt;|implemented by| CN-002
+  CN-004[&quot;CN-004&lt;br/&gt;Tree walker module (file-level)&quot;]
+  AC-701-1 -.-&gt;|implemented by| CN-004
+  CN-009[&quot;CN-009&lt;br/&gt;In-memory post-write tree simulation&quot;]
+  AC-701-1 -.-&gt;|implemented by| CN-009
+  CN-011[&quot;CN-011&lt;br/&gt;Post-write refusal gate&quot;]
+  AC-701-1 -.-&gt;|implemented by| CN-011
+  CN-012[&quot;CN-012&lt;br/&gt;Persistence / CRUD writer module (file-level)&quot;]
+  AC-701-1 -.-&gt;|implemented by| CN-012
+  CN-013[&quot;CN-013&lt;br/&gt;Create verb with pre-write validation and pos...&quot;]
+  AC-701-1 -.-&gt;|implemented by| CN-013
   AC-701-2[&quot;AC-701-2&quot;]
   US-701 --&gt; AC-701-2
   AC-701-2 -.-&gt;|delivered by| FBS-006
+  CN-005[&quot;CN-005&lt;br/&gt;Schema validation entry point with structured...&quot;]
+  AC-701-2 -.-&gt;|implemented by| CN-005
+  CN-008[&quot;CN-008&lt;br/&gt;Schema validator module (file-level)&quot;]
+  AC-701-2 -.-&gt;|implemented by| CN-008
+  CN-010[&quot;CN-010&lt;br/&gt;Load-path validation&quot;]
+  AC-701-2 -.-&gt;|implemented by| CN-010
+  AC-701-2 -.-&gt;|implemented by| CN-012
+  AC-701-2 -.-&gt;|implemented by| CN-013
   AC-701-3[&quot;AC-701-3&quot;]
   US-701 --&gt; AC-701-3
   FBS-002[&quot;FBS-002&lt;br/&gt;Tree walk and validate command&quot;]
   AC-701-3 -.-&gt;|delivered by| FBS-002
+  CN-001[&quot;CN-001&lt;br/&gt;Ajv instance builder registering the publishe...&quot;]
+  AC-701-3 -.-&gt;|implemented by| CN-001
+  AC-701-3 -.-&gt;|implemented by| CN-008
+  AC-701-3 -.-&gt;|implemented by| CN-010
   US-702[&quot;US-702&lt;br/&gt;Clear validation errors&quot;]
   REQ-007 --&gt; US-702
   AC-702-1[&quot;AC-702-1&quot;]
   US-702 --&gt; AC-702-1
   AC-702-1 -.-&gt;|delivered by| FBS-006
+  CN-003[&quot;CN-003&lt;br/&gt;Structured error constructor&quot;]
+  AC-702-1 -.-&gt;|implemented by| CN-003
+  AC-702-1 -.-&gt;|implemented by| CN-005
+  CN-006[&quot;CN-006&lt;br/&gt;Multi-error renderer with field+rule detail&quot;]
+  AC-702-1 -.-&gt;|implemented by| CN-006
+  AC-702-1 -.-&gt;|implemented by| CN-008
   AC-702-2[&quot;AC-702-2&quot;]
   US-702 --&gt; AC-702-2
   AC-702-2 -.-&gt;|delivered by| FBS-006
+  AC-702-2 -.-&gt;|implemented by| CN-005
+  AC-702-2 -.-&gt;|implemented by| CN-006
+  AC-702-2 -.-&gt;|implemented by| CN-008
   AC-702-3[&quot;AC-702-3&quot;]
   US-702 --&gt; AC-702-3
   FBS-012[&quot;FBS-012&lt;br/&gt;MCP server over the full surface&quot;]
   AC-702-3 -.-&gt;|delivered by| FBS-012
+  AC-702-3 -.-&gt;|implemented by| CN-003
+  CN-007[&quot;CN-007&lt;br/&gt;MCP structured-issue mapper&quot;]
+  AC-702-3 -.-&gt;|implemented by| CN-007
   click REQ-007 &quot;#REQ-007&quot;;
   click US-701 &quot;#US-701&quot;;
   click AC-701-1 &quot;#AC-701-1&quot;;
   click FBS-006 &quot;#FBS-006&quot;;
+  click CN-002 &quot;#CN-002&quot;;
+  click CN-004 &quot;#CN-004&quot;;
+  click CN-009 &quot;#CN-009&quot;;
+  click CN-011 &quot;#CN-011&quot;;
+  click CN-012 &quot;#CN-012&quot;;
+  click CN-013 &quot;#CN-013&quot;;
   click AC-701-2 &quot;#AC-701-2&quot;;
+  click CN-005 &quot;#CN-005&quot;;
+  click CN-008 &quot;#CN-008&quot;;
+  click CN-010 &quot;#CN-010&quot;;
   click AC-701-3 &quot;#AC-701-3&quot;;
   click FBS-002 &quot;#FBS-002&quot;;
+  click CN-001 &quot;#CN-001&quot;;
   click US-702 &quot;#US-702&quot;;
   click AC-702-1 &quot;#AC-702-1&quot;;
+  click CN-003 &quot;#CN-003&quot;;
+  click CN-006 &quot;#CN-006&quot;;
   click AC-702-2 &quot;#AC-702-2&quot;;
   click AC-702-3 &quot;#AC-702-3&quot;;
   click FBS-012 &quot;#FBS-012&quot;;
+  click CN-007 &quot;#CN-007&quot;;
   class REQ-007 req;
   class US-701 us;
   class AC-701-1 ac;
   class FBS-006 fbs;
+  class CN-002 cn;
+  class CN-004 cn;
+  class CN-009 cn;
+  class CN-011 cn;
+  class CN-012 cn;
+  class CN-013 cn;
   class AC-701-2 ac;
+  class CN-005 cn;
+  class CN-008 cn;
+  class CN-010 cn;
   class AC-701-3 ac;
   class FBS-002 fbs;
+  class CN-001 cn;
   class US-702 us;
   class AC-702-1 ac;
+  class CN-003 cn;
+  class CN-006 cn;
   class AC-702-2 ac;
   class AC-702-3 ac;
   class FBS-012 fbs;
+  class CN-007 cn;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

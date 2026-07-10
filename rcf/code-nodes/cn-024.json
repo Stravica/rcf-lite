@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-024",
+  "path": "src/query/trace.js",
+  "title": "Trace compute module (file-level)",
+  "description": "Forward / back / both graph walks from any pivot id, including the Phase 10 Code Node forward fan-out and path-mode backward trace.",
+  "implementsAcIds": [
+    "AC-402-1",
+    "AC-402-2",
+    "AC-402-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:47.685Z",
+  "updatedAt": "2026-07-10T11:15:47.685Z"
+}

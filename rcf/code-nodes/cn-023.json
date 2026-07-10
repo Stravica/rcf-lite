@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-023",
+  "path": "src/query/coverage.js",
+  "title": "Coverage compute module (file-level)",
+  "description": "Walks the REQ chain and reports structural coverage (shallow-any / strict), plus the Phase 10 --with-code informational classification.",
+  "implementsAcIds": [
+    "AC-401-1",
+    "AC-401-2",
+    "AC-401-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:47.579Z",
+  "updatedAt": "2026-07-10T11:15:47.579Z"
+}

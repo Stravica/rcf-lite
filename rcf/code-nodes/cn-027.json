@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-027",
+  "path": "src/build/queue.js",
+  "title": "Build queue compute module (file-level)",
+  "description": "Computes the FBS queue state (notStarted / inProgress / blocked / actionable / complete / verified) from buildOrder and dependsOnFbsIds.",
+  "implementsAcIds": [
+    "AC-502-1",
+    "AC-502-2",
+    "AC-502-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:57.045Z",
+  "updatedAt": "2026-07-10T11:15:57.045Z"
+}

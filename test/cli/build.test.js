@@ -112,7 +112,9 @@ test('--next selects the lowest-order actionable item and emits its bundle', asy
 
 test('--next on an exhausted queue exits 0 with queueEmpty: true (OQ-P6-2)', async () => {
   const tmp = await scaffold();
-  const first = await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete']);
+  // Phase 10 D17: the mark-complete CN gate refuses without CN coverage
+  // or a --no-code-nodes declaration - this fixture has no source tree.
+  const first = await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
   assert.equal(first.code, 0);
   const { code, stdout } = await runBin(tmp, ['build', '--next', '--format', 'json']);
   assert.equal(code, 0);
@@ -155,7 +157,8 @@ test('same-status --mark is an idempotent no-op, exit 0', async () => {
 
 test('backward --mark exits 4 and names the rcf update escape hatch', async () => {
   const tmp = await scaffold();
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete']);
+  // Phase 10 D17: no CN coverage in this fixture - declare no-code-nodes.
+  await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
   const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'notStarted']);
   assert.equal(code, 4);
   assert.match(stderr, /\[error\] refused/);

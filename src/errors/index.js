@@ -7,7 +7,7 @@
 // renders them inline in the page so an owner can see what is broken.
 
 /**
- * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage'|'staleCode')} ErrorKind
+ * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage'|'staleCode'|'missingCodeNodes')} ErrorKind
  */
 
 /**
@@ -33,6 +33,10 @@ const VALID_KINDS = new Set([
   // renamed/removed). This is the X2 advantage over sidecar approaches:
   // the breakage is mechanically detectable at `rcf validate` time.
   'staleCode',
+  // Phase 10 (X2 CodeNode bridge, D17, operator ruling): `rcf build --mark
+  // complete` refuses when any AC of the completed build spec carries no
+  // Code Node. Deterministic edge counting only (Phase 6 D13 holds).
+  'missingCodeNodes',
 ]);
 
 /**

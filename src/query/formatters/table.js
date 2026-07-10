@@ -34,23 +34,44 @@ function formatCoverageTable(result) {
   );
   lines.push('');
   const rows = [];
-  rows.push(['Requirement', 'Covered', 'AC', 'AC covered', 'Test cases']);
+  // Phase 10 (X2 CodeNode bridge, D11): --with-code appends a Code column.
+  const withCode = Boolean(result.withCode);
+  const header = ['Requirement', 'Covered', 'AC', 'AC covered', 'Test cases'];
+  if (withCode) header.push('Code');
+  rows.push(header);
   for (const req of result.requirements) {
     if (req.acs.length === 0) {
-      rows.push([req.id, req.covered ? 'yes' : 'no', '(no AC)', '-', '-']);
+      const row = [req.id, req.covered ? 'yes' : 'no', '(no AC)', '-', '-'];
+      if (withCode) row.push('-');
+      rows.push(row);
       continue;
     }
     for (const [i, ac] of req.acs.entries()) {
-      rows.push([
+      const row = [
         i === 0 ? req.id : '',
         i === 0 ? (req.covered ? 'yes' : 'no') : '',
         ac.id,
         ac.covered ? 'yes' : 'no',
         ac.testCases.length > 0 ? ac.testCases.join(', ') : '-',
-      ]);
+      ];
+      if (withCode) row.push(ac.codeClass ?? '-');
+      rows.push(row);
     }
   }
   lines.push(renderTable(rows));
+  if (withCode) {
+    lines.push('');
+    lines.push(
+      `Code totals: implemented-and-covered=${result.codeTotals.implementedAndCovered} ` +
+        `implemented-uncovered=${result.codeTotals.implementedUncovered} ` +
+        `unimplemented=${result.codeTotals.unimplemented}`,
+    );
+    lines.push(
+      result.codeNodeOrphans.length > 0
+        ? `CN-orphaned (no implementsAcIds): ${result.codeNodeOrphans.join(', ')}`
+        : 'CN-orphaned (no implementsAcIds): (none)',
+    );
+  }
   return `${lines.join('\n')}\n`;
 }
 

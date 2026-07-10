@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-029",
+  "path": "src/mcp/tools.js",
+  "title": "MCP tool registry (file-level)",
+  "description": "Eleven MCP tools binding straight to the query / store / build layers in-process: query and view tools (rcf_validate, rcf_coverage, rcf_trace, rcf_impact, rcf_read) and CRUD/build tools (rcf_create, rcf_update, rcf_delete, rcf_link, rcf_unlink, rcf_build).",
+  "implementsAcIds": [
+    "AC-601-1",
+    "AC-601-2",
+    "AC-601-3",
+    "AC-602-1",
+    "AC-602-2",
+    "AC-602-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-10T11:15:57.221Z",
+  "updatedAt": "2026-07-10T11:15:57.221Z"
+}

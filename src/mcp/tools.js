@@ -26,6 +26,7 @@ import {
 } from './map-errors.js';
 import { isRcfError } from '../errors/index.js';
 import {
+  checkCodeNodeResolution,
   createDocument,
   deleteDocument,
   deriveSlug,
@@ -144,12 +145,29 @@ const COVERAGE_OUTPUT_SCHEMA = {
                 id: { type: 'string' },
                 covered: { type: 'boolean' },
                 testCases: { type: 'array', items: { type: 'string' } },
+                cnIds: { type: 'array', items: { type: 'string' }, description: 'present when withCode is true (Phase 10)' },
+                codeClass: {
+                  type: 'string',
+                  enum: ['implemented-and-covered', 'implemented-uncovered', 'unimplemented'],
+                  description: 'present when withCode is true (Phase 10, D11)',
+                },
               },
               required: ['id', 'covered', 'testCases'],
             },
           },
         },
         required: ['id', 'covered', 'acs'],
+      },
+    },
+    withCode: { type: 'boolean', description: 'Phase 10: echoes the withCode flag' },
+    codeNodeOrphans: { type: 'array', items: { type: 'string' }, description: 'Phase 10: CN ids with empty implementsAcIds; present when withCode is true' },
+    codeTotals: {
+      type: 'object',
+      description: 'Phase 10: present when withCode is true',
+      properties: {
+        implementedAndCovered: { type: 'integer' },
+        implementedUncovered: { type: 'integer' },
+        unimplemented: { type: 'integer' },
       },
     },
   },
@@ -166,6 +184,19 @@ const TRACE_OUTPUT_SCHEMA = {
     edges: { type: 'array', items: TRACE_EDGE_SCHEMA, description: 'present for direction forward | back' },
     ancestors: { type: 'array', items: TRACE_NODE_SCHEMA, description: 'present for direction both; excludes the pivot' },
     descendants: { type: 'array', items: TRACE_NODE_SCHEMA, description: 'present for direction both; excludes the pivot' },
+    matches: {
+      type: 'array',
+      description: 'Phase 10: present instead of pivot/nodes/edges when `id` resolved as a source path matching more than one Code Node',
+      items: {
+        type: 'object',
+        properties: {
+          cnId: { type: 'string' },
+          path: { type: 'string' },
+          nodes: { type: 'array', items: TRACE_NODE_SCHEMA },
+          edges: { type: 'array', items: TRACE_EDGE_SCHEMA },
+        },
+      },
+    },
   },
   required: ['pivot', 'direction', 'found'],
 };
@@ -420,14 +451,20 @@ const BUILD_OUTPUT_SCHEMA = {
 // Tool definitions (D5-D7, D17)
 // ---------------------------------------------------------------------------
 
-const KIND_ENUM = ['req', 'us', 'ac', 'tac', 'adr', 'fbs', 'ts', 'tc'];
+const KIND_ENUM = ['req', 'us', 'ac', 'tac', 'adr', 'fbs', 'ts', 'tc', 'cn'];
 
 const DEFINITIONS = [
   {
     name: 'rcf_validate',
     title: 'Validate the RCF tree',
-    description: 'Reports whether the RCF tree is structurally sound: schema-validation and broken-reference issues across every document. A tree with issues returns {ok: false, issues: [...]} as data, not an error - the issues ARE the answer. Run this first in any session, and again after every tree edit (the build-cycle playbook, rcf_execute_build_cycle, prescribes it).',
-    inputSchema: { type: 'object', additionalProperties: false },
+    description: 'Reports whether the RCF tree is structurally sound: schema-validation, broken-reference and Code Node staleness issues across every document. A tree with issues returns {ok: false, issues: [...]} as data, not an error - the issues ARE the answer. Run this first in any session, and again after every tree edit (the build-cycle playbook, rcf_execute_build_cycle, prescribes it).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        noCode: { type: 'boolean', description: 'Phase 10: skip the Code Node staleness pass (spec-graph checks only); defaults to false (full validation)' },
+      },
+      additionalProperties: false,
+    },
     outputSchema: withErrorPayload(VALIDATE_OUTPUT_SCHEMA),
     annotations: { readOnlyHint: true },
   },
@@ -440,6 +477,7 @@ const DEFINITIONS = [
       properties: {
         scopeId: { type: 'string', description: 'Optional PRD / REQ / US id to scope coverage; below-AC ids are refused' },
         strict: { type: 'boolean', description: 'Per-AC-strict mode (every AC needs TC coverage); defaults to false (shallow-any)' },
+        withCode: { type: 'boolean', description: 'Phase 10: layer the code axis onto every AC (implemented-and-covered / implemented-uncovered / unimplemented) plus a codeNodeOrphans list. Informational only - never affects ok or the exit-code twin.' },
       },
       additionalProperties: false,
     },
@@ -448,13 +486,14 @@ const DEFINITIONS = [
   },
   {
     name: 'rcf_trace',
-    title: 'Trace the graph from an id',
-    description: 'Answers "what hangs off this document" (forward), "what does it hang off" (back), or both, from any document id. Back-traces follow parent-child edges only; cross-link fan-out is what rcf_impact is for. Method: trace before touching anything that other documents hang off.',
+    title: 'Trace the graph from an id or a source path',
+    description: 'Answers "what hangs off this document" (forward), "what does it hang off" (back), or both, from any document id. Back-traces follow parent-child edges only; cross-link fan-out is what rcf_impact is for. Phase 10: when id does not resolve to a document, it is tried as a source path (optionally #symbol-suffixed) and traced backward from the matching Code Node(s) up to the root PRD; toCode extends a forward/both trace into the code layer. Method: trace before touching anything that other documents hang off.',
     inputSchema: {
       type: 'object',
       properties: {
-        id: { type: 'string', description: 'Pivot document id, e.g. REQ-101, AC-201-1' },
+        id: { type: 'string', description: 'Pivot document id (e.g. REQ-101, AC-201-1) or a repo-relative source path, optionally #symbol-suffixed' },
         direction: { type: 'string', enum: ['forward', 'back', 'both'], description: 'Walk direction; defaults to forward, matching the CLI' },
+        toCode: { type: 'boolean', description: 'Phase 10: extend a forward/both trace into implementing/dependent Code Nodes; defaults to false (byte-identical to pre-Phase-10 behaviour)' },
       },
       required: ['id'],
       additionalProperties: false,
@@ -465,11 +504,12 @@ const DEFINITIONS = [
   {
     name: 'rcf_impact',
     title: 'Impact fan-out for a change',
-    description: 'Answers "if this document changes, what needs re-checking": ancestors and descendants with a per-node action label (re-run, re-verify, re-approve, review-scope, review-arch, review-plan, re-execute, review-context). Method: run this before changing any document with dependents.',
+    description: 'Answers "if this document changes, what needs re-checking": ancestors and descendants with a per-node action label (re-run, re-verify, re-approve, review-scope, review-arch, review-plan, re-execute, review-context, re-verify-code). Phase 10: toCode extends the descendant fan-out into Code Nodes implementing an affected AC. Method: run this before changing any document with dependents.',
     inputSchema: {
       type: 'object',
       properties: {
         id: { type: 'string', description: 'Pivot document id' },
+        toCode: { type: 'boolean', description: 'Phase 10: extend the descendant fan-out into Code Nodes; defaults to false' },
       },
       required: ['id'],
       additionalProperties: false,
@@ -496,26 +536,28 @@ const DEFINITIONS = [
   {
     name: 'rcf_create',
     title: 'Create a document',
-    description: 'Creates a new RCF document of the given kind under a parent. Inline kinds (ac, tc) mutate their parent document; every other kind writes one new file. Body fields beyond the dedicated properties go in the body object; dedicated properties win on conflict. Method: RCF layers (PRD -> REQ -> US -> AC -> TS -> TC, plus TAD / TAC / ADR) are elicited with the stakeholder - see the rcf_elicit_requirements prompt - never fabricated single-shot.',
+    description: 'Creates a new RCF document of the given kind. Inline kinds (ac, tc) mutate their parent document; every other kind writes one new file. Phase 10: cn (Code Node) has no parent - its identity is path, optionally #symbol-suffixed; implementsAcIds (via acIds) and dependencies (via deps) are optional cross-links, validated against known ACs / Code Nodes. Body fields beyond the dedicated properties go in the body object; dedicated properties win on conflict. Method: RCF layers (PRD -> REQ -> US -> AC -> TS -> TC, plus TAD / TAC / ADR) are elicited with the stakeholder - see the rcf_elicit_requirements prompt - never fabricated single-shot.',
     inputSchema: {
       type: 'object',
       properties: {
         kind: { type: 'string', enum: KIND_ENUM, description: 'Document kind' },
-        parent: { type: 'string', description: 'Parent document id; required for every kind' },
+        parent: { type: 'string', description: 'Parent document id; required for every kind except cn (which has no parent)' },
         id: { type: 'string', description: 'Override the auto-assigned id (refuses on collision)' },
         title: { type: 'string', description: 'Required for req / us / tac / adr / fbs / ts' },
         description: { type: 'string', description: 'Required for ac / tc' },
         purpose: { type: 'string', description: 'Required for ts' },
         testLevel: { type: 'string', enum: ['unit', 'integration', 'e2e', 'contract', 'manual'], description: 'Required for ts' },
-        acIds: { type: 'array', items: { type: 'string' }, description: 'Required for fbs and ts: one or more AC ids' },
+        acIds: { type: 'array', items: { type: 'string' }, description: 'Required for fbs and ts: one or more AC ids. For cn: implementsAcIds (may be empty - an orphan CN is legitimate).' },
         acId: { type: 'string', description: 'Required for tc: the single AC this test case exercises' },
         slug: { type: 'string', description: 'Optional for tc; derived from description if absent' },
         testPointer: { type: 'string', description: 'Optional for tc; format filePath::testName' },
         buildOrder: { type: 'integer', minimum: 1, description: 'Optional for fbs; defaults to max+1 within its build sequence' },
+        path: { type: 'string', description: 'Required for cn: repo-relative source path, optionally #symbol-suffixed' },
+        deps: { type: 'array', items: { type: 'string' }, description: 'Optional for cn: Code Node ids this node depends on' },
         body: { type: 'object', description: 'Further body fields as JSON (the MCP twin of --from-file)' },
         dryRun: { type: 'boolean', description: 'Report the intended id / path without writing; defaults to false' },
       },
-      required: ['kind', 'parent'],
+      required: ['kind'],
       additionalProperties: false,
     },
     outputSchema: withErrorPayload(CREATE_OUTPUT_SCHEMA),
@@ -730,6 +772,26 @@ function resolveTarget(tree, id) {
   return null;
 }
 
+/**
+ * Phase 10 (X2 CodeNode bridge): resolve a source-path query to Code Node
+ * ids. Mirrors src/cli/trace.js's resolveCodeNodesForPath. Matches a CN
+ * when its `path` equals the query (file-level or file#symbol form) or
+ * when the query names the file that a symbol-level CN lives in.
+ *
+ * @param {object} tree - walker TreeModel
+ * @param {string} query - a repo-relative path, optionally #symbol-suffixed
+ * @returns {string[]} matching CN ids, sorted
+ */
+function resolveCodeNodesForPath(tree, query) {
+  const out = [];
+  for (const cn of tree.codeNodes ?? []) {
+    const cnPath = cn.path ?? '';
+    const cnFile = cnPath.split('#')[0];
+    if (cnPath === query || cnFile === query) out.push(cn.cnId);
+  }
+  return out.sort();
+}
+
 function extractField(root, path) {
   const parts = parseDotPath(path);
   if (!parts) return undefined;
@@ -793,10 +855,15 @@ export function createToolRegistry({ projectRoot, log }) {
   const byName = new Map(DEFINITIONS.map((d) => [d.name, d]));
 
   const handlers = {
-    rcf_validate: async () => {
-      const { errors } = await walkTree({ projectRoot });
+    rcf_validate: async (args) => {
+      const { tree, errors } = await walkTree({ projectRoot });
+      // Phase 10 (X2 CodeNode bridge, D6/D8): the staleness pass runs by
+      // default, folded into the same issue list; noCode skips it.
+      const allErrors = Boolean(args?.noCode)
+        ? errors
+        : [...errors, ...(await checkCodeNodeResolution({ projectRoot, tree }))];
       // D10: for validate, the issues ARE the answer - never isError.
-      return okResult({ ok: errors.length === 0, issues: issuesFromErrors(errors) });
+      return okResult({ ok: allErrors.length === 0, issues: issuesFromErrors(allErrors) });
     },
 
     rcf_coverage: async (args) => {
@@ -816,13 +883,36 @@ export function createToolRegistry({ projectRoot, log }) {
         }
       }
       // OQ-P7-8: strict gaps return data ({ok: false}), never isError.
-      return okResult(computeCoverage(tree, { strict: Boolean(args.strict), scopeId }));
+      // Phase 10 (D11): withCode layers the informational code axis on.
+      return okResult(computeCoverage(tree, { strict: Boolean(args.strict), scopeId, withCode: Boolean(args.withCode) }));
     },
 
     rcf_trace: async (args) => {
       const { tree, errors } = await walkTree({ projectRoot });
       if (errors.length > 0) return walkerBlockedResult(errors);
-      const result = computeTrace(tree, { id: args.id, direction: args.direction ?? 'forward' });
+      const includeCode = Boolean(args.toCode);
+      const direction = args.direction ?? 'forward';
+
+      // Phase 10 (X2 CodeNode bridge, D9): path mode. If `id` is not a
+      // known document, try it as a source path resolving to one or more
+      // Code Nodes, then trace each backward.
+      if (!kindOf(tree, args.id)) {
+        const cnIds = resolveCodeNodesForPath(tree, args.id);
+        if (cnIds.length === 0) {
+          return usageErrorResult(`trace: id ${args.id} not found (no document or code node matches)`, { documentId: args.id });
+        }
+        if (cnIds.length === 1) {
+          const res = computeTrace(tree, { id: cnIds[0], direction: 'back' });
+          return okResult(res);
+        }
+        const matches = cnIds.map((cnId) => {
+          const res = computeTrace(tree, { id: cnId, direction: 'back' });
+          return { cnId, path: tree.byId.get(cnId)?.path ?? null, nodes: res.nodes, edges: res.edges };
+        });
+        return okResult({ pivot: args.id, direction: 'back', found: true, matches });
+      }
+
+      const result = computeTrace(tree, { id: args.id, direction, includeCode });
       if (!result.found) {
         return usageErrorResult(`trace: id ${args.id} not found`, { documentId: args.id });
       }
@@ -832,7 +922,7 @@ export function createToolRegistry({ projectRoot, log }) {
     rcf_impact: async (args) => {
       const { tree, errors } = await walkTree({ projectRoot });
       if (errors.length > 0) return walkerBlockedResult(errors);
-      const result = computeImpact(tree, { id: args.id });
+      const result = computeImpact(tree, { id: args.id, includeCode: Boolean(args.toCode) });
       if (!result.found) {
         return usageErrorResult(`impact: id ${args.id} not found`, { documentId: args.id });
       }
@@ -870,7 +960,16 @@ export function createToolRegistry({ projectRoot, log }) {
       if (args.description !== undefined) body.description = args.description;
       if (args.purpose !== undefined) body.purpose = args.purpose;
       if (args.testLevel !== undefined) body.testLevel = args.testLevel;
-      if (args.acIds !== undefined) body.acIds = args.acIds;
+      // Phase 10: cn's AC cross-link field is implementsAcIds, not acIds
+      // (fbs/ts share acIds) - acIds maps to whichever the kind expects.
+      if (args.acIds !== undefined) {
+        if (kind === 'cn') body.implementsAcIds = args.acIds;
+        else body.acIds = args.acIds;
+      }
+      if (kind === 'cn') {
+        if (args.path !== undefined) body.path = args.path;
+        if (args.deps !== undefined) body.dependencies = args.deps;
+      }
 
       const options = {
         id: args.id,
@@ -881,6 +980,8 @@ export function createToolRegistry({ projectRoot, log }) {
       // Per-kind mandatory fields (mirrors src/cli/create.js).
       if (kind === 'ac' || kind === 'tc') {
         if (!body.description) return usageErrorResult(`create ${kind}: description is required`);
+      } else if (kind === 'cn') {
+        if (!body.path) return usageErrorResult('create cn: path is required');
       } else if (!body.title) {
         return usageErrorResult(`create ${kind}: title is required`);
       }

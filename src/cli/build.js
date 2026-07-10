@@ -23,9 +23,11 @@ import { findProjectRoot } from '../view/index.js';
 import { kindOf } from '../query/index.js';
 import {
   assembleBundle,
+  checkCodeNodeGate,
   computeQueue,
   formatJson,
   formatMarkdown,
+  hasNoCodeNodesDeclaration,
   planMark,
   selectNext,
 } from '../build/index.js';
@@ -38,6 +40,10 @@ const OPTION_SPEC = {
   strict: { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
+  // Phase 10 (X2 CodeNode bridge, D17): declare a build spec as genuinely
+  // producing no traceable code (docs-only, config-only), exempting it
+  // from the mark-complete CN gate. Combines only with `--mark complete`.
+  'no-code-nodes': { type: 'boolean' },
 };
 
 export const HELP = `Usage: rcf build [fbs-id] [options]
@@ -72,8 +78,16 @@ Options:
   --strict                  Refuse (exit 4) a bundle for a blocked item;
                             no effect with --next (it never selects
                             blocked items)
+  --no-code-nodes           With --mark complete: declare this FBS as
+                            genuinely producing no traceable code
+                            (docs-only, config-only), recorded on the FBS
+                            and exempting it from the mark-complete CN gate
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
+
+Mark-complete CN gate (D17): marking an FBS complete refuses (exit 3,
+missingCodeNodes) when any of its ACs carries no Code Node. Author CN
+coverage first, or pass --no-code-nodes for a genuinely no-code spec.
 `;
 
 const VALID_FORMATS = new Set(['md', 'json']);
@@ -124,6 +138,11 @@ export async function main(argv, deps = {}) {
     if (flags.out !== undefined) return usage('--out is invalid in mark mode');
     if (flags.strict) return usage('--mark cannot combine with --strict');
   }
+  // Phase 10 (X2 CodeNode bridge, D17): --no-code-nodes only makes sense
+  // declaring a spec complete with no traceable code.
+  if (flags['no-code-nodes'] && flags.mark !== 'complete') {
+    return usage('--no-code-nodes only combines with --mark complete');
+  }
   const mode = flags.mark !== undefined
     ? 'mark'
     : flags.next
@@ -156,7 +175,9 @@ export async function main(argv, deps = {}) {
   const io = { stdout, stderr, quiet: Boolean(flags.quiet), out: flags.out ?? null };
 
   if (mode === 'mark') {
-    return await runMark({ tree, projectRoot, fbsId: positional, status: flags.mark, io });
+    return await runMark({
+      tree, projectRoot, fbsId: positional, status: flags.mark, io, noCodeNodes: Boolean(flags['no-code-nodes']),
+    });
   }
   if (mode === 'queue') {
     const queue = computeQueue(tree);
@@ -267,7 +288,7 @@ async function emitToSink(output, io) {
  * writer schema-validates and bumps updatedAt). Output is a fixed
  * one-line confirmation - exit codes carry the outcome (OQ-P6-4).
  */
-async function runMark({ tree, projectRoot, fbsId, status, io }) {
+async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = false }) {
   const plan = planMark(tree, { fbsId, status });
   if (isRcfError(plan)) {
     io.stderr.write(`[error] usage ${plan.message}\n`);
@@ -282,11 +303,40 @@ async function runMark({ tree, projectRoot, fbsId, status, io }) {
     if (!io.quiet) io.stdout.write(`${plan.fbsId} already ${plan.to}\n`);
     return 0;
   }
+
+  const sets = [{ path: 'executionStatus', value: plan.to }];
+
+  // Phase 10 (X2 CodeNode bridge, D17, operator ruling): the mark-complete
+  // CN gate. Refuses (exit 3, structured missingCodeNodes) when any AC of
+  // the completed spec carries no Code Node, unless the FBS already
+  // carries the no-code-nodes declaration or this invocation supplies it.
+  if (plan.to === 'complete') {
+    const fbs = tree.byId.get(plan.fbsId);
+    const alreadyDeclared = hasNoCodeNodesDeclaration(fbs);
+    if (noCodeNodes && !alreadyDeclared) {
+      sets.push({ path: 'noCodeNodes', value: true });
+    } else if (!alreadyDeclared) {
+      const gate = checkCodeNodeGate(tree, fbs);
+      if (!gate.ok) {
+        const err = rcfError({
+          kind: 'missingCodeNodes',
+          message: `build --mark complete: refused - ${plan.fbsId} has AC(s) with no Code Node: ${gate.missingAcIds.join(', ')}. `
+            + 'Author CN coverage for these ACs, or pass --no-code-nodes for a genuinely no-code (docs-only, config-only) spec.',
+          documentId: plan.fbsId,
+          field: 'acIds',
+          rule: 'missingCodeNodes',
+        });
+        io.stderr.write(`[error] ${err.kind} ${err.message}\n`);
+        return 3;
+      }
+    }
+  }
+
   const result = await updateDocument({
     projectRoot,
     tree,
     id: plan.fbsId,
-    sets: [{ path: 'executionStatus', value: plan.to }],
+    sets,
     options: {},
   });
   if (isRcfError(result)) {

@@ -30,6 +30,8 @@ import buildSequenceSchema from '@stravica-ai/rcf-schemas/schemas/build-sequence
 import fbsSchema from '@stravica-ai/rcf-schemas/schemas/fbs.schema.json' with { type: 'json' };
 import testSuiteSchema from '@stravica-ai/rcf-schemas/schemas/test-suite.schema.json' with { type: 'json' };
 import manifestSchema from '@stravica-ai/rcf-schemas/schemas/manifest.schema.json' with { type: 'json' };
+// Phase 10 (X2 CodeNode bridge): 11th document kind.
+import cnSchema from '@stravica-ai/rcf-schemas/schemas/cn.schema.json' with { type: 'json' };
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..');
@@ -49,6 +51,7 @@ function buildAjv() {
   ajv.addSchema(fbsSchema);
   ajv.addSchema(testSuiteSchema);
   ajv.addSchema(manifestSchema);
+  ajv.addSchema(cnSchema);
   return ajv;
 }
 
@@ -63,6 +66,7 @@ const schemaIdByKind = {
   buildSequence: buildSequenceSchema.$id,
   fbs: fbsSchema.$id,
   testSuite: testSuiteSchema.$id,
+  codeNode: cnSchema.$id,
 };
 
 function classify(relPath) {
@@ -76,6 +80,8 @@ function classify(relPath) {
   if (relPath.startsWith('adrs/')) return 'adr';
   if (relPath.startsWith('fbs/')) return 'fbs';
   if (relPath.startsWith('test-suites/')) return 'testSuite';
+  // Phase 10 (X2 CodeNode bridge): 11th document kind.
+  if (relPath.startsWith('code-nodes/')) return 'codeNode';
   return null;
 }
 
@@ -108,6 +114,8 @@ const expectedCounts = {
   adr: 5,
   buildSequence: 1,
   fbs: 12,
+  // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
+  codeNode: 29,
 };
 
 test('expected file counts by category', () => {
@@ -161,6 +169,7 @@ test('file id matches filename and structural location', () => {
     buildSequence: 'bsId',
     fbs: 'fbsId',
     testSuite: 'id',
+    codeNode: 'cnId',
   };
   for (const d of docs) {
     if (d.kind === 'manifest') continue;
@@ -291,4 +300,82 @@ test('manifest roots resolve to existing files with matching ids', () => {
   assert.equal(manifest.prd.id, prdDoc.json.prdId);
   assert.equal(manifest.tad.id, tadDoc.json.tadId);
   assert.equal(manifest.bs.id, bsDoc.json.bsId);
+});
+
+// ---------------------------------------------------------------------------
+// Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill. The repo
+// is its own demo - every AC carries a Code Node, `dependencies[]` edges
+// resolve, and the REQ-007 validation chain is proven through the real
+// verbs (13 hand-authored-then-reproduced-via-CRUD nodes, PoC-ported).
+// ---------------------------------------------------------------------------
+
+test('every CN implementsAcIds entry resolves to a real AC; every AC carries at least one CN', () => {
+  const docs = loadAll();
+  const usDocs = docs.filter((d) => d.kind === 'userStory').map((d) => d.json);
+  const acIds = new Set();
+  for (const us of usDocs) {
+    for (const ac of us.acceptanceCriteria) acIds.add(ac.id);
+  }
+  const cnDocs = docs.filter((d) => d.kind === 'codeNode').map((d) => d.json);
+  const covered = new Set();
+  for (const cn of cnDocs) {
+    for (const acId of cn.implementsAcIds ?? []) {
+      assert.ok(acIds.has(acId), `CN ${cn.cnId} references unknown AC ${acId}`);
+      covered.add(acId);
+    }
+  }
+  const orphans = [...acIds].filter((id) => !covered.has(id)).sort();
+  assert.equal(orphans.length, 0, `acceptance criteria with no Code Node: ${orphans.join(', ')}`);
+});
+
+test('every CN dependencies entry resolves to a real, distinct CN', () => {
+  const docs = loadAll();
+  const cnDocs = docs.filter((d) => d.kind === 'codeNode').map((d) => d.json);
+  const cnIds = new Set(cnDocs.map((cn) => cn.cnId));
+  for (const cn of cnDocs) {
+    for (const depId of cn.dependencies ?? []) {
+      assert.ok(cnIds.has(depId), `CN ${cn.cnId} depends on unknown CN ${depId}`);
+      assert.notEqual(depId, cn.cnId, `CN ${cn.cnId} depends on itself`);
+    }
+  }
+});
+
+test('every CN path resolves against the working tree (no staleCode on the dogfood tree)', () => {
+  const docs = loadAll();
+  const cnDocs = docs.filter((d) => d.kind === 'codeNode').map((d) => d.json);
+  for (const cn of cnDocs) {
+    const [file] = cn.path.split('#');
+    const absPath = resolve(repoRoot, file);
+    assert.ok(statSync(absPath, { throwIfNoEntry: false })?.isFile(), `CN ${cn.cnId} path ${file} does not resolve on disk`);
+  }
+});
+
+test('the REQ-007 validation chain (13 nodes) is present with the PoC-proven implementsAcIds/dependencies shape', () => {
+  const docs = loadAll();
+  const cnDocs = docs.filter((d) => d.kind === 'codeNode').map((d) => d.json);
+  const byPath = new Map(cnDocs.map((cn) => [cn.path, cn]));
+  const expectedPaths = [
+    'src/store/validator.js#getAjv',
+    'src/store/walker.js#netNewErrors',
+    'src/errors/index.js#rcfError',
+    'src/store/walker.js', // file-level
+    'src/store/validator.js#validateDocument',
+    'src/errors/index.js#formatErrors',
+    'src/mcp/map-errors.js#issueFromRcfError',
+    'src/store/validator.js', // file-level
+    'src/store/walker.js#simulateWriteErrors',
+    'src/store/loader.js#loadDocument',
+    'src/store/writer.js#postWriteGate',
+    'src/store/writer.js', // file-level
+    'src/store/writer.js#createDocument',
+  ];
+  for (const p of expectedPaths) {
+    assert.ok(byPath.has(p), `expected REQ-007-chain Code Node over ${p} is missing`);
+  }
+  // AC-701-3 ("registered once at start-up") is satisfied by getAjv.
+  assert.ok(byPath.get('src/store/validator.js#getAjv').implementsAcIds.includes('AC-701-3'));
+  // createDocument depends (transitively through the chain) on rcfError.
+  const createDocumentCn = byPath.get('src/store/writer.js#createDocument');
+  const rcfErrorCn = byPath.get('src/errors/index.js#rcfError');
+  assert.ok(createDocumentCn.dependencies.includes(rcfErrorCn.cnId));
 });
