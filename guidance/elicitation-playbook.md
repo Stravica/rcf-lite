@@ -4,7 +4,7 @@
 
 You are the agent starting a project with a human. The end state is concrete: a validated RCF tree (PRD, requirements, stories with testable acceptance criteria, architecture captured as TAC / ADR) and an actionable FBS queue, reachable in one or two sittings. When you finish, `rcf validate` is clean and `rcf build --next` hands back a real work item.
 
-This is the lite tier of the elicitation method: one operator voice, one agent, blank directory to first build loop. Section 9 states plainly what sits above this tier.
+This is the lite tier of the elicitation method: one operator voice, one agent, blank directory to first build loop. Section 9 states plainly what sits above this tier; section 11 states the integrity rules that hold across the whole conversation - read it, the failures it forecloses are quiet ones.
 
 Every command and output shown below is real, captured against a scratch project scaffolded with `rcf init`.
 
@@ -113,6 +113,55 @@ Passes: given a running archive,
 
 The failing version is what operators say; the passing version is what you write down. The translation is the job.
 
+### Depth: one AC is not coverage
+
+The quality bar above makes a single AC well-formed. It does not make a story covered. ACs are the real shape of the application: no AC, no guarantee the work gets done, or gets done a particular way - an unstated scenario is one the build is free to get wrong. A story with one happy-path AC ships a happy-path-only feature, and the gaps surface later as bugs (which then trace straight back here - see the build-cycle playbook's bug-triage section). So for each story, do not stop at the first AC. Sweep its scenario classes and write an AC for every one the story actually has:
+
+- **Happy path.** The main success case, stated as above.
+- **Edges.** The boundaries and awkward-but-valid inputs: empty, one, many, maximum, duplicate, already-exists, out-of-order. Each edge the feature will really meet is an AC.
+- **Failure paths.** What happens when it goes wrong: bad input, a missing precondition, a conflict, a not-found. "Fails" is not an outcome; name the observable one - an exit code, a structured error naming the thing, a left-unchanged state. A silent or undefined failure is a gap, not a non-requirement.
+- **Non-functional, where the story has one.** A constraint that has to hold: a latency or size bound, a permission rule ("only the owner can read it"), a durability guarantee ("survives a restart"). Capture it as an AC on the story if it is local to this behaviour, or as a non-functional REQ (section 4) if it is system-wide. Do not invent constraints the operator never implied - but do ask, because these are the ACs operators most often leave unsaid.
+
+The four questions to run per story: what is the success case? what are its boundaries? how does it fail, and what is observable when it does? is there a constraint - speed, permission, persistence - that must hold? One AC per answer that has one. If the operator gives a thin answer ("it just searches"), press once - "what should it do when nothing matches? when the query is empty?" - rather than banking the happy path and moving on. Thin answers accepted without pressing are the single biggest source of thin AC sets.
+
+The judgement call is depth, not exhaustiveness: a note-capture command does not need a concurrency AC; a shared multi-user store does. Cover the scenarios the story genuinely has, and no more. A story that resists having any edge or failure case is a signal too - either it is trivially small, or it has not been questioned hard enough yet.
+
+**Worked example - a thin AC set versus an adequate one.** Story: as a note keeper, I want to search my notes by keyword, so that I can find one without scrolling.
+
+The thin version, what a shallow pass produces - one AC, happy path only:
+
+```
+AC-301-1  given notes exist,
+          when I search for a keyword some note contains,
+          then the matching notes are listed.
+```
+
+That is well-formed and useless as a spec: it says nothing about no-match, an empty query, or match rules, so the build is free to crash on an empty query and still pass its one AC. The adequate set covers the story's real scenarios:
+
+```
+AC-301-1  (happy)   given notes exist,
+                    when I search for a keyword some note contains,
+                    then every note containing it is listed and the command exits 0.
+
+AC-301-2  (edge)    given notes exist but none contains the keyword,
+                    when I search for it,
+                    then an empty result is shown and the command exits 0 (not an error).
+
+AC-301-3  (edge)    given a keyword several notes contain,
+                    when I search for it,
+                    then all matches are listed, most-recent first.
+
+AC-301-4  (failure) given any state,
+                    when I search with an empty query,
+                    then the command exits non-zero with a message naming the missing query, and lists nothing.
+
+AC-301-5  (nfr)     given a store of 10,000 notes,
+                    when I search,
+                    then results return within 1 second.
+```
+
+Same story, one AC versus five. The extra four are not gold-plating - they are the boundaries and failures the feature will meet on its first real day, and AC-301-5 is the constraint the operator would have assumed and never said. That set is the difference between a spec the build can satisfy blind and a spec that only looks finished.
+
 ## 6. Capturing architecture as it emerges (TAC / ADR)
 
 Architecture statements surface mid-conversation; capture them when they do rather than scheduling an architecture phase.
@@ -194,6 +243,8 @@ REQ-002      no       AC-201-1  no          -
 ```
 
 Zero covered is the correct end state for elicitation. Tests come from the build cycle, stage by stage, not from this conversation. Stopping here is the discipline: the tree does not need to be complete, it needs to be valid, honest and actionable. New requirements will surface during the build; they enter through `rcf create`, not through reopening elicitation wholesale.
+
+**Offer a review before the build starts.** The done-bar is met and the build loop is next, but the operator has not seen the tree you drafted from their answers. Do not roll straight into building. Offer the review: "The tree is drafted and validates - PRD, requirements, stories with ACs, the queue. Do you want to review it before I start the build, or shall I go?" Then wait. A tree the operator never saw becomes a build they cannot course-correct, and the review is cheapest now, before any code hangs off the ACs. The build-cycle playbook (section 11) holds the same gate from the build side.
 
 ## 9. What this playbook deliberately does not do
 
@@ -279,3 +330,13 @@ $ rcf read US-201
 One piece of visible debt in that read-back: `AC-201-1` is the placeholder `rcf create us` seeds every new story with. Fill it from the next walk-through or delete it; do not leave TODO criteria in a tree you are about to call done.
 
 Frame, answer, document, command. That rhythm, held level by level through sections 3 to 7, is the whole method.
+
+## 11. Elicitation integrity
+
+Two failure modes, both quiet, both about honesty in the conversation rather than the shape of a document. They are cheap to state and expensive to skip, because nothing in the tree looks wrong afterwards - a silently-mishandled ambiguity produces a clean, confident, incorrect spec.
+
+**Never silently resolve a contradiction.** When an answer conflicts with something already pinned - a stated outcome, an earlier answer, an out-of-scope line - you do not get to pick the winner quietly. Surface it as an explicit tradeoff and let the operator decide. A real example: the operator pinned a zero-setup sharing outcome ("someone taps a link from a text and it opens"), and the agent silently resolved the design to per-user authenticated accounts - a security-versus-convenience tradeoff the operator was never offered. The rule is to stop and name it: "You pinned X. This new answer implies Y, which conflicts with X on <axis - security, cost, effort>. Here are the options and what each costs. Which holds?" Capturing the conflict is the deliverable; resolving it on the operator's behalf is the failure.
+
+**Never attribute a rejection the operator did not make.** Do not justify your own preference by inventing that an alternative "was rejected" or "isn't possible" when the operator said no such thing. In the same episode the agent claimed a public share link had been "rejected outright" - it never was; the agent preferred authenticated accounts and dressed its own call up as the operator's. Fabricated justification is worse than an open question, because it launders your decision as theirs and removes the prompt that would have let them correct it. If a preference is yours, say so and give your reason. If the operator rejected something, quote them. If neither, it is an open question - ask it.
+
+The through-line: your job is to capture the operator's intent, not to resolve it for them. When capture and resolution pull against each other, capture the conflict and hand it back. This is also where thin ACs come from - a silently-resolved ambiguity yields one confident AC where an honest exchange yields a surfaced question and, once answered, the two or three ACs section 5 asks for. Integrity and depth are one discipline seen from two sides.

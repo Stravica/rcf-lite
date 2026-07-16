@@ -18,6 +18,8 @@ rcf build <fbs-id> --mark <status>
 
 Queue semantics in four lines. An item is actionable when it is `notStarted` and every dependency is complete or verified. An item with an unsatisfied dependency is blocked; never select a blocked item yourself, `--next` does the selection. `inProgress` marks exactly one thing: an item you have started and not finished. When nothing is actionable, the envelope tells you whether the queue is complete (`queueEmpty`) or stuck, and a stuck queue lists what is blocked and what is in progress; stuck is a report-to-operator condition, not a pick-something-anyway condition.
 
+This section is one item's five stages. A project is a queue of them, and finishing the queue - not finishing one item - is the job. Section 11 is the loop around this loop: how one session drives every FBS to done, and how a session that cannot writes a clean handover instead of stalling.
+
 ## 3. Stage 1 - Define
 
 What good looks like:
@@ -125,7 +127,7 @@ Stage end: commit.
 
 What good looks like:
 
-- CI green on the branch; PR raised and merged per the driving workflow's convention.
+- CI green on the branch; PR raised and merged per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
 - `rcf build <fbs-id> --mark complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build <fbs-id> --mark complete --no-code-nodes` once.
 - `rcf build <fbs-id> --mark verified` after post-merge verification: the merged artefact observed doing the right thing, not just the pre-merge tests remembered fondly.
 
@@ -252,3 +254,106 @@ marked FBS-012 notStarted -> inProgress
 ```
 
 From here it is the five stages, a commit per stage, `--mark complete` after the merge, `--mark verified` after post-merge verification, and back to `rcf build --next`.
+
+## 11. Driving the whole queue
+
+Sections 3 to 7 deliver one item. This section is the loop around them: how a single session takes a project from a full queue to an empty one, and how a session that genuinely cannot writes a clean handover instead of stopping halfway. "The agent could not build all the items in one session" is, almost always, a context-management failure, not a real limit - the runbook below is how you avoid it.
+
+**The gate before the loop.** When you arrive here straight out of elicitation, the tree is fresh and no human has looked at it. Before you build anything, offer the operator a review: "The RCF tree is drafted and validates. Do you want to review it before I start the build, or shall I go?" Wait for the answer. Rolling from elicitation into the build without the offer is the failure comment behind this gate - a tree the operator never saw becomes a build they cannot course-correct.
+
+**The loop.**
+
+```
+rcf build            -> queue state; a "Next actionable" id means there is work
+rcf build --next     -> bundle for that item
+                        run its five stages (sections 3-7), commit per stage
+rcf build <fbs-id> --mark complete    (after merge)
+rcf build <fbs-id> --mark verified    (after post-merge verification)
+                        then rcf build --next again
+```
+
+You are done when `rcf build --next` stops handing back bundles and prints instead:
+
+```
+# Build queue: nothing actionable
+
+Queue complete: every item is complete or verified.
+```
+
+That line - not "I built the first one" - is the end of the loop. If it instead reports `Queue not complete but nothing is actionable`, the queue is stuck on a blocker or an in-progress item; that is section 8's territory, report it.
+
+**Keep the driving context thin (why one session is enough).** The reason a sixteen-item queue "won't fit in one session" is that the agent kept every item's bundle, diff and test detail in a single growing thread. It does not have to. If your harness can spawn sub-agents, run each FBS in its own worker:
+
+- The driver (you) holds only the queue, the trace and the running tally of what is done. You call `rcf build --next`, hand the bundle id to a worker, and wait for a short structured result.
+- The worker holds one item's full working set - the bundle, the diff, the tests, the referee outputs - runs the five stages, opens its PR, and returns a few lines: item id, ACs satisfied, referee outputs, PR link, and any escalation. Then its context is discarded.
+- The driver's context stays flat across all sixteen items because it never holds more than a summary of any one. That is the mechanism that makes a small app's whole queue a single-session job.
+
+Brief each worker with the same four things the bundle names: the item id, the five-stage cycle, the exact mark commands, and the escalation rule. **One write worker at a time** - builds share the working tree, so two workers marking and committing at once collide. Read-only workers (a trace lookup, an impact check) can run in parallel; writers are strictly sequential. `--next` already hands items out in dependency order, so sequential is also correct order.
+
+**When to hand over instead of pushing on.** For a large stack, judge context cleanliness honestly rather than optimistically. The signs it is time to hand over: referee outputs contradict your memory of the tree, you are re-reading a bundle to reload state you should still be holding, or you have lost confidence about which items are truly done. Do not drag a degraded session to the finish - a wrong `--mark complete` costs more than a handover.
+
+**The handover protocol.** A handover is state capture, not a memory dump. A fresh session must be able to resume from it without re-eliciting anything or re-deriving the queue.
+
+1. Run `rcf build` and `rcf validate` first, so the handover records the tree's true state, not your remembered state.
+2. Write a next-session handover doc (e.g. `rcf/handover.md`, or wherever the harness keeps session notes). It captures: what is complete/verified, what is in progress and exactly where it stopped, the next actionable id, any open escalation awaiting a ruling, and any decision taken in conversation that is not yet written into the tree.
+3. Point the agent-instructions files at it. Add one line to `CLAUDE.md` and `AGENTS.md` telling the next session to read the handover before anything else. A handover doc nobody is instructed to open is not a handover.
+
+The test of a good handover: the next session reads it, runs `rcf build`, and continues - no questions back to the operator about what was going on. If it has to ask, the handover failed.
+
+**Failure modes:**
+
+- **Stopping after one item.** Symptom: the session ends with a still-actionable queue and no handover. Correction: either loop to `Queue complete` or hand over; "I did the first one" is neither.
+- **Inlining everything until the context is full.** Symptom: the thread carries every item's diff and the agent concludes the rest is impossible this session. Correction: dispatch per item; the driver never holds more than one item's working set.
+- **Handover as narration.** Symptom: a wall of prose the next session cannot act on. Correction: capture ids, statuses, the next actionable id and the stop point, not the story of how you got there.
+
+## 12. Authoring the PR
+
+When Finalise raises a PR, the body is for the reviewer - human or agent - and its one job is to let them confirm the work is correct without reverse-engineering it from the diff. Lead with evidence and verification, not a changelog. RCF hands you what an ordinary PR lacks: every claim traces to an AC id, and the referee outputs are real, quotable evidence. Use them.
+
+**The body, in this order:**
+
+1. **What and why, traced.** What changed, mapped to the FBS and its in-scope ACs. The AC ids are the "why" - they are the spec this diff exists to satisfy, so a reviewer can check the diff against the promise, not against your description of it.
+2. **Verification actually performed.** Not "tests pass". State what you ran and what it reported: the test command and its result, `rcf coverage --with-code` (or a story-scoped `rcf coverage <us-id> --strict`) with the per-AC lines, `rcf validate` clean. Paste the outputs - they are the evidence, and pasted referee output is not something a reviewer has to take on trust.
+3. **Per-AC evidence trail.** For each in-scope AC: where it is satisfied (file and symbol) and the test that proves it. This is what `rcf coverage --with-code` and `rcf trace` already give you; lift it in rather than reprose it.
+4. **Known limits and deviations, declared.** Anything you escalated and how it was ruled, any deliberate deviation from the bundle and its reason, any gap the operator accepted. A declared limit survives review; the same limit found later by the reviewer is a defect and a trust hit.
+
+**What not to do:** a file-by-file walk of the diff (the reviewer can read the diff), "all tests pass" with no command or output behind it, or any verification claim you did not actually run. Zero unverifiable claims - every line in the body is something the reviewer can independently check.
+
+A shape to fill in:
+
+```
+## What & why
+FBS-012 - MCP server over the full surface. Satisfies AC-301-1, AC-301-2, AC-301-3.
+- AC-301-1: <the behaviour this AC pins, one line>
+- AC-301-2: ...
+- AC-301-3: ...
+
+## Verification performed
+- <test command>: <result, e.g. 807 passing> (full suite)
+- rcf coverage --with-code: in-scope ACs covered, per-AC lines below
+- rcf validate: tree is clean
+<paste the referee outputs here>
+
+## Per-AC evidence
+- AC-301-1: <file#symbol> - <test id / name>
+- AC-301-2: ...
+- AC-301-3: ...
+
+## Known limits / deviations
+- <none, or: escalation X ruled Y; deliberate deviation Z, because ...>
+```
+
+PR mechanics - the branch, the target, the open command - belong to your driving workflow, not to any `rcf` verb; the harness fragment's PR-convention line is where the target branch is stated. This section is about what goes in the body.
+
+## 13. Triage a bug back to the spec first
+
+A bug that reached a build is a bug a test did not catch, which is a behaviour an AC did not require. The bug is the symptom; the missing or weak AC is the cause. Fix the cause first - not out of process piety, but because a code-only fix leaves the chain blind to the next instance of the same bug, and the next build can reintroduce it under a clean coverage report.
+
+**The order - do not jump to the code:**
+
+1. **Reproduce, then trace the bug to its governing AC.** Which AC should have made the correct behaviour required? Walk the tree with `rcf trace` from the story or the offending source path, and `rcf coverage --with-code` to see whether the behaviour was ever covered at all.
+2. **Name the gap.** Either no AC covers this scenario - the common case, usually a missing edge or failure path - or an AC covers it but too weakly (a happy-path AC where the bug lives in the failure path). Both are elicitation-depth misses; the standard for an adequate AC set is section 5 of the elicitation playbook.
+3. **Fix the spec.** Add or strengthen the AC so the scenario is required (`rcf create ac` / `rcf update`), then add its TS/TC so the chain checks it. Now the tree would catch this class of bug on the next run.
+4. **Fix the code against the corrected spec,** and prove it with the new test - the one that would have failed before your change and passes after it.
+
+**Escalation:** if strengthening the AC changes agreed behaviour rather than closing an obvious gap, that is a spec decision, not a silent redraw. Surface it (section 8) before you change it. Tightening "returns an empty list on no match" onto an existing search AC is closing a gap; changing what the feature is supposed to do is a decision for the operator.
