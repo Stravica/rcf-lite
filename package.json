@@ -1,6 +1,6 @@
 {
   "name": "@stravica-ai/rcf-build-lite",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "RCF Build Lite - CLI, MCP server, view tool, and SDD build adapter for the Requirements Confidence Framework. First consumer of @stravica-ai/rcf-schemas.",
   "license": "Apache-2.0",

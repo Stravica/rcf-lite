@@ -4,6 +4,16 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
+## [0.2.1] - 2026-07-18
+
+`rcf init` UX pass and agent-guidance hardening from the v0.2.0 manual-test review. No schema, runtime-API or dependency changes.
+
+### Changed
+
+- **`rcf init` is a bootstrap, not an elicitation session** ([#38](https://github.com/Stravica/rcf-build-lite/pull/38)): interactive init now prompts only for the project name and seeds a fully-placeholder tree identical to the non-interactive path (the early requirement-title, story-title and problem-statement prompts are dropped; the agent elicits them once the session starts). Completion output is a high-level summary — document chain / MCP server / agent instructions — with a `Next: start your agent session` step, replacing the per-file manifest.
+- **Fresh-repo agent setup writes both `CLAUDE.md` and `AGENTS.md`** ([#38](https://github.com/Stravica/rcf-build-lite/pull/38)): vendor-neutral by default. Existing-file routing is unchanged (an existing `CLAUDE.md`, or an existing `AGENTS.md` when no `CLAUDE.md`, is refreshed in place; the other convention's file is not invented), and the marked-block idempotency / init-re-run-exits-0 contract is preserved.
+- **Agent guidance pack hardened** ([#39](https://github.com/Stravica/rcf-build-lite/pull/39)): the build-cycle playbook gains whole-queue orchestration (drive `rcf build --next` to `Queue complete`, one write worker at a time, a docs-review gate and a handover protocol), evidence-first PR authoring, and bug-triage-via-acceptance-criterion-first; the elicitation playbook gains scenario-coverage criteria, a thin-vs-adequate AC example, and an elicitation-integrity section. Guidance and docs prose only — no `src/` behaviour change.
+
 ## [0.2.0] - 2026-07-10
 
 The spec-to-code bridge (X2): `CN-*` Code Nodes make source code a first-class node in the same graph the spec chain already lives in, so `rcf validate` catches a dangling spec-to-code link the same way it catches a dangling spec-to-spec one.
@@ -40,5 +50,6 @@ First public release.
 - `rcf mcp`: MCP server exposing the toolset to coding agents, backed by the agent guidance pack in `guidance/`.
 - Documentation set: install, getting started, how it works, and why it exists, under `docs/`.
 
+[0.2.1]: https://github.com/Stravica/rcf-build-lite/releases/tag/v0.2.1
 [0.2.0]: https://github.com/Stravica/rcf-build-lite/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Stravica/rcf-build-lite/releases/tag/v0.1.0
