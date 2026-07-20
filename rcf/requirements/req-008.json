@@ -1,0 +1,19 @@
+{
+  "createdAt": "2026-07-20T17:01:21.557Z",
+  "updatedAt": "2026-07-20T17:02:16.803Z",
+  "category": "functional",
+  "priority": "must",
+  "description": "The agent guidance pack teaches a build method that keeps the deployment runtime present in the loop from elicitation to verification, so that a non-coding owner who cannot self-verify is not led into an undeployable stack or a false 'verified' claim. It requires four properties of the method the tool ships: (1) every build lands a working, documented local preview loop as its default outcome; (2) elicitation establishes where the app will run early and constrains the stack to that answer, with a jargon-free hosting-choice walkthrough when the owner does not know; (3) every 'verified' or 'tested' claim names the runtime it was checked against and never implies deploy-runtime verification that did not happen; (4) the method carries interim guidance for a periodic and end-of-build fresh-context self-review that drives the app against its acceptance criteria. This requirement governs the shipped guidance/prompt surface, not a new runtime subsystem.",
+  "rationale": "The five-run rcf-persona-testing programme (concluded 2026-07-20) found the tool builds excellently at every level but its own loop missed a ship-blocking or user-facing defect in three of five runs, with a single root cause: the deploy runtime is absent from the loop. It is absent from elicitation (runs 03/04 chose Cloudflare-incompatible stacks a CF-only holder cannot host, run 03 silently) and absent from verification (run 05 shipped a production auth 500 while 89/89 tests were green and the tool claimed a live-Worker verification its E2E never ran). The target user cannot diagnose 'wrong stack for your host' or 'verified against the wrong runtime', so the method itself must foreclose both. These are Tier-1 hardening fixes to make the base offering usable now, while the productised independent verification gate (rcf-verify-lite) is built separately.",
+  "reqId": "REQ-008",
+  "prdId": "PRD-001",
+  "title": "Deploy-aware, runtime-honest build guidance",
+  "domain": "guidance",
+  "version": "0.1.0",
+  "status": "draft",
+  "tags": [
+    "guidance",
+    "deploy",
+    "verification"
+  ]
+}

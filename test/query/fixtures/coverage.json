@@ -2,9 +2,9 @@
   "ok": false,
   "strict": false,
   "totals": {
-    "requirements": 7,
+    "requirements": 8,
     "covered": 0,
-    "uncovered": 7
+    "uncovered": 8
   },
   "requirements": [
     {
@@ -324,6 +324,112 @@
         },
         {
           "id": "AC-702-3",
+          "covered": false,
+          "testCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "covered": false,
+      "acs": [
+        {
+          "id": "AC-801-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-801-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-801-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-801-4",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-802-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-802-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-802-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-802-4",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-803-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-803-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-803-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-803-4",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-804-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-804-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-804-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-804-4",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-805-1",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-805-2",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-805-3",
+          "covered": false,
+          "testCases": []
+        },
+        {
+          "id": "AC-805-4",
           "covered": false,
           "testCases": []
         }

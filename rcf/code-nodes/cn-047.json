@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-047",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-805-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:31.960Z",
+  "updatedAt": "2026-07-20T18:04:08.514Z",
+  "title": "Reviewer drives the app, not the code",
+  "description": "Playbook s16 requires the reviewer to drive the running app against its ACs (AC-805-2)."
+}

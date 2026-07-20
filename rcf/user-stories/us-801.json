@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-07-20T17:03:40.038Z",
+  "updatedAt": "2026-07-20T17:10:45.603Z",
+  "description": "The build loop leaves every project with a working, documented local preview as its default outcome, so a non-coding owner always has a runtime they can drive and review without a cloud account or a deploy step.",
+  "asA": "non-coding product owner",
+  "iWant": "every build to leave me a working, documented way to run the app locally",
+  "soThat": "I can see and use what was built without needing to deploy it anywhere first",
+  "usId": "US-801",
+  "prdId": "PRD-001",
+  "reqId": "REQ-008",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Every build leaves a working local preview",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-801-1",
+      "description": "A build's definition of done requires a documented local preview loop as the default outcome",
+      "given": "the RCF build method as taught by the shipped guidance pack",
+      "when": "a build reaches its definition of done",
+      "then": "the guidance requires a working, documented local preview loop (a dev server, and seeded data where the app needs it) to be present as the default deliverable",
+      "testable": true
+    },
+    {
+      "id": "AC-801-2",
+      "description": "The local preview is startable via a single documented command where the stack allows",
+      "given": "the shipped build guidance describing the local preview",
+      "when": "it states how the owner starts the app",
+      "then": "it directs the build toward one documented command to start the preview wherever the stack makes a single command possible",
+      "testable": true
+    },
+    {
+      "id": "AC-801-3",
+      "description": "The local preview is produced whether or not a hosting target was stated",
+      "given": "an owner who has not stated a hosting target, or who asked for a recommendation instead",
+      "when": "the build completes",
+      "then": "the guidance still requires the local preview to be produced as the default, not made conditional on a stated host",
+      "testable": true
+    },
+    {
+      "id": "AC-801-4",
+      "description": "The preview includes seeded data when the app needs data to be usable",
+      "given": "an application that needs data present to be exercisable",
+      "when": "the local preview loop is produced",
+      "then": "the guidance requires seeded or sample data so the preview can actually be driven, not an empty shell",
+      "testable": true
+    }
+  ],
+  "tacIds": []
+}

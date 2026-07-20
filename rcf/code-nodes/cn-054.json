@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-054",
+  "path": "test/guidance/tier1-hardening.test.js",
+  "implementsAcIds": [
+    "AC-805-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:33.065Z",
+  "updatedAt": "2026-07-20T18:04:09.700Z",
+  "title": "Drift test: interim self-review dispatch",
+  "description": "Tier-1 drift test asserts the periodic/end-of-build self-review invariant (AC-805-1)."
+}

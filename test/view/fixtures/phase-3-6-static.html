@@ -38,11 +38,11 @@
   <p><strong>Executive summary:</strong> RCF Build Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.</p>
 <p><strong>Problem statement:</strong> Power vibe-coders build real applications without engineering teams. They cannot read code, so they cannot judge whether what an AI tool produces is trustworthy. The full RCF chain makes output trustworthy without reading code, but authoring that chain by hand is the very effort these users lack the time and discipline for. There is no tool that runs the full RCF method over in-repository documents and surfaces it through structured, deterministic operations.</p>
 <section class="field-list"><h4>Target users</h4><ul><li>Power vibe-coders: product owners, founders and business voices building applications without engineering teams</li><li>AI coding tools that need a structured, deterministic surface over a project&#39;s RCF documents</li><li>Maintainers dogfooding RCF on the Build Lite repository itself</li></ul></section>
-<section class="field-list"><h4>In scope</h4><ul><li>On-disk RCF project structure under a project rcf folder</li><li>Visual review surface rendering the whole RCF tree as a diagram and a browsable page</li><li>Deterministic create, read, update and delete on every RCF document type</li><li>Traceability and query: coverage, trace forward, trace back, impact analysis</li><li>SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge</li><li>Local stdio MCP surface exposing query, CRUD, view and build to AI tooling</li><li>Validation of every document against the published schema package at every boundary</li></ul></section>
+<section class="field-list"><h4>In scope</h4><ul><li>On-disk RCF project structure under a project rcf folder</li><li>Visual review surface rendering the whole RCF tree as a diagram and a browsable page</li><li>Deterministic create, read, update and delete on every RCF document type</li><li>Traceability and query: coverage, trace forward, trace back, impact analysis</li><li>SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge</li><li>Local stdio MCP surface exposing query, CRUD, view and build to AI tooling</li><li>Validation of every document against the published schema package at every boundary</li><li>Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims</li></ul></section>
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Build Lite&quot;,
@@ -62,7 +62,8 @@
     &quot;Traceability and query: coverage, trace forward, trace back, impact analysis&quot;,
     &quot;SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge&quot;,
     &quot;Local stdio MCP surface exposing query, CRUD, view and build to AI tooling&quot;,
-    &quot;Validation of every document against the published schema package at every boundary&quot;
+    &quot;Validation of every document against the published schema package at every boundary&quot;,
+    &quot;Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims&quot;
   ],
   &quot;outOfScope&quot;: [
     &quot;The schema package itself, which is the separately published rcf-schemas contract&quot;,
@@ -87,7 +88,7 @@
     &quot;MCP transport is local stdio only&quot;
   ],
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-02T10:22:43Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:56:57.237Z&quot;
 }
 </pre></details>
 </article>
@@ -2274,6 +2275,677 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-008">
+  <summary><span class="summary-label">REQ-008 - Deploy-aware, runtime-honest build guidance</span><span class="status draft">draft</span></summary>
+  <article id="REQ-008" class="doc doc-req">
+  <h3>REQ-008 - Deploy-aware, runtime-honest build guidance</h3>
+  
+  <p><strong>Description:</strong> The agent guidance pack teaches a build method that keeps the deployment runtime present in the loop from elicitation to verification, so that a non-coding owner who cannot self-verify is not led into an undeployable stack or a false &#39;verified&#39; claim. It requires four properties of the method the tool ships: (1) every build lands a working, documented local preview loop as its default outcome; (2) elicitation establishes where the app will run early and constrains the stack to that answer, with a jargon-free hosting-choice walkthrough when the owner does not know; (3) every &#39;verified&#39; or &#39;tested&#39; claim names the runtime it was checked against and never implies deploy-runtime verification that did not happen; (4) the method carries interim guidance for a periodic and end-of-build fresh-context self-review that drives the app against its acceptance criteria. This requirement governs the shipped guidance/prompt surface, not a new runtime subsystem.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> guidance</p>
+  <p><strong>Priority:</strong> must</p>
+  <p><strong>Rationale:</strong> The five-run rcf-persona-testing programme (concluded 2026-07-20) found the tool builds excellently at every level but its own loop missed a ship-blocking or user-facing defect in three of five runs, with a single root cause: the deploy runtime is absent from the loop. It is absent from elicitation (runs 03/04 chose Cloudflare-incompatible stacks a CF-only holder cannot host, run 03 silently) and absent from verification (run 05 shipped a production auth 500 while 89/89 tests were green and the tool claimed a live-Worker verification its E2E never ran). The target user cannot diagnose &#39;wrong stack for your host&#39; or &#39;verified against the wrong runtime&#39;, so the method itself must foreclose both. These are Tier-1 hardening fixes to make the base offering usable now, while the productised independent verification gate (rcf-verify-lite) is built separately.</p>
+  <section class="field-list"><h4>Tags</h4><ul><li>guidance</li><li>deploy</li><li>verification</li></ul></section>
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-008[&quot;REQ-008&lt;br/&gt;Deploy-aware, runtime-honest build guidance&quot;]
+  US-801[&quot;US-801&lt;br/&gt;Every build leaves a working local preview&quot;]
+  REQ-008 --&gt; US-801
+  AC-801-1[&quot;AC-801-1&quot;]
+  US-801 --&gt; AC-801-1
+  FBS-014[&quot;FBS-014&lt;br/&gt;Local-preview default, runtime-honest verific...&quot;]
+  AC-801-1 -.-&gt;|delivered by| FBS-014
+  CN-030[&quot;CN-030&lt;br/&gt;Local preview in the build-cycle contract def...&quot;]
+  AC-801-1 -.-&gt;|implemented by| CN-030
+  CN-050[&quot;CN-050&lt;br/&gt;Drift test: local-preview default outcome&quot;]
+  AC-801-1 -.-&gt;|implemented by| CN-050
+  AC-801-2[&quot;AC-801-2&quot;]
+  US-801 --&gt; AC-801-2
+  AC-801-2 -.-&gt;|delivered by| FBS-014
+  CN-031[&quot;CN-031&lt;br/&gt;Single-command local preview guidance&quot;]
+  AC-801-2 -.-&gt;|implemented by| CN-031
+  AC-801-3[&quot;AC-801-3&quot;]
+  US-801 --&gt; AC-801-3
+  AC-801-3 -.-&gt;|delivered by| FBS-014
+  CN-032[&quot;CN-032&lt;br/&gt;Host-independent local preview default&quot;]
+  AC-801-3 -.-&gt;|implemented by| CN-032
+  AC-801-4[&quot;AC-801-4&quot;]
+  US-801 --&gt; AC-801-4
+  AC-801-4 -.-&gt;|delivered by| FBS-014
+  CN-033[&quot;CN-033&lt;br/&gt;Seeded-data local preview&quot;]
+  AC-801-4 -.-&gt;|implemented by| CN-033
+  US-802[&quot;US-802&lt;br/&gt;Deploy target is established before the stack...&quot;]
+  REQ-008 --&gt; US-802
+  AC-802-1[&quot;AC-802-1&quot;]
+  US-802 --&gt; AC-802-1
+  FBS-013[&quot;FBS-013&lt;br/&gt;Deploy-aware elicitation and hosting guidance&quot;]
+  AC-802-1 -.-&gt;|delivered by| FBS-013
+  CN-034[&quot;CN-034&lt;br/&gt;Early deploy-target elicitation item&quot;]
+  AC-802-1 -.-&gt;|implemented by| CN-034
+  AC-802-2[&quot;AC-802-2&quot;]
+  US-802 --&gt; AC-802-2
+  AC-802-2 -.-&gt;|delivered by| FBS-013
+  CN-035[&quot;CN-035&lt;br/&gt;Stack constrained to the deploy target&quot;]
+  AC-802-2 -.-&gt;|implemented by| CN-035
+  AC-802-3[&quot;AC-802-3&quot;]
+  US-802 --&gt; AC-802-3
+  AC-802-3 -.-&gt;|delivered by| FBS-013
+  CN-036[&quot;CN-036&lt;br/&gt;Deploy-target decision captured as an ADR&quot;]
+  AC-802-3 -.-&gt;|implemented by| CN-036
+  AC-802-4[&quot;AC-802-4&quot;]
+  US-802 --&gt; AC-802-4
+  AC-802-4 -.-&gt;|delivered by| FBS-013
+  CN-037[&quot;CN-037&lt;br/&gt;Harness RULE 5: no stack before the deploy ta...&quot;]
+  AC-802-4 -.-&gt;|implemented by| CN-037
+  CN-051[&quot;CN-051&lt;br/&gt;Drift test: harness stack-gate rule&quot;]
+  AC-802-4 -.-&gt;|implemented by| CN-051
+  US-803[&quot;US-803&lt;br/&gt;Hosting-choice guidance when the owner is unsure&quot;]
+  REQ-008 --&gt; US-803
+  AC-803-1[&quot;AC-803-1&quot;]
+  US-803 --&gt; AC-803-1
+  AC-803-1 -.-&gt;|delivered by| FBS-013
+  CN-038[&quot;CN-038&lt;br/&gt;Hosting-choice walkthrough over silent selection&quot;]
+  AC-803-1 -.-&gt;|implemented by| CN-038
+  CN-052[&quot;CN-052&lt;br/&gt;Drift test: hosting-choice walkthrough&quot;]
+  AC-803-1 -.-&gt;|implemented by| CN-052
+  AC-803-2[&quot;AC-803-2&quot;]
+  US-803 --&gt; AC-803-2
+  AC-803-2 -.-&gt;|delivered by| FBS-013
+  CN-039[&quot;CN-039&lt;br/&gt;Plain-language hosting options&quot;]
+  AC-803-2 -.-&gt;|implemented by| CN-039
+  AC-803-3[&quot;AC-803-3&quot;]
+  US-803 --&gt; AC-803-3
+  AC-803-3 -.-&gt;|delivered by| FBS-013
+  CN-040[&quot;CN-040&lt;br/&gt;Honest isolation of account-holder-only steps&quot;]
+  AC-803-3 -.-&gt;|implemented by| CN-040
+  AC-803-4[&quot;AC-803-4&quot;]
+  US-803 --&gt; AC-803-4
+  AC-803-4 -.-&gt;|delivered by| FBS-013
+  CN-041[&quot;CN-041&lt;br/&gt;Walkthrough configures the account, not just ...&quot;]
+  AC-803-4 -.-&gt;|implemented by| CN-041
+  US-804[&quot;US-804&lt;br/&gt;Verification claims name their runtime&quot;]
+  REQ-008 --&gt; US-804
+  AC-804-1[&quot;AC-804-1&quot;]
+  US-804 --&gt; AC-804-1
+  AC-804-1 -.-&gt;|delivered by| FBS-014
+  CN-042[&quot;CN-042&lt;br/&gt;Verification claims name their runtime&quot;]
+  AC-804-1 -.-&gt;|implemented by| CN-042
+  AC-804-2[&quot;AC-804-2&quot;]
+  US-804 --&gt; AC-804-2
+  AC-804-2 -.-&gt;|delivered by| FBS-014
+  CN-043[&quot;CN-043&lt;br/&gt;No implied unexercised deploy-runtime verific...&quot;]
+  AC-804-2 -.-&gt;|implemented by| CN-043
+  AC-804-3[&quot;AC-804-3&quot;]
+  US-804 --&gt; AC-804-3
+  AC-804-3 -.-&gt;|delivered by| FBS-014
+  CN-044[&quot;CN-044&lt;br/&gt;PR verification section carries the runtime l...&quot;]
+  AC-804-3 -.-&gt;|implemented by| CN-044
+  AC-804-4[&quot;AC-804-4&quot;]
+  US-804 --&gt; AC-804-4
+  AC-804-4 -.-&gt;|delivered by| FBS-014
+  CN-045[&quot;CN-045&lt;br/&gt;Labelled-claim examples, Cloudflare and non-C...&quot;]
+  AC-804-4 -.-&gt;|implemented by| CN-045
+  CN-053[&quot;CN-053&lt;br/&gt;Drift test: labelled runtime example&quot;]
+  AC-804-4 -.-&gt;|implemented by| CN-053
+  US-805[&quot;US-805&lt;br/&gt;Interim self-review guidance&quot;]
+  REQ-008 --&gt; US-805
+  AC-805-1[&quot;AC-805-1&quot;]
+  US-805 --&gt; AC-805-1
+  AC-805-1 -.-&gt;|delivered by| FBS-014
+  CN-046[&quot;CN-046&lt;br/&gt;Periodic and end-of-build fresh-context self-...&quot;]
+  AC-805-1 -.-&gt;|implemented by| CN-046
+  CN-054[&quot;CN-054&lt;br/&gt;Drift test: interim self-review dispatch&quot;]
+  AC-805-1 -.-&gt;|implemented by| CN-054
+  AC-805-2[&quot;AC-805-2&quot;]
+  US-805 --&gt; AC-805-2
+  AC-805-2 -.-&gt;|delivered by| FBS-014
+  CN-047[&quot;CN-047&lt;br/&gt;Reviewer drives the app, not the code&quot;]
+  AC-805-2 -.-&gt;|implemented by| CN-047
+  AC-805-3[&quot;AC-805-3&quot;]
+  US-805 --&gt; AC-805-3
+  AC-805-3 -.-&gt;|delivered by| FBS-014
+  CN-048[&quot;CN-048&lt;br/&gt;Self-review targets the named defect classes&quot;]
+  AC-805-3 -.-&gt;|implemented by| CN-048
+  AC-805-4[&quot;AC-805-4&quot;]
+  US-805 --&gt; AC-805-4
+  AC-805-4 -.-&gt;|delivered by| FBS-014
+  CN-049[&quot;CN-049&lt;br/&gt;Self-review honestly scoped as interim, not t...&quot;]
+  AC-805-4 -.-&gt;|implemented by| CN-049
+  click REQ-008 &quot;#REQ-008&quot;;
+  click US-801 &quot;#US-801&quot;;
+  click AC-801-1 &quot;#AC-801-1&quot;;
+  click FBS-014 &quot;#FBS-014&quot;;
+  click CN-030 &quot;#CN-030&quot;;
+  click CN-050 &quot;#CN-050&quot;;
+  click AC-801-2 &quot;#AC-801-2&quot;;
+  click CN-031 &quot;#CN-031&quot;;
+  click AC-801-3 &quot;#AC-801-3&quot;;
+  click CN-032 &quot;#CN-032&quot;;
+  click AC-801-4 &quot;#AC-801-4&quot;;
+  click CN-033 &quot;#CN-033&quot;;
+  click US-802 &quot;#US-802&quot;;
+  click AC-802-1 &quot;#AC-802-1&quot;;
+  click FBS-013 &quot;#FBS-013&quot;;
+  click CN-034 &quot;#CN-034&quot;;
+  click AC-802-2 &quot;#AC-802-2&quot;;
+  click CN-035 &quot;#CN-035&quot;;
+  click AC-802-3 &quot;#AC-802-3&quot;;
+  click CN-036 &quot;#CN-036&quot;;
+  click AC-802-4 &quot;#AC-802-4&quot;;
+  click CN-037 &quot;#CN-037&quot;;
+  click CN-051 &quot;#CN-051&quot;;
+  click US-803 &quot;#US-803&quot;;
+  click AC-803-1 &quot;#AC-803-1&quot;;
+  click CN-038 &quot;#CN-038&quot;;
+  click CN-052 &quot;#CN-052&quot;;
+  click AC-803-2 &quot;#AC-803-2&quot;;
+  click CN-039 &quot;#CN-039&quot;;
+  click AC-803-3 &quot;#AC-803-3&quot;;
+  click CN-040 &quot;#CN-040&quot;;
+  click AC-803-4 &quot;#AC-803-4&quot;;
+  click CN-041 &quot;#CN-041&quot;;
+  click US-804 &quot;#US-804&quot;;
+  click AC-804-1 &quot;#AC-804-1&quot;;
+  click CN-042 &quot;#CN-042&quot;;
+  click AC-804-2 &quot;#AC-804-2&quot;;
+  click CN-043 &quot;#CN-043&quot;;
+  click AC-804-3 &quot;#AC-804-3&quot;;
+  click CN-044 &quot;#CN-044&quot;;
+  click AC-804-4 &quot;#AC-804-4&quot;;
+  click CN-045 &quot;#CN-045&quot;;
+  click CN-053 &quot;#CN-053&quot;;
+  click US-805 &quot;#US-805&quot;;
+  click AC-805-1 &quot;#AC-805-1&quot;;
+  click CN-046 &quot;#CN-046&quot;;
+  click CN-054 &quot;#CN-054&quot;;
+  click AC-805-2 &quot;#AC-805-2&quot;;
+  click CN-047 &quot;#CN-047&quot;;
+  click AC-805-3 &quot;#AC-805-3&quot;;
+  click CN-048 &quot;#CN-048&quot;;
+  click AC-805-4 &quot;#AC-805-4&quot;;
+  click CN-049 &quot;#CN-049&quot;;
+  class REQ-008 req;
+  class US-801 us;
+  class AC-801-1 ac;
+  class FBS-014 fbs;
+  class CN-030 cn;
+  class CN-050 cn;
+  class AC-801-2 ac;
+  class CN-031 cn;
+  class AC-801-3 ac;
+  class CN-032 cn;
+  class AC-801-4 ac;
+  class CN-033 cn;
+  class US-802 us;
+  class AC-802-1 ac;
+  class FBS-013 fbs;
+  class CN-034 cn;
+  class AC-802-2 ac;
+  class CN-035 cn;
+  class AC-802-3 ac;
+  class CN-036 cn;
+  class AC-802-4 ac;
+  class CN-037 cn;
+  class CN-051 cn;
+  class US-803 us;
+  class AC-803-1 ac;
+  class CN-038 cn;
+  class CN-052 cn;
+  class AC-803-2 ac;
+  class CN-039 cn;
+  class AC-803-3 ac;
+  class CN-040 cn;
+  class AC-803-4 ac;
+  class CN-041 cn;
+  class US-804 us;
+  class AC-804-1 ac;
+  class CN-042 cn;
+  class AC-804-2 ac;
+  class CN-043 cn;
+  class AC-804-3 ac;
+  class CN-044 cn;
+  class AC-804-4 ac;
+  class CN-045 cn;
+  class CN-053 cn;
+  class US-805 us;
+  class AC-805-1 ac;
+  class CN-046 cn;
+  class CN-054 cn;
+  class AC-805-2 ac;
+  class CN-047 cn;
+  class AC-805-3 ac;
+  class CN-048 cn;
+  class AC-805-4 ac;
+  class CN-049 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:01:21.557Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:02:16.803Z&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;description&quot;: &quot;The agent guidance pack teaches a build method that keeps the deployment runtime present in the loop from elicitation to verification, so that a non-coding owner who cannot self-verify is not led into an undeployable stack or a false &#39;verified&#39; claim. It requires four properties of the method the tool ships: (1) every build lands a working, documented local preview loop as its default outcome; (2) elicitation establishes where the app will run early and constrains the stack to that answer, with a jargon-free hosting-choice walkthrough when the owner does not know; (3) every &#39;verified&#39; or &#39;tested&#39; claim names the runtime it was checked against and never implies deploy-runtime verification that did not happen; (4) the method carries interim guidance for a periodic and end-of-build fresh-context self-review that drives the app against its acceptance criteria. This requirement governs the shipped guidance/prompt surface, not a new runtime subsystem.&quot;,
+  &quot;rationale&quot;: &quot;The five-run rcf-persona-testing programme (concluded 2026-07-20) found the tool builds excellently at every level but its own loop missed a ship-blocking or user-facing defect in three of five runs, with a single root cause: the deploy runtime is absent from the loop. It is absent from elicitation (runs 03/04 chose Cloudflare-incompatible stacks a CF-only holder cannot host, run 03 silently) and absent from verification (run 05 shipped a production auth 500 while 89/89 tests were green and the tool claimed a live-Worker verification its E2E never ran). The target user cannot diagnose &#39;wrong stack for your host&#39; or &#39;verified against the wrong runtime&#39;, so the method itself must foreclose both. These are Tier-1 hardening fixes to make the base offering usable now, while the productised independent verification gate (rcf-verify-lite) is built separately.&quot;,
+  &quot;reqId&quot;: &quot;REQ-008&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Deploy-aware, runtime-honest build guidance&quot;,
+  &quot;domain&quot;: &quot;guidance&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;tags&quot;: [
+    &quot;guidance&quot;,
+    &quot;deploy&quot;,
+    &quot;verification&quot;
+  ]
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-801">
+  <summary><span class="summary-label">US-801 - Every build leaves a working local preview</span><span class="status draft">draft</span></summary>
+  <article id="US-801" class="doc doc-us">
+  <h3>US-801 - Every build leaves a working local preview</h3>
+  
+  <p><strong>As a:</strong> non-coding product owner</p>
+  <p><strong>I want:</strong> every build to leave me a working, documented way to run the app locally</p>
+  <p><strong>So that:</strong> I can see and use what was built without needing to deploy it anywhere first</p>
+  <p><strong>Description:</strong> The build loop leaves every project with a working, documented local preview as its default outcome, so a non-coding owner always has a runtime they can drive and review without a cloud account or a deploy step.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-008">REQ-008</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-801-1" class="ac-item"><strong>AC-801-1</strong> - A build&#39;s definition of done requires a documented local preview loop as the default outcome
+<div class="ac-gwt"><p><em>Given</em> the RCF build method as taught by the shipped guidance pack</p><p><em>When</em> a build reaches its definition of done</p><p><em>Then</em> the guidance requires a working, documented local preview loop (a dev server, and seeded data where the app needs it) to be present as the default deliverable</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-801-2" class="ac-item"><strong>AC-801-2</strong> - The local preview is startable via a single documented command where the stack allows
+<div class="ac-gwt"><p><em>Given</em> the shipped build guidance describing the local preview</p><p><em>When</em> it states how the owner starts the app</p><p><em>Then</em> it directs the build toward one documented command to start the preview wherever the stack makes a single command possible</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-801-3" class="ac-item"><strong>AC-801-3</strong> - The local preview is produced whether or not a hosting target was stated
+<div class="ac-gwt"><p><em>Given</em> an owner who has not stated a hosting target, or who asked for a recommendation instead</p><p><em>When</em> the build completes</p><p><em>Then</em> the guidance still requires the local preview to be produced as the default, not made conditional on a stated host</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-801-4" class="ac-item"><strong>AC-801-4</strong> - The preview includes seeded data when the app needs data to be usable
+<div class="ac-gwt"><p><em>Given</em> an application that needs data present to be exercisable</p><p><em>When</em> the local preview loop is produced</p><p><em>Then</em> the guidance requires seeded or sample data so the preview can actually be driven, not an empty shell</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:03:40.038Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:10:45.603Z&quot;,
+  &quot;description&quot;: &quot;The build loop leaves every project with a working, documented local preview as its default outcome, so a non-coding owner always has a runtime they can drive and review without a cloud account or a deploy step.&quot;,
+  &quot;asA&quot;: &quot;non-coding product owner&quot;,
+  &quot;iWant&quot;: &quot;every build to leave me a working, documented way to run the app locally&quot;,
+  &quot;soThat&quot;: &quot;I can see and use what was built without needing to deploy it anywhere first&quot;,
+  &quot;usId&quot;: &quot;US-801&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-008&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Every build leaves a working local preview&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-801-1&quot;,
+      &quot;description&quot;: &quot;A build&#39;s definition of done requires a documented local preview loop as the default outcome&quot;,
+      &quot;given&quot;: &quot;the RCF build method as taught by the shipped guidance pack&quot;,
+      &quot;when&quot;: &quot;a build reaches its definition of done&quot;,
+      &quot;then&quot;: &quot;the guidance requires a working, documented local preview loop (a dev server, and seeded data where the app needs it) to be present as the default deliverable&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-801-2&quot;,
+      &quot;description&quot;: &quot;The local preview is startable via a single documented command where the stack allows&quot;,
+      &quot;given&quot;: &quot;the shipped build guidance describing the local preview&quot;,
+      &quot;when&quot;: &quot;it states how the owner starts the app&quot;,
+      &quot;then&quot;: &quot;it directs the build toward one documented command to start the preview wherever the stack makes a single command possible&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-801-3&quot;,
+      &quot;description&quot;: &quot;The local preview is produced whether or not a hosting target was stated&quot;,
+      &quot;given&quot;: &quot;an owner who has not stated a hosting target, or who asked for a recommendation instead&quot;,
+      &quot;when&quot;: &quot;the build completes&quot;,
+      &quot;then&quot;: &quot;the guidance still requires the local preview to be produced as the default, not made conditional on a stated host&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-801-4&quot;,
+      &quot;description&quot;: &quot;The preview includes seeded data when the app needs data to be usable&quot;,
+      &quot;given&quot;: &quot;an application that needs data present to be exercisable&quot;,
+      &quot;when&quot;: &quot;the local preview loop is produced&quot;,
+      &quot;then&quot;: &quot;the guidance requires seeded or sample data so the preview can actually be driven, not an empty shell&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-802">
+  <summary><span class="summary-label">US-802 - Deploy target is established before the stack is chosen</span><span class="status draft">draft</span></summary>
+  <article id="US-802" class="doc doc-us">
+  <h3>US-802 - Deploy target is established before the stack is chosen</h3>
+  
+  <p><strong>As a:</strong> non-coding product owner</p>
+  <p><strong>I want:</strong> the tool to work out where my app will run before it picks the technology to build it with</p>
+  <p><strong>So that:</strong> it does not build me something my hosting cannot actually run</p>
+  <p><strong>Description:</strong> Elicitation establishes where the application will run before any stack is committed, and the stack the tool builds is constrained by that answer, so the owner is not led into a stack their hosting cannot run.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-008">REQ-008</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-802-1" class="ac-item"><strong>AC-802-1</strong> - Elicitation asks where the app will run as an early item before any stack is committed
+<div class="ac-gwt"><p><em>Given</em> the shipped elicitation guidance</p><p><em>When</em> an agent runs elicitation with an owner</p><p><em>Then</em> the guidance places a deploy-target question early, before any technology stack is committed</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-013">FBS-013</a></p></li>
+<li id="AC-802-2" class="ac-item"><strong>AC-802-2</strong> - The stack choice is constrained by the deploy-target answer
+<div class="ac-gwt"><p><em>Given</em> a stated deploy target</p><p><em>When</em> the agent chooses the technology stack</p><p><em>Then</em> the guidance requires the stack to be constrained to what that target can host, so an incompatible stack is not committed</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-013">FBS-013</a></p></li>
+<li id="AC-802-3" class="ac-item"><strong>AC-802-3</strong> - The deploy target and its stack implication are captured as an ADR on the project tree
+<div class="ac-gwt"><p><em>Given</em> a deploy target established during elicitation</p><p><em>When</em> the decision is made</p><p><em>Then</em> the guidance requires it and the stack constraint it implies to be recorded as an ADR on the project&#39;s own tree, visible and revisable</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-013">FBS-013</a></p></li>
+<li id="AC-802-4" class="ac-item"><strong>AC-802-4</strong> - The harness fragment forbids committing a stack before the deploy target is established
+<div class="ac-gwt"><p><em>Given</em> the harness fragment written into agent-instructions files</p><p><em>When</em> it is inspected</p><p><em>Then</em> it carries a rule that a technology stack must not be committed before the deploy target is established</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-013">FBS-013</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:04:24.408Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:10:45.759Z&quot;,
+  &quot;description&quot;: &quot;Elicitation establishes where the application will run before any stack is committed, and the stack the tool builds is constrained by that answer, so the owner is not led into a stack their hosting cannot run.&quot;,
+  &quot;asA&quot;: &quot;non-coding product owner&quot;,
+  &quot;iWant&quot;: &quot;the tool to work out where my app will run before it picks the technology to build it with&quot;,
+  &quot;soThat&quot;: &quot;it does not build me something my hosting cannot actually run&quot;,
+  &quot;usId&quot;: &quot;US-802&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-008&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Deploy target is established before the stack is chosen&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-802-1&quot;,
+      &quot;description&quot;: &quot;Elicitation asks where the app will run as an early item before any stack is committed&quot;,
+      &quot;given&quot;: &quot;the shipped elicitation guidance&quot;,
+      &quot;when&quot;: &quot;an agent runs elicitation with an owner&quot;,
+      &quot;then&quot;: &quot;the guidance places a deploy-target question early, before any technology stack is committed&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-802-2&quot;,
+      &quot;description&quot;: &quot;The stack choice is constrained by the deploy-target answer&quot;,
+      &quot;given&quot;: &quot;a stated deploy target&quot;,
+      &quot;when&quot;: &quot;the agent chooses the technology stack&quot;,
+      &quot;then&quot;: &quot;the guidance requires the stack to be constrained to what that target can host, so an incompatible stack is not committed&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-802-3&quot;,
+      &quot;description&quot;: &quot;The deploy target and its stack implication are captured as an ADR on the project tree&quot;,
+      &quot;given&quot;: &quot;a deploy target established during elicitation&quot;,
+      &quot;when&quot;: &quot;the decision is made&quot;,
+      &quot;then&quot;: &quot;the guidance requires it and the stack constraint it implies to be recorded as an ADR on the project&#39;s own tree, visible and revisable&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-802-4&quot;,
+      &quot;description&quot;: &quot;The harness fragment forbids committing a stack before the deploy target is established&quot;,
+      &quot;given&quot;: &quot;the harness fragment written into agent-instructions files&quot;,
+      &quot;when&quot;: &quot;it is inspected&quot;,
+      &quot;then&quot;: &quot;it carries a rule that a technology stack must not be committed before the deploy target is established&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-803">
+  <summary><span class="summary-label">US-803 - Hosting-choice guidance when the owner is unsure</span><span class="status draft">draft</span></summary>
+  <article id="US-803" class="doc doc-us">
+  <h3>US-803 - Hosting-choice guidance when the owner is unsure</h3>
+  
+  <p><strong>As a:</strong> non-coding product owner who does not know my hosting options</p>
+  <p><strong>I want:</strong> to be walked through choosing and setting up somewhere to run my app, in plain language</p>
+  <p><strong>So that:</strong> I can make and act on the hosting decision without already being an expert</p>
+  <p><strong>Description:</strong> When the owner does not know where the application will run, the agent walks them through choosing and configuring a hosting account in plain language, honestly isolating the steps only the human account-holder can do, rather than choosing silently or pretending to act as them.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-008">REQ-008</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-803-1" class="ac-item"><strong>AC-803-1</strong> - When the owner does not know where the app will run, the agent runs a hosting-choice walkthrough rather than choosing silently
+<div class="ac-gwt"><p><em>Given</em> an owner who does not know their hosting options</p><p><em>When</em> the deploy-target question is reached</p><p><em>Then</em> the guidance directs the agent to run a hosting-choice walkthrough instead of silently selecting a host</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-013">FBS-013</a></p></li>
+<li id="AC-803-2" class="ac-item"><strong>AC-803-2</strong> - The walkthrough explains the options in plain language
+<div class="ac-gwt"><p><em>Given</em> the hosting-choice walkthrough guidance</p><p><em>When</em> it presents hosting options to the owner</p><p><em>Then</em> it requires plain-language explanation with no unexplained jargon</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-013">FBS-013</a></p></li>
+<li id="AC-803-3" class="ac-item"><strong>AC-803-3</strong> - Steps only the human account-holder can do are isolated and named honestly
+<div class="ac-gwt"><p><em>Given</em> the walkthrough reaching steps only the account-holder can perform (sign-ups, billing, tokens, CLI authentication)</p><p><em>When</em> those steps arise</p><p><em>Then</em> the guidance requires them to be isolated and named honestly as the human&#39;s to do, not performed silently by the agent nor pretended</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-013">FBS-013</a></p></li>
+<li id="AC-803-4" class="ac-item"><strong>AC-803-4</strong> - The walkthrough covers configuring the chosen account, not only naming a provider
+<div class="ac-gwt"><p><em>Given</em> a hosting choice the owner has made</p><p><em>When</em> the walkthrough continues past the choice</p><p><em>Then</em> the guidance requires it to cover configuring the account - accounts, tokens and CLI setup - not just naming a provider</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-013">FBS-013</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:04:24.594Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:10:45.914Z&quot;,
+  &quot;description&quot;: &quot;When the owner does not know where the application will run, the agent walks them through choosing and configuring a hosting account in plain language, honestly isolating the steps only the human account-holder can do, rather than choosing silently or pretending to act as them.&quot;,
+  &quot;asA&quot;: &quot;non-coding product owner who does not know my hosting options&quot;,
+  &quot;iWant&quot;: &quot;to be walked through choosing and setting up somewhere to run my app, in plain language&quot;,
+  &quot;soThat&quot;: &quot;I can make and act on the hosting decision without already being an expert&quot;,
+  &quot;usId&quot;: &quot;US-803&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-008&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Hosting-choice guidance when the owner is unsure&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-803-1&quot;,
+      &quot;description&quot;: &quot;When the owner does not know where the app will run, the agent runs a hosting-choice walkthrough rather than choosing silently&quot;,
+      &quot;given&quot;: &quot;an owner who does not know their hosting options&quot;,
+      &quot;when&quot;: &quot;the deploy-target question is reached&quot;,
+      &quot;then&quot;: &quot;the guidance directs the agent to run a hosting-choice walkthrough instead of silently selecting a host&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-803-2&quot;,
+      &quot;description&quot;: &quot;The walkthrough explains the options in plain language&quot;,
+      &quot;given&quot;: &quot;the hosting-choice walkthrough guidance&quot;,
+      &quot;when&quot;: &quot;it presents hosting options to the owner&quot;,
+      &quot;then&quot;: &quot;it requires plain-language explanation with no unexplained jargon&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-803-3&quot;,
+      &quot;description&quot;: &quot;Steps only the human account-holder can do are isolated and named honestly&quot;,
+      &quot;given&quot;: &quot;the walkthrough reaching steps only the account-holder can perform (sign-ups, billing, tokens, CLI authentication)&quot;,
+      &quot;when&quot;: &quot;those steps arise&quot;,
+      &quot;then&quot;: &quot;the guidance requires them to be isolated and named honestly as the human&#39;s to do, not performed silently by the agent nor pretended&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-803-4&quot;,
+      &quot;description&quot;: &quot;The walkthrough covers configuring the chosen account, not only naming a provider&quot;,
+      &quot;given&quot;: &quot;a hosting choice the owner has made&quot;,
+      &quot;when&quot;: &quot;the walkthrough continues past the choice&quot;,
+      &quot;then&quot;: &quot;the guidance requires it to cover configuring the account - accounts, tokens and CLI setup - not just naming a provider&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-804">
+  <summary><span class="summary-label">US-804 - Verification claims name their runtime</span><span class="status draft">draft</span></summary>
+  <article id="US-804" class="doc doc-us">
+  <h3>US-804 - Verification claims name their runtime</h3>
+  
+  <p><strong>As a:</strong> non-coding product owner</p>
+  <p><strong>I want:</strong> every claim that something was verified to say what it was verified against</p>
+  <p><strong>So that:</strong> I am not told the deployed app works when only a local emulator was checked</p>
+  <p><strong>Description:</strong> Every claim the tool or its agent makes that something is verified or tested names the runtime it was checked against, and never implies verification on a deployed runtime that did not happen, so the owner can tell what was actually proven.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-008">REQ-008</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-804-1" class="ac-item"><strong>AC-804-1</strong> - Every verified or tested claim names the runtime it was checked against
+<div class="ac-gwt"><p><em>Given</em> the shipped build guidance on reporting verification</p><p><em>When</em> a &#39;verified&#39; or &#39;tested&#39; claim is made</p><p><em>Then</em> the guidance requires the claim to name the runtime it was checked against</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-804-2" class="ac-item"><strong>AC-804-2</strong> - No claim implies deploy-runtime verification that did not happen
+<div class="ac-gwt"><p><em>Given</em> a verification that ran against a local or emulated runtime</p><p><em>When</em> the claim is written</p><p><em>Then</em> the guidance forbids the claim from stating or implying verification on a deployed runtime that was not exercised</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-804-3" class="ac-item"><strong>AC-804-3</strong> - The PR-authoring guidance requires the runtime label in the verification section
+<div class="ac-gwt"><p><em>Given</em> the build-cycle PR-authoring guidance</p><p><em>When</em> the verification section of a PR body is authored</p><p><em>Then</em> it requires each verification claim to carry the runtime it was checked against</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-804-4" class="ac-item"><strong>AC-804-4</strong> - The guidance includes an explicit labelled-claim example
+<div class="ac-gwt"><p><em>Given</em> the shipped build guidance</p><p><em>When</em> it illustrates a verification claim</p><p><em>Then</em> it includes an explicit example naming the runtime (for example &#39;verified against wrangler dev (localhost) - NOT the deployed Worker runtime&#39;)</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:04:24.748Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:10:46.062Z&quot;,
+  &quot;description&quot;: &quot;Every claim the tool or its agent makes that something is verified or tested names the runtime it was checked against, and never implies verification on a deployed runtime that did not happen, so the owner can tell what was actually proven.&quot;,
+  &quot;asA&quot;: &quot;non-coding product owner&quot;,
+  &quot;iWant&quot;: &quot;every claim that something was verified to say what it was verified against&quot;,
+  &quot;soThat&quot;: &quot;I am not told the deployed app works when only a local emulator was checked&quot;,
+  &quot;usId&quot;: &quot;US-804&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-008&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Verification claims name their runtime&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-804-1&quot;,
+      &quot;description&quot;: &quot;Every verified or tested claim names the runtime it was checked against&quot;,
+      &quot;given&quot;: &quot;the shipped build guidance on reporting verification&quot;,
+      &quot;when&quot;: &quot;a &#39;verified&#39; or &#39;tested&#39; claim is made&quot;,
+      &quot;then&quot;: &quot;the guidance requires the claim to name the runtime it was checked against&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-804-2&quot;,
+      &quot;description&quot;: &quot;No claim implies deploy-runtime verification that did not happen&quot;,
+      &quot;given&quot;: &quot;a verification that ran against a local or emulated runtime&quot;,
+      &quot;when&quot;: &quot;the claim is written&quot;,
+      &quot;then&quot;: &quot;the guidance forbids the claim from stating or implying verification on a deployed runtime that was not exercised&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-804-3&quot;,
+      &quot;description&quot;: &quot;The PR-authoring guidance requires the runtime label in the verification section&quot;,
+      &quot;given&quot;: &quot;the build-cycle PR-authoring guidance&quot;,
+      &quot;when&quot;: &quot;the verification section of a PR body is authored&quot;,
+      &quot;then&quot;: &quot;it requires each verification claim to carry the runtime it was checked against&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-804-4&quot;,
+      &quot;description&quot;: &quot;The guidance includes an explicit labelled-claim example&quot;,
+      &quot;given&quot;: &quot;the shipped build guidance&quot;,
+      &quot;when&quot;: &quot;it illustrates a verification claim&quot;,
+      &quot;then&quot;: &quot;it includes an explicit example naming the runtime (for example &#39;verified against wrangler dev (localhost) - NOT the deployed Worker runtime&#39;)&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-805">
+  <summary><span class="summary-label">US-805 - Interim self-review guidance</span><span class="status draft">draft</span></summary>
+  <article id="US-805" class="doc doc-us">
+  <h3>US-805 - Interim self-review guidance</h3>
+  
+  <p><strong>As a:</strong> non-coding product owner</p>
+  <p><strong>I want:</strong> the build to include a periodic fresh look that actually drives the app against what it is supposed to do</p>
+  <p><strong>So that:</strong> defects my passing tests miss are caught before I rely on the result</p>
+  <p><strong>Description:</strong> The method carries interim guidance for a periodic and end-of-build fresh-context self-review that drives the app against its acceptance criteria to catch the defect classes green test suites miss, honestly scoped as a stopgap until the independent verification gate exists.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-008">REQ-008</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-805-1" class="ac-item"><strong>AC-805-1</strong> - The guidance describes a periodic and end-of-build fresh-context self-review dispatch
+<div class="ac-gwt"><p><em>Given</em> the shipped build guidance</p><p><em>When</em> it describes the self-review</p><p><em>Then</em> it describes a fresh-context manual-review subagent dispatch run periodically (every few FBS builds) and once at the end of the build</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-805-2" class="ac-item"><strong>AC-805-2</strong> - The reviewer drives the app against the acceptance criteria rather than reading the code
+<div class="ac-gwt"><p><em>Given</em> the self-review guidance</p><p><em>When</em> it states what the reviewer does</p><p><em>Then</em> it requires the reviewer to drive the running application against its acceptance criteria, not to read the code</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-805-3" class="ac-item"><strong>AC-805-3</strong> - The review targets the named defect classes
+<div class="ac-gwt"><p><em>Given</em> the self-review guidance</p><p><em>When</em> it states what the review looks for</p><p><em>Then</em> it names the target defect classes: session-class bugs, false-promise UI, runtime mismatch (localhost versus deployed), dead auth paths and dead code</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+<li id="AC-805-4" class="ac-item"><strong>AC-805-4</strong> - The guidance scopes the self-review honestly as an interim stopgap and not the independent gate
+<div class="ac-gwt"><p><em>Given</em> the self-review guidance</p><p><em>When</em> it frames the review</p><p><em>Then</em> it states plainly that this is interim guidance until rcf-verify-lite exists, is guidance and not a new subsystem, and is not the independent verification gate</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-014">FBS-014</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:04:24.904Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:10:46.220Z&quot;,
+  &quot;description&quot;: &quot;The method carries interim guidance for a periodic and end-of-build fresh-context self-review that drives the app against its acceptance criteria to catch the defect classes green test suites miss, honestly scoped as a stopgap until the independent verification gate exists.&quot;,
+  &quot;asA&quot;: &quot;non-coding product owner&quot;,
+  &quot;iWant&quot;: &quot;the build to include a periodic fresh look that actually drives the app against what it is supposed to do&quot;,
+  &quot;soThat&quot;: &quot;defects my passing tests miss are caught before I rely on the result&quot;,
+  &quot;usId&quot;: &quot;US-805&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-008&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Interim self-review guidance&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-805-1&quot;,
+      &quot;description&quot;: &quot;The guidance describes a periodic and end-of-build fresh-context self-review dispatch&quot;,
+      &quot;given&quot;: &quot;the shipped build guidance&quot;,
+      &quot;when&quot;: &quot;it describes the self-review&quot;,
+      &quot;then&quot;: &quot;it describes a fresh-context manual-review subagent dispatch run periodically (every few FBS builds) and once at the end of the build&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-805-2&quot;,
+      &quot;description&quot;: &quot;The reviewer drives the app against the acceptance criteria rather than reading the code&quot;,
+      &quot;given&quot;: &quot;the self-review guidance&quot;,
+      &quot;when&quot;: &quot;it states what the reviewer does&quot;,
+      &quot;then&quot;: &quot;it requires the reviewer to drive the running application against its acceptance criteria, not to read the code&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-805-3&quot;,
+      &quot;description&quot;: &quot;The review targets the named defect classes&quot;,
+      &quot;given&quot;: &quot;the self-review guidance&quot;,
+      &quot;when&quot;: &quot;it states what the review looks for&quot;,
+      &quot;then&quot;: &quot;it names the target defect classes: session-class bugs, false-promise UI, runtime mismatch (localhost versus deployed), dead auth paths and dead code&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-805-4&quot;,
+      &quot;description&quot;: &quot;The guidance scopes the self-review honestly as an interim stopgap and not the independent gate&quot;,
+      &quot;given&quot;: &quot;the self-review guidance&quot;,
+      &quot;when&quot;: &quot;it frames the review&quot;,
+      &quot;then&quot;: &quot;it states plainly that this is interim guidance until rcf-verify-lite exists, is guidance and not a new subsystem, and is not the independent verification gate&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: []
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -2306,8 +2978,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <dt>eventModel</dt><dd>None. Operations are synchronous filesystem reads and writes.</dd></dl></section>
 <section class="field-list"><h4>Operational concerns</h4><dl><dt>healthChecks</dt><dd>Not applicable for a local binary; a validate command reports project health by validating every document and listing broken references.</dd>
 <dt>logging</dt><dd>Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics.</dd></dl></section>
-  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a></p></section>
-  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a></p></section>
+  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a></p></section>
+  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;tadId&quot;: &quot;TAD-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -2906,6 +3578,72 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-008">
+  <summary><span class="summary-label">TAC-008 - Agent guidance pack</span><span class="status draft">draft</span></summary>
+  <article id="TAC-008" class="doc doc-tac">
+  <h3>TAC-008 - Agent guidance pack</h3>
+  
+  <p><strong>Purpose:</strong> Ship the agent-facing method layer - the elicitation and build-cycle playbooks, the reference docs and the harness fragment - that teaches an AI agent how to run the RCF method well, served over MCP as resources and prompts and readable in place under guidance/.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Carry the elicitation method (question frames, AC-depth bar, deploy-target elicitation, hosting-choice guidance) the eliciting agent runs with a human</li><li>Carry the build-cycle method (five stages, local-preview default outcome, runtime-provenance discipline, interim self-review) the operating agent runs per FBS</li><li>Carry the harness fragment rcf init writes into CLAUDE.md and AGENTS.md, whose RULE blocks foreclose observed failure modes</li><li>Keep every shipped claim, verb and channel address mechanically agreed with the tool via the drift tests</li></ul></section>
+  <p><strong>Internal structure:</strong> Static markdown files under guidance/, indexed by guidance/manifest.json which maps each file to one canonical MCP address (resources for reference docs, prompts for the playbooks). The harness fragment is a fenced block in harness-template.md that src/setup extracts and writes into agent-instructions files. Drift tests (test/guidance) assert content-and-inventory invariants so the pack and the tool cannot silently diverge.</p>
+  <section class="field-list"><h4>Interfaces</h4><ul><li><strong>rcf_elicit_requirements</strong> (prompt) - The elicitation playbook, served as an MCP prompt to the eliciting agent.</li><li><strong>rcf_execute_build_cycle</strong> (prompt) - The build-cycle playbook, served as an MCP prompt to the operating agent.</li><li><strong>harness fragment</strong> (artifact) - The RULE-bearing block rcf init writes into CLAUDE.md and AGENTS.md.</li></ul></section>
+  <section class="field-list"><h4>Dependencies</h4><ul><li><strong>MCP server</strong> (tac) - Serves the pack&#39;s docs as resources and playbooks as prompts over local stdio.</li><li><strong>Build adapter</strong> (tac) - The build-cycle method the pack teaches is executed against the bundles the build adapter assembles.</li></ul></section>
+  <p><strong>Trade-offs:</strong> The pack is prose served to a model, not enforced code: it can teach a property (local preview, provenance labelling) but cannot mechanically compel it the way a schema compels document shape. Drift tests hold the pack honest against the tool&#39;s verbs and inventory; the method&#39;s behavioural properties are held by the RULE blocks and the ACs that require them, not by a runtime gate. The productised independent gate is out of scope here (see ADR-009).</p>
+  <p><strong>Notes:</strong> Modelled as a component for the first time by the Tier-1 hardening set; the pack existed and shipped before this TAC captured it.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:01:52.768Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:01:52.768Z&quot;,
+  &quot;purpose&quot;: &quot;Ship the agent-facing method layer - the elicitation and build-cycle playbooks, the reference docs and the harness fragment - that teaches an AI agent how to run the RCF method well, served over MCP as resources and prompts and readable in place under guidance/.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Carry the elicitation method (question frames, AC-depth bar, deploy-target elicitation, hosting-choice guidance) the eliciting agent runs with a human&quot;,
+    &quot;Carry the build-cycle method (five stages, local-preview default outcome, runtime-provenance discipline, interim self-review) the operating agent runs per FBS&quot;,
+    &quot;Carry the harness fragment rcf init writes into CLAUDE.md and AGENTS.md, whose RULE blocks foreclose observed failure modes&quot;,
+    &quot;Keep every shipped claim, verb and channel address mechanically agreed with the tool via the drift tests&quot;
+  ],
+  &quot;internalStructure&quot;: &quot;Static markdown files under guidance/, indexed by guidance/manifest.json which maps each file to one canonical MCP address (resources for reference docs, prompts for the playbooks). The harness fragment is a fenced block in harness-template.md that src/setup extracts and writes into agent-instructions files. Drift tests (test/guidance) assert content-and-inventory invariants so the pack and the tool cannot silently diverge.&quot;,
+  &quot;interfaces&quot;: [
+    {
+      &quot;name&quot;: &quot;rcf_elicit_requirements&quot;,
+      &quot;kind&quot;: &quot;prompt&quot;,
+      &quot;description&quot;: &quot;The elicitation playbook, served as an MCP prompt to the eliciting agent.&quot;
+    },
+    {
+      &quot;name&quot;: &quot;rcf_execute_build_cycle&quot;,
+      &quot;kind&quot;: &quot;prompt&quot;,
+      &quot;description&quot;: &quot;The build-cycle playbook, served as an MCP prompt to the operating agent.&quot;
+    },
+    {
+      &quot;name&quot;: &quot;harness fragment&quot;,
+      &quot;kind&quot;: &quot;artifact&quot;,
+      &quot;description&quot;: &quot;The RULE-bearing block rcf init writes into CLAUDE.md and AGENTS.md.&quot;
+    }
+  ],
+  &quot;dependencies&quot;: [
+    {
+      &quot;name&quot;: &quot;MCP server&quot;,
+      &quot;kind&quot;: &quot;tac&quot;,
+      &quot;tacId&quot;: &quot;TAC-006&quot;,
+      &quot;description&quot;: &quot;Serves the pack&#39;s docs as resources and playbooks as prompts over local stdio.&quot;
+    },
+    {
+      &quot;name&quot;: &quot;Build adapter&quot;,
+      &quot;kind&quot;: &quot;tac&quot;,
+      &quot;tacId&quot;: &quot;TAC-005&quot;,
+      &quot;description&quot;: &quot;The build-cycle method the pack teaches is executed against the bundles the build adapter assembles.&quot;
+    }
+  ],
+  &quot;tradeoffs&quot;: &quot;The pack is prose served to a model, not enforced code: it can teach a property (local preview, provenance labelling) but cannot mechanically compel it the way a schema compels document shape. Drift tests hold the pack honest against the tool&#39;s verbs and inventory; the method&#39;s behavioural properties are held by the RULE blocks and the ACs that require them, not by a runtime gate. The productised independent gate is out of scope here (see ADR-009).&quot;,
+  &quot;notes&quot;: &quot;Modelled as a component for the first time by the Tier-1 hardening set; the pack existed and shipped before this TAC captured it.&quot;,
+  &quot;tacId&quot;: &quot;TAC-008&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;name&quot;: &quot;Agent guidance pack&quot;
+}
+</pre></details>
+</article>
+</details>
 <h3 class="group-heading">Architectural decisions</h3>
 <details class="doc-details doc-adr-wrap" data-doc-id="ADR-001">
   <summary><span class="summary-label">ADR-001 - Local filesystem is the single source of truth</span><span class="status accepted">accepted</span></summary>
@@ -3097,6 +3835,166 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-006">
+  <summary><span class="summary-label">ADR-006 - Local-first preview is the default build outcome</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-006" class="doc doc-adr">
+  <h3>ADR-006 - Local-first preview is the default build outcome</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> The tool&#39;s target user is a non-coding owner who cannot self-verify a deployed application. Across the persona programme the one thing every such user could always exercise was the app running locally; a deployment could dead-end (run 03), be accepted-not-deployed (run 04), or pass locally yet fail in production (run 05). A build whose only demonstrable outcome lives on a remote runtime the owner cannot inspect leaves them with nothing they can check.</p>
+  <p><strong>Decision:</strong> Every build lands, as its default outcome, a working and documented local preview loop - a dev server, seeded data where the app needs it, ideally reachable in one command. This holds whether or not the owner has stated a hosting target and whether they asked for a recommendation or not; local-first is the rock-solid default, and remote deployment is an addition on top of it, never a replacement for it. The elicitation and build-cycle guidance both carry this as a required deliverable, and the definition of done for a build includes the preview loop being present and documented.</p>
+  <p><strong>Consequences:</strong> The owner always has a runtime they can drive and review, independent of any cloud account or deploy step. Local preview also becomes the honest substrate for the runtime-provenance discipline (ADR-008): a claim verified against local preview can say so truthfully. The cost is that a working local preview does not prove the deployed runtime works - which is precisely why provenance labelling and the interim self-review exist alongside this decision, not instead of it.</p>
+  <section class="field-list"><h4>Alternatives considered</h4><ul><li><strong>Deploy-first, preview optional</strong> - Treat a successful cloud deployment as the primary outcome and local preview as a nicety.<br/><em>Not chosen because:</em> Strands owners whose deploy dead-ends or who decline to deploy, and hides defects behind a runtime they cannot inspect.</li><li><strong>Preview only when the owner asks</strong> - Produce a local preview loop only when the owner explicitly requests one.<br/><em>Not chosen because:</em> The owners who most need it are the least likely to know to ask; a default that depends on the user knowing the right question fails the target user.</li></ul></section>
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:03:19.245Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:56:46.383Z&quot;,
+  &quot;context&quot;: &quot;The tool&#39;s target user is a non-coding owner who cannot self-verify a deployed application. Across the persona programme the one thing every such user could always exercise was the app running locally; a deployment could dead-end (run 03), be accepted-not-deployed (run 04), or pass locally yet fail in production (run 05). A build whose only demonstrable outcome lives on a remote runtime the owner cannot inspect leaves them with nothing they can check.&quot;,
+  &quot;decision&quot;: &quot;Every build lands, as its default outcome, a working and documented local preview loop - a dev server, seeded data where the app needs it, ideally reachable in one command. This holds whether or not the owner has stated a hosting target and whether they asked for a recommendation or not; local-first is the rock-solid default, and remote deployment is an addition on top of it, never a replacement for it. The elicitation and build-cycle guidance both carry this as a required deliverable, and the definition of done for a build includes the preview loop being present and documented.&quot;,
+  &quot;consequences&quot;: &quot;The owner always has a runtime they can drive and review, independent of any cloud account or deploy step. Local preview also becomes the honest substrate for the runtime-provenance discipline (ADR-008): a claim verified against local preview can say so truthfully. The cost is that a working local preview does not prove the deployed runtime works - which is precisely why provenance labelling and the interim self-review exist alongside this decision, not instead of it.&quot;,
+  &quot;alternativesConsidered&quot;: [
+    {
+      &quot;name&quot;: &quot;Deploy-first, preview optional&quot;,
+      &quot;summary&quot;: &quot;Treat a successful cloud deployment as the primary outcome and local preview as a nicety.&quot;,
+      &quot;reasonNotChosen&quot;: &quot;Strands owners whose deploy dead-ends or who decline to deploy, and hides defects behind a runtime they cannot inspect.&quot;
+    },
+    {
+      &quot;name&quot;: &quot;Preview only when the owner asks&quot;,
+      &quot;summary&quot;: &quot;Produce a local preview loop only when the owner explicitly requests one.&quot;,
+      &quot;reasonNotChosen&quot;: &quot;The owners who most need it are the least likely to know to ask; a default that depends on the user knowing the right question fails the target user.&quot;
+    }
+  ],
+  &quot;adrId&quot;: &quot;ADR-006&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Local-first preview is the default build outcome&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-007">
+  <summary><span class="summary-label">ADR-007 - Deploy target is elicited early and constrains the stack</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-007" class="doc doc-adr">
+  <h3>ADR-007 - Deploy target is elicited early and constrains the stack</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> Elicitation ran to a full RCF tree without ever establishing where the application would run. In run 03 the agent silently committed an entire Node-plus-node:sqlite stack that the owner&#39;s Cloudflare-only holdings could not host, dead-ending at deploy with no flag; run 04 chose the same incompatible stack class but disclosed it, and the difference was traced to that persona&#39;s contract forcing hosting into the spec early. The stack is a load-bearing architecture decision being made for a user who cannot judge it, and making it before the deploy target is known is how the G9 silent-architecture failure happens.</p>
+  <p><strong>Decision:</strong> Elicitation establishes the deploy target early - a first-class elicitation item asked before the stack is committed, not inferred late - and the stack choice is constrained by the answer. When the owner does not know where it will run, the agent runs a jargon-free hosting-choice walkthrough (ADR captured separately in the guidance) rather than choosing silently. The deploy target and the stack constraint it implies are captured as an ADR on the project&#39;s own tree so the decision is visible and revisable.</p>
+  <p><strong>Consequences:</strong> The stack the tool builds can actually be hosted where the owner can host it, and the hosting decision is surfaced instead of buried. Elicitation gains an early question the lite method did not previously carry, and the harness fragment gains a rule that a stack must not be committed before the deploy target is established. The cost is a small increase in elicitation length up front, paid back many times over against a dead-end at deploy the owner cannot diagnose.</p>
+  <section class="field-list"><h4>Alternatives considered</h4><ul><li><strong>Infer hosting from the stack later</strong> - Let the agent pick a stack on technical merit and determine hosting afterwards.<br/><em>Not chosen because:</em> Produced the run-03 dead-end: a stack chosen before hosting is a stack that may have no host, discovered only at deploy.</li><li><strong>Always ask the owner to choose a host explicitly</strong> - Require the owner to name a hosting provider during elicitation.<br/><em>Not chosen because:</em> The target user often does not know the options; a bare demand to choose freezes them. The guidance must walk an unsure owner through choosing, not just ask.</li></ul></section>
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:03:19.405Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:56:46.538Z&quot;,
+  &quot;context&quot;: &quot;Elicitation ran to a full RCF tree without ever establishing where the application would run. In run 03 the agent silently committed an entire Node-plus-node:sqlite stack that the owner&#39;s Cloudflare-only holdings could not host, dead-ending at deploy with no flag; run 04 chose the same incompatible stack class but disclosed it, and the difference was traced to that persona&#39;s contract forcing hosting into the spec early. The stack is a load-bearing architecture decision being made for a user who cannot judge it, and making it before the deploy target is known is how the G9 silent-architecture failure happens.&quot;,
+  &quot;decision&quot;: &quot;Elicitation establishes the deploy target early - a first-class elicitation item asked before the stack is committed, not inferred late - and the stack choice is constrained by the answer. When the owner does not know where it will run, the agent runs a jargon-free hosting-choice walkthrough (ADR captured separately in the guidance) rather than choosing silently. The deploy target and the stack constraint it implies are captured as an ADR on the project&#39;s own tree so the decision is visible and revisable.&quot;,
+  &quot;consequences&quot;: &quot;The stack the tool builds can actually be hosted where the owner can host it, and the hosting decision is surfaced instead of buried. Elicitation gains an early question the lite method did not previously carry, and the harness fragment gains a rule that a stack must not be committed before the deploy target is established. The cost is a small increase in elicitation length up front, paid back many times over against a dead-end at deploy the owner cannot diagnose.&quot;,
+  &quot;alternativesConsidered&quot;: [
+    {
+      &quot;name&quot;: &quot;Infer hosting from the stack later&quot;,
+      &quot;summary&quot;: &quot;Let the agent pick a stack on technical merit and determine hosting afterwards.&quot;,
+      &quot;reasonNotChosen&quot;: &quot;Produced the run-03 dead-end: a stack chosen before hosting is a stack that may have no host, discovered only at deploy.&quot;
+    },
+    {
+      &quot;name&quot;: &quot;Always ask the owner to choose a host explicitly&quot;,
+      &quot;summary&quot;: &quot;Require the owner to name a hosting provider during elicitation.&quot;,
+      &quot;reasonNotChosen&quot;: &quot;The target user often does not know the options; a bare demand to choose freezes them. The guidance must walk an unsure owner through choosing, not just ask.&quot;
+    }
+  ],
+  &quot;adrId&quot;: &quot;ADR-007&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Deploy target is elicited early and constrains the stack&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-008">
+  <summary><span class="summary-label">ADR-008 - Verification claims carry runtime provenance</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-008" class="doc doc-adr">
+  <h3>ADR-008 - Verification claims carry runtime provenance</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> In run 05 the tool&#39;s self-verification claimed the work was &#39;verified against a live Worker&#39;, but its end-to-end tests actually ran against wrangler dev on localhost, which does not enforce the Cloudflare edge PBKDF2 iteration cap. The result was 89/89 green tests, a confident verification claim, and a CRITICAL signup/login 500 on the actually-deployed runtime. The failure was not laziness but provenance: a claim implied a runtime it had never touched. A non-coding owner cannot tell &#39;verified against the deployed runtime&#39; from &#39;verified against a local emulator&#39;, so the claim itself must carry the distinction.</p>
+  <p><strong>Decision:</strong> Every &#39;verified&#39; or &#39;tested&#39; claim the tool or its agent makes names the runtime it was checked against - for example &#39;verified against wrangler dev (localhost) - NOT the deployed Worker runtime&#39;. No claim may state or imply deploy-runtime verification that did not happen. The build-cycle guidance requires the runtime label on verification claims in the Test and Finalise stages and in the PR body&#39;s verification section; a claim without a named runtime is treated as incomplete.</p>
+  <p><strong>Consequences:</strong> The owner can see exactly what was and was not proven, and the gap between &#39;passes locally&#39; and &#39;works deployed&#39; stops being invisible. This makes local preview (ADR-006) an honest thing to cite rather than a false proxy for deployment, and it defines the seam the interim self-review and the future independent gate target. The cost is that verification claims become longer and, deliberately, less reassuring - which is the point: an unlabelled claim was falsely reassuring.</p>
+  <section class="field-list"><h4>Alternatives considered</h4><ul><li><strong>Require verification against the deployed runtime</strong> - Mandate that every verification run against the real deployed target, removing the provenance ambiguity by removing local verification.<br/><em>Not chosen because:</em> Not always possible for the owner (no deploy yet, no account), and it belongs to the productised independent gate (rcf-verify-lite); the base offering&#39;s job is to label provenance honestly, not to force a deployed run.</li><li><strong>Trust green suites as verification</strong> - Treat a passing test suite as sufficient evidence of &#39;verified&#39;.<br/><em>Not chosen because:</em> Run 05 is the counter-example: 89/89 green with a critical production failure. A green suite is evidence about the runtime it ran on and nothing more.</li></ul></section>
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:03:19.567Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:56:46.693Z&quot;,
+  &quot;context&quot;: &quot;In run 05 the tool&#39;s self-verification claimed the work was &#39;verified against a live Worker&#39;, but its end-to-end tests actually ran against wrangler dev on localhost, which does not enforce the Cloudflare edge PBKDF2 iteration cap. The result was 89/89 green tests, a confident verification claim, and a CRITICAL signup/login 500 on the actually-deployed runtime. The failure was not laziness but provenance: a claim implied a runtime it had never touched. A non-coding owner cannot tell &#39;verified against the deployed runtime&#39; from &#39;verified against a local emulator&#39;, so the claim itself must carry the distinction.&quot;,
+  &quot;decision&quot;: &quot;Every &#39;verified&#39; or &#39;tested&#39; claim the tool or its agent makes names the runtime it was checked against - for example &#39;verified against wrangler dev (localhost) - NOT the deployed Worker runtime&#39;. No claim may state or imply deploy-runtime verification that did not happen. The build-cycle guidance requires the runtime label on verification claims in the Test and Finalise stages and in the PR body&#39;s verification section; a claim without a named runtime is treated as incomplete.&quot;,
+  &quot;consequences&quot;: &quot;The owner can see exactly what was and was not proven, and the gap between &#39;passes locally&#39; and &#39;works deployed&#39; stops being invisible. This makes local preview (ADR-006) an honest thing to cite rather than a false proxy for deployment, and it defines the seam the interim self-review and the future independent gate target. The cost is that verification claims become longer and, deliberately, less reassuring - which is the point: an unlabelled claim was falsely reassuring.&quot;,
+  &quot;alternativesConsidered&quot;: [
+    {
+      &quot;name&quot;: &quot;Require verification against the deployed runtime&quot;,
+      &quot;summary&quot;: &quot;Mandate that every verification run against the real deployed target, removing the provenance ambiguity by removing local verification.&quot;,
+      &quot;reasonNotChosen&quot;: &quot;Not always possible for the owner (no deploy yet, no account), and it belongs to the productised independent gate (rcf-verify-lite); the base offering&#39;s job is to label provenance honestly, not to force a deployed run.&quot;
+    },
+    {
+      &quot;name&quot;: &quot;Trust green suites as verification&quot;,
+      &quot;summary&quot;: &quot;Treat a passing test suite as sufficient evidence of &#39;verified&#39;.&quot;,
+      &quot;reasonNotChosen&quot;: &quot;Run 05 is the counter-example: 89/89 green with a critical production failure. A green suite is evidence about the runtime it ran on and nothing more.&quot;
+    }
+  ],
+  &quot;adrId&quot;: &quot;ADR-008&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Verification claims carry runtime provenance&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-009">
+  <summary><span class="summary-label">ADR-009 - Interim self-review is guidance, not the independent gate</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-009" class="doc doc-adr">
+  <h3>ADR-009 - Interim self-review is guidance, not the independent gate</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> The persona programme showed self-verification is only as truthful as the runtime it verifies against, and that a green suite plus a confident claim can still ship a user-facing defect (runs 03 and 05). The durable answer is a productised independent verification gate (rcf-verify-lite), being scoped separately at HQ. But the base offering needs a stopgap now, and it must not pretend to be the independent gate: an in-loop self-review by the same agent is not an independent check and cannot be sold as one.</p>
+  <p><strong>Decision:</strong> The guidance carries interim self-review guidance - documentation and prompt-level, not a new subsystem - for a carefully-scoped manual-review subagent dispatch: a periodic review every few FBS builds plus one at the end of the build. The reviewer runs fresh-context, drives the APP against the acceptance criteria rather than reading the code, and targets the defect classes green suites miss: session-class bugs, false-promise UI (stubs that imply real actions), runtime mismatch (localhost versus deployed), dead auth paths, and dead code. The guidance states plainly that this is an interim stopgap until rcf-verify-lite exists and that it is not the independent verification gate.</p>
+  <p><strong>Consequences:</strong> The base offering gains a review step that catches the defect classes the five-stage loop demonstrably missed, at documentation cost and with no new code surface to maintain. Because it is guidance, it can ship now and be retired or folded into rcf-verify-lite later without a migration. The cost and the honesty boundary are the same point: a same-programme reviewer is better than nothing and weaker than an independent gate, and the guidance says so rather than overclaiming.</p>
+  <section class="field-list"><h4>Alternatives considered</h4><ul><li><strong>Wait for rcf-verify-lite</strong> - Ship no review step until the productised independent gate exists.<br/><em>Not chosen because:</em> Leaves the base offering shipping the exact defect classes the programme caught, for months, against users who cannot catch them themselves.</li><li><strong>Build an independent-gate subsystem now</strong> - Solve the independent-verification problem inside rcf-build-lite immediately.<br/><em>Not chosen because:</em> That is a separate product being scoped at HQ; duplicating it here pre-empts a repo reshape and over-builds the lite tier. The Tier-1 scope is guidance, not a gate.</li></ul></section>
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:03:19.722Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:56:46.846Z&quot;,
+  &quot;context&quot;: &quot;The persona programme showed self-verification is only as truthful as the runtime it verifies against, and that a green suite plus a confident claim can still ship a user-facing defect (runs 03 and 05). The durable answer is a productised independent verification gate (rcf-verify-lite), being scoped separately at HQ. But the base offering needs a stopgap now, and it must not pretend to be the independent gate: an in-loop self-review by the same agent is not an independent check and cannot be sold as one.&quot;,
+  &quot;decision&quot;: &quot;The guidance carries interim self-review guidance - documentation and prompt-level, not a new subsystem - for a carefully-scoped manual-review subagent dispatch: a periodic review every few FBS builds plus one at the end of the build. The reviewer runs fresh-context, drives the APP against the acceptance criteria rather than reading the code, and targets the defect classes green suites miss: session-class bugs, false-promise UI (stubs that imply real actions), runtime mismatch (localhost versus deployed), dead auth paths, and dead code. The guidance states plainly that this is an interim stopgap until rcf-verify-lite exists and that it is not the independent verification gate.&quot;,
+  &quot;consequences&quot;: &quot;The base offering gains a review step that catches the defect classes the five-stage loop demonstrably missed, at documentation cost and with no new code surface to maintain. Because it is guidance, it can ship now and be retired or folded into rcf-verify-lite later without a migration. The cost and the honesty boundary are the same point: a same-programme reviewer is better than nothing and weaker than an independent gate, and the guidance says so rather than overclaiming.&quot;,
+  &quot;alternativesConsidered&quot;: [
+    {
+      &quot;name&quot;: &quot;Wait for rcf-verify-lite&quot;,
+      &quot;summary&quot;: &quot;Ship no review step until the productised independent gate exists.&quot;,
+      &quot;reasonNotChosen&quot;: &quot;Leaves the base offering shipping the exact defect classes the programme caught, for months, against users who cannot catch them themselves.&quot;
+    },
+    {
+      &quot;name&quot;: &quot;Build an independent-gate subsystem now&quot;,
+      &quot;summary&quot;: &quot;Solve the independent-verification problem inside rcf-build-lite immediately.&quot;,
+      &quot;reasonNotChosen&quot;: &quot;That is a separate product being scoped at HQ; duplicating it here pre-empts a repo reshape and over-builds the lite tier. The Tier-1 scope is guidance, not a gate.&quot;
+    }
+  ],
+  &quot;adrId&quot;: &quot;ADR-009&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Interim self-review is guidance, not the independent gate&quot;
+}
+</pre></details>
+</article>
+</details>
 
     </section>
     <section id="tab-build" role="tabpanel" hidden>
@@ -3107,7 +4005,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -4201,6 +5099,259 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     &quot;FBS-008&quot;,
     &quot;FBS-010&quot;
   ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-013">
+  <summary><span class="summary-label">FBS-013 - Deploy-aware elicitation and hosting guidance</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-013" class="doc doc-fbs">
+  <h3>FBS-013 - Deploy-aware elicitation and hosting guidance</h3>
+  
+  <p><strong>Summary:</strong> Harden the elicitation guidance so the deploy target is established early and constrains the stack, and so an owner who does not know their hosting is walked through choosing and configuring one in plain language. Edits the elicitation playbook and the harness fragment; no runtime subsystem.</p>
+  <p><strong>Approach:</strong> In the elicitation playbook, add an early deploy-target elicitation item (asked before any stack is committed) and require the stack to be constrained by the answer and the decision captured as a project ADR. Add a hosting-choice walkthrough for the unsure owner: plain-language options, configuration steps (accounts, tokens, CLI), and honest isolation of the human-account-holder-only steps, modelled on the run-03 impersonation-refusal framing. Add a harness-fragment rule that a stack must not be committed before the deploy target is established. Extend the guidance drift tests to assert the new content invariants. All changes are to shipped guidance/prompt surface; the deploy target is elicited by the agent, not by rcf init (init is bootstrap-only since the v0.2.1 UX pass).</p>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-802-1">AC-802-1</a><a class="ac-pill" href="#AC-802-2">AC-802-2</a><a class="ac-pill" href="#AC-802-3">AC-802-3</a><a class="ac-pill" href="#AC-802-4">AC-802-4</a><a class="ac-pill" href="#AC-803-1">AC-803-1</a><a class="ac-pill" href="#AC-803-2">AC-803-2</a><a class="ac-pill" href="#AC-803-3">AC-803-3</a><a class="ac-pill" href="#AC-803-4">AC-803-4</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-802-1">AC-802-1</a></strong> - Elicitation asks where the app will run as an early item before any stack is committed</p>
+  <p><em>Given</em> the shipped elicitation guidance</p>
+  <p><em>When</em> an agent runs elicitation with an owner</p>
+  <p><em>Then</em> the guidance places a deploy-target question early, before any technology stack is committed</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-802-2">AC-802-2</a></strong> - The stack choice is constrained by the deploy-target answer</p>
+  <p><em>Given</em> a stated deploy target</p>
+  <p><em>When</em> the agent chooses the technology stack</p>
+  <p><em>Then</em> the guidance requires the stack to be constrained to what that target can host, so an incompatible stack is not committed</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-802-3">AC-802-3</a></strong> - The deploy target and its stack implication are captured as an ADR on the project tree</p>
+  <p><em>Given</em> a deploy target established during elicitation</p>
+  <p><em>When</em> the decision is made</p>
+  <p><em>Then</em> the guidance requires it and the stack constraint it implies to be recorded as an ADR on the project&#39;s own tree, visible and revisable</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-802-4">AC-802-4</a></strong> - The harness fragment forbids committing a stack before the deploy target is established</p>
+  <p><em>Given</em> the harness fragment written into agent-instructions files</p>
+  <p><em>When</em> it is inspected</p>
+  <p><em>Then</em> it carries a rule that a technology stack must not be committed before the deploy target is established</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-803-1">AC-803-1</a></strong> - When the owner does not know where the app will run, the agent runs a hosting-choice walkthrough rather than choosing silently</p>
+  <p><em>Given</em> an owner who does not know their hosting options</p>
+  <p><em>When</em> the deploy-target question is reached</p>
+  <p><em>Then</em> the guidance directs the agent to run a hosting-choice walkthrough instead of silently selecting a host</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-803-2">AC-803-2</a></strong> - The walkthrough explains the options in plain language</p>
+  <p><em>Given</em> the hosting-choice walkthrough guidance</p>
+  <p><em>When</em> it presents hosting options to the owner</p>
+  <p><em>Then</em> it requires plain-language explanation with no unexplained jargon</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-803-3">AC-803-3</a></strong> - Steps only the human account-holder can do are isolated and named honestly</p>
+  <p><em>Given</em> the walkthrough reaching steps only the account-holder can perform (sign-ups, billing, tokens, CLI authentication)</p>
+  <p><em>When</em> those steps arise</p>
+  <p><em>Then</em> the guidance requires them to be isolated and named honestly as the human&#39;s to do, not performed silently by the agent nor pretended</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-803-4">AC-803-4</a></strong> - The walkthrough covers configuring the chosen account, not only naming a provider</p>
+  <p><em>Given</em> a hosting choice the owner has made</p>
+  <p><em>When</em> the walkthrough continues past the choice</p>
+  <p><em>Then</em> the guidance requires it to cover configuring the account - accounts, tokens and CLI setup - not just naming a provider</p>
+</div></section>
+  <section class="field-list"><h4>Context requirements</h4><p><strong>TACs:</strong> <a href="#TAC-008">TAC-008</a></p>
+<p><strong>ADRs:</strong> <a href="#ADR-007">ADR-007</a></p></section>
+  
+  <p><strong>Estimated size:</strong> medium</p>
+  <p><strong>Estimated hours:</strong> 7</p>
+  <section class="field-list"><h4>Deliverables</h4><ul><li>Elicitation playbook: early deploy-target item and stack-constraint rule</li><li>Elicitation playbook: jargon-free hosting-choice walkthrough with honest account-holder-step isolation</li><li>Harness fragment rule: no stack before the deploy target is established</li><li>Guidance drift tests for the new content invariants</li></ul></section>
+  <p><strong>Risk level:</strong> medium</p>
+  <p><strong>Build order:</strong> 13</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Notes:</strong> Implements US-802 and US-803. Targets the elicitation surface; pairs with FBS-014 on the build/verification surface. Deploy-target elicitation lives in the agent playbook, not the rcf init CLI prompts, which the v0.2.1 UX pass (PR #38) deliberately reduced to project-name-only.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:05:46.788Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:05:46.788Z&quot;,
+  &quot;summary&quot;: &quot;Harden the elicitation guidance so the deploy target is established early and constrains the stack, and so an owner who does not know their hosting is walked through choosing and configuring one in plain language. Edits the elicitation playbook and the harness fragment; no runtime subsystem.&quot;,
+  &quot;approach&quot;: &quot;In the elicitation playbook, add an early deploy-target elicitation item (asked before any stack is committed) and require the stack to be constrained by the answer and the decision captured as a project ADR. Add a hosting-choice walkthrough for the unsure owner: plain-language options, configuration steps (accounts, tokens, CLI), and honest isolation of the human-account-holder-only steps, modelled on the run-03 impersonation-refusal framing. Add a harness-fragment rule that a stack must not be committed before the deploy target is established. Extend the guidance drift tests to assert the new content invariants. All changes are to shipped guidance/prompt surface; the deploy target is elicited by the agent, not by rcf init (init is bootstrap-only since the v0.2.1 UX pass).&quot;,
+  &quot;deliverables&quot;: [
+    &quot;Elicitation playbook: early deploy-target item and stack-constraint rule&quot;,
+    &quot;Elicitation playbook: jargon-free hosting-choice walkthrough with honest account-holder-step isolation&quot;,
+    &quot;Harness fragment rule: no stack before the deploy target is established&quot;,
+    &quot;Guidance drift tests for the new content invariants&quot;
+  ],
+  &quot;estimatedSize&quot;: &quot;medium&quot;,
+  &quot;estimatedHours&quot;: 7,
+  &quot;riskLevel&quot;: &quot;medium&quot;,
+  &quot;domain&quot;: &quot;guidance&quot;,
+  &quot;notes&quot;: &quot;Implements US-802 and US-803. Targets the elicitation surface; pairs with FBS-014 on the build/verification surface. Deploy-target elicitation lives in the agent playbook, not the rcf init CLI prompts, which the v0.2.1 UX pass (PR #38) deliberately reduced to project-name-only.&quot;,
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [
+      &quot;TAC-008&quot;
+    ],
+    &quot;adrIds&quot;: [
+      &quot;ADR-007&quot;
+    ]
+  },
+  &quot;acIds&quot;: [
+    &quot;AC-802-1&quot;,
+    &quot;AC-802-2&quot;,
+    &quot;AC-802-3&quot;,
+    &quot;AC-802-4&quot;,
+    &quot;AC-803-1&quot;,
+    &quot;AC-803-2&quot;,
+    &quot;AC-803-3&quot;,
+    &quot;AC-803-4&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-013&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 13,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;Deploy-aware elicitation and hosting guidance&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-014">
+  <summary><span class="summary-label">FBS-014 - Local-preview default, runtime-honest verification, interim self-review</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-014" class="doc doc-fbs">
+  <h3>FBS-014 - Local-preview default, runtime-honest verification, interim self-review</h3>
+  
+  <p><strong>Summary:</strong> Harden the build-cycle guidance so every build lands a documented local preview as its default outcome, every verification claim names the runtime it was checked against, and the method carries interim fresh-context self-review guidance. Edits the build-cycle playbook, the build-cycle contract and the harness fragment; no runtime subsystem.</p>
+  <p><strong>Approach:</strong> In the build-cycle guidance, make a working, documented local preview loop (dev server, seeded data where needed, ideally one command) a required, hosting-independent part of a build&#39;s definition of done. Require every &#39;verified&#39;/&#39;tested&#39; claim - in the Test and Finalise stages and in the PR body&#39;s verification section - to name the runtime it was checked against, forbid any claim implying deploy-runtime verification that did not happen, and add an explicit labelled-claim example. Add an interim self-review section describing a periodic and end-of-build fresh-context reviewer dispatch that drives the app against its ACs, targeting session-class bugs, false-promise UI, runtime mismatch, dead auth paths and dead code, scoped honestly as a stopgap until rcf-verify-lite and explicitly not the independent gate. Add matching harness-fragment rules and extend the guidance drift tests.</p>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-801-1">AC-801-1</a><a class="ac-pill" href="#AC-801-2">AC-801-2</a><a class="ac-pill" href="#AC-801-3">AC-801-3</a><a class="ac-pill" href="#AC-801-4">AC-801-4</a><a class="ac-pill" href="#AC-804-1">AC-804-1</a><a class="ac-pill" href="#AC-804-2">AC-804-2</a><a class="ac-pill" href="#AC-804-3">AC-804-3</a><a class="ac-pill" href="#AC-804-4">AC-804-4</a><a class="ac-pill" href="#AC-805-1">AC-805-1</a><a class="ac-pill" href="#AC-805-2">AC-805-2</a><a class="ac-pill" href="#AC-805-3">AC-805-3</a><a class="ac-pill" href="#AC-805-4">AC-805-4</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-801-1">AC-801-1</a></strong> - A build&#39;s definition of done requires a documented local preview loop as the default outcome</p>
+  <p><em>Given</em> the RCF build method as taught by the shipped guidance pack</p>
+  <p><em>When</em> a build reaches its definition of done</p>
+  <p><em>Then</em> the guidance requires a working, documented local preview loop (a dev server, and seeded data where the app needs it) to be present as the default deliverable</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-801-2">AC-801-2</a></strong> - The local preview is startable via a single documented command where the stack allows</p>
+  <p><em>Given</em> the shipped build guidance describing the local preview</p>
+  <p><em>When</em> it states how the owner starts the app</p>
+  <p><em>Then</em> it directs the build toward one documented command to start the preview wherever the stack makes a single command possible</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-801-3">AC-801-3</a></strong> - The local preview is produced whether or not a hosting target was stated</p>
+  <p><em>Given</em> an owner who has not stated a hosting target, or who asked for a recommendation instead</p>
+  <p><em>When</em> the build completes</p>
+  <p><em>Then</em> the guidance still requires the local preview to be produced as the default, not made conditional on a stated host</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-801-4">AC-801-4</a></strong> - The preview includes seeded data when the app needs data to be usable</p>
+  <p><em>Given</em> an application that needs data present to be exercisable</p>
+  <p><em>When</em> the local preview loop is produced</p>
+  <p><em>Then</em> the guidance requires seeded or sample data so the preview can actually be driven, not an empty shell</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-804-1">AC-804-1</a></strong> - Every verified or tested claim names the runtime it was checked against</p>
+  <p><em>Given</em> the shipped build guidance on reporting verification</p>
+  <p><em>When</em> a &#39;verified&#39; or &#39;tested&#39; claim is made</p>
+  <p><em>Then</em> the guidance requires the claim to name the runtime it was checked against</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-804-2">AC-804-2</a></strong> - No claim implies deploy-runtime verification that did not happen</p>
+  <p><em>Given</em> a verification that ran against a local or emulated runtime</p>
+  <p><em>When</em> the claim is written</p>
+  <p><em>Then</em> the guidance forbids the claim from stating or implying verification on a deployed runtime that was not exercised</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-804-3">AC-804-3</a></strong> - The PR-authoring guidance requires the runtime label in the verification section</p>
+  <p><em>Given</em> the build-cycle PR-authoring guidance</p>
+  <p><em>When</em> the verification section of a PR body is authored</p>
+  <p><em>Then</em> it requires each verification claim to carry the runtime it was checked against</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-804-4">AC-804-4</a></strong> - The guidance includes an explicit labelled-claim example</p>
+  <p><em>Given</em> the shipped build guidance</p>
+  <p><em>When</em> it illustrates a verification claim</p>
+  <p><em>Then</em> it includes an explicit example naming the runtime (for example &#39;verified against wrangler dev (localhost) - NOT the deployed Worker runtime&#39;)</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-805-1">AC-805-1</a></strong> - The guidance describes a periodic and end-of-build fresh-context self-review dispatch</p>
+  <p><em>Given</em> the shipped build guidance</p>
+  <p><em>When</em> it describes the self-review</p>
+  <p><em>Then</em> it describes a fresh-context manual-review subagent dispatch run periodically (every few FBS builds) and once at the end of the build</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-805-2">AC-805-2</a></strong> - The reviewer drives the app against the acceptance criteria rather than reading the code</p>
+  <p><em>Given</em> the self-review guidance</p>
+  <p><em>When</em> it states what the reviewer does</p>
+  <p><em>Then</em> it requires the reviewer to drive the running application against its acceptance criteria, not to read the code</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-805-3">AC-805-3</a></strong> - The review targets the named defect classes</p>
+  <p><em>Given</em> the self-review guidance</p>
+  <p><em>When</em> it states what the review looks for</p>
+  <p><em>Then</em> it names the target defect classes: session-class bugs, false-promise UI, runtime mismatch (localhost versus deployed), dead auth paths and dead code</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-805-4">AC-805-4</a></strong> - The guidance scopes the self-review honestly as an interim stopgap and not the independent gate</p>
+  <p><em>Given</em> the self-review guidance</p>
+  <p><em>When</em> it frames the review</p>
+  <p><em>Then</em> it states plainly that this is interim guidance until rcf-verify-lite exists, is guidance and not a new subsystem, and is not the independent verification gate</p>
+</div></section>
+  <section class="field-list"><h4>Context requirements</h4><p><strong>TACs:</strong> <a href="#TAC-008">TAC-008</a>, <a href="#TAC-005">TAC-005</a></p>
+<p><strong>ADRs:</strong> <a href="#ADR-006">ADR-006</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a></p></section>
+  
+  <p><strong>Estimated size:</strong> large</p>
+  <p><strong>Estimated hours:</strong> 12</p>
+  <section class="field-list"><h4>Deliverables</h4><ul><li>Build-cycle guidance: local preview loop as default, hosting-independent definition-of-done item</li><li>Build-cycle and PR-authoring guidance: runtime-provenance labelling with a worked example</li><li>Build-cycle guidance: interim self-review section, honestly scoped away from the independent gate</li><li>Harness fragment rules and guidance drift tests for the new invariants</li></ul></section>
+  <p><strong>Risk level:</strong> medium</p>
+  <p><strong>Build order:</strong> 14</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Notes:</strong> Implements US-801, US-804 and US-805. Targets the build/verification surface; pairs with FBS-013 on the elicitation surface. Self-review is guidance/docs only, not a new subsystem (ADR-009).</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-20T17:05:46.941Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-20T17:05:46.941Z&quot;,
+  &quot;summary&quot;: &quot;Harden the build-cycle guidance so every build lands a documented local preview as its default outcome, every verification claim names the runtime it was checked against, and the method carries interim fresh-context self-review guidance. Edits the build-cycle playbook, the build-cycle contract and the harness fragment; no runtime subsystem.&quot;,
+  &quot;approach&quot;: &quot;In the build-cycle guidance, make a working, documented local preview loop (dev server, seeded data where needed, ideally one command) a required, hosting-independent part of a build&#39;s definition of done. Require every &#39;verified&#39;/&#39;tested&#39; claim - in the Test and Finalise stages and in the PR body&#39;s verification section - to name the runtime it was checked against, forbid any claim implying deploy-runtime verification that did not happen, and add an explicit labelled-claim example. Add an interim self-review section describing a periodic and end-of-build fresh-context reviewer dispatch that drives the app against its ACs, targeting session-class bugs, false-promise UI, runtime mismatch, dead auth paths and dead code, scoped honestly as a stopgap until rcf-verify-lite and explicitly not the independent gate. Add matching harness-fragment rules and extend the guidance drift tests.&quot;,
+  &quot;deliverables&quot;: [
+    &quot;Build-cycle guidance: local preview loop as default, hosting-independent definition-of-done item&quot;,
+    &quot;Build-cycle and PR-authoring guidance: runtime-provenance labelling with a worked example&quot;,
+    &quot;Build-cycle guidance: interim self-review section, honestly scoped away from the independent gate&quot;,
+    &quot;Harness fragment rules and guidance drift tests for the new invariants&quot;
+  ],
+  &quot;estimatedSize&quot;: &quot;large&quot;,
+  &quot;estimatedHours&quot;: 12,
+  &quot;riskLevel&quot;: &quot;medium&quot;,
+  &quot;domain&quot;: &quot;guidance&quot;,
+  &quot;notes&quot;: &quot;Implements US-801, US-804 and US-805. Targets the build/verification surface; pairs with FBS-013 on the elicitation surface. Self-review is guidance/docs only, not a new subsystem (ADR-009).&quot;,
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [
+      &quot;TAC-008&quot;,
+      &quot;TAC-005&quot;
+    ],
+    &quot;adrIds&quot;: [
+      &quot;ADR-006&quot;,
+      &quot;ADR-008&quot;,
+      &quot;ADR-009&quot;
+    ]
+  },
+  &quot;acIds&quot;: [
+    &quot;AC-801-1&quot;,
+    &quot;AC-801-2&quot;,
+    &quot;AC-801-3&quot;,
+    &quot;AC-801-4&quot;,
+    &quot;AC-804-1&quot;,
+    &quot;AC-804-2&quot;,
+    &quot;AC-804-3&quot;,
+    &quot;AC-804-4&quot;,
+    &quot;AC-805-1&quot;,
+    &quot;AC-805-2&quot;,
+    &quot;AC-805-3&quot;,
+    &quot;AC-805-4&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-014&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 14,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;Local-preview default, runtime-honest verification, interim self-review&quot;,
+  &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
 </article>

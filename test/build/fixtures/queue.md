@@ -16,7 +16,9 @@ Generation strategy: dependencyFirst
 | 10 | FBS-010 | Build adapter prompt assembly | complete | complete |  |
 | 11 | FBS-011 | Mark-done on completion | complete | complete |  |
 | 12 | FBS-012 | MCP server over the full surface | complete | complete |  |
+| 13 | FBS-013 | Deploy-aware elicitation and hosting guidance | notStarted | actionable |  |
+| 14 | FBS-014 | Local-preview default, runtime-honest verification, interim self-review | notStarted | actionable |  |
 
-Totals: items 12 | notStarted 0 | inProgress 0 | complete 12 | verified 0 | actionable 0 | blocked 0
+Totals: items 14 | notStarted 2 | inProgress 0 | complete 12 | verified 0 | actionable 2 | blocked 0
 
-Next actionable: none
+Next actionable: FBS-013

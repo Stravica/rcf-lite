@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-049",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-805-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:32.280Z",
+  "updatedAt": "2026-07-20T18:04:08.867Z",
+  "title": "Self-review honestly scoped as interim, not the gate",
+  "description": "Playbook s16 scopes the review as interim guidance, not a subsystem, not the independent gate (AC-805-4)."
+}

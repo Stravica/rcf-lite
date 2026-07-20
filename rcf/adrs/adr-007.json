@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-07-20T17:03:19.405Z",
+  "updatedAt": "2026-07-20T17:56:46.538Z",
+  "context": "Elicitation ran to a full RCF tree without ever establishing where the application would run. In run 03 the agent silently committed an entire Node-plus-node:sqlite stack that the owner's Cloudflare-only holdings could not host, dead-ending at deploy with no flag; run 04 chose the same incompatible stack class but disclosed it, and the difference was traced to that persona's contract forcing hosting into the spec early. The stack is a load-bearing architecture decision being made for a user who cannot judge it, and making it before the deploy target is known is how the G9 silent-architecture failure happens.",
+  "decision": "Elicitation establishes the deploy target early - a first-class elicitation item asked before the stack is committed, not inferred late - and the stack choice is constrained by the answer. When the owner does not know where it will run, the agent runs a jargon-free hosting-choice walkthrough (ADR captured separately in the guidance) rather than choosing silently. The deploy target and the stack constraint it implies are captured as an ADR on the project's own tree so the decision is visible and revisable.",
+  "consequences": "The stack the tool builds can actually be hosted where the owner can host it, and the hosting decision is surfaced instead of buried. Elicitation gains an early question the lite method did not previously carry, and the harness fragment gains a rule that a stack must not be committed before the deploy target is established. The cost is a small increase in elicitation length up front, paid back many times over against a dead-end at deploy the owner cannot diagnose.",
+  "alternativesConsidered": [
+    {
+      "name": "Infer hosting from the stack later",
+      "summary": "Let the agent pick a stack on technical merit and determine hosting afterwards.",
+      "reasonNotChosen": "Produced the run-03 dead-end: a stack chosen before hosting is a stack that may have no host, discovered only at deploy."
+    },
+    {
+      "name": "Always ask the owner to choose a host explicitly",
+      "summary": "Require the owner to name a hosting provider during elicitation.",
+      "reasonNotChosen": "The target user often does not know the options; a bare demand to choose freezes them. The guidance must walk an unsure owner through choosing, not just ask."
+    }
+  ],
+  "adrId": "ADR-007",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Deploy target is elicited early and constrains the stack"
+}

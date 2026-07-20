@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-041",
+  "path": "guidance/elicitation-playbook.md",
+  "implementsAcIds": [
+    "AC-803-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:31.006Z",
+  "updatedAt": "2026-07-20T18:04:07.584Z",
+  "title": "Walkthrough configures the account, not just names a provider",
+  "description": "Elicitation s6 covers account/token/CLI configuration past the provider choice (AC-803-4)."
+}

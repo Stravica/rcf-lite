@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-07-20T17:04:24.904Z",
+  "updatedAt": "2026-07-20T17:10:46.220Z",
+  "description": "The method carries interim guidance for a periodic and end-of-build fresh-context self-review that drives the app against its acceptance criteria to catch the defect classes green test suites miss, honestly scoped as a stopgap until the independent verification gate exists.",
+  "asA": "non-coding product owner",
+  "iWant": "the build to include a periodic fresh look that actually drives the app against what it is supposed to do",
+  "soThat": "defects my passing tests miss are caught before I rely on the result",
+  "usId": "US-805",
+  "prdId": "PRD-001",
+  "reqId": "REQ-008",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Interim self-review guidance",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-805-1",
+      "description": "The guidance describes a periodic and end-of-build fresh-context self-review dispatch",
+      "given": "the shipped build guidance",
+      "when": "it describes the self-review",
+      "then": "it describes a fresh-context manual-review subagent dispatch run periodically (every few FBS builds) and once at the end of the build",
+      "testable": true
+    },
+    {
+      "id": "AC-805-2",
+      "description": "The reviewer drives the app against the acceptance criteria rather than reading the code",
+      "given": "the self-review guidance",
+      "when": "it states what the reviewer does",
+      "then": "it requires the reviewer to drive the running application against its acceptance criteria, not to read the code",
+      "testable": true
+    },
+    {
+      "id": "AC-805-3",
+      "description": "The review targets the named defect classes",
+      "given": "the self-review guidance",
+      "when": "it states what the review looks for",
+      "then": "it names the target defect classes: session-class bugs, false-promise UI, runtime mismatch (localhost versus deployed), dead auth paths and dead code",
+      "testable": true
+    },
+    {
+      "id": "AC-805-4",
+      "description": "The guidance scopes the self-review honestly as an interim stopgap and not the independent gate",
+      "given": "the self-review guidance",
+      "when": "it frames the review",
+      "then": "it states plainly that this is interim guidance until rcf-verify-lite exists, is guidance and not a new subsystem, and is not the independent verification gate",
+      "testable": true
+    }
+  ],
+  "tacIds": []
+}

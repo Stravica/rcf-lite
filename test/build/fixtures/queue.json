@@ -7,15 +7,15 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 12,
-    "notStarted": 0,
+    "items": 14,
+    "notStarted": 2,
     "inProgress": 0,
     "complete": 12,
     "verified": 0,
-    "actionable": 0,
+    "actionable": 2,
     "blocked": 0
   },
-  "nextActionable": null,
+  "nextActionable": "FBS-013",
   "items": [
     {
       "fbsId": "FBS-001",
@@ -148,6 +148,24 @@
         "FBS-010"
       ],
       "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-013",
+      "buildOrder": 13,
+      "title": "Deploy-aware elicitation and hosting guidance",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-014",
+      "buildOrder": 14,
+      "title": "Local-preview default, runtime-honest verification, interim self-review",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
       "blockedBy": []
     }
   ]

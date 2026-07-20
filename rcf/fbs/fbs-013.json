@@ -1,0 +1,42 @@
+{
+  "createdAt": "2026-07-20T17:05:46.788Z",
+  "updatedAt": "2026-07-20T17:05:46.788Z",
+  "summary": "Harden the elicitation guidance so the deploy target is established early and constrains the stack, and so an owner who does not know their hosting is walked through choosing and configuring one in plain language. Edits the elicitation playbook and the harness fragment; no runtime subsystem.",
+  "approach": "In the elicitation playbook, add an early deploy-target elicitation item (asked before any stack is committed) and require the stack to be constrained by the answer and the decision captured as a project ADR. Add a hosting-choice walkthrough for the unsure owner: plain-language options, configuration steps (accounts, tokens, CLI), and honest isolation of the human-account-holder-only steps, modelled on the run-03 impersonation-refusal framing. Add a harness-fragment rule that a stack must not be committed before the deploy target is established. Extend the guidance drift tests to assert the new content invariants. All changes are to shipped guidance/prompt surface; the deploy target is elicited by the agent, not by rcf init (init is bootstrap-only since the v0.2.1 UX pass).",
+  "deliverables": [
+    "Elicitation playbook: early deploy-target item and stack-constraint rule",
+    "Elicitation playbook: jargon-free hosting-choice walkthrough with honest account-holder-step isolation",
+    "Harness fragment rule: no stack before the deploy target is established",
+    "Guidance drift tests for the new content invariants"
+  ],
+  "estimatedSize": "medium",
+  "estimatedHours": 7,
+  "riskLevel": "medium",
+  "domain": "guidance",
+  "notes": "Implements US-802 and US-803. Targets the elicitation surface; pairs with FBS-014 on the build/verification surface. Deploy-target elicitation lives in the agent playbook, not the rcf init CLI prompts, which the v0.2.1 UX pass (PR #38) deliberately reduced to project-name-only.",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-008"
+    ],
+    "adrIds": [
+      "ADR-007"
+    ]
+  },
+  "acIds": [
+    "AC-802-1",
+    "AC-802-2",
+    "AC-802-3",
+    "AC-802-4",
+    "AC-803-1",
+    "AC-803-2",
+    "AC-803-3",
+    "AC-803-4"
+  ],
+  "fbsId": "FBS-013",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 13,
+  "executionStatus": "notStarted",
+  "title": "Deploy-aware elicitation and hosting guidance",
+  "dependsOnFbsIds": []
+}

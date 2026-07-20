@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-044",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-804-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:31.501Z",
+  "updatedAt": "2026-07-20T18:04:08.042Z",
+  "title": "PR verification section carries the runtime label",
+  "description": "Playbook s12 requires the runtime label on each PR-body verification claim (AC-804-3)."
+}

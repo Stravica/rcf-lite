@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-036",
+  "path": "guidance/elicitation-playbook.md",
+  "implementsAcIds": [
+    "AC-802-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:30.241Z",
+  "updatedAt": "2026-07-20T18:04:06.805Z",
+  "title": "Deploy-target decision captured as an ADR",
+  "description": "Elicitation s6 requires the target and its stack constraint to be recorded as a project ADR (AC-802-3)."
+}

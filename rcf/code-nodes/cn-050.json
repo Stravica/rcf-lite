@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-050",
+  "path": "test/guidance/tier1-hardening.test.js",
+  "implementsAcIds": [
+    "AC-801-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:32.438Z",
+  "updatedAt": "2026-07-20T18:04:09.027Z",
+  "title": "Drift test: local-preview default outcome",
+  "description": "Tier-1 drift test asserts the local-preview definition-of-done invariant (AC-801-1)."
+}

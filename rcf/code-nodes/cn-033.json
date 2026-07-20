@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-033",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-801-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:29.782Z",
+  "updatedAt": "2026-07-20T18:04:06.341Z",
+  "title": "Seeded-data local preview",
+  "description": "Playbook s14 requires seeded/sample data so the preview is drivable, not an empty shell (AC-801-4)."
+}

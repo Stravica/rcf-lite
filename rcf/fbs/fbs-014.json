@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-07-20T17:05:46.941Z",
+  "updatedAt": "2026-07-20T17:05:46.941Z",
+  "summary": "Harden the build-cycle guidance so every build lands a documented local preview as its default outcome, every verification claim names the runtime it was checked against, and the method carries interim fresh-context self-review guidance. Edits the build-cycle playbook, the build-cycle contract and the harness fragment; no runtime subsystem.",
+  "approach": "In the build-cycle guidance, make a working, documented local preview loop (dev server, seeded data where needed, ideally one command) a required, hosting-independent part of a build's definition of done. Require every 'verified'/'tested' claim - in the Test and Finalise stages and in the PR body's verification section - to name the runtime it was checked against, forbid any claim implying deploy-runtime verification that did not happen, and add an explicit labelled-claim example. Add an interim self-review section describing a periodic and end-of-build fresh-context reviewer dispatch that drives the app against its ACs, targeting session-class bugs, false-promise UI, runtime mismatch, dead auth paths and dead code, scoped honestly as a stopgap until rcf-verify-lite and explicitly not the independent gate. Add matching harness-fragment rules and extend the guidance drift tests.",
+  "deliverables": [
+    "Build-cycle guidance: local preview loop as default, hosting-independent definition-of-done item",
+    "Build-cycle and PR-authoring guidance: runtime-provenance labelling with a worked example",
+    "Build-cycle guidance: interim self-review section, honestly scoped away from the independent gate",
+    "Harness fragment rules and guidance drift tests for the new invariants"
+  ],
+  "estimatedSize": "large",
+  "estimatedHours": 12,
+  "riskLevel": "medium",
+  "domain": "guidance",
+  "notes": "Implements US-801, US-804 and US-805. Targets the build/verification surface; pairs with FBS-013 on the elicitation surface. Self-review is guidance/docs only, not a new subsystem (ADR-009).",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-008",
+      "TAC-005"
+    ],
+    "adrIds": [
+      "ADR-006",
+      "ADR-008",
+      "ADR-009"
+    ]
+  },
+  "acIds": [
+    "AC-801-1",
+    "AC-801-2",
+    "AC-801-3",
+    "AC-801-4",
+    "AC-804-1",
+    "AC-804-2",
+    "AC-804-3",
+    "AC-804-4",
+    "AC-805-1",
+    "AC-805-2",
+    "AC-805-3",
+    "AC-805-4"
+  ],
+  "fbsId": "FBS-014",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 14,
+  "executionStatus": "notStarted",
+  "title": "Local-preview default, runtime-honest verification, interim self-review",
+  "dependsOnFbsIds": []
+}

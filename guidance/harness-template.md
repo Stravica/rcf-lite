@@ -4,7 +4,7 @@
 
 The block that wires an agent into the RCF loop. **The golden path is `rcf init`**: it writes this fragment into your project's agent-instructions files automatically - **both `CLAUDE.md` and `AGENTS.md` on a fresh project** (vendor-neutral by default), or an existing instructions file refreshed in place - inside `<!-- rcf:begin -->` / `<!-- rcf:end -->` markers so re-running init refreshes it. Paste it by hand only if you skipped the bootstrap (`rcf init --no-agent-setup`) or your harness reads instructions from somewhere non-standard. The fragment is complete as shipped and names no specific harness.
 
-These are operating rules for the agent, not suggestions. They exist because the failure modes are known: agents fabricate documents single-shot instead of asking, silently drop the tech or test layer, declare scaffold TODOs "done", stop after one build item instead of driving the queue, and patch a reported bug in code without fixing the spec that let it through. The fragment forecloses each.
+These are operating rules for the agent, not suggestions. They exist because the failure modes are known: agents fabricate documents single-shot instead of asking, silently drop the tech or test layer, declare scaffold TODOs "done", stop after one build item instead of driving the queue, patch a reported bug in code without fixing the spec that let it through, commit a technology stack the owner's hosting cannot run before anyone asked where the app would run, ship with nothing the owner can actually run without a deploy, and claim a result is "verified" against a runtime the check never touched. The fragment forecloses each.
 
 ## The fragment
 
@@ -46,6 +46,37 @@ RULE 4 - A reported bug is a spec gap first.
   chain catches this class of bug, THEN fix the code against the
   corrected spec.
 
+RULE 5 - Deploy target before stack; never commit a stack blind.
+- A technology stack must NOT be committed before the deploy target is
+  established. Where the app will run is elicited early, and the stack is
+  constrained to what that target can host. Choosing a stack the owner's
+  hosting cannot run is a method violation, not a technical preference.
+- If the owner does not know where it will run, run the hosting-choice
+  walkthrough in the elicitation playbook - plain language, no silent
+  pick - and isolate the sign-up / billing / token / CLI-auth steps as
+  the human account-holder's to do. Do not perform or pretend them.
+- Capture the deploy target and the stack constraint it implies as an ADR
+  on the project's own tree.
+
+RULE 6 - Every build lands a local preview.
+- A build is not done until it leaves a working, documented local preview
+  as its default outcome - a dev server, seeded data where the app needs
+  it, ideally started with one documented command. This holds whether or
+  not a host was named and whether or not a deploy happened; remote
+  deployment is an addition on top of local preview, never a replacement
+  for it.
+
+RULE 7 - Verification claims name their runtime.
+- Every "verified" or "tested" claim - in the Test and Finalise stages
+  and in the PR body's verification section - names the runtime it was
+  checked against (for example "verified against wrangler dev (localhost)
+  - NOT the deployed Worker runtime"). A claim with no named runtime is
+  incomplete.
+- Never state or imply verification on a deployed runtime that was not
+  exercised. A green test suite is evidence about the runtime it ran on
+  and nothing more; a ship verdict comes only from the deployed runtime
+  or a declared runtime-parity claim.
+
 Session start:
 - Run rcf validate. A broken tree is fixed or reported before anything
   else.
@@ -68,6 +99,10 @@ Build loop:
   rcf impact <id> before touching anything with dependents.
 - PR bodies are evidence-first: lead with what was verified and how,
   traced to AC / FBS ids, not a diff walk.
+- Run the interim fresh-context self-review (build-cycle playbook) every
+  few FBS builds and once at the end: a reviewer that drives the running
+  app against its ACs, not one that reads the code. It is an interim
+  stopgap until rcf-verify-lite, not the independent verification gate.
 - If context gets unreliable on a large build, do not stall. Write a
   next-session handover doc (queue state, the in-progress item, the next
   actionable id), add a line to this file pointing the next session at
@@ -95,6 +130,10 @@ prompt for elicitation, AC coverage depth and conversation integrity.
 ## Customisation points
 
 Two, and only two, are intended tuning: the optional PR-convention line at the end of the fragment, and your commit cadence if the driving workflow batches differently. Everything else is the method; editing it means running a different method. The RULE blocks in particular are load-bearing - they exist to stop observed failure modes.
+
+## Known limitation - the fragment has to be present
+
+These rules only govern a session that loads this fragment. A project that was never initialised with `rcf init`, or whose fragment was stripped from `CLAUDE.md` / `AGENTS.md`, gets neither the deploy-target elicitation surface nor the runtime-provenance rules, and nothing here will flag its absence. Re-running `rcf init` restores the fragment; a session that cannot find it under the `<!-- rcf:begin -->` / `<!-- rcf:end -->` markers should say so rather than proceed as if the method were in force.
 
 ## Check it took
 

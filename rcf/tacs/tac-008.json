@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-07-20T17:01:52.768Z",
+  "updatedAt": "2026-07-20T17:01:52.768Z",
+  "purpose": "Ship the agent-facing method layer - the elicitation and build-cycle playbooks, the reference docs and the harness fragment - that teaches an AI agent how to run the RCF method well, served over MCP as resources and prompts and readable in place under guidance/.",
+  "responsibilities": [
+    "Carry the elicitation method (question frames, AC-depth bar, deploy-target elicitation, hosting-choice guidance) the eliciting agent runs with a human",
+    "Carry the build-cycle method (five stages, local-preview default outcome, runtime-provenance discipline, interim self-review) the operating agent runs per FBS",
+    "Carry the harness fragment rcf init writes into CLAUDE.md and AGENTS.md, whose RULE blocks foreclose observed failure modes",
+    "Keep every shipped claim, verb and channel address mechanically agreed with the tool via the drift tests"
+  ],
+  "internalStructure": "Static markdown files under guidance/, indexed by guidance/manifest.json which maps each file to one canonical MCP address (resources for reference docs, prompts for the playbooks). The harness fragment is a fenced block in harness-template.md that src/setup extracts and writes into agent-instructions files. Drift tests (test/guidance) assert content-and-inventory invariants so the pack and the tool cannot silently diverge.",
+  "interfaces": [
+    {
+      "name": "rcf_elicit_requirements",
+      "kind": "prompt",
+      "description": "The elicitation playbook, served as an MCP prompt to the eliciting agent."
+    },
+    {
+      "name": "rcf_execute_build_cycle",
+      "kind": "prompt",
+      "description": "The build-cycle playbook, served as an MCP prompt to the operating agent."
+    },
+    {
+      "name": "harness fragment",
+      "kind": "artifact",
+      "description": "The RULE-bearing block rcf init writes into CLAUDE.md and AGENTS.md."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "MCP server",
+      "kind": "tac",
+      "tacId": "TAC-006",
+      "description": "Serves the pack's docs as resources and playbooks as prompts over local stdio."
+    },
+    {
+      "name": "Build adapter",
+      "kind": "tac",
+      "tacId": "TAC-005",
+      "description": "The build-cycle method the pack teaches is executed against the bundles the build adapter assembles."
+    }
+  ],
+  "tradeoffs": "The pack is prose served to a model, not enforced code: it can teach a property (local preview, provenance labelling) but cannot mechanically compel it the way a schema compels document shape. Drift tests hold the pack honest against the tool's verbs and inventory; the method's behavioural properties are held by the RULE blocks and the ACs that require them, not by a runtime gate. The productised independent gate is out of scope here (see ADR-009).",
+  "notes": "Modelled as a component for the first time by the Tier-1 hardening set; the pack existed and shipped before this TAC captured it.",
+  "tacId": "TAC-008",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Agent guidance pack"
+}

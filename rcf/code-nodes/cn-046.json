@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-046",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-805-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:31.808Z",
+  "updatedAt": "2026-07-20T18:04:08.352Z",
+  "title": "Periodic and end-of-build fresh-context self-review",
+  "description": "Playbook s16 describes a fresh-context review subagent run periodically and at the end (AC-805-1)."
+}

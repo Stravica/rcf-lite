@@ -17,7 +17,8 @@
     "Traceability and query: coverage, trace forward, trace back, impact analysis",
     "SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge",
     "Local stdio MCP surface exposing query, CRUD, view and build to AI tooling",
-    "Validation of every document against the published schema package at every boundary"
+    "Validation of every document against the published schema package at every boundary",
+    "Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims"
   ],
   "outOfScope": [
     "The schema package itself, which is the separately published rcf-schemas contract",
@@ -42,5 +43,5 @@
     "MCP transport is local stdio only"
   ],
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-02T10:22:43Z"
+  "updatedAt": "2026-07-20T17:56:57.237Z"
 }

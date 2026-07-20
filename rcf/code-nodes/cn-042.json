@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-042",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-804-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:31.185Z",
+  "updatedAt": "2026-07-20T18:04:07.734Z",
+  "title": "Verification claims name their runtime",
+  "description": "Playbook s15 requires every verified/tested claim to name the runtime it was checked against (AC-804-1)."
+}

@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-07-20T17:03:19.245Z",
+  "updatedAt": "2026-07-20T17:56:46.383Z",
+  "context": "The tool's target user is a non-coding owner who cannot self-verify a deployed application. Across the persona programme the one thing every such user could always exercise was the app running locally; a deployment could dead-end (run 03), be accepted-not-deployed (run 04), or pass locally yet fail in production (run 05). A build whose only demonstrable outcome lives on a remote runtime the owner cannot inspect leaves them with nothing they can check.",
+  "decision": "Every build lands, as its default outcome, a working and documented local preview loop - a dev server, seeded data where the app needs it, ideally reachable in one command. This holds whether or not the owner has stated a hosting target and whether they asked for a recommendation or not; local-first is the rock-solid default, and remote deployment is an addition on top of it, never a replacement for it. The elicitation and build-cycle guidance both carry this as a required deliverable, and the definition of done for a build includes the preview loop being present and documented.",
+  "consequences": "The owner always has a runtime they can drive and review, independent of any cloud account or deploy step. Local preview also becomes the honest substrate for the runtime-provenance discipline (ADR-008): a claim verified against local preview can say so truthfully. The cost is that a working local preview does not prove the deployed runtime works - which is precisely why provenance labelling and the interim self-review exist alongside this decision, not instead of it.",
+  "alternativesConsidered": [
+    {
+      "name": "Deploy-first, preview optional",
+      "summary": "Treat a successful cloud deployment as the primary outcome and local preview as a nicety.",
+      "reasonNotChosen": "Strands owners whose deploy dead-ends or who decline to deploy, and hides defects behind a runtime they cannot inspect."
+    },
+    {
+      "name": "Preview only when the owner asks",
+      "summary": "Produce a local preview loop only when the owner explicitly requests one.",
+      "reasonNotChosen": "The owners who most need it are the least likely to know to ask; a default that depends on the user knowing the right question fails the target user."
+    }
+  ],
+  "adrId": "ADR-006",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Local-first preview is the default build outcome"
+}

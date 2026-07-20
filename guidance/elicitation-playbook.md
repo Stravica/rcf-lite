@@ -17,6 +17,7 @@ intent            -> PRD
 capabilities      -> REQ (per capability)
 per REQ           -> US (who wants it and why)
 per US            -> AC (testable statements of done)
+before any stack  -> deploy target (where it runs) -> ADR (section 6)
 as it emerges     -> TAC / ADR (architecture, captured or authored)
 then              -> BS / FBS (the ordered build queue)
 ```
@@ -164,7 +165,21 @@ Same story, one AC versus five. The extra four are not gold-plating - they are t
 
 ## 6. Capturing architecture as it emerges (TAC / ADR)
 
-Architecture statements surface mid-conversation; capture them when they do rather than scheduling an architecture phase.
+### Establish where it will run first, before any stack
+
+The deploy target is the first architectural question and it is asked **early - before any technology stack is named or committed.** "Where will this app actually run once it is built?" comes before "what shall we build it with", not after, and never by silent inference. This is a load-bearing decision made for an owner who usually cannot judge it: a stack chosen before the host is known is a stack that may have no host, discovered only at deploy, when it is most expensive to unwind.
+
+- **Ask it as its own item, early.** Put the deploy-target question in the conversation before the architecture takes any concrete shape. A one-line answer ("it lives on my Cloudflare account", "I've got Netlify", "it runs on my own machine") is enough to constrain everything downstream.
+- **Constrain the stack to the answer.** Once the target is known, the stack you choose (section below) must be one that target can actually host. Do not commit a stack the host cannot run - a Node-and-native-module stack on a Cloudflare-only account is the exact dead-end this rule exists to foreclose. If the only good stack for the app is incompatible with the stated host, that is a tradeoff to surface (section 11), not a silent override.
+- **Capture it as an ADR on the project's own tree.** Record the deploy target and the stack constraint it implies as an ADR, so the decision is visible and revisable rather than buried in the agent's head. `rcf create adr --parent TAD-001 --title "Deploy target: <where> - stack constrained to <what it can host>"`.
+
+### When the owner does not know: the hosting-choice walkthrough
+
+Many owners will not know their options. When the deploy-target question is reached and the owner does not know where the app will run, **do not choose silently and do not choose on technical merit alone** - run a plain-language hosting-choice walkthrough and let the owner make the call.
+
+- **Explain the options in plain language, no unexplained jargon.** Describe the realistic hosting choices for this kind of app in terms the owner can act on: what runs where, what each costs in effort and money, what each rules in or out. If a term has to appear ("static site", "serverless", "container"), define it in a phrase. A bare "pick a provider" freezes a non-expert; a walked choice does not.
+- **Cover configuring the account, not just naming a provider.** The walkthrough continues past "which provider" into standing the account up: creating the account, generating the tokens or keys the deploy needs, and the CLI setup that connects the local project to it. Naming a provider and stopping leaves the owner exactly as stuck as before.
+- **Isolate the human-only steps and name them honestly.** Sign-ups, billing and payment details, token generation, and CLI authentication are the account-holder's to do - they cannot be done by the agent and must not be pretended. Name each such step plainly as "this one is yours to do, here is exactly what to click", pause for the owner to do it, and continue. Never perform these silently, and never claim to have done something only the human can do. (This is the run-03 impersonation-refusal posture: the honest boundary is stated, not blurred.)
 
 Which document: a **TAC** is a lasting component - it has a purpose, responsibilities and interfaces ("the note store", "the CLI surface"). An **ADR** is a decision - it has a context, a decision and consequences ("notes are plain files on disk, not a database"). A statement about what exists is a TAC; a statement about what was chosen, where an alternative existed, is an ADR.
 

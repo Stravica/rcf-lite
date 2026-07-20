@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-07-20T17:04:24.594Z",
+  "updatedAt": "2026-07-20T17:10:45.914Z",
+  "description": "When the owner does not know where the application will run, the agent walks them through choosing and configuring a hosting account in plain language, honestly isolating the steps only the human account-holder can do, rather than choosing silently or pretending to act as them.",
+  "asA": "non-coding product owner who does not know my hosting options",
+  "iWant": "to be walked through choosing and setting up somewhere to run my app, in plain language",
+  "soThat": "I can make and act on the hosting decision without already being an expert",
+  "usId": "US-803",
+  "prdId": "PRD-001",
+  "reqId": "REQ-008",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Hosting-choice guidance when the owner is unsure",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-803-1",
+      "description": "When the owner does not know where the app will run, the agent runs a hosting-choice walkthrough rather than choosing silently",
+      "given": "an owner who does not know their hosting options",
+      "when": "the deploy-target question is reached",
+      "then": "the guidance directs the agent to run a hosting-choice walkthrough instead of silently selecting a host",
+      "testable": true
+    },
+    {
+      "id": "AC-803-2",
+      "description": "The walkthrough explains the options in plain language",
+      "given": "the hosting-choice walkthrough guidance",
+      "when": "it presents hosting options to the owner",
+      "then": "it requires plain-language explanation with no unexplained jargon",
+      "testable": true
+    },
+    {
+      "id": "AC-803-3",
+      "description": "Steps only the human account-holder can do are isolated and named honestly",
+      "given": "the walkthrough reaching steps only the account-holder can perform (sign-ups, billing, tokens, CLI authentication)",
+      "when": "those steps arise",
+      "then": "the guidance requires them to be isolated and named honestly as the human's to do, not performed silently by the agent nor pretended",
+      "testable": true
+    },
+    {
+      "id": "AC-803-4",
+      "description": "The walkthrough covers configuring the chosen account, not only naming a provider",
+      "given": "a hosting choice the owner has made",
+      "when": "the walkthrough continues past the choice",
+      "then": "the guidance requires it to cover configuring the account - accounts, tokens and CLI setup - not just naming a provider",
+      "testable": true
+    }
+  ],
+  "tacIds": []
+}

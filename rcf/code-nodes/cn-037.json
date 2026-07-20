@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-037",
+  "path": "guidance/harness-template.md",
+  "implementsAcIds": [
+    "AC-802-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:30.393Z",
+  "updatedAt": "2026-07-20T18:04:06.958Z",
+  "title": "Harness RULE 5: no stack before the deploy target",
+  "description": "harness-template RULE 5 forbids committing a stack before the deploy target is established (AC-802-4)."
+}

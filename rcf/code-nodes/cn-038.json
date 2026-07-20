@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-038",
+  "path": "guidance/elicitation-playbook.md",
+  "implementsAcIds": [
+    "AC-803-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:30.549Z",
+  "updatedAt": "2026-07-20T18:04:07.116Z",
+  "title": "Hosting-choice walkthrough over silent selection",
+  "description": "Elicitation s6 runs a walkthrough instead of choosing a host silently when the owner is unsure (AC-803-1)."
+}

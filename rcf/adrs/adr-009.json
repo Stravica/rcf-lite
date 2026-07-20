@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-07-20T17:03:19.722Z",
+  "updatedAt": "2026-07-20T17:56:46.846Z",
+  "context": "The persona programme showed self-verification is only as truthful as the runtime it verifies against, and that a green suite plus a confident claim can still ship a user-facing defect (runs 03 and 05). The durable answer is a productised independent verification gate (rcf-verify-lite), being scoped separately at HQ. But the base offering needs a stopgap now, and it must not pretend to be the independent gate: an in-loop self-review by the same agent is not an independent check and cannot be sold as one.",
+  "decision": "The guidance carries interim self-review guidance - documentation and prompt-level, not a new subsystem - for a carefully-scoped manual-review subagent dispatch: a periodic review every few FBS builds plus one at the end of the build. The reviewer runs fresh-context, drives the APP against the acceptance criteria rather than reading the code, and targets the defect classes green suites miss: session-class bugs, false-promise UI (stubs that imply real actions), runtime mismatch (localhost versus deployed), dead auth paths, and dead code. The guidance states plainly that this is an interim stopgap until rcf-verify-lite exists and that it is not the independent verification gate.",
+  "consequences": "The base offering gains a review step that catches the defect classes the five-stage loop demonstrably missed, at documentation cost and with no new code surface to maintain. Because it is guidance, it can ship now and be retired or folded into rcf-verify-lite later without a migration. The cost and the honesty boundary are the same point: a same-programme reviewer is better than nothing and weaker than an independent gate, and the guidance says so rather than overclaiming.",
+  "alternativesConsidered": [
+    {
+      "name": "Wait for rcf-verify-lite",
+      "summary": "Ship no review step until the productised independent gate exists.",
+      "reasonNotChosen": "Leaves the base offering shipping the exact defect classes the programme caught, for months, against users who cannot catch them themselves."
+    },
+    {
+      "name": "Build an independent-gate subsystem now",
+      "summary": "Solve the independent-verification problem inside rcf-build-lite immediately.",
+      "reasonNotChosen": "That is a separate product being scoped at HQ; duplicating it here pre-empts a repo reshape and over-builds the lite tier. The Tier-1 scope is guidance, not a gate."
+    }
+  ],
+  "adrId": "ADR-009",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Interim self-review is guidance, not the independent gate"
+}

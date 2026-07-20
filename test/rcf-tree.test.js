@@ -107,15 +107,16 @@ function loadAll() {
 const expectedCounts = {
   manifest: 1,
   prd: 1,
-  req: 7,
-  userStory: 19,
+  req: 8,
+  userStory: 24,
   tad: 1,
-  tac: 7,
-  adr: 5,
+  tac: 8,
+  adr: 9,
   buildSequence: 1,
-  fbs: 12,
+  fbs: 14,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
-  codeNode: 29,
+  // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
+  codeNode: 54,
 };
 
 test('expected file counts by category', () => {

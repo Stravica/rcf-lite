@@ -130,6 +130,7 @@ What good looks like:
 - CI green on the branch; PR raised and merged per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
 - `rcf build <fbs-id> --mark complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build <fbs-id> --mark complete --no-code-nodes` once.
 - `rcf build <fbs-id> --mark verified` after post-merge verification: the merged artefact observed doing the right thing, not just the pre-merge tests remembered fondly.
+- A working, documented local preview is present as the default outcome (section 14), and every verification claim in the PR names the runtime it was checked against (section 15). These are part of done, not extras.
 
 Referee: CI, plus the mark commands' own refusals (section 9).
 
@@ -313,7 +314,7 @@ When Finalise raises a PR, the body is for the reviewer - human or agent - and i
 **The body, in this order:**
 
 1. **What and why, traced.** What changed, mapped to the FBS and its in-scope ACs. The AC ids are the "why" - they are the spec this diff exists to satisfy, so a reviewer can check the diff against the promise, not against your description of it.
-2. **Verification actually performed.** Not "tests pass". State what you ran and what it reported: the test command and its result, `rcf coverage --with-code` (or a story-scoped `rcf coverage <us-id> --strict`) with the per-AC lines, `rcf validate` clean. Paste the outputs - they are the evidence, and pasted referee output is not something a reviewer has to take on trust.
+2. **Verification actually performed.** Not "tests pass". State what you ran and what it reported: the test command and its result, `rcf coverage --with-code` (or a story-scoped `rcf coverage <us-id> --strict`) with the per-AC lines, `rcf validate` clean. Paste the outputs - they are the evidence, and pasted referee output is not something a reviewer has to take on trust. **Every claim in this section names the runtime it was checked against** (section 15): "verified against the local preview", "e2e against wrangler dev (localhost)", "smoke-tested against the deployed runtime". A verification line with no named runtime is incomplete, and a line that implies the deployed runtime when the check never touched it is a defect, not a wording nicety.
 3. **Per-AC evidence trail.** For each in-scope AC: where it is satisfied (file and symbol) and the test that proves it. This is what `rcf coverage --with-code` and `rcf trace` already give you; lift it in rather than reprose it.
 4. **Known limits and deviations, declared.** Anything you escalated and how it was ruled, any deliberate deviation from the bundle and its reason, any gap the operator accepted. A declared limit survives review; the same limit found later by the reviewer is a defect and a trust hit.
 
@@ -329,9 +330,10 @@ FBS-012 - MCP server over the full surface. Satisfies AC-301-1, AC-301-2, AC-301
 - AC-301-3: ...
 
 ## Verification performed
-- <test command>: <result, e.g. 807 passing> (full suite)
+- <test command>: <result, e.g. 807 passing> (full suite) - runtime: <e.g. Node 24 on CI (local-dev), NOT the deployed runtime>
 - rcf coverage --with-code: in-scope ACs covered, per-AC lines below
 - rcf validate: tree is clean
+- local preview: <how it was started and what was driven, e.g. `npm run dev`, seeded data, exercised path X>
 <paste the referee outputs here>
 
 ## Per-AC evidence
@@ -357,3 +359,48 @@ A bug that reached a build is a bug a test did not catch, which is a behaviour a
 4. **Fix the code against the corrected spec,** and prove it with the new test - the one that would have failed before your change and passes after it.
 
 **Escalation:** if strengthening the AC changes agreed behaviour rather than closing an obvious gap, that is a spec decision, not a silent redraw. Surface it (section 8) before you change it. Tightening "returns an empty list on no match" onto an existing search AC is closing a gap; changing what the feature is supposed to do is a decision for the operator.
+
+## 14. Local preview is part of done
+
+The target user is a non-coding owner who cannot self-verify a deployed app. The one runtime such an owner can always drive is the app running locally, so **a working, documented local preview is the default outcome of every build** - not a nicety, and not conditional on a deploy.
+
+- **It is part of the definition of done.** A build is not finished until it leaves a local preview the owner can start and drive: a dev server, and seeded or sample data where the app needs data to be exercisable at all (an empty shell is not a usable preview). Treat "the owner has something they can run and look at" as a completion criterion alongside green CI.
+- **One documented command where the stack allows.** Drive the build toward a single documented command to start the preview - `npm run dev`, `make dev`, one `docker compose up`, whatever the stack makes possible - and document it. Where a stack genuinely cannot reduce to one command, document the shortest real sequence; the bar is "documented and startable by a non-expert", and one command is the target.
+- **Produced whether or not a host was named.** The local preview is the hosting-independent default. Produce it even when the owner has not stated a deploy target, or asked for a recommendation instead of naming one, or declined to deploy at all. It is never made conditional on a stated host - remote deployment is an addition on top of the local preview, never a replacement for it.
+- **Seeded so it can actually be driven.** If the app needs data to be usable, the preview ships with seeded or sample data so the owner can exercise it immediately, not stare at an empty screen and conclude nothing was built.
+
+The local preview is also the honest substrate for runtime-provenance (section 15): a claim verified against the local preview can say exactly that, truthfully, because the owner can re-run it.
+
+## 15. Runtime-provenance: name what you verified against
+
+A green suite plus a confident "verified" claim shipped a production auth 500 while every test passed - because the tests ran on a local emulator that did not enforce a limit the deployed runtime does. The failure was not laziness, it was provenance: a claim implied a runtime it had never touched. A non-coding owner cannot tell "verified against the deployed runtime" from "verified against a local emulator", so **the claim itself carries the distinction.**
+
+- **Every "verified"/"tested" claim names the runtime it was checked against.** In the Test and Finalise stages and in the PR body's verification section, a verification claim without a named runtime is treated as incomplete - the same way an uncovered AC is treated as incomplete.
+- **No claim may state or imply deploy-runtime verification that did not happen.** If the check ran on a local or emulated runtime, the claim says so and stops there. "Works" with no runtime, or a phrasing that lets the reader assume the deployed target, is a defect - and a deliberately less-reassuring honest claim is the point: the unlabelled claim was falsely reassuring.
+- **Use the runtime-profile vocabulary, do not invent a new one.** Name the runtime with the same profiles the verification model uses: **`deployed`** (the real deployed target), **`ci`** (the CI runner), and **`local-dev`** (a local server or emulator on your machine). A **ship verdict comes only from `deployed`, or from a `local-dev`/`ci` result plus an explicitly declared parity claim** that the lower profile matches the deployed one on the property in question. A bare lower-profile pass is evidence about that profile and nothing more.
+
+Worked examples - the same discipline, two different stacks, so it reads deploy-anywhere and not tool-specific:
+
+```
+Cloudflare Worker:
+  "e2e passed - verified against wrangler dev (localhost, local-dev profile)
+   - NOT the deployed Worker runtime. wrangler dev does not enforce the edge
+   PBKDF2 iteration cap, so this is NOT a ship verdict for auth."
+
+Node app on Vercel:
+  "signup flow verified against `vite preview` on localhost (local-dev profile)
+   - NOT the deployed Vercel Function runtime. Cold-start and env-var behaviour
+   on the deployed profile are unverified; ship verdict pending a deployed check
+   or a declared parity claim."
+```
+
+Both name the runtime, both refuse to imply the deployed profile, and both say plainly what is still unproven.
+
+## 16. Interim fresh-context self-review
+
+Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The durable fix is a productised independent verification gate (rcf-verify-lite), scoped separately. Until it exists, the method carries an **interim self-review** - and it is careful never to pretend to be that gate.
+
+- **What it is: a fresh-context reviewer dispatch, periodic and at the end.** Run a manual-review subagent in a fresh context **every few FBS builds** and **once more at the end of the build**. Fresh context matters: a reviewer carrying the build's own assumptions re-confirms them; a reviewer starting cold does not.
+- **It drives the app, it does not read the code.** The reviewer starts the running application (the local preview is right there) and **drives it against the acceptance criteria** - exercises the real behaviour a user would - rather than reading the diff. Reading code re-checks intent; driving the app checks what was actually built.
+- **It targets the defect classes green suites miss.** Name them for the reviewer: **session-class bugs** (state that leaks or resets across requests/sessions), **false-promise UI** (buttons and screens that imply an action the code never performs), **runtime mismatch** (passes on localhost, fails on the deployed runtime), **dead auth paths** (login/signup flows that never actually work end to end), and **dead code** (paths shipped but never reachable). These are exactly the classes a passing unit suite reports nothing about.
+- **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **interim guidance until rcf-verify-lite exists**, it is **guidance and prompt-level, not a new subsystem**, and it is **not the independent verification gate**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check - it is worth running and it is not worth overclaiming. Say both.

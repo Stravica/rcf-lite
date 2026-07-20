@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 7  covered: 0  uncovered: 7
+Requirements: 8  covered: 0  uncovered: 8
 
 Requirement  Covered  AC        AC covered  Test cases
 -----------  -------  --------  ----------  ----------
@@ -59,3 +59,23 @@ REQ-007      no       AC-701-1  no          -
                       AC-702-1  no          -
                       AC-702-2  no          -
                       AC-702-3  no          -
+REQ-008      no       AC-801-1  no          -
+                      AC-801-2  no          -
+                      AC-801-3  no          -
+                      AC-801-4  no          -
+                      AC-802-1  no          -
+                      AC-802-2  no          -
+                      AC-802-3  no          -
+                      AC-802-4  no          -
+                      AC-803-1  no          -
+                      AC-803-2  no          -
+                      AC-803-3  no          -
+                      AC-803-4  no          -
+                      AC-804-1  no          -
+                      AC-804-2  no          -
+                      AC-804-3  no          -
+                      AC-804-4  no          -
+                      AC-805-1  no          -
+                      AC-805-2  no          -
+                      AC-805-3  no          -
+                      AC-805-4  no          -

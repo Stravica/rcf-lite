@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-035",
+  "path": "guidance/elicitation-playbook.md",
+  "implementsAcIds": [
+    "AC-802-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:30.089Z",
+  "updatedAt": "2026-07-20T18:04:06.652Z",
+  "title": "Stack constrained to the deploy target",
+  "description": "Elicitation s6 requires the stack to be constrained to what the stated target can host (AC-802-2)."
+}

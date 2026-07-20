@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-07-20T17:03:19.567Z",
+  "updatedAt": "2026-07-20T17:56:46.693Z",
+  "context": "In run 05 the tool's self-verification claimed the work was 'verified against a live Worker', but its end-to-end tests actually ran against wrangler dev on localhost, which does not enforce the Cloudflare edge PBKDF2 iteration cap. The result was 89/89 green tests, a confident verification claim, and a CRITICAL signup/login 500 on the actually-deployed runtime. The failure was not laziness but provenance: a claim implied a runtime it had never touched. A non-coding owner cannot tell 'verified against the deployed runtime' from 'verified against a local emulator', so the claim itself must carry the distinction.",
+  "decision": "Every 'verified' or 'tested' claim the tool or its agent makes names the runtime it was checked against - for example 'verified against wrangler dev (localhost) - NOT the deployed Worker runtime'. No claim may state or imply deploy-runtime verification that did not happen. The build-cycle guidance requires the runtime label on verification claims in the Test and Finalise stages and in the PR body's verification section; a claim without a named runtime is treated as incomplete.",
+  "consequences": "The owner can see exactly what was and was not proven, and the gap between 'passes locally' and 'works deployed' stops being invisible. This makes local preview (ADR-006) an honest thing to cite rather than a false proxy for deployment, and it defines the seam the interim self-review and the future independent gate target. The cost is that verification claims become longer and, deliberately, less reassuring - which is the point: an unlabelled claim was falsely reassuring.",
+  "alternativesConsidered": [
+    {
+      "name": "Require verification against the deployed runtime",
+      "summary": "Mandate that every verification run against the real deployed target, removing the provenance ambiguity by removing local verification.",
+      "reasonNotChosen": "Not always possible for the owner (no deploy yet, no account), and it belongs to the productised independent gate (rcf-verify-lite); the base offering's job is to label provenance honestly, not to force a deployed run."
+    },
+    {
+      "name": "Trust green suites as verification",
+      "summary": "Treat a passing test suite as sufficient evidence of 'verified'.",
+      "reasonNotChosen": "Run 05 is the counter-example: 89/89 green with a critical production failure. A green suite is evidence about the runtime it ran on and nothing more."
+    }
+  ],
+  "adrId": "ADR-008",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Verification claims carry runtime provenance"
+}

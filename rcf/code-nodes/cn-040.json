@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-040",
+  "path": "guidance/elicitation-playbook.md",
+  "implementsAcIds": [
+    "AC-803-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:30.850Z",
+  "updatedAt": "2026-07-20T18:04:07.432Z",
+  "title": "Honest isolation of account-holder-only steps",
+  "description": "Elicitation s6 isolates sign-up/billing/token/CLI-auth steps as the human's, not performed or pretended (AC-803-3)."
+}

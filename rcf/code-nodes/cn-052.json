@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-052",
+  "path": "test/guidance/tier1-hardening.test.js",
+  "implementsAcIds": [
+    "AC-803-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:32.750Z",
+  "updatedAt": "2026-07-20T18:04:09.373Z",
+  "title": "Drift test: hosting-choice walkthrough",
+  "description": "Tier-1 drift test asserts the walkthrough-over-silent-pick invariant (AC-803-1)."
+}

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-045",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-804-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:31.653Z",
+  "updatedAt": "2026-07-20T18:04:08.199Z",
+  "title": "Labelled-claim examples, Cloudflare and non-Cloudflare",
+  "description": "Playbook s15 gives worked runtime-label examples for a Worker and a Vercel app (AC-804-4)."
+}

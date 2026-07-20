@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-07-20T17:04:24.408Z",
+  "updatedAt": "2026-07-20T17:10:45.759Z",
+  "description": "Elicitation establishes where the application will run before any stack is committed, and the stack the tool builds is constrained by that answer, so the owner is not led into a stack their hosting cannot run.",
+  "asA": "non-coding product owner",
+  "iWant": "the tool to work out where my app will run before it picks the technology to build it with",
+  "soThat": "it does not build me something my hosting cannot actually run",
+  "usId": "US-802",
+  "prdId": "PRD-001",
+  "reqId": "REQ-008",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Deploy target is established before the stack is chosen",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-802-1",
+      "description": "Elicitation asks where the app will run as an early item before any stack is committed",
+      "given": "the shipped elicitation guidance",
+      "when": "an agent runs elicitation with an owner",
+      "then": "the guidance places a deploy-target question early, before any technology stack is committed",
+      "testable": true
+    },
+    {
+      "id": "AC-802-2",
+      "description": "The stack choice is constrained by the deploy-target answer",
+      "given": "a stated deploy target",
+      "when": "the agent chooses the technology stack",
+      "then": "the guidance requires the stack to be constrained to what that target can host, so an incompatible stack is not committed",
+      "testable": true
+    },
+    {
+      "id": "AC-802-3",
+      "description": "The deploy target and its stack implication are captured as an ADR on the project tree",
+      "given": "a deploy target established during elicitation",
+      "when": "the decision is made",
+      "then": "the guidance requires it and the stack constraint it implies to be recorded as an ADR on the project's own tree, visible and revisable",
+      "testable": true
+    },
+    {
+      "id": "AC-802-4",
+      "description": "The harness fragment forbids committing a stack before the deploy target is established",
+      "given": "the harness fragment written into agent-instructions files",
+      "when": "it is inspected",
+      "then": "it carries a rule that a technology stack must not be committed before the deploy target is established",
+      "testable": true
+    }
+  ],
+  "tacIds": []
+}

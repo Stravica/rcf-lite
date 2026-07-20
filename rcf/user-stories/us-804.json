@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-07-20T17:04:24.748Z",
+  "updatedAt": "2026-07-20T17:10:46.062Z",
+  "description": "Every claim the tool or its agent makes that something is verified or tested names the runtime it was checked against, and never implies verification on a deployed runtime that did not happen, so the owner can tell what was actually proven.",
+  "asA": "non-coding product owner",
+  "iWant": "every claim that something was verified to say what it was verified against",
+  "soThat": "I am not told the deployed app works when only a local emulator was checked",
+  "usId": "US-804",
+  "prdId": "PRD-001",
+  "reqId": "REQ-008",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Verification claims name their runtime",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-804-1",
+      "description": "Every verified or tested claim names the runtime it was checked against",
+      "given": "the shipped build guidance on reporting verification",
+      "when": "a 'verified' or 'tested' claim is made",
+      "then": "the guidance requires the claim to name the runtime it was checked against",
+      "testable": true
+    },
+    {
+      "id": "AC-804-2",
+      "description": "No claim implies deploy-runtime verification that did not happen",
+      "given": "a verification that ran against a local or emulated runtime",
+      "when": "the claim is written",
+      "then": "the guidance forbids the claim from stating or implying verification on a deployed runtime that was not exercised",
+      "testable": true
+    },
+    {
+      "id": "AC-804-3",
+      "description": "The PR-authoring guidance requires the runtime label in the verification section",
+      "given": "the build-cycle PR-authoring guidance",
+      "when": "the verification section of a PR body is authored",
+      "then": "it requires each verification claim to carry the runtime it was checked against",
+      "testable": true
+    },
+    {
+      "id": "AC-804-4",
+      "description": "The guidance includes an explicit labelled-claim example",
+      "given": "the shipped build guidance",
+      "when": "it illustrates a verification claim",
+      "then": "it includes an explicit example naming the runtime (for example 'verified against wrangler dev (localhost) - NOT the deployed Worker runtime')",
+      "testable": true
+    }
+  ],
+  "tacIds": []
+}

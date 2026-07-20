@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-034",
+  "path": "guidance/elicitation-playbook.md",
+  "implementsAcIds": [
+    "AC-802-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:29.934Z",
+  "updatedAt": "2026-07-20T18:04:06.496Z",
+  "title": "Early deploy-target elicitation item",
+  "description": "Elicitation s6 asks where the app will run before any stack is committed (AC-802-1)."
+}

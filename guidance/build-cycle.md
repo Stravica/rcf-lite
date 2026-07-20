@@ -14,10 +14,14 @@ Entry: a confirmed plan. Exit: the acceptance criteria are implemented, using th
 Entry: the implementation is complete. Exit: `rcf validate` comes back clean and the diff has been re-read against every in-scope acceptance criterion, with deviations documented. Referee: `rcf validate`.
 
 **4. Test.**
-Entry: a reviewed diff. Exit: TS / TC documents and the tests they point to exist for the in-scope acceptance criteria, and `rcf coverage --strict` covers them. Referee: `rcf coverage --strict`.
+Entry: a reviewed diff. Exit: TS / TC documents and the tests they point to exist for the in-scope acceptance criteria, and `rcf coverage --strict` covers them. Every "verified" or "tested" claim made in this stage names the runtime it was checked against and never implies verification on a deployed runtime that was not exercised. Referee: `rcf coverage --strict`.
 
 **5. Finalise.**
-Entry: covered, reviewed work. Exit: CI green and the work merged per the driving workflow's convention, then `rcf build <fbs-id> --mark complete` after the merge and `rcf build <fbs-id> --mark verified` after post-merge verification. `--mark complete` refuses (exit 3, missingCodeNodes) if any in-scope acceptance criterion still carries no Code Node - go back to Stage 2, or declare `--no-code-nodes` for a genuinely no-code spec. Referee: CI, plus the mark commands' own refusals.
+Entry: covered, reviewed work. Exit: CI green and the work merged per the driving workflow's convention, then `rcf build <fbs-id> --mark complete` after the merge and `rcf build <fbs-id> --mark verified` after post-merge verification. `--mark complete` refuses (exit 3, missingCodeNodes) if any in-scope acceptance criterion still carries no Code Node - go back to Stage 2, or declare `--no-code-nodes` for a genuinely no-code spec. The PR body's verification section carries a runtime label on every claim. Referee: CI, plus the mark commands' own refusals.
+
+## Definition of done includes a working local preview
+
+A build is not done until it also leaves a **working, documented local preview** as its default outcome - a dev server, seeded data where the app needs data to be usable, ideally started with one documented command. This is required whether or not the owner stated a hosting target: the local preview is the runtime the owner can always drive, and remote deployment is an addition on top of it, never a replacement for it.
 
 ## Every stage commits
 

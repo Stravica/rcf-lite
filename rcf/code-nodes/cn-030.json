@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-030",
+  "path": "guidance/build-cycle.md",
+  "implementsAcIds": [
+    "AC-801-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:29.331Z",
+  "updatedAt": "2026-07-20T18:04:05.881Z",
+  "title": "Local preview in the build-cycle contract definition of done",
+  "description": "build-cycle.md makes a working, documented local preview a hosting-independent part of a build being done (AC-801-1)."
+}

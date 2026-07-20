@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-051",
+  "path": "test/guidance/tier1-hardening.test.js",
+  "implementsAcIds": [
+    "AC-802-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:32.594Z",
+  "updatedAt": "2026-07-20T18:04:09.216Z",
+  "title": "Drift test: harness stack-gate rule",
+  "description": "Tier-1 drift test asserts the fragment RULE 5 stack-gate (AC-802-4)."
+}

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-032",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-801-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:29.632Z",
+  "updatedAt": "2026-07-20T18:04:06.187Z",
+  "title": "Host-independent local preview default",
+  "description": "Playbook s14 requires the preview whether or not a hosting target was stated (AC-801-3)."
+}

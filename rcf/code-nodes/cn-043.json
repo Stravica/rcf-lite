@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-043",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-804-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:31.347Z",
+  "updatedAt": "2026-07-20T18:04:07.886Z",
+  "title": "No implied unexercised deploy-runtime verification",
+  "description": "Playbook s15 forbids claims implying deployed-runtime verification that did not happen (AC-804-2)."
+}

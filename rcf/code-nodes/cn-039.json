@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-039",
+  "path": "guidance/elicitation-playbook.md",
+  "implementsAcIds": [
+    "AC-803-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-20T18:03:30.700Z",
+  "updatedAt": "2026-07-20T18:04:07.270Z",
+  "title": "Plain-language hosting options",
+  "description": "Elicitation s6 requires jargon-free explanation of the hosting options (AC-803-2)."
+}
