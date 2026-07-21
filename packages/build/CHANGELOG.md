@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
+## Unreleased
+
+### Repository
+
+- **Repo renamed `rcf-build-lite` → `rcf-lite` (2026-07-21).** The GitHub repository was renamed and restructured into a pnpm-workspace monorepo, with this package relocated to `packages/build/`. The **published package name is unchanged** — it remains `@stravica-ai/rcf-build-lite` — and its npm provenance / trusted-publisher binding are preserved. Old `Stravica/rcf-build-lite` URLs redirect to `Stravica/rcf-lite` indefinitely; do not re-create a repo at the old name.
+
 ## [0.2.1] - 2026-07-18
 
 `rcf init` UX pass and agent-guidance hardening from the v0.2.0 manual-test review. No schema, runtime-API or dependency changes.

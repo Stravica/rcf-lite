@@ -13,7 +13,7 @@ Pre-1.0, only the latest published 0.x release receives security fixes. If you a
 
 Please do not report security vulnerabilities through public GitHub issues, discussions or pull requests.
 
-**Primary channel:** use GitHub's private vulnerability reporting for this repository: go to the [Security tab](https://github.com/Stravica/rcf-build-lite/security) and choose "Report a vulnerability". Your report stays private between you and the maintainers.
+**Primary channel:** use GitHub's private vulnerability reporting for this repository: go to the [Security tab](https://github.com/Stravica/rcf-lite/security) and choose "Report a vulnerability". Your report stays private between you and the maintainers.
 
 **Fallback:** if you cannot use GitHub's private reporting, email [security@stravica.ai](mailto:security@stravica.ai).
 

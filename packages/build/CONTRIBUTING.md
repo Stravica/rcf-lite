@@ -14,8 +14,8 @@ You need:
 Then:
 
 ```sh
-git clone https://github.com/Stravica/rcf-build-lite.git
-cd rcf-build-lite
+git clone https://github.com/Stravica/rcf-lite.git
+cd rcf-lite
 pnpm install
 pnpm run vendor   # regenerates src/view/vendored/mermaid.min.js from the pinned dev dependency
 pnpm test
@@ -41,8 +41,8 @@ Pure refactors, test-only changes and documentation fixes do not need artefact u
 
 ## Where to ask
 
-- **Bugs and defects:** open an [issue](https://github.com/Stravica/rcf-build-lite/issues) using the bug report form.
-- **Questions, modelling advice and methodology discussion:** use [Discussions](https://github.com/Stravica/rcf-build-lite/discussions). "How should I model X?" is a discussion, not a bug.
+- **Bugs and defects:** open an [issue](https://github.com/Stravica/rcf-lite/issues) using the bug report form.
+- **Questions, modelling advice and methodology discussion:** use [Discussions](https://github.com/Stravica/rcf-lite/discussions). "How should I model X?" is a discussion, not a bug.
 - **Security problems:** never open a public issue; see [SECURITY.md](./SECURITY.md).
 
 ## Licensing

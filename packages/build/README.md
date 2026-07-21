@@ -1,6 +1,6 @@
 # rcf-build-lite
 
-[![ci](https://github.com/Stravica/rcf-build-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/Stravica/rcf-build-lite/actions/workflows/ci.yml)
+[![ci](https://github.com/Stravica/rcf-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/Stravica/rcf-lite/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/%40stravica-ai%2Frcf-build-lite)](https://www.npmjs.com/package/@stravica-ai/rcf-build-lite)
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://nodejs.org)
@@ -33,8 +33,8 @@ Build Lite's own PRD, requirements, user stories, acceptance criteria, TAD and b
 ## Quickstart
 
 ```sh
-git clone https://github.com/Stravica/rcf-build-lite.git
-cd rcf-build-lite
+git clone https://github.com/Stravica/rcf-lite.git
+cd rcf-lite
 pnpm install
 pnpm rcf view     # this repo's own RCF tree, rendered live in your browser
 ```
@@ -67,7 +67,7 @@ Symbol-level call-graph auto-derivation, semantic-drift detection, and mechanica
 
 ## Contributing
 
-Not accepting external code contributions at this stage of the project. Bug reports and feature discussion via [Issues](https://github.com/Stravica/rcf-build-lite/issues) are welcome. [CONTRIBUTING.md](./CONTRIBUTING.md) covers the development setup and house rules that will apply when that changes.
+Not accepting external code contributions at this stage of the project. Bug reports and feature discussion via [Issues](https://github.com/Stravica/rcf-lite/issues) are welcome. [CONTRIBUTING.md](./CONTRIBUTING.md) covers the development setup and house rules that will apply when that changes.
 
 ## License
 

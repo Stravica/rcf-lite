@@ -28,8 +28,8 @@ The only runtime dependency, `@stravica-ai/rcf-schemas`, installs from the publi
 The contributor and development path: use it to work on the tool itself or to run an unreleased head. [CONTRIBUTING.md](../CONTRIBUTING.md) covers the house rules if you plan to send changes.
 
 ```sh
-git clone https://github.com/Stravica/rcf-build-lite.git
-cd rcf-build-lite
+git clone https://github.com/Stravica/rcf-lite.git
+cd rcf-lite
 pnpm install
 ```
 
