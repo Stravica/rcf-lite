@@ -35,12 +35,19 @@ export function buildReport(p) {
       startedAt: p.startedAt ?? null,
       finishedAt: p.finishedAt ?? null,
       verifierIsolation: p.verifierIsolation ?? { autoMemory: false, nonEssentialTraffic: false },
+      // Agent usage/timing from the --output-format json envelope (§5.3, additive).
+      // Omit-not-fake: null when the launcher could not report it.
+      runStats: p.runStats ?? null,
     },
     verdict: p.verdict,
     verdictAuthority: p.verdictAuthority,
     findings: Array.isArray(p.findings) ? p.findings : [],
     blockedAcs: Array.isArray(p.blockedAcs) ? p.blockedAcs : [],
     provisioning: p.provisioning ?? null,
+    // Present (non-null) only on a LAUNCH-FAILURE verdict: the agent could not
+    // run or its output could not be ingested. Carries the error + the path to
+    // the preserved raw transcript so the §5.4 fix loop has something to ingest.
+    launchFailure: p.launchFailure ?? null,
   };
   // Defence-in-depth: never let a secret reach the report body (§10).
   return redactSecrets(report);

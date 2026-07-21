@@ -41,6 +41,10 @@ export function composeBrief({ acs = [], url, persona = DEFAULT_PERSONA, chainRe
     'For every defect, record: the acId it maps to, the journey, exact reproduction steps against the live URL, and evidence (screenshot path, response body, or runtime error).',
     'Classify each finding: BROKEN (a journey is dead or wrong), DEGRADED (works but a criterion is materially weakened / a false promise / a missed floor), or COSMETIC (hygiene, no AC touched). Report PASS only for criteria you actively tried and could not break.',
     'Do NOT claim the app is "fully verified" or "safe" — you are producing an independent ship-readiness signal, not a correctness guarantee.',
+    '',
+    'OUTPUT CONTRACT (mandatory). After any analysis, the FINAL thing you emit must be a single JSON object of exactly this shape, and nothing after it:',
+    '{"findings":[{"severity":"BROKEN|DEGRADED|COSMETIC|PASS","acId":"<AC id>","journey":"<journey name>","reproSteps":["..."],"evidence":{"kind":"<http_response|runtimeError|screenshot|note>","detail":"..."}}]}',
+    'Emit exactly one finding per acceptance criterion (a PASS finding for any you tried and could not break). The object must be valid JSON on its own — the harness extracts the last {"findings":[...]} object from your reply, so make sure your final object is complete and well-formed.',
   ].join('\n');
 
   return {

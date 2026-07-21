@@ -55,10 +55,11 @@ Optional:
 
 Exit codes:
   0  report written, verdict below the severity gate
-  1  IO / unexpected runtime failure (incl. verifier-agent launch failure)
+  1  IO / unexpected runtime failure (e.g. the report could not be written)
   2  usage error (missing/invalid flags)
   3  chain could not be loaded (the acceptance contract is unreadable)
-  5  severity gate tripped, or NOT-DEPLOYED / BLOCKED (ship cannot be confirmed)
+  5  severity gate tripped, or NOT-DEPLOYED / BLOCKED / LAUNCH-FAILURE
+     (ship cannot be confirmed — a report is still written)
 `;
 
 function exitForError(err) {

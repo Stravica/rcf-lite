@@ -96,6 +96,24 @@ test('runProvisioning: mode skip provisions nothing', async () => {
   assert.deepEqual(blockedAcs, []);
 });
 
+test('runProvisioning: surfaces a provision-file write failure as data, not discarded (w-2026-07-21-006)', async () => {
+  // Parent dir does not exist -> writeProvisionFile returns an ioFailure RcfError.
+  const badPath = join(tmpdir(), `no-such-dir-${Date.now()}`, 'creds.json');
+  const signup = async ({ username }) => ({ username, password: 'pw' });
+  const { provisioning } = await runProvisioning({ acs: [authAc], url: 'https://app', provisionPath: badPath, signup });
+  assert.ok(provisioning.provisionWriteError, 'the write failure is surfaced on the provisioning record');
+  assert.match(provisioning.provisionWriteError.message, /failed to write provision file/);
+  // The credential itself never leaks into the surfaced error / provisioning record.
+  assert.doesNotMatch(JSON.stringify(provisioning), /"pw"/);
+});
+
+test('runProvisioning: no provisionWriteError when the write succeeds', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'rcf-verify-prov-'));
+  const signup = async ({ username }) => ({ username, password: 'pw' });
+  const { provisioning } = await runProvisioning({ acs: [authAc], url: 'https://app', provisionPath: join(dir, 'creds.json'), signup });
+  assert.equal(provisioning.provisionWriteError, undefined);
+});
+
 test('cleanup: with a teardown route removes provisioned refs and reports them', async () => {
   const removed = [];
   const teardown = async (ref) => { removed.push(ref); };

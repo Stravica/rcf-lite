@@ -13,6 +13,15 @@ import {
   gateTripped,
 } from '../../src/verdict/index.js';
 
+test('VERDICTS includes the structural LAUNCH-FAILURE class', () => {
+  assert.ok(VERDICTS.includes('LAUNCH-FAILURE'));
+});
+
+test('gateTripped: LAUNCH-FAILURE always trips even with no gate (ship cannot be confirmed)', () => {
+  assert.equal(gateTripped({ verdict: 'LAUNCH-FAILURE' }), true);
+  assert.equal(gateTripped({ verdict: 'LAUNCH-FAILURE', gate: 'BROKEN' }), true);
+});
+
 const goodFinding = {
   severity: 'BROKEN',
   acId: 'AC-101-1',

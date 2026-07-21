@@ -14,6 +14,7 @@ const VERDICT_LINE = {
   COSMETIC: 'COSMETIC — hygiene only; no AC touched. Does not block.',
   'NOT-DEPLOYED': 'NOT-DEPLOYED — deployed profile declared but no real deploy reachable. A refusal to issue a verdict, not a pass.',
   BLOCKED: 'BLOCKED — a prerequisite could not be provisioned; dependent ACs were not exercisable.',
+  'LAUNCH-FAILURE': 'LAUNCH-FAILURE — the verifier agent could not run or its output could not be ingested. A refusal to issue a verdict, not a pass.',
 };
 
 /**
@@ -65,6 +66,26 @@ export function renderReport(report) {
     lines.push(`Blocked ACs (${blocked.length}) — NOT exercisable, not silently skipped`);
     for (const b of blocked) lines.push(`  ${b.acId}: ${b.reason}`);
     lines.push('');
+  }
+
+  if (report.launchFailure) {
+    lines.push('Launch failure');
+    lines.push(`  ${report.launchFailure.message}`);
+    if (report.launchFailure.rawOutputPath) lines.push(`  raw transcript: ${report.launchFailure.rawOutputPath}`);
+    lines.push('');
+  }
+
+  if (run.runStats) {
+    const s = run.runStats;
+    const bits = [];
+    if (typeof s.durationMs === 'number') bits.push(`duration=${s.durationMs}ms`);
+    if (typeof s.numTurns === 'number') bits.push(`turns=${s.numTurns}`);
+    if (s.tokens) bits.push(`tokens in/out=${s.tokens.inputTokens ?? '?'}/${s.tokens.outputTokens ?? '?'}`);
+    if (typeof s.totalCostUsd === 'number') bits.push(`cost=$${s.totalCostUsd.toFixed(4)}`);
+    if (bits.length) {
+      lines.push(`Run stats: ${bits.join('  ')}`);
+      lines.push('');
+    }
   }
 
   const prov = report.provisioning;
