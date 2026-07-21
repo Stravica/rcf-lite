@@ -6,13 +6,13 @@
 // across the whole surface (D11). Unexpected failures keep their
 // stacks on stderr, never in model context (D10).
 
-import { formatError, rcfError } from '../errors/index.js';
+import { formatError, rcfError } from '@stravica-ai/rcf-lite-core/errors';
 
 /**
  * Map one RcfError to the validate --json issue shape (nullable
  * id / rule / filePath / field). Mirrors src/cli/validate.js.
  *
- * @param {import('../errors/index.js').RcfError} e
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError} e
  * @returns {{id: string|null, kind: string, rule: string|null, filePath: string|null, field: string|null, message: string}}
  */
 export function issueFromRcfError(e) {
@@ -29,7 +29,7 @@ export function issueFromRcfError(e) {
 /**
  * Map a list of RcfErrors to the issues array.
  *
- * @param {import('../errors/index.js').RcfError[]} errors
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} errors
  * @returns {ReturnType<typeof issueFromRcfError>[]}
  */
 export function issuesFromErrors(errors) {
@@ -42,7 +42,7 @@ export function issuesFromErrors(errors) {
  * formatError helper (D11); the structured payload is the validate
  * issue shape.
  *
- * @param {import('../errors/index.js').RcfError[]} errors
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} errors
  * @returns {object} tools/call result with isError: true
  */
 export function errorResult(errors) {
@@ -73,7 +73,7 @@ export function usageErrorResult(message, extras = {}) {
  * the post-write tree state instead - that is how a broken tree gets
  * fixed in-tool.
  *
- * @param {import('../errors/index.js').RcfError[]} errors
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} errors
  * @returns {object}
  */
 export function walkerBlockedResult(errors) {
@@ -85,7 +85,7 @@ export function walkerBlockedResult(errors) {
  * the full stack goes to stderr via the injected logger - mirrors
  * writeUnexpectedFailure without leaking stacks into the conversation.
  *
- * @param {import('../errors/index.js').RcfError} err
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError} err
  * @param {{error: (line: string) => void}} log
  * @returns {object}
  */
@@ -107,7 +107,7 @@ export function unexpectedFailureResult(err, log) {
  *     message names the dependents and the cascade remedy
  *   - everything else    -> plain execution error with the D11 payload
  *
- * @param {import('../errors/index.js').RcfError} err
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError} err
  * @param {{error: (line: string) => void}} log
  * @returns {object}
  */

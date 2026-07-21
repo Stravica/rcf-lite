@@ -1,6 +1,6 @@
 {
   "cnId": "CN-009",
-  "path": "src/store/walker.js#simulateWriteErrors",
+  "path": "../core/src/store/walker.js#simulateWriteErrors",
   "title": "In-memory post-write tree simulation",
   "description": "Recomputes the walker error set as if a change-set were applied, without touching disk. The core of the B5 post-write validation gate that lets a write refuse only net-new breakage.",
   "implementsAcIds": [

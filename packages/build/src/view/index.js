@@ -8,7 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { stat } from 'node:fs/promises';
 
-import { walkTree } from '../store/index.js';
+import { walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { renderContent, renderPage } from './html-page.js';
 import { buildTreeModel } from './tree-model.js';
 
@@ -50,8 +50,8 @@ export async function findProjectRoot(start) {
  * @returns {Promise<{
  *   fullPageHtml: string,
  *   contentHtml: string,
- *   errors: import('../errors/index.js').RcfError[],
- *   tree: import('../store/walker.js').Tree,
+ *   errors: import('@stravica-ai/rcf-lite-core/errors').RcfError[],
+ *   tree: import('@stravica-ai/rcf-lite-core/store/walker.js').Tree,
  * }>}
  */
 export async function renderModelToPage({ projectRoot }) {

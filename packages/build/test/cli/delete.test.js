@@ -10,7 +10,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
-import { initProject } from '../../src/store/init.js';
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));

@@ -1,6 +1,6 @@
 {
   "cnId": "CN-013",
-  "path": "src/store/writer.js#createDocument",
+  "path": "../core/src/store/writer.js#createDocument",
   "title": "Create verb with pre-write validation and post-write gate",
   "description": "Assembles a document body, schema-validates it, and routes through the post-write gate so a create that would produce an invalid document writes nothing and a successful create validates.",
   "implementsAcIds": [

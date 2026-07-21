@@ -16,7 +16,7 @@ import {
  * @param {object} req
  * @param {object} ctx
  * @param {string|undefined} ctx.raw
- * @param {import('../../errors/index.js').RcfError[]} [ctx.errors]
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} [ctx.errors]
  * @param {string|undefined} [ctx.subdiagram]
  * @returns {string}
  */

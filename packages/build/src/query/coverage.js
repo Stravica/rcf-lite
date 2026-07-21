@@ -16,7 +16,7 @@
 // BS / TAD) are refused at the handler layer (exit 2).
 
 /**
- * @typedef {import('../store/walker.js').TreeModel} TreeModel
+ * @typedef {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} TreeModel
  */
 
 /**

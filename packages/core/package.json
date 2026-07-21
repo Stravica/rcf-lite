@@ -1,0 +1,48 @@
+{
+  "name": "@stravica-ai/rcf-lite-core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared internals for the RCF Lite tooling suite: the RCF-chain store (read + write), the structured RcfError type, and the RCF-agnostic MCP protocol shell. Consumed by @stravica-ai/rcf-build-lite and @stravica-ai/rcf-verify-lite via workspace:*.",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Stravica/rcf-lite",
+  "bugs": "https://github.com/Stravica/rcf-lite/issues",
+  "keywords": [
+    "rcf",
+    "requirements",
+    "traceability",
+    "store",
+    "mcp"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "files": [
+    "src"
+  ],
+  "exports": {
+    "./store": "./src/store/index.js",
+    "./store/*": "./src/store/*",
+    "./errors": "./src/errors/index.js",
+    "./mcp-shell": "./src/mcp/index.js"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 'test/**/*.test.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stravica/rcf-lite.git",
+    "directory": "packages/core"
+  },
+  "dependencies": {
+    "@stravica-ai/rcf-schemas": "^0.3.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  }
+}

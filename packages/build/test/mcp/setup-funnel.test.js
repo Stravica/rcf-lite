@@ -11,7 +11,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '../../src/store/init.js';
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
 import { MARKER_BEGIN, MARKER_END } from '../../src/setup/agent-setup.js';
 

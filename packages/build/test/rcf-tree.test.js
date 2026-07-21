@@ -355,28 +355,32 @@ test('the REQ-007 validation chain (13 nodes) is present with the PoC-proven imp
   const docs = loadAll();
   const cnDocs = docs.filter((d) => d.kind === 'codeNode').map((d) => d.json);
   const byPath = new Map(cnDocs.map((cn) => [cn.path, cn]));
+  // Post shared-core extraction: the store/errors implementations moved to
+  // @stravica-ai/rcf-lite-core, so their Code Nodes point sideways into
+  // ../core/src/... (transitional traceability debt; the proper home is a
+  // core-owned RCF chain, out of v1 scope). map-errors.js stays in build.
   const expectedPaths = [
-    'src/store/validator.js#getAjv',
-    'src/store/walker.js#netNewErrors',
-    'src/errors/index.js#rcfError',
-    'src/store/walker.js', // file-level
-    'src/store/validator.js#validateDocument',
-    'src/errors/index.js#formatErrors',
+    '../core/src/store/validator.js#getAjv',
+    '../core/src/store/walker.js#netNewErrors',
+    '../core/src/errors/index.js#rcfError',
+    '../core/src/store/walker.js', // file-level
+    '../core/src/store/validator.js#validateDocument',
+    '../core/src/errors/index.js#formatErrors',
     'src/mcp/map-errors.js#issueFromRcfError',
-    'src/store/validator.js', // file-level
-    'src/store/walker.js#simulateWriteErrors',
-    'src/store/loader.js#loadDocument',
-    'src/store/writer.js#postWriteGate',
-    'src/store/writer.js', // file-level
-    'src/store/writer.js#createDocument',
+    '../core/src/store/validator.js', // file-level
+    '../core/src/store/walker.js#simulateWriteErrors',
+    '../core/src/store/loader.js#loadDocument',
+    '../core/src/store/writer.js#postWriteGate',
+    '../core/src/store/writer.js', // file-level
+    '../core/src/store/writer.js#createDocument',
   ];
   for (const p of expectedPaths) {
     assert.ok(byPath.has(p), `expected REQ-007-chain Code Node over ${p} is missing`);
   }
   // AC-701-3 ("registered once at start-up") is satisfied by getAjv.
-  assert.ok(byPath.get('src/store/validator.js#getAjv').implementsAcIds.includes('AC-701-3'));
+  assert.ok(byPath.get('../core/src/store/validator.js#getAjv').implementsAcIds.includes('AC-701-3'));
   // createDocument depends (transitively through the chain) on rcfError.
-  const createDocumentCn = byPath.get('src/store/writer.js#createDocument');
-  const rcfErrorCn = byPath.get('src/errors/index.js#rcfError');
+  const createDocumentCn = byPath.get('../core/src/store/writer.js#createDocument');
+  const rcfErrorCn = byPath.get('../core/src/errors/index.js#rcfError');
   assert.ok(createDocumentCn.dependencies.includes(rcfErrorCn.cnId));
 });

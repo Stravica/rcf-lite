@@ -1,6 +1,6 @@
 {
   "cnId": "CN-005",
-  "path": "src/store/validator.js#validateDocument",
+  "path": "../core/src/store/validator.js#validateDocument",
   "title": "Schema validation entry point with structured field+rule errors",
   "description": "Validates one document against its schema; on failure extracts the offending field and broken rule and returns a structured error carrying all failures.",
   "implementsAcIds": [

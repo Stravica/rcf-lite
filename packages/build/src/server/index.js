@@ -50,7 +50,7 @@ export async function startServer(args) {
   const log = typeof args.log === 'function' ? args.log : () => {};
   const watchImpl = typeof args.watchImpl === 'function' ? args.watchImpl : defaultWatch;
 
-  /** @type {{ version: number, fullPageHtml: string, contentHtml: string, errors: import('../errors/index.js').RcfError[] } | null} */
+  /** @type {{ version: number, fullPageHtml: string, contentHtml: string, errors: import('@stravica-ai/rcf-lite-core/errors').RcfError[] } | null} */
   let state = null;
   let version = 0;
   let rewalkInFlight = null;

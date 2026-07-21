@@ -4,7 +4,7 @@
 
 import { parseArgs } from 'node:util';
 
-import { walkTree } from '../store/index.js';
+import { walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {

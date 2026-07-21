@@ -9,7 +9,7 @@ import { join } from 'node:path';
 
 import { createPromptRegistry } from '../../src/mcp/prompts.js';
 import { GUIDANCE_DIR, readGuidanceManifest } from '../../src/mcp/resources.js';
-import { INVALID_PARAMS } from '../../src/mcp/server.js';
+import { INVALID_PARAMS } from '@stravica-ai/rcf-lite-core/mcp-shell';
 
 test('prompts/list: exactly the two D16-A prompts, argument-free', async () => {
   const registry = createPromptRegistry();

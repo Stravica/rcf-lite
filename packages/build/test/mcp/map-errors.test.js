@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { rcfError } from '../../src/errors/index.js';
+import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
 import {
   errorResult,
   issueFromRcfError,

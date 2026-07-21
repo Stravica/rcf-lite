@@ -4,8 +4,8 @@
 
 import { parseArgs } from 'node:util';
 
-import { formatErrors } from '../errors/index.js';
-import { checkCodeNodeResolution, walkTree } from '../store/index.js';
+import { formatErrors } from '@stravica-ai/rcf-lite-core/errors';
+import { checkCodeNodeResolution, walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {

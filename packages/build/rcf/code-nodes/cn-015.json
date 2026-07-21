@@ -1,6 +1,6 @@
 {
   "cnId": "CN-015",
-  "path": "src/store/loader.js",
+  "path": "../core/src/store/loader.js",
   "title": "Document loader module (file-level)",
   "description": "Resolves an id to a path, reads and parses JSON, and validates against the matching schema. Parallel to the symbol-level Code Node over loadDocument for the granularity comparison.",
   "implementsAcIds": [

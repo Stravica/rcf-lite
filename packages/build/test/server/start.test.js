@@ -10,7 +10,7 @@ import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '../../src/store/init.js';
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 import { startServer } from '../../src/server/index.js';
 
 async function freePort() {

@@ -16,7 +16,7 @@ import {
  * @param {object} ts
  * @param {object} ctx
  * @param {string|undefined} ctx.raw
- * @param {import('../../errors/index.js').RcfError[]} [ctx.errors]
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} [ctx.errors]
  * @returns {string}
  */
 export function renderTestSuite(ts, ctx) {

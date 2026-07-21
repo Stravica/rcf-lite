@@ -18,7 +18,7 @@
 //     via testCases[].acId; back-walk continues through parentByChild).
 
 /**
- * @typedef {import('../store/walker.js').TreeModel} TreeModel
+ * @typedef {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} TreeModel
  */
 
 /**

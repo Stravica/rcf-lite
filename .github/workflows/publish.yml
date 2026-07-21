@@ -20,10 +20,18 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r test
-      # npm performs the publish step from inside the package: trusted publishing (OIDC)
-      # requires npm >= 11.5.1 (bundled with current Node 24 releases); pnpm 9 predates
-      # OIDC support in pnpm. The trusted-publisher binding is repo + workflow-filename,
-      # not path, so running `npm publish` from packages/build does not affect the match.
+      # Publish via `pnpm publish` (not `npm publish`): packages/build now depends on
+      # @stravica-ai/rcf-lite-core via `workspace:*`, and pnpm rewrites the workspace
+      # protocol to the resolved version at pack time. `npm publish` does NOT rewrite
+      # `workspace:*`, so it would ship a literal, unresolvable `workspace:*` version
+      # spec to consumers (spec §7.5 armed-footgun). `--provenance` is requested to keep
+      # provenance/trusted-publishing (OIDC); the trusted-publisher binding is repo +
+      # workflow-filename (this file is unchanged), not path, so publishing packages/build
+      # keeps the same binding. `--no-git-checks` because a tag build is a detached HEAD.
+      #   NOTE (release-train precondition, out of v1 scope): the FIRST real publish must
+      #   confirm OIDC trusted publishing works under pnpm 9 (the prior npm-based flow
+      #   relied on npm >= 11.5.1's OIDC support). Nothing is tagged/published in v1, so
+      #   this switch is inert now and only removes the workspace:* footgun.
       # Dist-tag is derived from the pushed git tag: a prerelease identifier (a "-" in the
       # tag, e.g. v0.2.2-rebind-test.0) publishes under the `prerelease` dist-tag; a plain
       # release tag (e.g. v0.2.2) publishes under the default `latest`. This prevents a
@@ -34,8 +42,8 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           if [[ "$TAG" == *-* ]]; then
             echo "Prerelease tag detected ($TAG) -> publishing under dist-tag 'prerelease'"
-            npm publish --provenance --access public --tag prerelease
+            pnpm publish --provenance --access public --tag prerelease --no-git-checks
           else
             echo "Release tag ($TAG) -> publishing under default dist-tag 'latest'"
-            npm publish --provenance --access public
+            pnpm publish --provenance --access public --no-git-checks
           fi

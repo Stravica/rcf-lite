@@ -9,8 +9,11 @@ import { fileURLToPath } from 'node:url';
 // from a clean tarball install (`npm pack` + `npm install <tarball>` installs
 // no devDeps). Statically scans every bare-specifier import in the runtime
 // source shipped in the tarball (src/ + bin/, the graph reachable from
-// bin/rcf.js and src/mcp/server.js) and asserts each imported package is
-// declared in `dependencies` -- never `devDependencies`.
+// bin/rcf.js) and asserts each imported package is declared in
+// `dependencies` -- never `devDependencies`. Since the shared-core
+// extraction, the store/validator's ajv + @stravica-ai/rcf-schemas imports
+// live in @stravica-ai/rcf-lite-core; build's only runtime bare specifier
+// is that core package (workspace:*).
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -67,7 +70,7 @@ test('every runtime bare-specifier import is declared in dependencies, not devDe
 
   // Sanity: the scan must see the known runtime packages, or the regex has
   // silently rotted and the guard is asserting on an empty set.
-  for (const known of ['ajv', 'ajv-formats', '@stravica-ai/rcf-schemas']) {
+  for (const known of ['@stravica-ai/rcf-lite-core']) {
     assert.ok(runtimePackages.has(known), `scan lost known runtime package ${known}`);
   }
 

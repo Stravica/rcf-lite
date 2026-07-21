@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { createServer } from 'node:http';
 
-import { initProject } from '../../src/store/init.js';
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 import {
   maybeAutoOpen,
   openerFor,

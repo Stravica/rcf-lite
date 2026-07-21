@@ -11,8 +11,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { initProject } from '../../src/store/init.js';
-import { walkTree } from '../../src/store/walker.js';
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
+import { walkTree } from '@stravica-ai/rcf-lite-core/store/walker.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');

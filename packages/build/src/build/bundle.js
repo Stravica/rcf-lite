@@ -34,7 +34,7 @@ function pick(source, fields) {
  * responsible for id classification; this function returns null when
  * the id does not resolve to an FBS document.
  *
- * @param {import('../store/walker.js').TreeModel} tree
+ * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
  * @param {object} opts
  * @param {string} opts.fbsId
  * @returns {object|null} BundleResult
