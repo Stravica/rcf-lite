@@ -23,7 +23,8 @@
     "./store": "./src/store/index.js",
     "./store/*": "./src/store/*",
     "./errors": "./src/errors/index.js",
-    "./mcp-shell": "./src/mcp/index.js"
+    "./mcp-shell": "./src/mcp/index.js",
+    "./isolation": "./src/isolation/index.js"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

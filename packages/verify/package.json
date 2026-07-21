@@ -1,0 +1,46 @@
+{
+  "name": "@stravica-ai/rcf-verify-lite",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "RCF Verify Lite - a fresh-context adversarial verifier. Given an RCF chain (the acceptance contract) and a running instance under a declared runtime profile, it launches an isolated verifier agent that walks real user journeys adversarially and emits a structured verdict stamped with the runtime it ran against.",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Stravica/rcf-lite",
+  "bugs": "https://github.com/Stravica/rcf-lite/issues",
+  "keywords": [
+    "rcf",
+    "requirements",
+    "traceability",
+    "verification",
+    "adversarial",
+    "mcp",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "bin": {
+    "rcf-verify": "bin/rcf-verify.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 'test/**/*.test.js'",
+    "rcf-verify": "node bin/rcf-verify.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stravica/rcf-lite.git",
+    "directory": "packages/verify"
+  },
+  "dependencies": {
+    "@stravica-ai/rcf-lite-core": "workspace:*"
+  }
+}
