@@ -19,7 +19,23 @@ jobs:
           registry-url: 'https://registry.npmjs.org/'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
-      # npm performs the publish step: trusted publishing (OIDC) requires npm >= 11.5.1
-      # (bundled with current Node 24 releases); pnpm 9 predates OIDC support in pnpm.
-      - run: npm publish --provenance --access public
+      - run: pnpm -r test
+      # npm performs the publish step from inside the package: trusted publishing (OIDC)
+      # requires npm >= 11.5.1 (bundled with current Node 24 releases); pnpm 9 predates
+      # OIDC support in pnpm. The trusted-publisher binding is repo + workflow-filename,
+      # not path, so running `npm publish` from packages/build does not affect the match.
+      # Dist-tag is derived from the pushed git tag: a prerelease identifier (a "-" in the
+      # tag, e.g. v0.2.2-rebind-test.0) publishes under the `prerelease` dist-tag; a plain
+      # release tag (e.g. v0.2.2) publishes under the default `latest`. This prevents a
+      # prerelease from ever clobbering `latest`.
+      - name: Publish package
+        working-directory: packages/build
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [[ "$TAG" == *-* ]]; then
+            echo "Prerelease tag detected ($TAG) -> publishing under dist-tag 'prerelease'"
+            npm publish --provenance --access public --tag prerelease
+          else
+            echo "Release tag ($TAG) -> publishing under default dist-tag 'latest'"
+            npm publish --provenance --access public
+          fi
