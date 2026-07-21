@@ -1,6 +1,6 @@
 {
   "cnId": "CN-006",
-  "path": "src/errors/index.js#formatErrors",
+  "path": "../core/src/errors/index.js#formatErrors",
   "title": "Multi-error renderer with field+rule detail",
   "description": "Renders a list of structured errors plus a summary line, surfacing field and rule in verbose mode and reporting every failure together rather than only the first.",
   "implementsAcIds": [

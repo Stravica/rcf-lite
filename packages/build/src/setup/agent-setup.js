@@ -14,7 +14,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { rcfError } from '../errors/index.js';
+import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(here, '..', '..');
@@ -52,7 +52,7 @@ async function readIfExists(path) {
  *
  * @param {object} [opts]
  * @param {string} [opts.templatePath] - test override
- * @returns {Promise<string | import('../errors/index.js').RcfError>}
+ * @returns {Promise<string | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
  */
 export async function loadHarnessFragment({ templatePath } = {}) {
   const path = templatePath ?? join(PACKAGE_ROOT, 'guidance', 'harness-template.md');
@@ -76,7 +76,7 @@ export async function loadHarnessFragment({ templatePath } = {}) {
  * @param {object} args
  * @param {string} args.projectRoot
  * @param {string} [args.binPath] - test override
- * @returns {Promise<{ file: string, action: 'created'|'merged'|'kept' } | import('../errors/index.js').RcfError>}
+ * @returns {Promise<{ file: string, action: 'created'|'merged'|'kept' } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
  */
 export async function writeMcpConfig({ projectRoot, binPath = rcfBinPath() }) {
   const file = join(projectRoot, '.mcp.json');

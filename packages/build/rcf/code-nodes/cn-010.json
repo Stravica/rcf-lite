@@ -1,6 +1,6 @@
 {
   "cnId": "CN-010",
-  "path": "src/store/loader.js#loadDocument",
+  "path": "../core/src/store/loader.js#loadDocument",
   "title": "Load-path validation",
   "description": "Reads and parses a document by id, then validates it against the published schema on load, so every document brought into memory is validated at the boundary.",
   "implementsAcIds": [

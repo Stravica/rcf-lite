@@ -11,7 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
-import { walkTree } from '../../src/store/walker.js';
+import { walkTree } from '@stravica-ai/rcf-lite-core/store/walker.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));

@@ -24,7 +24,7 @@
 import { computeTrace, kindOf } from './trace.js';
 
 /**
- * @typedef {import('../store/walker.js').TreeModel} TreeModel
+ * @typedef {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} TreeModel
  */
 
 /**

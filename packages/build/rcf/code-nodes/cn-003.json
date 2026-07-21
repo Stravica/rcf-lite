@@ -1,6 +1,6 @@
 {
   "cnId": "CN-003",
-  "path": "src/errors/index.js#rcfError",
+  "path": "../core/src/errors/index.js#rcfError",
   "title": "Structured error constructor",
   "description": "Constructs the plain-data RcfError carrying kind, message, documentId, filePath, field and rule. The structured-object contract every surface returns rather than free text.",
   "implementsAcIds": [

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { planMark } from '../../src/build/mark.js';
-import { isRcfError } from '../../src/errors/index.js';
+import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
 
 function treeWith(status) {
   const fbs = { fbsId: 'FBS-001', executionStatus: status };

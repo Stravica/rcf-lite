@@ -5,9 +5,9 @@
 import { readFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
-import { writeUnexpectedFailure } from '../errors/index.js';
-import { createDocument, deriveSlug, splitCnPath, walkTree } from '../store/index.js';
-import { deriveFileDeps, mapDerivedDepsToCnIds } from '../store/derive-deps.js';
+import { writeUnexpectedFailure } from '@stravica-ai/rcf-lite-core/errors';
+import { createDocument, deriveSlug, splitCnPath, walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { deriveFileDeps, mapDerivedDepsToCnIds } from '@stravica-ai/rcf-lite-core/store/derive-deps.js';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {

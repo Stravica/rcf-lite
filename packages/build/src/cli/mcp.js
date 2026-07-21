@@ -15,7 +15,7 @@ import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
 import { findProjectRoot } from '../view/index.js';
-import { createMcpServer, serveStreams } from '../mcp/server.js';
+import { createMcpServer, serveStreams } from '@stravica-ai/rcf-lite-core/mcp-shell';
 import { createToolRegistry } from '../mcp/tools.js';
 import { createResourceRegistry } from '../mcp/resources.js';
 import { createPromptRegistry } from '../mcp/prompts.js';

@@ -116,7 +116,7 @@ test('rcf init interactive seed produces the expected doc bodies (D5 + D22)', as
   // prompts are exercised by the readline integration in the CLI. This
   // test exercises the store-level seed contract (interactive flag
   // flips ADR-001 to `draft`; seed values flow into PRD, REQ, US).
-  const { initProject } = await import('../../src/store/init.js');
+  const { initProject } = await import('@stravica-ai/rcf-lite-core/store/init.js');
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-seed-'));
   const result = await initProject({
     projectRoot: tmp,
@@ -140,7 +140,7 @@ test('rcf init interactive seed produces the expected doc bodies (D5 + D22)', as
 });
 
 test('rcf init non-interactive seed keeps ADR-001 in proposed (D22)', async () => {
-  const { initProject } = await import('../../src/store/init.js');
+  const { initProject } = await import('@stravica-ai/rcf-lite-core/store/init.js');
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-noninteractive-adr-'));
   await initProject({ projectRoot: tmp, projectName: 'Scripted' });
   const adr = JSON.parse(await readFile(join(tmp, 'rcf', 'adrs', 'adr-001.json'), 'utf8'));

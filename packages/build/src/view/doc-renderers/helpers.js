@@ -100,7 +100,7 @@ export function rawJsonDisclosure(raw, doc, parentDocId) {
 /**
  * Render a broken-document banner above the rest of a document section.
  *
- * @param {import('../../errors/index.js').RcfError[]} errors
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} errors
  * @returns {string}
  */
 export function brokenBanner(errors) {

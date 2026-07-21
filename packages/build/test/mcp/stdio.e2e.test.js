@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { initProject } from '../../src/store/init.js';
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');

@@ -17,7 +17,7 @@ import {
  * @param {object} tad
  * @param {object} ctx
  * @param {string|undefined} ctx.raw
- * @param {import('../../errors/index.js').RcfError[]} [ctx.errors]
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} [ctx.errors]
  * @param {string[]} [ctx.componentIds] - computed TAC children
  * @param {string[]} [ctx.architecturalDecisionIds] - computed ADR children
  * @returns {string}

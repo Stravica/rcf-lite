@@ -21,7 +21,7 @@
 import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 
-import { initProject } from '../store/init.js';
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 import {
   loadHarnessFragment,
   manualSetupInstructions,

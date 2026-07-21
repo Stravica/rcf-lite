@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { walkTree } from '../../src/store/index.js';
+import { walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { renderPage } from '../../src/view/html-page.js';
 import { buildTreeModel } from '../../src/view/tree-model.js';
 

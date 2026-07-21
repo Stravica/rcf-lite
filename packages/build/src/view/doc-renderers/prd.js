@@ -16,7 +16,7 @@ import {
  * @param {object} prd
  * @param {object} ctx
  * @param {string|undefined} ctx.raw
- * @param {import('../../errors/index.js').RcfError[]} [ctx.errors]
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} [ctx.errors]
  * @param {string[]} [ctx.requirementIds] - computed REQ children for this PRD
  * @returns {string}
  */

@@ -34,8 +34,8 @@
  * @property {Map<string, object[]>} fbsByAcId
  * @property {Map<string, string[]>} acIdsByUsId
  * @property {Map<string, object>} usByAcId
- * @property {Map<string, import('../errors/index.js').RcfError[]>} errorsById
- * @property {import('../errors/index.js').RcfError[]} errors
+ * @property {Map<string, import('@stravica-ai/rcf-lite-core/errors').RcfError[]>} errorsById
+ * @property {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} errors
  * @property {object[]} codeNodes - Phase 10 (X2 CodeNode bridge)
  * @property {Map<string, string[]>} cnByAcId - Phase 10: AC -> implementing CN ids
  */
@@ -48,7 +48,7 @@ const emptyMap = () => new Map();
  *
  * @param {object} args
  * @param {object} args.tree - the walker's returned tree
- * @param {import('../errors/index.js').RcfError[]} args.errors - the walker's error list
+ * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} args.errors - the walker's error list
  * @returns {BuiltTreeModel}
  */
 export function buildTreeModel({ tree, errors }) {

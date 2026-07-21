@@ -1,6 +1,6 @@
 {
   "cnId": "CN-004",
-  "path": "src/store/walker.js",
+  "path": "../core/src/store/walker.js",
   "title": "Tree walker module (file-level)",
   "description": "File-level Code Node over the whole walker module. Parallel to symbol-level Code Nodes over simulateWriteErrors/netNewErrors for the granularity comparison.",
   "implementsAcIds": [

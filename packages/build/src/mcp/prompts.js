@@ -8,7 +8,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { JsonRpcError, INVALID_PARAMS } from './server.js';
+import { JsonRpcError, INVALID_PARAMS } from '@stravica-ai/rcf-lite-core/mcp-shell';
 import { GUIDANCE_DIR, readGuidanceManifest } from './resources.js';
 
 /**

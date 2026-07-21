@@ -17,8 +17,8 @@
 import { writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
-import { formatErrors, isRcfError, rcfError, writeUnexpectedFailure } from '../errors/index.js';
-import { updateDocument, walkTree } from '../store/index.js';
+import { formatErrors, isRcfError, rcfError, writeUnexpectedFailure } from '@stravica-ai/rcf-lite-core/errors';
+import { updateDocument, walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { findProjectRoot } from '../view/index.js';
 import { kindOf } from '../query/index.js';
 import {

@@ -1,6 +1,6 @@
 {
   "cnId": "CN-014",
-  "path": "src/store/init.js",
+  "path": "../core/src/store/init.js",
   "title": "Project scaffold initialiser (file-level)",
   "description": "Creates the rcf folder, the manifest and the root document placeholders (PRD, TAD, BS) on disk for a new project, refusing to overwrite an existing one without --force.",
   "implementsAcIds": [
