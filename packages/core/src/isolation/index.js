@@ -42,6 +42,14 @@ export function isolationEnv(baseEnv = process.env) {
  * The provenance stamp recorded in a run report's `verifierIsolation`
  * block (spec §5.3). Reports whether each isolation guarantee was applied.
  *
+ * POLARITY (important, matches spec §5.3): each field is the FEATURE STATE in
+ * the verifier session — i.e. whether that feature is ENABLED — NOT the state
+ * of the corresponding CLAUDE_CODE_DISABLE_* env var. The recipe DISABLES both
+ * features (env vars set to '1'), so the correct provenance is that both
+ * features are OFF: `autoMemory: false` (auto-memory disabled) and
+ * `nonEssentialTraffic: false` (non-essential traffic disabled). Both `false`
+ * is the fully-isolated state, exactly as the §5.3 schema example shows.
+ *
  * @returns {{ autoMemory: boolean, nonEssentialTraffic: boolean }}
  */
 export function isolationProvenance() {

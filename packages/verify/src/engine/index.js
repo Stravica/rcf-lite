@@ -104,14 +104,37 @@ export async function runVerification(opts = {}, deps = {}) {
   // 5. Compose the adversarial brief from the chain ACs (§5, §9 guarantee 4).
   const brief = composeBrief({ acs: chain.acs, url, persona: opts.persona, chainRef: chain.chainRef });
 
+  // Cleanup runs whether or not the launch succeeds — provisioned artefacts
+  // must not be orphaned by a launch failure (§6 cleanup contract).
+  const runCleanup = async () => {
+    const cleanupFn = deps.cleanup ?? defaultCleanup;
+    const cleanupResult = await cleanupFn({ provisioned: provisioning.provisioned, teardown: deps.teardown });
+    provisioning.cleanupRan = cleanupResult.cleanupRan;
+    provisioning.cleanupRemoved = cleanupResult.cleanupRemoved;
+    if (cleanupResult.cleanupBlocked?.length) provisioning.cleanupBlocked = cleanupResult.cleanupBlocked;
+  };
+
   // 6. Launch the isolated verifier agent (§7.3 isolation env, §9 fresh session).
   let launchResult;
   try {
     const launchAgent = await resolveLauncher(deps);
     launchResult = await launchAgent({ brief, url, profile });
   } catch (err) {
-    // No fabricated PASS: an agent that could not run is a hard error.
-    return rcfError({ kind: 'ioFailure', message: `verifier agent launch failed: ${err.message}`, stack: err.stack });
+    // A verifier agent that could not run — or whose output could not be
+    // ingested — is NEVER a fabricated PASS (§9). But the report is still
+    // build-lite's next input (§5.4, §10 --out-always-written), so we build a
+    // LAUNCH-FAILURE report carrying the error + preserved-transcript path so
+    // the fix loop has something to ingest. Exit stays non-zero (gate trips).
+    await runCleanup();
+    const report = buildReport({
+      profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo,
+      persona: opts.persona, startedAt, finishedAt: now(),
+      verifierIsolation: isolationProvenance(),
+      verdict: 'LAUNCH-FAILURE', verdictAuthority,
+      findings: [], blockedAcs, provisioning,
+      launchFailure: { message: err.message, rawOutputPath: err.rawOutputPath ?? null },
+    });
+    return { report };
   }
 
   // 7. Validate + stamp the findings (§5.2 chain-node addressing).
@@ -120,11 +143,7 @@ export async function runVerification(opts = {}, deps = {}) {
   const { findings } = normalised;
 
   // 8. Cleanup provisioned artefacts (§6 cleanup contract).
-  const cleanupFn = deps.cleanup ?? defaultCleanup;
-  const cleanupResult = await cleanupFn({ provisioned: provisioning.provisioned, teardown: deps.teardown });
-  provisioning.cleanupRan = cleanupResult.cleanupRan;
-  provisioning.cleanupRemoved = cleanupResult.cleanupRemoved;
-  if (cleanupResult.cleanupBlocked?.length) provisioning.cleanupBlocked = cleanupResult.cleanupBlocked;
+  await runCleanup();
 
   // 9. Aggregate the verdict — split, never averaged (§5.1).
   const verdict = aggregateVerdict({ findings, blockedAcs, notDeployed: false });
@@ -136,6 +155,7 @@ export async function runVerification(opts = {}, deps = {}) {
     verifierIsolation: isolationProvenance(),
     verdict, verdictAuthority,
     findings, blockedAcs, provisioning,
+    runStats: launchResult?.runStats ?? null,
   });
 
   return { report };

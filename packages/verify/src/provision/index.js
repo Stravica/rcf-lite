@@ -202,11 +202,18 @@ export async function runProvisioning({ acs = [], url, provisionPath, mode = 'ru
   // Credentials go ONLY to the provision file — never into `provisioning`
   // (which lands in the report body) and never returned for logging.
   if (allCredentials.length > 0 && provisionPath) {
-    await writeProvisionFile(provisionPath, {
+    const writeErr = await writeProvisionFile(provisionPath, {
       schemaVersion: '1',
       url,
       credentials: allCredentials,
     });
+    // Surface the write failure as data instead of discarding it: a failed
+    // credential write means the run's provisioned accounts are unusable
+    // downstream, and silently swallowing it hid a real fault (w-2026-07-21-006).
+    // Only the message + path are recorded — never the credentials themselves.
+    if (writeErr) {
+      provisioning.provisionWriteError = { message: writeErr.message, filePath: writeErr.filePath ?? provisionPath };
+    }
   }
 
   return { provisioning, blockedAcs };

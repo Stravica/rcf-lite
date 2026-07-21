@@ -1,6 +1,8 @@
 // Verdict taxonomy + aggregation (spec §5.1, §5.2). Mirrors the persona
-// programme's PASS/BROKEN/DEGRADED/COSMETIC, plus the two structural
-// verdicts NOT-DEPLOYED (§4 refusal) and BLOCKED (§6 unprovisionable).
+// programme's PASS/BROKEN/DEGRADED/COSMETIC, plus the structural verdicts
+// NOT-DEPLOYED (§4 refusal), BLOCKED (§6 unprovisionable), and LAUNCH-FAILURE
+// (the verifier agent could not run or its output could not be ingested — a
+// refusal to issue a verdict on the app, never a soft pass; see engine catch).
 //
 // Split verdicts are held split, NEVER averaged (§5.1): a run is BROKEN if
 // ANY finding is BROKEN, regardless of how many ACs passed.
@@ -13,8 +15,8 @@ export const FINDING_SEVERITIES = Object.freeze(['PASS', 'COSMETIC', 'DEGRADED',
 /** Severity rank for the split-not-averaged max and the severity gate. */
 export const SEVERITY_ORDER = Object.freeze({ PASS: 0, COSMETIC: 1, DEGRADED: 2, BROKEN: 3 });
 
-/** All overall-verdict classes (findings severities + the two structural verdicts). */
-export const VERDICTS = Object.freeze([...FINDING_SEVERITIES, 'NOT-DEPLOYED', 'BLOCKED']);
+/** All overall-verdict classes (findings severities + the three structural verdicts). */
+export const VERDICTS = Object.freeze([...FINDING_SEVERITIES, 'NOT-DEPLOYED', 'BLOCKED', 'LAUNCH-FAILURE']);
 
 /**
  * Required fields on every finding (spec §5.2): the RCF payoff is that every
@@ -82,9 +84,10 @@ export function aggregateVerdict({ findings = [], blockedAcs = [], notDeployed =
 
 /**
  * Whether the severity gate is tripped → the process exits non-zero
- * (spec §3 rule 5, §8.2). NOT-DEPLOYED and BLOCKED always trip (ship cannot
- * be confirmed); otherwise the worst finding severity is compared against the
- * gate. With no gate configured, nothing trips — the report is still written.
+ * (spec §3 rule 5, §8.2). NOT-DEPLOYED, BLOCKED and LAUNCH-FAILURE always trip
+ * (ship cannot be confirmed); otherwise the worst finding severity is compared
+ * against the gate. With no gate configured, nothing trips — the report is
+ * still written.
  *
  * @param {object} opts
  * @param {string} opts.verdict
@@ -93,7 +96,7 @@ export function aggregateVerdict({ findings = [], blockedAcs = [], notDeployed =
  * @returns {boolean}
  */
 export function gateTripped({ verdict, findings = [], gate }) {
-  if (verdict === 'NOT-DEPLOYED' || verdict === 'BLOCKED') return true;
+  if (verdict === 'NOT-DEPLOYED' || verdict === 'BLOCKED' || verdict === 'LAUNCH-FAILURE') return true;
   if (!gate) return false;
   const worst = aggregateSeverity(findings);
   return SEVERITY_ORDER[worst] >= SEVERITY_ORDER[gate];

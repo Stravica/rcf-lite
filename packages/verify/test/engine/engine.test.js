@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 
 import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
 import { runVerification, normaliseFindings } from '../../src/engine/index.js';
+import { gateTripped } from '../../src/verdict/index.js';
 import { scaffoldChain, stubLauncher } from '../helpers/chain.js';
 
 const FIXED_NOW = () => '2026-07-21T12:00:00.000Z';
@@ -77,14 +78,36 @@ test('runVerification: deployed + reachable real URL -> verdict issued (faked fe
   assert.deepEqual(res.report.run.reachability, { reachable: true, looksLocal: false });
 });
 
-test('runVerification: a launcher that throws is an ioFailure, NEVER a fabricated PASS (§9)', async () => {
+test('runVerification: a launcher that throws -> LAUNCH-FAILURE report, NEVER a fabricated PASS (§9, §5.4 --out-always-written)', async () => {
   const { root } = await scaffoldChain();
+  const err = new Error('agent output could not be ingested');
+  err.rawOutputPath = '/tmp/rcf-verify-agent-output-x.txt';
   const res = await runVerification(
     { repo: root, profile: 'ci', url: 'http://localhost:3000', provisionMode: 'skip' },
-    { now: FIXED_NOW, launchAgent: async () => { throw new Error('no agent CLI'); } },
+    { now: FIXED_NOW, launchAgent: async () => { throw err; } },
   );
-  assert.ok(isRcfError(res));
-  assert.equal(res.kind, 'ioFailure');
+  // The report is still built (build-lite's next input, §5.4) — not an RcfError.
+  assert.ok(!isRcfError(res));
+  assert.equal(res.report.verdict, 'LAUNCH-FAILURE');
+  assert.equal(res.report.findings.length, 0); // no fabricated PASS
+  assert.match(res.report.launchFailure.message, /could not be ingested/);
+  assert.equal(res.report.launchFailure.rawOutputPath, '/tmp/rcf-verify-agent-output-x.txt');
+  // LAUNCH-FAILURE trips the gate (ship cannot be confirmed).
+  assert.equal(gateTripped({ verdict: res.report.verdict }), true);
+});
+
+test('runVerification: launcher runStats thread into the report (fix 5); absent -> null (omit-not-fake)', async () => {
+  const { root } = await scaffoldChain();
+  const withStats = await runVerification(
+    { repo: root, profile: 'ci', url: 'http://localhost:3000', provisionMode: 'skip' },
+    { now: FIXED_NOW, launchAgent: async () => ({ findings: [passFinding], runStats: { durationMs: 4200, tokens: { outputTokens: 99 } } }) },
+  );
+  assert.equal(withStats.report.run.runStats.durationMs, 4200);
+  const noStats = await runVerification(
+    { repo: root, profile: 'ci', url: 'http://localhost:3000', provisionMode: 'skip' },
+    { now: FIXED_NOW, launchAgent: stubLauncher([passFinding]) },
+  );
+  assert.equal(noStats.report.run.runStats, null);
 });
 
 test('runVerification: unprovisionable prereqs surface as blockedAcs in the report (default run mode)', async () => {

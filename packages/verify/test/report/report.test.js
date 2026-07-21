@@ -94,3 +94,32 @@ test('renderReport: human render includes verdict, provenance, findings; never c
   assert.match(text, /not a correctness guarantee/);
   assert.doesNotMatch(text, /fully verified/i);
 });
+
+test('buildReport: LAUNCH-FAILURE report carries launchFailure + round-trips (fix 4)', () => {
+  const r = buildReport({
+    profile: 'ci', url: 'http://localhost:3000', parityEnv: false,
+    verdict: 'LAUNCH-FAILURE', verdictAuthority: 'correctness',
+    findings: [], blockedAcs: [],
+    launchFailure: { message: 'agent output could not be ingested', rawOutputPath: '/tmp/raw.txt' },
+  });
+  assert.equal(r.verdict, 'LAUNCH-FAILURE');
+  assert.equal(r.launchFailure.rawOutputPath, '/tmp/raw.txt');
+  const parsed = parseReport(serialiseReport(r)); // LAUNCH-FAILURE is a valid verdict now
+  assert.ok(!isRcfError(parsed));
+  assert.deepEqual(parsed, r);
+  const text = renderReport(r);
+  assert.match(text, /Launch failure/);
+  assert.match(text, /could not be ingested/);
+});
+
+test('buildReport: runStats land in run.runStats and render; absent -> null (fix 5, omit-not-fake)', () => {
+  const r = buildReport({
+    profile: 'ci', url: 'http://localhost:3000', parityEnv: false,
+    verdict: 'PASS', verdictAuthority: 'correctness', findings: [], blockedAcs: [],
+    runStats: { durationMs: 5000, numTurns: 3, totalCostUsd: 0.1, tokens: { inputTokens: 10, outputTokens: 20 } },
+  });
+  assert.equal(r.run.runStats.durationMs, 5000);
+  assert.match(renderReport(r), /Run stats:/);
+  const r2 = buildReport({ profile: 'ci', url: 'x', parityEnv: false, verdict: 'PASS', verdictAuthority: 'correctness', findings: [], blockedAcs: [] });
+  assert.equal(r2.run.runStats, null);
+});
