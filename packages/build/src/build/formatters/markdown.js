@@ -386,6 +386,7 @@ function pushRunbook(lines, bundle) {
   lines.push('criterion still carries no Code Node - go back to Stage 2 and author it,');
   lines.push('or, for a genuinely no-code spec (docs-only, config-only), declare:', '');
   lines.push(`    rcf build ${fbsId} --mark complete --no-code-nodes`, '');
-  lines.push('After post-merge verification:', '');
-  lines.push(`    rcf build ${fbsId} --mark verified`);
+  lines.push('Then ship-gate the deployed app - an independent rcf-verify run that');
+  lines.push('passes with ship authority promotes complete -> verified:', '');
+  lines.push(`    rcf finalise ${fbsId} --url <deploy-url>`);
 }

@@ -60,8 +60,11 @@ The positional is an FBS id only. For 'which FBS items implement this
 story', use: rcf trace <us-id> --forward --format json
 
 Lifecycle (forward-only): notStarted -> inProgress -> complete -> verified.
-Backward transitions are refused (exit 4); the deliberate-correction
-escape hatch is: rcf update <fbs-id> --set executionStatus=<status>
+The --mark ladder caps at 'complete': --mark verified is refused (exit 4)
+because 'verified' is written only by the finalise gate (rcf finalise) after
+an independent verify run. Backward transitions are also refused (exit 4);
+the deliberate-correction / manual-override escape hatch is:
+rcf update <fbs-id> --set executionStatus=<status>
 
 Bundle assembly is mechanical and deterministic: it projects what the
 tree says. It does NOT judge whether the FBS is well-specified or the

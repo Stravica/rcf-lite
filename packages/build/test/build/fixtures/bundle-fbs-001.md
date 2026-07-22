@@ -232,6 +232,7 @@ or, for a genuinely no-code spec (docs-only, config-only), declare:
 
     rcf build FBS-001 --mark complete --no-code-nodes
 
-After post-merge verification:
+Then ship-gate the deployed app - an independent rcf-verify run that
+passes with ship authority promotes complete -> verified:
 
-    rcf build FBS-001 --mark verified
+    rcf finalise FBS-001 --url <deploy-url>

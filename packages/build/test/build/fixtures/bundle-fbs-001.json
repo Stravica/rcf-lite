@@ -231,6 +231,6 @@
   "completionContract": {
     "markInProgress": "rcf build FBS-001 --mark inProgress",
     "markComplete": "rcf build FBS-001 --mark complete",
-    "markVerified": "rcf build FBS-001 --mark verified"
+    "finalise": "rcf finalise FBS-001 --url <deploy-url>"
   }
 }

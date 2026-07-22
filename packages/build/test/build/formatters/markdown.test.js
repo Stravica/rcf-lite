@@ -40,7 +40,7 @@ function sampleBundle(overrides = {}) {
     completionContract: {
       markInProgress: 'rcf build FBS-002 --mark inProgress',
       markComplete: 'rcf build FBS-002 --mark complete',
-      markVerified: 'rcf build FBS-002 --mark verified',
+      finalise: 'rcf finalise FBS-002 --url <deploy-url>',
     },
     ...overrides,
   };
@@ -91,7 +91,7 @@ test('runbook renders all five stages with referee commands and the mark loop', 
   assert.equal(md.includes('rcf validate'), true);
   assert.equal(md.includes('rcf coverage --strict'), true);
   assert.equal(md.includes('rcf build FBS-002 --mark complete'), true);
-  assert.equal(md.includes('rcf build FBS-002 --mark verified'), true);
+  assert.equal(md.includes('rcf finalise FBS-002 --url <deploy-url>'), true);
   // Each-stage-commits discipline is part of the printed contract (D3-A).
   assert.match(md, /Every stage ends in a commit/);
 });

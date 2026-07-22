@@ -129,10 +129,10 @@ What good looks like:
 
 - CI green on the branch; PR raised and merged per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
 - `rcf build <fbs-id> --mark complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build <fbs-id> --mark complete --no-code-nodes` once.
-- `rcf build <fbs-id> --mark verified` after post-merge verification: the merged artefact observed doing the right thing, not just the pre-merge tests remembered fondly.
+- `rcf finalise <fbs-id> --url <deploy-url>` writes `verified` after post-merge verification: the merged artefact observed doing the right thing by an independent verify run, not just the pre-merge tests remembered fondly. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the verify run passes with ship authority.
 - A working, documented local preview is present as the default outcome (section 14), and every verification claim in the PR names the runtime it was checked against (section 15). These are part of done, not extras.
 
-Referee: CI, plus the mark commands' own refusals (section 9).
+Referee: CI, the finalise gate, plus the mark commands' own refusals (section 9).
 
 Failure modes:
 
@@ -186,7 +186,7 @@ Note the fan-out: one broken document produced two broken references. Fix the na
 
 Without `--strict` the bundle renders anyway, flagged as a read-ahead; `--next` never selects blocked items.
 
-**`rcf build <fbs-id> --mark <status>`** - exit 0 with a one-line confirmation (`marked FBS-012 notStarted -> inProgress`). The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`; forward jumps legal). A backward mark is refused with exit 4 and names the escape hatch:
+**`rcf build <fbs-id> --mark <status>`** - exit 0 with a one-line confirmation (`marked FBS-012 notStarted -> inProgress`). The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`; forward jumps legal), but `--mark` caps at `complete`: `--mark verified` is refused with exit 4 and points to `rcf finalise` (only the finalise gate writes `verified`). A backward mark is likewise refused with exit 4 and names the escape hatch:
 
 ```
 [error] refused build: refusing backward transition complete -> inProgress on FBS-005; for a deliberate correction use: rcf update FBS-005 --set executionStatus=inProgress
@@ -254,7 +254,7 @@ $ rcf build FBS-012 --mark inProgress
 marked FBS-012 notStarted -> inProgress
 ```
 
-From here it is the five stages, a commit per stage, `--mark complete` after the merge, `--mark verified` after post-merge verification, and back to `rcf build --next`.
+From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf finalise` to promote to `verified` after post-merge verification, and back to `rcf build --next`.
 
 ## 11. Driving the whole queue
 
@@ -268,8 +268,8 @@ Sections 3 to 7 deliver one item. This section is the loop around them: how a si
 rcf build            -> queue state; a "Next actionable" id means there is work
 rcf build --next     -> bundle for that item
                         run its five stages (sections 3-7), commit per stage
-rcf build <fbs-id> --mark complete    (after merge)
-rcf build <fbs-id> --mark verified    (after post-merge verification)
+rcf build <fbs-id> --mark complete       (after merge)
+rcf finalise <fbs-id> --url <deploy-url>  (independent verify -> verified)
                         then rcf build --next again
 ```
 

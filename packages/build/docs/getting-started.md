@@ -454,7 +454,7 @@ Totals: items 2 | notStarted 1 | inProgress 0 | complete 1 | verified 0 | action
 Next actionable: FBS-002
 ```
 
-The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`); marking backwards is refused:
+The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`), and `--mark` tops out at `complete` - `verified` is written only by the finalise gate (`rcf finalise`), never by `--mark`. Marking backwards is refused:
 
 ```sh
 rcf build FBS-001 --mark inProgress
@@ -464,7 +464,7 @@ rcf build FBS-001 --mark inProgress
 [error] refused build: refusing backward transition complete -> inProgress on FBS-001; for a deliberate correction use: rcf update FBS-001 --set executionStatus=inProgress
 ```
 
-Exit code 4 - the "refused" code. The tool ships the marking primitive and the discipline: mark `complete` on merge, `verified` after post-merge verification.
+Exit code 4 - the "refused" code. The tool ships the marking primitive and the discipline: mark `complete` on merge; `verified` is not a `--mark` target - it is written only by the finalise gate (`rcf finalise`), which promotes `complete -> verified` when an independent post-merge verify run against the deploy passes with ship authority.
 
 ## 8. Do it from your agent
 

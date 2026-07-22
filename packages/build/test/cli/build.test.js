@@ -165,6 +165,30 @@ test('backward --mark exits 4 and names the rcf update escape hatch', async () =
   assert.match(stderr, /rcf update FBS-001 --set executionStatus=notStarted/);
 });
 
+test('--mark verified is refused (exit 4), names rcf finalise, and writes nothing (mark ladder caps at complete)', async () => {
+  const tmp = await scaffold();
+  // Take FBS-001 to complete first, so this is a "complete -> verified" attempt
+  // (the exact sidestep the hardening closes), not a backward mark.
+  await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
+  const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'verified']);
+  assert.equal(code, 4);
+  assert.match(stderr, /\[error\] refused/);
+  assert.match(stderr, /rcf finalise FBS-001/);
+  assert.match(stderr, /rcf update FBS-001 --set executionStatus=verified/);
+  // No write landed: the FBS is still complete, not verified.
+  const fbs = await readFbs(tmp);
+  assert.equal(fbs.executionStatus, 'complete');
+});
+
+test('the sanctioned manual override still works: rcf update --set executionStatus=verified', async () => {
+  const tmp = await scaffold();
+  await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
+  const { code } = await runBin(tmp, ['update', 'FBS-001', '--set', 'executionStatus=verified']);
+  assert.equal(code, 0);
+  const fbs = await readFbs(tmp);
+  assert.equal(fbs.executionStatus, 'verified', 'rcf update remains the explicit verified override');
+});
+
 test('bad --mark value exits 2', async () => {
   const tmp = await scaffold();
   const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'done']);

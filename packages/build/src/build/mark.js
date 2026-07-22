@@ -8,8 +8,11 @@
 // The lifecycle is the schema enum, in order:
 //   notStarted -> inProgress -> complete -> verified
 // Forward jumps are legal (notStarted -> complete for trivially-shipped
-// items). Backward transitions are refused (exit 4) and the message
-// names the deliberate-correction escape hatch (`rcf update`).
+// items) but the mark ladder caps at `complete`: `--mark verified` is
+// refused (exit 4) and points to the finalise gate (`rcf finalise`), which
+// is the only path that writes `verified` after an independent verify run.
+// Backward transitions are refused (exit 4) and the message names the
+// deliberate-correction escape hatch (`rcf update`).
 
 import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
 import { LIFECYCLE } from './queue.js';
@@ -66,6 +69,26 @@ export function planMark(tree, { fbsId, status }) {
     });
   }
   const from = fbs.executionStatus;
+  // The mark ladder caps at `complete` (w-2026-07-22-004). `verified` means
+  // "independently verified against the running deploy" - it is written only by
+  // the finalise gate (`rcf finalise`), which spawns a fresh rcf-verify run.
+  // Letting `--mark verified` promote with no verify run would let the builder
+  // sidestep that gate with one flag, defeating the spec-9 independence
+  // guarantee. Refused as part of the mark-refusal family (exit 4); the message
+  // names the finalise gate and keeps `rcf update` as the explicit manual
+  // override (unchanged - a deliberate, logged operator decision).
+  if (status === 'verified') {
+    return {
+      fbsId,
+      from,
+      to: status,
+      noOp: false,
+      refused: true,
+      message: `build: refusing --mark verified on ${fbsId}; 'verified' is written only by the `
+        + `independent verify gate, not by --mark. Promote it with: rcf finalise ${fbsId} --url <deploy-url>. `
+        + `For a deliberate manual override (no verify run) use: rcf update ${fbsId} --set executionStatus=verified`,
+    };
+  }
   const fromIndex = LIFECYCLE.indexOf(from);
   const toIndex = LIFECYCLE.indexOf(status);
   if (toIndex === fromIndex) {

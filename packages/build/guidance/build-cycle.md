@@ -17,7 +17,7 @@ Entry: the implementation is complete. Exit: `rcf validate` comes back clean and
 Entry: a reviewed diff. Exit: TS / TC documents and the tests they point to exist for the in-scope acceptance criteria, and `rcf coverage --strict` covers them. Every "verified" or "tested" claim made in this stage names the runtime it was checked against and never implies verification on a deployed runtime that was not exercised. Referee: `rcf coverage --strict`.
 
 **5. Finalise.**
-Entry: covered, reviewed work. Exit: CI green and the work merged per the driving workflow's convention, then `rcf build <fbs-id> --mark complete` after the merge and `rcf build <fbs-id> --mark verified` after post-merge verification. `--mark complete` refuses (exit 3, missingCodeNodes) if any in-scope acceptance criterion still carries no Code Node - go back to Stage 2, or declare `--no-code-nodes` for a genuinely no-code spec. The PR body's verification section carries a runtime label on every claim. Referee: CI, plus the mark commands' own refusals.
+Entry: covered, reviewed work. Exit: CI green and the work merged per the driving workflow's convention, then `rcf build <fbs-id> --mark complete` after the merge, and `verified` written by the finalise gate (`rcf finalise <fbs-id> --url <deploy-url>`) once an independent post-merge verify run passes with ship authority. `--mark` caps at `complete` - it cannot write `verified`. `--mark complete` refuses (exit 3, missingCodeNodes) if any in-scope acceptance criterion still carries no Code Node - go back to Stage 2, or declare `--no-code-nodes` for a genuinely no-code spec. The PR body's verification section carries a runtime label on every claim. Referee: CI, the finalise gate, plus the mark commands' own refusals.
 
 ## Definition of done includes a working local preview
 
@@ -29,7 +29,7 @@ Each stage ends in a commit. The commit is the stage boundary: it makes the cycl
 
 ## The lifecycle is forward-only
 
-`notStarted -> inProgress -> complete -> verified`. Forward jumps are legal. Backward transitions are refused with exit 4; the deliberate-correction escape hatch is `rcf update <fbs-id> --set executionStatus=<status>`, and reaching for it should be rare enough to be remarkable.
+`notStarted -> inProgress -> complete -> verified`. Forward jumps are legal, but the `--mark` ladder caps at `complete`: `--mark verified` is refused with exit 4 and points to `rcf finalise`, because `verified` is written only by the finalise gate after an independent verify run. Backward transitions are refused with exit 4; the deliberate-correction / manual-override escape hatch is `rcf update <fbs-id> --set executionStatus=<status>`, and reaching for it should be rare enough to be remarkable.
 
 ## Depth
 

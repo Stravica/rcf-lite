@@ -435,9 +435,9 @@ const BUILD_OUTPUT_SCHEMA = {
       properties: {
         markInProgress: { type: 'string' },
         markComplete: { type: 'string' },
-        markVerified: { type: 'string' },
+        finalise: { type: 'string' },
       },
-      required: ['markInProgress', 'markComplete', 'markVerified'],
+      required: ['markInProgress', 'markComplete', 'finalise'],
     },
   },
   required: [

@@ -171,7 +171,7 @@ export function assembleBundle(tree, { fbsId }) {
   const completionContract = {
     markInProgress: `rcf build ${fbsId} --mark inProgress`,
     markComplete: `rcf build ${fbsId} --mark complete`,
-    markVerified: `rcf build ${fbsId} --mark verified`,
+    finalise: `rcf finalise ${fbsId} --url <deploy-url>`,
   };
 
   const result = {

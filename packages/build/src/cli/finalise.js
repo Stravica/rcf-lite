@@ -17,8 +17,10 @@
 // Hard contract points (spec §8.2 / §9):
 //   - verify is a FRESH SUBPROCESS with the isolation env, never an in-process
 //     import (§8.2 / §9: the verifier agent must start cold, zero build context);
-//   - the subprocess exit code is the gate (0 -> promote to verified;
-//     non-zero -> stay put, surface findings);
+//   - the gate is the subprocess exit code AND the report's ship authority
+//     (spec §4): exit 0 with verdictAuthority 'ship' -> promote to verified;
+//     exit 0 with correctness-only authority -> HOLD (stay put, no promotion);
+//     non-zero -> stay put, surface findings;
 //   - findings flow via the --out report file, not stdout scraping;
 //   - if rcf-verify is absent, PROMPT to install (or accept an explicit
 //     --install-verify flag) - NEVER silently skip the gate (§8.3).
@@ -70,12 +72,15 @@ const OPTION_SPEC = {
 export const HELP = `Usage: rcf finalise <fbs-id> --url <deploy-url> [options]
 
 The ship gate. Promotes an FBS at status complete to verified ONLY when an
-independent rcf-verify run against the deployed app passes.
+independent rcf-verify run passes AND carries ship authority.
 
 rcf-verify is launched as a FRESH SUBPROCESS (never in-process) so the
 verifier agent starts cold, with zero build context - its only inputs are the
-RCF chain (the acceptance contract) and the live URL. The subprocess exit code
-is the gate; findings flow back via the --out report file.
+RCF chain (the acceptance contract) and the live URL. The gate is the
+subprocess exit code AND the report's ship authority: a run must both pass and
+carry SHIP authority (a 'deployed'-profile run, or a 'ci'/'local-dev' run with
+--parity-env) to promote. A correctness-only PASS holds without promoting.
+Findings flow back via the --out report file.
 
 If rcf-verify is not installed, finalise PROMPTS to install it (install-together
 posture) - it never silently skips the gate. Off a TTY, pass --install-verify.
@@ -106,7 +111,8 @@ Exit codes:
   1  IO / unexpected runtime failure
   2  usage error (bad flags, unknown / non-FBS id)
   3  schema validation or broken references (tree unreadable, or write refused)
-  4  gate NOT passed (verify blocked ship) OR rcf-verify absent and install
+  4  gate NOT passed - verify blocked ship, OR verify passed but the run lacks
+     ship authority (a correctness-only HOLD), OR rcf-verify absent and install
      declined/unavailable - the FBS is left unchanged, findings surfaced
 `;
 
@@ -249,13 +255,33 @@ export async function main(argv, deps = {}) {
     return 1;
   }
 
-  // --- gate on the subprocess exit code (§8.2) ----------------------------
+  // --- gate on the subprocess exit code (§8.2) + ship authority (§4) ------
   if (spawnResult.code === 0) {
-    // Gate passed. Promote to verified (idempotent if a re-verify of an
-    // already-verified item).
+    // Gate passed on exit code. Promote to verified (idempotent if a re-verify
+    // of an already-verified item).
     if (currentStatus === 'verified') {
       if (!quiet) stdout.write(`[finalise] gate passed; ${fbsId} already verified (re-verify) -> ${outPath}\n`);
       return 0;
+    }
+    // Ship-authority gate (spec §4, w-2026-07-22-004): exit 0 is necessary but
+    // not sufficient to write `verified`. Only a run that carries SHIP authority
+    // may promote - a `deployed`-profile run, or a `ci`/`local-dev` run with an
+    // explicit --parity-env parity assertion. A correctness-only PASS (e.g. a
+    // bare `--profile ci` run) is a real regression pass but carries no ship
+    // authority, so it must HOLD rather than promote. We read the authority from
+    // the report verify stamped (never re-derive it here - that would break the
+    // §9 independence guarantee). An unreadable report on a pass is treated as a
+    // HOLD, never a silent promotion (mirrors ingest's "unreadable is not a pass").
+    const passLoaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
+    const authority = passLoaded.ok ? passLoaded.report.verdictAuthority : undefined;
+    if (authority !== 'ship') {
+      stderr.write(`[finalise] HOLD: rcf-verify passed but this run carries '${authority ?? 'unknown'}' authority, `
+        + `not 'ship'; ${fbsId} left '${currentStatus}'.\n`);
+      stderr.write('Only a \'deployed\'-profile run - or a \'ci\'/\'local-dev\' run with --parity-env asserting the '
+        + 'runtime is edge-identical to prod - carries ship authority and can promote to verified. '
+        + `Report: ${outPath}\n`);
+      if (!passLoaded.ok) stderr.write(`[finalise] (the verify report could not be read: ${passLoaded.reason})\n`);
+      return 4;
     }
     const result = await updateDocument({
       projectRoot, tree, id: fbsId, sets: [{ path: 'executionStatus', value: 'verified' }], options: {},
