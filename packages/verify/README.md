@@ -1,76 +1,44 @@
-# @stravica-ai/rcf-verify-lite
+# rcf-verify-lite
 
-A **fresh-context adversarial verifier** for the RCF Lite suite.
+[![ci](https://github.com/Stravica/rcf-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/Stravica/rcf-lite/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/%40stravica-ai%2Frcf-verify-lite)](https://www.npmjs.com/package/@stravica-ai/rcf-verify-lite)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
+[![node](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://nodejs.org)
 
-Given an RCF chain (the acceptance contract) and a **running instance** of an
-app under a **declared runtime profile**, `rcf-verify` launches an isolated
-verifier agent that walks real user journeys adversarially — trying to
-*disprove* the app against its acceptance criteria — and emits a **structured
-verdict stamped with the runtime it ran against**.
+The ship gate for AI-built software.
 
-It never reads the source tree, the test suite, or the builder's self-report.
-Its only inputs are the chain and the live URL. That information disjointness
-is what makes it an *independent* ship-readiness verdict rather than another
-self-check.
+Point `rcf-verify` at your running app and the acceptance criteria in your repo's [RCF chain](https://stravica.ai/rcf-methodology), and it launches a fresh, isolated AI agent that behaves like a hostile user: walking real journeys against the live app, trying to prove it *doesn't* meet its contract. You get a structured report and a verdict you can gate a release on.
 
-> **Honest limit.** Verify does not make an app "fully verified" or "safe". It
-> **replaces the ship-readiness verdict with an independent one.** An agent
-> cannot fully adversarially test its own build; verify mitigates that blind
-> spot, it does not eliminate it.
+The verifier never sees your source code, your tests, or your builder's claims about what works. It gets the acceptance contract and a URL, nothing else. That separation is the point — an agent can't fairly adversarially test its own build, so this one had no part in building it.
+
+> **Honest limit.** Verify does not make an app "fully verified" or "safe". It replaces a self-reported ship-readiness verdict with an independent one — it mitigates the builder's blind spot, it does not eliminate it.
 
 ## Install
 
-```
-npm i @stravica-ai/rcf-build-lite @stravica-ai/rcf-verify-lite
-```
-
-The two are independently installable (verify alone for CI; build alone if
-truly wanted), but installing together is the recommended default.
-
-## Usage
-
-```
-rcf-verify run \
-  --repo <path-to-rcf-chain> \
-  --profile <deployed|ci|local-dev> \
-  --url <running-app-url> \
-  --out report.json \
-  [--parity-env] [--provision creds.json] \
-  [--severity-gate BROKEN] [--provision-mode run|skip] [--persona name]
-
-rcf-verify report report.json     # re-render a prior report
-rcf-verify provision ...          # stand up prerequisites standalone
-rcf-verify cleanup ...            # tear down provisioned 'zzverify-' artefacts
-rcf-verify mcp                    # serve over MCP (local stdio)
+```sh
+npm install -g @stravica-ai/rcf-build-lite @stravica-ai/rcf-verify-lite
 ```
 
-### Runtime profiles
+Installing alongside [`@stravica-ai/rcf-build-lite`](https://www.npmjs.com/package/@stravica-ai/rcf-build-lite) is the recommended default. Verify also installs standalone (`npm install -g @stravica-ai/rcf-verify-lite`) — for example as a verification-only step in CI.
 
-| Profile | Verdict authority |
-|---|---|
-| `deployed` | SHIP-readiness verdict (the ship gate). A local/unreachable URL under `deployed` yields `NOT-DEPLOYED`, never a soft pass. |
-| `ci` | Correctness/regression verdict. Ship gate **only** with `--parity-env`. |
-| `local-dev` | Correctness/regression verdict. Never a ship gate. |
+## Use it
 
-`localhost` is a first-class target under `ci`/`local-dev`. What is forbidden
-is a lower profile claiming the authority of `deployed`.
-
-### Exit codes (`run`)
-
-```
-0  report written, verdict below the severity gate
-1  IO / unexpected runtime failure (incl. verifier-agent launch failure)
-2  usage error
-3  chain could not be loaded
-5  severity gate tripped, or NOT-DEPLOYED / BLOCKED
+```sh
+rcf-verify run --repo . --profile deployed --url https://your-app.example.com --out report.json
 ```
 
-## Verifier-agent launcher
+That runs the adversarial pass and writes `report.json`: findings with severities, and a verdict stamped with the runtime it ran against. Re-render any saved report with `rcf-verify report report.json`.
 
-Verify launches an isolated fresh agent (Claude Code by default) with the
-proven isolation env (`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` +
-`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`) and browser tooling; that agent
-drives the running app and returns structured findings. The launcher is
-injectable via the `RCF_VERIFY_LAUNCHER` env var (a module exporting
-`launchAgent`) — the seam used for integration harnesses and the recorded
-manual e2e.
+A `deployed` run is the ship verdict. You can also point it at CI or local builds (`--profile ci` / `--profile local-dev`) for correctness passes — same engine, honestly labelled with lower authority, so a localhost pass can never masquerade as ship-ready.
+
+If your app needs accounts, sandboxes or test data to be exercised properly, verify provisions them first and tears them down after — see the reference for `provision` and `cleanup`.
+
+**Using rcf-build-lite?** You rarely run this by hand: `rcf finalise` invokes verify automatically as the gate between "built" and "verified".
+
+## Going deeper
+
+[docs/reference.md](docs/reference.md) has the full surface: runtime profiles and verdict authority, exit codes, prerequisite provisioning, MCP mode, and the launcher seam for custom agent harnesses.
+
+## License
+
+Apache 2.0 — see [LICENSE](./LICENSE).
