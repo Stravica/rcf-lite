@@ -18,6 +18,7 @@ import { main as buildMain } from '../src/cli/build.js';
 import { main as coverageMain } from '../src/cli/coverage.js';
 import { main as createMain } from '../src/cli/create.js';
 import { main as deleteMain } from '../src/cli/delete.js';
+import { main as finaliseMain } from '../src/cli/finalise.js';
 import { main as helpMain, TOP_LEVEL_HELP } from '../src/cli/help.js';
 import { main as impactMain } from '../src/cli/impact.js';
 import { main as initMain } from '../src/cli/init.js';
@@ -45,6 +46,7 @@ const SUBCOMMANDS = {
   trace: traceMain,
   impact: impactMain,
   build: buildMain,
+  finalise: finaliseMain,
   mcp: mcpMain,
   help: helpMain,
 };

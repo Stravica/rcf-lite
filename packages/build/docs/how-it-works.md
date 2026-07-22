@@ -107,7 +107,7 @@ Anywhere in the CLI, exit 3 means one of those two layers failed: the tree itsel
 
 ## 5. The verb map
 
-Fifteen subcommands under the single `rcf` bin, grouped by job:
+Sixteen subcommands under the single `rcf` bin, grouped by job:
 
 | Job | Verbs |
 |---|---|
@@ -115,11 +115,11 @@ Fifteen subcommands under the single `rcf` bin, grouped by job:
 | Author | `create`, `update`, `delete`, `link`, `unlink` |
 | Inspect | `read`, `view` |
 | Trust | `validate`, `coverage`, `trace`, `impact` |
-| Build | `build` |
+| Build | `build`, `finalise` |
 | Agent | `mcp` |
 | Help | `help` |
 
-One line each: `init` scaffolds a new tree; `create`/`update`/`delete` write documents through schema validation; `link`/`unlink` manage the US-to-TAC cross-links; `read` prints a document, `view` serves the whole tree as a live local page; `validate` checks the tree, `coverage` reports the REQ-to-TC picture, `trace` walks the graph from an id, `impact` turns a change into a re-check list; `build` assembles FBS spec bundles and drives the queue; `mcp` serves everything to agents over stdio.
+One line each: `init` scaffolds a new tree; `create`/`update`/`delete` write documents through schema validation; `link`/`unlink` manage the US-to-TAC cross-links; `read` prints a document, `view` serves the whole tree as a live local page; `validate` checks the tree, `coverage` reports the REQ-to-TC picture, `trace` walks the graph from an id, `impact` turns a change into a re-check list; `build` assembles FBS spec bundles and drives the queue; `finalise` is the ship gate - it runs the independent `rcf-verify` verifier against your deployed app as a fresh subprocess and promotes the FBS from `complete` to `verified` only when it passes; `mcp` serves everything to agents over stdio.
 
 Flags are deliberately not documented here: `rcf help <verb>` is the canonical, tested, ships-with-the-bin flag reference for every one of them.
 

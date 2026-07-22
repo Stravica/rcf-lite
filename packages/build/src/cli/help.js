@@ -3,6 +3,7 @@
 // is the sole documentation surface for the phase.
 
 import { HELP as BUILD_HELP } from './build.js';
+import { HELP as FINALISE_HELP } from './finalise.js';
 import { HELP as MCP_HELP } from './mcp.js';
 import { HELP as VIEW_HELP } from './view.js';
 
@@ -22,6 +23,7 @@ Commands:
   trace <id>          Walk the graph forward / back / both from an id
   impact <id>         Impact fan-out with per-node action label
   build [fbs-id]      Assemble FBS spec bundles and drive the build queue
+  finalise <fbs-id>   Ship gate: verify the deployed app, then mark verified
   mcp                 Serve the project over MCP (local stdio)
   help [command]      Print help for a command
 
@@ -219,6 +221,7 @@ const HELP_MAP = {
   trace: TRACE_HELP,
   impact: IMPACT_HELP,
   build: BUILD_HELP,
+  finalise: FINALISE_HELP,
   mcp: MCP_HELP,
   view: VIEW_HELP,
 };
