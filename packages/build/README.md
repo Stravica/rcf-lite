@@ -11,7 +11,7 @@ The CLI, MCP server, live HTML view (`rcf view`) and `rcf build` SDD adapter for
 
 Three steps before you start your coding agent, then one prompt inside the session.
 
-1. Install the CLI: `npm install -g @stravica-ai/rcf-build-lite`.
+1. Install the CLI and its ship gate: `npm install -g @stravica-ai/rcf-build-lite @stravica-ai/rcf-verify-lite`. The second package, [`@stravica-ai/rcf-verify-lite`](https://github.com/Stravica/rcf-lite/tree/main/packages/verify), is the independent verifier that `rcf finalise` runs against your deployed app; the two are recommended together. `rcf finalise` prompts to install it if it is absent rather than skipping the gate, so build-only (`npm install -g @stravica-ai/rcf-build-lite`) still works.
 2. In your project directory, run `rcf init` (or `npx @stravica-ai/rcf-build-lite init` without the install). One command sets everything up: the requirements files, the MCP server entry and your agent's instructions.
 3. Start your coding agent session in that directory - or restart the one you have open, so it picks up the new configuration.
 
@@ -24,7 +24,7 @@ Let's get started.
 
 If you'd rather drive it by hand, [docs/getting-started.md](docs/getting-started.md) covers the same ground at human pace.
 
-**Status:** v0.1 is on npm as [`@stravica-ai/rcf-build-lite`](https://www.npmjs.com/package/@stravica-ai/rcf-build-lite). Thirteen working verbs plus `mcp` and `help`, the agent guidance pack, and a 700-plus test suite. Install with `npm install -g @stravica-ai/rcf-build-lite`, or run it directly with `npx @stravica-ai/rcf-build-lite`; [docs/install.md](docs/install.md) covers prerequisites and agent-harness wiring.
+**Status:** v0.1 is on npm as [`@stravica-ai/rcf-build-lite`](https://www.npmjs.com/package/@stravica-ai/rcf-build-lite). Fourteen working verbs plus `mcp` and `help`, the agent guidance pack, and a 700-plus test suite. Install with `npm install -g @stravica-ai/rcf-build-lite`, or run it directly with `npx @stravica-ai/rcf-build-lite`; [docs/install.md](docs/install.md) covers prerequisites and agent-harness wiring.
 
 ## This repo runs on it
 

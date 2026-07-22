@@ -16,12 +16,14 @@ You want this machine to run `rcf`. The steps are agent-executable; a human foll
 ## 3. Install from npm
 
 ```sh
-npm install -g @stravica-ai/rcf-build-lite
+npm install -g @stravica-ai/rcf-build-lite @stravica-ai/rcf-verify-lite
 ```
 
-That puts the `rcf` binary on your PATH. To try the CLI without installing anything, `npx @stravica-ai/rcf-build-lite <verb>` runs the same thing.
+That puts the `rcf` and `rcf-verify` binaries on your PATH. To try the build CLI without installing anything, `npx @stravica-ai/rcf-build-lite <verb>` runs the same thing.
 
-The only runtime dependency, `@stravica-ai/rcf-schemas`, installs from the public npm registry; no registry auth is needed.
+**Why install both.** `rcf-verify` is the independent ship gate. `rcf finalise <fbs-id> --url <deploy-url>` promotes an FBS from `complete` to `verified` only when a fresh-context `rcf-verify` run against the deployed app passes - so the two are recommended together. They stay independently installable (verify alone for CI; build alone if you truly want no ship gate), and finalise will prompt to install `rcf-verify` if it is absent rather than silently skipping the gate. If you install build alone, `npm install -g @stravica-ai/rcf-build-lite` still works.
+
+The only runtime dependency of the build CLI, `@stravica-ai/rcf-schemas`, installs from the public npm registry; no registry auth is needed.
 
 ## 4. Install from source
 
