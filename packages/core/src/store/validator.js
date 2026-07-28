@@ -112,6 +112,22 @@ export function documentIdOf(doc, kind) {
 }
 
 /**
+ * Ajv's default `enum` message is "must be equal to one of the allowed
+ * values" and never says which. The allowed set is in `params`, which
+ * we were discarding - leaving the only way to find a valid status /
+ * priority / testLevel / category / generationStrategy be reading the
+ * schema source. Append it when Ajv provides it.
+ *
+ * @param {object} e - an Ajv error object
+ * @returns {string} suffix to append to the error message ('' when none)
+ */
+function detailOf(e) {
+  const allowed = e?.params?.allowedValues;
+  if (!Array.isArray(allowed) || allowed.length === 0) return '';
+  return ` (allowed: ${allowed.join(', ')})`;
+}
+
+/**
  * Validate a document against its schema.
  *
  * @param {object} args
@@ -137,7 +153,7 @@ export function validateDocument({ doc, kind, filePath }) {
   const field = first.instancePath?.replace(/^\//, '').replace(/\//g, '.') || undefined;
   const rule = first.keyword || undefined;
   const message = ajvErrors
-    .map((e) => `${e.instancePath || '/'} ${e.message ?? 'invalid'}`)
+    .map((e) => `${e.instancePath || '/'} ${e.message ?? 'invalid'}${detailOf(e)}`)
     .join('; ');
   const documentId = documentIdOf(doc, kind) ?? undefined;
   return rcfError({
