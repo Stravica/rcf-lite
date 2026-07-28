@@ -6,6 +6,8 @@ You want to go from an empty directory to a working RCF project. Humans and agen
 
 By the end you will have a validated RCF tree for a small product, answers to the three traceability questions (what is uncovered, what does this connect to, what does a change break), and one full build-loop cycle behind you.
 
+The walkthrough starts from an empty directory because that keeps it readable, not because RCF needs one. If you are sizing this up for a repo that already exists, `rcf init` is safe to run there and [install, section 8](install.md#8-run-it-against-an-existing-repo) is the per-file account of what it will and will not touch.
+
 Every command below was run for real against a fresh project; every output block is pasted, not typed. The journey assumes the `rcf` shell helper from [install, section 6](install.md#6-verify-the-install). Concepts get one line each as the journey needs them; the mental model lives in [how it works](how-it-works.md).
 
 ## 2. Scaffold a project

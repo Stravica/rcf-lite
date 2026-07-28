@@ -41,7 +41,7 @@ One maintenance script to know about: `pnpm run vendor` copies the Mermaid bundl
 
 ## 5. Registry access
 
-Nothing to configure: the schemas dependency installs from the public npm registry with no auth. If your machine routes npm through a corporate proxy or a custom registry mirror, see [troubleshooting](#8-troubleshooting).
+Nothing to configure: the schemas dependency installs from the public npm registry with no auth. If your machine routes npm through a corporate proxy or a custom registry mirror, see [troubleshooting](#9-troubleshooting).
 
 ## 6. Verify the install
 
@@ -84,6 +84,8 @@ rcf init
 
 Then start your agent session. That order matters: harnesses read `.mcp.json` and the instructions file at session start, so a project wired mid-session needs a session restart to take effect.
 
+Running this in a repo that already has code, history and its own `CLAUDE.md` or `.mcp.json`? That is supported, and [section 8](#8-run-it-against-an-existing-repo) is the per-file account of what init will and will not touch.
+
 `rcf mcp` is the server the `.mcp.json` entry launches: it serves the project over the Model Context Protocol (local stdio, no HTTP), resolving the project root from its working directory at startup (or `--project-root <path>`; `rcf help mcp` covers the flags). A registered server exposes eleven `rcf_*` tools, the tree as resources, and two agent playbook prompts; [how it works, section 6](how-it-works.md#6-the-agent-contract) has the inventory.
 
 **Manual fallback.** If you cannot run the bootstrap (pre-existing session, non-standard harness), `rcf init --no-agent-setup` scaffolds the tree only and prints the manual steps. Register the server in `.mcp.json` yourself:
@@ -103,7 +105,69 @@ For a global npm install, the path is `$(npm root -g)/@stravica-ai/rcf-build-lit
 
 Then run `rcf guidance harness-template`, paste its first ```` ```markdown ```` fence into your project's `CLAUDE.md` or `AGENTS.md`, and restart the agent session. (`rcf guidance` prints the method documents out of the installed package, so you do not need a clone of this repo to reach them; run it with no arguments to list the topics.) The server nudges any session it detects as unwired (no rcf marker block in the instructions file) back to `rcf init` + restart.
 
-## 8. Troubleshooting
+## 8. Run it against an existing repo
+
+Everything above assumes a project you are happy to have `rcf init` write into. Most real projects are not empty directories: they have history, code, an instructions file someone already tuned, and a `.mcp.json` with servers in it. `rcf init` is built to be safe in exactly that situation. This section is the concrete contract, so you can decide before you run it rather than after.
+
+### 8.1 What it touches
+
+Init reads and writes four paths in your project root, and nothing else on disk.
+
+| Path | If it is absent | If it is already there |
+|---|---|---|
+| `rcf/` | Scaffolded: a manifest plus placeholder PRD, REQ, US, AC, TAD, TAC, ADR, BS and FBS documents. | Left alone entirely, as long as `rcf/manifest.json` is present. Not read, not merged, not migrated, not renumbered. |
+| `.mcp.json` | Created carrying only the `rcf` server entry. | Merged. Your other servers, and any top-level keys init does not recognise, are carried through unchanged. An existing `rcf` entry is kept exactly as it is, even if it points somewhere unusual. |
+| `CLAUDE.md` | Created only if you have no `AGENTS.md` either. | The `<!-- rcf:begin -->` / `<!-- rcf:end -->` block is refreshed in place. Anything outside those markers is never touched. A file with no marker block yet gets one appended at the end. |
+| `AGENTS.md` | Created only in a project that has neither instructions file. | Same marker rules as `CLAUDE.md`. |
+
+Two consequences worth stating outright:
+
+- **Your source code is never read or written.** Init does not scan, index or rewrite anything under your source directories, and it adds no dependency, build step or CI job.
+- **It never invents the other convention's instructions file.** A repo with only `CLAUDE.md` stays a `CLAUDE.md` repo; a repo with only `AGENTS.md` stays an `AGENTS.md` repo. Only a project with neither gets both, so the default wiring is vendor-neutral without overriding a choice you have already made.
+
+One caveat, stated precisely because the rest of this section depends on it: the "leave the tree alone" guard keys on **`rcf/manifest.json`**, not on the `rcf/` directory. A directory named `rcf/` with no manifest inside it is treated as a fresh scaffold target, and a file sitting on one of the nine scaffold paths (`rcf/prd.json`, `rcf/requirements/req-001.json` and so on) is overwritten. That matters only if you already use `rcf/` for something unrelated, or you have a partial tree whose manifest went missing. Every complete RCF project has a manifest, so the guard holds for any real tree.
+
+### 8.2 Re-running it
+
+Re-running init is the supported way to pick up a newer method fragment after upgrading the CLI. It is idempotent: run it twice with no upgrade in between and every file is byte-identical afterwards.
+
+```
+RCF project already set up here - document chain left untouched, agent wiring refreshed.
+  MCP server         already registered in .mcp.json (kept).
+  Agent instructions refreshed in CLAUDE.md.
+```
+
+The marked block is replaced in place and never duplicated, however many times you run it. A project name passed on a re-run is ignored, because the tree is not rewritten.
+
+### 8.3 Previewing and undoing
+
+**There is no `--dry-run` and no preview flag.** The honest procedure is git:
+
+```sh
+git status              # start from a clean tree
+rcf init
+git diff                # read exactly what changed
+```
+
+Everything init writes is an ordinary working-tree change. Nothing is staged, nothing is committed, and nothing is written outside the project root, so reverting is whatever your normal undo is: restore `.mcp.json` and your instructions file from git, and delete an `rcf/` scaffold you decided you did not want.
+
+One formatting note so the diff does not surprise you: init rewrites `.mcp.json` through a JSON formatter, so the whole file comes back at two-space indentation. If yours used a different layout, the diff shows that reformatting alongside the single real addition. The content is preserved; only whitespace moves.
+
+If `.mcp.json` exists but does not parse, init refuses to modify it and exits 2, telling you to fix it or add the entry by hand. It never attempts a repair. The tree scaffold happens before that check, so a refused run can leave you with a scaffolded `rcf/` and no wiring: fix the JSON and run init again.
+
+To take the tree and skip the wiring entirely, `rcf init --no-agent-setup` scaffolds only `rcf/` and prints the manual steps ([section 7](#7-wire-into-an-agent-harness)).
+
+### 8.4 What this is not
+
+Safe to run is not the same as a migration. Three boundaries, so nobody arrives expecting the wrong thing:
+
+- **It does not migrate an existing RCF tree.** When `rcf/manifest.json` is present, init steps around the tree and changes nothing inside it. Bringing an older tree up to the current schema is a separate exercise that this command does not attempt and will not warn you about.
+- **It does not retrofit traceability onto code you have already written.** You get placeholder documents, not a chain derived from your codebase. Nothing reads your source to infer requirements, and no Code Nodes are created against existing files.
+- **It does not make an existing repo compliant.** After init you have the wiring plus an empty spine. Requirements still have to be elicited, and shipped behaviour stays uncovered until someone writes the acceptance criteria and tests that cover it.
+
+What init gives a brownfield repo is an entry point, not a finished state: the method present in the repo, wired for the agent session, with your existing work untouched. The tree gets filled in from there, normally starting with the next piece of work rather than by back-filling everything already shipped.
+
+## 9. Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
