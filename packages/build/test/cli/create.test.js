@@ -127,3 +127,23 @@ test('rcf create --help prints the create help block', async () => {
   assert.equal(code, 0);
   assert.match(stdout, /Kinds:/);
 });
+
+// The help used to say only "--parent <id>  Required for every kind",
+// never which KIND of id per kind. A TS hangs off a US (schema requires
+// usId and forbids additional properties), but an agent driving the
+// FBS-shaped build loop naturally reaches for --parent FBS-xxx and gets
+// a brokenReference with no hint at what the right parent would be.
+test('rcf create --help names the parent kind for every kind', async () => {
+  const tmp = await scaffold();
+  const { code, stdout } = await runBin(tmp, ['create', '--help']);
+  assert.equal(code, 0);
+  assert.match(stdout, /req\s+-> PRD id/);
+  assert.match(stdout, /us\s+-> REQ id/);
+  assert.match(stdout, /ac -> US id/);
+  assert.match(stdout, /tac\s+-> TAD id/);
+  assert.match(stdout, /adr -> TAD id/);
+  assert.match(stdout, /fbs -> BS id/);
+  assert.match(stdout, /ts\s+-> US id/);
+  assert.match(stdout, /tc\s+-> TS id/);
+  assert.match(stdout, /cn\s+-> no --parent/);
+});
