@@ -23,7 +23,7 @@ const OPTION_SPEC = {
   'derive-deps': { type: 'boolean' },
 };
 
-const HELP = `Usage: rcf update <id> [options]
+export const HELP = `Usage: rcf update <id> [options]
 
 Options:
   --set <dotPath>=<value>   Set a field; repeatable

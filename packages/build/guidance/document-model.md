@@ -30,7 +30,7 @@ One page per document type, the reference rule that keeps the tree drift-proof, 
 
 ## Edges live on the child
 
-Every reference points upward from child to parent: a REQ carries its `prdId`, a US its `reqId`, a TAC its `tadId`, an FBS its `bsId`. Parents never hold lists of their children. The walker computes the downward maps at load time by inverting the child references. This is deliberate drift-proofing: adding, moving or deleting a document touches exactly one file, so parent documents cannot go stale and two files cannot disagree about the same edge.
+Every reference points upward from child to parent: a REQ carries its `prdId`, a US its `reqId`, a TAC its `tadId`, an FBS its `bsId`, and a TS its `usId`. That last one catches people out: a test suite hangs off the **user story**, not off the FBS that happens to schedule the work, even though the FBS is what you were looking at when you decided the suite was needed. A CN is the one exception to the upward rule - it has no parent at all, because its identity is its `path` rather than a position in the tree. Parents never hold lists of their children. The walker computes the downward maps at load time by inverting the child references. This is deliberate drift-proofing: adding, moving or deleting a document touches exactly one file, so parent documents cannot go stale and two files cannot disagree about the same edge.
 
 ## Files on disk
 

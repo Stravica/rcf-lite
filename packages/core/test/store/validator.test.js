@@ -255,3 +255,47 @@ test('validateDocument accepts the new test-suite shape (id field, inline testCa
   };
   assert.equal(validateDocument({ doc: ts, kind: 'testSuite' }), null);
 });
+
+// Ajv's enum message ("must be equal to one of the allowed values")
+// never names the values; the set lives in `params.allowedValues`,
+// which the message builder used to discard. Without this, the only
+// way to discover a valid status was to read the schema source.
+test('validateDocument names the allowed values on an enum failure', () => {
+  const ts = {
+    id: 'TS-001',
+    usId: 'US-101',
+    title: 'Loader smoke',
+    purpose: 'Cover AC-101-1',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [
+      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'done' },
+    ],
+    status: 'draft',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  const err = validateDocument({ doc: ts, kind: 'testSuite' });
+  assert.ok(err);
+  assert.equal(err.kind, 'validation');
+  assert.match(err.message, /must be equal to one of the allowed values/);
+  assert.match(err.message, /\(allowed: pending, passing, failing, skipped\)/);
+});
+
+test('validateDocument leaves non-enum messages untouched', () => {
+  const ts = {
+    id: 'NOPE-001',
+    usId: 'US-101',
+    title: 'Loader smoke',
+    purpose: 'Cover AC-101-1',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [],
+    status: 'draft',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  const err = validateDocument({ doc: ts, kind: 'testSuite' });
+  assert.ok(err);
+  assert.doesNotMatch(err.message, /\(allowed:/);
+});

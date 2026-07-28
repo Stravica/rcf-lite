@@ -32,7 +32,7 @@ const OPTION_SPEC = {
   'with-code': { type: 'boolean' },
 };
 
-const HELP = `Usage: rcf coverage [scope-id] [options]
+export const HELP = `Usage: rcf coverage [scope-id] [options]
 
 Report structural coverage over the REQ chain (PRD -> REQ -> US -> AC
 -> TS -> TC). Default is shallow-any (any AC covered by any TC = REQ

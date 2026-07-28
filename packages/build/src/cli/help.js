@@ -1,11 +1,29 @@
 // Top-level and per-subcommand help. British English, ASCII hyphens
-// only (Phase 4 §D17). Long-form docs land in Phase 8; this help block
-// is the sole documentation surface for the phase.
+// only (Phase 4 §D17).
+//
+// Single-source rule: this module owns the TOP_LEVEL block and NOTHING
+// else. Every per-subcommand block is imported from the module that
+// implements the subcommand, so `rcf help <cmd>` and `rcf <cmd> --help`
+// are the same string by construction. Do not reintroduce a local copy
+// of a subcommand's help - `test/cli/help-parity.test.js` fails the
+// moment the two paths differ. (This file previously kept private
+// duplicates of nine blocks; every one of them had drifted stale, and
+// `rcf help create` was hiding the `cn` kind outright.)
 
 import { HELP as BUILD_HELP } from './build.js';
+import { HELP as COVERAGE_HELP } from './coverage.js';
+import { HELP as CREATE_HELP } from './create.js';
+import { HELP as DELETE_HELP } from './delete.js';
 import { HELP as FINALISE_HELP } from './finalise.js';
 import { HELP as GUIDANCE_HELP } from './guidance.js';
+import { HELP as IMPACT_HELP } from './impact.js';
+import { HELP as INIT_HELP } from './init.js';
+import { HELP as LINK_HELP, UNLINK_HELP } from './link.js';
 import { HELP as MCP_HELP } from './mcp.js';
+import { HELP as READ_HELP } from './read.js';
+import { HELP as TRACE_HELP } from './trace.js';
+import { HELP as UPDATE_HELP } from './update.js';
+import { HELP as VALIDATE_HELP } from './validate.js';
 import { HELP as VIEW_HELP } from './view.js';
 
 const TOP_LEVEL = `Usage: rcf <command> [options]
@@ -43,173 +61,8 @@ Exit codes:
 Run 'rcf help <command>' for command-specific help.
 `;
 
-const INIT_HELP = `Usage: rcf init [options]
-
-Scaffold a new RCF project (creates the rcf/ tree, manifest, and
-placeholder root documents). Interactive by default when stdout and
-stdin are TTYs and --non-interactive is not set.
-
-Options:
-  --project-name <name>     Project name (required for --non-interactive)
-  --non-interactive         Skip prompts; use seed values (default when
-                            not on a TTY or when piped)
-  --quiet                   Suppress non-error stdout
-  --help                    Print this help
-`;
-
-const VALIDATE_HELP = `Usage: rcf validate [options]
-
-Walk the rcf/ tree and report schema-validation and broken-reference
-issues. Exits 0 when clean, 3 on issues.
-
-Options:
-  --quiet                   Only summary line + first 3 issues
-  --json                    Emit machine-readable envelope
-  --help                    Print this help
-`;
-
-const CREATE_HELP = `Usage: rcf create <kind> [options]
-
-Kinds: req | us | ac | tac | adr | fbs | ts | tc
-
-Options:
-  --parent <id>             Required for every kind (post-3.7 every
-                            non-root child carries a mandatory
-                            parentId-style field)
-  --id <id>                 Override auto-assigned id (refuses on
-                            collision)
-  --title <string>          Required for req / us / tac / adr / fbs / ts
-                            (ac / tc use --description)
-  --description <string>    Body description; required for ac / tc
-  --acs <id>[,<id>...]      Required for fbs and ts (one or more AC ids)
-  --ac <id>                 Required for tc (single AC id per test case)
-  --purpose <string>        Required for ts
-  --test-level <level>      Required for ts; one of
-                            unit / integration / e2e / contract / manual
-  --slug <slug>             Optional for tc; derived from description if
-                            absent
-  --test-pointer <path>     Optional for tc; format filePath::testName
-  --build-order <int>       Optional for fbs; default = max+1 within its BS
-  --from-file <path>        Read body fields from a JSON file
-                            (merged with CLI fields; CLI wins on conflict)
-  --dry-run                 Print intended writes without executing
-  --quiet                   Suppress non-error stdout
-  --help                    Print this help
-`;
-
-const READ_HELP = `Usage: rcf read <id> [options]
-
-Options:
-  --field <dotPath>         Print only the addressed field
-  --raw                     Emit unformatted (single-line) JSON
-  --help                    Print this help
-`;
-
-const UPDATE_HELP = `Usage: rcf update <id> [options]
-
-Options:
-  --set <dotPath>=<value>   Set a field; repeatable
-  --from-file <path>        Merge body fields from a JSON file
-                            (deep merge; arrays replace)
-  --json                    Parse --set values as JSON (default: string)
-  --dry-run                 Print intended writes without executing
-  --quiet                   Suppress non-error stdout
-  --help                    Print this help
-`;
-
-const DELETE_HELP = `Usage: rcf delete <id> [options]
-
-Options:
-  --cascade                 Also delete dependents and drop backrefs
-                            (dependents discovered via computed maps)
-  --dry-run                 Print the plan without executing
-  --quiet                   Suppress non-error stdout
-  --help                    Print this help
-`;
-
-const LINK_HELP = `Usage: rcf link <us-id> --tac <tac-id> [options]
-
-Options:
-  --tac <tac-id>            TAC id to link (repeatable to link multiple
-                            TACs in one invocation)
-  --dry-run                 Print the intended write without executing
-  --quiet                   Suppress non-error stdout
-  --help                    Print this help
-`;
-
-const UNLINK_HELP = `Usage: rcf unlink <us-id> --tac <tac-id> [options]
-
-Options:
-  --tac <tac-id>            TAC id to unlink (repeatable)
-  --dry-run                 Print the intended write without executing
-  --quiet                   Suppress non-error stdout
-  --help                    Print this help
-`;
-
-const COVERAGE_HELP = `Usage: rcf coverage [scope-id] [options]
-
-Report structural coverage over the REQ chain (PRD -> REQ -> US -> AC
--> TS -> TC). Default is shallow-any (any AC covered by any TC = REQ
-covered); --strict flips to per-AC-strict (every AC has TC coverage).
-
-This is a mechanical / deterministic structural check. It does NOT
-answer 'does the AC set adequately capture the REQ's intent?' - that
-non-deterministic question is out of scope for Phase 5.
-
-Positional:
-  scope-id                  Optional PRD / REQ / US id to scope
-                            coverage to a subtree. Below-AC ids
-                            (AC / TS / TC / FBS / TAC / ADR / BS /
-                            TAD) are refused with exit 2.
-
-Options:
-  --strict                  Per-AC-strict mode; exits 4 on any gap
-  --format <format>         table (default) | json | mermaid
-  --help                    Print this help
-`;
-
-const TRACE_HELP = `Usage: rcf trace <id> [options]
-
-Walk the graph from <id> forward (descendants), backward (ancestors),
-or both. Default is --forward.
-
-Options:
-  --forward                 Walk descendants (default)
-  --back                    Walk ancestors up to the root PRD / TAD / BS
-  --both                    Emit ancestors + descendants around <id>
-  --format <format>         table (default) | json | mermaid
-  --help                    Print this help
-
-Notes:
-  --forward, --back and --both are mutually exclusive.
-  Cross-links are NOT traversed by --back (fan-out is what 'impact' is for).
-`;
-
-const IMPACT_HELP = `Usage: rcf impact <id> [options]
-
-Report the fan-out for 'if <id> changes'. Emits ancestors (up to the
-root PRD / TAD / BS) plus descendants (down to test-leaves) with a
-per-node action label:
-  re-run          test needs to be re-executed
-  re-verify       suite ownership; check whether the change invalidates
-  re-approve      the AC or PRD approval scope needs re-signing
-  review-scope    US / REQ scope needs re-checking
-  review-arch     TAD architectural context needs revisiting
-  review-plan     BS build queue may need re-ordering
-  re-execute      FBS delivery re-runs against updated AC
-  review-context  TAC / ADR referenced by an affected FBS
-
-Options:
-  --format <format>         table (default) | json | mermaid
-  --help                    Print this help
-`;
-
-// BUG-011 fix: `rcf help view` previously printed a pointer
-// (`See 'rcf view --help' for view options.`). Every other subcommand's
-// help block renders inline; wire `view` through to the same block that
-// `rcf view --help` prints (imported above), so `rcf help view` is
-// consistent with the other 8 subcommands.
-
+// Every value here is an import. See the single-source rule at the top
+// of this file before adding an entry.
 const HELP_MAP = {
   init: INIT_HELP,
   validate: VALIDATE_HELP,

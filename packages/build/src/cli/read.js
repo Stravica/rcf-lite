@@ -13,7 +13,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-const HELP = `Usage: rcf read <id> [options]
+export const HELP = `Usage: rcf read <id> [options]
 
 Options:
   --field <dotPath>         Print only the addressed field

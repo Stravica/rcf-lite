@@ -15,6 +15,25 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
+export const HELP = `Usage: rcf link <us-id> --tac <tac-id> [options]
+
+Options:
+  --tac <tac-id>            TAC id to link (repeatable to link multiple
+                            TACs in one invocation)
+  --dry-run                 Print the intended write without executing
+  --quiet                   Suppress non-error stdout
+  --help                    Print this help
+`;
+
+export const UNLINK_HELP = `Usage: rcf unlink <us-id> --tac <tac-id> [options]
+
+Options:
+  --tac <tac-id>            TAC id to unlink (repeatable)
+  --dry-run                 Print the intended write without executing
+  --quiet                   Suppress non-error stdout
+  --help                    Print this help
+`;
+
 /**
  * @param {string[]} argv - argv slice after `link`
  * @param {object} deps
@@ -105,7 +124,5 @@ export async function main(argv, deps = {}) {
 }
 
 function help(removing) {
-  return removing
-    ? `Usage: rcf unlink <us-id> --tac <tac-id> [options]\n\nOptions:\n  --tac <tac-id>            TAC id to unlink (repeatable)\n  --dry-run                 Print the intended write without executing\n  --quiet                   Suppress non-error stdout\n  --help                    Print this help\n`
-    : `Usage: rcf link <us-id> --tac <tac-id> [options]\n\nOptions:\n  --tac <tac-id>            TAC id to link (repeatable)\n  --dry-run                 Print the intended write without executing\n  --quiet                   Suppress non-error stdout\n  --help                    Print this help\n`;
+  return removing ? UNLINK_HELP : HELP;
 }

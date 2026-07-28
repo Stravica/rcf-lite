@@ -15,10 +15,11 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-const HELP = `Usage: rcf delete <id> [options]
+export const HELP = `Usage: rcf delete <id> [options]
 
 Options:
   --cascade                 Also delete dependents and drop backrefs
+                            (dependents discovered via computed maps)
   --dry-run                 Print the plan without executing
   --quiet                   Suppress non-error stdout
   --help                    Print this help
