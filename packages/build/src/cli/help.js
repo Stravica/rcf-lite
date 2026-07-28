@@ -4,6 +4,7 @@
 
 import { HELP as BUILD_HELP } from './build.js';
 import { HELP as FINALISE_HELP } from './finalise.js';
+import { HELP as GUIDANCE_HELP } from './guidance.js';
 import { HELP as MCP_HELP } from './mcp.js';
 import { HELP as VIEW_HELP } from './view.js';
 
@@ -24,6 +25,7 @@ Commands:
   impact <id>         Impact fan-out with per-node action label
   build [fbs-id]      Assemble FBS spec bundles and drive the build queue
   finalise <fbs-id>   Ship gate: verify the deployed app, then mark verified
+  guidance [topic]    Print a method document from the installed pack
   mcp                 Serve the project over MCP (local stdio)
   help [command]      Print help for a command
 
@@ -222,6 +224,7 @@ const HELP_MAP = {
   impact: IMPACT_HELP,
   build: BUILD_HELP,
   finalise: FINALISE_HELP,
+  guidance: GUIDANCE_HELP,
   mcp: MCP_HELP,
   view: VIEW_HELP,
 };

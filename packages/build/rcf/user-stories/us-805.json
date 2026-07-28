@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-07-20T17:04:24.904Z",
-  "updatedAt": "2026-07-20T17:10:46.220Z",
-  "description": "The method carries interim guidance for a periodic and end-of-build fresh-context self-review that drives the app against its acceptance criteria to catch the defect classes green test suites miss, honestly scoped as a stopgap until the independent verification gate exists.",
+  "updatedAt": "2026-07-28T16:39:51.461Z",
+  "description": "The method carries guidance for a periodic and end-of-build fresh-context self-review that drives the app against its acceptance criteria to catch the defect classes green test suites miss, honestly scoped as an in-loop check subordinate to the independent verification gate that rcf finalise runs.",
   "asA": "non-coding product owner",
   "iWant": "the build to include a periodic fresh look that actually drives the app against what it is supposed to do",
   "soThat": "defects my passing tests miss are caught before I rely on the result",
@@ -38,10 +38,10 @@
     },
     {
       "id": "AC-805-4",
-      "description": "The guidance scopes the self-review honestly as an interim stopgap and not the independent gate",
+      "description": "The guidance scopes the self-review honestly as an in-loop check and not the independent gate",
       "given": "the self-review guidance",
       "when": "it frames the review",
-      "then": "it states plainly that this is interim guidance until rcf-verify-lite exists, is guidance and not a new subsystem, and is not the independent verification gate",
+      "then": "it states plainly that this is an in-loop check and not the independent verification gate, names rcf finalise (section 7) as the gate, and says it is guidance and not a new subsystem",
       "testable": true
     }
   ],

@@ -2,7 +2,7 @@
 
 ## 1. Read this if
 
-You are the agent executing FBS items in an RCF project. Load this once per session, as the `rcf_execute_build_cycle` prompt or by reading this file, then loop. Every spec bundle closes with a terse runbook for the item in hand; that runbook is the contract you execute each cycle, and this playbook is the depth behind it. If the two ever disagree, the runbook wins; report the disagreement as a bug rather than resolving it yourself.
+You are the agent executing FBS items in an RCF project. Load this once per session - as the `rcf_execute_build_cycle` prompt, or by running `rcf guidance build-cycle-playbook` on the CLI - then loop. Every spec bundle closes with a terse runbook for the item in hand; that runbook is the contract you execute each cycle, and this playbook is the depth behind it. If the two ever disagree, the runbook wins; report the disagreement as a bug rather than resolving it yourself.
 
 Every command output shown below is real, captured against this repository's own RCF tree (or a scratch copy of it, where noted). Outputs illustrate shape, not the tree's current queue state.
 
@@ -396,11 +396,13 @@ Node app on Vercel:
 
 Both name the runtime, both refuse to imply the deployed profile, and both say plainly what is still unproven.
 
-## 16. Interim fresh-context self-review
+## 16. In-loop fresh-context self-review
 
-Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The durable fix is a productised independent verification gate (rcf-verify-lite), scoped separately. Until it exists, the method carries an **interim self-review** - and it is careful never to pretend to be that gate.
+Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The independent verification gate is the durable answer to that, and it ships: `rcf finalise` runs the independent verifier against the deployed app and is the only thing that promotes an FBS from `complete` to `verified` (section 7). Nothing in this section changes that.
+
+What this section adds is the cheap check that runs **in the loop, between builds** - long before you reach the gate. Its value is finding the defect at FBS 6 instead of at the ship gate. It is subordinate to the gate, never a substitute for it, and it never writes `verified`.
 
 - **What it is: a fresh-context reviewer dispatch, periodic and at the end.** Run a manual-review subagent in a fresh context **every few FBS builds** and **once more at the end of the build**. Fresh context matters: a reviewer carrying the build's own assumptions re-confirms them; a reviewer starting cold does not.
 - **It drives the app, it does not read the code.** The reviewer starts the running application (the local preview is right there) and **drives it against the acceptance criteria** - exercises the real behaviour a user would - rather than reading the diff. Reading code re-checks intent; driving the app checks what was actually built.
 - **It targets the defect classes green suites miss.** Name them for the reviewer: **session-class bugs** (state that leaks or resets across requests/sessions), **false-promise UI** (buttons and screens that imply an action the code never performs), **runtime mismatch** (passes on localhost, fails on the deployed runtime), **dead auth paths** (login/signup flows that never actually work end to end), and **dead code** (paths shipped but never reachable). These are exactly the classes a passing unit suite reports nothing about.
-- **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **interim guidance until rcf-verify-lite exists**, it is **guidance and prompt-level, not a new subsystem**, and it is **not the independent verification gate**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check - it is worth running and it is not worth overclaiming. Say both.
+- **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **an in-loop check, not the independent verification gate** - the gate is `rcf finalise` (section 7) - and it is **guidance and prompt-level, not a new subsystem**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check: worth running before the gate, not worth overclaiming after it. Say both. A self-review pass is never evidence for a `verified` mark; only the finalise gate produces that.

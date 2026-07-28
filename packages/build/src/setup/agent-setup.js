@@ -221,8 +221,9 @@ export function manualSetupInstructions(binPath = rcfBinPath()) {
     '  1. Register the MCP server in your project-root .mcp.json:',
     '       { "mcpServers": { "rcf": { "command": "node",',
     `         "args": ["${binPath}", "mcp"] } } }`,
-    '  2. Paste the fragment from guidance/harness-template.md into your',
-    '     project\'s CLAUDE.md or AGENTS.md.',
+    '  2. Paste the fragment from `rcf guidance harness-template` (the',
+    '     first ```markdown fence) into your project\'s CLAUDE.md or',
+    '     AGENTS.md.',
     '  3. Restart your agent session so it picks both up.',
   ].join('\n');
 }

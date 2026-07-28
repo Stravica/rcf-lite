@@ -18,6 +18,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
   Detection lives in the walker, not the schema: the schema is right to permit variable-width numeric runs, and it is uniqueness *after normalisation* that is being violated. `rcf validate --json` carries the same issue under `kind: "duplicateId"`.
 
+- **`rcf guidance [topic]`**: prints a method document out of the installed package to stdout. `rcf guidance` with no arguments lists the topics; `--list` emits bare slugs for scripting; `--path` prints the file's location instead of its contents. No project root is required.
+
+  This closes a gap for CLI-only agents. The guidance pack ships inside the package and is deliberately never scaffolded into your project, so an MCP-wired harness reached the playbooks through `rcf://docs/<slug>` resources and the `rcf_*` prompts while an agent without MCP had no route to them at all. The two deep playbooks are the sharp case: they are served as prompts only, with no `rcf://docs` resource, so the CLI fallback the guidance pointed at was the only route and it did not exist.
+
+### Changed
+
+- **Guidance no longer points at unreachable `guidance/*.md` paths.** The agent-instructions fragment `rcf init` writes, the "Deep guidance" footer on every `rcf build --next` spec bundle, and the `rcf init --no-agent-setup` manual instructions all named bare `guidance/elicitation-playbook.md` / `guidance/build-cycle-playbook.md` paths. Those files exist only inside a clone of this repository, so the instruction was dead on arrival in a consumer project. All of them now name `rcf guidance <topic>`.
+
+### Fixed
+
+- **The build-cycle playbook no longer claims the independent verification gate is unbuilt.** Section 16 described the fresh-context self-review as an "interim stopgap until rcf-verify-lite exists", which stopped being true when `rcf-verify-lite` shipped and `rcf finalise` began running it. The playbook contradicted its own section 7, and the false claim was inside the fragment written into every initialised project's `CLAUDE.md`. The self-review is now positioned as what it actually is: the cheap in-loop check that runs between builds, subordinate to the `rcf finalise` gate rather than a placeholder for it, and never evidence for a `verified` mark. AC-805-4 and its drift test moved with the prose, and the test now fails if either file reacquires the stale claim.
+
 ## [0.4.0] - 2026-07-22
 
 Hardens the `verified` state so it can only be reached through the independent ship gate. Two changes close bypasses that let a builder write `verified` without a passing, ship-authoritative `rcf-verify` run, plus one documented contract-field rename. No new features; behaviour and one JSON contract key change, so this is a minor bump under the pre-1.0 breaking-is-minor convention.
