@@ -258,7 +258,12 @@ export async function defaultSpawnLauncher(ctx) {
     }
     let buf = '';
     child.stdout.on('data', (d) => { buf += d.toString(); });
-    child.on('error', (err) => reject(new Error(`verifier agent failed to start: ${err.message}. Set ${LAUNCHER_ENV} to inject a launcher.`)));
+    // Same message as the synchronous spawn-throw above: on macOS/Linux a
+    // missing `claude` surfaces as ENOENT on the 'error' EVENT, not as a throw,
+    // so this is the message a first-run user without the agent CLI actually
+    // hits. It must name installing the CLI, not just the launcher env seam.
+    child.on('error', (err) => reject(new Error(`could not launch verifier agent "${config.command}": ${err.message}. `
+      + `Set ${LAUNCHER_ENV} to a module exporting launchAgent, or install the agent CLI.`)));
     child.on('close', (code) => {
       if (code !== 0) {
         reject(new Error(`verifier agent exited ${code}`));

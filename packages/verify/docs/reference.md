@@ -2,6 +2,23 @@
 
 The full technical surface of `@stravica-ai/rcf-verify-lite`. If you're new here, start with the [README](../README.md) — this page is the detail behind it.
 
+> **Two different things are called "prerequisites" here.** [Runtime requirements](#runtime-requirements) is what *you* need installed for `rcf-verify` to run at all. [Prerequisite provisioning](#prerequisite-provisioning-app-state) is about state your *app under test* needs (accounts, sandboxes, seed data) and is a feature of `run`, not a setup step. If a first run fails to launch, you want runtime requirements.
+
+## Runtime requirements
+
+Verify launches a separate agent and gives it a browser; the machine running `rcf-verify` supplies both. The [README](../README.md#requirements) carries the full what/why/how. In summary:
+
+| Requirement | Why | Satisfy it with |
+|---|---|---|
+| Node.js >= 24 | `"engines": { "node": ">=24.0.0" }` | [nodejs.org](https://nodejs.org) |
+| `claude` on `PATH` | the verifier agent is Claude Code, spawned by bare name | [Claude Code](https://docs.claude.com/en/docs/claude-code/setup), or override with `RCF_VERIFY_LAUNCHER` |
+| A local Claude Code login | verify passes its own env to the agent; it holds no credential of its own | `claude` once interactively; authenticate CI runners the same way |
+| `npx` on `PATH` | browser tooling is provisioned as `npx -y @playwright/mcp@latest` | ships with Node |
+| Network egress | npm registry (`@playwright/mcp@latest` re-resolves per run), Anthropic's API, and your app's URL | allow all three in restricted CI |
+| A browser | `@playwright/mcp` drives a real browser; **nothing in the install chain downloads one** | system Google Chrome by default, else `npx @playwright/mcp install-browser <name>` |
+
+Every one of these fails at *run* time, not install time. A missing `claude`, an unauthenticated machine, or no browser all surface as a verifier-agent launch failure (exit code 1).
+
 ## Commands
 
 ```
@@ -53,7 +70,9 @@ Every verdict is stamped with the runtime profile it ran against. Authority is c
 
 The exit code is the machine-readable gate: `rcf finalise` in [rcf-build-lite](https://www.npmjs.com/package/@stravica-ai/rcf-build-lite) promotes a build spec to `verified` only on exit 0.
 
-## Prerequisite provisioning
+## Prerequisite provisioning (app state)
+
+Not to be confused with [Runtime requirements](#runtime-requirements) above: this section is about state your *app under test* needs, not about what you need installed to run verify.
 
 Adversarial testing often needs state: auth accounts, third-party service sandboxes, seed data. `run` provisions declared prerequisites before the pass and tears them down after; `provision` / `cleanup` expose the same machinery standalone. Everything provisioned is prefixed `zzverify-` so cleanup is unambiguous. A prerequisite that cannot be provisioned yields `BLOCKED` — never a silent skip of the journeys that needed it.
 
