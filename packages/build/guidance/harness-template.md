@@ -18,8 +18,8 @@ improvised task lists.
 
 RULE 1 - Elicit first; never fabricate.
 - Before authoring or rewriting any RCF document, run the elicitation
-  playbook: the rcf_elicit_requirements MCP prompt (or
-  guidance/elicitation-playbook.md). Ask the stakeholder its questions
+  playbook: the rcf_elicit_requirements MCP prompt, or on the CLI
+  rcf guidance elicitation-playbook. Ask the stakeholder its questions
   and WAIT for answers.
 - Document content comes from stakeholder answers. If a fact was not
   given to you, do not invent it - ask. A chain written in one shot
@@ -99,10 +99,12 @@ Build loop:
   rcf impact <id> before touching anything with dependents.
 - PR bodies are evidence-first: lead with what was verified and how,
   traced to AC / FBS ids, not a diff walk.
-- Run the interim fresh-context self-review (build-cycle playbook) every
-  few FBS builds and once at the end: a reviewer that drives the running
-  app against its ACs, not one that reads the code. It is an interim
-  stopgap until rcf-verify-lite, not the independent verification gate.
+- Run the fresh-context self-review every few FBS builds and once at
+  the end: a reviewer that drives the running app against its ACs, not
+  one that reads the code. Method: rcf guidance build-cycle-playbook,
+  section 16. It is the cheap in-loop check between builds, and it is
+  not the independent verification gate - rcf finalise runs that, and
+  only that writes verified.
 - If context gets unreliable on a large build, do not stall. Write a
   next-session handover doc (queue state, the in-progress item, the next
   actionable id), add a line to this file pointing the next session at
@@ -119,10 +121,13 @@ Escalation:
 - Never mark a stage done without its referee output.
 
 MCP-wired harnesses: the same contract holds over the server's rcf_*
-tools and prompts. Method depth: the rcf_execute_build_cycle prompt (or
-guidance/build-cycle-playbook.md) for the build loop, queue
+tools and prompts. Method depth, either wiring: the
+rcf_execute_build_cycle prompt, or on the CLI
+rcf guidance build-cycle-playbook, for the build loop, queue
 orchestration, PR authoring and bug triage; the rcf_elicit_requirements
-prompt for elicitation, AC coverage depth and conversation integrity.
+prompt, or rcf guidance elicitation-playbook, for elicitation, AC
+coverage depth and conversation integrity. Run rcf guidance with no
+arguments to list every method document the installed package ships.
 
 <!-- Optional: state your PR convention here, e.g. "PRs target main". -->
 ```

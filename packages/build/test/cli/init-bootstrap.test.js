@@ -153,7 +153,11 @@ test('--no-agent-setup: tree only, manual instructions printed, no wiring files'
   assert.match(stdout, /Set up the RCF document chain under rcf\//);
   assert.match(stdout, /Agent setup skipped/);
   assert.match(stdout, /mcpServers/);
-  assert.match(stdout, /harness-template\.md/);
+  // The manual route must be reachable from the consumer project: name
+  // the `rcf guidance` verb, never a bare guidance/ path that is only
+  // on disk inside the rcf-build-lite repo.
+  assert.match(stdout, /rcf guidance harness-template/);
+  assert.equal(/guidance\/harness-template\.md/.test(stdout), false, 'manual instructions must not point at an unscaffolded guidance/ path');
   assert.equal(await fileExists(join(tmp, '.mcp.json')), false);
   assert.equal(await fileExists(join(tmp, 'CLAUDE.md')), false);
 });

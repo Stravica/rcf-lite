@@ -101,7 +101,7 @@ Then start your agent session. That order matters: harnesses read `.mcp.json` an
 
 For a global npm install, the path is `$(npm root -g)/@stravica-ai/rcf-build-lite/bin/rcf.js`; for a source install, it is the clone's `bin/rcf.js`.
 
-Then paste the fragment from [`guidance/harness-template.md`](../guidance/harness-template.md) into your project's `CLAUDE.md` or `AGENTS.md`, and restart the agent session. The server nudges any session it detects as unwired (no rcf marker block in the instructions file) back to `rcf init` + restart.
+Then run `rcf guidance harness-template`, paste its first ```` ```markdown ```` fence into your project's `CLAUDE.md` or `AGENTS.md`, and restart the agent session. (`rcf guidance` prints the method documents out of the installed package, so you do not need a clone of this repo to reach them; run it with no arguments to list the topics.) The server nudges any session it detects as unwired (no rcf marker block in the instructions file) back to `rcf init` + restart.
 
 ## 8. Troubleshooting
 

@@ -152,11 +152,23 @@ test('AC-805-3: the review names the target defect classes', async () => {
   assert.match(playbook, /dead code/i);
 });
 
-test('AC-805-4: the self-review is honestly scoped as interim and not the independent gate', async () => {
+test('AC-805-4: the self-review is honestly scoped as an in-loop check subordinate to the independent gate', async () => {
   const playbook = await read('build-cycle-playbook.md');
-  assert.match(playbook, /interim guidance until rcf-verify-lite/i);
+  assert.match(playbook, /an in-loop check, not the independent verification gate/i);
   assert.match(playbook, /not a new subsystem/i);
-  assert.match(playbook, /not the independent verification gate/i);
+  // Subordinate to the gate, and the gate is named: `rcf finalise`.
+  assert.match(playbook, /the gate is `rcf finalise` \(section 7\)/);
+});
+
+test('AC-805-4: no guidance claims the independent verification gate is still unbuilt', async () => {
+  // rcf-verify-lite shipped (0.1.1) and `rcf finalise` runs it. Guidance
+  // written before that said the gate did not exist yet, which made
+  // section 16 contradict section 7. Guard the regression in both files.
+  for (const file of ['build-cycle-playbook.md', 'harness-template.md']) {
+    const text = await read(file);
+    assert.equal(/until rcf-verify-lite/i.test(text), false, `${file} still claims the verification gate does not exist`);
+    assert.equal(/interim/i.test(text), false, `${file} still frames the self-review as interim`);
+  }
 });
 
 // Fragment carries the deploy-aware and runtime-honest RULE blocks.

@@ -37,6 +37,18 @@ test('every relative link in guidance/*.md resolves on disk', async () => {
   }
 });
 
+test('no pack file points a reader at a bare guidance/ path', async () => {
+  // The pack ships inside the installed package and is never scaffolded
+  // into a consumer project, so `guidance/<file>.md` is not a path a
+  // reader can open. The reachable routes are the rcf://docs/<slug>
+  // resources, the rcf_* prompts, and `rcf guidance <topic>` on the CLI.
+  for (const { name, text } of await packFiles()) {
+    for (const m of text.matchAll(/guidance\/[a-z0-9-]+\.md/g)) {
+      assert.fail(`${name}: '${m[0]}' is not reachable from a consumer project; name 'rcf guidance <topic>' instead`);
+    }
+  }
+});
+
 test('the three methodology resources carry canonical footers matching their manifest slugs', async () => {
   const manifest = JSON.parse(await readFile(join(guidanceDir, 'manifest.json'), 'utf8'));
   for (const fileName of FOOTER_FILES) {
