@@ -4,7 +4,7 @@
 
 The block that wires an agent into the RCF loop. **The golden path is `rcf init`**: it writes this fragment into your project's agent-instructions files automatically - **both `CLAUDE.md` and `AGENTS.md` on a fresh project** (vendor-neutral by default), or an existing instructions file refreshed in place - inside `<!-- rcf:begin -->` / `<!-- rcf:end -->` markers so re-running init refreshes it. Paste it by hand only if you skipped the bootstrap (`rcf init --no-agent-setup`) or your harness reads instructions from somewhere non-standard. The fragment is complete as shipped and names no specific harness.
 
-These are operating rules for the agent, not suggestions. They exist because the failure modes are known: agents fabricate documents single-shot instead of asking, silently drop the tech or test layer, declare scaffold TODOs "done", stop after one build item instead of driving the queue, patch a reported bug in code without fixing the spec that let it through, commit a technology stack the owner's hosting cannot run before anyone asked where the app would run, ship with nothing the owner can actually run without a deploy, and claim a result is "verified" against a runtime the check never touched. The fragment forecloses each.
+These are operating rules for the agent, not suggestions. They exist because the failure modes are known: agents fabricate documents single-shot instead of asking, silently drop the tech or test layer, declare scaffold TODOs "done", stop after one build item instead of driving the queue, patch a reported bug in code without fixing the spec that let it through, commit a technology stack the owner's hosting cannot run before anyone asked where the app would run, push an undecided owner into standing up accounts and billing for a thing nobody has committed to building, ship with nothing the owner can actually run without a deploy, and claim a result is "verified" against a runtime the check never touched. The fragment forecloses each.
 
 ## The fragment
 
@@ -48,15 +48,28 @@ RULE 4 - A reported bug is a spec gap first.
 
 RULE 5 - Deploy target before stack; never commit a stack blind.
 - A technology stack must NOT be committed before the deploy target is
-  established. Where the app will run is elicited early, and the stack is
-  constrained to what that target can host. Choosing a stack the owner's
-  hosting cannot run is a method violation, not a technical preference.
-- If the owner does not know where it will run, run the hosting-choice
-  walkthrough in the elicitation playbook - plain language, no silent
-  pick - and isolate the sign-up / billing / token / CLI-auth steps as
-  the human account-holder's to do. Do not perform or pretend them.
-- Capture the deploy target and the stack constraint it implies as an ADR
-  on the project's own tree.
+  established, and the stack is constrained to what that target can
+  host. Choosing a stack the owner's hosting cannot run is a method
+  violation, not a technical preference. This is an ordering rule: it
+  forbids a stack ahead of the target. It does not require the owner to
+  have a target, or to want one.
+- Raise the question when a stack decision is actually due. If the owner
+  names a target, constrain the stack to it. If the owner does not know
+  and wants to settle it, run the hosting-choice walkthrough in the
+  elicitation playbook - plain language, no silent pick - and isolate
+  the sign-up / billing / token / CLI-auth steps as the human
+  account-holder's to do. Do not perform or pretend them.
+- If the owner defers, is still exploring, or is not deploying, that is
+  an answer, not a blocker. Do not press for a provider and do not stand
+  an account up. Record the deferral as the ADR, hold back only the live
+  half of what was deferred, and build to RULE 6's local preview, which
+  is the hosting-independent done state. What a deferral must never do
+  is turn into a silent stub: a deferred capability's acceptance
+  criteria are deferred with it, visibly, or scoped to a stub the owner
+  explicitly agreed to. Full protocol: the deferral branch in the
+  elicitation playbook.
+- Capture the deploy target, or its deferral, and any stack constraint
+  it implies as an ADR on the project's own tree.
 
 RULE 6 - Every build lands a local preview.
 - A build is not done until it leaves a working, documented local preview
