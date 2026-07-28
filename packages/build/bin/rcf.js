@@ -33,7 +33,7 @@ import { main as viewMain } from '../src/cli/view.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-const SUBCOMMANDS = {
+export const SUBCOMMANDS = {
   init: initMain,
   view: viewMain,
   validate: validateMain,

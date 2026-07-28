@@ -37,7 +37,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-const HELP = `Usage: rcf init [options]
+export const HELP = `Usage: rcf init [options]
 
 Scaffolds the rcf/ tree, registers the MCP server in the project-root
 .mcp.json and writes the agent-instructions fragment into both CLAUDE.md

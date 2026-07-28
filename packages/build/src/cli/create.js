@@ -32,11 +32,33 @@ const OPTION_SPEC = {
   'derive-deps': { type: 'boolean' },
 };
 
-const HELP = `Usage: rcf create <kind> [options]
+export const HELP = `Usage: rcf create <kind> [options]
 
 Kinds: req | us | ac | tac | adr | fbs | ts | tc | cn
 
-See 'rcf help create' for the full option list.
+Options:
+  --parent <id>             Required for every kind except cn (post-3.7
+                            every non-root child carries a mandatory
+                            parentId-style field)
+  --id <id>                 Override auto-assigned id (refuses on
+                            collision)
+  --title <string>          Required for req / us / tac / adr / fbs / ts
+                            (ac / tc use --description)
+  --description <string>    Body description; required for ac / tc
+  --acs <id>[,<id>...]      Required for fbs and ts (one or more AC ids)
+  --ac <id>                 Required for tc (single AC id per test case)
+  --purpose <string>        Required for ts
+  --test-level <level>      Required for ts; one of
+                            unit / integration / e2e / contract / manual
+  --slug <slug>             Optional for tc; derived from description if
+                            absent
+  --test-pointer <path>     Optional for tc; format filePath::testName
+  --build-order <int>       Optional for fbs; default = max+1 within its BS
+  --from-file <path>        Read body fields from a JSON file
+                            (merged with CLI fields; CLI wins on conflict)
+  --dry-run                 Print intended writes without executing
+  --quiet                   Suppress non-error stdout
+  --help                    Print this help
 
 Code Node (cn) options:
   --path <path>             Repo-relative source path, optionally
