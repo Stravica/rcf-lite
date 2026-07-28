@@ -21,6 +21,7 @@ import { mkdir, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { rcfError } from '../errors/index.js';
+import { idNumber, normaliseId } from './ids.js';
 import { pathForId, subdirFor } from './loader.js';
 import { validateDocument } from './validator.js';
 import { netNewErrors, simulateWriteErrors } from './walker.js';
@@ -104,6 +105,48 @@ function invalidIdsOfKind(tree, kind) {
   return out;
 }
 
+/** Own-id field per canonical kind, mirroring the walker. */
+const OWN_ID_FIELD = {
+  req: 'reqId',
+  userStory: 'usId',
+  tac: 'tacId',
+  adr: 'adrId',
+  fbs: 'fbsId',
+  testSuite: 'id',
+  codeNode: 'cnId',
+};
+
+/**
+ * Every id of a given kind that is occupied, from every source the
+ * allocator must respect (w-2026-07-28-017):
+ *
+ *   - the id each loaded doc DECLARES (`d.reqId`), and
+ *   - the id it is FILED under (its `byId` key, derived from the
+ *     filename), which can diverge from the declared id, and
+ *   - ids of schema-invalid docs, whose files still sit on disk.
+ *
+ * Reading only the declared ids was the allocation half of the
+ * duplicate-id bug: with `req-002.json` declaring `"reqId": "REQ-001"`,
+ * `nextFlatId` saw only REQ-001 and handed out REQ-002, whose file
+ * already existed.
+ *
+ * @param {TreeModel} tree
+ * @param {string} kind - canonical kind
+ * @returns {string[]}
+ */
+function occupiedIdsOfKind(tree, kind) {
+  const field = OWN_ID_FIELD[kind];
+  const out = [];
+  for (const [id, doc] of tree.byId) {
+    if (tree.kindById.get(id) !== kind) continue;
+    out.push(id);
+    const declared = field ? doc?.[field] : null;
+    if (typeof declared === 'string') out.push(declared);
+  }
+  out.push(...invalidIdsOfKind(tree, kind));
+  return out;
+}
+
 async function fileExistsOnDisk(absPath) {
   try {
     await stat(absPath);
@@ -133,49 +176,45 @@ export function nextIdForKind(tree, kind, opts = {}) {
   // allocation never collides with a repair-pending file.
   switch (k) {
     case 'req':
-      return nextFlatId('REQ', [...tree.requirements.map((d) => d.reqId), ...invalidIdsOfKind(tree, 'req')]);
+      return nextFlatId('REQ', occupiedIdsOfKind(tree, 'req'));
     case 'tac':
-      return nextFlatId('TAC', [...tree.tacs.map((d) => d.tacId), ...invalidIdsOfKind(tree, 'tac')]);
+      return nextFlatId('TAC', occupiedIdsOfKind(tree, 'tac'));
     case 'adr':
-      return nextFlatId('ADR', [...tree.adrs.map((d) => d.adrId), ...invalidIdsOfKind(tree, 'adr')]);
+      return nextFlatId('ADR', occupiedIdsOfKind(tree, 'adr'));
     case 'fbs':
-      return nextFlatId('FBS', [...tree.fbsItems.map((d) => d.fbsId), ...invalidIdsOfKind(tree, 'fbs')]);
+      return nextFlatId('FBS', occupiedIdsOfKind(tree, 'fbs'));
     case 'testSuite':
-      return nextFlatId('TS', [...tree.testSuites.map((d) => d.id), ...invalidIdsOfKind(tree, 'testSuite')]);
+      return nextFlatId('TS', occupiedIdsOfKind(tree, 'testSuite'));
     // Phase 10 (X2 CodeNode bridge): Code Node. Flat namespace like
     // REQ/TAC/ADR/FBS/TS - no parent required (D13).
     case 'codeNode':
-      return nextFlatId('CN', [...(tree.codeNodes ?? []).map((d) => d.cnId), ...invalidIdsOfKind(tree, 'codeNode')]);
+      return nextFlatId('CN', occupiedIdsOfKind(tree, 'codeNode'));
     case 'userStory': {
       const reqId = opts.parentId;
       const match = /^REQ-(\d+)$/.exec(reqId ?? '');
       if (!match) {
         throw new TypeError('nextIdForKind us requires opts.parentId matching REQ-XXX');
       }
-      const groupDigit = String(Number(match[1]));
-      const usIds = [
-        ...tree.userStories
-          .filter((us) => us.reqId === reqId)
-          .map((us) => us.usId),
-        // B5: count unloadable US ids that numerically belong to this
-        // REQ's group so a repair-pending id is never reallocated.
-        ...invalidIdsOfKind(tree, 'userStory').filter((invId) => {
-          const mm = /^US-(\d+)$/.exec(invId);
-          if (!mm) return false;
-          const local = Number(mm[1]) - Number(groupDigit) * 100;
-          return local >= 1 && local <= 99;
-        }),
-      ];
+      // w-2026-07-28-017: the group is a NUMBER, not a string. `REQ-001`
+      // and `REQ-0001` are one requirement, so their user stories share
+      // one numbering group.
+      const groupNum = Number(normaliseId(match[1]));
+      const groupLabel = String(groupNum);
+      // Occupancy is every US id that numerically falls in this group,
+      // whatever `reqId` string it names. Filtering on an exact reqId
+      // string match was the bug: a US filed under `REQ-0001` was
+      // invisible when allocating for `REQ-001`, so US-101 got re-issued
+      // on top of the existing US-101.
+      const usIds = occupiedIdsOfKind(tree, 'userStory');
       let maxLocal = 0;
       for (const usId of usIds) {
-        const mm = /^US-(\d+)$/.exec(usId);
-        if (!mm) continue;
-        const num = Number(mm[1]);
-        const local = num - Number(groupDigit) * 100;
-        if (local > maxLocal) maxLocal = local;
+        const num = idNumber(usId, 'US');
+        if (num === null) continue;
+        const local = num - groupNum * 100;
+        if (local >= 1 && local <= 99 && local > maxLocal) maxLocal = local;
       }
       const nextLocal = maxLocal + 1;
-      return `US-${groupDigit}${String(nextLocal).padStart(2, '0')}`;
+      return `US-${groupLabel}${String(nextLocal).padStart(2, '0')}`;
     }
     case 'ac': {
       const usId = opts.parentId;
@@ -186,14 +225,17 @@ export function nextIdForKind(tree, kind, opts = {}) {
       const mUs = /^US-(\d+)$/.exec(usId);
       if (!mUs) throw new TypeError('nextIdForKind ac: unrecognised US id');
       const usSuffix = mUs[1];
+      // w-2026-07-28-017: match the AC's group and local number
+      // numerically, so `AC-101-01` and `AC-0101-1` both count against
+      // `US-101` instead of being read as unrelated ids.
+      const normalisedSuffix = normaliseId(usSuffix);
       let maxLocal = 0;
-      const re = new RegExp(`^AC-${usSuffix}-(\\d+)$`);
       for (const ac of us.acceptanceCriteria ?? []) {
-        const mm = re.exec(ac.id ?? '');
-        if (mm) {
-          const n = Number(mm[1]);
-          if (n > maxLocal) maxLocal = n;
-        }
+        const mm = /^AC-(\d+)-(\d+)$/.exec(ac?.id ?? '');
+        if (!mm) continue;
+        if (normaliseId(mm[1]) !== normalisedSuffix) continue;
+        const n = Number(mm[2]);
+        if (n > maxLocal) maxLocal = n;
       }
       return `AC-${usSuffix}-${maxLocal + 1}`;
     }
@@ -216,6 +258,11 @@ export function nextIdForKind(tree, kind, opts = {}) {
   }
 }
 
+// w-2026-07-28-017: `Number()` already folded leading zeros here, so the
+// high-water mark was never fooled by spelling. What WAS wrong is the id
+// set fed in (see `occupiedIdsOfKind`). Comparison stays numeric and the
+// emitted id is always the canonical three-digit-minimum spelling, so a
+// freshly allocated id is never a leading-zero variant of a taken one.
 function nextFlatId(prefix, ids) {
   let max = 0;
   const re = new RegExp(`^${prefix}-(\\d+)$`);
