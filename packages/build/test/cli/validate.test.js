@@ -145,3 +145,64 @@ test('rcf validate outside a project exits 2', async () => {
   assert.equal(code, 2);
   assert.match(stderr, /no project root found/);
 });
+
+// ---- globallyUniqueIds (w-2026-07-28-017) ---------------------------------
+//
+// Duplicate ids used to validate clean. These pin the CI-facing contract:
+// exit 3, and a message that names the colliding id AND every file it is
+// claimed in, so the engineer who hits this does not have to go hunting
+// for the other half of the collision.
+
+test('rcf validate exits 3 on two ACs sharing an id inside one US, naming the id and the file', async () => {
+  const tmp = await scaffold();
+  const usPath = join(tmp, 'rcf', 'user-stories', 'us-101.json');
+  const us = JSON.parse(await readFile(usPath, 'utf8'));
+  const first = us.acceptanceCriteria[0];
+  us.acceptanceCriteria = [first, { ...first, description: 'same id, second criterion' }];
+  await writeFile(usPath, JSON.stringify(us, null, 2), 'utf8');
+
+  const { code, stderr } = await runBin(tmp, ['validate']);
+  assert.equal(code, 3, stderr);
+  assert.match(stderr, /\[error\] duplicateId/);
+  assert.match(stderr, /Duplicate id AC-101-1/);
+  assert.match(stderr, /acceptanceCriteria\[0\]\.id/);
+  assert.match(stderr, /acceptanceCriteria\[1\]\.id/);
+  assert.match(stderr, /rcf\/user-stories\/us-101\.json/);
+});
+
+test('rcf validate exits 3 on a leading-zero id pair and explains the normalisation', async () => {
+  const tmp = await scaffold();
+  const reqPath = join(tmp, 'rcf', 'requirements', 'req-001.json');
+  const req = JSON.parse(await readFile(reqPath, 'utf8'));
+  await writeFile(
+    join(tmp, 'rcf', 'requirements', 'req-0001.json'),
+    JSON.stringify({ ...req, reqId: 'REQ-0001' }, null, 2),
+    'utf8',
+  );
+
+  const { code, stderr } = await runBin(tmp, ['validate']);
+  assert.equal(code, 3, stderr);
+  assert.match(stderr, /Duplicate id REQ-1/);
+  assert.match(stderr, /differ only by leading zeros/);
+  assert.match(stderr, /req-001\.json/);
+  assert.match(stderr, /req-0001\.json/);
+});
+
+test('rcf validate --json reports duplicateId with the globallyUniqueIds rule', async () => {
+  const tmp = await scaffold();
+  const usPath = join(tmp, 'rcf', 'user-stories', 'us-101.json');
+  const us = JSON.parse(await readFile(usPath, 'utf8'));
+  const first = us.acceptanceCriteria[0];
+  us.acceptanceCriteria = [first, { ...first, description: 'same id, second criterion' }];
+  await writeFile(usPath, JSON.stringify(us, null, 2), 'utf8');
+
+  const { code, stdout } = await runBin(tmp, ['validate', '--json']);
+  assert.equal(code, 3);
+  const body = JSON.parse(stdout);
+  assert.equal(body.ok, false);
+  const dups = body.issues.filter((i) => i.kind === 'duplicateId');
+  assert.equal(dups.length, 2);
+  assert.equal(dups[0].rule, 'globallyUniqueIds');
+  assert.equal(dups[0].filePath, 'rcf/user-stories/us-101.json');
+  assert.equal(dups[0].field, 'acceptanceCriteria[0].id');
+});

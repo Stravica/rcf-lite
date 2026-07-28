@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
+## [Unreleased]
+
+### Added
+
+- **`rcf validate` now fails on duplicate ids** (exit 3, `duplicateId`, rule `globallyUniqueIds`). Previously a tree with colliding ids validated clean, however the collision got there. The check covers standalone documents, inline acceptance criteria and inline test cases, and treats leading-zero spellings as one id (`REQ-001` and `REQ-0001` both name requirement 1, which the schema pattern `^REQ-\d{3,}$` legitimately permits). Every colliding location produces its own error naming the id and each claiming file, so a CI log identifies the whole collision rather than half of it:
+
+  ```
+  [error] duplicateId US-101: Duplicate id AC-101-1: claimed by 2 locations: AC-101-1 in
+    rcf/user-stories/us-101.json (acceptanceCriteria[0].id), AC-101-1 in
+    rcf/user-stories/us-101.json (acceptanceCriteria[1].id).
+  ```
+
+  Detection lives in the walker, not the schema: the schema is right to permit variable-width numeric runs, and it is uniqueness *after normalisation* that is being violated. `rcf validate --json` carries the same issue under `kind: "duplicateId"`.
+
 ## [0.4.0] - 2026-07-22
 
 Hardens the `verified` state so it can only be reached through the independent ship gate. Two changes close bypasses that let a builder write `verified` without a passing, ship-authoritative `rcf-verify` run, plus one documented contract-field rename. No new features; behaviour and one JSON contract key change, so this is a minor bump under the pre-1.0 breaking-is-minor convention.

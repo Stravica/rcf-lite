@@ -16,6 +16,7 @@
 // `dependentsByFbsId`, `tsByAcId`, `tcsByAcId`, `usByTacId`.
 
 import { rcfError } from '../errors/index.js';
+import { normaliseId } from './ids.js';
 import { listSubdirJsonFiles, loadDocument, loadRootDocument, pathForId, subdirFor } from './loader.js';
 import { validateDocument } from './validator.js';
 
@@ -182,6 +183,24 @@ async function loadChildKind(kind, { projectRoot, tree, errors }) {
   for (const entry of listing.files) {
     const stem = entry.replace(/\.json$/, '');
     const id = stem.toUpperCase();
+    // Filename-derived ids are not injective: on a case-sensitive
+    // filesystem `REQ-001.json` and `req-001.json` are two files that
+    // both resolve to `REQ-001`. Recording both silently collapsed the
+    // second over the first in `byId` (last-write-wins). Refuse instead:
+    // the listing is sorted, so the first file on disk wins and the
+    // collision is reported rather than absorbed.
+    if (tree.byId.has(id) || tree.invalidDocs.has(id)) {
+      errors.push(rcfError({
+        kind: 'duplicateId',
+        message: `Duplicate document id ${id}: rcf/${subdir}/${entry} resolves to an id already loaded from another file in the same directory. Filenames are case-folded to derive the id, so two files whose names differ only by case name one document.`,
+        documentId: id,
+        filePath: `rcf/${subdir}/${entry}`,
+        field: 'filename',
+        rule: 'globallyUniqueIds',
+      }));
+      tree.brokenIds.add(id);
+      continue;
+    }
     const loaded = await loadDocument({ projectRoot, id });
     if ('kind' in loaded && loaded.kind !== kind) {
       const { doc: invalidDoc, raw: invalidRaw, ...cleanError } = loaded;
@@ -250,6 +269,9 @@ export async function walkTree({ projectRoot }) {
   // Referential integrity + graph inversion.
   invertGraph(tree);
   collectBrokenReferences(tree, errors);
+  // Uniqueness (w-2026-07-28-017). Runs last so a colliding id is
+  // reported alongside, not instead of, the reference breakage it causes.
+  collectDuplicateIds(tree, errors);
 
   return { tree, errors };
 }
@@ -449,6 +471,11 @@ export function simulateWriteErrors({ tree, preErrors = [], upserts = [], delete
   post.codeNodes = sortById(post.codeNodes, 'cnId'); // Phase 10
   invertGraph(post);
   collectBrokenReferences(post, errors);
+  // w-2026-07-28-017: uniqueness is part of the post-write gate, so a
+  // write verb refuses to INTRODUCE a duplicate id (e.g. an `ac create`
+  // that would re-issue a taken AC number) while a tree that already
+  // carries duplicates stays repairable.
+  collectDuplicateIds(post, errors);
 
   for (const err of preErrors) {
     if (err.kind === 'parseFailure' || err.kind === 'missingFile' || err.kind === 'ioFailure') {
@@ -484,6 +511,133 @@ function collectAllAcIds(tree) {
     for (const ac of us.acceptanceCriteria ?? []) acIds.add(ac.id);
   }
   return acIds;
+}
+
+// ---------------------------------------------------------------------------
+// globallyUniqueIds (w-2026-07-28-017)
+// ---------------------------------------------------------------------------
+//
+// SCOPE: ids are GLOBAL across the whole tree, not scoped per parent.
+//
+// This is forced by the model, not chosen for strictness. `tree.byId` is
+// one flat map; `pathForId()` resolves any id to a file from its prefix
+// alone; `parentByChild` is a single flat map that already covers
+// standalone docs AND inline ACs AND inline TCs; `rcf read <id>`,
+// `rcf trace <id>` and every MCP tool take a bare id with no parent
+// qualifier. An id IS the address. Two things at one address is a bug
+// whatever their parents.
+//
+// Inline ACs are NAMED after their parent (AC-101-1 lives under US-101)
+// and the separate `idPrefixMatchesParent` rule enforces that naming
+// convention -- but naming is not scoping. `AC-101-1` twice under
+// US-101 is two acceptance criteria sharing one address, and until this
+// rule existed the tree validated clean while `collectAllAcIds()`
+// collapsed them into one Set entry and `parentByChild` kept whichever
+// was written last.
+//
+// Cross-kind collision is impossible in practice (the prefixes differ),
+// so a single global namespace costs nothing and is strictly safer than
+// partitioning per kind.
+
+/**
+ * Every claim on an id in the tree, keyed by normalised id.
+ *
+ * A document claims:
+ *   - the id it is filed under (`byId` key: filename-derived for children,
+ *     field-derived for roots), and
+ *   - the id its own id-field declares.
+ * Those are normally the same string and collapse to one claim. When they
+ * diverge (`req-002.json` declaring `"reqId": "REQ-001"`) BOTH ids are
+ * occupied by that one file, and the divergence surfaces as a duplicate
+ * against whichever other document holds the other id.
+ *
+ * Inline ACs and TCs each claim their own id.
+ *
+ * @param {TreeModel} tree
+ * @returns {Map<string, Array<{ id: string, filePath: string, field: string, documentId: string }>>}
+ */
+function collectIdClaims(tree) {
+  /** @type {Map<string, Array<{ id: string, filePath: string, field: string, documentId: string }>>} */
+  const claims = new Map();
+  const claim = (id, filePath, field, documentId) => {
+    const key = normaliseId(id);
+    if (key.length === 0) return;
+    const list = claims.get(key) ?? [];
+    list.push({ id, filePath, field, documentId });
+    claims.set(key, list);
+  };
+
+  for (const [id, doc] of tree.byId) {
+    const kind = tree.kindById.get(id);
+    if (!kind) continue;
+    const filePath = relPathForEntry(kind, id);
+    const field = ID_FIELD_BY_KIND[kind] ?? 'id';
+    const ownId = idOfDoc(doc, kind);
+    // Deduplicate the common case where the filed id and the declared id
+    // are the same string: one file, one claim.
+    const spellings = new Set([id]);
+    if (ownId) spellings.add(ownId);
+    for (const spelling of spellings) claim(spelling, filePath, field, id);
+  }
+
+  // Schema-invalid documents are excluded from byId but their files still
+  // occupy their ids on disk; a valid twin of a broken doc is still a
+  // duplicate.
+  for (const [id, entry] of tree.invalidDocs ?? []) {
+    if (tree.byId.has(id)) continue;
+    claim(id, relPathForEntry(entry.kind, id), ID_FIELD_BY_KIND[entry.kind] ?? 'id', id);
+  }
+
+  for (const us of tree.userStories) {
+    const filePath = `rcf/user-stories/${(us.usId ?? '').toLowerCase()}.json`;
+    for (const [i, ac] of (us.acceptanceCriteria ?? []).entries()) {
+      claim(ac?.id, filePath, `acceptanceCriteria[${i}].id`, us.usId);
+    }
+  }
+  for (const ts of tree.testSuites) {
+    const filePath = `rcf/test-suites/${(ts.id ?? '').toLowerCase()}.json`;
+    for (const [i, tc] of (ts.testCases ?? []).entries()) {
+      claim(tc?.id, filePath, `testCases[${i}].id`, ts.id);
+    }
+  }
+
+  return claims;
+}
+
+/**
+ * Uniqueness pass. Any normalised id claimed by more than one location
+ * is a `duplicateId` error -- one per claiming location, so a CI log
+ * names every file involved rather than making the reader hunt for the
+ * other half of the collision.
+ *
+ * @param {TreeModel} tree
+ * @param {import('../errors/index.js').RcfError[]} errors
+ */
+function collectDuplicateIds(tree, errors) {
+  const claims = collectIdClaims(tree);
+  for (const [normalised, list] of claims) {
+    if (list.length <= 1) continue;
+    const where = list.map((c) => `${c.id} in ${c.filePath} (${c.field})`).join(', ');
+    const spellings = new Set(list.map((c) => c.id));
+    // Headline with a real id spelling when every claim agrees; fall back
+    // to the normalised form only when the spellings genuinely differ,
+    // where naming it is the whole explanation.
+    const headline = spellings.size === 1 ? [...spellings][0] : normalised;
+    const because = spellings.size > 1
+      ? ' These spellings differ only by leading zeros, so they name one id.'
+      : '';
+    for (const c of list) {
+      errors.push(rcfError({
+        kind: 'duplicateId',
+        message: `Duplicate id ${headline}: claimed by ${list.length} locations: ${where}.${because}`,
+        documentId: c.documentId,
+        filePath: c.filePath,
+        field: c.field,
+        rule: 'globallyUniqueIds',
+      }));
+      tree.brokenIds.add(c.id);
+    }
+  }
 }
 
 /**

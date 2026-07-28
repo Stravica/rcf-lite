@@ -7,7 +7,7 @@
 // renders them inline in the page so an owner can see what is broken.
 
 /**
- * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage'|'staleCode'|'missingCodeNodes')} ErrorKind
+ * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage'|'staleCode'|'missingCodeNodes'|'duplicateId')} ErrorKind
  */
 
 /**
@@ -37,6 +37,11 @@ const VALID_KINDS = new Set([
   // complete` refuses when any AC of the completed build spec carries no
   // Code Node. Deterministic edge counting only (Phase 6 D13 holds).
   'missingCodeNodes',
+  // w-2026-07-28-017: two locations claim one id (after leading-zero
+  // normalisation). Distinct from `validation` (each document is
+  // individually schema-clean) and from `brokenReference` (nothing
+  // dangles; the graph is over-connected, not under-connected).
+  'duplicateId',
 ]);
 
 /**
