@@ -96,6 +96,77 @@ test('AC-803-4: the walkthrough covers configuring the account, not only naming 
   assert.match(elicit, /not just naming a provider|Naming a provider and stopping/i);
 });
 
+// --- Deferral: the owner who has not committed to building
+// (w-2026-07-28-016). US-802/803 covered the owner who has a target and
+// the owner who wants help picking one. Neither covered the owner who is
+// exploring, deferring or not deploying, so the only escape hatch was a
+// walkthrough that stands up accounts, tokens and billing. These assert
+// the branch that closes that gap, and that RULE 5 stays an ordering
+// rule rather than a demand that a target exist. No RCF tree ships in
+// this repo, so these carry the invariant directly rather than an AC id.
+
+test('deferral: RULE 5 orders target-before-stack without requiring the owner to have a target', async () => {
+  const fragment = await loadHarnessFragment();
+  assert.match(fragment, /stack must NOT be committed before the deploy target/i);
+  assert.match(fragment, /ordering rule/i);
+  assert.match(fragment, /does not require the owner to\s+have a target/i);
+  // The regression: a sentence reasserting unconditional earliness.
+  assert.equal(
+    /Where the app will run is elicited early/i.test(fragment), false,
+    'RULE 5 reasserts unconditional earliness',
+  );
+});
+
+test('deferral: RULE 5 names the defer / exploring / not-deploying answer as valid', async () => {
+  const fragment = await loadHarnessFragment();
+  assert.match(fragment, /defers, is still exploring, or is not deploying/i);
+  assert.match(fragment, /an answer, not a blocker/i);
+  assert.match(fragment, /do not stand\s+an account up/i);
+  assert.match(fragment, /never do\s+is turn into a silent stub/i);
+});
+
+test('deferral: the playbook carries a branch distinct from the hosting-choice walkthrough', async () => {
+  const elicit = await read('elicitation-playbook.md');
+  assert.match(elicit, /### When the owner defers, is exploring, or is not deploying/);
+  assert.match(elicit, /Do not run the hosting-choice walkthrough at someone who has not asked to choose/i);
+  // The walkthrough branch is gated on the owner wanting to settle it.
+  assert.match(elicit, /wants to settle it/i);
+});
+
+test('deferral: the branch is capability-class aware, not a blanket defer', async () => {
+  const elicit = await read('elicitation-playbook.md');
+  // Account-bound: nothing is applied.
+  assert.match(elicit, /cannot exist without an account/i);
+  assert.match(elicit, /deferral means \*\*nothing is applied\*\*/i);
+  assert.match(elicit, /no provisional version of a hosting account/i);
+  // Local-first: the live decision defers, the capability does not.
+  assert.match(elicit, /a real local form/i);
+  assert.match(elicit, /the live decision, not the capability/i);
+  assert.match(elicit, /Blanket-deferring such a capability is the worse outcome/i);
+});
+
+test('deferral: it is recorded as an ADR and never becomes a silent stub', async () => {
+  const elicit = await read('elicitation-playbook.md');
+  assert.match(elicit, /Record the deferral as the ADR/i);
+  assert.match(elicit, /deferred - no target chosen/i);
+  assert.match(elicit, /Never let a deferral become a silent stub/i);
+  assert.match(elicit, /acceptance criteria that require it are deferred with it/i);
+  assert.match(elicit, /a stub the owner explicitly agreed to/i);
+});
+
+test('deferral: the deploy-target examples are ordered alphabetically, not editorially', async () => {
+  const elicit = await read('elicitation-playbook.md');
+  const line = elicit.split('\n').find((l) => l.includes('**Ask it as its own item'));
+  assert.notEqual(line, undefined, 'the deploy-target example bullet is missing');
+  const examples = [...line.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+  assert.equal(examples.length, 3, `expected three example answers, found ${examples.length}`);
+  const key = (s) => s.toLowerCase();
+  const sorted = [...examples].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0));
+  assert.deepEqual(examples, sorted, 'the example answers are not in alphabetical order');
+  assert.match(line, /alphabetical order/i);
+  assert.match(line, /not a ranking/i);
+});
+
 // --- US-804: verification claims name their runtime ---
 
 test('AC-804-1/2: every verification claim names its runtime and never implies an unexercised deployed runtime', async () => {
