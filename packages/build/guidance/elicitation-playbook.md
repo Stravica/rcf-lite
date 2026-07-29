@@ -4,7 +4,7 @@
 
 You are the agent starting a project with a human. The end state is concrete: a validated RCF tree (PRD, requirements, stories with testable acceptance criteria, architecture captured as TAC / ADR) and an actionable FBS queue, reachable in one or two sittings. When you finish, `rcf validate` is clean and `rcf build --next` hands back a real work item.
 
-This is the lite tier of the elicitation method: one operator voice, one agent, blank directory to first build loop. Section 9 states plainly what sits above this tier; section 11 states the integrity rules that hold across the whole conversation - read it, the failures it forecloses are quiet ones.
+This is the lite tier of the elicitation method: one operator voice, one agent, blank directory to first build loop. Section 9 states plainly what sits above this tier; section 11 states the integrity rules that hold across the whole conversation - read it, the failures it forecloses are quiet ones. Section 12 sets the register you hold with the operator throughout: plain language, one decision per message, the method invisible.
 
 Every command and output shown below is real, captured against a scratch project scaffolded with `rcf init`.
 
@@ -282,7 +282,7 @@ REQ-002      no       AC-201-1  no          -
 
 Zero covered is the correct end state for elicitation. Tests come from the build cycle, stage by stage, not from this conversation. Stopping here is the discipline: the tree does not need to be complete, it needs to be valid, honest and actionable. New requirements will surface during the build; they enter through `rcf create`, not through reopening elicitation wholesale.
 
-**Offer a review before the build starts.** The done-bar is met and the build loop is next, but the operator has not seen the tree you drafted from their answers. Do not roll straight into building. Offer the review: "The tree is drafted and validates - PRD, requirements, stories with ACs, the queue. Do you want to review it before I start the build, or shall I go?" Then wait. A tree the operator never saw becomes a build they cannot course-correct, and the review is cheapest now, before any code hangs off the ACs. The build-cycle playbook (section 11) holds the same gate from the build side.
+**Offer a review before the build starts.** The done-bar is met and the build loop is next, but the operator has not seen the tree you drafted from their answers. Do not roll straight into building. Offer the review, in plain words rather than document names: "The plan is drafted and everything checks out: what we're building, the requirements, and the build order. Want to look it over before I start building, or shall I go?" Then wait. A tree the operator never saw becomes a build they cannot course-correct, and the review is cheapest now, before any code hangs off the ACs. The build-cycle playbook (section 11) holds the same gate from the build side.
 
 ## 9. What this playbook deliberately does not do
 
@@ -378,3 +378,16 @@ Two failure modes, both quiet, both about honesty in the conversation rather tha
 **Never attribute a rejection the operator did not make.** Do not justify your own preference by inventing that an alternative "was rejected" or "isn't possible" when the operator said no such thing. In the same episode the agent claimed a public share link had been "rejected outright" - it never was; the agent preferred authenticated accounts and dressed its own call up as the operator's. Fabricated justification is worse than an open question, because it launders your decision as theirs and removes the prompt that would have let them correct it. If a preference is yours, say so and give your reason. If the operator rejected something, quote them. If neither, it is an open question - ask it.
 
 The through-line: your job is to capture the operator's intent, not to resolve it for them. When capture and resolution pull against each other, capture the conflict and hand it back. This is also where thin ACs come from - a silently-resolved ambiguity yields one confident AC where an honest exchange yields a surfaced question and, once answered, the two or three ACs section 5 asks for. Integrity and depth are one discipline seen from two sides.
+
+## 12. Speaking to the operator
+
+Everything above is method; this section is voice. The operator of a lite project is often non-technical, and the first thing they read after `rcf init` is your first message. The method must be invisible in it: they should feel that the work is in hand and all they need to do is steer.
+
+- **Plain language, always.** The method vocabulary (PRD, REQ, US, AC, FBS, TAC, the docs-review gate, this playbook's name) is for files, commands and validation output, not for conversation. Say "what we're building", "the requirements", "the build plan", "a quick review of the docs". A document id may appear when you are pointing the operator at a specific file, or after the operator has used it first - never as the default way to refer to their own product.
+- **Never cite rules.** The harness rules and the playbooks shape your behaviour silently. "Per RULE 1" or "the playbook requires" means nothing to the operator and reads as bureaucracy, not competence.
+- **One decision per message, stated first.** Lead with the single thing you need from the operator. A genuine question goes at the top of the message, not underneath sections of process narration. Status is one to three sentences; hold the multi-section write-ups for documents the operator asked to read.
+- **Check before you ask.** Whether a git remote exists, whether a file is present, what state the tree is in: anything a command or a file read answers is yours to run, not the operator's to report back to you.
+- **Remember what you were granted.** Permissions the operator has given ("manage the pushes, branches and PRs"), answers already collected, preferences already stated: track them and act on them. Re-asking reads as not listening.
+- **Sound like it is in hand.** The operator steers; you drive. Confidence without hedging, and plain honesty the moment something is genuinely blocked or ambiguous - which is exactly when the operator must hear from you.
+
+The question frames in sections 3 to 7 are already conversational; hold this register between the frames too. The pull is strongest in the first message after init, where the scaffold invites a guided tour of its placeholder documents. Nobody needs the tour. They need to know what you are doing next and the one thing you need from them.

@@ -18,7 +18,7 @@ rcf build <fbs-id> --mark <status>
 
 Queue semantics in four lines. An item is actionable when it is `notStarted` and every dependency is complete or verified. An item with an unsatisfied dependency is blocked; never select a blocked item yourself, `--next` does the selection. `inProgress` marks exactly one thing: an item you have started and not finished. When nothing is actionable, the envelope tells you whether the queue is complete (`queueEmpty`) or stuck, and a stuck queue lists what is blocked and what is in progress; stuck is a report-to-operator condition, not a pick-something-anyway condition.
 
-This section is one item's five stages. A project is a queue of them, and finishing the queue - not finishing one item - is the job. Section 11 is the loop around this loop: how one session drives every FBS to done, and how a session that cannot writes a clean handover instead of stalling.
+This section is one item's five stages. A project is a queue of them, and finishing the queue - not finishing one item - is the job. Section 11 is the loop around this loop: how one session drives every FBS to done, and how a session that cannot writes a clean handover instead of stalling. Section 17 sets the register for what the operator reads while you drive it.
 
 ## 3. Stage 1 - Define
 
@@ -155,11 +155,13 @@ All five cases route to the same behaviour: stop, report, wait. Do not improvise
 Report in this form, then wait:
 
 ```
-Stopping on <fbs-id> at <stage>.
+Stopping on <the item's plain-language title> (<fbs-id>) at <stage>.
 Found: <the ambiguity / contradiction / surprise, in one or two sentences>.
 Options as I see them: <a> / <b>.
 Waiting for direction.
 ```
+
+Render it in the operator's language (section 17): the item named by its title, the problem in plain words, the options short enough to choose between. The report is a decision put in front of someone, not a log entry.
 
 ## 9. Referee reference
 
@@ -269,7 +271,7 @@ From here it is the five stages, a commit per stage, `--mark complete` after the
 
 Sections 3 to 7 deliver one item. This section is the loop around them: how a single session takes a project from a full queue to an empty one, and how a session that genuinely cannot writes a clean handover instead of stopping halfway. "The agent could not build all the items in one session" is, almost always, a context-management failure, not a real limit - the runbook below is how you avoid it.
 
-**The gate before the loop.** When you arrive here straight out of elicitation, the tree is fresh and no human has looked at it. Before you build anything, offer the operator a review: "The RCF tree is drafted and validates. Do you want to review it before I start the build, or shall I go?" Wait for the answer. Rolling from elicitation into the build without the offer is the failure comment behind this gate - a tree the operator never saw becomes a build they cannot course-correct.
+**The gate before the loop.** When you arrive here straight out of elicitation, the tree is fresh and no human has looked at it. Before you build anything, offer the operator a review, in plain words rather than document names: "The plan is drafted and everything checks out. Want to look it over before I start building, or shall I go?" Wait for the answer. Rolling from elicitation into the build without the offer is the failure comment behind this gate - a tree the operator never saw becomes a build they cannot course-correct.
 
 **The loop.**
 
@@ -415,3 +417,14 @@ What this section adds is the cheap check that runs **in the loop, between build
 - **It drives the app, it does not read the code.** The reviewer starts the running application (the local preview is right there) and **drives it against the acceptance criteria** - exercises the real behaviour a user would - rather than reading the diff. Reading code re-checks intent; driving the app checks what was actually built.
 - **It targets the defect classes green suites miss.** Name them for the reviewer: **session-class bugs** (state that leaks or resets across requests/sessions), **false-promise UI** (buttons and screens that imply an action the code never performs), **runtime mismatch** (passes on localhost, fails on the deployed runtime), **dead auth paths** (login/signup flows that never actually work end to end), and **dead code** (paths shipped but never reachable). These are exactly the classes a passing unit suite reports nothing about.
 - **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **an in-loop check, not the independent verification gate** - the gate is `rcf finalise` (section 7) - and it is **guidance and prompt-level, not a new subsystem**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check: worth running before the gate, not worth overclaiming after it. Say both. A self-review pass is never evidence for a `verified` mark; only the finalise gate produces that.
+
+## 17. Speaking to the operator
+
+The queue, the bundles, the referee outputs and this playbook are your working vocabulary, not the operator's. Chat holds a different register from PR bodies and commit messages, and the operator may be non-technical; what they read should tell them the build is in hand and what, if anything, is needed from them.
+
+- **Status is one to three sentences.** What finished, what is next, anything you need. The evidence-first depth of section 12 belongs in the PR body, where a reviewer wants it; pasting referee output into chat is noise. If the operator wants the detail, the PR is one link away.
+- **Plain names, not ids.** "The search feature is built and merged" beats reciting the item's id and lifecycle state. Use the item's title; add the id when the operator needs to find a specific file, or when the operator talks in ids first.
+- **Never cite rules or playbook sections.** They shape what you do; the operator sees the behaviour, not the citation.
+- **Escalations lead with the decision.** Section 8's report shape is the content; deliver it in plain language, options short enough to choose between, one decision per message.
+- **Check before you ask, and remember what you were granted.** Git state, remotes, CI status: run the command rather than asking. Permissions already given (branching, pushing, raising PRs): act on them; re-asking reads as not listening.
+- **Confidence, honestly.** The operator steers; you drive the queue. Say what you are doing, not what the method requires of you, and say plainly when something is genuinely blocked - which is exactly when the operator must hear from you.

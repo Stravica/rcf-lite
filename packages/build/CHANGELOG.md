@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
+## [0.5.2] - 2026-07-29
+
+Guidance-only patch release: the seeded agent guidance gains an operator-communication register. No code, schema, validator or CLI behaviour changes.
+
+### Fixed
+
+- **The agent now speaks to the operator like a colleague, not a process narrator.** The first real cold run surfaced the gap: the guidance specified what the agent must do but nothing about how it speaks, so the agent's opening message cited harness rules by number, inventoried scaffold document ids at a non-technical operator, asked about git state it could have checked itself, re-asked an already-granted push permission, and buried the one genuine decision at the bottom of a four-section essay. The harness fragment that `rcf init` seeds into CLAUDE.md / AGENTS.md now opens with a "How to talk to your operator" register (plain language; never cite rules; one to three sentences with one leading question; self-serve before asking; never re-ask granted permissions; the operator steers, the agent drives) plus a before/after example of the first status message after setup.
+
+### Documentation
+
+- **Elicitation playbook**: new section 12, "Speaking to the operator" - the conversational register held across the whole elicitation, with the first message after init called out as where the pull to narrate is strongest. The pre-build review offer is now phrased in plain words instead of document names.
+- **Build-cycle playbook**: new section 17, "Speaking to the operator" - chat register vs PR-body register (evidence depth goes in the PR, not chat), items named by title rather than id, escalations delivered as one plain-language decision. The section 8 escalation template now leads with the item's plain-language title, and the pre-build review gate is phrased in plain words.
+- **Harness template**: the surrounding doc's failure-mode list and "Check it took" section now cover the communication failure mode (a fourth check reads the agent's first operator-facing message).
+
 ## [0.5.1] - 2026-07-29
 
 Dependency-only fix release. Re-packs 0.5.0's runtime against `@stravica-ai/rcf-lite-core@0.2.0` so `rcf` actually boots when installed from the registry. No source, behaviour or surface changes vs 0.5.0.
