@@ -894,6 +894,16 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
   if (typeof description !== 'string' || description.length === 0) {
     return rcfError({ kind: 'usage', message: 'create tc: --description is required' });
   }
+  // w-2026-07-28-005: a TC without a test pointer is a coverage claim with
+  // nothing behind it; the schema overlay refuses it anyway, but refuse
+  // here first with a usable message.
+  const testPointer = options.testPointer ?? body?.testPointer;
+  if (typeof testPointer !== 'string' || testPointer.length === 0) {
+    return rcfError({
+      kind: 'usage',
+      message: 'create tc: --test-pointer is required (format filePath::testName; coverage counts a TC only when its pointer resolves to a real test)',
+    });
+  }
   const slug = options.slug ?? deriveSlug(description);
   const tsSuffix = /^TS-(\d{3})$/.exec(parentTsId)?.[1];
   if (!tsSuffix) {
@@ -914,7 +924,7 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
     acId,
     description,
     status: body?.status ?? 'pending',
-    ...(options.testPointer !== undefined ? { testPointer: options.testPointer } : {}),
+    testPointer,
   };
   const nextTs = {
     ...ts,

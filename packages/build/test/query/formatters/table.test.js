@@ -9,29 +9,66 @@ test('coverage table has header, mode, totals, and per-REQ rows', () => {
   const result = {
     ok: false,
     strict: false,
-    totals: { requirements: 2, covered: 1, uncovered: 1 },
+    totals: { requirements: 2, covered: 1, coveredUnresolved: 0, uncovered: 1 },
     requirements: [
-      { id: 'REQ-001', covered: true, acs: [{ id: 'AC-001-1', covered: true, testCases: ['TC-001-a'] }] },
-      { id: 'REQ-002', covered: false, acs: [{ id: 'AC-002-1', covered: false, testCases: [] }] },
+      { id: 'REQ-001', covered: true, coverageClass: 'covered', acs: [{ id: 'AC-001-1', covered: true, testCases: ['TC-001-a'], unresolvedTestCases: [] }] },
+      { id: 'REQ-002', covered: false, coverageClass: 'uncovered', acs: [{ id: 'AC-002-1', covered: false, testCases: [], unresolvedTestCases: [] }] },
     ],
+    unresolvedTestPointers: [],
   };
   const out = formatTable(result, 'coverage');
   assert.match(out, /Coverage mode: shallow-any/);
   assert.match(out, /Requirements: 2/);
   assert.match(out, /covered: 1/);
+  assert.match(out, /covered-unresolved: 0/);
   assert.match(out, /uncovered: 1/);
   assert.match(out, /REQ-001/);
   assert.match(out, /AC-001-1/);
   assert.match(out, /TC-001-a/);
+  assert.doesNotMatch(out, /Unresolved test pointers/, 'no footer when nothing is unresolved');
+});
+
+// w-2026-07-28-005: the unresolved state is its own word everywhere it
+// appears - summary counter, REQ cell, AC cell, per-TC marker, footer.
+test('coverage table renders the covered-unresolved state visibly at every level', () => {
+  const result = {
+    ok: false,
+    strict: false,
+    totals: { requirements: 1, covered: 0, coveredUnresolved: 1, uncovered: 0 },
+    requirements: [
+      {
+        id: 'REQ-001',
+        covered: false,
+        coverageClass: 'covered-unresolved',
+        acs: [{
+          id: 'AC-001-1',
+          covered: false,
+          testCases: ['TC-001-stub'],
+          unresolvedTestCases: ['TC-001-stub'],
+        }],
+      },
+    ],
+    unresolvedTestPointers: [
+      { tsId: 'TS-001', tcId: 'TC-001-stub', testPointer: 'test/gone.test.js::stub', reason: 'file-missing' },
+    ],
+  };
+  const out = formatTable(result, 'coverage');
+  assert.match(out, /covered-unresolved: 1/);
+  assert.match(out, /REQ-001 {6}unresolved/);
+  assert.match(out, /AC-001-1 {2}unresolved/);
+  assert.match(out, /TC-001-stub\[unresolved\]/);
+  assert.match(out, /Unresolved test pointers \(never counted as coverage\):/);
+  assert.match(out, /TC-001-stub \(TS-001\): test\/gone\.test\.js::stub - file-missing/);
 });
 
 test('coverage table with --strict labels mode as strict', () => {
   const result = {
     ok: false, strict: true,
-    totals: { requirements: 1, covered: 0, uncovered: 1 },
+    totals: { requirements: 1, covered: 0, coveredUnresolved: 0, uncovered: 1 },
     requirements: [
-      { id: 'REQ-001', covered: false, acs: [{ id: 'AC-001-1', covered: false, testCases: [] }] },
+      { id: 'REQ-001', covered: false, coverageClass: 'uncovered', acs: [{ id: 'AC-001-1', covered: false, testCases: [], unresolvedTestCases: [] }] },
     ],
+    unresolvedTestPointers: [],
   };
   const out = formatTable(result, 'coverage');
   assert.match(out, /Coverage mode: strict/);
@@ -87,10 +124,11 @@ test('table renderer truncates long cells at COLUMN_CAP with ellipsis', () => {
   const longAc = 'A'.repeat(200);
   const result = {
     ok: true, strict: false,
-    totals: { requirements: 1, covered: 1, uncovered: 0 },
+    totals: { requirements: 1, covered: 1, coveredUnresolved: 0, uncovered: 0 },
     requirements: [
-      { id: 'REQ-001', covered: true, acs: [{ id: 'AC-001-1', covered: true, testCases: [longAc] }] },
+      { id: 'REQ-001', covered: true, coverageClass: 'covered', acs: [{ id: 'AC-001-1', covered: true, testCases: [longAc], unresolvedTestCases: [] }] },
     ],
+    unresolvedTestPointers: [],
   };
   const out = formatTable(result, 'coverage');
   assert.match(out, /\.\.\./);

@@ -70,6 +70,7 @@ test('scripted journey: init -> create req -> validate -> create us -> ac -> ts 
   await runBin(tmp, [
     'create', 'tc', '--parent', 'TS-001',
     '--ac', 'AC-201-1', '--description', 'happy path',
+    '--test-pointer', 'test/happy.test.js::happy path',
   ]);
   tree = await reload(tmp);
   const ts = tree.byId.get('TS-001');

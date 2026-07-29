@@ -237,7 +237,7 @@ test('walkTree computes tsByAcId inversion for a valid TS (D4)', async () => {
     purpose: 'p',
     testLevel: 'unit',
     acIds: ['AC-101-1'],
-    testCases: [{ id: 'TC-001-happy', acId: 'AC-101-1', description: 'happy', status: 'pending' }],
+    testCases: [{ id: 'TC-001-happy', acId: 'AC-101-1', description: 'happy', status: 'pending', testPointer: 'test/happy.test.js::happy' }],
     status: 'draft',
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',

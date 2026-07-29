@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,8 +32,10 @@ async function scaffold() {
   return tmp;
 }
 
-// Write a TS that fully covers AC-101-1 (the seeded AC on the init tree).
-async function addCoveringTs(tmp) {
+// Write a TS over AC-101-1 (the seeded AC on the init tree). The TC's
+// testPointer targets test/happy.test.js::happy path - resolvable only
+// when `withRealTest` also writes that file (w-2026-07-28-005).
+async function addCoveringTs(tmp, { withRealTest }) {
   const ts = {
     id: 'TS-001',
     usId: 'US-101',
@@ -47,21 +49,53 @@ async function addCoveringTs(tmp) {
       acId: 'AC-101-1',
       description: 'Happy-path coverage for AC-101-1',
       status: 'pending',
+      testPointer: 'test/happy.test.js::happy path',
     }],
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
   };
   await writeFile(join(tmp, 'rcf/test-suites/ts-001.json'), `${JSON.stringify(ts, null, 2)}\n`, 'utf8');
+  if (withRealTest) {
+    await mkdir(join(tmp, 'test'), { recursive: true });
+    await writeFile(join(tmp, 'test/happy.test.js'), "test('happy path', () => {});\n", 'utf8');
+  }
 }
 
-test('rcf coverage on a scaffold with a covering TS exits 0 and reports covered:1', async () => {
+test('rcf coverage with a TS whose pointer resolves exits 0 and reports covered:1', async () => {
   const tmp = await scaffold();
-  await addCoveringTs(tmp);
+  await addCoveringTs(tmp, { withRealTest: true });
   const { code, stdout } = await runBin(tmp, ['coverage', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.ok, true);
   assert.equal(body.totals.covered, 1);
+  assert.equal(body.totals.coveredUnresolved, 0);
+});
+
+test('rcf coverage with a stub TC (pointer does not resolve) reports covered-unresolved, and --strict exits 4', async () => {
+  const tmp = await scaffold();
+  await addCoveringTs(tmp, { withRealTest: false });
+  const json = await runBin(tmp, ['coverage', '--format', 'json']);
+  assert.equal(json.code, 0);
+  const body = JSON.parse(json.stdout);
+  assert.equal(body.ok, false, 'a stub TC must not report ok');
+  assert.equal(body.totals.covered, 0);
+  assert.equal(body.totals.coveredUnresolved, 1);
+  assert.equal(body.requirements[0].coverageClass, 'covered-unresolved');
+  assert.deepEqual(body.unresolvedTestPointers, [{
+    tsId: 'TS-001',
+    tcId: 'TC-001-happy-path',
+    testPointer: 'test/happy.test.js::happy path',
+    reason: 'file-missing',
+  }]);
+
+  const table = await runBin(tmp, ['coverage']);
+  assert.match(table.stdout, /covered-unresolved: 1/);
+  assert.match(table.stdout, /TC-001-happy-path\[unresolved\]/);
+  assert.match(table.stdout, /Unresolved test pointers \(never counted as coverage\):/);
+
+  const strict = await runBin(tmp, ['coverage', '--strict']);
+  assert.equal(strict.code, 4, 'stub coverage must fail the strict gate');
 });
 
 test('rcf coverage --strict with a gap exits 4', async () => {

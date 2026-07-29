@@ -98,7 +98,7 @@ Stage end: commit.
 
 What good looks like:
 
-- Every in-scope AC gets a TS / TC pair on the tree and an executable test behind it. Section 6 of the bundle lists what already exists and what is flagged as missing.
+- Every in-scope AC gets a TS / TC pair on the tree and an executable test behind it, named by the TC's `testPointer` (`filePath::testName`). Section 6 of the bundle lists what already exists and what is flagged as missing.
 - The test asserts the AC's observable outcome (its given / when / then), not the implementation's internals.
 - A TC's `status` reflects a run that actually happened.
 
@@ -107,14 +107,14 @@ Referee:
 ```
 $ rcf coverage --strict
 Coverage mode: strict (per-AC)
-Requirements: 7  covered: 0  uncovered: 7
+Requirements: 8  covered: 0  covered-unresolved: 0  uncovered: 8
 
 Requirement  Covered  AC        AC covered  Test cases
 -----------  -------  --------  ----------  ----------
 REQ-001      no       AC-101-1  no          -
 ```
 
-(Captured against this repo's tree, first gap rows shown; exit 4.) Strict mode is per-AC: every AC in scope needs TC coverage, and any gap exits 4. Read the table by AC id: this stage ends when your in-scope ACs show `AC covered: yes` with test cases listed. Gaps elsewhere in the tree may legitimately remain and will keep the tree-wide command at exit 4; narrow the verdict with a scope id (`rcf coverage <scope-id> --strict`, PRD / REQ / US ids accepted) to read the subtree you are working in.
+(Captured against this repo's tree, first gap rows shown; exit 4. This tree's own test axis is not yet authored - eight requirements, none covered - and the referee says exactly that instead of something more comfortable. That is the tool doing its job: an unfinished test layer reads as zero, not as progress.) Strict mode is per-AC: every AC in scope needs a TC whose pointer resolves, and any gap exits 4. The `covered-unresolved` column is the third state: TC rows exist but at least one pointer does not resolve to a real test - a stub or a stale pointer - and it fails the gate exactly as uncovered does, with the offending pointers listed under the table. Read the table by AC id: this stage ends when your in-scope ACs show `AC covered: yes` with test cases listed. Gaps elsewhere in the tree may legitimately remain and will keep the tree-wide command at exit 4; narrow the verdict with a scope id (`rcf coverage <scope-id> --strict`, PRD / REQ / US ids accepted) to read the subtree you are working in.
 
 Failure modes:
 
@@ -176,7 +176,7 @@ The commands and their output, read at a glance. Exit codes: 0 success, 1 unexpe
 
 Note the fan-out: one broken document produced two broken references. Fix the named document first, then re-validate.
 
-**`rcf coverage --strict`** - exit 0 when every AC in scope has TC coverage; exit 4 on any gap, with the per-AC table shown in section 6 above. The `Test cases` column is the evidence trail.
+**`rcf coverage --strict`** - exit 0 when every AC in scope has a TC whose `testPointer` resolves to a real test; exit 4 on any gap, with the per-AC table shown in section 6 above. A TC whose pointer does not resolve counts as `covered-unresolved` - a gap, not coverage - and is listed under the table with the reason (file missing, test missing). The `Test cases` column is the evidence trail.
 
 **`rcf build <fbs-id> --strict`** - exit 4 instead of a bundle when the item is blocked. Captured in a scratch copy with a dependency reset to `notStarted`:
 

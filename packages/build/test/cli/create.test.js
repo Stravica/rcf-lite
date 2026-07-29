@@ -106,9 +106,26 @@ test('rcf create tc mutates parent TS with derived slug', async () => {
   const { code, stdout } = await runBin(tmp, [
     'create', 'tc', '--parent', 'TS-001',
     '--ac', 'AC-101-1', '--description', 'happy',
+    '--test-pointer', 'test/happy.test.js::happy',
   ]);
   assert.equal(code, 0);
   assert.match(stdout, /TC-001-happy created/);
+});
+
+// w-2026-07-28-005: a TC without a pointer is refused at the usage layer.
+test('rcf create tc without --test-pointer exits 2 with the requirement named', async () => {
+  const tmp = await scaffold();
+  await runBin(tmp, [
+    'create', 'ts', '--parent', 'US-101',
+    '--title', 'S', '--purpose', 'p',
+    '--test-level', 'unit', '--acs', 'AC-101-1',
+  ]);
+  const { code, stderr } = await runBin(tmp, [
+    'create', 'tc', '--parent', 'TS-001',
+    '--ac', 'AC-101-1', '--description', 'happy',
+  ]);
+  assert.equal(code, 2);
+  assert.match(stderr, /--test-pointer is required/);
 });
 
 test('rcf create --dry-run does not write the file', async () => {

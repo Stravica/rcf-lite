@@ -30,6 +30,7 @@ import {
   createDocument,
   deleteDocument,
   deriveSlug,
+  resolveTestPointers,
   updateDocument,
   walkTree,
 } from '@stravica-ai/rcf-lite-core/store';
@@ -471,7 +472,7 @@ const DEFINITIONS = [
   {
     name: 'rcf_coverage',
     title: 'Structural coverage report',
-    description: 'Reports which requirements have at least one complete chain to a test case (PRD -> REQ -> US -> AC -> TS -> TC). This is a mechanical, deterministic structural check: it does NOT judge whether the AC set adequately captures a requirement\'s intent. In strict mode, gaps are returned as data ({ok: false} in the envelope), never as a tool error - unlike the CLI, which exits 4 for CI gating. Method: TS / TC docs are authored deliverables - a coverage gap means the test layer is not finished, not a stat to report.',
+    description: 'Reports which requirements have at least one complete chain to a test case (PRD -> REQ -> US -> AC -> TS -> TC). A TC counts as covering its AC only when its testPointer (filePath::testName) resolves to a real test in the working tree; a TC whose pointer does not resolve is reported as covered-unresolved (its own class and counter), never counted as coverage. This is a mechanical, deterministic structural check: it does NOT judge whether the AC set adequately captures a requirement\'s intent. In strict mode, gaps are returned as data ({ok: false} in the envelope), never as a tool error - unlike the CLI, which exits 4 for CI gating. Method: TS / TC docs are authored deliverables - a coverage gap means the test layer is not finished, not a stat to report.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -550,7 +551,7 @@ const DEFINITIONS = [
         acIds: { type: 'array', items: { type: 'string' }, description: 'Required for fbs and ts: one or more AC ids. For cn: implementsAcIds (may be empty - an orphan CN is legitimate).' },
         acId: { type: 'string', description: 'Required for tc: the single AC this test case exercises' },
         slug: { type: 'string', description: 'Optional for tc; derived from description if absent' },
-        testPointer: { type: 'string', description: 'Optional for tc; format filePath::testName' },
+        testPointer: { type: 'string', description: 'Required for tc; format filePath::testName. Coverage counts a TC only when this pointer resolves to a real test in the working tree.' },
         buildOrder: { type: 'integer', minimum: 1, description: 'Optional for fbs; defaults to max+1 within its build sequence' },
         path: { type: 'string', description: 'Required for cn: repo-relative source path, optionally #symbol-suffixed' },
         deps: { type: 'array', items: { type: 'string' }, description: 'Optional for cn: Code Node ids this node depends on' },
@@ -884,7 +885,10 @@ export function createToolRegistry({ projectRoot, log }) {
       }
       // OQ-P7-8: strict gaps return data ({ok: false}), never isError.
       // Phase 10 (D11): withCode layers the informational code axis on.
-      return okResult(computeCoverage(tree, { strict: Boolean(args.strict), scopeId, withCode: Boolean(args.withCode) }));
+      // w-2026-07-28-005: pointer resolution gates "covered" - same rule
+      // as the CLI, one resolution pass against the working tree.
+      const testPointers = await resolveTestPointers({ projectRoot, tree });
+      return okResult(computeCoverage(tree, { strict: Boolean(args.strict), scopeId, withCode: Boolean(args.withCode), testPointers }));
     },
 
     rcf_trace: async (args) => {

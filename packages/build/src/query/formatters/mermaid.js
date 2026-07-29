@@ -66,6 +66,10 @@ export function formatMermaid(result, verb) {
 function renderCoverageMermaid(result) {
   const lines = ['flowchart LR'];
   const seenIds = new Set();
+  // w-2026-07-28-005: TCs whose pointer does not resolve carry the
+  // `broken` class on top of `tc` - dashed red stroke, so a stub TC is
+  // visibly not the same thing as a resolving one.
+  const unresolvedTcIds = new Set();
   const declare = (id) => {
     if (seenIds.has(id)) return;
     seenIds.add(id);
@@ -76,11 +80,16 @@ function renderCoverageMermaid(result) {
     for (const ac of req.acs) {
       declare(ac.id);
       lines.push(`  ${req.id} --> ${ac.id}`);
+      const unresolved = new Set(ac.unresolvedTestCases ?? []);
       for (const tc of ac.testCases) {
         declare(tc);
         lines.push(`  ${ac.id} -.-> ${tc}`);
+        if (unresolved.has(tc)) unresolvedTcIds.add(tc);
       }
     }
+  }
+  for (const tc of unresolvedTcIds) {
+    lines.push(`  class ${tc} broken;`);
   }
   return `${appendClassBlock(lines, seenIds)}\n`;
 }

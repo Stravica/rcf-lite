@@ -3,8 +3,10 @@
 // `null` on success or a structured `validation` error on failure.
 //
 // Validation runs on load (FBS-001 / AC-701-3): the published bundle is the
-// contract, not a local copy. Referential-integrity checking lives in the
-// walker (D8); this module is schema-shape-only.
+// contract, not a local copy - with ONE documented strictness overlay
+// (`testPointer` required on every Test Case; see the overlay block below).
+// Referential-integrity checking lives in the walker (D8); this module is
+// schema-shape-only.
 
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
@@ -26,6 +28,27 @@ import cnSchema from '@stravica-ai/rcf-schemas/schemas/cn.schema.json' with { ty
 
 import { rcfError } from '../errors/index.js';
 
+// w-2026-07-28-005: strictness overlay - `testPointer` is REQUIRED on every
+// Test Case. The published bundle (0.3.1) still declares it optional; an
+// optional pointer is how 76 stub TC rows can claim coverage while pointing
+// at nothing, so Build Lite refuses the shape at the schema layer. This is
+// the ONLY local divergence from the published bundle, it is a pure
+// tightening (every document valid here is valid upstream), and it is
+// registered under the bundle's own $id so every validation path (walker
+// load, post-write gate, write verbs) inherits it. Durable home: making
+// testPointer required in @stravica-ai/rcf-schemas itself; drop this block
+// when that ships.
+const testSuiteSchemaStrict = structuredClone(testSuiteSchema);
+{
+  const testCase = testSuiteSchemaStrict.$defs.testCase;
+  testCase.required = [...testCase.required, 'testPointer'];
+  testCase.properties.testPointer = {
+    ...testCase.properties.testPointer,
+    minLength: 1,
+    description: 'Required pointer to the executable test, format: filePath::testName.',
+  };
+}
+
 /**
  * @typedef {('manifest'|'prd'|'req'|'userStory'|'tad'|'tac'|'adr'|'buildSequence'|'fbs'|'testSuite'|'codeNode')} DocKind
  */
@@ -40,7 +63,8 @@ const SCHEMAS = {
   adr: adrSchema,
   buildSequence: buildSequenceSchema,
   fbs: fbsSchema,
-  testSuite: testSuiteSchema,
+  // w-2026-07-28-005 overlay: the tightened copy, not the raw import.
+  testSuite: testSuiteSchemaStrict,
   // Phase 10: Code Node.
   codeNode: cnSchema,
 };

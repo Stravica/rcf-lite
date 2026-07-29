@@ -14,7 +14,7 @@
 import { parseArgs } from 'node:util';
 
 import { formatErrors } from '@stravica-ai/rcf-lite-core/errors';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { resolveTestPointers, walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { findProjectRoot } from '../view/index.js';
 import {
   classifyCoverageScope,
@@ -35,8 +35,12 @@ const OPTION_SPEC = {
 export const HELP = `Usage: rcf coverage [scope-id] [options]
 
 Report structural coverage over the REQ chain (PRD -> REQ -> US -> AC
--> TS -> TC). Default is shallow-any (any AC covered by any TC = REQ
-covered); --strict flips to per-AC-strict (every AC has TC coverage).
+-> TS -> TC). A TC counts as covering its AC only when its testPointer
+(filePath::testName) resolves to a real test in the working tree; a TC
+whose pointer does not resolve is reported as covered-unresolved, never
+counted as coverage. Default is shallow-any (any AC covered by any
+resolving TC = REQ covered); --strict flips to per-AC-strict (every AC
+has resolving TC coverage).
 
 This is a mechanical / deterministic structural check. It does NOT
 answer 'does the AC set adequately capture the REQ's intent?' - that
@@ -129,8 +133,12 @@ export async function main(argv, deps = {}) {
     }
   }
 
+  // w-2026-07-28-005: resolve every TC's testPointer against the working
+  // tree first - "covered" means a pointer that resolves to a real test,
+  // and a TC that fails resolution surfaces as covered-unresolved.
+  const testPointers = await resolveTestPointers({ projectRoot, tree });
   const result = computeCoverage(tree, {
-    strict: Boolean(flags.strict), scopeId, withCode: Boolean(flags['with-code']),
+    strict: Boolean(flags.strict), scopeId, withCode: Boolean(flags['with-code']), testPointers,
   });
 
   let output;

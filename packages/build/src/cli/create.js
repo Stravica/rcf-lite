@@ -63,7 +63,9 @@ Options:
                             unit / integration / e2e / contract / manual
   --slug <slug>             Optional for tc; derived from description if
                             absent
-  --test-pointer <path>     Optional for tc; format filePath::testName
+  --test-pointer <path>     Required for tc; format filePath::testName.
+                            Coverage counts a TC only when this pointer
+                            resolves to a real test in the working tree
   --build-order <int>       Optional for fbs; default = max+1 within its BS
   --from-file <path>        Read body fields from a JSON file
                             (merged with CLI fields; CLI wins on conflict)
@@ -245,9 +247,15 @@ export async function main(argv, deps = {}) {
   }
   if (kind === 'tc') {
     if (!flags.ac) { stderr.write('[error] usage create tc: --ac is required\n'); return 2; }
+    // w-2026-07-28-005: a TC without a pointer is a coverage claim with
+    // nothing behind it; refuse at the usage layer with the fix in hand.
+    if (!flags['test-pointer']) {
+      stderr.write('[error] usage create tc: --test-pointer is required (format filePath::testName; coverage counts a TC only when its pointer resolves to a real test)\n');
+      return 2;
+    }
     body.acId = flags.ac;
     options.slug = flags.slug ?? deriveSlug(body.description);
-    if (flags['test-pointer'] !== undefined) options.testPointer = flags['test-pointer'];
+    options.testPointer = flags['test-pointer'];
   }
 
   const result = await createDocument({

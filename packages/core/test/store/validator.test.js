@@ -247,13 +247,56 @@ test('validateDocument accepts the new test-suite shape (id field, inline testCa
     testLevel: 'unit',
     acIds: ['AC-101-1'],
     testCases: [
-      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'pending' },
+      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'pending', testPointer: 'test/loader.test.js::happy' },
     ],
     status: 'draft',
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
   };
   assert.equal(validateDocument({ doc: ts, kind: 'testSuite' }), null);
+});
+
+// w-2026-07-28-005 strictness overlay: a TC without a testPointer is the
+// stub-coverage shape - the schema layer refuses it outright.
+test('validateDocument rejects a test case without testPointer (required by the local overlay)', () => {
+  const ts = {
+    id: 'TS-001',
+    usId: 'US-101',
+    title: 'Loader smoke',
+    purpose: 'Cover AC-101-1',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [
+      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'pending' },
+    ],
+    status: 'draft',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  const err = validateDocument({ doc: ts, kind: 'testSuite' });
+  assert.ok(err, 'expected a validation error');
+  assert.equal(err.kind, 'validation');
+  assert.match(err.message, /must have required property 'testPointer'/);
+});
+
+test('validateDocument rejects an empty-string testPointer', () => {
+  const ts = {
+    id: 'TS-001',
+    usId: 'US-101',
+    title: 'Loader smoke',
+    purpose: 'Cover AC-101-1',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [
+      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'pending', testPointer: '' },
+    ],
+    status: 'draft',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  const err = validateDocument({ doc: ts, kind: 'testSuite' });
+  assert.ok(err, 'expected a validation error');
+  assert.match(err.message, /fewer than 1 characters/);
 });
 
 // Ajv's enum message ("must be equal to one of the allowed values")
@@ -269,7 +312,7 @@ test('validateDocument names the allowed values on an enum failure', () => {
     testLevel: 'unit',
     acIds: ['AC-101-1'],
     testCases: [
-      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'done' },
+      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'done', testPointer: 'test/loader.test.js::happy' },
     ],
     status: 'draft',
     createdAt: '2026-01-01T00:00:00Z',
