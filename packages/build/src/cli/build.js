@@ -51,7 +51,8 @@ export const HELP = `Usage: rcf build [fbs-id] [options]
 Assemble FBS spec bundles and drive the build queue (the SDD adapter).
 Four modes:
 
-  rcf build                          Queue overview (the FBS queue as a table)
+  rcf build                          Queue overview (the FBS queue as a table,
+                                     with parallel-safe tier groups)
   rcf build <fbs-id>                 Spec bundle for one FBS item
   rcf build --next                   Bundle for the next actionable item
   rcf build <fbs-id> --mark <status> Record a lifecycle transition

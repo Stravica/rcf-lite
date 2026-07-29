@@ -30,9 +30,9 @@
   ],
   "riskLevel": "medium",
   "domain": "build",
-  "notes": "The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on.",
+  "notes": "The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on. Ledger correction (2026-07-29, w-2026-07-28-005): this item was marked complete by Phase 6 while its 'topological build order with parallel-safe groups and cycle detection' deliverable had shipped only in part - the queue computed order and detected cycles, but no parallel-safe grouping existed. The parallel-safe tier computation was ported from the RCF platform (rcf-common computeTiers) and surfaced in the rcf build queue in the same change that records this note, making the complete status factually true from that merge onward.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-06T10:53:15.552Z",
+  "updatedAt": "2026-07-29T13:53:31.310Z",
   "buildOrder": 10,
   "executionStatus": "complete",
   "dependsOnFbsIds": [

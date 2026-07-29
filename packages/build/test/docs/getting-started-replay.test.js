@@ -242,7 +242,7 @@ test('s7: the queue is authored: FBS-002 depends on FBS-001 (exit 0 each)', asyn
 test('s7: the queue overview shows FBS-002 blocked by FBS-001', async () => {
   const { code, stdout } = await rcf(SEQUENCE.s7Build);
   assert.equal(code, 0);
-  assert.match(stdout, /\| 2 \| FBS-002 \| Ingredient search \| notStarted \| blocked \| FBS-001 \|/);
+  assert.match(stdout, /\| 2 \| 1 \| FBS-002 \| Ingredient search \| notStarted \| blocked \| FBS-001 \|/);
   assert.match(stdout, /Next actionable: FBS-001/);
 });
 

@@ -51,10 +51,11 @@ function sampleQueue() {
     bs: { bsId: 'BS-001', title: 'Plan', generationStrategy: 'dependencyFirst' },
     totals: { items: 3, notStarted: 2, inProgress: 0, complete: 1, verified: 0, actionable: 1, blocked: 1 },
     nextActionable: 'FBS-002',
+    tiers: [{ tier: 0, fbsIds: ['FBS-001', 'FBS-002'] }],
     items: [
-      { fbsId: 'FBS-001', buildOrder: 1, title: 'Store', executionStatus: 'complete', dependsOnFbsIds: [], state: 'complete', blockedBy: [] },
-      { fbsId: 'FBS-002', buildOrder: 2, title: 'Verbs', executionStatus: 'notStarted', dependsOnFbsIds: [], state: 'actionable', blockedBy: [] },
-      { fbsId: 'FBS-003', buildOrder: 3, title: 'Cyclic', executionStatus: 'notStarted', dependsOnFbsIds: ['FBS-003'], state: 'blocked', blockedBy: ['FBS-003'], cycle: true },
+      { fbsId: 'FBS-001', buildOrder: 1, tier: 0, title: 'Store', executionStatus: 'complete', dependsOnFbsIds: [], state: 'complete', blockedBy: [] },
+      { fbsId: 'FBS-002', buildOrder: 2, tier: 0, title: 'Verbs', executionStatus: 'notStarted', dependsOnFbsIds: [], state: 'actionable', blockedBy: [] },
+      { fbsId: 'FBS-003', buildOrder: 3, tier: null, title: 'Cyclic', executionStatus: 'notStarted', dependsOnFbsIds: ['FBS-003'], state: 'blocked', blockedBy: ['FBS-003'], cycle: true },
     ],
   };
 }
@@ -110,10 +111,20 @@ test('BLOCKED warning block renders at the top of section 2 when blockedBy is no
 
 test('queue table renders one row per item with the blocked (cycle) label', () => {
   const md = formatMarkdown(sampleQueue(), 'queue');
-  assert.match(md, /\| order \| id \| title \| status \| state \| blocked by \|/);
-  assert.match(md, /\| 1 \| FBS-001 \| Store \| complete \| complete \|  \|/);
-  assert.match(md, /\| 3 \| FBS-003 \| Cyclic \| notStarted \| blocked \(cycle\) \| FBS-003 \|/);
+  assert.match(md, /\| order \| tier \| id \| title \| status \| state \| blocked by \|/);
+  assert.match(md, /\| 1 \| 0 \| FBS-001 \| Store \| complete \| complete \|  \|/);
+  assert.match(md, /\| 3 \| - \| FBS-003 \| Cyclic \| notStarted \| blocked \(cycle\) \| FBS-003 \|/);
   assert.match(md, /Next actionable: FBS-002/);
+});
+
+test('queue renders parallel-safe tiers; cycle-tainted items appear in no group (AC-502-2)', () => {
+  const md = formatMarkdown(sampleQueue(), 'queue');
+  assert.match(md, /Parallel-safe tiers \(items in the same tier have no dependency between them and can build in parallel\):/);
+  assert.match(md, /- tier 0: FBS-001, FBS-002/);
+  assert.equal(/- tier \d+:.*FBS-003/.test(md), false);
+  // No groups at all renders the explicit none line.
+  const none = formatMarkdown({ ...sampleQueue(), tiers: [] }, 'queue');
+  assert.match(none, /Parallel-safe tiers: none\./);
 });
 
 test('next mode with nothing actionable distinguishes done from stuck', () => {

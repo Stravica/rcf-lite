@@ -359,8 +359,10 @@
         },
         {
           "id": "AC-502-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-014-independent-items-share-tier"
+          ],
           "unresolvedTestCases": []
         },
         {

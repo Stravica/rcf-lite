@@ -251,12 +251,15 @@ $ rcf build
 
 Generation strategy: dependencyFirst
 
-| order | id | title | status | state | blocked by |
-|---|---|---|---|---|---|
-| 1 | FBS-001 | TODO: name this build session | notStarted | actionable |  |
-| 2 | FBS-002 | Note capture command | notStarted | actionable |  |
+| order | tier | id | title | status | state | blocked by |
+|---|---|---|---|---|---|---|
+| 1 | 0 | FBS-001 | TODO: name this build session | notStarted | actionable |  |
+| 2 | 0 | FBS-002 | Note capture command | notStarted | actionable |  |
 
 Totals: items 2 | notStarted 2 | inProgress 0 | complete 0 | verified 0 | actionable 2 | blocked 0
+
+Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
+- tier 0: FBS-001, FBS-002
 
 Next actionable: FBS-001
 ```

@@ -1,10 +1,11 @@
 {
   "createdAt": "2026-07-29T12:57:20.986Z",
-  "updatedAt": "2026-07-29T12:57:21.183Z",
-  "purpose": "Verify dependency-respecting ordering and cycle refusal. AC-502-2 is pending: the queue exposes actionable state but no explicit parallel-safe reporting is asserted (see test-suites/PENDING.md).",
+  "updatedAt": "2026-07-29T16:45:00.000Z",
+  "purpose": "Verify dependency-respecting ordering, parallel-safe tier reporting and cycle refusal.",
   "testLevel": "unit",
   "acIds": [
     "AC-502-1",
+    "AC-502-2",
     "AC-502-3"
   ],
   "id": "TS-014",
@@ -17,6 +18,13 @@
       "description": "a dependent item stays blocked until its dependency is satisfied, so dependencies always precede dependents",
       "status": "pending",
       "testPointer": "test/build/queue.test.js::notStarted with an unsatisfied dependency is blocked, blockedBy names it"
+    },
+    {
+      "id": "TC-014-independent-items-share-tier",
+      "acId": "AC-502-2",
+      "description": "two FBS items with no dependency between them report the same parallel-safe tier group; a dependent item reports a later tier, never the same group",
+      "status": "pending",
+      "testPointer": "test/build/queue.test.js::FBS items with no dependency between them share a parallel-safe tier (AC-502-2)"
     },
     {
       "id": "TC-014-cycle-detected-reported",

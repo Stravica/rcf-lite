@@ -63,7 +63,7 @@ test('rcf build (queue overview) exits 0 and renders the table', async () => {
   const { code, stdout } = await runBin(tmp, ['build']);
   assert.equal(code, 0);
   assert.match(stdout, /# Build queue: BS-001/);
-  assert.match(stdout, /\| 1 \| FBS-001 \|/);
+  assert.match(stdout, /\| 1 \| 0 \| FBS-001 \|/);
   assert.match(stdout, /Next actionable: FBS-001/);
 });
 
