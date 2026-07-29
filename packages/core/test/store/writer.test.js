@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, stat } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -117,8 +117,10 @@ test('createDocument refuses on unknown parent (brokenReference, exit 3)', async
   assert.equal(res.kind, 'brokenReference');
 });
 
-test('createDocument refuses on id collision (exit 2)', async () => {
+test('createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)', async () => {
   const { projectRoot, tree } = await scaffold();
+  const filesBefore = await readdir(join(projectRoot, 'rcf/requirements'));
+  const existingBefore = await readFile(join(projectRoot, 'rcf/requirements/req-001.json'), 'utf8');
   const res = await createDocument({
     projectRoot, tree, kind: 'req',
     body: { title: 'REQ-001 collision' },
@@ -126,6 +128,30 @@ test('createDocument refuses on id collision (exit 2)', async () => {
   });
   assert.equal(res.kind, 'usage');
   assert.match(res.message, /already taken/);
+  // No file is written: the directory holds the same set of files and the
+  // colliding document's file is byte-identical.
+  const filesAfter = await readdir(join(projectRoot, 'rcf/requirements'));
+  assert.deepEqual(filesAfter.sort(), filesBefore.sort());
+  const existingAfter = await readFile(join(projectRoot, 'rcf/requirements/req-001.json'), 'utf8');
+  assert.equal(existingAfter, existingBefore);
+});
+
+test('createDocument with a schema-invalid body writes nothing and returns the validation error (AC-302-3)', async () => {
+  const { projectRoot, tree } = await scaffold();
+  const filesBefore = await readdir(join(projectRoot, 'rcf/requirements'));
+  // `category` is an enum; an out-of-enum value fails schema validation
+  // of the assembled body before anything touches disk.
+  const res = await createDocument({
+    projectRoot, tree, kind: 'req',
+    body: { title: 'valid title', category: 'nonsense' },
+    options: { parentId: 'PRD-001' },
+  });
+  // The validation error is returned...
+  assert.equal(res.kind, 'validation');
+  assert.match(res.message, /category/);
+  // ...and nothing is written: no new file appeared in the target dir.
+  const filesAfter = await readdir(join(projectRoot, 'rcf/requirements'));
+  assert.deepEqual(filesAfter.sort(), filesBefore.sort());
 });
 
 test('createDocument fbs default --build-order is max+1 (empty siblings -> 1)', async () => {

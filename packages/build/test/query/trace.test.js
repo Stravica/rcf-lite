@@ -56,19 +56,28 @@ function makeFixture() {
   chain('TAC-005', 'TAD-001');
   mapPush(usByTacId, 'TAC-005', 'US-201');
 
-  // BS-001 -> FBS-014 (cross-links to AC-201-1)
+  // BS-001 -> FBS-014 (cross-links to AC-201-1). FBS-015 depends on
+  // FBS-014: it exists to prove the trace does NOT traverse through the
+  // FBS layer (AC-402-3) - only impact expands FBS dependents.
   link('buildSequence', 'BS-001');
   link('fbs', 'FBS-014', {
     fbsId: 'FBS-014', bsId: 'BS-001', acIds: ['AC-201-1'],
     contextRequirements: { tacIds: ['TAC-005'], adrIds: [] },
   });
+  link('fbs', 'FBS-015', {
+    fbsId: 'FBS-015', bsId: 'BS-001', acIds: [],
+    dependsOnFbsIds: ['FBS-014'],
+    contextRequirements: { tacIds: [], adrIds: [] },
+  });
   chain('FBS-014', 'BS-001');
+  chain('FBS-015', 'BS-001');
   mapPush(fbsByAcId, 'AC-201-1', 'FBS-014');
+  mapPush(dependentsByFbsId, 'FBS-014', 'FBS-015');
 
   return {
     kindById, byId, parentByChild, childrenByParent,
     tsByAcId, tcsByAcId, fbsByAcId, usByTacId, dependentsByFbsId,
-    fbsItems: [byId.get('FBS-014')],
+    fbsItems: [byId.get('FBS-014'), byId.get('FBS-015')],
   };
 }
 
@@ -119,11 +128,27 @@ test('forward from AC includes TS + TC via cross-links', () => {
   assert.ok(ids.includes('TC-042-happy'));
 });
 
-test('forward from AC includes FBS via fbsByAcId cross-link', () => {
+test('forward from AC includes FBS via fbsByAcId cross-link as a leaf, never traversed through (AC-402-3)', () => {
   const tree = makeFixture();
   const r = computeTrace(tree, { id: 'AC-201-1', direction: 'forward' });
   const ids = (r.nodes ?? []).map((n) => n.id);
+  // The delivering FBS surfaces via the fbsByAcId cross-link...
   assert.ok(ids.includes('FBS-014'));
+  // ...and it surfaces via a crossLink edge, not a chain edge.
+  const edge = (r.edges ?? []).find((e) => e.to === 'FBS-014');
+  assert.equal(edge?.kind, 'crossLink');
+  // ...but it is a LEAF: FBS-015 depends on FBS-014, and the trace must
+  // NOT walk through the FBS dependency layer to reach it.
+  assert.ok(!ids.includes('FBS-015'), 'trace traversed through the FBS layer');
+});
+
+test('forward from FBS returns pivot-only: the FBS layer is a leaf in trace (AC-402-3)', () => {
+  const tree = makeFixture();
+  const r = computeTrace(tree, { id: 'FBS-014', direction: 'forward' });
+  assert.equal(r.found, true);
+  // FBS-015 depends on FBS-014, but the dependency fan-out is impact's
+  // business (expandFbsDependents) - plain trace stops at the FBS.
+  assert.deepEqual((r.nodes ?? []).map((n) => n.id), ['FBS-014']);
 });
 
 test('forward from TS returns inline TC entries', () => {

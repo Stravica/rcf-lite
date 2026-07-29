@@ -12,10 +12,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-302-1",
-      "description": "Creating a requirement writes the file and updates the PRD requirementIds list, both validating",
+      "description": "Creating a requirement writes a validating child file carrying the parent edge; the PRD file is not modified",
       "given": "a request to create a requirement under a PRD",
       "when": "create runs",
-      "then": "the requirement file is written and the PRD's requirementIds list gains the new id, both validating",
+      "then": "the requirement file is written carrying its prdId parent edge and validating, and the parent PRD file is not modified (child-owned parent edges)",
       "testable": true
     },
     {
@@ -36,5 +36,5 @@
     }
   ],
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-29T13:34:39.028Z"
 }

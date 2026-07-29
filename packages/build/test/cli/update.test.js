@@ -34,6 +34,33 @@ async function scaffold() {
   return tmp;
 }
 
+test('rcf update REQ-999 returns a structured not-found error and writes nothing (AC-303-3)', async () => {
+  const tmp = await scaffold();
+  // Snapshot every document byte before the attempt.
+  const { readdir } = await import('node:fs/promises');
+  const snapshot = async () => {
+    const out = new Map();
+    const walk = async (dir) => {
+      for (const entry of await readdir(join(tmp, dir), { withFileTypes: true })) {
+        const rel = `${dir}/${entry.name}`;
+        if (entry.isDirectory()) await walk(rel);
+        else out.set(rel, await readFile(join(tmp, rel), 'utf8'));
+      }
+    };
+    await walk('rcf');
+    return out;
+  };
+  const before = await snapshot();
+  const { code, stderr } = await runBin(tmp, ['update', 'REQ-999', '--set', 'title=Nope']);
+  // Structured not-found error naming the id, usage exit code...
+  assert.equal(code, 2);
+  assert.match(stderr, /update: id REQ-999 not found/);
+  // ...and nothing was written anywhere in the tree.
+  const after = await snapshot();
+  assert.deepEqual([...after.keys()].sort(), [...before.keys()].sort());
+  for (const [rel, body] of before) assert.equal(after.get(rel), body, `unexpected write to ${rel}`);
+});
+
 test('rcf update REQ-001 --set title=X changes the title and bumps updatedAt', async () => {
   const tmp = await scaffold();
   const before = JSON.parse(await readFile(join(tmp, 'rcf/requirements/req-001.json'), 'utf8'));

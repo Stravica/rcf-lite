@@ -13,7 +13,9 @@
 // Phase 5 §4.2 test surface documents the expected node/edge shape:
 //   - Forward from PRD returns full descendant tree down to TCs.
 //   - Forward from AC follows all cross-links (tsByAcId, tcsByAcId,
-//     fbsByAcId).
+//     fbsByAcId) - but a delivering FBS is a cross-link LEAF: trace
+//     never traverses through the FBS layer (AC-402-3). The FBS
+//     dependency fan-out is impact's business (expandFbsDependents).
 //   - Back from TC walks TC -> TS -> AC -> US -> REQ -> PRD (AC noted
 //     via testCases[].acId; back-walk continues through parentByChild).
 
@@ -80,15 +82,23 @@ export function kindOf(tree, id) {
  * @param {boolean} [opts.includeCode] - Phase 10: extend the forward fan-out
  *   into Code Nodes (AC -> implementing CN -> transitive dependents). Opt-in
  *   so spec-only queries stay byte-identical (spec D9).
+ * @param {boolean} [opts.expandFbsDependents] - opt-in (impact only): expand
+ *   an FBS node's dependency fan-out (dependentsByFbsId). Default OFF: trace
+ *   is the intent-chain walk, and per AC-402-3 a delivering FBS appears as a
+ *   cross-link LEAF - trace never traverses through the FBS layer. Impact is
+ *   the blast-radius question, so `computeImpact` opts in (D7: a dependent of
+ *   an affected FBS needs re-execution).
  * @returns {TraceResult}
  */
-export function computeTrace(tree, { id, direction = 'forward', includeCode = false }) {
+export function computeTrace(tree, {
+  id, direction = 'forward', includeCode = false, expandFbsDependents = false,
+}) {
   const kind = kindOf(tree, id);
   if (!kind) {
     return { pivot: id, direction, found: false };
   }
   if (direction === 'forward') {
-    const { nodes, edges } = walkForward(tree, id, kind, includeCode);
+    const { nodes, edges } = walkForward(tree, id, kind, includeCode, expandFbsDependents);
     return { pivot: id, direction, found: true, nodes, edges };
   }
   if (direction === 'back') {
@@ -97,7 +107,7 @@ export function computeTrace(tree, { id, direction = 'forward', includeCode = fa
   }
   // both
   const back = walkBack(tree, id, kind);
-  const fwd = walkForward(tree, id, kind, includeCode);
+  const fwd = walkForward(tree, id, kind, includeCode, expandFbsDependents);
   // Both arrays exclude the pivot; pivot is the anchor between them
   // (spec §D9: two arrays around a single pivot id).
   return {
@@ -118,9 +128,11 @@ export function computeTrace(tree, { id, direction = 'forward', includeCode = fa
  * @param {string} pivot
  * @param {string} pivotKind
  * @param {boolean} [includeCode] - Phase 10 opt-in for the code layer.
+ * @param {boolean} [expandFbsDependents] - impact-only opt-in; see
+ *   `computeTrace`. When off, FBS nodes are leaves (AC-402-3).
  * @returns {{nodes: TraceNode[], edges: TraceEdge[]}}
  */
-function walkForward(tree, pivot, pivotKind, includeCode = false) {
+function walkForward(tree, pivot, pivotKind, includeCode = false, expandFbsDependents = false) {
   /** @type {TraceNode[]} */
   const nodes = [{ id: pivot, kind: pivotKind, depth: 0 }];
   /** @type {TraceEdge[]} */
@@ -134,7 +146,7 @@ function walkForward(tree, pivot, pivotKind, includeCode = false) {
     const cur = queue.shift();
     if (!cur) break;
     const curDepth = depthById.get(cur) ?? 0;
-    const children = forwardChildrenOf(tree, cur, includeCode);
+    const children = forwardChildrenOf(tree, cur, includeCode, expandFbsDependents);
     for (const child of children) {
       // Always emit the edge (even if child already visited via a
       // different parent) so the graph is complete; only enqueue and
@@ -267,9 +279,12 @@ function walkBack(tree, pivot, pivotKind) {
  * @param {TreeModel} tree
  * @param {string} id
  * @param {boolean} [includeCode] - Phase 10 opt-in for the code layer.
+ * @param {boolean} [expandFbsDependents] - impact-only opt-in; see
+ *   `computeTrace`. When off (trace), an FBS enumerates no children:
+ *   it is a cross-link leaf per AC-402-3.
  * @returns {{id: string, edgeKind: 'parentChild' | 'crossLink'}[]}
  */
-function forwardChildrenOf(tree, id, includeCode = false) {
+function forwardChildrenOf(tree, id, includeCode = false, expandFbsDependents = false) {
   const kind = kindOf(tree, id);
   const doc = tree.byId.get(id);
   /** @type {{id: string, edgeKind: 'parentChild' | 'crossLink'}[]} */
@@ -320,7 +335,10 @@ function forwardChildrenOf(tree, id, includeCode = false) {
       if ((fbs.contextRequirements?.adrIds ?? []).includes(id)) push(fbs.fbsId, 'crossLink');
     }
   }
-  if (kind === 'fbs') {
+  // AC-402-3: in a trace, the FBS layer is never traversed through - a
+  // delivering FBS is a cross-link leaf. Impact opts in to the dependency
+  // fan-out (D7: dependents of an affected FBS need re-execution).
+  if (kind === 'fbs' && expandFbsDependents) {
     for (const depId of tree.dependentsByFbsId.get(id) ?? []) push(depId, 'crossLink');
   }
   return out;

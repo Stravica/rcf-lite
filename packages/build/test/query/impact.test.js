@@ -87,7 +87,7 @@ test('impact from AC: ancestors up to PRD; descendants include TS + TC + FBS wit
   assert.equal(byId['FBS-014'].actionNeeded, 're-execute');
 });
 
-test('impact from REQ: ancestor PRD; descendants US -> AC -> TS -> TC with labels', () => {
+test('impact from REQ: ancestor PRD; descendants US -> AC -> TS -> TC and the FBS slots under it (AC-403-1)', () => {
   const tree = makeFixture();
   const r = computeImpact(tree, { id: 'REQ-002' });
   const byId = Object.fromEntries((r.nodes ?? []).map((n) => [n.id, n]));
@@ -96,6 +96,15 @@ test('impact from REQ: ancestor PRD; descendants US -> AC -> TS -> TC with label
   assert.equal(byId['US-201'].actionNeeded, 'review-scope');
   assert.equal(byId['AC-201-1'].actionNeeded, 're-approve');
   assert.equal(byId['TS-042'].actionNeeded, 're-verify');
+  // AC-403-1: the fan-out includes the FBS slots whose acceptance
+  // criteria fall under the pivot requirement (FBS-014 delivers
+  // AC-201-1), labelled for re-execution...
+  assert.equal(byId['FBS-014'].role, 'descendant');
+  assert.equal(byId['FBS-014'].actionNeeded, 're-execute');
+  // ...and, being impact (blast radius), the dependents of that
+  // affected FBS (D7: "or a dependent of an affected FBS").
+  assert.equal(byId['FBS-015'].role, 'descendant');
+  assert.equal(byId['FBS-015'].actionNeeded, 're-execute');
 });
 
 test('impact from TAC: ancestor TAD; descendants include US via usByTacId + FBS via fan-out', () => {
@@ -129,7 +138,7 @@ test('impact from FBS: ancestor BS; descendants include dependent FBS via depend
   assert.equal(byId['FBS-015'].actionNeeded, 're-execute');
 });
 
-test('impact from TC: ancestors include TS, AC, US, REQ, PRD', () => {
+test('impact from TC: ancestors include TS, AC, US, REQ, PRD; no dependents -> empty impact set (AC-403-3)', () => {
   const tree = makeFixture();
   const r = computeImpact(tree, { id: 'TC-042-happy' });
   const byId = Object.fromEntries((r.nodes ?? []).map((n) => [n.id, n]));
@@ -139,6 +148,10 @@ test('impact from TC: ancestors include TS, AC, US, REQ, PRD', () => {
   assert.equal(byId['US-201'].actionNeeded, 'review-scope');
   assert.equal(byId['REQ-002'].actionNeeded, 'review-scope');
   assert.equal(byId['PRD-001'].actionNeeded, 're-approve');
+  // AC-403-3: a TC has no dependents, so the impact SET (the descendant
+  // fan-out) is reported empty - not padded, not defaulted.
+  const descendants = (r.nodes ?? []).filter((n) => n.role === 'descendant');
+  assert.deepEqual(descendants, []);
 });
 
 test('impact from unknown id returns {found:false}', () => {

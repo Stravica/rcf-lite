@@ -84,6 +84,21 @@
       "depth": 3
     },
     {
+      "id": "TC-003-per-req-subdiagram-chain-edges",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
+      "id": "TC-003-one-subdiagram-per-req",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
+      "id": "TC-003-broken-node-marked-visibly",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
       "id": "FBS-003",
       "kind": "fbs",
       "depth": 3
@@ -95,6 +110,16 @@
     },
     {
       "id": "TC-004-doc-links-navigate-to-sections",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
+      "id": "TC-004-valid-html5-page",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
+      "id": "TC-004-served-live-no-files-written",
       "kind": "tc",
       "depth": 3
     },
@@ -191,8 +216,38 @@
       "kind": "parentChild"
     },
     {
+      "from": "TS-003",
+      "to": "TC-003-per-req-subdiagram-chain-edges",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-003",
+      "to": "TC-003-one-subdiagram-per-req",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-003",
+      "to": "TC-003-broken-node-marked-visibly",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-201-1",
+      "to": "TC-003-per-req-subdiagram-chain-edges",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-201-1",
+      "to": "TC-003-one-subdiagram-per-req",
+      "kind": "crossLink"
+    },
+    {
       "from": "AC-201-1",
       "to": "FBS-003",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-201-2",
+      "to": "TC-003-broken-node-marked-visibly",
       "kind": "crossLink"
     },
     {
@@ -224,6 +279,26 @@
       "from": "TS-004",
       "to": "TC-004-doc-links-navigate-to-sections",
       "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-valid-html5-page",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-served-live-no-files-written",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-202-1",
+      "to": "TC-004-valid-html5-page",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-1",
+      "to": "TC-004-served-live-no-files-written",
+      "kind": "crossLink"
     },
     {
       "from": "AC-202-1",

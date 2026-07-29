@@ -2,30 +2,30 @@ Coverage mode: shallow-any
 Requirements: 8  covered: 8  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC        AC covered  Test cases
------------  -------  --------  ----------  ----------------------------------------
+-----------  -------  --------  ----------  ------------------------------------------------------------
 REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
                       AC-101-2  yes         TC-001-init-refuses-overwrite
                       AC-101-3  yes         TC-001-children-discoverable-from-roots
                       AC-102-1  yes         TC-002-walk-loads-every-document
                       AC-102-2  yes         TC-002-parse-failure-structured-no-crash
                       AC-102-3  yes         TC-002-broken-reference-reported
-REQ-002      yes      AC-201-1  no          -
-                      AC-201-2  no          -
+REQ-002      yes      AC-201-1  yes         TC-003-one-subdiagram-per-req, TC-003-per-req-subdiagram-...
+                      AC-201-2  yes         TC-003-broken-node-marked-visibly
                       AC-201-3  yes         TC-003-diagram-emitted-as-source
-                      AC-202-1  no          -
+                      AC-202-1  yes         TC-004-served-live-no-files-written, TC-004-valid-html5-page
                       AC-202-2  yes         TC-004-curated-fields-not-raw-json
                       AC-202-3  yes         TC-004-doc-links-navigate-to-sections
                       AC-203-1  yes         TC-005-edit-present-after-regenerate
                       AC-203-2  yes         TC-005-no-cached-prior-state
-REQ-003      yes      AC-301-1  no          -
+REQ-003      yes      AC-301-1  yes         TC-006-read-reports-valid
                       AC-301-2  yes         TC-006-read-unknown-id-not-found
-                      AC-301-3  no          -
-                      AC-302-1  no          -
+                      AC-301-3  yes         TC-006-read-invalid-content-plus-errors
+                      AC-302-1  yes         TC-007-create-leaves-prd-untouched, TC-007-create-writes-...
                       AC-302-2  yes         TC-007-create-id-collision-refused
-                      AC-302-3  no          -
+                      AC-302-3  yes         TC-007-create-invalid-writes-nothing
                       AC-303-1  yes         TC-008-valid-update-persists-updatedat
                       AC-303-2  yes         TC-008-invalid-update-refused
-                      AC-303-3  no          -
+                      AC-303-3  yes         TC-008-update-unknown-id-not-found
                       AC-304-1  yes         TC-009-delete-refused-with-dependents
                       AC-304-2  yes         TC-009-cascade-removes-subtree
                       AC-304-3  yes         TC-009-leaf-delete-removes-file
@@ -34,10 +34,10 @@ REQ-004      yes      AC-401-1  yes         TC-010-req-without-us-uncovered
                       AC-401-3  yes         TC-010-full-coverage-no-gaps
                       AC-402-1  yes         TC-011-trace-forward-req-subtree
                       AC-402-2  yes         TC-011-trace-back-ac-ancestry
-                      AC-402-3  no          -
-                      AC-403-1  no          -
+                      AC-402-3  yes         TC-011-backward-intent-chain-only, TC-011-forward-fbs-cro...
+                      AC-403-1  yes         TC-012-req-impact-includes-fbs-slots
                       AC-403-2  yes         TC-012-adr-impact-reaches-fbs
-                      AC-403-3  no          -
+                      AC-403-3  yes         TC-012-no-dependents-empty-impact
 REQ-005      yes      AC-501-1  yes         TC-013-bundle-ac-gwt-ancestry
                       AC-501-2  yes         TC-013-bundle-inlines-tacs-adrs
                       AC-501-3  yes         TC-013-bundle-single-markdown-document
@@ -49,7 +49,7 @@ REQ-005      yes      AC-501-1  yes         TC-013-bundle-ac-gwt-ancestry
                       AC-503-3  yes         TC-015-mark-touches-status-only
 REQ-006      yes      AC-601-1  yes         TC-016-tools-list-structured-schemas
                       AC-601-2  yes         TC-016-mcp-coverage-cli-parity
-                      AC-601-3  no          -
+                      AC-601-3  yes         TC-016-stdio-only-no-listener
                       AC-602-1  yes         TC-017-mcp-create-cli-validation
                       AC-602-2  yes         TC-017-mcp-build-returns-bundle
                       AC-602-3  yes         TC-017-mcp-invalid-write-refused
@@ -57,7 +57,7 @@ REQ-007      yes      AC-701-1  yes         TC-018-invalid-write-writes-nothing
                       AC-701-2  yes         TC-018-written-doc-validates
                       AC-701-3  yes         TC-018-registered-bundle-no-drift
                       AC-702-1  yes         TC-019-failure-names-field-and-rule
-                      AC-702-2  no          -
+                      AC-702-2  yes         TC-019-multi-failures-returned-together
                       AC-702-3  yes         TC-019-mcp-errors-structured
 REQ-008      yes      AC-801-1  yes         TC-020-preview-in-definition-of-done
                       AC-801-2  yes         TC-020-single-start-command

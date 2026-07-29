@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-07-29T12:57:20.096Z",
-  "updatedAt": "2026-07-29T12:57:20.293Z",
+  "updatedAt": "2026-07-29T13:35:15.082Z",
   "purpose": "Verify forward and backward traversal along the intent chain. AC-402-3 is pending: forward trace deliberately surfaces FBS via cross-link (D4), contradicting the AC's never-FBS clause (see test-suites/PENDING.md).",
   "testLevel": "unit",
   "acIds": [
@@ -22,6 +22,20 @@
       "id": "TC-011-trace-back-ac-ancestry",
       "acId": "AC-402-2",
       "description": "backward trace from an AC returns exactly US, REQ and PRD",
+      "status": "pending",
+      "testPointer": "test/query/trace.test.js::back from AC walks AC -> US -> REQ -> PRD"
+    },
+    {
+      "id": "TC-011-forward-fbs-cross-link-leaf",
+      "acId": "AC-402-3",
+      "description": "forward trace surfaces the delivering FBS as a cross-link leaf and does not walk into its dependents",
+      "status": "pending",
+      "testPointer": "test/query/trace.test.js::forward from AC includes FBS via fbsByAcId cross-link as a leaf, never traversed through (AC-402-3)"
+    },
+    {
+      "id": "TC-011-backward-intent-chain-only",
+      "acId": "AC-402-3",
+      "description": "backward trace walks the intent chain only, with no FBS nodes",
       "status": "pending",
       "testPointer": "test/query/trace.test.js::back from AC walks AC -> US -> REQ -> PRD"
     }

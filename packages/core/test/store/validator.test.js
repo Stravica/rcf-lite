@@ -1,6 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+// Same module instance the validator registers at start-up (node caches
+// JSON module imports by specifier) - the AC-701-3 test below leans on
+// that identity to prove the compiled validator does not re-read it.
+import reqSchema from '@stravica-ai/rcf-schemas/schemas/req.schema.json' with { type: 'json' };
+
 import { documentIdOf, idFieldFor, knownKinds, validateDocument } from '../../src/store/validator.js';
 
 test('knownKinds covers every Phase 3 schema', () => {
@@ -108,6 +113,47 @@ test('validateDocument re-validates the registered schema (no drift)', () => {
   };
   assert.equal(validateDocument({ doc: req, kind: 'req' }), null);
   assert.equal(validateDocument({ doc: req, kind: 'req' }), null);
+
+  // AC-701-3: the published bundle is registered ONCE at start-up and the
+  // compiled validator is what every later call uses. Prove it by
+  // mutating the imported schema object after registration: if
+  // validateDocument re-read or re-compiled the schema per call, the doc
+  // would now fail the injected requirement. It must not.
+  const originalRequired = reqSchema.required;
+  try {
+    reqSchema.required = [...originalRequired, 'fieldThatDoesNotExist'];
+    assert.equal(
+      validateDocument({ doc: req, kind: 'req' }),
+      null,
+      'validator re-read the schema bundle instead of using the start-up registration',
+    );
+  } finally {
+    reqSchema.required = originalRequired;
+  }
+});
+
+test('validateDocument returns every failure in one document together (AC-702-2)', () => {
+  // Two independent violations in one document: a pattern-invalid prdId
+  // AND an additional property the schema forbids. Ajv runs with
+  // allErrors: true and the messages join with ';' - both must surface
+  // in the single returned error, not just the first.
+  const prd = {
+    prdId: 'BAD-1',
+    productName: 'Acme',
+    version: '0.1.0',
+    status: 'draft',
+    problemStatement: 'x',
+    objectives: ['one'],
+    bogusField: true,
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  const err = validateDocument({ doc: prd, kind: 'prd' });
+  assert.ok(err);
+  assert.equal(err.kind, 'validation');
+  assert.match(err.message, /prdId/);
+  assert.match(err.message, /additional properties/);
+  assert.ok(err.message.includes(';'), 'expected the two failures joined in one message');
 });
 
 test('validateDocument rejects a REQ that lacks the required prdId (D2 mandatory parent field)', () => {

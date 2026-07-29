@@ -2,33 +2,20 @@
 
 Register of acceptance criteria with **no** Test Case, produced by the
 assertion-level audit of all 76 ACs against the existing test corpus
-(w-2026-07-28-005 step 4). A TC binds an AC only when an existing test
-genuinely asserts the AC's *outcome* - a test that merely exercises the
-same module does not count. Every AC below failed that bar; each row says
-what a sufficient test must assert, and names the nearest existing test
-where one exists.
+(w-2026-07-28-005 step 4) and worked down by the coverage-tail pass
+(w-2026-07-29-014 / w-2026-07-29-015). A TC binds an AC only when an
+existing test genuinely asserts the AC's *outcome* - a test that merely
+exercises the same module does not count. Each row says what a
+sufficient test must assert, and names the nearest existing test where
+one exists.
 
-Rows marked **AC-drift** need a decision before a test: the AC's
-then-clause describes behaviour the implementation has deliberately moved
-away from, so an honest test cannot be written until the AC text is
-revised (or the drift is reverted).
+Of the original 14 rows: the 4 AC-drift rows were resolved by operator
+ruling (AC text revised to the deliberate design, then bound) and 9
+assertion gaps got their tests written and bound. One row remains.
 
-Status: **62 bound / 14 pending** of 76 ACs. `rcf coverage --strict`
+Status: **75 bound / 1 pending** of 76 ACs. `rcf coverage --strict`
 exits 4 while any row below remains.
 
 | AC | US | Kind | What a sufficient test must assert | Nearest existing test |
 |---|---|---|---|---|
-| AC-201-1 | US-201 | AC-drift | The generated diagram (or diagram set) shows the PRD, every requirement, every user story **and the architecture documents** with chain edges. The implementation renders per-REQ subdiagrams; no diagram carries the PRD or TAD/TAC/ADR nodes. Revise the AC to the per-REQ subdiagram design, or widen the diagram. | `test/view/mermaid-diagram.test.js::requirementSubdiagram carries chain edges and delivers back-links` |
-| AC-201-2 | US-201 | assertion gap | `requirementSubdiagram` over a model containing a broken reference emits a visibly marked (e.g. `broken`-classed) node rather than omitting it. Model-level broken tracking exists; no diagram-level marking is asserted. | `test/view/tree-model.test.js::buildTreeModel records brokenIds and errorsById for broken trees` |
-| AC-202-1 | US-202 | AC-drift | "Writes static files that open in a browser with no server process" - Phase 3.8 deliberately replaced the static-write path with a server-only surface, and a regression test asserts the view **never** writes files. AC text needs revising to the live-view design before any honest test can bind. | `test/view/html-page.test.js::renderPage emits a valid HTML5 document (AC-202-1)` (asserts page validity, not the static-files clause); `test/view/cli.test.js::rcf view never writes any files to disk (regression against static mode)` (asserts the opposite of the AC) |
-| AC-301-1 | US-301 | assertion gap | `rcf read` on a valid document returns the body **and reports it as valid against its schema**. The read verb today prints the body only; validity is never reported on the read path. Either surface validity in read output and assert it, or revise the AC. | `test/cli/read.test.js::rcf read REQ-001 prints pretty JSON by default` (asserts return, not the validity report) |
-| AC-301-3 | US-301 | assertion gap | Reading an invalid-but-present document returns **both** the content and the validation errors. `loadDocument` returns the validation error without the content, and `rcf read` serves the raw body without errors; no path returns both, and nothing asserts it. | `../core/test/store/loader.test.js::loadDocument returns validation error for a bad document` |
-| AC-302-1 | US-302 | AC-drift | "The PRD's requirementIds list gains the new id" - the requirementIds field was **removed** (D2 child-owned parent edges) and a test asserts create does not mutate the PRD. AC text needs revising to the child-owned-edge design. | `../core/test/store/writer.test.js::createDocument does NOT mutate the parent PRD file (Phase 3.7 §D2)` (asserts the opposite of the AC's second clause) |
-| AC-302-3 | US-302 | assertion gap | A **create** whose document body would not validate writes nothing and returns the validation error. The refusal machinery is tested for update (`(e) normal-path refusal intact`) and for broken references on create, but no test drives create with a schema-invalid body and asserts refusal plus no write. | `../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses` (update, not create) |
-| AC-303-3 | US-303 | assertion gap | `rcf update UNKNOWN-999` (or `updateDocument` with an unknown id) returns a structured not-found error and writes nothing. The writer implements it (`update: id not found`, usage error) but no test drives the path. | `test/cli/delete.test.js::rcf delete UNKNOWN-999 exits 2` (same shape, delete verb) |
-| AC-402-3 | US-402 | AC-drift | "Trace does not traverse the FBS layer" - forward trace deliberately surfaces delivering FBS items via the `fbsByAcId` cross-link (D4), and a test asserts that inclusion. Backward trace is provably intent-chain-only. AC text needs revising (e.g. "FBS appears only as a cross-link leaf, never traversed through"). | `test/query/trace.test.js::forward from AC includes FBS via fbsByAcId cross-link` (asserts the inclusion); `test/query/trace.test.js::back from AC walks AC -> US -> REQ -> PRD` (proves backward purity) |
-| AC-403-1 | US-403 | assertion gap | Impact from a **REQ** pivot includes the FBS slots whose ACs fall under it. The existing REQ-pivot test asserts US/AC/TS descendants and labels but never asserts an FBS node; FBS fan-out is only asserted from AC and TAC pivots. Widen the REQ-pivot assertion. | `test/query/impact.test.js::impact from REQ: ancestor PRD; descendants US -> AC -> TS -> TC with labels` |
-| AC-403-3 | US-403 | assertion gap | Impact on a document with no dependents reports an **empty** impact set (empty descendants). No test asserts emptiness; the TC-pivot test asserts ancestors only. | `test/query/impact.test.js::impact from TC: ancestors include TS, AC, US, REQ, PRD` |
-| AC-502-2 | US-502 | assertion gap | FBS items with no dependency between them are reported as **parallel-safe**. The queue exposes per-item actionable state but no explicit parallel-safety surface exists or is asserted (the word does not appear in src or tests). Either assert that two independent items are simultaneously actionable and document that as the parallel-safe signal, or add an explicit surface. | `test/build/queue.test.js::complete AND verified dependencies both satisfy (D2 rule 2)` (two items actionable, not asserted as such) |
-| AC-601-3 | US-601 | assertion gap | The MCP server communicates over stdio only and **opens no network listener**. The e2e suite proves stdio works (real pipes, stdout purity) but nothing asserts the absence of a listening socket. | `test/mcp/stdio.e2e.test.js::e2e: stdout purity - every stdout line is a valid JSON-RPC message, nothing else` |
-| AC-702-2 | US-702 | assertion gap | Multiple validation failures in **one** document are returned together. Implemented (Ajv `allErrors: true`; messages joined with `;` in `validateDocument`) but never asserted - every validator test uses a single-failure document. Drive a doc with two violations and assert both surface. | `../core/test/store/validator.test.js::validateDocument returns a validation error for an invalid PRD` |
+| AC-502-2 | US-502 | feature gap | FBS items with no dependency between them are reported as **parallel-safe**. The AC is right (operator ruling 2026-07-29): the build sequence should show which FBSs can execute in parallel. No such surface exists in build-lite - the queue exposes per-item actionable state only. Forensics (w-2026-07-29-015): the feature was SPECIFIED here (TAC-005 declares a `buildOrder` interface computing "parallel-safe groups"; FBS-010 lists "Topological build order with parallel-safe groups" as a deliverable, and is marked complete) but Phase 6 shipped the queue without it; it is fully implemented in the full RCF platform (rcf-tools `computeTiers` / `parallel-opportunities` / build-graph tier groupings). Resolution: complete the specified surface (port the tier computation, expose it via `rcf build`), then bind a test asserting two independent items land in the same parallel-safe group. | `test/build/queue.test.js::complete AND verified dependencies both satisfy (D2 rule 2)` (two items actionable, not asserted as such) |

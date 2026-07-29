@@ -15,6 +15,12 @@ const OPTION_SPEC = {
 
 export const HELP = `Usage: rcf read <id> [options]
 
+Prints the document body to stdout and a schema-validity report to
+stderr: a valid document is reported as valid; an invalid-but-present
+document is still returned, together with its validation errors, so the
+caller sees both the content and the problem. The exit code stays 0
+either way - read is a retrieval verb, not a gate (that is rcf validate).
+
 Options:
   --field <dotPath>         Print only the addressed field
   --raw                     Emit unformatted (single-line) JSON
@@ -53,7 +59,7 @@ export async function main(argv, deps = {}) {
     stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
     return 2;
   }
-  const { tree } = await walkTree({ projectRoot });
+  const { tree, errors } = await walkTree({ projectRoot });
   const target = resolveTarget(tree, id);
   if (!target) {
     stderr.write(`[error] usage read: id ${id} not found\n`);
@@ -69,6 +75,22 @@ export async function main(argv, deps = {}) {
   }
   const out = flags.raw ? JSON.stringify(value) : JSON.stringify(value, null, 2);
   stdout.write(`${out}\n`);
+  // Validity report (AC-301-1 / AC-301-3): the body went to stdout; the
+  // schema verdict goes to stderr so piped output stays pure JSON. An
+  // invalid-but-present document is returned WITH its validation errors -
+  // content and problem together. Read never gates on validity (exit 0);
+  // rcf validate is the gate.
+  if (target.invalid) {
+    stderr.write(`[warn] read: ${target.containerId} fails schema validation; body returned together with the errors:\n`);
+    const validationErrors = (errors ?? []).filter(
+      (e) => e.kind === 'validation' && e.documentId === target.containerId,
+    );
+    for (const e of validationErrors) {
+      stderr.write(`[warn] validation ${target.containerId}: ${e.message}\n`);
+    }
+  } else {
+    stderr.write(`[ok] read: ${id} is valid against its schema\n`);
+  }
   return 0;
 }
 
@@ -80,16 +102,22 @@ export async function main(argv, deps = {}) {
  *   - inline TC (`TC-XXX-slug`) -> returns the TC entry from parent TS
  */
 function resolveTarget(tree, id) {
-  if (id === 'MANIFEST' && tree.manifest) return { doc: tree.manifest };
+  if (id === 'MANIFEST' && tree.manifest) {
+    return { doc: tree.manifest, containerId: 'MANIFEST', invalid: false };
+  }
   const doc = tree.byId.get(id);
-  if (doc) return { doc };
+  if (doc) return { doc, containerId: id, invalid: false };
+  // B5: schema-invalid docs stay addressable (tree.invalidDocs) - read
+  // returns the body together with the validation errors (AC-301-3).
+  const invalidEntry = tree.invalidDocs?.get(id);
+  if (invalidEntry) return { doc: invalidEntry.doc, containerId: id, invalid: true };
   if (/^AC-\d+(-\d+)?$/.test(id)) {
     const parentId = tree.parentByChild.get(id);
     if (!parentId) return null;
     const us = tree.byId.get(parentId);
     if (!us) return null;
     const entry = (us.acceptanceCriteria ?? []).find((ac) => ac.id === id);
-    return entry ? { doc: entry } : null;
+    return entry ? { doc: entry, containerId: parentId, invalid: false } : null;
   }
   if (/^TC-\d{3}-[a-z0-9-]+$/.test(id)) {
     const parentId = tree.parentByChild.get(id);
@@ -97,7 +125,7 @@ function resolveTarget(tree, id) {
     const ts = tree.byId.get(parentId);
     if (!ts) return null;
     const entry = (ts.testCases ?? []).find((tc) => tc.id === id);
-    return entry ? { doc: entry } : null;
+    return entry ? { doc: entry, containerId: parentId, invalid: false } : null;
   }
   return null;
 }
