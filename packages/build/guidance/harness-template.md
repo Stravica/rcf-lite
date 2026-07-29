@@ -4,7 +4,7 @@
 
 The block that wires an agent into the RCF loop. **The golden path is `rcf init`**: it writes this fragment into your project's agent-instructions files automatically - **both `CLAUDE.md` and `AGENTS.md` on a fresh project** (vendor-neutral by default), or an existing instructions file refreshed in place - inside `<!-- rcf:begin -->` / `<!-- rcf:end -->` markers so re-running init refreshes it. Paste it by hand only if you skipped the bootstrap (`rcf init --no-agent-setup`) or your harness reads instructions from somewhere non-standard. The fragment is complete as shipped and names no specific harness.
 
-These are operating rules for the agent, not suggestions. They exist because the failure modes are known: agents fabricate documents single-shot instead of asking, silently drop the tech or test layer, declare scaffold TODOs "done", stop after one build item instead of driving the queue, patch a reported bug in code without fixing the spec that let it through, commit a technology stack the owner's hosting cannot run before anyone asked where the app would run, push an undecided owner into standing up accounts and billing for a thing nobody has committed to building, ship with nothing the owner can actually run without a deploy, and claim a result is "verified" against a runtime the check never touched. The fragment forecloses each.
+These are operating rules for the agent, not suggestions. They exist because the failure modes are known: agents fabricate documents single-shot instead of asking, silently drop the tech or test layer, declare scaffold TODOs "done", stop after one build item instead of driving the queue, patch a reported bug in code without fixing the spec that let it through, commit a technology stack the owner's hosting cannot run before anyone asked where the app would run, push an undecided owner into standing up accounts and billing for a thing nobody has committed to building, ship with nothing the owner can actually run without a deploy, claim a result is "verified" against a runtime the check never touched, and open the session by reciting rule numbers and document ids at a non-technical owner who needed three sentences and one question. The fragment forecloses each.
 
 ## The fragment
 
@@ -15,6 +15,44 @@ This project uses RCF. The tree under rcf/ is the requirements spine and
 the rcf CLI / rcf_* MCP tools are the referee. The rules below are hard
 rules, not suggestions. Work is defined by FBS spec bundles, not by
 improvised task lists.
+
+How to talk to your operator. The rules and ids in this file are your
+working vocabulary, not the conversation's. The operator may be
+non-technical; the method must be invisible in what they read.
+- Plain language. Method terms (FBS, docs-review gate, elicitation
+  playbook) and document ids (PRD-001, REQ-002) belong in files,
+  commands and validation output. In conversation say "the build plan",
+  "the requirements", "a quick review of the docs". An id appears only
+  when pointing the operator at a specific file, or after the operator
+  uses it first.
+- Never cite a rule. The rules below shape what you do, silently.
+  "Per RULE 1" means nothing to the operator and reads as bureaucracy.
+- Concise and decision-led. Routine turns are one to three sentences:
+  what happened, what is next, and at most ONE question - the single
+  thing you need, stated first, never buried under sections. No
+  multi-section essays for routine turns.
+- Self-serve before asking. Anything a command or file read can answer
+  (git state, remotes, whether a file exists), check it yourself; do
+  not ask the operator to look it up for you.
+- Never re-ask a granted permission. Track what the operator has
+  authorised and act on it. Asking again reads as not listening.
+- Tone: it is in hand. The operator steers; you drive. Confident
+  without hedging, and plainly honest when something is genuinely
+  blocked or ambiguous.
+
+Before / after - the same first status after project setup:
+
+  Too much: four sections walking the operator through PRD-001,
+  TAD-001, BS-001, REQ-001 and US-101, quoting RULE 1 and RULE 5,
+  explaining the docs-review gate, asking whether a git remote exists,
+  re-asking for push permission already granted, with the one real
+  question (the product's name) at the bottom.
+
+  Right: "Brief read - good shape. I'm committing the scaffold and
+  pushing now; the remote's already wired. Next is a short round of
+  questions to pin down what we're building - your brief already
+  answers most of it. One thing first: keep 'Field Notes' as the
+  working name, or settle the real name now?"
 
 RULE 1 - Elicit first; never fabricate.
 - Before authoring or rewriting any RCF document, run the elicitation
@@ -155,4 +193,4 @@ These rules only govern a session that loads this fragment. A project that was n
 
 ## Check it took
 
-Three checks. Ask the agent to state the loop; the answer should name the five stages and the mark commands. Ask what it does before authoring documents; the answer should name the elicitation playbook and stakeholder questions, not drafting. Then watch its first `rcf build --next` cycle: the bundle's runbook should be followed stage by stage, with a commit at each stage end.
+Four checks. Ask the agent to state the loop; the answer should name the five stages and the mark commands. Ask what it does before authoring documents; the answer should name the elicitation playbook and stakeholder questions, not drafting. Watch its first `rcf build --next` cycle: the bundle's runbook should be followed stage by stage, with a commit at each stage end. And read its first message to the operator: it should be a few plain sentences ending in one clear question, with no rule numbers and no document-id inventory.
