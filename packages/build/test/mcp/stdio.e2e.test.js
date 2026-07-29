@@ -11,7 +11,7 @@ import { spawn } from 'node:child_process';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 
@@ -26,10 +26,12 @@ async function scaffold() {
 
 /**
  * Spawn `rcf mcp` and return a tiny line-buffered client. Collects
- * every raw stdout line for the purity assertion.
+ * every raw stdout line for the purity assertion. `nodeArgs` are
+ * inserted before the entry script (e.g. `--import` for the AC-601-3
+ * listen probe) - passed as argv, so paths with spaces stay intact.
  */
-function spawnServer(cwd, args = []) {
-  const child = spawn(process.execPath, [bin, 'mcp', ...args], {
+function spawnServer(cwd, args = [], { nodeArgs = [] } = {}) {
+  const child = spawn(process.execPath, [...nodeArgs, bin, 'mcp', ...args], {
     cwd, env: { ...process.env, CI: '1' },
   });
   const rawStdoutLines = [];
@@ -272,4 +274,39 @@ test('e2e: --project-root serves a project from elsewhere', async () => {
   assert.equal(validate.result.structuredContent.ok, true);
   server.end();
   await server.exited;
+});
+
+const probeUrl = pathToFileURL(resolve(here, 'fixtures', 'listen-probe.mjs')).href;
+
+test('e2e: the server communicates over stdio only and opens no network listener (AC-601-3)', async () => {
+  // Positive sanity leg first: prove the probe detects a real listener,
+  // so a silent probe regression cannot turn the main assertion into a
+  // tautology.
+  const canary = spawn(process.execPath, [
+    '--import', probeUrl,
+    '-e', "import('node:net').then((net) => { const s = net.createServer(); s.listen(0, () => s.close()); })",
+  ]);
+  const canaryStderr = [];
+  canary.stderr.on('data', (c) => canaryStderr.push(c.toString('utf8')));
+  await new Promise((r) => canary.on('exit', r));
+  assert.match(canaryStderr.join(''), /LISTEN-PROBE: net\.Server\.listen invoked/);
+
+  // Now a full MCP session with every listener API instrumented: spawn,
+  // handshake, list tools, run a tool, shut down. If the server (or
+  // anything it loads) ever opened a TCP or UDP listener, the probe
+  // would have written the marker to stderr.
+  const tmp = await scaffold();
+  const server = spawnServer(tmp, [], { nodeArgs: ['--import', probeUrl] });
+  await server.initialize();
+  const { result } = await server.request('tools/list', {});
+  assert.ok(result.tools.length > 0);
+  const validate = await server.request('tools/call', { name: 'rcf_validate', arguments: {} });
+  assert.equal(validate.result.structuredContent.ok, true);
+  server.end();
+  const { code } = await server.exited;
+  assert.equal(code, 0);
+  assert.ok(
+    !server.stderr().includes('LISTEN-PROBE:'),
+    `server opened a network listener:\n${server.stderr()}`,
+  );
 });

@@ -138,6 +138,22 @@ test('--next distinguishes stuck (blocked/inProgress) from done', async () => {
 test('--mark writes through updateDocument: status changed, updatedAt bumped', async () => {
   const tmp = await scaffold();
   const before = await readFbs(tmp);
+  // AC-503-3: snapshot every other document in the tree - a mark must
+  // leave the rest of the documents untouched.
+  const { readdir } = await import('node:fs/promises');
+  const otherDocs = async () => {
+    const out = new Map();
+    const walk = async (dir) => {
+      for (const entry of await readdir(join(tmp, dir), { withFileTypes: true })) {
+        const rel = `${dir}/${entry.name}`;
+        if (entry.isDirectory()) await walk(rel);
+        else if (rel !== 'rcf/fbs/fbs-001.json') out.set(rel, await readFile(join(tmp, rel), 'utf8'));
+      }
+    };
+    await walk('rcf');
+    return out;
+  };
+  const othersBefore = await otherDocs();
   const { code, stdout } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
   assert.equal(code, 0);
   assert.match(stdout, /marked FBS-001 notStarted -> inProgress/);
@@ -145,6 +161,18 @@ test('--mark writes through updateDocument: status changed, updatedAt bumped', a
   assert.equal(after.executionStatus, 'inProgress');
   assert.notEqual(after.updatedAt, before.updatedAt);
   assert.equal(after.createdAt, before.createdAt);
+  // AC-503-3 (tightened from spot-check level): the ONLY fields that
+  // changed on the marked FBS are executionStatus and updatedAt...
+  const changedKeys = [...new Set([...Object.keys(before), ...Object.keys(after)])]
+    .filter((k) => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
+    .sort();
+  assert.deepEqual(changedKeys, ['executionStatus', 'updatedAt']);
+  // ...and every other document in the tree is byte-identical.
+  const othersAfter = await otherDocs();
+  assert.deepEqual([...othersAfter.keys()].sort(), [...othersBefore.keys()].sort());
+  for (const [rel, body] of othersBefore) {
+    assert.equal(othersAfter.get(rel), body, `mark touched ${rel}`);
+  }
 });
 
 test('same-status --mark is an idempotent no-op, exit 0', async () => {

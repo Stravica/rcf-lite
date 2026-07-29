@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-07-29T12:57:18.625Z",
-  "updatedAt": "2026-07-29T12:57:18.724Z",
+  "updatedAt": "2026-07-29T13:35:26.548Z",
   "purpose": "Verify reading behaviour for unknown ids. AC-301-1 and AC-301-3 are pending: the read verb does not report per-document validity today (see test-suites/PENDING.md).",
   "testLevel": "integration",
   "acIds": [
@@ -16,6 +16,20 @@
       "description": "reading an unknown id exits 2 with a structured not-found usage error",
       "status": "pending",
       "testPointer": "test/cli/read.test.js::rcf read UNKNOWN-999 exits 2 (usage, unknown id)"
+    },
+    {
+      "id": "TC-006-read-reports-valid",
+      "acId": "AC-301-1",
+      "description": "read returns the body on stdout and reports the document valid against its schema on stderr",
+      "status": "pending",
+      "testPointer": "test/cli/read.test.js::rcf read REQ-001 returns the body and reports it valid against its schema (AC-301-1)"
+    },
+    {
+      "id": "TC-006-read-invalid-content-plus-errors",
+      "acId": "AC-301-3",
+      "description": "read on an invalid-but-present document returns the content together with the validation errors",
+      "status": "pending",
+      "testPointer": "test/cli/read.test.js::rcf read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)"
     }
   ],
   "status": "draft"

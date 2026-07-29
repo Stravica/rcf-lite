@@ -70,7 +70,13 @@ export function computeImpact(tree, { id, includeCode = false }) {
   if (!pivotKind) return { pivot: id, found: false };
 
   const back = computeTrace(tree, { id, direction: 'back' });
-  const fwd = computeTrace(tree, { id, direction: 'forward', includeCode });
+  // expandFbsDependents: impact is the blast-radius question, so the FBS
+  // dependency fan-out is in scope here (D7: a dependent of an affected
+  // FBS is labelled re-execute). Plain trace keeps FBS as a cross-link
+  // leaf (AC-402-3).
+  const fwd = computeTrace(tree, {
+    id, direction: 'forward', includeCode, expandFbsDependents: true,
+  });
 
   /** @type {ImpactNode[]} */
   const nodes = [];

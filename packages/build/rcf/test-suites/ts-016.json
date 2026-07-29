@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-07-29T12:57:21.678Z",
-  "updatedAt": "2026-07-29T12:57:21.875Z",
+  "updatedAt": "2026-07-29T13:35:27.040Z",
   "purpose": "Verify MCP tool listing and CLI parity for queries. AC-601-3 is pending: no test asserts the absence of a network listener (see test-suites/PENDING.md).",
   "testLevel": "e2e",
   "acIds": [
@@ -24,6 +24,13 @@
       "description": "rcf_coverage over MCP deep-equals the committed CLI coverage golden",
       "status": "pending",
       "testPointer": "test/mcp/parity.test.js::parity: rcf_coverage structuredContent deep-equals the committed coverage golden"
+    },
+    {
+      "id": "TC-016-stdio-only-no-listener",
+      "acId": "AC-601-3",
+      "description": "a full MCP session with every listener API instrumented opens no TCP or UDP listener",
+      "status": "pending",
+      "testPointer": "test/mcp/stdio.e2e.test.js::e2e: the server communicates over stdio only and opens no network listener (AC-601-3)"
     }
   ],
   "status": "draft"

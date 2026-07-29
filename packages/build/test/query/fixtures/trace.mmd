@@ -15,9 +15,14 @@ flowchart LR
   AC-203-1["AC-203-1"]
   AC-203-2["AC-203-2"]
   TC-003-diagram-emitted-as-source["TC-003-diagram-emitted-as-source"]
+  TC-003-per-req-subdiagram-chain-edges["TC-003-per-req-subdiagram-chain-edges"]
+  TC-003-one-subdiagram-per-req["TC-003-one-subdiagram-per-req"]
+  TC-003-broken-node-marked-visibly["TC-003-broken-node-marked-visibly"]
   FBS-003["FBS-003"]
   TC-004-curated-fields-not-raw-json["TC-004-curated-fields-not-raw-json"]
   TC-004-doc-links-navigate-to-sections["TC-004-doc-links-navigate-to-sections"]
+  TC-004-valid-html5-page["TC-004-valid-html5-page"]
+  TC-004-served-live-no-files-written["TC-004-served-live-no-files-written"]
   FBS-004["FBS-004"]
   TC-005-edit-present-after-regenerate["TC-005-edit-present-after-regenerate"]
   TC-005-no-cached-prior-state["TC-005-no-cached-prior-state"]
@@ -36,13 +41,23 @@ flowchart LR
   US-203 --> AC-203-1
   US-203 --> AC-203-2
   TS-003 --> TC-003-diagram-emitted-as-source
+  TS-003 --> TC-003-per-req-subdiagram-chain-edges
+  TS-003 --> TC-003-one-subdiagram-per-req
+  TS-003 --> TC-003-broken-node-marked-visibly
+  AC-201-1 -.-> TC-003-per-req-subdiagram-chain-edges
+  AC-201-1 -.-> TC-003-one-subdiagram-per-req
   AC-201-1 -.-> FBS-003
+  AC-201-2 -.-> TC-003-broken-node-marked-visibly
   AC-201-2 -.-> FBS-003
   AC-201-3 -.-> TS-003
   AC-201-3 -.-> TC-003-diagram-emitted-as-source
   AC-201-3 -.-> FBS-003
   TS-004 --> TC-004-curated-fields-not-raw-json
   TS-004 --> TC-004-doc-links-navigate-to-sections
+  TS-004 --> TC-004-valid-html5-page
+  TS-004 --> TC-004-served-live-no-files-written
+  AC-202-1 -.-> TC-004-valid-html5-page
+  AC-202-1 -.-> TC-004-served-live-no-files-written
   AC-202-1 -.-> FBS-004
   AC-202-2 -.-> TS-004
   AC-202-2 -.-> TC-004-curated-fields-not-raw-json
@@ -74,9 +89,14 @@ flowchart LR
   class AC-203-1 ac;
   class AC-203-2 ac;
   class TC-003-diagram-emitted-as-source tc;
+  class TC-003-per-req-subdiagram-chain-edges tc;
+  class TC-003-one-subdiagram-per-req tc;
+  class TC-003-broken-node-marked-visibly tc;
   class FBS-003 fbs;
   class TC-004-curated-fields-not-raw-json tc;
   class TC-004-doc-links-navigate-to-sections tc;
+  class TC-004-valid-html5-page tc;
+  class TC-004-served-live-no-files-written tc;
   class FBS-004 fbs;
   class TC-005-edit-present-after-regenerate tc;
   class TC-005-no-cached-prior-state tc;

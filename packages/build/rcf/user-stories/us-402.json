@@ -28,13 +28,13 @@
     },
     {
       "id": "AC-402-3",
-      "description": "Trace walks the intent chain only, never the FBS layer",
+      "description": "Forward trace surfaces delivering FBS as cross-link leaves; backward trace walks the intent chain only",
       "given": "the trace",
       "when": "it is computed",
-      "then": "it walks the intent chain (PRD to REQ to US to AC to TS to TC) and does not traverse the FBS layer",
+      "then": "forward trace surfaces an AC's delivering FBS items as cross-link leaves and never traverses through the FBS layer, and backward trace walks the intent chain only (AC to US to REQ to PRD) with no FBS nodes",
       "testable": true
     }
   ],
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-29T13:34:39.127Z"
 }

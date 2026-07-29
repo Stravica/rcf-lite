@@ -27,14 +27,24 @@ flowchart LR
   REQ-002["REQ-002"]
   AC-201-1["AC-201-1"]
   REQ-002 --> AC-201-1
+  TC-003-one-subdiagram-per-req["TC-003-one-subdiagram-per-req"]
+  AC-201-1 -.-> TC-003-one-subdiagram-per-req
+  TC-003-per-req-subdiagram-chain-edges["TC-003-per-req-subdiagram-chain-edges"]
+  AC-201-1 -.-> TC-003-per-req-subdiagram-chain-edges
   AC-201-2["AC-201-2"]
   REQ-002 --> AC-201-2
+  TC-003-broken-node-marked-visibly["TC-003-broken-node-marked-visibly"]
+  AC-201-2 -.-> TC-003-broken-node-marked-visibly
   AC-201-3["AC-201-3"]
   REQ-002 --> AC-201-3
   TC-003-diagram-emitted-as-source["TC-003-diagram-emitted-as-source"]
   AC-201-3 -.-> TC-003-diagram-emitted-as-source
   AC-202-1["AC-202-1"]
   REQ-002 --> AC-202-1
+  TC-004-served-live-no-files-written["TC-004-served-live-no-files-written"]
+  AC-202-1 -.-> TC-004-served-live-no-files-written
+  TC-004-valid-html5-page["TC-004-valid-html5-page"]
+  AC-202-1 -.-> TC-004-valid-html5-page
   AC-202-2["AC-202-2"]
   REQ-002 --> AC-202-2
   TC-004-curated-fields-not-raw-json["TC-004-curated-fields-not-raw-json"]
@@ -54,20 +64,30 @@ flowchart LR
   REQ-003["REQ-003"]
   AC-301-1["AC-301-1"]
   REQ-003 --> AC-301-1
+  TC-006-read-reports-valid["TC-006-read-reports-valid"]
+  AC-301-1 -.-> TC-006-read-reports-valid
   AC-301-2["AC-301-2"]
   REQ-003 --> AC-301-2
   TC-006-read-unknown-id-not-found["TC-006-read-unknown-id-not-found"]
   AC-301-2 -.-> TC-006-read-unknown-id-not-found
   AC-301-3["AC-301-3"]
   REQ-003 --> AC-301-3
+  TC-006-read-invalid-content-plus-errors["TC-006-read-invalid-content-plus-errors"]
+  AC-301-3 -.-> TC-006-read-invalid-content-plus-errors
   AC-302-1["AC-302-1"]
   REQ-003 --> AC-302-1
+  TC-007-create-leaves-prd-untouched["TC-007-create-leaves-prd-untouched"]
+  AC-302-1 -.-> TC-007-create-leaves-prd-untouched
+  TC-007-create-writes-validating-child["TC-007-create-writes-validating-child"]
+  AC-302-1 -.-> TC-007-create-writes-validating-child
   AC-302-2["AC-302-2"]
   REQ-003 --> AC-302-2
   TC-007-create-id-collision-refused["TC-007-create-id-collision-refused"]
   AC-302-2 -.-> TC-007-create-id-collision-refused
   AC-302-3["AC-302-3"]
   REQ-003 --> AC-302-3
+  TC-007-create-invalid-writes-nothing["TC-007-create-invalid-writes-nothing"]
+  AC-302-3 -.-> TC-007-create-invalid-writes-nothing
   AC-303-1["AC-303-1"]
   REQ-003 --> AC-303-1
   TC-008-valid-update-persists-updatedat["TC-008-valid-update-persists-updatedat"]
@@ -78,6 +98,8 @@ flowchart LR
   AC-303-2 -.-> TC-008-invalid-update-refused
   AC-303-3["AC-303-3"]
   REQ-003 --> AC-303-3
+  TC-008-update-unknown-id-not-found["TC-008-update-unknown-id-not-found"]
+  AC-303-3 -.-> TC-008-update-unknown-id-not-found
   AC-304-1["AC-304-1"]
   REQ-003 --> AC-304-1
   TC-009-delete-refused-with-dependents["TC-009-delete-refused-with-dependents"]
@@ -113,14 +135,22 @@ flowchart LR
   AC-402-2 -.-> TC-011-trace-back-ac-ancestry
   AC-402-3["AC-402-3"]
   REQ-004 --> AC-402-3
+  TC-011-backward-intent-chain-only["TC-011-backward-intent-chain-only"]
+  AC-402-3 -.-> TC-011-backward-intent-chain-only
+  TC-011-forward-fbs-cross-link-leaf["TC-011-forward-fbs-cross-link-leaf"]
+  AC-402-3 -.-> TC-011-forward-fbs-cross-link-leaf
   AC-403-1["AC-403-1"]
   REQ-004 --> AC-403-1
+  TC-012-req-impact-includes-fbs-slots["TC-012-req-impact-includes-fbs-slots"]
+  AC-403-1 -.-> TC-012-req-impact-includes-fbs-slots
   AC-403-2["AC-403-2"]
   REQ-004 --> AC-403-2
   TC-012-adr-impact-reaches-fbs["TC-012-adr-impact-reaches-fbs"]
   AC-403-2 -.-> TC-012-adr-impact-reaches-fbs
   AC-403-3["AC-403-3"]
   REQ-004 --> AC-403-3
+  TC-012-no-dependents-empty-impact["TC-012-no-dependents-empty-impact"]
+  AC-403-3 -.-> TC-012-no-dependents-empty-impact
   REQ-005["REQ-005"]
   AC-501-1["AC-501-1"]
   REQ-005 --> AC-501-1
@@ -167,6 +197,8 @@ flowchart LR
   AC-601-2 -.-> TC-016-mcp-coverage-cli-parity
   AC-601-3["AC-601-3"]
   REQ-006 --> AC-601-3
+  TC-016-stdio-only-no-listener["TC-016-stdio-only-no-listener"]
+  AC-601-3 -.-> TC-016-stdio-only-no-listener
   AC-602-1["AC-602-1"]
   REQ-006 --> AC-602-1
   TC-017-mcp-create-cli-validation["TC-017-mcp-create-cli-validation"]
@@ -198,6 +230,8 @@ flowchart LR
   AC-702-1 -.-> TC-019-failure-names-field-and-rule
   AC-702-2["AC-702-2"]
   REQ-007 --> AC-702-2
+  TC-019-multi-failures-returned-together["TC-019-multi-failures-returned-together"]
+  AC-702-2 -.-> TC-019-multi-failures-returned-together
   AC-702-3["AC-702-3"]
   REQ-007 --> AC-702-3
   TC-019-mcp-errors-structured["TC-019-mcp-errors-structured"]
@@ -298,10 +332,15 @@ flowchart LR
   class TC-002-broken-reference-reported tc;
   class REQ-002 req;
   class AC-201-1 ac;
+  class TC-003-one-subdiagram-per-req tc;
+  class TC-003-per-req-subdiagram-chain-edges tc;
   class AC-201-2 ac;
+  class TC-003-broken-node-marked-visibly tc;
   class AC-201-3 ac;
   class TC-003-diagram-emitted-as-source tc;
   class AC-202-1 ac;
+  class TC-004-served-live-no-files-written tc;
+  class TC-004-valid-html5-page tc;
   class AC-202-2 ac;
   class TC-004-curated-fields-not-raw-json tc;
   class AC-202-3 ac;
@@ -312,18 +351,24 @@ flowchart LR
   class TC-005-no-cached-prior-state tc;
   class REQ-003 req;
   class AC-301-1 ac;
+  class TC-006-read-reports-valid tc;
   class AC-301-2 ac;
   class TC-006-read-unknown-id-not-found tc;
   class AC-301-3 ac;
+  class TC-006-read-invalid-content-plus-errors tc;
   class AC-302-1 ac;
+  class TC-007-create-leaves-prd-untouched tc;
+  class TC-007-create-writes-validating-child tc;
   class AC-302-2 ac;
   class TC-007-create-id-collision-refused tc;
   class AC-302-3 ac;
+  class TC-007-create-invalid-writes-nothing tc;
   class AC-303-1 ac;
   class TC-008-valid-update-persists-updatedat tc;
   class AC-303-2 ac;
   class TC-008-invalid-update-refused tc;
   class AC-303-3 ac;
+  class TC-008-update-unknown-id-not-found tc;
   class AC-304-1 ac;
   class TC-009-delete-refused-with-dependents tc;
   class AC-304-2 ac;
@@ -342,10 +387,14 @@ flowchart LR
   class AC-402-2 ac;
   class TC-011-trace-back-ac-ancestry tc;
   class AC-402-3 ac;
+  class TC-011-backward-intent-chain-only tc;
+  class TC-011-forward-fbs-cross-link-leaf tc;
   class AC-403-1 ac;
+  class TC-012-req-impact-includes-fbs-slots tc;
   class AC-403-2 ac;
   class TC-012-adr-impact-reaches-fbs tc;
   class AC-403-3 ac;
+  class TC-012-no-dependents-empty-impact tc;
   class REQ-005 req;
   class AC-501-1 ac;
   class TC-013-bundle-ac-gwt-ancestry tc;
@@ -370,6 +419,7 @@ flowchart LR
   class AC-601-2 ac;
   class TC-016-mcp-coverage-cli-parity tc;
   class AC-601-3 ac;
+  class TC-016-stdio-only-no-listener tc;
   class AC-602-1 ac;
   class TC-017-mcp-create-cli-validation tc;
   class AC-602-2 ac;
@@ -386,6 +436,7 @@ flowchart LR
   class AC-702-1 ac;
   class TC-019-failure-names-field-and-rule tc;
   class AC-702-2 ac;
+  class TC-019-multi-failures-returned-together tc;
   class AC-702-3 ac;
   class TC-019-mcp-errors-structured tc;
   class REQ-008 req;

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-07-29T12:57:17.843Z",
-  "updatedAt": "2026-07-29T12:57:17.941Z",
+  "updatedAt": "2026-07-29T13:35:26.351Z",
   "purpose": "Verify the tree renders to mermaid diagram source. AC-201-1 and AC-201-2 are pending: no existing test asserts PRD plus architecture documents in the diagram, nor visible broken-link marking (see test-suites/PENDING.md).",
   "testLevel": "unit",
   "acIds": [
@@ -16,6 +16,27 @@
       "description": "the requirement subdiagram is emitted as mermaid flowchart source",
       "status": "pending",
       "testPointer": "test/view/mermaid-diagram.test.js::requirementSubdiagram uses flowchart LR orientation"
+    },
+    {
+      "id": "TC-003-per-req-subdiagram-chain-edges",
+      "acId": "AC-201-1",
+      "description": "each REQ subdiagram carries chain edges REQ to US to AC plus FBS delivery back-links, scoped to that requirement only",
+      "status": "pending",
+      "testPointer": "test/view/mermaid-diagram.test.js::requirementSubdiagram carries chain edges and delivers back-links"
+    },
+    {
+      "id": "TC-003-one-subdiagram-per-req",
+      "acId": "AC-201-1",
+      "description": "every requirement is rendered as its own subdiagram (per-REQ design)",
+      "status": "pending",
+      "testPointer": "test/view/mermaid-diagram.test.js::allRequirementSubdiagrams returns one diagram per REQ"
+    },
+    {
+      "id": "TC-003-broken-node-marked-visibly",
+      "acId": "AC-201-2",
+      "description": "a broken node still renders in the subdiagram and carries the broken class rather than being omitted",
+      "status": "pending",
+      "testPointer": "test/view/mermaid-diagram.test.js::requirementSubdiagram marks a broken node visibly rather than omitting it (AC-201-2)"
     }
   ],
   "status": "draft"

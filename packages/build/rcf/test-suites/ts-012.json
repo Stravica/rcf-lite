@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-07-29T12:57:20.391Z",
-  "updatedAt": "2026-07-29T12:57:20.490Z",
+  "updatedAt": "2026-07-29T13:35:26.943Z",
   "purpose": "Verify impact fan-out from architecture documents. AC-403-1 (FBS slots from a REQ pivot) and AC-403-3 (empty impact set) lack direct assertions and are pending (see test-suites/PENDING.md).",
   "testLevel": "unit",
   "acIds": [
@@ -16,6 +16,20 @@
       "description": "impact from an ADR returns the FBS items referencing it as context",
       "status": "pending",
       "testPointer": "test/query/impact.test.js::impact from ADR: ancestor TAD; descendants include FBS via contextRequirements.adrIds"
+    },
+    {
+      "id": "TC-012-req-impact-includes-fbs-slots",
+      "acId": "AC-403-1",
+      "description": "impact from a REQ pivot includes the FBS slots whose acceptance criteria fall under it, labelled re-execute",
+      "status": "pending",
+      "testPointer": "test/query/impact.test.js::impact from REQ: ancestor PRD; descendants US -> AC -> TS -> TC and the FBS slots under it (AC-403-1)"
+    },
+    {
+      "id": "TC-012-no-dependents-empty-impact",
+      "acId": "AC-403-3",
+      "description": "impact on a document with no dependents reports an empty descendant set",
+      "status": "pending",
+      "testPointer": "test/query/impact.test.js::impact from TC: ancestors include TS, AC, US, REQ, PRD; no dependents -> empty impact set (AC-403-3)"
     }
   ],
   "status": "draft"

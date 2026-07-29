@@ -12,10 +12,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-202-1",
-      "description": "The page is produced as static files that open in a browser with no server process",
+      "description": "The view serves a live page from a local server process and writes no files",
       "given": "a loaded project",
-      "when": "the page is generated",
-      "then": "it writes static files that open in a browser with no server process",
+      "when": "the view runs",
+      "then": "a valid HTML5 page is served live by a local server process and no files are written to disk",
       "testable": true
     },
     {
@@ -36,5 +36,5 @@
     }
   ],
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-07-29T13:34:38.914Z"
 }

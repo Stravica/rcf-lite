@@ -223,7 +223,7 @@ Coverage mode: shallow-any
 Requirements: 8  covered: 8  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC        AC covered  Test cases
------------  -------  --------  ----------  ----------------------------------------
+-----------  -------  --------  ----------  ------------------------------------------------------------
 REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
                       AC-101-2  yes         TC-001-init-refuses-overwrite
                       AC-101-3  yes         TC-001-children-discoverable-from-roots
@@ -234,7 +234,7 @@ REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
 
 (The remaining seven requirement blocks are elided here; run it from a clone for the full table.)
 
-Eight of eight - but shallow-any is the generous reading, and the strict one is the honest one. This tree's test-suite documents bind 62 of 76 acceptance criteria to named tests in the repo's own suite, and every binding is load-bearing: each test case carries a `testPointer` that must resolve to a real, named test in the working tree, or it is reported as `covered-unresolved` rather than covered. The other 14 ACs have no test that genuinely asserts their outcome, so they carry no test case at all - they are registered per-AC in `rcf/test-suites/PENDING.md`, and `rcf coverage --strict` exits 4 (six of eight requirements still hold a gap) until every one is closed. Coverage tells you the truth about your tree, and this is ours: the remaining gap is real, it is visible, and closing it is queued work rather than a hidden assumption. That is the behaviour you want from the referee.
+Eight of eight - but shallow-any is the generous reading, and the strict one is the honest one. This tree's test-suite documents bind 75 of 76 acceptance criteria to named tests in the repo's own suite, and every binding is load-bearing: each test case carries a `testPointer` that must resolve to a real, named test in the working tree, or it is reported as `covered-unresolved` rather than covered. The one remaining AC has no test that genuinely asserts its outcome, so it carries no test case at all - it is registered in `rcf/test-suites/PENDING.md`, and `rcf coverage --strict` exits 4 (one of eight requirements still holds a gap) until it is closed. Coverage tells you the truth about your tree, and this is ours: the remaining gap is real, it is visible, and closing it is queued work rather than a hidden assumption. That is the behaviour you want from the referee.
 
 ## 8. Under the hood, briefly
 

@@ -479,8 +479,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
     <ul class="ac-list">
-      <li id="AC-201-1" class="ac-item"><strong>AC-201-1</strong> - The diagram shows PRD, requirements, user stories and architecture documents with chain edges
-<div class="ac-gwt"><p><em>Given</em> a loaded project</p><p><em>When</em> the diagram is generated</p><p><em>Then</em> it shows the PRD, every requirement, every user story, and the architecture documents, with edges following the chain</p></div>
+      <li id="AC-201-1" class="ac-item"><strong>AC-201-1</strong> - The tree is rendered as per-requirement subdiagrams carrying chain edges
+<div class="ac-gwt"><p><em>Given</em> a loaded project</p><p><em>When</em> the diagrams are generated</p><p><em>Then</em> each requirement is rendered as its own subdiagram showing the requirement, its user stories and acceptance criteria with edges following the chain and FBS delivery back-links, scoped to that requirement only</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-003">FBS-003</a></p></li>
 <li id="AC-201-2" class="ac-item"><strong>AC-201-2</strong> - Broken references are marked visibly rather than omitted
 <div class="ac-gwt"><p><em>Given</em> a project with a broken reference</p><p><em>When</em> the diagram is generated</p><p><em>Then</em> the broken link is marked visibly rather than omitted silently</p></div>
@@ -504,10 +504,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;acceptanceCriteria&quot;: [
     {
       &quot;id&quot;: &quot;AC-201-1&quot;,
-      &quot;description&quot;: &quot;The diagram shows PRD, requirements, user stories and architecture documents with chain edges&quot;,
+      &quot;description&quot;: &quot;The tree is rendered as per-requirement subdiagrams carrying chain edges&quot;,
       &quot;given&quot;: &quot;a loaded project&quot;,
-      &quot;when&quot;: &quot;the diagram is generated&quot;,
-      &quot;then&quot;: &quot;it shows the PRD, every requirement, every user story, and the architecture documents, with edges following the chain&quot;,
+      &quot;when&quot;: &quot;the diagrams are generated&quot;,
+      &quot;then&quot;: &quot;each requirement is rendered as its own subdiagram showing the requirement, its user stories and acceptance criteria with edges following the chain and FBS delivery back-links, scoped to that requirement only&quot;,
       &quot;testable&quot;: true
     },
     {
@@ -528,7 +528,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     }
   ],
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-06-25T00:00:00Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:34:38.816Z&quot;
 }
 </pre></details>
 </article>
@@ -546,8 +546,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
     <ul class="ac-list">
-      <li id="AC-202-1" class="ac-item"><strong>AC-202-1</strong> - The page is produced as static files that open in a browser with no server process
-<div class="ac-gwt"><p><em>Given</em> a loaded project</p><p><em>When</em> the page is generated</p><p><em>Then</em> it writes static files that open in a browser with no server process</p></div>
+      <li id="AC-202-1" class="ac-item"><strong>AC-202-1</strong> - The view serves a live page from a local server process and writes no files
+<div class="ac-gwt"><p><em>Given</em> a loaded project</p><p><em>When</em> the view runs</p><p><em>Then</em> a valid HTML5 page is served live by a local server process and no files are written to disk</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-004">FBS-004</a></p></li>
 <li id="AC-202-2" class="ac-item"><strong>AC-202-2</strong> - Each document&#39;s key fields are rendered as readable text, not raw JSON
 <div class="ac-gwt"><p><em>Given</em> the page</p><p><em>When</em> a document is shown</p><p><em>Then</em> its key fields are rendered as readable text, not raw JSON</p></div>
@@ -571,10 +571,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;acceptanceCriteria&quot;: [
     {
       &quot;id&quot;: &quot;AC-202-1&quot;,
-      &quot;description&quot;: &quot;The page is produced as static files that open in a browser with no server process&quot;,
+      &quot;description&quot;: &quot;The view serves a live page from a local server process and writes no files&quot;,
       &quot;given&quot;: &quot;a loaded project&quot;,
-      &quot;when&quot;: &quot;the page is generated&quot;,
-      &quot;then&quot;: &quot;it writes static files that open in a browser with no server process&quot;,
+      &quot;when&quot;: &quot;the view runs&quot;,
+      &quot;then&quot;: &quot;a valid HTML5 page is served live by a local server process and no files are written to disk&quot;,
       &quot;testable&quot;: true
     },
     {
@@ -595,7 +595,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     }
   ],
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-06-25T00:00:00Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:34:38.914Z&quot;
 }
 </pre></details>
 </article>
@@ -895,8 +895,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
     <ul class="ac-list">
-      <li id="AC-302-1" class="ac-item"><strong>AC-302-1</strong> - Creating a requirement writes the file and updates the PRD requirementIds list, both validating
-<div class="ac-gwt"><p><em>Given</em> a request to create a requirement under a PRD</p><p><em>When</em> create runs</p><p><em>Then</em> the requirement file is written and the PRD&#39;s requirementIds list gains the new id, both validating</p></div>
+      <li id="AC-302-1" class="ac-item"><strong>AC-302-1</strong> - Creating a requirement writes a validating child file carrying the parent edge; the PRD file is not modified
+<div class="ac-gwt"><p><em>Given</em> a request to create a requirement under a PRD</p><p><em>When</em> create runs</p><p><em>Then</em> the requirement file is written carrying its prdId parent edge and validating, and the parent PRD file is not modified (child-owned parent edges)</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-006">FBS-006</a></p></li>
 <li id="AC-302-2" class="ac-item"><strong>AC-302-2</strong> - Creating a document with a conflicting id writes nothing and returns a clear conflict error
 <div class="ac-gwt"><p><em>Given</em> a request to create a document whose id already exists</p><p><em>When</em> create runs</p><p><em>Then</em> no file is written and a clear conflict error is returned</p></div>
@@ -920,10 +920,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;acceptanceCriteria&quot;: [
     {
       &quot;id&quot;: &quot;AC-302-1&quot;,
-      &quot;description&quot;: &quot;Creating a requirement writes the file and updates the PRD requirementIds list, both validating&quot;,
+      &quot;description&quot;: &quot;Creating a requirement writes a validating child file carrying the parent edge; the PRD file is not modified&quot;,
       &quot;given&quot;: &quot;a request to create a requirement under a PRD&quot;,
       &quot;when&quot;: &quot;create runs&quot;,
-      &quot;then&quot;: &quot;the requirement file is written and the PRD&#39;s requirementIds list gains the new id, both validating&quot;,
+      &quot;then&quot;: &quot;the requirement file is written carrying its prdId parent edge and validating, and the parent PRD file is not modified (child-owned parent edges)&quot;,
       &quot;testable&quot;: true
     },
     {
@@ -944,7 +944,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     }
   ],
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-06-25T00:00:00Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:34:39.028Z&quot;
 }
 </pre></details>
 </article>
@@ -1300,8 +1300,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <li id="AC-402-2" class="ac-item"><strong>AC-402-2</strong> - Trace back from an acceptance criterion returns the parent user story, its requirement and the PRD
 <div class="ac-gwt"><p><em>Given</em> an acceptance criterion id</p><p><em>When</em> trace back runs</p><p><em>Then</em> it returns the parent user story, its requirement and the PRD</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-008">FBS-008</a></p></li>
-<li id="AC-402-3" class="ac-item"><strong>AC-402-3</strong> - Trace walks the intent chain only, never the FBS layer
-<div class="ac-gwt"><p><em>Given</em> the trace</p><p><em>When</em> it is computed</p><p><em>Then</em> it walks the intent chain (PRD to REQ to US to AC to TS to TC) and does not traverse the FBS layer</p></div>
+<li id="AC-402-3" class="ac-item"><strong>AC-402-3</strong> - Forward trace surfaces delivering FBS as cross-link leaves; backward trace walks the intent chain only
+<div class="ac-gwt"><p><em>Given</em> the trace</p><p><em>When</em> it is computed</p><p><em>Then</em> forward trace surfaces an AC&#39;s delivering FBS items as cross-link leaves and never traverses through the FBS layer, and backward trace walks the intent chain only (AC to US to REQ to PRD) with no FBS nodes</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-008">FBS-008</a></p></li>
     </ul>
   </section>
@@ -1335,15 +1335,15 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     },
     {
       &quot;id&quot;: &quot;AC-402-3&quot;,
-      &quot;description&quot;: &quot;Trace walks the intent chain only, never the FBS layer&quot;,
+      &quot;description&quot;: &quot;Forward trace surfaces delivering FBS as cross-link leaves; backward trace walks the intent chain only&quot;,
       &quot;given&quot;: &quot;the trace&quot;,
       &quot;when&quot;: &quot;it is computed&quot;,
-      &quot;then&quot;: &quot;it walks the intent chain (PRD to REQ to US to AC to TS to TC) and does not traverse the FBS layer&quot;,
+      &quot;then&quot;: &quot;forward trace surfaces an AC&#39;s delivering FBS items as cross-link leaves and never traverses through the FBS layer, and backward trace walks the intent chain only (AC to US to REQ to PRD) with no FBS nodes&quot;,
       &quot;testable&quot;: true
     }
   ],
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-06-25T00:00:00Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:34:39.127Z&quot;
 }
 </pre></details>
 </article>
@@ -4208,10 +4208,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>Approach:</strong> Walk the loaded tree once and emit Mermaid source for the chain. Treat broken references as first-class edges rendered with a distinct style so the owner cannot miss them. Output is written to the fixed view directory.</p>
   <div class="ac-pills"><a class="ac-pill" href="#AC-201-1">AC-201-1</a><a class="ac-pill" href="#AC-201-2">AC-201-2</a><a class="ac-pill" href="#AC-201-3">AC-201-3</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
-  <p><strong><a href="#AC-201-1">AC-201-1</a></strong> - The diagram shows PRD, requirements, user stories and architecture documents with chain edges</p>
+  <p><strong><a href="#AC-201-1">AC-201-1</a></strong> - The tree is rendered as per-requirement subdiagrams carrying chain edges</p>
   <p><em>Given</em> a loaded project</p>
-  <p><em>When</em> the diagram is generated</p>
-  <p><em>Then</em> it shows the PRD, every requirement, every user story, and the architecture documents, with edges following the chain</p>
+  <p><em>When</em> the diagrams are generated</p>
+  <p><em>Then</em> each requirement is rendered as its own subdiagram showing the requirement, its user stories and acceptance criteria with edges following the chain and FBS delivery back-links, scoped to that requirement only</p>
 </div>
 <div class="ac-resolved">
   <p><strong><a href="#AC-201-2">AC-201-2</a></strong> - Broken references are marked visibly rather than omitted</p>
@@ -4284,10 +4284,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>Approach:</strong> Reuse the walker to emit a templated HTML page that opens directly in a browser with no server process. Each document gets a section with its key fields rendered as readable text; links between documents navigate by id.</p>
   <div class="ac-pills"><a class="ac-pill" href="#AC-202-1">AC-202-1</a><a class="ac-pill" href="#AC-202-2">AC-202-2</a><a class="ac-pill" href="#AC-202-3">AC-202-3</a><a class="ac-pill" href="#AC-203-1">AC-203-1</a><a class="ac-pill" href="#AC-203-2">AC-203-2</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
-  <p><strong><a href="#AC-202-1">AC-202-1</a></strong> - The page is produced as static files that open in a browser with no server process</p>
+  <p><strong><a href="#AC-202-1">AC-202-1</a></strong> - The view serves a live page from a local server process and writes no files</p>
   <p><em>Given</em> a loaded project</p>
-  <p><em>When</em> the page is generated</p>
-  <p><em>Then</em> it writes static files that open in a browser with no server process</p>
+  <p><em>When</em> the view runs</p>
+  <p><em>Then</em> a valid HTML5 page is served live by a local server process and no files are written to disk</p>
 </div>
 <div class="ac-resolved">
   <p><strong><a href="#AC-202-2">AC-202-2</a></strong> - Each document&#39;s key fields are rendered as readable text, not raw JSON</p>
@@ -4451,10 +4451,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>Approach:</strong> Both verbs share the validate-before-persist path. Create extends the parent&#39;s id list and writes both files only when both validate. Update advances updatedAt and refuses any write that would invalidate the document.</p>
   <div class="ac-pills"><a class="ac-pill" href="#AC-302-1">AC-302-1</a><a class="ac-pill" href="#AC-302-2">AC-302-2</a><a class="ac-pill" href="#AC-302-3">AC-302-3</a><a class="ac-pill" href="#AC-303-1">AC-303-1</a><a class="ac-pill" href="#AC-303-2">AC-303-2</a><a class="ac-pill" href="#AC-303-3">AC-303-3</a><a class="ac-pill" href="#AC-701-1">AC-701-1</a><a class="ac-pill" href="#AC-701-2">AC-701-2</a><a class="ac-pill" href="#AC-702-1">AC-702-1</a><a class="ac-pill" href="#AC-702-2">AC-702-2</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
-  <p><strong><a href="#AC-302-1">AC-302-1</a></strong> - Creating a requirement writes the file and updates the PRD requirementIds list, both validating</p>
+  <p><strong><a href="#AC-302-1">AC-302-1</a></strong> - Creating a requirement writes a validating child file carrying the parent edge; the PRD file is not modified</p>
   <p><em>Given</em> a request to create a requirement under a PRD</p>
   <p><em>When</em> create runs</p>
-  <p><em>Then</em> the requirement file is written and the PRD&#39;s requirementIds list gains the new id, both validating</p>
+  <p><em>Then</em> the requirement file is written carrying its prdId parent edge and validating, and the parent PRD file is not modified (child-owned parent edges)</p>
 </div>
 <div class="ac-resolved">
   <p><strong><a href="#AC-302-2">AC-302-2</a></strong> - Creating a document with a conflicting id writes nothing and returns a clear conflict error</p>
@@ -4688,10 +4688,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><em>Then</em> it returns the parent user story, its requirement and the PRD</p>
 </div>
 <div class="ac-resolved">
-  <p><strong><a href="#AC-402-3">AC-402-3</a></strong> - Trace walks the intent chain only, never the FBS layer</p>
+  <p><strong><a href="#AC-402-3">AC-402-3</a></strong> - Forward trace surfaces delivering FBS as cross-link leaves; backward trace walks the intent chain only</p>
   <p><em>Given</em> the trace</p>
   <p><em>When</em> it is computed</p>
-  <p><em>Then</em> it walks the intent chain (PRD to REQ to US to AC to TS to TC) and does not traverse the FBS layer</p>
+  <p><em>Then</em> forward trace surfaces an AC&#39;s delivering FBS items as cross-link leaves and never traverses through the FBS layer, and backward trace walks the intent chain only (AC to US to REQ to PRD) with no FBS nodes</p>
 </div></section>
   <section class="field-list"><h4>Context requirements</h4><p><strong>TACs:</strong> <a href="#TAC-004">TAC-004</a></p>
 <p><strong>ADRs:</strong> <a href="#ADR-004">ADR-004</a></p></section>
@@ -5502,10 +5502,25 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-003-diagram-emitted-as-source</strong> - covers <a href="#AC-201-3">AC-201-3</a> <span class="status pending">pending</span></p>
   <p>the requirement subdiagram is emitted as mermaid flowchart source</p>
   <p><em>Test pointer:</em> <code>test/view/mermaid-diagram.test.js::requirementSubdiagram uses flowchart LR orientation</code></p>
+</div>
+<div class="tc" id="TC-003-per-req-subdiagram-chain-edges">
+  <p><strong>TC-003-per-req-subdiagram-chain-edges</strong> - covers <a href="#AC-201-1">AC-201-1</a> <span class="status pending">pending</span></p>
+  <p>each REQ subdiagram carries chain edges REQ to US to AC plus FBS delivery back-links, scoped to that requirement only</p>
+  <p><em>Test pointer:</em> <code>test/view/mermaid-diagram.test.js::requirementSubdiagram carries chain edges and delivers back-links</code></p>
+</div>
+<div class="tc" id="TC-003-one-subdiagram-per-req">
+  <p><strong>TC-003-one-subdiagram-per-req</strong> - covers <a href="#AC-201-1">AC-201-1</a> <span class="status pending">pending</span></p>
+  <p>every requirement is rendered as its own subdiagram (per-REQ design)</p>
+  <p><em>Test pointer:</em> <code>test/view/mermaid-diagram.test.js::allRequirementSubdiagrams returns one diagram per REQ</code></p>
+</div>
+<div class="tc" id="TC-003-broken-node-marked-visibly">
+  <p><strong>TC-003-broken-node-marked-visibly</strong> - covers <a href="#AC-201-2">AC-201-2</a> <span class="status pending">pending</span></p>
+  <p>a broken node still renders in the subdiagram and carries the broken class rather than being omitted</p>
+  <p><em>Test pointer:</em> <code>test/view/mermaid-diagram.test.js::requirementSubdiagram marks a broken node visibly rather than omitting it (AC-201-2)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:17.843Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:17.941Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:26.351Z&quot;,
   &quot;purpose&quot;: &quot;Verify the tree renders to mermaid diagram source. AC-201-1 and AC-201-2 are pending: no existing test asserts PRD plus architecture documents in the diagram, nor visible broken-link marking (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
@@ -5521,6 +5536,27 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;the requirement subdiagram is emitted as mermaid flowchart source&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/view/mermaid-diagram.test.js::requirementSubdiagram uses flowchart LR orientation&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-003-per-req-subdiagram-chain-edges&quot;,
+      &quot;acId&quot;: &quot;AC-201-1&quot;,
+      &quot;description&quot;: &quot;each REQ subdiagram carries chain edges REQ to US to AC plus FBS delivery back-links, scoped to that requirement only&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/mermaid-diagram.test.js::requirementSubdiagram carries chain edges and delivers back-links&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-003-one-subdiagram-per-req&quot;,
+      &quot;acId&quot;: &quot;AC-201-1&quot;,
+      &quot;description&quot;: &quot;every requirement is rendered as its own subdiagram (per-REQ design)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/mermaid-diagram.test.js::allRequirementSubdiagrams returns one diagram per REQ&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-003-broken-node-marked-visibly&quot;,
+      &quot;acId&quot;: &quot;AC-201-2&quot;,
+      &quot;description&quot;: &quot;a broken node still renders in the subdiagram and carries the broken class rather than being omitted&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/mermaid-diagram.test.js::requirementSubdiagram marks a broken node visibly rather than omitting it (AC-201-2)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -5547,10 +5583,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-004-doc-links-navigate-to-sections</strong> - covers <a href="#AC-202-3">AC-202-3</a> <span class="status pending">pending</span></p>
   <p>document links render as anchors targeting the raw doc id section</p>
   <p><em>Test pointer:</em> <code>test/view/doc-renderers/helpers.test.js::docLink renders an anchor to the raw id</code></p>
+</div>
+<div class="tc" id="TC-004-valid-html5-page">
+  <p><strong>TC-004-valid-html5-page</strong> - covers <a href="#AC-202-1">AC-202-1</a> <span class="status pending">pending</span></p>
+  <p>the rendered page is a valid HTML5 document</p>
+  <p><em>Test pointer:</em> <code>test/view/html-page.test.js::renderPage emits a valid HTML5 document (AC-202-1)</code></p>
+</div>
+<div class="tc" id="TC-004-served-live-no-files-written">
+  <p><strong>TC-004-served-live-no-files-written</strong> - covers <a href="#AC-202-1">AC-202-1</a> <span class="status pending">pending</span></p>
+  <p>the view serves from a local server process and never writes files to disk</p>
+  <p><em>Test pointer:</em> <code>test/view/cli.test.js::rcf view never writes any files to disk (regression against static mode)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:18.038Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:18.234Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:14.688Z&quot;,
   &quot;purpose&quot;: &quot;Verify documents render as readable curated fields with working inter-document links. AC-202-1 is pending: its static-files-no-server clause predates the Phase 3.8 server-only view (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
@@ -5574,6 +5620,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;document links render as anchors targeting the raw doc id section&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/view/doc-renderers/helpers.test.js::docLink renders an anchor to the raw id&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-004-valid-html5-page&quot;,
+      &quot;acId&quot;: &quot;AC-202-1&quot;,
+      &quot;description&quot;: &quot;the rendered page is a valid HTML5 document&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/html-page.test.js::renderPage emits a valid HTML5 document (AC-202-1)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-004-served-live-no-files-written&quot;,
+      &quot;acId&quot;: &quot;AC-202-1&quot;,
+      &quot;description&quot;: &quot;the view serves from a local server process and never writes files to disk&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/cli.test.js::rcf view never writes any files to disk (regression against static mode)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -5648,10 +5708,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-006-read-unknown-id-not-found</strong> - covers <a href="#AC-301-2">AC-301-2</a> <span class="status pending">pending</span></p>
   <p>reading an unknown id exits 2 with a structured not-found usage error</p>
   <p><em>Test pointer:</em> <code>test/cli/read.test.js::rcf read UNKNOWN-999 exits 2 (usage, unknown id)</code></p>
+</div>
+<div class="tc" id="TC-006-read-reports-valid">
+  <p><strong>TC-006-read-reports-valid</strong> - covers <a href="#AC-301-1">AC-301-1</a> <span class="status pending">pending</span></p>
+  <p>read returns the body on stdout and reports the document valid against its schema on stderr</p>
+  <p><em>Test pointer:</em> <code>test/cli/read.test.js::rcf read REQ-001 returns the body and reports it valid against its schema (AC-301-1)</code></p>
+</div>
+<div class="tc" id="TC-006-read-invalid-content-plus-errors">
+  <p><strong>TC-006-read-invalid-content-plus-errors</strong> - covers <a href="#AC-301-3">AC-301-3</a> <span class="status pending">pending</span></p>
+  <p>read on an invalid-but-present document returns the content together with the validation errors</p>
+  <p><em>Test pointer:</em> <code>test/cli/read.test.js::rcf read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:18.625Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:18.724Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:26.548Z&quot;,
   &quot;purpose&quot;: &quot;Verify reading behaviour for unknown ids. AC-301-1 and AC-301-3 are pending: the read verb does not report per-document validity today (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
@@ -5667,6 +5737,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;reading an unknown id exits 2 with a structured not-found usage error&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/cli/read.test.js::rcf read UNKNOWN-999 exits 2 (usage, unknown id)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-006-read-reports-valid&quot;,
+      &quot;acId&quot;: &quot;AC-301-1&quot;,
+      &quot;description&quot;: &quot;read returns the body on stdout and reports the document valid against its schema on stderr&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/read.test.js::rcf read REQ-001 returns the body and reports it valid against its schema (AC-301-1)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-006-read-invalid-content-plus-errors&quot;,
+      &quot;acId&quot;: &quot;AC-301-3&quot;,
+      &quot;description&quot;: &quot;read on an invalid-but-present document returns the content together with the validation errors&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/read.test.js::rcf read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -5686,12 +5770,27 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-007-create-id-collision-refused">
   <p><strong>TC-007-create-id-collision-refused</strong> - covers <a href="#AC-302-2">AC-302-2</a> <span class="status pending">pending</span></p>
-  <p>creating a document with a taken id is refused with a clear conflict error</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2)</code></p>
+  <p>create with a conflicting id returns a clear conflict error and writes nothing</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)</code></p>
+</div>
+<div class="tc" id="TC-007-create-writes-validating-child">
+  <p><strong>TC-007-create-writes-validating-child</strong> - covers <a href="#AC-302-1">AC-302-1</a> <span class="status pending">pending</span></p>
+  <p>create writes the requirement file carrying its prdId parent edge and the reloaded tree validates clean</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument req writes a schema-valid child file</code></p>
+</div>
+<div class="tc" id="TC-007-create-leaves-prd-untouched">
+  <p><strong>TC-007-create-leaves-prd-untouched</strong> - covers <a href="#AC-302-1">AC-302-1</a> <span class="status pending">pending</span></p>
+  <p>create leaves the parent PRD file byte-identical (child-owned parent edges)</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument does NOT mutate the parent PRD file (Phase 3.7 §D2)</code></p>
+</div>
+<div class="tc" id="TC-007-create-invalid-writes-nothing">
+  <p><strong>TC-007-create-invalid-writes-nothing</strong> - covers <a href="#AC-302-3">AC-302-3</a> <span class="status pending">pending</span></p>
+  <p>create with a schema-invalid body returns the validation error and writes no file</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument with a schema-invalid body writes nothing and returns the validation error (AC-302-3)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:18.823Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:18.921Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:48.640Z&quot;,
   &quot;purpose&quot;: &quot;Verify create refuses conflicting ids. AC-302-1 (PRD requirementIds list, removed by D2) and AC-302-3 (create-invalid-body path untested) are pending (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
@@ -5704,9 +5803,30 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     {
       &quot;id&quot;: &quot;TC-007-create-id-collision-refused&quot;,
       &quot;acId&quot;: &quot;AC-302-2&quot;,
-      &quot;description&quot;: &quot;creating a document with a taken id is refused with a clear conflict error&quot;,
+      &quot;description&quot;: &quot;create with a conflicting id returns a clear conflict error and writes nothing&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2)&quot;
+      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-007-create-writes-validating-child&quot;,
+      &quot;acId&quot;: &quot;AC-302-1&quot;,
+      &quot;description&quot;: &quot;create writes the requirement file carrying its prdId parent edge and the reloaded tree validates clean&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument req writes a schema-valid child file&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-007-create-leaves-prd-untouched&quot;,
+      &quot;acId&quot;: &quot;AC-302-1&quot;,
+      &quot;description&quot;: &quot;create leaves the parent PRD file byte-identical (child-owned parent edges)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument does NOT mutate the parent PRD file (Phase 3.7 §D2)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-007-create-invalid-writes-nothing&quot;,
+      &quot;acId&quot;: &quot;AC-302-3&quot;,
+      &quot;description&quot;: &quot;create with a schema-invalid body returns the validation error and writes no file&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument with a schema-invalid body writes nothing and returns the validation error (AC-302-3)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -5733,10 +5853,15 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-008-invalid-update-refused</strong> - covers <a href="#AC-303-2">AC-303-2</a> <span class="status pending">pending</span></p>
   <p>a schema-invalidating update on a valid tree is refused with the validation error</p>
   <p><em>Test pointer:</em> <code>../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses</code></p>
+</div>
+<div class="tc" id="TC-008-update-unknown-id-not-found">
+  <p><strong>TC-008-update-unknown-id-not-found</strong> - covers <a href="#AC-303-3">AC-303-3</a> <span class="status pending">pending</span></p>
+  <p>update on a nonexistent id returns a structured not-found error naming the id and writes nothing</p>
+  <p><em>Test pointer:</em> <code>test/cli/update.test.js::rcf update REQ-999 returns a structured not-found error and writes nothing (AC-303-3)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:19.018Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:19.213Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:26.749Z&quot;,
   &quot;purpose&quot;: &quot;Verify valid updates persist with updatedAt advanced and invalidating updates are refused. AC-303-3 (update on unknown id) is pending (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
@@ -5760,6 +5885,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;a schema-invalidating update on a valid tree is refused with the validation error&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-008-update-unknown-id-not-found&quot;,
+      &quot;acId&quot;: &quot;AC-303-3&quot;,
+      &quot;description&quot;: &quot;update on a nonexistent id returns a structured not-found error naming the id and writes nothing&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/update.test.js::rcf update REQ-999 returns a structured not-found error and writes nothing (AC-303-3)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -5918,10 +6050,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-011-trace-back-ac-ancestry</strong> - covers <a href="#AC-402-2">AC-402-2</a> <span class="status pending">pending</span></p>
   <p>backward trace from an AC returns exactly US, REQ and PRD</p>
   <p><em>Test pointer:</em> <code>test/query/trace.test.js::back from AC walks AC -&gt; US -&gt; REQ -&gt; PRD</code></p>
+</div>
+<div class="tc" id="TC-011-forward-fbs-cross-link-leaf">
+  <p><strong>TC-011-forward-fbs-cross-link-leaf</strong> - covers <a href="#AC-402-3">AC-402-3</a> <span class="status pending">pending</span></p>
+  <p>forward trace surfaces the delivering FBS as a cross-link leaf and does not walk into its dependents</p>
+  <p><em>Test pointer:</em> <code>test/query/trace.test.js::forward from AC includes FBS via fbsByAcId cross-link as a leaf, never traversed through (AC-402-3)</code></p>
+</div>
+<div class="tc" id="TC-011-backward-intent-chain-only">
+  <p><strong>TC-011-backward-intent-chain-only</strong> - covers <a href="#AC-402-3">AC-402-3</a> <span class="status pending">pending</span></p>
+  <p>backward trace walks the intent chain only, with no FBS nodes</p>
+  <p><em>Test pointer:</em> <code>test/query/trace.test.js::back from AC walks AC -&gt; US -&gt; REQ -&gt; PRD</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:20.096Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:20.293Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:15.082Z&quot;,
   &quot;purpose&quot;: &quot;Verify forward and backward traversal along the intent chain. AC-402-3 is pending: forward trace deliberately surfaces FBS via cross-link (D4), contradicting the AC&#39;s never-FBS clause (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
@@ -5945,6 +6087,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;backward trace from an AC returns exactly US, REQ and PRD&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/query/trace.test.js::back from AC walks AC -&gt; US -&gt; REQ -&gt; PRD&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-011-forward-fbs-cross-link-leaf&quot;,
+      &quot;acId&quot;: &quot;AC-402-3&quot;,
+      &quot;description&quot;: &quot;forward trace surfaces the delivering FBS as a cross-link leaf and does not walk into its dependents&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/trace.test.js::forward from AC includes FBS via fbsByAcId cross-link as a leaf, never traversed through (AC-402-3)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-011-backward-intent-chain-only&quot;,
+      &quot;acId&quot;: &quot;AC-402-3&quot;,
+      &quot;description&quot;: &quot;backward trace walks the intent chain only, with no FBS nodes&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/trace.test.js::back from AC walks AC -&gt; US -&gt; REQ -&gt; PRD&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -5966,10 +6122,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-012-adr-impact-reaches-fbs</strong> - covers <a href="#AC-403-2">AC-403-2</a> <span class="status pending">pending</span></p>
   <p>impact from an ADR returns the FBS items referencing it as context</p>
   <p><em>Test pointer:</em> <code>test/query/impact.test.js::impact from ADR: ancestor TAD; descendants include FBS via contextRequirements.adrIds</code></p>
+</div>
+<div class="tc" id="TC-012-req-impact-includes-fbs-slots">
+  <p><strong>TC-012-req-impact-includes-fbs-slots</strong> - covers <a href="#AC-403-1">AC-403-1</a> <span class="status pending">pending</span></p>
+  <p>impact from a REQ pivot includes the FBS slots whose acceptance criteria fall under it, labelled re-execute</p>
+  <p><em>Test pointer:</em> <code>test/query/impact.test.js::impact from REQ: ancestor PRD; descendants US -&gt; AC -&gt; TS -&gt; TC and the FBS slots under it (AC-403-1)</code></p>
+</div>
+<div class="tc" id="TC-012-no-dependents-empty-impact">
+  <p><strong>TC-012-no-dependents-empty-impact</strong> - covers <a href="#AC-403-3">AC-403-3</a> <span class="status pending">pending</span></p>
+  <p>impact on a document with no dependents reports an empty descendant set</p>
+  <p><em>Test pointer:</em> <code>test/query/impact.test.js::impact from TC: ancestors include TS, AC, US, REQ, PRD; no dependents -&gt; empty impact set (AC-403-3)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:20.391Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:20.490Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:26.943Z&quot;,
   &quot;purpose&quot;: &quot;Verify impact fan-out from architecture documents. AC-403-1 (FBS slots from a REQ pivot) and AC-403-3 (empty impact set) lack direct assertions and are pending (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
@@ -5985,6 +6151,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;impact from an ADR returns the FBS items referencing it as context&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/query/impact.test.js::impact from ADR: ancestor TAD; descendants include FBS via contextRequirements.adrIds&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-012-req-impact-includes-fbs-slots&quot;,
+      &quot;acId&quot;: &quot;AC-403-1&quot;,
+      &quot;description&quot;: &quot;impact from a REQ pivot includes the FBS slots whose acceptance criteria fall under it, labelled re-execute&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/impact.test.js::impact from REQ: ancestor PRD; descendants US -&gt; AC -&gt; TS -&gt; TC and the FBS slots under it (AC-403-1)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-012-no-dependents-empty-impact&quot;,
+      &quot;acId&quot;: &quot;AC-403-3&quot;,
+      &quot;description&quot;: &quot;impact on a document with no dependents reports an empty descendant set&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/impact.test.js::impact from TC: ancestors include TS, AC, US, REQ, PRD; no dependents -&gt; empty impact set (AC-403-3)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -6196,10 +6376,15 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-016-mcp-coverage-cli-parity</strong> - covers <a href="#AC-601-2">AC-601-2</a> <span class="status pending">pending</span></p>
   <p>rcf_coverage over MCP deep-equals the committed CLI coverage golden</p>
   <p><em>Test pointer:</em> <code>test/mcp/parity.test.js::parity: rcf_coverage structuredContent deep-equals the committed coverage golden</code></p>
+</div>
+<div class="tc" id="TC-016-stdio-only-no-listener">
+  <p><strong>TC-016-stdio-only-no-listener</strong> - covers <a href="#AC-601-3">AC-601-3</a> <span class="status pending">pending</span></p>
+  <p>a full MCP session with every listener API instrumented opens no TCP or UDP listener</p>
+  <p><em>Test pointer:</em> <code>test/mcp/stdio.e2e.test.js::e2e: the server communicates over stdio only and opens no network listener (AC-601-3)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:21.678Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:21.875Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:27.040Z&quot;,
   &quot;purpose&quot;: &quot;Verify MCP tool listing and CLI parity for queries. AC-601-3 is pending: no test asserts the absence of a network listener (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;e2e&quot;,
   &quot;acIds&quot;: [
@@ -6223,6 +6408,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;rcf_coverage over MCP deep-equals the committed CLI coverage golden&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/mcp/parity.test.js::parity: rcf_coverage structuredContent deep-equals the committed coverage golden&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-016-stdio-only-no-listener&quot;,
+      &quot;acId&quot;: &quot;AC-601-3&quot;,
+      &quot;description&quot;: &quot;a full MCP session with every listener API instrumented opens no TCP or UDP listener&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/mcp/stdio.e2e.test.js::e2e: the server communicates over stdio only and opens no network listener (AC-601-3)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -6381,10 +6573,15 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-019-mcp-errors-structured</strong> - covers <a href="#AC-702-3">AC-702-3</a> <span class="status pending">pending</span></p>
   <p>validation errors over MCP pass through as structured D11 payload objects</p>
   <p><em>Test pointer:</em> <code>test/mcp/map-errors.test.js::writerErrorResult passes plain validation / brokenReference errors through with the D11 payload</code></p>
+</div>
+<div class="tc" id="TC-019-multi-failures-returned-together">
+  <p><strong>TC-019-multi-failures-returned-together</strong> - covers <a href="#AC-702-2">AC-702-2</a> <span class="status pending">pending</span></p>
+  <p>two independent violations in one document surface together in the single returned error</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/validator.test.js::validateDocument returns every failure in one document together (AC-702-2)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:22.767Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:22.973Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:35:27.138Z&quot;,
   &quot;purpose&quot;: &quot;Verify failures name field and rule and reach MCP clients as structured objects. AC-702-2 is pending: multi-failure aggregation in one document is implemented (Ajv allErrors) but not asserted (see test-suites/PENDING.md).&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
@@ -6408,6 +6605,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;validation errors over MCP pass through as structured D11 payload objects&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/mcp/map-errors.test.js::writerErrorResult passes plain validation / brokenReference errors through with the D11 payload&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-019-multi-failures-returned-together&quot;,
+      &quot;acId&quot;: &quot;AC-702-2&quot;,
+      &quot;description&quot;: &quot;two independent violations in one document surface together in the single returned error&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/validator.test.js::validateDocument returns every failure in one document together (AC-702-2)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

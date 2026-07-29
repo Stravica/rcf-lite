@@ -18,9 +18,14 @@ Depth  Id                                     Kind       Title
 2      AC-203-1                               ac
 2      AC-203-2                               ac
 3      TC-003-diagram-emitted-as-source       tc
+3      TC-003-per-req-subdiagram-chain-edges  tc
+3      TC-003-one-subdiagram-per-req          tc
+3      TC-003-broken-node-marked-visibly      tc
 3      FBS-003                                fbs
 3      TC-004-curated-fields-not-raw-json     tc
 3      TC-004-doc-links-navigate-to-sections  tc
+3      TC-004-valid-html5-page                tc
+3      TC-004-served-live-no-files-written    tc
 3      FBS-004                                fbs
 3      TC-005-edit-present-after-regenerate   tc
 3      TC-005-no-cached-prior-state           tc

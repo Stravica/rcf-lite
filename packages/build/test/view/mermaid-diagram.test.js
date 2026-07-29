@@ -1,9 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dirname, resolve } from 'node:path';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 import {
   allRequirementSubdiagrams,
   requirementSubdiagram,
@@ -31,6 +34,29 @@ test('requirementSubdiagram carries chain edges and delivers back-links', async 
   assert.match(src, /AC-201-1 -\.->\|delivered by\| FBS-003/);
   // Does NOT contain a different REQ's children.
   assert.doesNotMatch(src, /US-101/);
+});
+
+test('requirementSubdiagram marks a broken node visibly rather than omitting it (AC-201-2)', async () => {
+  // Scaffold a real project and break it: a second story under REQ-001
+  // claims the same inline AC id as US-101. The walker flags AC-101-1 as
+  // broken (globallyUniqueIds); the AC still renders in REQ-001's
+  // subdiagram - so the diagram must keep the node AND mark it.
+  const tmp = await mkdtemp(join(tmpdir(), 'rcf-diagram-broken-'));
+  await initProject({ projectRoot: tmp, projectName: 'BrokenDiagram' });
+  const us = JSON.parse(await readFile(join(tmp, 'rcf/user-stories/us-101.json'), 'utf8'));
+  const twin = { ...us, usId: 'US-102', title: 'Colliding twin story' };
+  await writeFile(join(tmp, 'rcf/user-stories/us-102.json'), `${JSON.stringify(twin, null, 2)}\n`, 'utf8');
+
+  const result = await walkTree({ projectRoot: tmp });
+  const model = buildTreeModel(result);
+  assert.ok(model.brokenIds.has('AC-101-1'), 'precondition: walker flags the duplicated AC id');
+  const req = model.requirements.find((r) => r.reqId === 'REQ-001');
+  const src = requirementSubdiagram(model, req);
+  // Not omitted silently: the node is still declared...
+  assert.match(src, /AC-101-1\[/);
+  // ...and visibly marked as broken (the `broken` classDef is the dashed
+  // red border treatment in style.css).
+  assert.match(src, /class AC-101-1 broken;/);
 });
 
 test('requirementSubdiagram emits click bindings for every node (D7)', async () => {
