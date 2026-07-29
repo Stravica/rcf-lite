@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-07-29T12:57:20.986Z",
+  "updatedAt": "2026-07-29T12:57:21.183Z",
+  "purpose": "Verify dependency-respecting ordering and cycle refusal. AC-502-2 is pending: the queue exposes actionable state but no explicit parallel-safe reporting is asserted (see test-suites/PENDING.md).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-502-1",
+    "AC-502-3"
+  ],
+  "id": "TS-014",
+  "usId": "US-502",
+  "title": "Build order dependencies",
+  "testCases": [
+    {
+      "id": "TC-014-dependency-precedes-dependent",
+      "acId": "AC-502-1",
+      "description": "a dependent item stays blocked until its dependency is satisfied, so dependencies always precede dependents",
+      "status": "pending",
+      "testPointer": "test/build/queue.test.js::notStarted with an unsatisfied dependency is blocked, blockedBy names it"
+    },
+    {
+      "id": "TC-014-cycle-detected-reported",
+      "acId": "AC-502-3",
+      "description": "a dependency cycle is detected and every member reported blocked-cycle with no partial order",
+      "status": "pending",
+      "testPointer": "test/build/queue.test.js::dependency cycle: every member is blocked (cycle), never a crash"
+    }
+  ],
+  "status": "draft"
+}

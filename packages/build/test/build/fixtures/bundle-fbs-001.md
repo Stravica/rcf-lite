@@ -164,9 +164,12 @@ Referenced material (pass-through, verbatim):
 
 Presence reporting off the tree, not a coverage verdict (`rcf coverage` is the coverage surface).
 
-- AC-101-1: no existing tests - test suite to be written for this AC
-- AC-101-2: no existing tests - test suite to be written for this AC
-- AC-101-3: no existing tests - test suite to be written for this AC
+- AC-101-1: suites: TS-001
+  - TC-001-init-clean-tree-roots (pending): initProject followed by walkTree yields a clean tree whose manifest declares the PRD, TAD and BS roots [../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)]
+- AC-101-2: suites: TS-001
+  - TC-001-init-refuses-overwrite (pending): a second initProject on the same directory refuses with a usage error reporting the project already exists [../core/test/store/init.test.js::initProject refuses to overwrite an existing manifest (AC-101-2)]
+- AC-101-3: suites: TS-001
+  - TC-001-children-discoverable-from-roots (pending): every scaffolded child document is resolved by walking parent id lists from the manifest roots [../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)]
 
 ## 7. Build-cycle runbook
 

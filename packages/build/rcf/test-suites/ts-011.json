@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-07-29T12:57:20.096Z",
+  "updatedAt": "2026-07-29T12:57:20.293Z",
+  "purpose": "Verify forward and backward traversal along the intent chain. AC-402-3 is pending: forward trace deliberately surfaces FBS via cross-link (D4), contradicting the AC's never-FBS clause (see test-suites/PENDING.md).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-402-1",
+    "AC-402-2"
+  ],
+  "id": "TS-011",
+  "usId": "US-402",
+  "title": "Trace forward and back",
+  "testCases": [
+    {
+      "id": "TC-011-trace-forward-req-subtree",
+      "acId": "AC-402-1",
+      "description": "forward trace from a REQ returns the US, AC, TS and TC beneath it",
+      "status": "pending",
+      "testPointer": "test/query/trace.test.js::forward from REQ returns US -> AC -> TS -> TC subtree"
+    },
+    {
+      "id": "TC-011-trace-back-ac-ancestry",
+      "acId": "AC-402-2",
+      "description": "backward trace from an AC returns exactly US, REQ and PRD",
+      "status": "pending",
+      "testPointer": "test/query/trace.test.js::back from AC walks AC -> US -> REQ -> PRD"
+    }
+  ],
+  "status": "draft"
+}

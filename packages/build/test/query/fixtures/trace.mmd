@@ -3,49 +3,83 @@ flowchart LR
   US-201["US-201"]
   US-202["US-202"]
   US-203["US-203"]
+  TS-003["TS-003"]
   AC-201-1["AC-201-1"]
   AC-201-2["AC-201-2"]
   AC-201-3["AC-201-3"]
+  TS-004["TS-004"]
   AC-202-1["AC-202-1"]
   AC-202-2["AC-202-2"]
   AC-202-3["AC-202-3"]
+  TS-005["TS-005"]
   AC-203-1["AC-203-1"]
   AC-203-2["AC-203-2"]
+  TC-003-diagram-emitted-as-source["TC-003-diagram-emitted-as-source"]
   FBS-003["FBS-003"]
+  TC-004-curated-fields-not-raw-json["TC-004-curated-fields-not-raw-json"]
+  TC-004-doc-links-navigate-to-sections["TC-004-doc-links-navigate-to-sections"]
   FBS-004["FBS-004"]
+  TC-005-edit-present-after-regenerate["TC-005-edit-present-after-regenerate"]
+  TC-005-no-cached-prior-state["TC-005-no-cached-prior-state"]
   REQ-002 --> US-201
   REQ-002 --> US-202
   REQ-002 --> US-203
+  US-201 --> TS-003
   US-201 --> AC-201-1
   US-201 --> AC-201-2
   US-201 --> AC-201-3
+  US-202 --> TS-004
   US-202 --> AC-202-1
   US-202 --> AC-202-2
   US-202 --> AC-202-3
+  US-203 --> TS-005
   US-203 --> AC-203-1
   US-203 --> AC-203-2
+  TS-003 --> TC-003-diagram-emitted-as-source
   AC-201-1 -.-> FBS-003
   AC-201-2 -.-> FBS-003
+  AC-201-3 -.-> TS-003
+  AC-201-3 -.-> TC-003-diagram-emitted-as-source
   AC-201-3 -.-> FBS-003
+  TS-004 --> TC-004-curated-fields-not-raw-json
+  TS-004 --> TC-004-doc-links-navigate-to-sections
   AC-202-1 -.-> FBS-004
+  AC-202-2 -.-> TS-004
+  AC-202-2 -.-> TC-004-curated-fields-not-raw-json
   AC-202-2 -.-> FBS-004
+  AC-202-3 -.-> TS-004
+  AC-202-3 -.-> TC-004-doc-links-navigate-to-sections
   AC-202-3 -.-> FBS-004
+  TS-005 --> TC-005-edit-present-after-regenerate
+  TS-005 --> TC-005-no-cached-prior-state
+  AC-203-1 -.-> TS-005
+  AC-203-1 -.-> TC-005-edit-present-after-regenerate
   AC-203-1 -.-> FBS-004
+  AC-203-2 -.-> TS-005
+  AC-203-2 -.-> TC-005-no-cached-prior-state
   AC-203-2 -.-> FBS-004
   class REQ-002 req;
   class US-201 us;
   class US-202 us;
   class US-203 us;
+  class TS-003 ts;
   class AC-201-1 ac;
   class AC-201-2 ac;
   class AC-201-3 ac;
+  class TS-004 ts;
   class AC-202-1 ac;
   class AC-202-2 ac;
   class AC-202-3 ac;
+  class TS-005 ts;
   class AC-203-1 ac;
   class AC-203-2 ac;
+  class TC-003-diagram-emitted-as-source tc;
   class FBS-003 fbs;
+  class TC-004-curated-fields-not-raw-json tc;
+  class TC-004-doc-links-navigate-to-sections tc;
   class FBS-004 fbs;
+  class TC-005-edit-present-after-regenerate tc;
+  class TC-005-no-cached-prior-state tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-07-29T12:57:18.038Z",
+  "updatedAt": "2026-07-29T12:57:18.234Z",
+  "purpose": "Verify documents render as readable curated fields with working inter-document links. AC-202-1 is pending: its static-files-no-server clause predates the Phase 3.8 server-only view (see test-suites/PENDING.md).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-202-2",
+    "AC-202-3"
+  ],
+  "id": "TS-004",
+  "usId": "US-202",
+  "title": "Browsable page rendering",
+  "testCases": [
+    {
+      "id": "TC-004-curated-fields-not-raw-json",
+      "acId": "AC-202-2",
+      "description": "renderPage renders curated key fields as readable text rather than raw JSON",
+      "status": "pending",
+      "testPointer": "test/view/html-page.test.js::renderPage renders curated key fields, not raw JSON (AC-202-2)"
+    },
+    {
+      "id": "TC-004-doc-links-navigate-to-sections",
+      "acId": "AC-202-3",
+      "description": "document links render as anchors targeting the raw doc id section",
+      "status": "pending",
+      "testPointer": "test/view/doc-renderers/helpers.test.js::docLink renders an anchor to the raw id"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-07-29T12:57:19.703Z",
+  "updatedAt": "2026-07-29T12:57:19.997Z",
+  "purpose": "Verify coverage classifies requirements without stories and criteria without resolving test cases, and reports complete coverage with no gaps when everything is bound.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-401-1",
+    "AC-401-2",
+    "AC-401-3"
+  ],
+  "id": "TS-010",
+  "usId": "US-401",
+  "title": "Coverage report",
+  "testCases": [
+    {
+      "id": "TC-010-req-without-us-uncovered",
+      "acId": "AC-401-1",
+      "description": "a requirement with no user story is classified uncovered",
+      "status": "pending",
+      "testPointer": "test/query/coverage.test.js::REQ with zero US returns uncovered"
+    },
+    {
+      "id": "TC-010-ac-without-tc-uncovered",
+      "acId": "AC-401-2",
+      "description": "an acceptance criterion with no test case cross-link is classified uncovered",
+      "status": "pending",
+      "testPointer": "test/query/coverage.test.js::AC with no TC cross-link at all is absent (uncovered), not unresolved"
+    },
+    {
+      "id": "TC-010-full-coverage-no-gaps",
+      "acId": "AC-401-3",
+      "description": "a fully covered tree reports ok with zero uncovered",
+      "status": "pending",
+      "testPointer": "test/query/coverage.test.js::shallow-any default: REQ with one AC covered by one RESOLVING TC returns covered"
+    }
+  ],
+  "status": "draft"
+}

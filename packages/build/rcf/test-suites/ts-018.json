@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-07-29T12:57:22.370Z",
+  "updatedAt": "2026-07-29T12:57:22.667Z",
+  "purpose": "Verify invalid-producing writes land nothing on disk, successful writes revalidate cleanly, and validation runs against the registered published schema bundle.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-701-1",
+    "AC-701-2",
+    "AC-701-3"
+  ],
+  "id": "TS-018",
+  "usId": "US-701",
+  "title": "Invalid writes refused",
+  "testCases": [
+    {
+      "id": "TC-018-invalid-write-writes-nothing",
+      "acId": "AC-701-1",
+      "description": "a tree-invalidating update is refused and nothing is written",
+      "status": "pending",
+      "testPointer": "../core/test/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED"
+    },
+    {
+      "id": "TC-018-written-doc-validates",
+      "acId": "AC-701-2",
+      "description": "a successful create writes a document that revalidates cleanly on reload",
+      "status": "pending",
+      "testPointer": "../core/test/store/writer.test.js::createDocument req writes a schema-valid child file"
+    },
+    {
+      "id": "TC-018-registered-bundle-no-drift",
+      "acId": "AC-701-3",
+      "description": "validation reuses the registered schema bundle across passes without drift",
+      "status": "pending",
+      "testPointer": "../core/test/store/validator.test.js::validateDocument re-validates the registered schema (no drift)"
+    }
+  ],
+  "status": "draft"
+}

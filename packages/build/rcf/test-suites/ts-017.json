@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-07-29T12:57:21.977Z",
+  "updatedAt": "2026-07-29T12:57:22.271Z",
+  "purpose": "Verify mutating and build operations over MCP share the CLI's validation, linkage and refusal behaviour.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-602-1",
+    "AC-602-2",
+    "AC-602-3"
+  ],
+  "id": "TS-017",
+  "usId": "US-602",
+  "title": "CRUD and build over MCP",
+  "testCases": [
+    {
+      "id": "TC-017-mcp-create-cli-validation",
+      "acId": "AC-602-1",
+      "description": "rcf_create applies the CLI per-kind mandatory-field validation over MCP",
+      "status": "pending",
+      "testPointer": "test/mcp/tools.test.js::rcf_create: per-kind mandatory fields are usage errors; body object carries extra fields"
+    },
+    {
+      "id": "TC-017-mcp-build-returns-bundle",
+      "acId": "AC-602-2",
+      "description": "rcf_build returns the assembled bundle deep-equal to the CLI output for the named FBS",
+      "status": "pending",
+      "testPointer": "test/mcp/parity.test.js::parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build FBS-001 --format json`"
+    },
+    {
+      "id": "TC-017-mcp-invalid-write-refused",
+      "acId": "AC-602-3",
+      "description": "a mutating MCP call that would break the tree errors with the postWriteValidation rule",
+      "status": "pending",
+      "testPointer": "test/mcp/b5-postwrite.test.js::net-new breakage on the wedged tree still errors with the postWriteValidation rule"
+    }
+  ],
+  "status": "draft"
+}

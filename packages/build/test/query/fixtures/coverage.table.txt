@@ -1,81 +1,81 @@
 Coverage mode: shallow-any
-Requirements: 8  covered: 0  covered-unresolved: 0  uncovered: 8
+Requirements: 8  covered: 8  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC        AC covered  Test cases
------------  -------  --------  ----------  ----------
-REQ-001      no       AC-101-1  no          -
-                      AC-101-2  no          -
-                      AC-101-3  no          -
-                      AC-102-1  no          -
-                      AC-102-2  no          -
-                      AC-102-3  no          -
-REQ-002      no       AC-201-1  no          -
+-----------  -------  --------  ----------  ----------------------------------------
+REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
+                      AC-101-2  yes         TC-001-init-refuses-overwrite
+                      AC-101-3  yes         TC-001-children-discoverable-from-roots
+                      AC-102-1  yes         TC-002-walk-loads-every-document
+                      AC-102-2  yes         TC-002-parse-failure-structured-no-crash
+                      AC-102-3  yes         TC-002-broken-reference-reported
+REQ-002      yes      AC-201-1  no          -
                       AC-201-2  no          -
-                      AC-201-3  no          -
+                      AC-201-3  yes         TC-003-diagram-emitted-as-source
                       AC-202-1  no          -
-                      AC-202-2  no          -
-                      AC-202-3  no          -
-                      AC-203-1  no          -
-                      AC-203-2  no          -
-REQ-003      no       AC-301-1  no          -
-                      AC-301-2  no          -
+                      AC-202-2  yes         TC-004-curated-fields-not-raw-json
+                      AC-202-3  yes         TC-004-doc-links-navigate-to-sections
+                      AC-203-1  yes         TC-005-edit-present-after-regenerate
+                      AC-203-2  yes         TC-005-no-cached-prior-state
+REQ-003      yes      AC-301-1  no          -
+                      AC-301-2  yes         TC-006-read-unknown-id-not-found
                       AC-301-3  no          -
                       AC-302-1  no          -
-                      AC-302-2  no          -
+                      AC-302-2  yes         TC-007-create-id-collision-refused
                       AC-302-3  no          -
-                      AC-303-1  no          -
-                      AC-303-2  no          -
+                      AC-303-1  yes         TC-008-valid-update-persists-updatedat
+                      AC-303-2  yes         TC-008-invalid-update-refused
                       AC-303-3  no          -
-                      AC-304-1  no          -
-                      AC-304-2  no          -
-                      AC-304-3  no          -
-REQ-004      no       AC-401-1  no          -
-                      AC-401-2  no          -
-                      AC-401-3  no          -
-                      AC-402-1  no          -
-                      AC-402-2  no          -
+                      AC-304-1  yes         TC-009-delete-refused-with-dependents
+                      AC-304-2  yes         TC-009-cascade-removes-subtree
+                      AC-304-3  yes         TC-009-leaf-delete-removes-file
+REQ-004      yes      AC-401-1  yes         TC-010-req-without-us-uncovered
+                      AC-401-2  yes         TC-010-ac-without-tc-uncovered
+                      AC-401-3  yes         TC-010-full-coverage-no-gaps
+                      AC-402-1  yes         TC-011-trace-forward-req-subtree
+                      AC-402-2  yes         TC-011-trace-back-ac-ancestry
                       AC-402-3  no          -
                       AC-403-1  no          -
-                      AC-403-2  no          -
+                      AC-403-2  yes         TC-012-adr-impact-reaches-fbs
                       AC-403-3  no          -
-REQ-005      no       AC-501-1  no          -
-                      AC-501-2  no          -
-                      AC-501-3  no          -
-                      AC-502-1  no          -
+REQ-005      yes      AC-501-1  yes         TC-013-bundle-ac-gwt-ancestry
+                      AC-501-2  yes         TC-013-bundle-inlines-tacs-adrs
+                      AC-501-3  yes         TC-013-bundle-single-markdown-document
+                      AC-502-1  yes         TC-014-dependency-precedes-dependent
                       AC-502-2  no          -
-                      AC-502-3  no          -
-                      AC-503-1  no          -
-                      AC-503-2  no          -
-                      AC-503-3  no          -
-REQ-006      no       AC-601-1  no          -
-                      AC-601-2  no          -
+                      AC-502-3  yes         TC-014-cycle-detected-reported
+                      AC-503-1  yes         TC-015-mark-advances-status
+                      AC-503-2  yes         TC-015-mark-unknown-id-not-found
+                      AC-503-3  yes         TC-015-mark-touches-status-only
+REQ-006      yes      AC-601-1  yes         TC-016-tools-list-structured-schemas
+                      AC-601-2  yes         TC-016-mcp-coverage-cli-parity
                       AC-601-3  no          -
-                      AC-602-1  no          -
-                      AC-602-2  no          -
-                      AC-602-3  no          -
-REQ-007      no       AC-701-1  no          -
-                      AC-701-2  no          -
-                      AC-701-3  no          -
-                      AC-702-1  no          -
+                      AC-602-1  yes         TC-017-mcp-create-cli-validation
+                      AC-602-2  yes         TC-017-mcp-build-returns-bundle
+                      AC-602-3  yes         TC-017-mcp-invalid-write-refused
+REQ-007      yes      AC-701-1  yes         TC-018-invalid-write-writes-nothing
+                      AC-701-2  yes         TC-018-written-doc-validates
+                      AC-701-3  yes         TC-018-registered-bundle-no-drift
+                      AC-702-1  yes         TC-019-failure-names-field-and-rule
                       AC-702-2  no          -
-                      AC-702-3  no          -
-REQ-008      no       AC-801-1  no          -
-                      AC-801-2  no          -
-                      AC-801-3  no          -
-                      AC-801-4  no          -
-                      AC-802-1  no          -
-                      AC-802-2  no          -
-                      AC-802-3  no          -
-                      AC-802-4  no          -
-                      AC-803-1  no          -
-                      AC-803-2  no          -
-                      AC-803-3  no          -
-                      AC-803-4  no          -
-                      AC-804-1  no          -
-                      AC-804-2  no          -
-                      AC-804-3  no          -
-                      AC-804-4  no          -
-                      AC-805-1  no          -
-                      AC-805-2  no          -
-                      AC-805-3  no          -
-                      AC-805-4  no          -
+                      AC-702-3  yes         TC-019-mcp-errors-structured
+REQ-008      yes      AC-801-1  yes         TC-020-preview-in-definition-of-done
+                      AC-801-2  yes         TC-020-single-start-command
+                      AC-801-3  yes         TC-020-preview-hosting-independent
+                      AC-801-4  yes         TC-020-seeded-data-required
+                      AC-802-1  yes         TC-021-deploy-target-question-early
+                      AC-802-2  yes         TC-021-stack-constrained-by-target
+                      AC-802-3  yes         TC-021-target-captured-as-adr
+                      AC-802-4  yes         TC-021-fragment-forbids-early-stack
+                      AC-803-1  yes         TC-022-walkthrough-not-silent-choice
+                      AC-803-2  yes         TC-022-plain-language-options
+                      AC-803-3  yes         TC-022-human-steps-named-honestly
+                      AC-803-4  yes         TC-022-covers-account-configuration
+                      AC-804-1  yes         TC-023-claims-name-runtime
+                      AC-804-2  yes         TC-023-no-implied-deploy-verification
+                      AC-804-3  yes         TC-023-pr-section-runtime-label
+                      AC-804-4  yes         TC-023-labelled-claim-example
+                      AC-805-1  yes         TC-024-periodic-fresh-context-review
+                      AC-805-2  yes         TC-024-reviewer-drives-the-app
+                      AC-805-3  yes         TC-024-names-defect-classes
+                      AC-805-4  yes         TC-024-in-loop-not-the-gate

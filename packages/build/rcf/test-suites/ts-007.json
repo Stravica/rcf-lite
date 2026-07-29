@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-07-29T12:57:18.823Z",
+  "updatedAt": "2026-07-29T12:57:18.921Z",
+  "purpose": "Verify create refuses conflicting ids. AC-302-1 (PRD requirementIds list, removed by D2) and AC-302-3 (create-invalid-body path untested) are pending (see test-suites/PENDING.md).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-302-2"
+  ],
+  "id": "TS-007",
+  "usId": "US-302",
+  "title": "Create verb safety",
+  "testCases": [
+    {
+      "id": "TC-007-create-id-collision-refused",
+      "acId": "AC-302-2",
+      "description": "creating a document with a taken id is refused with a clear conflict error",
+      "status": "pending",
+      "testPointer": "../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2)"
+    }
+  ],
+  "status": "draft"
+}

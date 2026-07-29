@@ -211,21 +211,51 @@
   "tests": [
     {
       "acId": "AC-101-1",
-      "covered": false,
-      "suites": [],
-      "cases": []
+      "covered": true,
+      "suites": [
+        "TS-001"
+      ],
+      "cases": [
+        {
+          "tcId": "TC-001-init-clean-tree-roots",
+          "tsId": "TS-001",
+          "description": "initProject followed by walkTree yields a clean tree whose manifest declares the PRD, TAD and BS roots",
+          "status": "pending",
+          "testPointer": "../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)"
+        }
+      ]
     },
     {
       "acId": "AC-101-2",
-      "covered": false,
-      "suites": [],
-      "cases": []
+      "covered": true,
+      "suites": [
+        "TS-001"
+      ],
+      "cases": [
+        {
+          "tcId": "TC-001-init-refuses-overwrite",
+          "tsId": "TS-001",
+          "description": "a second initProject on the same directory refuses with a usage error reporting the project already exists",
+          "status": "pending",
+          "testPointer": "../core/test/store/init.test.js::initProject refuses to overwrite an existing manifest (AC-101-2)"
+        }
+      ]
     },
     {
       "acId": "AC-101-3",
-      "covered": false,
-      "suites": [],
-      "cases": []
+      "covered": true,
+      "suites": [
+        "TS-001"
+      ],
+      "cases": [
+        {
+          "tcId": "TC-001-children-discoverable-from-roots",
+          "tsId": "TS-001",
+          "description": "every scaffolded child document is resolved by walking parent id lists from the manifest roots",
+          "status": "pending",
+          "testPointer": "../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)"
+        }
+      ]
     }
   ],
   "completionContract": {

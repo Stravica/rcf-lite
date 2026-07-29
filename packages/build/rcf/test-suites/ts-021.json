@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-07-29T12:57:23.635Z",
+  "updatedAt": "2026-07-29T12:57:24.063Z",
+  "purpose": "Verify elicitation guidance and the harness fragment order the deploy-target decision ahead of any stack commitment and capture it as an ADR.",
+  "testLevel": "contract",
+  "acIds": [
+    "AC-802-1",
+    "AC-802-2",
+    "AC-802-3",
+    "AC-802-4"
+  ],
+  "id": "TS-021",
+  "usId": "US-802",
+  "title": "Deploy target before stack",
+  "testCases": [
+    {
+      "id": "TC-021-deploy-target-question-early",
+      "acId": "AC-802-1",
+      "description": "elicitation places the deploy-target question before any stack is committed",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-802-1: elicitation places a deploy-target question early, before any stack is committed"
+    },
+    {
+      "id": "TC-021-stack-constrained-by-target",
+      "acId": "AC-802-2",
+      "description": "the stack is constrained to what the stated target can host",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-802-2: the stack choice is constrained by the deploy-target answer"
+    },
+    {
+      "id": "TC-021-target-captured-as-adr",
+      "acId": "AC-802-3",
+      "description": "the deploy target and stack constraint are captured as a visible revisable ADR",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-802-3: the deploy target and its stack implication are captured as an ADR on the project tree"
+    },
+    {
+      "id": "TC-021-fragment-forbids-early-stack",
+      "acId": "AC-802-4",
+      "description": "the harness fragment RULE 5 forbids committing a stack before the deploy target",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-802-4: the harness fragment forbids committing a stack before the deploy target is established"
+    }
+  ],
+  "status": "draft"
+}

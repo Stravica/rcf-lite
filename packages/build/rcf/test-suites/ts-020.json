@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-07-29T12:57:23.080Z",
+  "updatedAt": "2026-07-29T12:57:23.529Z",
+  "purpose": "Verify the shipped guidance pack requires a working, seeded, single-command local preview as the hosting-independent default outcome of every build.",
+  "testLevel": "contract",
+  "acIds": [
+    "AC-801-1",
+    "AC-801-2",
+    "AC-801-3",
+    "AC-801-4"
+  ],
+  "id": "TS-020",
+  "usId": "US-801",
+  "title": "Local preview guidance",
+  "testCases": [
+    {
+      "id": "TC-020-preview-in-definition-of-done",
+      "acId": "AC-801-1",
+      "description": "the build-cycle contract requires a working documented local preview in the definition of done",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-801-1/3: the build cycle requires a local preview as the hosting-independent default outcome"
+    },
+    {
+      "id": "TC-020-single-start-command",
+      "acId": "AC-801-2",
+      "description": "the playbook directs one documented start command where the stack allows",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-801-2: the local preview is startable via a single documented command where the stack allows"
+    },
+    {
+      "id": "TC-020-preview-hosting-independent",
+      "acId": "AC-801-3",
+      "description": "the preview is required whether or not a hosting target was stated",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-801-1/3: the build cycle requires a local preview as the hosting-independent default outcome"
+    },
+    {
+      "id": "TC-020-seeded-data-required",
+      "acId": "AC-801-4",
+      "description": "the guidance requires seeded or sample data so the preview is drivable, not an empty shell",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-801-4: the preview carries seeded data when the app needs data to be usable"
+    }
+  ],
+  "status": "draft"
+}

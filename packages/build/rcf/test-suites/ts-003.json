@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-07-29T12:57:17.843Z",
+  "updatedAt": "2026-07-29T12:57:17.941Z",
+  "purpose": "Verify the tree renders to mermaid diagram source. AC-201-1 and AC-201-2 are pending: no existing test asserts PRD plus architecture documents in the diagram, nor visible broken-link marking (see test-suites/PENDING.md).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-201-3"
+  ],
+  "id": "TS-003",
+  "usId": "US-201",
+  "title": "Mermaid diagram generation",
+  "testCases": [
+    {
+      "id": "TC-003-diagram-emitted-as-source",
+      "acId": "AC-201-3",
+      "description": "the requirement subdiagram is emitted as mermaid flowchart source",
+      "status": "pending",
+      "testPointer": "test/view/mermaid-diagram.test.js::requirementSubdiagram uses flowchart LR orientation"
+    }
+  ],
+  "status": "draft"
+}
