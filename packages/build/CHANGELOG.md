@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
+## [0.5.1] - 2026-07-29
+
+Dependency-only fix release. Re-packs 0.5.0's runtime against `@stravica-ai/rcf-lite-core@0.2.0` so `rcf` actually boots when installed from the registry. No source, behaviour or surface changes vs 0.5.0.
+
+### Fixed
+
+- **`rcf` boots on `npm install @stravica-ai/rcf-build-lite`**. 0.5.0 packed against `@stravica-ai/rcf-lite-core@0.1.0` (pnpm's `workspace:*` rewrite locks the exact version at pack time) while its runtime hard-imports the new store surface added in this repo's HEAD core — `testCaseKey` and `resolveTestPointers` from `@stravica-ai/rcf-lite-core/store`. On the registry that resolves to core 0.1.0 which does not export either symbol, and every `rcf` invocation crashes at ESM link with `SyntaxError: The requested module '@stravica-ai/rcf-lite-core/store' does not provide an export named 'testCaseKey'` (from `src/query/coverage.js:29`). Every subcommand — including `rcf --version` — was affected. 0.5.1 packs against the newly-published `@stravica-ai/rcf-lite-core@0.2.0` (the additive minor exposing that surface) and is the recommended install. **Upgrade path:** `npm install @stravica-ai/rcf-build-lite@latest` (or `@0.5.1`); no changes required in consumer code or RCF trees. 0.5.0 remains on the registry pending an operator decision on deprecate/unpublish.
+
 ## [0.5.0] - 2026-07-29
 
 Coverage becomes honest end-to-end (a "covered" AC now requires a resolving test), the build queue surfaces parallel-safe tiers, and forward trace stops conflating intent chains with FBS dependency graphs. Behaviour changes to `rcf coverage`, `rcf trace --forward`, `rcf read`, `rcf validate`, and the `rcf build` queue overview + JSON envelope. All work is in this package; `@stravica-ai/rcf-lite-core` and `@stravica-ai/rcf-verify-lite` are unchanged. Minor bump under the pre-1.0 breaking-is-minor convention.
