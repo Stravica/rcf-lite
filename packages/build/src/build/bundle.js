@@ -154,9 +154,12 @@ export function assembleBundle(tree, { fbsId }) {
   }
 
   // Section 6 - existing test surface. Presence reporting off the
-  // walker maps, not a coverage verdict (§D7); the per-AC `covered`
-  // rule (at least one TC via tcsByAcId) is intentionally aligned with
-  // computeCoverage's leaf test.
+  // walker maps, not a coverage verdict (§D7). The per-AC `covered`
+  // flag here is PRESENCE-based (at least one TC row via tcsByAcId);
+  // since w-2026-07-28-005, computeCoverage's own leaf test is stricter
+  // (the TC's testPointer must resolve to a real test). `rcf coverage`
+  // is the coverage surface; this section only lists what is on the
+  // tree, pointers included, so the builder can see what exists.
   const tests = acceptanceCriteria.map((ac) => {
     const suites = tree.tsByAcId.get(ac.id) ?? [];
     const cases = (tree.tcsByAcId.get(ac.id) ?? []).map(({ tsId, tcId }) => {

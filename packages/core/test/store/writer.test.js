@@ -184,7 +184,7 @@ test('createDocument tc mutates the parent TS with derived slug', async () => {
   const res = await createDocument({
     projectRoot, tree: reloaded.tree, kind: 'tc',
     body: { description: 'The Happy Path!', acId: 'AC-101-1' },
-    options: { parentId: 'TS-001', slug: deriveSlug('The Happy Path!') },
+    options: { parentId: 'TS-001', slug: deriveSlug('The Happy Path!'), testPointer: 'test/happy.test.js::the happy path' },
   });
   assert.equal(res.id, 'TC-001-the-happy-path');
 });
@@ -200,16 +200,35 @@ test('createDocument tc slug collision refused (OQ-P4-R-1)', async () => {
   await createDocument({
     projectRoot, tree: reloaded.tree, kind: 'tc',
     body: { description: 'same', acId: 'AC-101-1' },
-    options: { parentId: 'TS-001', slug: 'same' },
+    options: { parentId: 'TS-001', slug: 'same', testPointer: 'test/same.test.js::same' },
   });
   const rw2 = await reload(projectRoot);
   const res = await createDocument({
     projectRoot, tree: rw2.tree, kind: 'tc',
     body: { description: 'same', acId: 'AC-101-1' },
-    options: { parentId: 'TS-001', slug: 'same' },
+    options: { parentId: 'TS-001', slug: 'same', testPointer: 'test/same.test.js::same' },
   });
   assert.equal(res.kind, 'usage');
   assert.match(res.message, /slug collision/);
+});
+
+// w-2026-07-28-005: a TC is a coverage claim; without a pointer there is
+// nothing behind the claim, so creation refuses up front.
+test('createDocument tc without testPointer is refused with a usage error', async () => {
+  const { projectRoot, tree } = await scaffold();
+  await createDocument({
+    projectRoot, tree, kind: 'ts',
+    body: { title: 't', purpose: 'p', testLevel: 'unit', acIds: ['AC-101-1'] },
+    options: { parentId: 'US-101' },
+  });
+  const reloaded = await reload(projectRoot);
+  const res = await createDocument({
+    projectRoot, tree: reloaded.tree, kind: 'tc',
+    body: { description: 'no pointer', acId: 'AC-101-1' },
+    options: { parentId: 'TS-001', slug: 'no-pointer' },
+  });
+  assert.equal(res.kind, 'usage');
+  assert.match(res.message, /--test-pointer is required/);
 });
 
 test('createDocument dry-run does not write to disk', async () => {

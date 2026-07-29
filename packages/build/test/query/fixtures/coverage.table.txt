@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 8  covered: 0  uncovered: 8
+Requirements: 8  covered: 0  covered-unresolved: 0  uncovered: 8
 
 Requirement  Covered  AC        AC covered  Test cases
 -----------  -------  --------  ----------  ----------

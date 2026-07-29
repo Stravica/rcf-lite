@@ -23,6 +23,27 @@ export function formatTable(result, verb) {
   return '';
 }
 
+// w-2026-07-28-005: three-state cell vocabulary. 'unresolved' = TC rows
+// exist but none of their pointers resolves to a real test - the stub-TC
+// state, shown as its own word rather than folded into yes/no.
+function reqCoveredCell(req) {
+  if (req.covered) return 'yes';
+  return req.coverageClass === 'covered-unresolved' ? 'unresolved' : 'no';
+}
+
+function acCoveredCell(ac) {
+  if (ac.covered) return 'yes';
+  return ac.testCases.length > 0 ? 'unresolved' : 'no';
+}
+
+function testCasesCell(ac) {
+  if (ac.testCases.length === 0) return '-';
+  const unresolved = new Set(ac.unresolvedTestCases ?? []);
+  return ac.testCases
+    .map((tc) => (unresolved.has(tc) ? `${tc}[unresolved]` : tc))
+    .join(', ');
+}
+
 function formatCoverageTable(result) {
   const lines = [];
   const modeLabel = result.strict ? 'strict (per-AC)' : 'shallow-any';
@@ -30,6 +51,7 @@ function formatCoverageTable(result) {
   lines.push(
     `Requirements: ${result.totals.requirements}  ` +
       `covered: ${result.totals.covered}  ` +
+      `covered-unresolved: ${result.totals.coveredUnresolved}  ` +
       `uncovered: ${result.totals.uncovered}`,
   );
   lines.push('');
@@ -41,7 +63,7 @@ function formatCoverageTable(result) {
   rows.push(header);
   for (const req of result.requirements) {
     if (req.acs.length === 0) {
-      const row = [req.id, req.covered ? 'yes' : 'no', '(no AC)', '-', '-'];
+      const row = [req.id, reqCoveredCell(req), '(no AC)', '-', '-'];
       if (withCode) row.push('-');
       rows.push(row);
       continue;
@@ -49,16 +71,25 @@ function formatCoverageTable(result) {
     for (const [i, ac] of req.acs.entries()) {
       const row = [
         i === 0 ? req.id : '',
-        i === 0 ? (req.covered ? 'yes' : 'no') : '',
+        i === 0 ? reqCoveredCell(req) : '',
         ac.id,
-        ac.covered ? 'yes' : 'no',
-        ac.testCases.length > 0 ? ac.testCases.join(', ') : '-',
+        acCoveredCell(ac),
+        testCasesCell(ac),
       ];
       if (withCode) row.push(ac.codeClass ?? '-');
       rows.push(row);
     }
   }
   lines.push(renderTable(rows));
+  const unresolvedPointers = result.unresolvedTestPointers ?? [];
+  if (unresolvedPointers.length > 0) {
+    lines.push('');
+    lines.push('Unresolved test pointers (never counted as coverage):');
+    for (const u of unresolvedPointers) {
+      const pointer = u.testPointer ?? '(no pointer)';
+      lines.push(`  ${u.tcId} (${u.tsId}): ${pointer} - ${u.reason}`);
+    }
+  }
   if (withCode) {
     lines.push('');
     lines.push(

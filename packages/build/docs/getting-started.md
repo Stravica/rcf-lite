@@ -195,7 +195,7 @@ rcf coverage
 
 ```
 Coverage mode: shallow-any
-Requirements: 2  covered: 0  uncovered: 2
+Requirements: 2  covered: 0  covered-unresolved: 0  uncovered: 2
 
 Requirement  Covered  AC        AC covered  Test cases
 -----------  -------  --------  ----------  ----------
@@ -204,12 +204,29 @@ REQ-002      no       AC-201-1  no          -
                       AC-201-2  no          -
 ```
 
-Zero covered - true, because nothing specifies tests yet. Coverage is answered by the test layer of the chain: a test suite (TS) owns test cases (TC), and each test case verifies one acceptance criterion. Specify the search behaviour:
+Zero covered - true, because nothing specifies tests yet. Coverage is answered by the test layer of the chain: a test suite (TS) owns test cases (TC), each test case verifies one acceptance criterion, and each test case carries a `testPointer` (`filePath::testName`) naming the executable test behind it. The pointer is not decoration: `rcf coverage` counts a test case only when its pointer resolves to a real test in the tree. So write the tests first:
+
+```js
+// test/search.test.js
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { searchByIngredient } from '../src/search.js';
+
+test('flour search lists every matching recipe', () => {
+  assert.deepEqual(searchByIngredient('flour').map((r) => r.title), ['Pancakes', 'Soda bread']);
+});
+
+test('unknown ingredient returns an empty list', () => {
+  assert.deepEqual(searchByIngredient('dragon fruit'), []);
+});
+```
+
+Then specify the search behaviour, pointing each test case at its test:
 
 ```sh
 rcf create ts --parent US-201 --title "Ingredient search behaviour" --purpose "Verify ingredient search returns complete and safe results." --test-level integration --acs AC-201-1,AC-201-2
-rcf create tc --parent TS-001 --ac AC-201-1 --slug flour-search --description "Searching for flour lists every recipe that uses flour"
-rcf create tc --parent TS-001 --ac AC-201-2 --slug unknown-ingredient --description "Searching for dragon fruit returns an empty list"
+rcf create tc --parent TS-001 --ac AC-201-1 --slug flour-search --description "Searching for flour lists every recipe that uses flour" --test-pointer "test/search.test.js::flour search lists every matching recipe"
+rcf create tc --parent TS-001 --ac AC-201-2 --slug unknown-ingredient --description "Searching for dragon fruit returns an empty list" --test-pointer "test/search.test.js::unknown ingredient returns an empty list"
 ```
 
 ```
@@ -224,7 +241,7 @@ rcf coverage
 
 ```
 Coverage mode: shallow-any
-Requirements: 2  covered: 1  uncovered: 1
+Requirements: 2  covered: 1  covered-unresolved: 0  uncovered: 1
 
 Requirement  Covered  AC        AC covered  Test cases
 -----------  -------  --------  ----------  -------------------------
@@ -233,7 +250,9 @@ REQ-002      yes      AC-201-1  yes         TC-001-flour-search
                       AC-201-2  yes         TC-001-unknown-ingredient
 ```
 
-`--strict` is the CI-gate form: per-AC coverage, exit 4 on any gap. With REQ-001 still uncovered it prints the same table and exits 4 - wire exactly that into a pipeline when you want "nothing unspecified gets merged".
+If a pointer stops resolving - the test file moves, or the test is renamed - the requirement drops out of `covered` into its own `covered-unresolved` column, and the offending pointer is listed under the table with the reason. A test-case row on the tree never counts as coverage on its own; the test behind it has to exist.
+
+`--strict` is the CI-gate form: per-AC coverage, exit 4 on any gap - and an unresolved pointer is a gap. With REQ-001 still uncovered it prints the same table and exits 4 - wire exactly that into a pipeline when you want "nothing unspecified gets merged".
 
 **What does this document connect to?**
 
@@ -317,41 +336,48 @@ rcf coverage --format json
   "totals": {
     "requirements": 2,
     "covered": 1,
+    "coveredUnresolved": 0,
     "uncovered": 1
   },
   "requirements": [
     {
       "id": "REQ-001",
       "covered": false,
+      "coverageClass": "uncovered",
       "acs": [
         {
           "id": "AC-101-1",
           "covered": false,
-          "testCases": []
+          "testCases": [],
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-002",
       "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-201-1",
           "covered": true,
           "testCases": [
             "TC-001-flour-search"
-          ]
+          ],
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-201-2",
           "covered": true,
           "testCases": [
             "TC-001-unknown-ingredient"
-          ]
+          ],
+          "unresolvedTestCases": []
         }
       ]
     }
-  ]
+  ],
+  "unresolvedTestPointers": []
 }
 ```
 

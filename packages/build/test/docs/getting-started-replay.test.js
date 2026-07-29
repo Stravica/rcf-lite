@@ -17,7 +17,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { access, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,8 +61,8 @@ const SEQUENCE = {
   s6Coverage: ['coverage'],
   s6TestLayer: [
     ['create', 'ts', '--parent', 'US-201', '--title', 'Ingredient search behaviour', '--purpose', 'Verify ingredient search returns complete and safe results.', '--test-level', 'integration', '--acs', 'AC-201-1,AC-201-2'],
-    ['create', 'tc', '--parent', 'TS-001', '--ac', 'AC-201-1', '--slug', 'flour-search', '--description', 'Searching for flour lists every recipe that uses flour'],
-    ['create', 'tc', '--parent', 'TS-001', '--ac', 'AC-201-2', '--slug', 'unknown-ingredient', '--description', 'Searching for dragon fruit returns an empty list'],
+    ['create', 'tc', '--parent', 'TS-001', '--ac', 'AC-201-1', '--slug', 'flour-search', '--description', 'Searching for flour lists every recipe that uses flour', '--test-pointer', 'test/search.test.js::flour search lists every matching recipe'],
+    ['create', 'tc', '--parent', 'TS-001', '--ac', 'AC-201-2', '--slug', 'unknown-ingredient', '--description', 'Searching for dragon fruit returns an empty list', '--test-pointer', 'test/search.test.js::unknown ingredient returns an empty list'],
   ],
   s6CoverageStrict: ['coverage', '--strict'],
   s6TraceBoth: ['trace', 'US-201', '--both'],
@@ -147,10 +147,21 @@ test('s5: a hand-broken reference fails validate with exit 3, restore is clean',
 test('s6: coverage reports zero covered before the test layer exists', async () => {
   const { code, stdout } = await rcf(SEQUENCE.s6Coverage);
   assert.equal(code, 0);
-  assert.match(stdout, /Requirements: 2 {2}covered: 0 {2}uncovered: 2/);
+  assert.match(stdout, /Requirements: 2 {2}covered: 0 {2}covered-unresolved: 0 {2}uncovered: 2/);
 });
 
-test('s6: the TS/TC layer is created (exit 0 each)', async () => {
+test('s6: the TS/TC layer is created (exit 0 each), with the doc\'s test file written first', async () => {
+  // The doc writes test/search.test.js before pointing test cases at it
+  // (w-2026-07-28-005: coverage only counts a TC whose pointer resolves).
+  await mkdir(join(project, 'test'), { recursive: true });
+  await writeFile(join(project, 'test', 'search.test.js'), [
+    "import { test } from 'node:test';",
+    "import assert from 'node:assert/strict';",
+    '',
+    "test('flour search lists every matching recipe', () => {});",
+    "test('unknown ingredient returns an empty list', () => {});",
+    '',
+  ].join('\n'), 'utf8');
   for (const args of SEQUENCE.s6TestLayer) {
     const { code, stderr } = await rcf(args);
     assert.equal(code, 0, `rcf ${args.join(' ')} failed: ${stderr}`);
@@ -160,8 +171,29 @@ test('s6: the TS/TC layer is created (exit 0 each)', async () => {
 test('s6: coverage now reports REQ-002 covered', async () => {
   const { code, stdout } = await rcf(SEQUENCE.s6Coverage);
   assert.equal(code, 0);
-  assert.match(stdout, /Requirements: 2 {2}covered: 1 {2}uncovered: 1/);
+  assert.match(stdout, /Requirements: 2 {2}covered: 1 {2}covered-unresolved: 0 {2}uncovered: 1/);
   assert.match(stdout, /TC-001-flour-search/);
+});
+
+test('s6: a renamed test surfaces as unresolved per AC, and strict demotes the REQ to covered-unresolved', async () => {
+  const testPath = join(project, 'test', 'search.test.js');
+  const original = await readFile(testPath, 'utf8');
+  await writeFile(testPath, original.replace('flour search lists every matching recipe', 'flour search finds recipes'));
+  // Shallow-any: REQ-002 stays covered via its other resolving AC, but the
+  // broken pointer is named at the AC level and in the footer.
+  const shallow = await rcf(SEQUENCE.s6Coverage);
+  assert.equal(shallow.code, 0);
+  assert.match(shallow.stdout, /AC-201-1 {2}unresolved/);
+  assert.match(shallow.stdout, /TC-001-flour-search\[unresolved\]/);
+  assert.match(shallow.stdout, /test-missing/);
+  // Strict: every AC must be covered by a resolving test, so the REQ drops
+  // into the covered-unresolved column and the gate stays shut (exit 4).
+  const strict = await rcf(SEQUENCE.s6CoverageStrict);
+  assert.equal(strict.code, 4);
+  assert.match(strict.stdout, /covered-unresolved: 1/);
+  await writeFile(testPath, original);
+  const restored = await rcf(SEQUENCE.s6Coverage);
+  assert.match(restored.stdout, /covered: 1 {2}covered-unresolved: 0/);
 });
 
 test('s6: coverage --strict exits 4 while REQ-001 has a gap', async () => {
@@ -197,6 +229,7 @@ test('s6: coverage --format json is machine-readable and agrees with the table',
   const report = JSON.parse(stdout);
   assert.equal(report.totals.requirements, 2);
   assert.equal(report.totals.covered, 1);
+  assert.equal(report.totals.coveredUnresolved, 0);
 });
 
 test('s7: the queue is authored: FBS-002 depends on FBS-001 (exit 0 each)', async () => {

@@ -50,7 +50,12 @@ function testSuiteFixture(testCases) {
 }
 
 const testCase = (id, description) => ({
-  id, acId: 'AC-101-1', description, status: 'pending',
+  id,
+  acId: 'AC-101-1',
+  description,
+  status: 'pending',
+  // w-2026-07-28-005: testPointer is schema-required on every TC.
+  testPointer: 'test/example.test.js::example',
 });
 
 // ---- normalisation --------------------------------------------------------

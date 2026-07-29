@@ -220,7 +220,7 @@ rcf coverage
 
 ```
 Coverage mode: shallow-any
-Requirements: 7  covered: 0  uncovered: 7
+Requirements: 8  covered: 0  covered-unresolved: 0  uncovered: 8
 
 Requirement  Covered  AC        AC covered  Test cases
 -----------  -------  --------  ----------  ----------
@@ -232,9 +232,9 @@ REQ-001      no       AC-101-1  no          -
                       AC-102-3  no          -
 ```
 
-(The remaining five requirement blocks are elided here; run it from a clone for the full table.)
+(The remaining seven requirement blocks are elided here; run it from a clone for the full table.)
 
-Zero of seven. Coverage reads the TS/TC layer, and this tree does not have one yet: the repo's 600-plus actual tests exist as code, but no test-suite documents map them to acceptance criteria. Coverage tells you the truth about your tree, and this is ours: the gap is real, it is visible, and closing it is queued work rather than a hidden assumption. That is the behaviour you want from the referee.
+Zero of eight. Coverage reads the TS/TC layer, and this tree does not have one yet: the repo's 1,000-plus actual tests exist as code, but no test-suite documents map them to acceptance criteria. And a test-suite document alone would not close the gap: each test case must carry a `testPointer` that resolves to a real, named test in the tree, or it is reported as `covered-unresolved` rather than covered. Coverage tells you the truth about your tree, and this is ours: the gap is real, it is visible, and closing it is queued work rather than a hidden assumption. That is the behaviour you want from the referee.
 
 ## 8. Under the hood, briefly
 

@@ -6,7 +6,7 @@ You want to know what a Code Node is, how it keeps the spec-to-code link honest,
 
 ## 2. The problem this solves
 
-RCF's spec-side chain (PRD -> REQ -> US -> AC -> TS -> TC) is a closed graph: every id resolves to a document `rcf validate` has loaded, so a broken link is mechanically detectable. Source code sat outside that graph. A test case's `testPointer` was a free-text string the walker could not follow; nothing connected an acceptance criterion to the file that actually implements it. A path recorded as a plain string - the sidecar approach - gives you a pointer with no graph node behind it, so a rename or a deletion leaves a dangling reference that nothing checks until something downstream fails.
+RCF's spec-side chain (PRD -> REQ -> US -> AC -> TS -> TC) is a closed graph: every id resolves to a document `rcf validate` has loaded, so a broken link is mechanically detectable. Source code sat outside that graph. A test case's `testPointer` was a free-text string the walker could not follow (it has since gained its own working-tree check on the test axis: `rcf coverage` counts a TC only when its pointer resolves to a real test); nothing connected an acceptance criterion to the file that actually implements it. A path recorded as a plain string - the sidecar approach - gives you a pointer with no graph node behind it, so a rename or a deletion leaves a dangling reference that nothing checks until something downstream fails.
 
 **Code Nodes make source code a first-class node in the same graph.** The same `rcf validate` that guards the spec graph now also guarantees every code link resolves against the working tree. One graph, one walker, one query surface - extended, not duplicated.
 

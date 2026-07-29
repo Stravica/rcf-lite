@@ -96,6 +96,31 @@ test('coverage mermaid assigns the tc class to test-case nodes', () => {
   assert.doesNotMatch(out, /class TC-001-happy ac;/);
 });
 
+// w-2026-07-28-005: a TC whose pointer does not resolve additionally
+// carries the broken class (dashed red stroke) so stub coverage is
+// visibly different from real coverage in the diagram.
+test('coverage mermaid marks unresolved test cases with the broken class', () => {
+  const result = {
+    ok: false, strict: false,
+    totals: { requirements: 1, covered: 0, coveredUnresolved: 1, uncovered: 0 },
+    requirements: [{
+      id: 'REQ-001', covered: false, coverageClass: 'covered-unresolved',
+      acs: [{
+        id: 'AC-001-1', covered: false,
+        testCases: ['TC-001-real', 'TC-001-stub'],
+        unresolvedTestCases: ['TC-001-stub'],
+      }],
+    }],
+    unresolvedTestPointers: [
+      { tsId: 'TS-001', tcId: 'TC-001-stub', testPointer: 'test/gone.test.js::stub', reason: 'file-missing' },
+    ],
+  };
+  const out = formatMermaid(result, 'coverage');
+  assert.match(out, /class TC-001-stub broken;/);
+  assert.match(out, /class TC-001-stub tc;/);
+  assert.doesNotMatch(out, /class TC-001-real broken;/);
+});
+
 test('impact mermaid does not emit the actionNeeded column (intent surfaces via node classes)', () => {
   const result = {
     pivot: 'AC-201-1', found: true,
