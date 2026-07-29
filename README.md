@@ -1,7 +1,7 @@
 # RCF Lite
 
 [![ci](https://github.com/Stravica/rcf-lite/actions/workflows/ci.yml/badge.svg)](https://github.com/Stravica/rcf-lite/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./packages/build/LICENSE)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
 [![node](https://img.shields.io/badge/node-%3E%3D24-brightgreen)](https://nodejs.org)
 
 Tooling for the [Requirements Confidence Framework (RCF)](https://stravica.ai/rcf-methodology): a method for keeping AI-built software honest.
@@ -69,4 +69,4 @@ Not accepting external code contributions at this stage of the project. Bug repo
 
 ## License
 
-Apache 2.0. See the LICENSE file in each package, for example [packages/build/LICENSE](packages/build/LICENSE).
+Apache 2.0. See [LICENSE](./LICENSE). Each package also ships its own copy.
