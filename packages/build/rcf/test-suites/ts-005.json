@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-07-29T12:57:18.331Z",
+  "updatedAt": "2026-07-29T12:57:18.527Z",
+  "purpose": "Verify the view is produced fresh from the on-disk tree on every regeneration and carries no cached prior state.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-203-1",
+    "AC-203-2"
+  ],
+  "id": "TS-005",
+  "usId": "US-203",
+  "title": "View freshness",
+  "testCases": [
+    {
+      "id": "TC-005-edit-present-after-regenerate",
+      "acId": "AC-203-1",
+      "description": "an on-disk edit is present in the regenerated view output",
+      "status": "pending",
+      "testPointer": "test/view/integration.test.js::renderModelToPage picks up manifest changes between calls (re-walk is fresh)"
+    },
+    {
+      "id": "TC-005-no-cached-prior-state",
+      "acId": "AC-203-2",
+      "description": "regeneration re-walks the tree fresh and drops all prior-state content",
+      "status": "pending",
+      "testPointer": "test/view/integration.test.js::renderModelToPage picks up manifest changes between calls (re-walk is fresh)"
+    }
+  ],
+  "status": "draft"
+}

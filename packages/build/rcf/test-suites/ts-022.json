@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-07-29T12:57:24.164Z",
+  "updatedAt": "2026-07-29T12:57:24.579Z",
+  "purpose": "Verify the guidance runs a plain-language hosting walkthrough for unsure owners, isolates human-only steps honestly, and covers account configuration.",
+  "testLevel": "contract",
+  "acIds": [
+    "AC-803-1",
+    "AC-803-2",
+    "AC-803-3",
+    "AC-803-4"
+  ],
+  "id": "TS-022",
+  "usId": "US-803",
+  "title": "Hosting-choice walkthrough",
+  "testCases": [
+    {
+      "id": "TC-022-walkthrough-not-silent-choice",
+      "acId": "AC-803-1",
+      "description": "an unsure owner triggers the hosting-choice walkthrough, never a silent choice",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-803-1: when the owner does not know, run a walkthrough rather than choosing silently"
+    },
+    {
+      "id": "TC-022-plain-language-options",
+      "acId": "AC-803-2",
+      "description": "the walkthrough explains options in plain language with no unexplained jargon",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-803-2: the walkthrough explains options in plain language with no unexplained jargon"
+    },
+    {
+      "id": "TC-022-human-steps-named-honestly",
+      "acId": "AC-803-3",
+      "description": "account-holder-only steps are isolated and named honestly, never performed silently or pretended",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-803-3: human-only steps are isolated and named honestly, not performed or pretended"
+    },
+    {
+      "id": "TC-022-covers-account-configuration",
+      "acId": "AC-803-4",
+      "description": "the walkthrough covers accounts, tokens and CLI setup beyond naming a provider",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-803-4: the walkthrough covers configuring the account, not only naming a provider"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-07-29T12:57:21.282Z",
+  "updatedAt": "2026-07-29T12:57:21.580Z",
+  "purpose": "Verify marking advances execution status through the validating writer, touches only status fields, and refuses unknown ids.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-503-1",
+    "AC-503-2",
+    "AC-503-3"
+  ],
+  "id": "TS-015",
+  "usId": "US-503",
+  "title": "Mark a slice done",
+  "testCases": [
+    {
+      "id": "TC-015-mark-advances-status",
+      "acId": "AC-503-1",
+      "description": "mark advances executionStatus on disk with updatedAt bumped through the validating writer",
+      "status": "pending",
+      "testPointer": "test/cli/build.test.js::--mark writes through updateDocument: status changed, updatedAt bumped"
+    },
+    {
+      "id": "TC-015-mark-unknown-id-not-found",
+      "acId": "AC-503-2",
+      "description": "mark on an unknown FBS id returns a usage error from the pure planner",
+      "status": "pending",
+      "testPointer": "test/build/mark.test.js::unknown id returns a usage error"
+    },
+    {
+      "id": "TC-015-mark-touches-status-only",
+      "acId": "AC-503-3",
+      "description": "the mark write changes only executionStatus and updatedAt, with createdAt untouched",
+      "status": "pending",
+      "testPointer": "test/cli/build.test.js::--mark writes through updateDocument: status changed, updatedAt bumped"
+    }
+  ],
+  "status": "draft"
+}

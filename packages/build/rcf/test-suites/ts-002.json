@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-07-29T12:57:17.443Z",
+  "updatedAt": "2026-07-29T12:57:17.739Z",
+  "purpose": "Verify loading reads the manifest roots, resolves every child by walking parent id lists, and reports missing, unparseable or broken documents as structured errors without crashing.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-102-1",
+    "AC-102-2",
+    "AC-102-3"
+  ],
+  "id": "TS-002",
+  "usId": "US-102",
+  "title": "Tree load and walk",
+  "testCases": [
+    {
+      "id": "TC-002-walk-loads-every-document",
+      "acId": "AC-102-1",
+      "description": "walkTree reads the manifest roots and loads every document on the live tree with zero errors",
+      "status": "pending",
+      "testPointer": "test/store/walker.test.js::walkTree on the live tree loads every document and returns zero errors"
+    },
+    {
+      "id": "TC-002-parse-failure-structured-no-crash",
+      "acId": "AC-102-2",
+      "description": "an unparseable document surfaces as a structured parseFailure naming the document id while the walk continues",
+      "status": "pending",
+      "testPointer": "test/store/walker.test.js::walkTree reports parseFailure without crashing the walk"
+    },
+    {
+      "id": "TC-002-broken-reference-reported",
+      "acId": "AC-102-3",
+      "description": "a broken prdId reference surfaces as a brokenReference error naming document, field and file",
+      "status": "pending",
+      "testPointer": "test/store/walker.test.js::walkTree reports a REQ with a broken prdId as brokenReference (D7 step 5, D8)"
+    }
+  ],
+  "status": "draft"
+}

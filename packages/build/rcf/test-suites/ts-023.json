@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-07-29T12:57:24.682Z",
+  "updatedAt": "2026-07-29T12:57:25.085Z",
+  "purpose": "Verify the guidance requires every verification claim to name its runtime, forbids implied deploy-runtime verification, and ships a labelled example.",
+  "testLevel": "contract",
+  "acIds": [
+    "AC-804-1",
+    "AC-804-2",
+    "AC-804-3",
+    "AC-804-4"
+  ],
+  "id": "TS-023",
+  "usId": "US-804",
+  "title": "Runtime-honest verification claims",
+  "testCases": [
+    {
+      "id": "TC-023-claims-name-runtime",
+      "acId": "AC-804-1",
+      "description": "every verification claim names the runtime it was checked against",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-804-1/2: every verification claim names its runtime and never implies an unexercised deployed runtime"
+    },
+    {
+      "id": "TC-023-no-implied-deploy-verification",
+      "acId": "AC-804-2",
+      "description": "no claim may state or imply deploy-runtime verification that did not happen",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-804-1/2: every verification claim names its runtime and never implies an unexercised deployed runtime"
+    },
+    {
+      "id": "TC-023-pr-section-runtime-label",
+      "acId": "AC-804-3",
+      "description": "the PR verification section requires the runtime label on every claim",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-804-3: the PR-authoring guidance requires the runtime label in the verification section"
+    },
+    {
+      "id": "TC-023-labelled-claim-example",
+      "acId": "AC-804-4",
+      "description": "an explicit labelled example names wrangler dev localhost as not the deployed runtime",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-804-4: an explicit labelled example exists, with a non-Cloudflare example alongside the wrangler-dev one"
+    }
+  ],
+  "status": "draft"
+}

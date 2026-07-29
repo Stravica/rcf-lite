@@ -1,8 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { dirname, resolve } from 'node:path';
+import { mkdtemp } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 import { walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { buildTreeModel, listAllDocumentIds } from '../../src/view/tree-model.js';
 
@@ -96,7 +99,12 @@ test('buildTreeModel passes the walker-computed dependentsByFbsId map through (D
 });
 
 test('buildTreeModel exposes empty tsByAcId / tcsByAcId when no TS files exist', async () => {
-  const result = await walkTree({ projectRoot: repoRoot });
+  // The live dogfood tree now carries a populated test axis
+  // (w-2026-07-28-005), so the no-TS shape is asserted against a fresh
+  // scaffold, whose test-suites/ directory is empty by construction.
+  const root = await mkdtemp(join(tmpdir(), 'rcf-tree-model-no-ts-'));
+  await initProject({ projectRoot: root });
+  const result = await walkTree({ projectRoot: root });
   const model = buildTreeModel(result);
   assert.equal(model.tsByAcId.size, 0);
   assert.equal(model.tcsByAcId.size, 0);

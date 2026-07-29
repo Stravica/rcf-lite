@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-07-29T12:57:20.391Z",
+  "updatedAt": "2026-07-29T12:57:20.490Z",
+  "purpose": "Verify impact fan-out from architecture documents. AC-403-1 (FBS slots from a REQ pivot) and AC-403-3 (empty impact set) lack direct assertions and are pending (see test-suites/PENDING.md).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-403-2"
+  ],
+  "id": "TS-012",
+  "usId": "US-403",
+  "title": "Impact analysis",
+  "testCases": [
+    {
+      "id": "TC-012-adr-impact-reaches-fbs",
+      "acId": "AC-403-2",
+      "description": "impact from an ADR returns the FBS items referencing it as context",
+      "status": "pending",
+      "testPointer": "test/query/impact.test.js::impact from ADR: ancestor TAD; descendants include FBS via contextRequirements.adrIds"
+    }
+  ],
+  "status": "draft"
+}

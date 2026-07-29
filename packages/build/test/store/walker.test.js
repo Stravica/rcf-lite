@@ -25,7 +25,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   assert.equal(tree.tacs.length, 8);
   assert.equal(tree.adrs.length, 9);
   assert.equal(tree.fbsItems.length, 14);
-  assert.equal(tree.testSuites.length, 0);
+  // w-2026-07-28-005 step 4: the test axis is populated - one TS per US.
+  assert.equal(tree.testSuites.length, 24);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');

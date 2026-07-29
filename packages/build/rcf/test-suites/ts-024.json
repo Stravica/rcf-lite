@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-07-29T12:57:25.185Z",
+  "updatedAt": "2026-07-29T12:57:25.588Z",
+  "purpose": "Verify the guidance describes a fresh-context self-review dispatch that drives the running app against the ACs, names the defect classes, and stays subordinate to the finalise gate.",
+  "testLevel": "contract",
+  "acIds": [
+    "AC-805-1",
+    "AC-805-2",
+    "AC-805-3",
+    "AC-805-4"
+  ],
+  "id": "TS-024",
+  "usId": "US-805",
+  "title": "Interim self-review guidance",
+  "testCases": [
+    {
+      "id": "TC-024-periodic-fresh-context-review",
+      "acId": "AC-805-1",
+      "description": "a periodic and end-of-build fresh-context self-review dispatch is described",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-805-1: a periodic and end-of-build fresh-context self-review dispatch is described"
+    },
+    {
+      "id": "TC-024-reviewer-drives-the-app",
+      "acId": "AC-805-2",
+      "description": "the reviewer drives the running app against the ACs rather than reading code",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-805-2: the reviewer drives the running app against the ACs rather than reading the code"
+    },
+    {
+      "id": "TC-024-names-defect-classes",
+      "acId": "AC-805-3",
+      "description": "the review names the five target defect classes",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-805-3: the review names the target defect classes"
+    },
+    {
+      "id": "TC-024-in-loop-not-the-gate",
+      "acId": "AC-805-4",
+      "description": "the self-review is scoped as an in-loop check naming rcf finalise as the gate",
+      "status": "pending",
+      "testPointer": "test/guidance/tier1-hardening.test.js::AC-805-4: the self-review is honestly scoped as an in-loop check subordinate to the independent gate"
+    }
+  ],
+  "status": "draft"
+}

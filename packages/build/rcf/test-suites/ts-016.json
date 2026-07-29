@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-07-29T12:57:21.678Z",
+  "updatedAt": "2026-07-29T12:57:21.875Z",
+  "purpose": "Verify MCP tool listing and CLI parity for queries. AC-601-3 is pending: no test asserts the absence of a network listener (see test-suites/PENDING.md).",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-601-1",
+    "AC-601-2"
+  ],
+  "id": "TS-016",
+  "usId": "US-601",
+  "title": "Query and view over MCP",
+  "testCases": [
+    {
+      "id": "TC-016-tools-list-structured-schemas",
+      "acId": "AC-601-1",
+      "description": "an MCP client listing tools sees all eleven rcf tools with input and output schemas",
+      "status": "pending",
+      "testPointer": "test/mcp/stdio.e2e.test.js::e2e: tools/list returns all eleven tools with schemas"
+    },
+    {
+      "id": "TC-016-mcp-coverage-cli-parity",
+      "acId": "AC-601-2",
+      "description": "rcf_coverage over MCP deep-equals the committed CLI coverage golden",
+      "status": "pending",
+      "testPointer": "test/mcp/parity.test.js::parity: rcf_coverage structuredContent deep-equals the committed coverage golden"
+    }
+  ],
+  "status": "draft"
+}

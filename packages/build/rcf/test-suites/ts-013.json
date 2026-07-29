@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-07-29T12:57:20.589Z",
+  "updatedAt": "2026-07-29T12:57:20.885Z",
+  "purpose": "Verify bundle assembly walks ACs to their stories, inlines architectural context, and renders as a single sectioned markdown document.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-501-1",
+    "AC-501-2",
+    "AC-501-3"
+  ],
+  "id": "TS-013",
+  "usId": "US-501",
+  "title": "Build prompt assembly",
+  "testCases": [
+    {
+      "id": "TC-013-bundle-ac-gwt-ancestry",
+      "acId": "AC-501-1",
+      "description": "each bundled AC carries its given, when and then plus usId and reqId ancestry",
+      "status": "pending",
+      "testPointer": "test/build/bundle.test.js::each AC carries usId + reqId ancestry and its own fields"
+    },
+    {
+      "id": "TC-013-bundle-inlines-tacs-adrs",
+      "acId": "AC-501-2",
+      "description": "referenced TACs and ADRs are inlined into the bundle context in authored order",
+      "status": "pending",
+      "testPointer": "test/build/bundle.test.js::tacIds / adrIds inline the referenced documents in authored order"
+    },
+    {
+      "id": "TC-013-bundle-single-markdown-document",
+      "acId": "AC-501-3",
+      "description": "the markdown bundle renders the seven sections naming the work, ACs and architectural context",
+      "status": "pending",
+      "testPointer": "test/build/formatters/markdown.test.js::bundle renders the seven D3 sections as headings, in order"
+    }
+  ],
+  "status": "draft"
+}

@@ -107,14 +107,14 @@ Referee:
 ```
 $ rcf coverage --strict
 Coverage mode: strict (per-AC)
-Requirements: 8  covered: 0  covered-unresolved: 0  uncovered: 8
+Requirements: 8  covered: 2  covered-unresolved: 0  uncovered: 6
 
 Requirement  Covered  AC        AC covered  Test cases
------------  -------  --------  ----------  ----------
-REQ-001      no       AC-101-1  no          -
+-----------  -------  --------  ----------  ----------------------------------------
+REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
 ```
 
-(Captured against this repo's tree, first gap rows shown; exit 4. This tree's own test axis is not yet authored - eight requirements, none covered - and the referee says exactly that instead of something more comfortable. That is the tool doing its job: an unfinished test layer reads as zero, not as progress.) Strict mode is per-AC: every AC in scope needs a TC whose pointer resolves, and any gap exits 4. The `covered-unresolved` column is the third state: TC rows exist but at least one pointer does not resolve to a real test - a stub or a stale pointer - and it fails the gate exactly as uncovered does, with the offending pointers listed under the table. Read the table by AC id: this stage ends when your in-scope ACs show `AC covered: yes` with test cases listed. Gaps elsewhere in the tree may legitimately remain and will keep the tree-wide command at exit 4; narrow the verdict with a scope id (`rcf coverage <scope-id> --strict`, PRD / REQ / US ids accepted) to read the subtree you are working in.
+(Captured against this repo's tree, first rows shown; exit 4. This tree binds 62 of its 76 ACs to named existing tests via resolving `testPointer`s; the 14 ACs still without a genuine outcome-asserting test are registered per-AC in `rcf/test-suites/PENDING.md`, and strict mode keeps exiting 4 until every one is closed - the referee says exactly that instead of something more comfortable. That is the tool doing its job: an unfinished test layer reads as unfinished, not as progress.) Strict mode is per-AC: every AC in scope needs a TC whose pointer resolves, and any gap exits 4. The `covered-unresolved` column is the third state: TC rows exist but at least one pointer does not resolve to a real test - a stub or a stale pointer - and it fails the gate exactly as uncovered does, with the offending pointers listed under the table. Read the table by AC id: this stage ends when your in-scope ACs show `AC covered: yes` with test cases listed. Gaps elsewhere in the tree may legitimately remain and will keep the tree-wide command at exit 4; narrow the verdict with a scope id (`rcf coverage <scope-id> --strict`, PRD / REQ / US ids accepted) to read the subtree you are working in.
 
 Failure modes:
 

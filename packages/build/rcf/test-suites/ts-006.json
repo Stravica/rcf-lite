@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-07-29T12:57:18.625Z",
+  "updatedAt": "2026-07-29T12:57:18.724Z",
+  "purpose": "Verify reading behaviour for unknown ids. AC-301-1 and AC-301-3 are pending: the read verb does not report per-document validity today (see test-suites/PENDING.md).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-301-2"
+  ],
+  "id": "TS-006",
+  "usId": "US-301",
+  "title": "Read verb",
+  "testCases": [
+    {
+      "id": "TC-006-read-unknown-id-not-found",
+      "acId": "AC-301-2",
+      "description": "reading an unknown id exits 2 with a structured not-found usage error",
+      "status": "pending",
+      "testPointer": "test/cli/read.test.js::rcf read UNKNOWN-999 exits 2 (usage, unknown id)"
+    }
+  ],
+  "status": "draft"
+}

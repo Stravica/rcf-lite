@@ -24,6 +24,11 @@
       "depth": 1
     },
     {
+      "id": "TS-003",
+      "kind": "testSuite",
+      "depth": 2
+    },
+    {
       "id": "AC-201-1",
       "kind": "ac",
       "depth": 2
@@ -36,6 +41,11 @@
     {
       "id": "AC-201-3",
       "kind": "ac",
+      "depth": 2
+    },
+    {
+      "id": "TS-004",
+      "kind": "testSuite",
       "depth": 2
     },
     {
@@ -54,6 +64,11 @@
       "depth": 2
     },
     {
+      "id": "TS-005",
+      "kind": "testSuite",
+      "depth": 2
+    },
+    {
       "id": "AC-203-1",
       "kind": "ac",
       "depth": 2
@@ -64,13 +79,38 @@
       "depth": 2
     },
     {
+      "id": "TC-003-diagram-emitted-as-source",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
       "id": "FBS-003",
       "kind": "fbs",
       "depth": 3
     },
     {
+      "id": "TC-004-curated-fields-not-raw-json",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
+      "id": "TC-004-doc-links-navigate-to-sections",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
       "id": "FBS-004",
       "kind": "fbs",
+      "depth": 3
+    },
+    {
+      "id": "TC-005-edit-present-after-regenerate",
+      "kind": "tc",
+      "depth": 3
+    },
+    {
+      "id": "TC-005-no-cached-prior-state",
+      "kind": "tc",
       "depth": 3
     }
   ],
@@ -92,6 +132,11 @@
     },
     {
       "from": "US-201",
+      "to": "TS-003",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-201",
       "to": "AC-201-1",
       "kind": "parentChild"
     },
@@ -103,6 +148,11 @@
     {
       "from": "US-201",
       "to": "AC-201-3",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-202",
+      "to": "TS-004",
       "kind": "parentChild"
     },
     {
@@ -122,12 +172,22 @@
     },
     {
       "from": "US-203",
+      "to": "TS-005",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-203",
       "to": "AC-203-1",
       "kind": "parentChild"
     },
     {
       "from": "US-203",
       "to": "AC-203-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-003",
+      "to": "TC-003-diagram-emitted-as-source",
       "kind": "parentChild"
     },
     {
@@ -142,12 +202,42 @@
     },
     {
       "from": "AC-201-3",
+      "to": "TS-003",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-201-3",
+      "to": "TC-003-diagram-emitted-as-source",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-201-3",
       "to": "FBS-003",
       "kind": "crossLink"
     },
     {
+      "from": "TS-004",
+      "to": "TC-004-curated-fields-not-raw-json",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-doc-links-navigate-to-sections",
+      "kind": "parentChild"
+    },
+    {
       "from": "AC-202-1",
       "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-2",
+      "to": "TS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-2",
+      "to": "TC-004-curated-fields-not-raw-json",
       "kind": "crossLink"
     },
     {
@@ -157,12 +247,52 @@
     },
     {
       "from": "AC-202-3",
+      "to": "TS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-3",
+      "to": "TC-004-doc-links-navigate-to-sections",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-3",
       "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TS-005",
+      "to": "TC-005-edit-present-after-regenerate",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-005",
+      "to": "TC-005-no-cached-prior-state",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-203-1",
+      "to": "TS-005",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-203-1",
+      "to": "TC-005-edit-present-after-regenerate",
       "kind": "crossLink"
     },
     {
       "from": "AC-203-1",
       "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-203-2",
+      "to": "TS-005",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-203-2",
+      "to": "TC-005-no-cached-prior-state",
       "kind": "crossLink"
     },
     {

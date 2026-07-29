@@ -5356,7 +5356,1460 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
-
+<h3 class="group-heading">Test suites</h3><details class="doc-details doc-ts-wrap" data-doc-id="TS-001">
+  <summary><span class="summary-label">TS-001 - Project initialisation on disk</span><span class="status draft">draft</span></summary>
+  <article id="TS-001" class="doc doc-ts">
+  <h3>TS-001 - Project initialisation on disk</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-101">US-101</a></p>
+  <p><strong>Purpose:</strong> Verify initialisation creates the canonical rcf structure, refuses to overwrite an existing project, and yields a tree walkable from the manifest roots.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-101-1">AC-101-1</a>, <a href="#AC-101-2">AC-101-2</a>, <a href="#AC-101-3">AC-101-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-001-init-clean-tree-roots">
+  <p><strong>TC-001-init-clean-tree-roots</strong> - covers <a href="#AC-101-1">AC-101-1</a> <span class="status pending">pending</span></p>
+  <p>initProject followed by walkTree yields a clean tree whose manifest declares the PRD, TAD and BS roots</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)</code></p>
+</div>
+<div class="tc" id="TC-001-init-refuses-overwrite">
+  <p><strong>TC-001-init-refuses-overwrite</strong> - covers <a href="#AC-101-2">AC-101-2</a> <span class="status pending">pending</span></p>
+  <p>a second initProject on the same directory refuses with a usage error reporting the project already exists</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/init.test.js::initProject refuses to overwrite an existing manifest (AC-101-2)</code></p>
+</div>
+<div class="tc" id="TC-001-children-discoverable-from-roots">
+  <p><strong>TC-001-children-discoverable-from-roots</strong> - covers <a href="#AC-101-3">AC-101-3</a> <span class="status pending">pending</span></p>
+  <p>every scaffolded child document is resolved by walking parent id lists from the manifest roots</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:17.054Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:17.346Z&quot;,
+  &quot;purpose&quot;: &quot;Verify initialisation creates the canonical rcf structure, refuses to overwrite an existing project, and yields a tree walkable from the manifest roots.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-101-1&quot;,
+    &quot;AC-101-2&quot;,
+    &quot;AC-101-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-001&quot;,
+  &quot;usId&quot;: &quot;US-101&quot;,
+  &quot;title&quot;: &quot;Project initialisation on disk&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-001-init-clean-tree-roots&quot;,
+      &quot;acId&quot;: &quot;AC-101-1&quot;,
+      &quot;description&quot;: &quot;initProject followed by walkTree yields a clean tree whose manifest declares the PRD, TAD and BS roots&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-001-init-refuses-overwrite&quot;,
+      &quot;acId&quot;: &quot;AC-101-2&quot;,
+      &quot;description&quot;: &quot;a second initProject on the same directory refuses with a usage error reporting the project already exists&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/init.test.js::initProject refuses to overwrite an existing manifest (AC-101-2)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-001-children-discoverable-from-roots&quot;,
+      &quot;acId&quot;: &quot;AC-101-3&quot;,
+      &quot;description&quot;: &quot;every scaffolded child document is resolved by walking parent id lists from the manifest roots&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-002">
+  <summary><span class="summary-label">TS-002 - Tree load and walk</span><span class="status draft">draft</span></summary>
+  <article id="TS-002" class="doc doc-ts">
+  <h3>TS-002 - Tree load and walk</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-102">US-102</a></p>
+  <p><strong>Purpose:</strong> Verify loading reads the manifest roots, resolves every child by walking parent id lists, and reports missing, unparseable or broken documents as structured errors without crashing.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-102-1">AC-102-1</a>, <a href="#AC-102-2">AC-102-2</a>, <a href="#AC-102-3">AC-102-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-002-walk-loads-every-document">
+  <p><strong>TC-002-walk-loads-every-document</strong> - covers <a href="#AC-102-1">AC-102-1</a> <span class="status pending">pending</span></p>
+  <p>walkTree reads the manifest roots and loads every document on the live tree with zero errors</p>
+  <p><em>Test pointer:</em> <code>test/store/walker.test.js::walkTree on the live tree loads every document and returns zero errors</code></p>
+</div>
+<div class="tc" id="TC-002-parse-failure-structured-no-crash">
+  <p><strong>TC-002-parse-failure-structured-no-crash</strong> - covers <a href="#AC-102-2">AC-102-2</a> <span class="status pending">pending</span></p>
+  <p>an unparseable document surfaces as a structured parseFailure naming the document id while the walk continues</p>
+  <p><em>Test pointer:</em> <code>test/store/walker.test.js::walkTree reports parseFailure without crashing the walk</code></p>
+</div>
+<div class="tc" id="TC-002-broken-reference-reported">
+  <p><strong>TC-002-broken-reference-reported</strong> - covers <a href="#AC-102-3">AC-102-3</a> <span class="status pending">pending</span></p>
+  <p>a broken prdId reference surfaces as a brokenReference error naming document, field and file</p>
+  <p><em>Test pointer:</em> <code>test/store/walker.test.js::walkTree reports a REQ with a broken prdId as brokenReference (D7 step 5, D8)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:17.443Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:17.739Z&quot;,
+  &quot;purpose&quot;: &quot;Verify loading reads the manifest roots, resolves every child by walking parent id lists, and reports missing, unparseable or broken documents as structured errors without crashing.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-102-1&quot;,
+    &quot;AC-102-2&quot;,
+    &quot;AC-102-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-002&quot;,
+  &quot;usId&quot;: &quot;US-102&quot;,
+  &quot;title&quot;: &quot;Tree load and walk&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-002-walk-loads-every-document&quot;,
+      &quot;acId&quot;: &quot;AC-102-1&quot;,
+      &quot;description&quot;: &quot;walkTree reads the manifest roots and loads every document on the live tree with zero errors&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/store/walker.test.js::walkTree on the live tree loads every document and returns zero errors&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-002-parse-failure-structured-no-crash&quot;,
+      &quot;acId&quot;: &quot;AC-102-2&quot;,
+      &quot;description&quot;: &quot;an unparseable document surfaces as a structured parseFailure naming the document id while the walk continues&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/store/walker.test.js::walkTree reports parseFailure without crashing the walk&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-002-broken-reference-reported&quot;,
+      &quot;acId&quot;: &quot;AC-102-3&quot;,
+      &quot;description&quot;: &quot;a broken prdId reference surfaces as a brokenReference error naming document, field and file&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/store/walker.test.js::walkTree reports a REQ with a broken prdId as brokenReference (D7 step 5, D8)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-003">
+  <summary><span class="summary-label">TS-003 - Mermaid diagram generation</span><span class="status draft">draft</span></summary>
+  <article id="TS-003" class="doc doc-ts">
+  <h3>TS-003 - Mermaid diagram generation</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-201">US-201</a></p>
+  <p><strong>Purpose:</strong> Verify the tree renders to mermaid diagram source. AC-201-1 and AC-201-2 are pending: no existing test asserts PRD plus architecture documents in the diagram, nor visible broken-link marking (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-201-3">AC-201-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-003-diagram-emitted-as-source">
+  <p><strong>TC-003-diagram-emitted-as-source</strong> - covers <a href="#AC-201-3">AC-201-3</a> <span class="status pending">pending</span></p>
+  <p>the requirement subdiagram is emitted as mermaid flowchart source</p>
+  <p><em>Test pointer:</em> <code>test/view/mermaid-diagram.test.js::requirementSubdiagram uses flowchart LR orientation</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:17.843Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:17.941Z&quot;,
+  &quot;purpose&quot;: &quot;Verify the tree renders to mermaid diagram source. AC-201-1 and AC-201-2 are pending: no existing test asserts PRD plus architecture documents in the diagram, nor visible broken-link marking (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-201-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-003&quot;,
+  &quot;usId&quot;: &quot;US-201&quot;,
+  &quot;title&quot;: &quot;Mermaid diagram generation&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-003-diagram-emitted-as-source&quot;,
+      &quot;acId&quot;: &quot;AC-201-3&quot;,
+      &quot;description&quot;: &quot;the requirement subdiagram is emitted as mermaid flowchart source&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/mermaid-diagram.test.js::requirementSubdiagram uses flowchart LR orientation&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-004">
+  <summary><span class="summary-label">TS-004 - Browsable page rendering</span><span class="status draft">draft</span></summary>
+  <article id="TS-004" class="doc doc-ts">
+  <h3>TS-004 - Browsable page rendering</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-202">US-202</a></p>
+  <p><strong>Purpose:</strong> Verify documents render as readable curated fields with working inter-document links. AC-202-1 is pending: its static-files-no-server clause predates the Phase 3.8 server-only view (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-202-2">AC-202-2</a>, <a href="#AC-202-3">AC-202-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-004-curated-fields-not-raw-json">
+  <p><strong>TC-004-curated-fields-not-raw-json</strong> - covers <a href="#AC-202-2">AC-202-2</a> <span class="status pending">pending</span></p>
+  <p>renderPage renders curated key fields as readable text rather than raw JSON</p>
+  <p><em>Test pointer:</em> <code>test/view/html-page.test.js::renderPage renders curated key fields, not raw JSON (AC-202-2)</code></p>
+</div>
+<div class="tc" id="TC-004-doc-links-navigate-to-sections">
+  <p><strong>TC-004-doc-links-navigate-to-sections</strong> - covers <a href="#AC-202-3">AC-202-3</a> <span class="status pending">pending</span></p>
+  <p>document links render as anchors targeting the raw doc id section</p>
+  <p><em>Test pointer:</em> <code>test/view/doc-renderers/helpers.test.js::docLink renders an anchor to the raw id</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:18.038Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:18.234Z&quot;,
+  &quot;purpose&quot;: &quot;Verify documents render as readable curated fields with working inter-document links. AC-202-1 is pending: its static-files-no-server clause predates the Phase 3.8 server-only view (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-202-2&quot;,
+    &quot;AC-202-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-004&quot;,
+  &quot;usId&quot;: &quot;US-202&quot;,
+  &quot;title&quot;: &quot;Browsable page rendering&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-004-curated-fields-not-raw-json&quot;,
+      &quot;acId&quot;: &quot;AC-202-2&quot;,
+      &quot;description&quot;: &quot;renderPage renders curated key fields as readable text rather than raw JSON&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/html-page.test.js::renderPage renders curated key fields, not raw JSON (AC-202-2)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-004-doc-links-navigate-to-sections&quot;,
+      &quot;acId&quot;: &quot;AC-202-3&quot;,
+      &quot;description&quot;: &quot;document links render as anchors targeting the raw doc id section&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/doc-renderers/helpers.test.js::docLink renders an anchor to the raw id&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-005">
+  <summary><span class="summary-label">TS-005 - View freshness</span><span class="status draft">draft</span></summary>
+  <article id="TS-005" class="doc doc-ts">
+  <h3>TS-005 - View freshness</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-203">US-203</a></p>
+  <p><strong>Purpose:</strong> Verify the view is produced fresh from the on-disk tree on every regeneration and carries no cached prior state.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-203-1">AC-203-1</a>, <a href="#AC-203-2">AC-203-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-005-edit-present-after-regenerate">
+  <p><strong>TC-005-edit-present-after-regenerate</strong> - covers <a href="#AC-203-1">AC-203-1</a> <span class="status pending">pending</span></p>
+  <p>an on-disk edit is present in the regenerated view output</p>
+  <p><em>Test pointer:</em> <code>test/view/integration.test.js::renderModelToPage picks up manifest changes between calls (re-walk is fresh)</code></p>
+</div>
+<div class="tc" id="TC-005-no-cached-prior-state">
+  <p><strong>TC-005-no-cached-prior-state</strong> - covers <a href="#AC-203-2">AC-203-2</a> <span class="status pending">pending</span></p>
+  <p>regeneration re-walks the tree fresh and drops all prior-state content</p>
+  <p><em>Test pointer:</em> <code>test/view/integration.test.js::renderModelToPage picks up manifest changes between calls (re-walk is fresh)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:18.331Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:18.527Z&quot;,
+  &quot;purpose&quot;: &quot;Verify the view is produced fresh from the on-disk tree on every regeneration and carries no cached prior state.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-203-1&quot;,
+    &quot;AC-203-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-005&quot;,
+  &quot;usId&quot;: &quot;US-203&quot;,
+  &quot;title&quot;: &quot;View freshness&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-005-edit-present-after-regenerate&quot;,
+      &quot;acId&quot;: &quot;AC-203-1&quot;,
+      &quot;description&quot;: &quot;an on-disk edit is present in the regenerated view output&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/integration.test.js::renderModelToPage picks up manifest changes between calls (re-walk is fresh)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-005-no-cached-prior-state&quot;,
+      &quot;acId&quot;: &quot;AC-203-2&quot;,
+      &quot;description&quot;: &quot;regeneration re-walks the tree fresh and drops all prior-state content&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/view/integration.test.js::renderModelToPage picks up manifest changes between calls (re-walk is fresh)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-006">
+  <summary><span class="summary-label">TS-006 - Read verb</span><span class="status draft">draft</span></summary>
+  <article id="TS-006" class="doc doc-ts">
+  <h3>TS-006 - Read verb</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-301">US-301</a></p>
+  <p><strong>Purpose:</strong> Verify reading behaviour for unknown ids. AC-301-1 and AC-301-3 are pending: the read verb does not report per-document validity today (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-301-2">AC-301-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-006-read-unknown-id-not-found">
+  <p><strong>TC-006-read-unknown-id-not-found</strong> - covers <a href="#AC-301-2">AC-301-2</a> <span class="status pending">pending</span></p>
+  <p>reading an unknown id exits 2 with a structured not-found usage error</p>
+  <p><em>Test pointer:</em> <code>test/cli/read.test.js::rcf read UNKNOWN-999 exits 2 (usage, unknown id)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:18.625Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:18.724Z&quot;,
+  &quot;purpose&quot;: &quot;Verify reading behaviour for unknown ids. AC-301-1 and AC-301-3 are pending: the read verb does not report per-document validity today (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-301-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-006&quot;,
+  &quot;usId&quot;: &quot;US-301&quot;,
+  &quot;title&quot;: &quot;Read verb&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-006-read-unknown-id-not-found&quot;,
+      &quot;acId&quot;: &quot;AC-301-2&quot;,
+      &quot;description&quot;: &quot;reading an unknown id exits 2 with a structured not-found usage error&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/read.test.js::rcf read UNKNOWN-999 exits 2 (usage, unknown id)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-007">
+  <summary><span class="summary-label">TS-007 - Create verb safety</span><span class="status draft">draft</span></summary>
+  <article id="TS-007" class="doc doc-ts">
+  <h3>TS-007 - Create verb safety</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-302">US-302</a></p>
+  <p><strong>Purpose:</strong> Verify create refuses conflicting ids. AC-302-1 (PRD requirementIds list, removed by D2) and AC-302-3 (create-invalid-body path untested) are pending (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-302-2">AC-302-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-007-create-id-collision-refused">
+  <p><strong>TC-007-create-id-collision-refused</strong> - covers <a href="#AC-302-2">AC-302-2</a> <span class="status pending">pending</span></p>
+  <p>creating a document with a taken id is refused with a clear conflict error</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:18.823Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:18.921Z&quot;,
+  &quot;purpose&quot;: &quot;Verify create refuses conflicting ids. AC-302-1 (PRD requirementIds list, removed by D2) and AC-302-3 (create-invalid-body path untested) are pending (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-302-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-007&quot;,
+  &quot;usId&quot;: &quot;US-302&quot;,
+  &quot;title&quot;: &quot;Create verb safety&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-007-create-id-collision-refused&quot;,
+      &quot;acId&quot;: &quot;AC-302-2&quot;,
+      &quot;description&quot;: &quot;creating a document with a taken id is refused with a clear conflict error&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-008">
+  <summary><span class="summary-label">TS-008 - Update verb safety</span><span class="status draft">draft</span></summary>
+  <article id="TS-008" class="doc doc-ts">
+  <h3>TS-008 - Update verb safety</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-303">US-303</a></p>
+  <p><strong>Purpose:</strong> Verify valid updates persist with updatedAt advanced and invalidating updates are refused. AC-303-3 (update on unknown id) is pending (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-303-1">AC-303-1</a>, <a href="#AC-303-2">AC-303-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-008-valid-update-persists-updatedat">
+  <p><strong>TC-008-valid-update-persists-updatedat</strong> - covers <a href="#AC-303-1">AC-303-1</a> <span class="status pending">pending</span></p>
+  <p>a valid update persists the change and advances updatedAt on disk</p>
+  <p><em>Test pointer:</em> <code>test/cli/update.test.js::rcf update REQ-001 --set title=X changes the title and bumps updatedAt</code></p>
+</div>
+<div class="tc" id="TC-008-invalid-update-refused">
+  <p><strong>TC-008-invalid-update-refused</strong> - covers <a href="#AC-303-2">AC-303-2</a> <span class="status pending">pending</span></p>
+  <p>a schema-invalidating update on a valid tree is refused with the validation error</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:19.018Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:19.213Z&quot;,
+  &quot;purpose&quot;: &quot;Verify valid updates persist with updatedAt advanced and invalidating updates are refused. AC-303-3 (update on unknown id) is pending (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-303-1&quot;,
+    &quot;AC-303-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-008&quot;,
+  &quot;usId&quot;: &quot;US-303&quot;,
+  &quot;title&quot;: &quot;Update verb safety&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-008-valid-update-persists-updatedat&quot;,
+      &quot;acId&quot;: &quot;AC-303-1&quot;,
+      &quot;description&quot;: &quot;a valid update persists the change and advances updatedAt on disk&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/update.test.js::rcf update REQ-001 --set title=X changes the title and bumps updatedAt&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-008-invalid-update-refused&quot;,
+      &quot;acId&quot;: &quot;AC-303-2&quot;,
+      &quot;description&quot;: &quot;a schema-invalidating update on a valid tree is refused with the validation error&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-009">
+  <summary><span class="summary-label">TS-009 - Delete with reference safety</span><span class="status draft">draft</span></summary>
+  <article id="TS-009" class="doc doc-ts">
+  <h3>TS-009 - Delete with reference safety</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-304">US-304</a></p>
+  <p><strong>Purpose:</strong> Verify delete refuses while dependants exist, cascades cleanly, and removes unreferenced leaves leaving the tree valid.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-304-1">AC-304-1</a>, <a href="#AC-304-2">AC-304-2</a>, <a href="#AC-304-3">AC-304-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-009-delete-refused-with-dependents">
+  <p><strong>TC-009-delete-refused-with-dependents</strong> - covers <a href="#AC-304-1">AC-304-1</a> <span class="status pending">pending</span></p>
+  <p>delete without cascade refuses with exit 4 naming dependents</p>
+  <p><em>Test pointer:</em> <code>test/cli/delete.test.js::rcf delete REQ-001 without --cascade refuses with exit 4</code></p>
+</div>
+<div class="tc" id="TC-009-cascade-removes-subtree">
+  <p><strong>TC-009-cascade-removes-subtree</strong> - covers <a href="#AC-304-2">AC-304-2</a> <span class="status pending">pending</span></p>
+  <p>cascade delete removes the sub-tree files leaving the tree valid</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::deleteDocument REQ --cascade removes REQ + descendant USes + TSs</code></p>
+</div>
+<div class="tc" id="TC-009-leaf-delete-removes-file">
+  <p><strong>TC-009-leaf-delete-removes-file</strong> - covers <a href="#AC-304-3">AC-304-3</a> <span class="status pending">pending</span></p>
+  <p>deleting an unreferenced leaf removes the file with exit 0 on a still-valid tree</p>
+  <p><em>Test pointer:</em> <code>test/cli/delete.test.js::rcf delete leaf ADR-001 removes the file (exit 0)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:19.311Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:19.605Z&quot;,
+  &quot;purpose&quot;: &quot;Verify delete refuses while dependants exist, cascades cleanly, and removes unreferenced leaves leaving the tree valid.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-304-1&quot;,
+    &quot;AC-304-2&quot;,
+    &quot;AC-304-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-009&quot;,
+  &quot;usId&quot;: &quot;US-304&quot;,
+  &quot;title&quot;: &quot;Delete with reference safety&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-009-delete-refused-with-dependents&quot;,
+      &quot;acId&quot;: &quot;AC-304-1&quot;,
+      &quot;description&quot;: &quot;delete without cascade refuses with exit 4 naming dependents&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/delete.test.js::rcf delete REQ-001 without --cascade refuses with exit 4&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-009-cascade-removes-subtree&quot;,
+      &quot;acId&quot;: &quot;AC-304-2&quot;,
+      &quot;description&quot;: &quot;cascade delete removes the sub-tree files leaving the tree valid&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::deleteDocument REQ --cascade removes REQ + descendant USes + TSs&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-009-leaf-delete-removes-file&quot;,
+      &quot;acId&quot;: &quot;AC-304-3&quot;,
+      &quot;description&quot;: &quot;deleting an unreferenced leaf removes the file with exit 0 on a still-valid tree&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/delete.test.js::rcf delete leaf ADR-001 removes the file (exit 0)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-010">
+  <summary><span class="summary-label">TS-010 - Coverage report</span><span class="status draft">draft</span></summary>
+  <article id="TS-010" class="doc doc-ts">
+  <h3>TS-010 - Coverage report</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-401">US-401</a></p>
+  <p><strong>Purpose:</strong> Verify coverage classifies requirements without stories and criteria without resolving test cases, and reports complete coverage with no gaps when everything is bound.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-401-1">AC-401-1</a>, <a href="#AC-401-2">AC-401-2</a>, <a href="#AC-401-3">AC-401-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-010-req-without-us-uncovered">
+  <p><strong>TC-010-req-without-us-uncovered</strong> - covers <a href="#AC-401-1">AC-401-1</a> <span class="status pending">pending</span></p>
+  <p>a requirement with no user story is classified uncovered</p>
+  <p><em>Test pointer:</em> <code>test/query/coverage.test.js::REQ with zero US returns uncovered</code></p>
+</div>
+<div class="tc" id="TC-010-ac-without-tc-uncovered">
+  <p><strong>TC-010-ac-without-tc-uncovered</strong> - covers <a href="#AC-401-2">AC-401-2</a> <span class="status pending">pending</span></p>
+  <p>an acceptance criterion with no test case cross-link is classified uncovered</p>
+  <p><em>Test pointer:</em> <code>test/query/coverage.test.js::AC with no TC cross-link at all is absent (uncovered), not unresolved</code></p>
+</div>
+<div class="tc" id="TC-010-full-coverage-no-gaps">
+  <p><strong>TC-010-full-coverage-no-gaps</strong> - covers <a href="#AC-401-3">AC-401-3</a> <span class="status pending">pending</span></p>
+  <p>a fully covered tree reports ok with zero uncovered</p>
+  <p><em>Test pointer:</em> <code>test/query/coverage.test.js::shallow-any default: REQ with one AC covered by one RESOLVING TC returns covered</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:19.703Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:19.997Z&quot;,
+  &quot;purpose&quot;: &quot;Verify coverage classifies requirements without stories and criteria without resolving test cases, and reports complete coverage with no gaps when everything is bound.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-401-1&quot;,
+    &quot;AC-401-2&quot;,
+    &quot;AC-401-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-010&quot;,
+  &quot;usId&quot;: &quot;US-401&quot;,
+  &quot;title&quot;: &quot;Coverage report&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-010-req-without-us-uncovered&quot;,
+      &quot;acId&quot;: &quot;AC-401-1&quot;,
+      &quot;description&quot;: &quot;a requirement with no user story is classified uncovered&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/coverage.test.js::REQ with zero US returns uncovered&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-010-ac-without-tc-uncovered&quot;,
+      &quot;acId&quot;: &quot;AC-401-2&quot;,
+      &quot;description&quot;: &quot;an acceptance criterion with no test case cross-link is classified uncovered&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/coverage.test.js::AC with no TC cross-link at all is absent (uncovered), not unresolved&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-010-full-coverage-no-gaps&quot;,
+      &quot;acId&quot;: &quot;AC-401-3&quot;,
+      &quot;description&quot;: &quot;a fully covered tree reports ok with zero uncovered&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/coverage.test.js::shallow-any default: REQ with one AC covered by one RESOLVING TC returns covered&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-011">
+  <summary><span class="summary-label">TS-011 - Trace forward and back</span><span class="status draft">draft</span></summary>
+  <article id="TS-011" class="doc doc-ts">
+  <h3>TS-011 - Trace forward and back</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-402">US-402</a></p>
+  <p><strong>Purpose:</strong> Verify forward and backward traversal along the intent chain. AC-402-3 is pending: forward trace deliberately surfaces FBS via cross-link (D4), contradicting the AC&#39;s never-FBS clause (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-402-1">AC-402-1</a>, <a href="#AC-402-2">AC-402-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-011-trace-forward-req-subtree">
+  <p><strong>TC-011-trace-forward-req-subtree</strong> - covers <a href="#AC-402-1">AC-402-1</a> <span class="status pending">pending</span></p>
+  <p>forward trace from a REQ returns the US, AC, TS and TC beneath it</p>
+  <p><em>Test pointer:</em> <code>test/query/trace.test.js::forward from REQ returns US -&gt; AC -&gt; TS -&gt; TC subtree</code></p>
+</div>
+<div class="tc" id="TC-011-trace-back-ac-ancestry">
+  <p><strong>TC-011-trace-back-ac-ancestry</strong> - covers <a href="#AC-402-2">AC-402-2</a> <span class="status pending">pending</span></p>
+  <p>backward trace from an AC returns exactly US, REQ and PRD</p>
+  <p><em>Test pointer:</em> <code>test/query/trace.test.js::back from AC walks AC -&gt; US -&gt; REQ -&gt; PRD</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:20.096Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:20.293Z&quot;,
+  &quot;purpose&quot;: &quot;Verify forward and backward traversal along the intent chain. AC-402-3 is pending: forward trace deliberately surfaces FBS via cross-link (D4), contradicting the AC&#39;s never-FBS clause (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-402-1&quot;,
+    &quot;AC-402-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-011&quot;,
+  &quot;usId&quot;: &quot;US-402&quot;,
+  &quot;title&quot;: &quot;Trace forward and back&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-011-trace-forward-req-subtree&quot;,
+      &quot;acId&quot;: &quot;AC-402-1&quot;,
+      &quot;description&quot;: &quot;forward trace from a REQ returns the US, AC, TS and TC beneath it&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/trace.test.js::forward from REQ returns US -&gt; AC -&gt; TS -&gt; TC subtree&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-011-trace-back-ac-ancestry&quot;,
+      &quot;acId&quot;: &quot;AC-402-2&quot;,
+      &quot;description&quot;: &quot;backward trace from an AC returns exactly US, REQ and PRD&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/trace.test.js::back from AC walks AC -&gt; US -&gt; REQ -&gt; PRD&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-012">
+  <summary><span class="summary-label">TS-012 - Impact analysis</span><span class="status draft">draft</span></summary>
+  <article id="TS-012" class="doc doc-ts">
+  <h3>TS-012 - Impact analysis</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-403">US-403</a></p>
+  <p><strong>Purpose:</strong> Verify impact fan-out from architecture documents. AC-403-1 (FBS slots from a REQ pivot) and AC-403-3 (empty impact set) lack direct assertions and are pending (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-403-2">AC-403-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-012-adr-impact-reaches-fbs">
+  <p><strong>TC-012-adr-impact-reaches-fbs</strong> - covers <a href="#AC-403-2">AC-403-2</a> <span class="status pending">pending</span></p>
+  <p>impact from an ADR returns the FBS items referencing it as context</p>
+  <p><em>Test pointer:</em> <code>test/query/impact.test.js::impact from ADR: ancestor TAD; descendants include FBS via contextRequirements.adrIds</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:20.391Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:20.490Z&quot;,
+  &quot;purpose&quot;: &quot;Verify impact fan-out from architecture documents. AC-403-1 (FBS slots from a REQ pivot) and AC-403-3 (empty impact set) lack direct assertions and are pending (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-403-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-012&quot;,
+  &quot;usId&quot;: &quot;US-403&quot;,
+  &quot;title&quot;: &quot;Impact analysis&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-012-adr-impact-reaches-fbs&quot;,
+      &quot;acId&quot;: &quot;AC-403-2&quot;,
+      &quot;description&quot;: &quot;impact from an ADR returns the FBS items referencing it as context&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/impact.test.js::impact from ADR: ancestor TAD; descendants include FBS via contextRequirements.adrIds&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-013">
+  <summary><span class="summary-label">TS-013 - Build prompt assembly</span><span class="status draft">draft</span></summary>
+  <article id="TS-013" class="doc doc-ts">
+  <h3>TS-013 - Build prompt assembly</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-501">US-501</a></p>
+  <p><strong>Purpose:</strong> Verify bundle assembly walks ACs to their stories, inlines architectural context, and renders as a single sectioned markdown document.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-501-1">AC-501-1</a>, <a href="#AC-501-2">AC-501-2</a>, <a href="#AC-501-3">AC-501-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-013-bundle-ac-gwt-ancestry">
+  <p><strong>TC-013-bundle-ac-gwt-ancestry</strong> - covers <a href="#AC-501-1">AC-501-1</a> <span class="status pending">pending</span></p>
+  <p>each bundled AC carries its given, when and then plus usId and reqId ancestry</p>
+  <p><em>Test pointer:</em> <code>test/build/bundle.test.js::each AC carries usId + reqId ancestry and its own fields</code></p>
+</div>
+<div class="tc" id="TC-013-bundle-inlines-tacs-adrs">
+  <p><strong>TC-013-bundle-inlines-tacs-adrs</strong> - covers <a href="#AC-501-2">AC-501-2</a> <span class="status pending">pending</span></p>
+  <p>referenced TACs and ADRs are inlined into the bundle context in authored order</p>
+  <p><em>Test pointer:</em> <code>test/build/bundle.test.js::tacIds / adrIds inline the referenced documents in authored order</code></p>
+</div>
+<div class="tc" id="TC-013-bundle-single-markdown-document">
+  <p><strong>TC-013-bundle-single-markdown-document</strong> - covers <a href="#AC-501-3">AC-501-3</a> <span class="status pending">pending</span></p>
+  <p>the markdown bundle renders the seven sections naming the work, ACs and architectural context</p>
+  <p><em>Test pointer:</em> <code>test/build/formatters/markdown.test.js::bundle renders the seven D3 sections as headings, in order</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:20.589Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:20.885Z&quot;,
+  &quot;purpose&quot;: &quot;Verify bundle assembly walks ACs to their stories, inlines architectural context, and renders as a single sectioned markdown document.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-501-1&quot;,
+    &quot;AC-501-2&quot;,
+    &quot;AC-501-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-013&quot;,
+  &quot;usId&quot;: &quot;US-501&quot;,
+  &quot;title&quot;: &quot;Build prompt assembly&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-013-bundle-ac-gwt-ancestry&quot;,
+      &quot;acId&quot;: &quot;AC-501-1&quot;,
+      &quot;description&quot;: &quot;each bundled AC carries its given, when and then plus usId and reqId ancestry&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/build/bundle.test.js::each AC carries usId + reqId ancestry and its own fields&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-013-bundle-inlines-tacs-adrs&quot;,
+      &quot;acId&quot;: &quot;AC-501-2&quot;,
+      &quot;description&quot;: &quot;referenced TACs and ADRs are inlined into the bundle context in authored order&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/build/bundle.test.js::tacIds / adrIds inline the referenced documents in authored order&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-013-bundle-single-markdown-document&quot;,
+      &quot;acId&quot;: &quot;AC-501-3&quot;,
+      &quot;description&quot;: &quot;the markdown bundle renders the seven sections naming the work, ACs and architectural context&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/build/formatters/markdown.test.js::bundle renders the seven D3 sections as headings, in order&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-014">
+  <summary><span class="summary-label">TS-014 - Build order dependencies</span><span class="status draft">draft</span></summary>
+  <article id="TS-014" class="doc doc-ts">
+  <h3>TS-014 - Build order dependencies</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-502">US-502</a></p>
+  <p><strong>Purpose:</strong> Verify dependency-respecting ordering and cycle refusal. AC-502-2 is pending: the queue exposes actionable state but no explicit parallel-safe reporting is asserted (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-502-1">AC-502-1</a>, <a href="#AC-502-3">AC-502-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-014-dependency-precedes-dependent">
+  <p><strong>TC-014-dependency-precedes-dependent</strong> - covers <a href="#AC-502-1">AC-502-1</a> <span class="status pending">pending</span></p>
+  <p>a dependent item stays blocked until its dependency is satisfied, so dependencies always precede dependents</p>
+  <p><em>Test pointer:</em> <code>test/build/queue.test.js::notStarted with an unsatisfied dependency is blocked, blockedBy names it</code></p>
+</div>
+<div class="tc" id="TC-014-cycle-detected-reported">
+  <p><strong>TC-014-cycle-detected-reported</strong> - covers <a href="#AC-502-3">AC-502-3</a> <span class="status pending">pending</span></p>
+  <p>a dependency cycle is detected and every member reported blocked-cycle with no partial order</p>
+  <p><em>Test pointer:</em> <code>test/build/queue.test.js::dependency cycle: every member is blocked (cycle), never a crash</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:20.986Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:21.183Z&quot;,
+  &quot;purpose&quot;: &quot;Verify dependency-respecting ordering and cycle refusal. AC-502-2 is pending: the queue exposes actionable state but no explicit parallel-safe reporting is asserted (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-502-1&quot;,
+    &quot;AC-502-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-014&quot;,
+  &quot;usId&quot;: &quot;US-502&quot;,
+  &quot;title&quot;: &quot;Build order dependencies&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-014-dependency-precedes-dependent&quot;,
+      &quot;acId&quot;: &quot;AC-502-1&quot;,
+      &quot;description&quot;: &quot;a dependent item stays blocked until its dependency is satisfied, so dependencies always precede dependents&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/build/queue.test.js::notStarted with an unsatisfied dependency is blocked, blockedBy names it&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-014-cycle-detected-reported&quot;,
+      &quot;acId&quot;: &quot;AC-502-3&quot;,
+      &quot;description&quot;: &quot;a dependency cycle is detected and every member reported blocked-cycle with no partial order&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/build/queue.test.js::dependency cycle: every member is blocked (cycle), never a crash&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-015">
+  <summary><span class="summary-label">TS-015 - Mark a slice done</span><span class="status draft">draft</span></summary>
+  <article id="TS-015" class="doc doc-ts">
+  <h3>TS-015 - Mark a slice done</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-503">US-503</a></p>
+  <p><strong>Purpose:</strong> Verify marking advances execution status through the validating writer, touches only status fields, and refuses unknown ids.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-503-1">AC-503-1</a>, <a href="#AC-503-2">AC-503-2</a>, <a href="#AC-503-3">AC-503-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-015-mark-advances-status">
+  <p><strong>TC-015-mark-advances-status</strong> - covers <a href="#AC-503-1">AC-503-1</a> <span class="status pending">pending</span></p>
+  <p>mark advances executionStatus on disk with updatedAt bumped through the validating writer</p>
+  <p><em>Test pointer:</em> <code>test/cli/build.test.js::--mark writes through updateDocument: status changed, updatedAt bumped</code></p>
+</div>
+<div class="tc" id="TC-015-mark-unknown-id-not-found">
+  <p><strong>TC-015-mark-unknown-id-not-found</strong> - covers <a href="#AC-503-2">AC-503-2</a> <span class="status pending">pending</span></p>
+  <p>mark on an unknown FBS id returns a usage error from the pure planner</p>
+  <p><em>Test pointer:</em> <code>test/build/mark.test.js::unknown id returns a usage error</code></p>
+</div>
+<div class="tc" id="TC-015-mark-touches-status-only">
+  <p><strong>TC-015-mark-touches-status-only</strong> - covers <a href="#AC-503-3">AC-503-3</a> <span class="status pending">pending</span></p>
+  <p>the mark write changes only executionStatus and updatedAt, with createdAt untouched</p>
+  <p><em>Test pointer:</em> <code>test/cli/build.test.js::--mark writes through updateDocument: status changed, updatedAt bumped</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:21.282Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:21.580Z&quot;,
+  &quot;purpose&quot;: &quot;Verify marking advances execution status through the validating writer, touches only status fields, and refuses unknown ids.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-503-1&quot;,
+    &quot;AC-503-2&quot;,
+    &quot;AC-503-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-015&quot;,
+  &quot;usId&quot;: &quot;US-503&quot;,
+  &quot;title&quot;: &quot;Mark a slice done&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-015-mark-advances-status&quot;,
+      &quot;acId&quot;: &quot;AC-503-1&quot;,
+      &quot;description&quot;: &quot;mark advances executionStatus on disk with updatedAt bumped through the validating writer&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/build.test.js::--mark writes through updateDocument: status changed, updatedAt bumped&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-015-mark-unknown-id-not-found&quot;,
+      &quot;acId&quot;: &quot;AC-503-2&quot;,
+      &quot;description&quot;: &quot;mark on an unknown FBS id returns a usage error from the pure planner&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/build/mark.test.js::unknown id returns a usage error&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-015-mark-touches-status-only&quot;,
+      &quot;acId&quot;: &quot;AC-503-3&quot;,
+      &quot;description&quot;: &quot;the mark write changes only executionStatus and updatedAt, with createdAt untouched&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/build.test.js::--mark writes through updateDocument: status changed, updatedAt bumped&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-016">
+  <summary><span class="summary-label">TS-016 - Query and view over MCP</span><span class="status draft">draft</span></summary>
+  <article id="TS-016" class="doc doc-ts">
+  <h3>TS-016 - Query and view over MCP</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-601">US-601</a></p>
+  <p><strong>Purpose:</strong> Verify MCP tool listing and CLI parity for queries. AC-601-3 is pending: no test asserts the absence of a network listener (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> e2e</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-601-1">AC-601-1</a>, <a href="#AC-601-2">AC-601-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-016-tools-list-structured-schemas">
+  <p><strong>TC-016-tools-list-structured-schemas</strong> - covers <a href="#AC-601-1">AC-601-1</a> <span class="status pending">pending</span></p>
+  <p>an MCP client listing tools sees all eleven rcf tools with input and output schemas</p>
+  <p><em>Test pointer:</em> <code>test/mcp/stdio.e2e.test.js::e2e: tools/list returns all eleven tools with schemas</code></p>
+</div>
+<div class="tc" id="TC-016-mcp-coverage-cli-parity">
+  <p><strong>TC-016-mcp-coverage-cli-parity</strong> - covers <a href="#AC-601-2">AC-601-2</a> <span class="status pending">pending</span></p>
+  <p>rcf_coverage over MCP deep-equals the committed CLI coverage golden</p>
+  <p><em>Test pointer:</em> <code>test/mcp/parity.test.js::parity: rcf_coverage structuredContent deep-equals the committed coverage golden</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:21.678Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:21.875Z&quot;,
+  &quot;purpose&quot;: &quot;Verify MCP tool listing and CLI parity for queries. AC-601-3 is pending: no test asserts the absence of a network listener (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;e2e&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-601-1&quot;,
+    &quot;AC-601-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-016&quot;,
+  &quot;usId&quot;: &quot;US-601&quot;,
+  &quot;title&quot;: &quot;Query and view over MCP&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-016-tools-list-structured-schemas&quot;,
+      &quot;acId&quot;: &quot;AC-601-1&quot;,
+      &quot;description&quot;: &quot;an MCP client listing tools sees all eleven rcf tools with input and output schemas&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/mcp/stdio.e2e.test.js::e2e: tools/list returns all eleven tools with schemas&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-016-mcp-coverage-cli-parity&quot;,
+      &quot;acId&quot;: &quot;AC-601-2&quot;,
+      &quot;description&quot;: &quot;rcf_coverage over MCP deep-equals the committed CLI coverage golden&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/mcp/parity.test.js::parity: rcf_coverage structuredContent deep-equals the committed coverage golden&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-017">
+  <summary><span class="summary-label">TS-017 - CRUD and build over MCP</span><span class="status draft">draft</span></summary>
+  <article id="TS-017" class="doc doc-ts">
+  <h3>TS-017 - CRUD and build over MCP</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-602">US-602</a></p>
+  <p><strong>Purpose:</strong> Verify mutating and build operations over MCP share the CLI&#39;s validation, linkage and refusal behaviour.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-602-1">AC-602-1</a>, <a href="#AC-602-2">AC-602-2</a>, <a href="#AC-602-3">AC-602-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-017-mcp-create-cli-validation">
+  <p><strong>TC-017-mcp-create-cli-validation</strong> - covers <a href="#AC-602-1">AC-602-1</a> <span class="status pending">pending</span></p>
+  <p>rcf_create applies the CLI per-kind mandatory-field validation over MCP</p>
+  <p><em>Test pointer:</em> <code>test/mcp/tools.test.js::rcf_create: per-kind mandatory fields are usage errors; body object carries extra fields</code></p>
+</div>
+<div class="tc" id="TC-017-mcp-build-returns-bundle">
+  <p><strong>TC-017-mcp-build-returns-bundle</strong> - covers <a href="#AC-602-2">AC-602-2</a> <span class="status pending">pending</span></p>
+  <p>rcf_build returns the assembled bundle deep-equal to the CLI output for the named FBS</p>
+  <p><em>Test pointer:</em> <code>test/mcp/parity.test.js::parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build FBS-001 --format json`</code></p>
+</div>
+<div class="tc" id="TC-017-mcp-invalid-write-refused">
+  <p><strong>TC-017-mcp-invalid-write-refused</strong> - covers <a href="#AC-602-3">AC-602-3</a> <span class="status pending">pending</span></p>
+  <p>a mutating MCP call that would break the tree errors with the postWriteValidation rule</p>
+  <p><em>Test pointer:</em> <code>test/mcp/b5-postwrite.test.js::net-new breakage on the wedged tree still errors with the postWriteValidation rule</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:21.977Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:22.271Z&quot;,
+  &quot;purpose&quot;: &quot;Verify mutating and build operations over MCP share the CLI&#39;s validation, linkage and refusal behaviour.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-602-1&quot;,
+    &quot;AC-602-2&quot;,
+    &quot;AC-602-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-017&quot;,
+  &quot;usId&quot;: &quot;US-602&quot;,
+  &quot;title&quot;: &quot;CRUD and build over MCP&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-017-mcp-create-cli-validation&quot;,
+      &quot;acId&quot;: &quot;AC-602-1&quot;,
+      &quot;description&quot;: &quot;rcf_create applies the CLI per-kind mandatory-field validation over MCP&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/mcp/tools.test.js::rcf_create: per-kind mandatory fields are usage errors; body object carries extra fields&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-017-mcp-build-returns-bundle&quot;,
+      &quot;acId&quot;: &quot;AC-602-2&quot;,
+      &quot;description&quot;: &quot;rcf_build returns the assembled bundle deep-equal to the CLI output for the named FBS&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/mcp/parity.test.js::parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build FBS-001 --format json`&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-017-mcp-invalid-write-refused&quot;,
+      &quot;acId&quot;: &quot;AC-602-3&quot;,
+      &quot;description&quot;: &quot;a mutating MCP call that would break the tree errors with the postWriteValidation rule&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/mcp/b5-postwrite.test.js::net-new breakage on the wedged tree still errors with the postWriteValidation rule&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-018">
+  <summary><span class="summary-label">TS-018 - Invalid writes refused</span><span class="status draft">draft</span></summary>
+  <article id="TS-018" class="doc doc-ts">
+  <h3>TS-018 - Invalid writes refused</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-701">US-701</a></p>
+  <p><strong>Purpose:</strong> Verify invalid-producing writes land nothing on disk, successful writes revalidate cleanly, and validation runs against the registered published schema bundle.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-701-1">AC-701-1</a>, <a href="#AC-701-2">AC-701-2</a>, <a href="#AC-701-3">AC-701-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-018-invalid-write-writes-nothing">
+  <p><strong>TC-018-invalid-write-writes-nothing</strong> - covers <a href="#AC-701-1">AC-701-1</a> <span class="status pending">pending</span></p>
+  <p>a tree-invalidating update is refused and nothing is written</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED</code></p>
+</div>
+<div class="tc" id="TC-018-written-doc-validates">
+  <p><strong>TC-018-written-doc-validates</strong> - covers <a href="#AC-701-2">AC-701-2</a> <span class="status pending">pending</span></p>
+  <p>a successful create writes a document that revalidates cleanly on reload</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument req writes a schema-valid child file</code></p>
+</div>
+<div class="tc" id="TC-018-registered-bundle-no-drift">
+  <p><strong>TC-018-registered-bundle-no-drift</strong> - covers <a href="#AC-701-3">AC-701-3</a> <span class="status pending">pending</span></p>
+  <p>validation reuses the registered schema bundle across passes without drift</p>
+  <p><em>Test pointer:</em> <code>../core/test/store/validator.test.js::validateDocument re-validates the registered schema (no drift)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:22.370Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:22.667Z&quot;,
+  &quot;purpose&quot;: &quot;Verify invalid-producing writes land nothing on disk, successful writes revalidate cleanly, and validation runs against the registered published schema bundle.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-701-1&quot;,
+    &quot;AC-701-2&quot;,
+    &quot;AC-701-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-018&quot;,
+  &quot;usId&quot;: &quot;US-701&quot;,
+  &quot;title&quot;: &quot;Invalid writes refused&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-018-invalid-write-writes-nothing&quot;,
+      &quot;acId&quot;: &quot;AC-701-1&quot;,
+      &quot;description&quot;: &quot;a tree-invalidating update is refused and nothing is written&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-018-written-doc-validates&quot;,
+      &quot;acId&quot;: &quot;AC-701-2&quot;,
+      &quot;description&quot;: &quot;a successful create writes a document that revalidates cleanly on reload&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument req writes a schema-valid child file&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-018-registered-bundle-no-drift&quot;,
+      &quot;acId&quot;: &quot;AC-701-3&quot;,
+      &quot;description&quot;: &quot;validation reuses the registered schema bundle across passes without drift&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/store/validator.test.js::validateDocument re-validates the registered schema (no drift)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-019">
+  <summary><span class="summary-label">TS-019 - Clear validation errors</span><span class="status draft">draft</span></summary>
+  <article id="TS-019" class="doc doc-ts">
+  <h3>TS-019 - Clear validation errors</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-702">US-702</a></p>
+  <p><strong>Purpose:</strong> Verify failures name field and rule and reach MCP clients as structured objects. AC-702-2 is pending: multi-failure aggregation in one document is implemented (Ajv allErrors) but not asserted (see test-suites/PENDING.md).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-702-1">AC-702-1</a>, <a href="#AC-702-3">AC-702-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-019-failure-names-field-and-rule">
+  <p><strong>TC-019-failure-names-field-and-rule</strong> - covers <a href="#AC-702-1">AC-702-1</a> <span class="status pending">pending</span></p>
+  <p>a validation failure names the offending field and the rule it broke</p>
+  <p><em>Test pointer:</em> <code>../core/test/errors/format.test.js::formatError verbose mode appends field and rule</code></p>
+</div>
+<div class="tc" id="TC-019-mcp-errors-structured">
+  <p><strong>TC-019-mcp-errors-structured</strong> - covers <a href="#AC-702-3">AC-702-3</a> <span class="status pending">pending</span></p>
+  <p>validation errors over MCP pass through as structured D11 payload objects</p>
+  <p><em>Test pointer:</em> <code>test/mcp/map-errors.test.js::writerErrorResult passes plain validation / brokenReference errors through with the D11 payload</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:22.767Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:22.973Z&quot;,
+  &quot;purpose&quot;: &quot;Verify failures name field and rule and reach MCP clients as structured objects. AC-702-2 is pending: multi-failure aggregation in one document is implemented (Ajv allErrors) but not asserted (see test-suites/PENDING.md).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-702-1&quot;,
+    &quot;AC-702-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-019&quot;,
+  &quot;usId&quot;: &quot;US-702&quot;,
+  &quot;title&quot;: &quot;Clear validation errors&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-019-failure-names-field-and-rule&quot;,
+      &quot;acId&quot;: &quot;AC-702-1&quot;,
+      &quot;description&quot;: &quot;a validation failure names the offending field and the rule it broke&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;../core/test/errors/format.test.js::formatError verbose mode appends field and rule&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-019-mcp-errors-structured&quot;,
+      &quot;acId&quot;: &quot;AC-702-3&quot;,
+      &quot;description&quot;: &quot;validation errors over MCP pass through as structured D11 payload objects&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/mcp/map-errors.test.js::writerErrorResult passes plain validation / brokenReference errors through with the D11 payload&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-020">
+  <summary><span class="summary-label">TS-020 - Local preview guidance</span><span class="status draft">draft</span></summary>
+  <article id="TS-020" class="doc doc-ts">
+  <h3>TS-020 - Local preview guidance</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-801">US-801</a></p>
+  <p><strong>Purpose:</strong> Verify the shipped guidance pack requires a working, seeded, single-command local preview as the hosting-independent default outcome of every build.</p>
+  <p><strong>Test level:</strong> contract</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-801-1">AC-801-1</a>, <a href="#AC-801-2">AC-801-2</a>, <a href="#AC-801-3">AC-801-3</a>, <a href="#AC-801-4">AC-801-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-020-preview-in-definition-of-done">
+  <p><strong>TC-020-preview-in-definition-of-done</strong> - covers <a href="#AC-801-1">AC-801-1</a> <span class="status pending">pending</span></p>
+  <p>the build-cycle contract requires a working documented local preview in the definition of done</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-801-1/3: the build cycle requires a local preview as the hosting-independent default outcome</code></p>
+</div>
+<div class="tc" id="TC-020-single-start-command">
+  <p><strong>TC-020-single-start-command</strong> - covers <a href="#AC-801-2">AC-801-2</a> <span class="status pending">pending</span></p>
+  <p>the playbook directs one documented start command where the stack allows</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-801-2: the local preview is startable via a single documented command where the stack allows</code></p>
+</div>
+<div class="tc" id="TC-020-preview-hosting-independent">
+  <p><strong>TC-020-preview-hosting-independent</strong> - covers <a href="#AC-801-3">AC-801-3</a> <span class="status pending">pending</span></p>
+  <p>the preview is required whether or not a hosting target was stated</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-801-1/3: the build cycle requires a local preview as the hosting-independent default outcome</code></p>
+</div>
+<div class="tc" id="TC-020-seeded-data-required">
+  <p><strong>TC-020-seeded-data-required</strong> - covers <a href="#AC-801-4">AC-801-4</a> <span class="status pending">pending</span></p>
+  <p>the guidance requires seeded or sample data so the preview is drivable, not an empty shell</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-801-4: the preview carries seeded data when the app needs data to be usable</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:23.080Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:23.529Z&quot;,
+  &quot;purpose&quot;: &quot;Verify the shipped guidance pack requires a working, seeded, single-command local preview as the hosting-independent default outcome of every build.&quot;,
+  &quot;testLevel&quot;: &quot;contract&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-801-1&quot;,
+    &quot;AC-801-2&quot;,
+    &quot;AC-801-3&quot;,
+    &quot;AC-801-4&quot;
+  ],
+  &quot;id&quot;: &quot;TS-020&quot;,
+  &quot;usId&quot;: &quot;US-801&quot;,
+  &quot;title&quot;: &quot;Local preview guidance&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-020-preview-in-definition-of-done&quot;,
+      &quot;acId&quot;: &quot;AC-801-1&quot;,
+      &quot;description&quot;: &quot;the build-cycle contract requires a working documented local preview in the definition of done&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-801-1/3: the build cycle requires a local preview as the hosting-independent default outcome&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-020-single-start-command&quot;,
+      &quot;acId&quot;: &quot;AC-801-2&quot;,
+      &quot;description&quot;: &quot;the playbook directs one documented start command where the stack allows&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-801-2: the local preview is startable via a single documented command where the stack allows&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-020-preview-hosting-independent&quot;,
+      &quot;acId&quot;: &quot;AC-801-3&quot;,
+      &quot;description&quot;: &quot;the preview is required whether or not a hosting target was stated&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-801-1/3: the build cycle requires a local preview as the hosting-independent default outcome&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-020-seeded-data-required&quot;,
+      &quot;acId&quot;: &quot;AC-801-4&quot;,
+      &quot;description&quot;: &quot;the guidance requires seeded or sample data so the preview is drivable, not an empty shell&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-801-4: the preview carries seeded data when the app needs data to be usable&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-021">
+  <summary><span class="summary-label">TS-021 - Deploy target before stack</span><span class="status draft">draft</span></summary>
+  <article id="TS-021" class="doc doc-ts">
+  <h3>TS-021 - Deploy target before stack</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-802">US-802</a></p>
+  <p><strong>Purpose:</strong> Verify elicitation guidance and the harness fragment order the deploy-target decision ahead of any stack commitment and capture it as an ADR.</p>
+  <p><strong>Test level:</strong> contract</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-802-1">AC-802-1</a>, <a href="#AC-802-2">AC-802-2</a>, <a href="#AC-802-3">AC-802-3</a>, <a href="#AC-802-4">AC-802-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-021-deploy-target-question-early">
+  <p><strong>TC-021-deploy-target-question-early</strong> - covers <a href="#AC-802-1">AC-802-1</a> <span class="status pending">pending</span></p>
+  <p>elicitation places the deploy-target question before any stack is committed</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-802-1: elicitation places a deploy-target question early, before any stack is committed</code></p>
+</div>
+<div class="tc" id="TC-021-stack-constrained-by-target">
+  <p><strong>TC-021-stack-constrained-by-target</strong> - covers <a href="#AC-802-2">AC-802-2</a> <span class="status pending">pending</span></p>
+  <p>the stack is constrained to what the stated target can host</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-802-2: the stack choice is constrained by the deploy-target answer</code></p>
+</div>
+<div class="tc" id="TC-021-target-captured-as-adr">
+  <p><strong>TC-021-target-captured-as-adr</strong> - covers <a href="#AC-802-3">AC-802-3</a> <span class="status pending">pending</span></p>
+  <p>the deploy target and stack constraint are captured as a visible revisable ADR</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-802-3: the deploy target and its stack implication are captured as an ADR on the project tree</code></p>
+</div>
+<div class="tc" id="TC-021-fragment-forbids-early-stack">
+  <p><strong>TC-021-fragment-forbids-early-stack</strong> - covers <a href="#AC-802-4">AC-802-4</a> <span class="status pending">pending</span></p>
+  <p>the harness fragment RULE 5 forbids committing a stack before the deploy target</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-802-4: the harness fragment forbids committing a stack before the deploy target is established</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:23.635Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:24.063Z&quot;,
+  &quot;purpose&quot;: &quot;Verify elicitation guidance and the harness fragment order the deploy-target decision ahead of any stack commitment and capture it as an ADR.&quot;,
+  &quot;testLevel&quot;: &quot;contract&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-802-1&quot;,
+    &quot;AC-802-2&quot;,
+    &quot;AC-802-3&quot;,
+    &quot;AC-802-4&quot;
+  ],
+  &quot;id&quot;: &quot;TS-021&quot;,
+  &quot;usId&quot;: &quot;US-802&quot;,
+  &quot;title&quot;: &quot;Deploy target before stack&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-021-deploy-target-question-early&quot;,
+      &quot;acId&quot;: &quot;AC-802-1&quot;,
+      &quot;description&quot;: &quot;elicitation places the deploy-target question before any stack is committed&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-802-1: elicitation places a deploy-target question early, before any stack is committed&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-021-stack-constrained-by-target&quot;,
+      &quot;acId&quot;: &quot;AC-802-2&quot;,
+      &quot;description&quot;: &quot;the stack is constrained to what the stated target can host&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-802-2: the stack choice is constrained by the deploy-target answer&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-021-target-captured-as-adr&quot;,
+      &quot;acId&quot;: &quot;AC-802-3&quot;,
+      &quot;description&quot;: &quot;the deploy target and stack constraint are captured as a visible revisable ADR&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-802-3: the deploy target and its stack implication are captured as an ADR on the project tree&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-021-fragment-forbids-early-stack&quot;,
+      &quot;acId&quot;: &quot;AC-802-4&quot;,
+      &quot;description&quot;: &quot;the harness fragment RULE 5 forbids committing a stack before the deploy target&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-802-4: the harness fragment forbids committing a stack before the deploy target is established&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-022">
+  <summary><span class="summary-label">TS-022 - Hosting-choice walkthrough</span><span class="status draft">draft</span></summary>
+  <article id="TS-022" class="doc doc-ts">
+  <h3>TS-022 - Hosting-choice walkthrough</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-803">US-803</a></p>
+  <p><strong>Purpose:</strong> Verify the guidance runs a plain-language hosting walkthrough for unsure owners, isolates human-only steps honestly, and covers account configuration.</p>
+  <p><strong>Test level:</strong> contract</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-803-1">AC-803-1</a>, <a href="#AC-803-2">AC-803-2</a>, <a href="#AC-803-3">AC-803-3</a>, <a href="#AC-803-4">AC-803-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-022-walkthrough-not-silent-choice">
+  <p><strong>TC-022-walkthrough-not-silent-choice</strong> - covers <a href="#AC-803-1">AC-803-1</a> <span class="status pending">pending</span></p>
+  <p>an unsure owner triggers the hosting-choice walkthrough, never a silent choice</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-803-1: when the owner does not know, run a walkthrough rather than choosing silently</code></p>
+</div>
+<div class="tc" id="TC-022-plain-language-options">
+  <p><strong>TC-022-plain-language-options</strong> - covers <a href="#AC-803-2">AC-803-2</a> <span class="status pending">pending</span></p>
+  <p>the walkthrough explains options in plain language with no unexplained jargon</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-803-2: the walkthrough explains options in plain language with no unexplained jargon</code></p>
+</div>
+<div class="tc" id="TC-022-human-steps-named-honestly">
+  <p><strong>TC-022-human-steps-named-honestly</strong> - covers <a href="#AC-803-3">AC-803-3</a> <span class="status pending">pending</span></p>
+  <p>account-holder-only steps are isolated and named honestly, never performed silently or pretended</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-803-3: human-only steps are isolated and named honestly, not performed or pretended</code></p>
+</div>
+<div class="tc" id="TC-022-covers-account-configuration">
+  <p><strong>TC-022-covers-account-configuration</strong> - covers <a href="#AC-803-4">AC-803-4</a> <span class="status pending">pending</span></p>
+  <p>the walkthrough covers accounts, tokens and CLI setup beyond naming a provider</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-803-4: the walkthrough covers configuring the account, not only naming a provider</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:24.164Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:24.579Z&quot;,
+  &quot;purpose&quot;: &quot;Verify the guidance runs a plain-language hosting walkthrough for unsure owners, isolates human-only steps honestly, and covers account configuration.&quot;,
+  &quot;testLevel&quot;: &quot;contract&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-803-1&quot;,
+    &quot;AC-803-2&quot;,
+    &quot;AC-803-3&quot;,
+    &quot;AC-803-4&quot;
+  ],
+  &quot;id&quot;: &quot;TS-022&quot;,
+  &quot;usId&quot;: &quot;US-803&quot;,
+  &quot;title&quot;: &quot;Hosting-choice walkthrough&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-022-walkthrough-not-silent-choice&quot;,
+      &quot;acId&quot;: &quot;AC-803-1&quot;,
+      &quot;description&quot;: &quot;an unsure owner triggers the hosting-choice walkthrough, never a silent choice&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-803-1: when the owner does not know, run a walkthrough rather than choosing silently&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-022-plain-language-options&quot;,
+      &quot;acId&quot;: &quot;AC-803-2&quot;,
+      &quot;description&quot;: &quot;the walkthrough explains options in plain language with no unexplained jargon&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-803-2: the walkthrough explains options in plain language with no unexplained jargon&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-022-human-steps-named-honestly&quot;,
+      &quot;acId&quot;: &quot;AC-803-3&quot;,
+      &quot;description&quot;: &quot;account-holder-only steps are isolated and named honestly, never performed silently or pretended&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-803-3: human-only steps are isolated and named honestly, not performed or pretended&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-022-covers-account-configuration&quot;,
+      &quot;acId&quot;: &quot;AC-803-4&quot;,
+      &quot;description&quot;: &quot;the walkthrough covers accounts, tokens and CLI setup beyond naming a provider&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-803-4: the walkthrough covers configuring the account, not only naming a provider&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-023">
+  <summary><span class="summary-label">TS-023 - Runtime-honest verification claims</span><span class="status draft">draft</span></summary>
+  <article id="TS-023" class="doc doc-ts">
+  <h3>TS-023 - Runtime-honest verification claims</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-804">US-804</a></p>
+  <p><strong>Purpose:</strong> Verify the guidance requires every verification claim to name its runtime, forbids implied deploy-runtime verification, and ships a labelled example.</p>
+  <p><strong>Test level:</strong> contract</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-804-1">AC-804-1</a>, <a href="#AC-804-2">AC-804-2</a>, <a href="#AC-804-3">AC-804-3</a>, <a href="#AC-804-4">AC-804-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-023-claims-name-runtime">
+  <p><strong>TC-023-claims-name-runtime</strong> - covers <a href="#AC-804-1">AC-804-1</a> <span class="status pending">pending</span></p>
+  <p>every verification claim names the runtime it was checked against</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-804-1/2: every verification claim names its runtime and never implies an unexercised deployed runtime</code></p>
+</div>
+<div class="tc" id="TC-023-no-implied-deploy-verification">
+  <p><strong>TC-023-no-implied-deploy-verification</strong> - covers <a href="#AC-804-2">AC-804-2</a> <span class="status pending">pending</span></p>
+  <p>no claim may state or imply deploy-runtime verification that did not happen</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-804-1/2: every verification claim names its runtime and never implies an unexercised deployed runtime</code></p>
+</div>
+<div class="tc" id="TC-023-pr-section-runtime-label">
+  <p><strong>TC-023-pr-section-runtime-label</strong> - covers <a href="#AC-804-3">AC-804-3</a> <span class="status pending">pending</span></p>
+  <p>the PR verification section requires the runtime label on every claim</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-804-3: the PR-authoring guidance requires the runtime label in the verification section</code></p>
+</div>
+<div class="tc" id="TC-023-labelled-claim-example">
+  <p><strong>TC-023-labelled-claim-example</strong> - covers <a href="#AC-804-4">AC-804-4</a> <span class="status pending">pending</span></p>
+  <p>an explicit labelled example names wrangler dev localhost as not the deployed runtime</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-804-4: an explicit labelled example exists, with a non-Cloudflare example alongside the wrangler-dev one</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:24.682Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:25.085Z&quot;,
+  &quot;purpose&quot;: &quot;Verify the guidance requires every verification claim to name its runtime, forbids implied deploy-runtime verification, and ships a labelled example.&quot;,
+  &quot;testLevel&quot;: &quot;contract&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-804-1&quot;,
+    &quot;AC-804-2&quot;,
+    &quot;AC-804-3&quot;,
+    &quot;AC-804-4&quot;
+  ],
+  &quot;id&quot;: &quot;TS-023&quot;,
+  &quot;usId&quot;: &quot;US-804&quot;,
+  &quot;title&quot;: &quot;Runtime-honest verification claims&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-023-claims-name-runtime&quot;,
+      &quot;acId&quot;: &quot;AC-804-1&quot;,
+      &quot;description&quot;: &quot;every verification claim names the runtime it was checked against&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-804-1/2: every verification claim names its runtime and never implies an unexercised deployed runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-023-no-implied-deploy-verification&quot;,
+      &quot;acId&quot;: &quot;AC-804-2&quot;,
+      &quot;description&quot;: &quot;no claim may state or imply deploy-runtime verification that did not happen&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-804-1/2: every verification claim names its runtime and never implies an unexercised deployed runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-023-pr-section-runtime-label&quot;,
+      &quot;acId&quot;: &quot;AC-804-3&quot;,
+      &quot;description&quot;: &quot;the PR verification section requires the runtime label on every claim&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-804-3: the PR-authoring guidance requires the runtime label in the verification section&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-023-labelled-claim-example&quot;,
+      &quot;acId&quot;: &quot;AC-804-4&quot;,
+      &quot;description&quot;: &quot;an explicit labelled example names wrangler dev localhost as not the deployed runtime&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-804-4: an explicit labelled example exists, with a non-Cloudflare example alongside the wrangler-dev one&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-024">
+  <summary><span class="summary-label">TS-024 - Interim self-review guidance</span><span class="status draft">draft</span></summary>
+  <article id="TS-024" class="doc doc-ts">
+  <h3>TS-024 - Interim self-review guidance</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-805">US-805</a></p>
+  <p><strong>Purpose:</strong> Verify the guidance describes a fresh-context self-review dispatch that drives the running app against the ACs, names the defect classes, and stays subordinate to the finalise gate.</p>
+  <p><strong>Test level:</strong> contract</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-805-1">AC-805-1</a>, <a href="#AC-805-2">AC-805-2</a>, <a href="#AC-805-3">AC-805-3</a>, <a href="#AC-805-4">AC-805-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-024-periodic-fresh-context-review">
+  <p><strong>TC-024-periodic-fresh-context-review</strong> - covers <a href="#AC-805-1">AC-805-1</a> <span class="status pending">pending</span></p>
+  <p>a periodic and end-of-build fresh-context self-review dispatch is described</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-805-1: a periodic and end-of-build fresh-context self-review dispatch is described</code></p>
+</div>
+<div class="tc" id="TC-024-reviewer-drives-the-app">
+  <p><strong>TC-024-reviewer-drives-the-app</strong> - covers <a href="#AC-805-2">AC-805-2</a> <span class="status pending">pending</span></p>
+  <p>the reviewer drives the running app against the ACs rather than reading code</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-805-2: the reviewer drives the running app against the ACs rather than reading the code</code></p>
+</div>
+<div class="tc" id="TC-024-names-defect-classes">
+  <p><strong>TC-024-names-defect-classes</strong> - covers <a href="#AC-805-3">AC-805-3</a> <span class="status pending">pending</span></p>
+  <p>the review names the five target defect classes</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-805-3: the review names the target defect classes</code></p>
+</div>
+<div class="tc" id="TC-024-in-loop-not-the-gate">
+  <p><strong>TC-024-in-loop-not-the-gate</strong> - covers <a href="#AC-805-4">AC-805-4</a> <span class="status pending">pending</span></p>
+  <p>the self-review is scoped as an in-loop check naming rcf finalise as the gate</p>
+  <p><em>Test pointer:</em> <code>test/guidance/tier1-hardening.test.js::AC-805-4: the self-review is honestly scoped as an in-loop check subordinate to the independent gate</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-07-29T12:57:25.185Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:25.588Z&quot;,
+  &quot;purpose&quot;: &quot;Verify the guidance describes a fresh-context self-review dispatch that drives the running app against the ACs, names the defect classes, and stays subordinate to the finalise gate.&quot;,
+  &quot;testLevel&quot;: &quot;contract&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-805-1&quot;,
+    &quot;AC-805-2&quot;,
+    &quot;AC-805-3&quot;,
+    &quot;AC-805-4&quot;
+  ],
+  &quot;id&quot;: &quot;TS-024&quot;,
+  &quot;usId&quot;: &quot;US-805&quot;,
+  &quot;title&quot;: &quot;Interim self-review guidance&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-024-periodic-fresh-context-review&quot;,
+      &quot;acId&quot;: &quot;AC-805-1&quot;,
+      &quot;description&quot;: &quot;a periodic and end-of-build fresh-context self-review dispatch is described&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-805-1: a periodic and end-of-build fresh-context self-review dispatch is described&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-024-reviewer-drives-the-app&quot;,
+      &quot;acId&quot;: &quot;AC-805-2&quot;,
+      &quot;description&quot;: &quot;the reviewer drives the running app against the ACs rather than reading code&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-805-2: the reviewer drives the running app against the ACs rather than reading the code&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-024-names-defect-classes&quot;,
+      &quot;acId&quot;: &quot;AC-805-3&quot;,
+      &quot;description&quot;: &quot;the review names the five target defect classes&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-805-3: the review names the target defect classes&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-024-in-loop-not-the-gate&quot;,
+      &quot;acId&quot;: &quot;AC-805-4&quot;,
+      &quot;description&quot;: &quot;the self-review is scoped as an in-loop check naming rcf finalise as the gate&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/guidance/tier1-hardening.test.js::AC-805-4: the self-review is honestly scoped as an in-loop check subordinate to the independent gate&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
 
     </section>
   </main>

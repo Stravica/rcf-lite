@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-07-29T12:57:19.018Z",
+  "updatedAt": "2026-07-29T12:57:19.213Z",
+  "purpose": "Verify valid updates persist with updatedAt advanced and invalidating updates are refused. AC-303-3 (update on unknown id) is pending (see test-suites/PENDING.md).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-303-1",
+    "AC-303-2"
+  ],
+  "id": "TS-008",
+  "usId": "US-303",
+  "title": "Update verb safety",
+  "testCases": [
+    {
+      "id": "TC-008-valid-update-persists-updatedat",
+      "acId": "AC-303-1",
+      "description": "a valid update persists the change and advances updatedAt on disk",
+      "status": "pending",
+      "testPointer": "test/cli/update.test.js::rcf update REQ-001 --set title=X changes the title and bumps updatedAt"
+    },
+    {
+      "id": "TC-008-invalid-update-refused",
+      "acId": "AC-303-2",
+      "description": "a schema-invalidating update on a valid tree is refused with the validation error",
+      "status": "pending",
+      "testPointer": "../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses"
+    }
+  ],
+  "status": "draft"
+}

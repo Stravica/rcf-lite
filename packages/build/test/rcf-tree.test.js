@@ -1,6 +1,13 @@
 // Dogfood tree integrity tests. Validates every JSON file under rcf/
-// against @stravica-ai/rcf-schemas@0.2.0 and asserts the referential
-// integrity that D7 walker + D8 validator enforce structurally.
+// THROUGH THE CORE VALIDATOR (`@stravica-ai/rcf-lite-core/store`) - the
+// same code path `rcf validate` and the writers use - and asserts the
+// referential integrity that D7 walker + D8 validator enforce
+// structurally. Routing through the core validator (w-2026-07-28-005)
+// means this gate carries the published @stravica-ai/rcf-schemas bundle
+// PLUS the local strictness overlay (testPointer required on every Test
+// Case), so the dogfood gate and the tool can never disagree: a
+// pointerless TC the CLI refuses would fail here too, instead of
+// sliding through a raw-schema check.
 //
 // Phase 3.7 shape (D1-D6, D14):
 //   Every parent-child edge is encoded on the child. PRD no longer carries
@@ -15,59 +22,11 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
-
-// Schemas registered as a bundle so cross-file $refs resolve.
-import commonSchema from '@stravica-ai/rcf-schemas/schemas/common.schema.json' with { type: 'json' };
-import prdSchema from '@stravica-ai/rcf-schemas/schemas/prd.schema.json' with { type: 'json' };
-import reqSchema from '@stravica-ai/rcf-schemas/schemas/req.schema.json' with { type: 'json' };
-import userStorySchema from '@stravica-ai/rcf-schemas/schemas/user-story.schema.json' with { type: 'json' };
-import tadSchema from '@stravica-ai/rcf-schemas/schemas/tad.schema.json' with { type: 'json' };
-import tacSchema from '@stravica-ai/rcf-schemas/schemas/tac.schema.json' with { type: 'json' };
-import adrSchema from '@stravica-ai/rcf-schemas/schemas/adr.schema.json' with { type: 'json' };
-import buildSequenceSchema from '@stravica-ai/rcf-schemas/schemas/build-sequence.schema.json' with { type: 'json' };
-import fbsSchema from '@stravica-ai/rcf-schemas/schemas/fbs.schema.json' with { type: 'json' };
-import testSuiteSchema from '@stravica-ai/rcf-schemas/schemas/test-suite.schema.json' with { type: 'json' };
-import manifestSchema from '@stravica-ai/rcf-schemas/schemas/manifest.schema.json' with { type: 'json' };
-// Phase 10 (X2 CodeNode bridge): 11th document kind.
-import cnSchema from '@stravica-ai/rcf-schemas/schemas/cn.schema.json' with { type: 'json' };
+import { knownKinds, validateDocument } from '@stravica-ai/rcf-lite-core/store';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..');
 const rcfRoot = resolve(repoRoot, 'rcf');
-
-function buildAjv() {
-  const ajv = new Ajv2020({ allErrors: true, strict: false });
-  addFormats(ajv);
-  ajv.addSchema(commonSchema);
-  ajv.addSchema(prdSchema);
-  ajv.addSchema(reqSchema);
-  ajv.addSchema(userStorySchema);
-  ajv.addSchema(tadSchema);
-  ajv.addSchema(tacSchema);
-  ajv.addSchema(adrSchema);
-  ajv.addSchema(buildSequenceSchema);
-  ajv.addSchema(fbsSchema);
-  ajv.addSchema(testSuiteSchema);
-  ajv.addSchema(manifestSchema);
-  ajv.addSchema(cnSchema);
-  return ajv;
-}
-
-const schemaIdByKind = {
-  manifest: manifestSchema.$id,
-  prd: prdSchema.$id,
-  req: reqSchema.$id,
-  userStory: userStorySchema.$id,
-  tad: tadSchema.$id,
-  tac: tacSchema.$id,
-  adr: adrSchema.$id,
-  buildSequence: buildSequenceSchema.$id,
-  fbs: fbsSchema.$id,
-  testSuite: testSuiteSchema.$id,
-  codeNode: cnSchema.$id,
-};
 
 function classify(relPath) {
   if (relPath === 'manifest.json') return 'manifest';
@@ -117,6 +76,10 @@ const expectedCounts = {
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   codeNode: 54,
+  // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
+  // an AC to a resolving testPointer. Pending ACs are registered in
+  // rcf/test-suites/PENDING.md, never stubbed as TCs.
+  testSuite: 24,
 };
 
 test('expected file counts by category', () => {
@@ -133,23 +96,20 @@ test('expected file counts by category', () => {
 });
 
 test('every document classifies to a known schema', () => {
+  const kinds = new Set(knownKinds());
   const docs = loadAll();
   for (const d of docs) {
     assert.ok(d.kind !== null, `unclassified file: ${d.rel}`);
-    assert.ok(schemaIdByKind[d.kind], `no schema mapped for kind: ${d.kind}`);
+    assert.ok(kinds.has(d.kind), `core validator knows no kind: ${d.kind}`);
   }
 });
 
-test('every document validates against its @stravica-ai/rcf-schemas@0.2.0 schema', () => {
-  const ajv = buildAjv();
+test('every document validates through the core validator (published bundle + testPointer overlay)', () => {
   const docs = loadAll();
   const failures = [];
   for (const d of docs) {
-    const validate = ajv.getSchema(schemaIdByKind[d.kind]);
-    assert.ok(validate, `compiled schema missing for ${d.kind}`);
-    if (!validate(d.json)) {
-      failures.push({ file: d.rel, errors: validate.errors });
-    }
+    const err = validateDocument({ doc: d.json, kind: d.kind, filePath: d.rel });
+    if (err) failures.push({ file: d.rel, message: err.message });
   }
   assert.equal(
     failures.length,
