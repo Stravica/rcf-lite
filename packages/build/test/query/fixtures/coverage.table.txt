@@ -42,7 +42,7 @@ REQ-005      yes      AC-501-1  yes         TC-013-bundle-ac-gwt-ancestry
                       AC-501-2  yes         TC-013-bundle-inlines-tacs-adrs
                       AC-501-3  yes         TC-013-bundle-single-markdown-document
                       AC-502-1  yes         TC-014-dependency-precedes-dependent
-                      AC-502-2  no          -
+                      AC-502-2  yes         TC-014-independent-items-share-tier
                       AC-502-3  yes         TC-014-cycle-detected-reported
                       AC-503-1  yes         TC-015-mark-advances-status
                       AC-503-2  yes         TC-015-mark-unknown-id-not-found

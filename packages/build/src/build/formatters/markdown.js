@@ -46,13 +46,14 @@ function formatQueueTable(queue) {
   if (queue.bs?.generationStrategy) {
     lines.push(`Generation strategy: ${queue.bs.generationStrategy}`, '');
   }
-  lines.push('| order | id | title | status | state | blocked by |');
-  lines.push('|---|---|---|---|---|---|');
+  lines.push('| order | tier | id | title | status | state | blocked by |');
+  lines.push('|---|---|---|---|---|---|---|');
   for (const item of queue.items) {
     const state = item.cycle ? 'blocked (cycle)' : item.state;
     const blockedBy = item.blockedBy.join(', ');
+    const tier = item.tier ?? '-';
     lines.push(
-      `| ${item.buildOrder} | ${item.fbsId} | ${item.title} | ${item.executionStatus} | ${state} | ${blockedBy} |`,
+      `| ${item.buildOrder} | ${tier} | ${item.fbsId} | ${item.title} | ${item.executionStatus} | ${state} | ${blockedBy} |`,
     );
   }
   const t = queue.totals;
@@ -62,6 +63,19 @@ function formatQueueTable(queue) {
       + `| complete ${t.complete} | verified ${t.verified} | actionable ${t.actionable} `
       + `| blocked ${t.blocked}`,
   );
+  // Parallel-safe tiers (AC-502-2): items sharing a tier have no
+  // dependency path between them and can be built concurrently.
+  // Cycle-tainted items have no tier and appear in no group.
+  const tiers = queue.tiers ?? [];
+  lines.push('');
+  if (tiers.length > 0) {
+    lines.push('Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):');
+    for (const group of tiers) {
+      lines.push(`- tier ${group.tier}: ${group.fbsIds.join(', ')}`);
+    }
+  } else {
+    lines.push('Parallel-safe tiers: none.');
+  }
   lines.push('');
   lines.push(`Next actionable: ${queue.nextActionable ?? 'none'}`);
   return `${lines.join('\n')}\n`;

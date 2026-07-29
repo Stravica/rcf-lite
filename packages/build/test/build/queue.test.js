@@ -149,6 +149,68 @@ test('blockedBy sorts by buildOrder then fbsId', () => {
   assert.deepEqual(item.blockedBy, ['FBS-002', 'FBS-009']);
 });
 
+test('FBS items with no dependency between them share a parallel-safe tier (AC-502-2)', () => {
+  const q = computeQueue(makeTree({
+    fbsItems: [
+      fbs('FBS-001', 1, 'notStarted'),
+      fbs('FBS-002', 2, 'notStarted'),
+      fbs('FBS-003', 3, 'notStarted', ['FBS-001']),
+    ],
+  }));
+  // No dependency path between FBS-001 and FBS-002: the SAME tier,
+  // reported together as one parallel-safe group.
+  assert.equal(q.items[0].tier, 0);
+  assert.equal(q.items[1].tier, 0);
+  assert.deepEqual(q.tiers[0], { tier: 0, fbsIds: ['FBS-001', 'FBS-002'] });
+  // FBS-003 depends on FBS-001: a later tier, never the same group.
+  assert.equal(q.items[2].tier, 1);
+  assert.deepEqual(q.tiers[1], { tier: 1, fbsIds: ['FBS-003'] });
+  assert.equal(q.tiers.length, 2);
+});
+
+test('tier is the longest dependency chain, not the shortest (diamond)', () => {
+  const q = computeQueue(makeTree({
+    fbsItems: [
+      fbs('FBS-001', 1, 'notStarted'),
+      fbs('FBS-002', 2, 'notStarted', ['FBS-001']),
+      fbs('FBS-003', 3, 'notStarted', ['FBS-001']),
+      // FBS-004 also depends directly on tier-0 FBS-001; the longest
+      // chain (via FBS-002 / FBS-003) still governs its tier.
+      fbs('FBS-004', 4, 'notStarted', ['FBS-001', 'FBS-002', 'FBS-003']),
+    ],
+  }));
+  assert.deepEqual(q.items.map((i) => i.tier), [0, 1, 1, 2]);
+  assert.deepEqual(q.tiers, [
+    { tier: 0, fbsIds: ['FBS-001'] },
+    { tier: 1, fbsIds: ['FBS-002', 'FBS-003'] },
+    { tier: 2, fbsIds: ['FBS-004'] },
+  ]);
+});
+
+test('cycle members and their dependents carry tier null and join no parallel-safe group', () => {
+  const q = computeQueue(makeTree({
+    fbsItems: [
+      fbs('FBS-001', 1, 'notStarted', ['FBS-002']),
+      fbs('FBS-002', 2, 'notStarted', ['FBS-001']),
+      fbs('FBS-003', 3, 'notStarted', ['FBS-002']),
+      fbs('FBS-004', 4, 'notStarted'),
+    ],
+  }));
+  // Cycle members and the item blocked behind them: no defined chain
+  // length, tier null, absent from every group - and no infinite loop.
+  assert.equal(q.items[0].tier, null);
+  assert.equal(q.items[1].tier, null);
+  assert.equal(q.items[2].tier, null);
+  // The independent item still tiers normally.
+  assert.equal(q.items[3].tier, 0);
+  assert.deepEqual(q.tiers, [{ tier: 0, fbsIds: ['FBS-004'] }]);
+});
+
+test('tiers on an empty queue: empty group list', () => {
+  const q = computeQueue(makeTree({ fbsItems: [] }));
+  assert.deepEqual(q.tiers, []);
+});
+
 test('bs block carries bsId / title / generationStrategy; null when absent', () => {
   const withBs = computeQueue(makeTree({
     fbsItems: [],

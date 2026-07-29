@@ -151,7 +151,7 @@ Registration is one config entry: [install, section 7](install.md#7-wire-into-an
 
 ## 7. This repository as the worked example
 
-Build Lite is built with RCF. The tree under [`rcf/`](../rcf) is not a demo fixture - it is the product's own PRD (PRD-001), seven requirements, nineteen user stories, a TAD with seven components and five decision records, and a twelve-item build queue that drove the phases you are reading the output of. Every command on this page runs against this repository's own tree; clone it and run them yourself.
+Build Lite is built with RCF. The tree under [`rcf/`](../rcf) is not a demo fixture - it is the product's own PRD (PRD-001), eight requirements, twenty-four user stories, a TAD with eight components and nine decision records, and a fourteen-item build queue that drove the phases you are reading the output of. Every command on this page runs against this repository's own tree; clone it and run them yourself.
 
 ```sh
 rcf read REQ-004 --field title
@@ -234,7 +234,7 @@ REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
 
 (The remaining seven requirement blocks are elided here; run it from a clone for the full table.)
 
-Eight of eight - but shallow-any is the generous reading, and the strict one is the honest one. This tree's test-suite documents bind 75 of 76 acceptance criteria to named tests in the repo's own suite, and every binding is load-bearing: each test case carries a `testPointer` that must resolve to a real, named test in the working tree, or it is reported as `covered-unresolved` rather than covered. The one remaining AC has no test that genuinely asserts its outcome, so it carries no test case at all - it is registered in `rcf/test-suites/PENDING.md`, and `rcf coverage --strict` exits 4 (one of eight requirements still holds a gap) until it is closed. Coverage tells you the truth about your tree, and this is ours: the remaining gap is real, it is visible, and closing it is queued work rather than a hidden assumption. That is the behaviour you want from the referee.
+Eight of eight - but shallow-any is the generous reading, and the strict one is the honest one. This tree's test-suite documents bind all 76 acceptance criteria to named tests in the repo's own suite, and every binding is load-bearing: each test case carries a `testPointer` that must resolve to a real, named test in the working tree, or it is reported as `covered-unresolved` rather than covered. `rcf coverage --strict` exits 0 against this tree - and it did not always: the audit that built this test axis found 14 acceptance criteria with no genuine outcome-asserting test, registered every one in `rcf/test-suites/PENDING.md` rather than stubbing test cases, and held strict mode at exit 4 until the last row closed. The last row was the referee catching a real defect: an AC the tree claimed was delivered (parallel-safe build groups) that the code never implemented - the feature was built and bound before the register could empty. CI now runs `rcf validate` and `rcf coverage --strict` on every push and pull request, so the strict verdict is a gate, not a report: a stub test case or a new uncovered AC fails the build. That is the behaviour you want from the referee.
 
 ## 8. Under the hood, briefly
 

@@ -107,14 +107,14 @@ Referee:
 ```
 $ rcf coverage --strict
 Coverage mode: strict (per-AC)
-Requirements: 8  covered: 7  covered-unresolved: 0  uncovered: 1
+Requirements: 8  covered: 8  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC        AC covered  Test cases
 -----------  -------  --------  ----------  ------------------------------------------------------------
 REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
 ```
 
-(Captured against this repo's tree, first rows shown; exit 4. This tree binds 75 of its 76 ACs to named existing tests via resolving `testPointer`s; the one AC still without a genuine outcome-asserting test is registered in `rcf/test-suites/PENDING.md`, and strict mode keeps exiting 4 until it is closed - the referee says exactly that instead of something more comfortable. That is the tool doing its job: an unfinished test layer reads as unfinished, not as progress.) Strict mode is per-AC: every AC in scope needs a TC whose pointer resolves, and any gap exits 4. The `covered-unresolved` column is the third state: TC rows exist but at least one pointer does not resolve to a real test - a stub or a stale pointer - and it fails the gate exactly as uncovered does, with the offending pointers listed under the table. Read the table by AC id: this stage ends when your in-scope ACs show `AC covered: yes` with test cases listed. Gaps elsewhere in the tree may legitimately remain and will keep the tree-wide command at exit 4; narrow the verdict with a scope id (`rcf coverage <scope-id> --strict`, PRD / REQ / US ids accepted) to read the subtree you are working in.
+(Captured against this repo's tree, first rows shown; exit 0. This tree binds all 76 of its ACs to named existing tests via resolving `testPointer`s. It did not start there: the audit that built this test axis opened with 14 honestly-registered gaps in `rcf/test-suites/PENDING.md`, the referee exited 4 for as long as any row remained, and the register emptied only when every AC got a test that genuinely asserts its outcome - including one whole feature the tree claimed and the code lacked. CI now runs `rcf validate` and `rcf coverage --strict` as required steps, so this exit 0 is locked in: a stub TC or a new uncovered AC fails the build.) Strict mode is per-AC: every AC in scope needs a TC whose pointer resolves, and any gap exits 4. The `covered-unresolved` column is the third state: TC rows exist but at least one pointer does not resolve to a real test - a stub or a stale pointer - and it fails the gate exactly as uncovered does, with the offending pointers listed under the table. Read the table by AC id: this stage ends when your in-scope ACs show `AC covered: yes` with test cases listed. Gaps elsewhere in the tree may legitimately remain and will keep the tree-wide command at exit 4; narrow the verdict with a scope id (`rcf coverage <scope-id> --strict`, PRD / REQ / US ids accepted) to read the subtree you are working in.
 
 Failure modes:
 
@@ -210,48 +210,57 @@ $ rcf build
 
 Generation strategy: dependencyFirst
 
-| order | id | title | status | state | blocked by |
-|---|---|---|---|---|---|
-| 1 | FBS-001 | Document store core | complete | complete |  |
-| 2 | FBS-002 | Tree walk and validate command | complete | complete |  |
-| 3 | FBS-003 | Diagram rendering | complete | complete |  |
-| 4 | FBS-004 | HTML page rendering | complete | complete |  |
-| 5 | FBS-005 | CLI read verbs | complete | complete |  |
-| 6 | FBS-006 | CLI create and update verbs | complete | complete |  |
-| 7 | FBS-007 | CLI delete with reference safety | complete | complete |  |
-| 8 | FBS-008 | Coverage and trace queries | complete | complete |  |
-| 9 | FBS-009 | Impact analysis | complete | complete |  |
-| 10 | FBS-010 | Build adapter prompt assembly | complete | complete |  |
-| 11 | FBS-011 | Mark-done on completion | complete | complete |  |
-| 12 | FBS-012 | MCP server over the full surface | notStarted | actionable |  |
+| order | tier | id | title | status | state | blocked by |
+|---|---|---|---|---|---|---|
+| 1 | 0 | FBS-001 | Document store core | complete | complete |  |
+| 2 | 1 | FBS-002 | Tree walk and validate command | complete | complete |  |
+| 3 | 2 | FBS-003 | Diagram rendering | complete | complete |  |
+| 4 | 2 | FBS-004 | HTML page rendering | complete | complete |  |
+| 5 | 2 | FBS-005 | CLI read verbs | complete | complete |  |
+| 6 | 3 | FBS-006 | CLI create and update verbs | complete | complete |  |
+| 7 | 4 | FBS-007 | CLI delete with reference safety | complete | complete |  |
+| 8 | 2 | FBS-008 | Coverage and trace queries | complete | complete |  |
+| 9 | 3 | FBS-009 | Impact analysis | complete | complete |  |
+| 10 | 3 | FBS-010 | Build adapter prompt assembly | complete | complete |  |
+| 11 | 4 | FBS-011 | Mark-done on completion | complete | complete |  |
+| 12 | 4 | FBS-012 | MCP server over the full surface | complete | complete |  |
+| 13 | 0 | FBS-013 | Deploy-aware elicitation and hosting guidance | notStarted | actionable |  |
+| 14 | 0 | FBS-014 | Local-preview default, runtime-honest verification, interim self-review | notStarted | actionable |  |
 
-Totals: items 12 | notStarted 1 | inProgress 0 | complete 11 | verified 0 | actionable 1 | blocked 0
+Totals: items 14 | notStarted 2 | inProgress 0 | complete 12 | verified 0 | actionable 2 | blocked 0
 
-Next actionable: FBS-012
+Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
+- tier 0: FBS-001, FBS-013, FBS-014
+- tier 1: FBS-002
+- tier 2: FBS-003, FBS-004, FBS-005, FBS-008
+- tier 3: FBS-006, FBS-009, FBS-010
+- tier 4: FBS-007, FBS-011, FBS-012
+
+Next actionable: FBS-013
 ```
 
-One actionable item, so `rcf build --next` emits its bundle. The header orients you in one glance - what, where in the queue, how big, what it hangs off:
+Two actionable items, and the tier column says how they relate: FBS-013 and FBS-014 share tier 0, meaning no dependency path connects them - they are parallel-safe, so a harness with two write workers on separate clones could take one each. `rcf build --next` picks the lowest buildOrder and emits its bundle. The header orients you in one glance - what, where in the queue, how big, what it hangs off:
 
 ```
-# Spec bundle: FBS-012 - MCP server over the full surface
+# Spec bundle: FBS-013 - Deploy-aware elicitation and hosting guidance
 
 ## 1. Header
 
-- Item: FBS-012 - MCP server over the full surface
-- Queue: order 12, item 12 of 12
+- Item: FBS-013 - Deploy-aware elicitation and hosting guidance
+- Queue: order 13, item 13 of 14
 - Execution status: notStarted
-- Estimated size: large
-- Estimated hours: 10
+- Estimated size: medium
+- Estimated hours: 7
 - Risk level: medium
-- Domain: mcp
+- Domain: guidance
 - Parent chain: BS-001 -> PRD-001 (RCF Build Lite)
 ```
 
 Mark pickup, and the cycle is running:
 
 ```
-$ rcf build FBS-012 --mark inProgress
-marked FBS-012 notStarted -> inProgress
+$ rcf build FBS-013 --mark inProgress
+marked FBS-013 notStarted -> inProgress
 ```
 
 From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf finalise` to promote to `verified` after post-merge verification, and back to `rcf build --next`.

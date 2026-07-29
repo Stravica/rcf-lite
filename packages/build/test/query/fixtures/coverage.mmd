@@ -170,6 +170,8 @@ flowchart LR
   AC-502-1 -.-> TC-014-dependency-precedes-dependent
   AC-502-2["AC-502-2"]
   REQ-005 --> AC-502-2
+  TC-014-independent-items-share-tier["TC-014-independent-items-share-tier"]
+  AC-502-2 -.-> TC-014-independent-items-share-tier
   AC-502-3["AC-502-3"]
   REQ-005 --> AC-502-3
   TC-014-cycle-detected-reported["TC-014-cycle-detected-reported"]
@@ -405,6 +407,7 @@ flowchart LR
   class AC-502-1 ac;
   class TC-014-dependency-precedes-dependent tc;
   class AC-502-2 ac;
+  class TC-014-independent-items-share-tier tc;
   class AC-502-3 ac;
   class TC-014-cycle-detected-reported tc;
   class AC-503-1 ac;

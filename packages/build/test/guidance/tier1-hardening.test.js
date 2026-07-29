@@ -238,7 +238,11 @@ test('AC-805-4: no guidance claims the independent verification gate is still un
   for (const file of ['build-cycle-playbook.md', 'harness-template.md']) {
     const text = await read(file);
     assert.equal(/until rcf-verify-lite/i.test(text), false, `${file} still claims the verification gate does not exist`);
-    assert.equal(/interim/i.test(text), false, `${file} still frames the self-review as interim`);
+    // Carve-out: FBS-014's own title ("... interim self-review |") appears
+    // verbatim inside the section 10 queue capture. A captured document
+    // title is tree data on display, not guidance framing the self-review
+    // as interim - only prose uses of the word are the regression.
+    assert.equal(/interim(?! self-review \|)/i.test(text), false, `${file} still frames the self-review as interim`);
   }
 });
 

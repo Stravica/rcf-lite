@@ -4874,7 +4874,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>Risk level:</strong> medium</p>
   <p><strong>Build order:</strong> 10</p>
   <p><strong>Execution status:</strong> complete</p>
-  <p><strong>Notes:</strong> The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on.</p>
+  <p><strong>Notes:</strong> The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on. Ledger correction (2026-07-29, w-2026-07-28-005): this item was marked complete by Phase 6 while its &#39;topological build order with parallel-safe groups and cycle detection&#39; deliverable had shipped only in part - the queue computed order and detected cycles, but no parallel-safe grouping existed. The parallel-safe tier computation was ported from the RCF platform (rcf-common computeTiers) and surfaced in the rcf build queue in the same change that records this note, making the complete status factually true from that merge onward.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-010&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -4907,9 +4907,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   ],
   &quot;riskLevel&quot;: &quot;medium&quot;,
   &quot;domain&quot;: &quot;build&quot;,
-  &quot;notes&quot;: &quot;The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on.&quot;,
+  &quot;notes&quot;: &quot;The prompt is the load-bearing handoff to the coding agent; its shape is the contract every later phase will lean on. Ledger correction (2026-07-29, w-2026-07-28-005): this item was marked complete by Phase 6 while its &#39;topological build order with parallel-safe groups and cycle detection&#39; deliverable had shipped only in part - the queue computed order and detected cycles, but no parallel-safe grouping existed. The parallel-safe tier computation was ported from the RCF platform (rcf-common computeTiers) and surfaced in the rcf build queue in the same change that records this note, making the complete status factually true from that merge onward.&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-06T10:53:15.552Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T13:53:31.310Z&quot;,
   &quot;buildOrder&quot;: 10,
   &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;dependsOnFbsIds&quot;: [
@@ -6244,14 +6244,19 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <h3>TS-014 - Build order dependencies</h3>
   
   <p><strong>Verifies user story:</strong> <a href="#US-502">US-502</a></p>
-  <p><strong>Purpose:</strong> Verify dependency-respecting ordering and cycle refusal. AC-502-2 is pending: the queue exposes actionable state but no explicit parallel-safe reporting is asserted (see test-suites/PENDING.md).</p>
+  <p><strong>Purpose:</strong> Verify dependency-respecting ordering, parallel-safe tier reporting and cycle refusal.</p>
   <p><strong>Test level:</strong> unit</p>
-  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-502-1">AC-502-1</a>, <a href="#AC-502-3">AC-502-3</a></p></section>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-502-1">AC-502-1</a>, <a href="#AC-502-2">AC-502-2</a>, <a href="#AC-502-3">AC-502-3</a></p></section>
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-014-dependency-precedes-dependent">
   <p><strong>TC-014-dependency-precedes-dependent</strong> - covers <a href="#AC-502-1">AC-502-1</a> <span class="status pending">pending</span></p>
   <p>a dependent item stays blocked until its dependency is satisfied, so dependencies always precede dependents</p>
   <p><em>Test pointer:</em> <code>test/build/queue.test.js::notStarted with an unsatisfied dependency is blocked, blockedBy names it</code></p>
+</div>
+<div class="tc" id="TC-014-independent-items-share-tier">
+  <p><strong>TC-014-independent-items-share-tier</strong> - covers <a href="#AC-502-2">AC-502-2</a> <span class="status pending">pending</span></p>
+  <p>two FBS items with no dependency between them report the same parallel-safe tier group; a dependent item reports a later tier, never the same group</p>
+  <p><em>Test pointer:</em> <code>test/build/queue.test.js::FBS items with no dependency between them share a parallel-safe tier (AC-502-2)</code></p>
 </div>
 <div class="tc" id="TC-014-cycle-detected-reported">
   <p><strong>TC-014-cycle-detected-reported</strong> - covers <a href="#AC-502-3">AC-502-3</a> <span class="status pending">pending</span></p>
@@ -6260,11 +6265,12 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:20.986Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-29T12:57:21.183Z&quot;,
-  &quot;purpose&quot;: &quot;Verify dependency-respecting ordering and cycle refusal. AC-502-2 is pending: the queue exposes actionable state but no explicit parallel-safe reporting is asserted (see test-suites/PENDING.md).&quot;,
+  &quot;updatedAt&quot;: &quot;2026-07-29T16:45:00.000Z&quot;,
+  &quot;purpose&quot;: &quot;Verify dependency-respecting ordering, parallel-safe tier reporting and cycle refusal.&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
     &quot;AC-502-1&quot;,
+    &quot;AC-502-2&quot;,
     &quot;AC-502-3&quot;
   ],
   &quot;id&quot;: &quot;TS-014&quot;,
@@ -6277,6 +6283,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;a dependent item stays blocked until its dependency is satisfied, so dependencies always precede dependents&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/build/queue.test.js::notStarted with an unsatisfied dependency is blocked, blockedBy names it&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-014-independent-items-share-tier&quot;,
+      &quot;acId&quot;: &quot;AC-502-2&quot;,
+      &quot;description&quot;: &quot;two FBS items with no dependency between them report the same parallel-safe tier group; a dependent item reports a later tier, never the same group&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/build/queue.test.js::FBS items with no dependency between them share a parallel-safe tier (AC-502-2)&quot;
     },
     {
       &quot;id&quot;: &quot;TC-014-cycle-detected-reported&quot;,

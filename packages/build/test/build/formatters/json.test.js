@@ -24,10 +24,11 @@ test('queue envelope: ok + mode precede the queue result keys', () => {
     bs: { bsId: 'BS-001', title: 'Plan', generationStrategy: 'dependencyFirst' },
     totals: { items: 0 },
     nextActionable: null,
+    tiers: [],
     items: [],
   }, 'queue');
   const body = JSON.parse(out);
-  assert.deepEqual(Object.keys(body), ['ok', 'mode', 'bs', 'totals', 'nextActionable', 'items']);
+  assert.deepEqual(Object.keys(body), ['ok', 'mode', 'bs', 'totals', 'nextActionable', 'tiers', 'items']);
   assert.equal(body.ok, true);
   assert.equal(body.mode, 'queue');
 });

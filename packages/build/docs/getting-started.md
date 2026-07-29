@@ -410,12 +410,16 @@ rcf build
 
 Generation strategy: dependencyFirst
 
-| order | id | title | status | state | blocked by |
-|---|---|---|---|---|---|
-| 1 | FBS-001 | Save a recipe end to end | notStarted | actionable |  |
-| 2 | FBS-002 | Ingredient search | notStarted | blocked | FBS-001 |
+| order | tier | id | title | status | state | blocked by |
+|---|---|---|---|---|---|---|
+| 1 | 0 | FBS-001 | Save a recipe end to end | notStarted | actionable |  |
+| 2 | 1 | FBS-002 | Ingredient search | notStarted | blocked | FBS-001 |
 
-Totals: items 2 | notStarted 2 | inProgress 0 | complete 0 | verified 0 | actionable 1 | blocked 0
+Totals: items 2 | notStarted 2 | inProgress 0 | complete 0 | verified 0 | actionable 1 | blocked 1
+
+Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
+- tier 0: FBS-001
+- tier 1: FBS-002
 
 Next actionable: FBS-001
 ```
@@ -472,12 +476,16 @@ rcf build
 
 Generation strategy: dependencyFirst
 
-| order | id | title | status | state | blocked by |
-|---|---|---|---|---|---|
-| 1 | FBS-001 | Save a recipe end to end | complete | complete |  |
-| 2 | FBS-002 | Ingredient search | notStarted | actionable |  |
+| order | tier | id | title | status | state | blocked by |
+|---|---|---|---|---|---|---|
+| 1 | 0 | FBS-001 | Save a recipe end to end | complete | complete |  |
+| 2 | 1 | FBS-002 | Ingredient search | notStarted | actionable |  |
 
 Totals: items 2 | notStarted 1 | inProgress 0 | complete 1 | verified 0 | actionable 1 | blocked 0
+
+Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
+- tier 0: FBS-001
+- tier 1: FBS-002
 
 Next actionable: FBS-002
 ```
