@@ -23,6 +23,11 @@ import {
   formatMermaid,
   formatTable,
 } from '../query/index.js';
+import {
+  findAttestationDrift,
+  findAttestationMissing,
+  findProvenanceMissing,
+} from '../query/attestation.js';
 
 const OPTION_SPEC = {
   strict: { type: 'boolean' },
@@ -30,6 +35,9 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
   // Phase 10 (X2 CodeNode bridge, D11): layer the code axis onto coverage.
   'with-code': { type: 'boolean' },
+  // 0.7.0 verification-integrity: opt-in extra gate on --strict that
+  // refuses any TS still `draft` after Stage 4 (spec §7.2).
+  'require-approved': { type: 'boolean' },
 };
 
 export const HELP = `Usage: rcf coverage [scope-id] [options]
@@ -54,7 +62,16 @@ Positional:
                             TAD) are refused with exit 2.
 
 Options:
-  --strict                  Per-AC-strict mode; exits 4 on any gap
+  --strict                  Per-AC-strict mode; exits 4 on any gap. Also
+                            runs the attestation × profile matrix over
+                            every AC that binds a dependsOnServices
+                            entry (verification-integrity 0.7.0 §5.2):
+                            attestation drift, missing provenance, and
+                            missing FBS-level attestation all exit 4.
+  --require-approved        Extra --strict gate: refuse any TS still at
+                            authoringStatus 'draft' after Stage 4
+                            (verification-integrity 0.7.0 §7.2). Off
+                            by default; opt-in via CI.
   --with-code               Layer the code axis onto every AC: one of
                             implemented-and-covered / implemented-uncovered
                             / unimplemented, plus a tree-wide list of
@@ -149,5 +166,43 @@ export async function main(argv, deps = {}) {
 
   // --strict on any gap = exit 4 (CI-gate friendly). Otherwise 0.
   if (flags.strict && !result.ok) return 4;
+
+  // 0.7.0 verification-integrity extension: --strict also runs the
+  // attestation × profile matrix (spec §5.2). Three refusal classes:
+  // (1) attestation missing, (2) provenance missing, (3) attestation
+  // drift. All are additive — they never turn a passing coverage into
+  // a passing --strict run; they only add exit-4 refusals on new
+  // failure modes that the matrix now polices.
+  if (flags.strict) {
+    const missing = findAttestationMissing(tree);
+    const provMissing = findProvenanceMissing(tree);
+    const drift = findAttestationDrift(tree);
+    const refusals = [];
+    if (missing.length > 0) {
+      refusals.push('Attestation missing (FBSes listed in preflight affectedFbsIds but with no dependsOnServices entry):');
+      for (const m of missing) refusals.push(`  - ${m.fbsId}: run \`rcf fbs ${m.fbsId} depends-on --service ${m.serviceId} --mode ${m.attestationMode} --acs <acIds>\``);
+    }
+    if (provMissing.length > 0) {
+      refusals.push('Runtime provenance missing (TC covers an AC that binds a service):');
+      for (const p of provMissing) refusals.push(`  - ${p.tsId}/${p.tcId} on ${p.acId}: run \`rcf test-suite ${p.tsId} provenance --tc ${p.tcId} --profile <mock|stub|fixture|live>\``);
+    }
+    const drifts = drift.filter((d) => d.verdict === 'refuse');
+    if (drifts.length > 0) {
+      refusals.push('Attestation drift (§3.5 matrix refusal):');
+      for (const d of drifts) refusals.push(`  - ${d.tsId}/${d.tcId} on ${d.acId} (service ${d.serviceId}): ${d.reason}`);
+    }
+    if (refusals.length > 0) {
+      stderr.write(`[error] coverage --strict: refused - the verification-integrity matrix caught the following:\n${refusals.join('\n')}\n`);
+      return 4;
+    }
+
+    if (flags['require-approved']) {
+      const draftTsIds = (tree.testSuites ?? []).filter((ts) => ts.status !== 'approved').map((ts) => ts.id);
+      if (draftTsIds.length > 0) {
+        stderr.write(`[error] coverage --strict --require-approved: refused - ${draftTsIds.length} test suite(s) still not approved: ${draftTsIds.join(', ')}\n`);
+        return 4;
+      }
+    }
+  }
   return 0;
 }

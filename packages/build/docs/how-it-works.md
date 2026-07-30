@@ -107,19 +107,19 @@ Anywhere in the CLI, exit 3 means one of those two layers failed: the tree itsel
 
 ## 5. The verb map
 
-Eighteen subcommands under the single `rcf` bin, grouped by job:
+Twenty-two subcommands under the single `rcf` bin, grouped by job:
 
 | Job | Verbs |
 |---|---|
 | Scaffold | `init` |
-| Author | `create`, `update`, `delete`, `link`, `unlink` |
+| Author | `create`, `update`, `delete`, `link`, `unlink`, `fbs`, `test-suite` |
 | Inspect | `read`, `view` |
-| Trust | `validate`, `coverage`, `trace`, `impact`, `doctor` |
-| Build | `build`, `finalise` |
+| Trust | `validate`, `coverage`, `trace`, `impact`, `doctor`, `review` |
+| Build | `build`, `preflight`, `finalise` |
 | Agent | `mcp`, `guidance` |
 | Help | `help` |
 
-One line each: `init` scaffolds a new tree; `create`/`update`/`delete` write documents through schema validation; `link`/`unlink` manage the US-to-TAC cross-links; `read` prints a document, `view` serves the whole tree as a live local page; `validate` checks the tree, `coverage` reports the REQ-to-TC picture, `trace` walks the graph from an id, `impact` turns a change into a re-check list; `doctor` diagnoses init-hygiene drift (managed CLAUDE.md/AGENTS.md block, managed `.gitignore` block, seeded `rcf/knowledge/` and `rcf/.identity/`) and `doctor --fix` applies the safe minimal repair without touching operator content; `build` assembles FBS spec bundles and drives the queue; `finalise` is the ship gate - it runs the independent `rcf-verify` verifier against your deployed app as a fresh subprocess and promotes the FBS from `complete` to `verified` only when it passes; `mcp` serves everything to agents over stdio; `guidance` prints a method document out of the installed package, which is how a CLI-only agent reads the playbooks that MCP-wired harnesses get as `rcf://docs/<slug>` resources and `rcf_*` prompts.
+One line each: `init` scaffolds a new tree; `create`/`update`/`delete` write documents through schema validation; `link`/`unlink` manage the US-to-TAC cross-links; `fbs <fbs-id> depends-on` records a third-party service dependency on an FBS; `test-suite <ts-id> provenance` records how a test case verified its AC and `test-suite <ts-id> approve` promotes the suite's authoringStatus to `approved`; `read` prints a document, `view` serves the whole tree as a live local page; `validate` checks the tree, `coverage` reports the REQ-to-TC picture, `trace` walks the graph from an id, `impact` turns a change into a re-check list; `doctor` diagnoses init-hygiene drift (managed CLAUDE.md/AGENTS.md block, managed `.gitignore` block, seeded `rcf/knowledge/` and `rcf/.identity/`) and `doctor --fix` applies the safe minimal repair without touching operator content; `review <fbs-id>` runs the REVIEW-stage test-theatre audit and mutation-sampling pass; `build` assembles FBS spec bundles and drives the queue; `preflight` elicits the pre-flight service-attestation record and any applicable design-shape answers; `finalise` is the ship gate - it runs the independent `rcf-verify` verifier against your deployed app as a fresh subprocess and promotes the FBS from `complete` to `verified` only when it passes; `mcp` serves everything to agents over stdio; `guidance` prints a method document out of the installed package, which is how a CLI-only agent reads the playbooks that MCP-wired harnesses get as `rcf://docs/<slug>` resources and `rcf_*` prompts.
 
 Flags are deliberately not documented here: `rcf help <verb>` is the canonical, tested, ships-with-the-bin flag reference for every one of them.
 

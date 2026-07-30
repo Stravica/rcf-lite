@@ -37,7 +37,9 @@ import { kindOf } from '../query/index.js';
 import {
   buildVerifyArgs,
   detectVerify,
+  findMockOnlyDeclaredAcs,
   loadReport,
+  reportHasMockOnlyDeclared,
   resolveAbsentVerify,
   spawnVerify,
   summariseReport,
@@ -65,6 +67,11 @@ const OPTION_SPEC = {
   chain: { type: 'string' },
   persona: { type: 'string' },
   'install-verify': { type: 'boolean' },
+  // 0.7.0 verification-integrity: acknowledge MOCK-ONLY-DECLARED /
+  // BLOCKED-BY-DECLARATION per-AC verdicts on the verify report and
+  // ship the FBS 'complete' without promoting to 'verified'. Records
+  // the operator's ack on the manifest.
+  'ship-without-verified': { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
 };
@@ -103,6 +110,15 @@ Options:
   --persona <name>          Adversarial persona flavour
   --install-verify          If rcf-verify is absent, install it without
                             prompting (the sanctioned non-interactive path)
+  --ship-without-verified   Acknowledge MOCK-ONLY-DECLARED /
+                            BLOCKED-BY-DECLARATION per-AC verdicts on
+                            the verify report and ship the FBS
+                            'complete' without promoting to 'verified'
+                            (verification-integrity 0.7.0 §5.2). Reads
+                            the disclosed verdicts and leaves the FBS at
+                            'complete'. Without this flag, the gate
+                            refuses to promote when any AC lands in
+                            those verdicts.
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
@@ -281,6 +297,27 @@ export async function main(argv, deps = {}) {
         + 'runtime is edge-identical to prod - carries ship authority and can promote to verified. '
         + `Report: ${outPath}\n`);
       if (!passLoaded.ok) stderr.write(`[finalise] (the verify report could not be read: ${passLoaded.reason})\n`);
+      return 4;
+    }
+    // 0.7.0 verification-integrity §5.2: the finalise gate reads the
+    // verify report's per-AC verdicts and refuses to promote to
+    // 'verified' on MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION unless
+    // the operator has explicitly shipped-without-verified. Graceful
+    // when the report carries no perAcVerdicts field (verify's train
+    // car is later; older reports are silent on this axis).
+    if (passLoaded.ok && reportHasMockOnlyDeclared(passLoaded.report)) {
+      const declared = findMockOnlyDeclaredAcs(passLoaded.report);
+      if (flags['ship-without-verified']) {
+        if (!quiet) {
+          stdout.write(`[finalise] gate passed and ${declared.length} AC(s) came back with declared mock-only verdicts; --ship-without-verified acknowledged; ${fbsId} left '${currentStatus}'. Report: ${outPath}\n`);
+          stdout.write(summariseReport(passLoaded.report));
+        }
+        return 0;
+      }
+      stderr.write(`[finalise] gate NOT promoted: ${declared.length} AC(s) came back MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION on the report; ${fbsId} left '${currentStatus}'.\n`);
+      stderr.write('Only a run where every service-bound AC verifies with a live-attested profile promotes to verified. To ship the FBS at complete anyway, re-run with --ship-without-verified (the ack lands on the record).\n');
+      stderr.write(summariseReport(passLoaded.report));
+      stderr.write(`Report: ${outPath}\n`);
       return 4;
     }
     const result = await updateDocument({

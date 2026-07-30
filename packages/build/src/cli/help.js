@@ -21,7 +21,11 @@ import { HELP as IMPACT_HELP } from './impact.js';
 import { HELP as INIT_HELP } from './init.js';
 import { HELP as LINK_HELP, UNLINK_HELP } from './link.js';
 import { HELP as MCP_HELP } from './mcp.js';
+import { HELP as PREFLIGHT_HELP } from './preflight.js';
 import { HELP as READ_HELP } from './read.js';
+import { HELP as REVIEW_HELP } from './review.js';
+import { HELP as FBS_HELP } from './fbs.js';
+import { HELP as TEST_SUITE_HELP } from './test-suite.js';
 import { HELP as TRACE_HELP } from './trace.js';
 import { HELP as UPDATE_HELP } from './update.js';
 import { HELP as VALIDATE_HELP } from './validate.js';
@@ -47,6 +51,10 @@ Commands:
   doctor              Diagnose init-hygiene drift (0.6.0 spec); --fix repairs
   guidance [topic]    Print a method document from the installed pack
   mcp                 Serve the project over MCP (local stdio)
+  preflight           Elicit pre-flight service-attestation + design-shape record
+  fbs <fbs-id>        FBS-level verbs (depends-on)
+  test-suite <ts-id>  Test-suite verbs (provenance, approve)
+  review <fbs-id>     REVIEW-stage audit (test-theatre + mutation-sampling)
   help [command]      Print help for a command
 
 Options:
@@ -83,6 +91,10 @@ const HELP_MAP = {
   guidance: GUIDANCE_HELP,
   mcp: MCP_HELP,
   view: VIEW_HELP,
+  preflight: PREFLIGHT_HELP,
+  review: REVIEW_HELP,
+  fbs: FBS_HELP,
+  'test-suite': TEST_SUITE_HELP,
 };
 
 /**

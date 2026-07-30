@@ -24,6 +24,7 @@
 
 import { hashInnerContent } from './managed-block.js';
 import { identityEntry } from './identity-seed.js';
+import { preflightEntry } from '../preflight/secrets.js';
 
 /**
  * @typedef {object} GitignoreEntry
@@ -47,9 +48,7 @@ import { identityEntry } from './identity-seed.js';
 export function managedGitignoreEntries() {
   return [
     identityEntry,
-    // 0.7.0 will add:
-    //   import { preflightEntry } from '../preflight/index.js';
-    // above, and insert `preflightEntry` here.
+    preflightEntry,
   ];
 }
 

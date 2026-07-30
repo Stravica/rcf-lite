@@ -9,4 +9,4 @@
 export { detectVerify, findOnPath, resolvePackageBin, VERIFY_PACKAGE, VERIFY_BIN } from './detect.js';
 export { buildVerifyArgs, spawnVerify } from './spawn.js';
 export { promptYesNo, installVerify, resolveAbsentVerify } from './install.js';
-export { loadReport, summariseReport } from './ingest.js';
+export { loadReport, summariseReport, findMockOnlyDeclaredAcs, reportHasMockOnlyDeclared } from './ingest.js';
