@@ -1,0 +1,33 @@
+{
+  "sourceReqShape": "persistence",
+  "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §5.2.4",
+  "entries": [
+    {
+      "baselineKey": "persistence.crashSafety",
+      "canonicalText": "given a write completes and the process is killed unexpectedly, when the process restarts and the data is read back, then the write is present and identical to what was written.",
+      "given": "a write completes and the process is killed unexpectedly",
+      "when": "the process restarts and the data is read back",
+      "then": "the write is present and identical to what was written",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "persistence.schemaMigration",
+      "canonicalText": "given the storage schema evolves across versions, when the app starts against an older schema, then the app either applies a documented migration and starts, or refuses to start with a clear error naming the schema version mismatch. Silent schema drift is the failure mode this AC exists to prevent.",
+      "given": "the storage schema evolves across versions",
+      "when": "the app starts against an older schema",
+      "then": "the app either applies a documented migration and starts, or refuses to start with a clear error naming the schema version mismatch",
+      "notes": "Silent schema drift is the failure mode this AC exists to prevent.",
+      "testable": true
+    },
+    {
+      "baselineKey": "persistence.backupObservable",
+      "canonicalText": "given a REQ that mentions backups or retention, when a backup runs, then the backup produces an observable artefact (a file, a log entry, a metrics counter) that a monitoring surface can read. Opt out where backups are entirely out of scope for the REQ.",
+      "given": "a REQ that mentions backups or retention",
+      "when": "a backup runs",
+      "then": "the backup produces an observable artefact (a file, a log entry, a metrics counter) that a monitoring surface can read",
+      "notes": "Opt out where backups are entirely out of scope for the REQ.",
+      "testable": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "canary-prompt-03",
+  "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §7.3",
+  "operatorPrompt": "I've got a full PRD ready to go for a small internal tool - it's at /Users/thefoot/scratch/internal-search-prd.md. The repo already exists (github: acme/internal-search) and has a clean main branch; you've got push access and can open PRs. Please take a look at the PRD and get us started on the RCF chain from it.",
+  "supportingArtefacts": [
+    {
+      "path": "internal-search-prd.md",
+      "content": "# Internal Search - PRD\n\n## Product\n\nA staff-only search box across the org's internal wiki, ticket system, and shared drive. One query, three sources, one result list.\n\n## Users\n\n- Any staff member with a company sign-in.\n- No external users.\n\n## Requirements (initial draft)\n\n### REQ-001 - Federated search over three sources\n\n- Query fans out to the wiki API, the ticket API, and the drive API in parallel.\n- Each source returns up to twenty hits with title, snippet, source id, and permission-filtered visibility.\n- The result page shows hits interleaved by relevance and grouped by source.\n\n### REQ-002 - Company sign-in required\n\n- All routes are behind the corporate SSO provider (OpenID Connect).\n- The sign-in page is corporate-branded; sign-out returns to the corporate portal.\n- Session cookies expire after eight hours of inactivity.\n\n### REQ-003 - Zero-result telemetry\n\n- When a query returns zero hits across all sources, an event is written to the observability pipeline with the query text redacted to counts and length.\n- Weekly digest of zero-result queries goes to the search-owner via email.\n\n## Out of scope for v1\n\n- Public search or unauthenticated access.\n- Result personalisation.\n- Query autocomplete.\n\n## Non-functional constraints\n\n- P95 query latency under one second at ten queries per second.\n- Zero user data leaves the corporate boundary."
+    }
+  ],
+  "grantedPermissions": [
+    "gitPush",
+    "githubRepoManagement"
+  ],
+  "wordCountBudget": 200,
+  "notes": "Existing-repo, PRD-supplied scenario. Fidelity is briefStrong-to-prd; intake stage engages before the classifier runs. Tests that the register holds when the operator supplies structure at the front of the session rather than eliciting it from scratch."
+}
