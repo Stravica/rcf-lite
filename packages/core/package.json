@@ -30,6 +30,7 @@
     "./isolation": "./src/isolation/index.js",
     "./patterns/ui-shapes": "./src/patterns/ui-shapes.js",
     "./patterns/req-shapes": "./src/patterns/req-shapes.js",
+    "./patterns/services": "./src/patterns/services.js",
     "./patterns/register-canary": "./src/patterns/register-canary.js",
     "./baseline-catalog": "./src/baseline-catalog/index.js",
     "./fixtures/register-canary/*": "./src/fixtures/register-canary/*"
