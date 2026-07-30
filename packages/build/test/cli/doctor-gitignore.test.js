@@ -17,9 +17,16 @@ import { promisify } from 'node:util';
 
 import {
   composeGitignoreBlock,
+  composeGitignoreBlockFromEntries,
+  composeGitignoreInnerFromEntries,
   computeGitignoreBlockHash,
+  computeGitignoreBlockHashFromEntries,
+  extractGitignoreBlock,
+  GITIGNORE_MARKER_BEGIN,
+  GITIGNORE_MARKER_END,
   managedGitignoreEntries,
 } from '../../src/setup/managed-gitignore.js';
+import { hashInnerContent } from '../../src/setup/managed-block.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -102,33 +109,102 @@ test('AC-3.5: --fix on stale-hash rewrites the managed block, preserves operator
   assert.equal(doctorRun.code, 0, 'clean after --fix');
 });
 
-test('AC-3.6: aggregator extension - adding a second entry via override composes, hashes, and drifts as expected', async () => {
-  // Represent a hypothetical 0.7.0 contribution: a second entry with
-  // a distinct path/owner/since. Test exercises the extension path
-  // through the same composeGitignoreBlock / computeGitignoreBlockHash
-  // functions doctor uses.
+test('AC-3.6: aggregator extension pipeline (parts a-d) via the real compose helpers and doctor drift/repair cycle', async () => {
+  // Represent a hypothetical 0.7.0 contribution: a second entry with a
+  // distinct path/owner/since. This test exercises the FULL extension
+  // pipeline end-to-end without any test hook in production code —
+  // parts (a) and (b) call the pure `*FromEntries` composition helpers
+  // directly with an explicit [identityEntry, extraEntry] array (the
+  // shape a real 0.7.0 aggregator would return); parts (c) and (d)
+  // drive doctor's real CLI against a `.gitignore` whose managed inner
+  // content diverges from the current single-entry composition,
+  // proving the drift-detection + --fix pipeline that 0.7.0 will
+  // inherit unchanged.
   const extraEntry = {
     path: '.rcf/test-only-second.local.json',
     owner: 'test-only',
     since: '0.0.0-test',
   };
-  const baseHash = computeGitignoreBlockHash();
-  const extendedHash = computeGitignoreBlockHash({ extraEntries: [extraEntry] });
-  assert.notEqual(baseHash, extendedHash, 'extended aggregator hash differs from base');
+  const baseEntries = managedGitignoreEntries();
+  assert.equal(baseEntries.length, 1, 'v0.6.0 aggregator ships exactly one entry');
+  const extendedEntries = [...baseEntries, extraEntry];
 
-  const composed = composeGitignoreBlock({ extraEntries: [extraEntry] });
-  // Contains both entries in registered order.
-  const identityIdx = composed.indexOf('rcf/.identity/');
-  const extraIdx = composed.indexOf('.rcf/test-only-second.local.json');
-  assert.notEqual(identityIdx, -1, 'identity entry present in composed block');
-  assert.notEqual(extraIdx, -1, 'extra entry present in composed block');
-  assert.equal(identityIdx < extraIdx, true, 'entries appear in aggregator-registered order');
-  // Owner comments are one line each.
-  assert.match(composed, /# rcf init: per-clone operator profile \(since 0\.6\.0\)/);
-  assert.match(composed, /# test-only \(since 0\.0\.0-test\)/);
-  // Base-state .gitignore reports stale-hash under the extended aggregator.
-  const baseComposed = composeGitignoreBlock();
-  assert.notEqual(baseComposed, composed, 'base block differs from extended block');
+  // Part (a): composeGitignoreBlockFromEntries produces both entries in
+  // aggregator-registered order with correct one-line owner comments.
+  const extendedComposed = composeGitignoreBlockFromEntries(extendedEntries);
+  const identityIdx = extendedComposed.indexOf('rcf/.identity/');
+  const extraIdx = extendedComposed.indexOf('.rcf/test-only-second.local.json');
+  assert.notEqual(identityIdx, -1, '(a) identity entry present in composed block');
+  assert.notEqual(extraIdx, -1, '(a) extra entry present in composed block');
+  assert.equal(identityIdx < extraIdx, true, '(a) entries appear in aggregator-registered order');
+  assert.match(extendedComposed, /# rcf init: per-clone operator profile \(since 0\.6\.0\)/);
+  assert.match(extendedComposed, /# test-only \(since 0\.0\.0-test\)/);
+
+  // Part (b): computeGitignoreBlockHashFromEntries differs across
+  // aggregator states, so the doctor's stale-hash comparison actually
+  // catches an aggregator addition. `computeGitignoreBlockHash()`
+  // (production accessor) is the base-state hash.
+  const baseHash = computeGitignoreBlockHash();
+  const extendedHash = computeGitignoreBlockHashFromEntries(extendedEntries);
+  assert.notEqual(baseHash, extendedHash, '(b) extended aggregator hash differs from base');
+  assert.equal(baseHash, computeGitignoreBlockHashFromEntries(baseEntries),
+    '(b) production accessor equals FromEntries call with the aggregator output');
+
+  // Parts (c) and (d): drive the real doctor CLI end-to-end. Fresh init
+  // writes the base-state block; we splice in the extended-state block
+  // (composed via the same helpers a 0.7.0 aggregator would call
+  // through), forcing the `.gitignore`'s managed inner content to
+  // diverge from the current aggregator's composition. This is the
+  // exact drift shape a live 0.7.0 upgrade will produce on installed
+  // repos, in the opposite direction: existing files sit on the older
+  // block; the new aggregator computes a different hash; doctor
+  // reports stale-hash; --fix rewrites to the current composition.
+  // Testing the pipeline in this direction proves the mechanism
+  // without mutating any module-level array or shipping a test hook.
+  const tmp = await freshInit();
+  const gitignorePath = join(tmp, '.gitignore');
+  const initial = await readFile(gitignorePath, 'utf8');
+  const located = extractGitignoreBlock(initial);
+  assert.notEqual(located, null, 'fresh init wrote a managed .gitignore block');
+  const extendedInner = composeGitignoreInnerFromEntries(extendedEntries);
+  const extendedBlock = `${GITIGNORE_MARKER_BEGIN}\n${extendedInner}\n${GITIGNORE_MARKER_END}\n`;
+  const drifted = initial.slice(0, located.beginIndex) + extendedBlock + initial.slice(located.endIndex);
+  await writeFile(gitignorePath, drifted, 'utf8');
+  // Sanity: the spliced-in block hashes to the extended-aggregator
+  // hash, distinct from the base aggregator's hash — this is the shape
+  // doctor's classifier will see.
+  const splicedInner = extractGitignoreBlock(drifted).innerText;
+  assert.equal(hashInnerContent(splicedInner), extendedHash, 'spliced block hashes to the extended-aggregator hash');
+  assert.notEqual(hashInnerContent(splicedInner), baseHash, 'spliced block hash diverges from the current aggregator');
+
+  // Part (c): doctor --check gitignore reports stale-hash.
+  const checkRun = await runBin(tmp, ['doctor', '--check', 'gitignore']);
+  assert.equal(checkRun.code, 3, `(c) doctor should exit 3 on drift, got: ${checkRun.stdout}`);
+  assert.match(checkRun.stdout, /stale-hash/, '(c) drift item is stale-hash');
+  assert.match(checkRun.stdout, /\.gitignore/, '(c) drift item is on .gitignore');
+
+  // Part (d): doctor --fix --check gitignore rewrites the block. In the
+  // real 0.7.0-upgrade direction the aggregator would then include
+  // both entries in registered order; here the current aggregator is
+  // single-entry, so --fix restores the base composition. Either way
+  // the pipeline calls `composeGitignoreBlock()` (the production
+  // accessor), which itself calls `composeGitignoreBlockFromEntries`
+  // on the aggregator's output — the SAME helper part (a) proves
+  // orders the extended entries correctly. That shared code path is
+  // the load-bearing wiring, and it is now exercised on both sides:
+  // (a) proves the helper composes the extended state correctly, (d)
+  // proves doctor's --fix goes through the same helper.
+  const fixRun = await runBin(tmp, ['doctor', '--fix', '--check', 'gitignore']);
+  assert.equal(fixRun.code, 0, `(d) doctor --fix should exit 0 after repair, got: ${fixRun.stdout}`);
+  const afterFix = await readFile(gitignorePath, 'utf8');
+  const afterInner = extractGitignoreBlock(afterFix).innerText;
+  assert.equal(hashInnerContent(afterInner), baseHash, '(d) --fix rewrote the block to the current aggregator composition');
+  const afterLocated = extractGitignoreBlock(afterFix);
+  const rewrittenBlock = afterFix.slice(afterLocated.beginIndex, afterLocated.endIndex);
+  assert.equal(rewrittenBlock, composeGitignoreBlock(),
+    '(d) rewritten block byte-matches composeGitignoreBlock(), the same helper part (a) uses');
+  const finalCheck = await runBin(tmp, ['doctor', '--check', 'gitignore']);
+  assert.equal(finalCheck.code, 0, '(d) doctor clean after --fix');
 });
 
 test('AC-3.7: composed .gitignore block has no em-dash and no denylisted American-English forms', async () => {

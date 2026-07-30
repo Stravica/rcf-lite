@@ -11,6 +11,16 @@
 // (gitignore uses `#` for comments). Doctor's per-check logic still
 // calls into the generic managed-block primitive in `managed-block.js`
 // with these markers as its (markerBegin, markerEnd) pair.
+//
+// Composition primitives split by concern:
+// - Production callers use the no-arg accessors `composeGitignoreBlock()`,
+//   `composeGitignoreInner()`, `computeGitignoreBlockHash()` — these
+//   compose from the module-owned aggregator (`managedGitignoreEntries()`).
+// - Tests that need to prove the extension pipeline works with a
+//   synthetic second entry call the `*FromEntries(entries)` helpers
+//   directly with an explicit entries array. No production code path
+//   accepts an entries override; the aggregator's registered set is the
+//   only source of truth at runtime.
 
 import { hashInnerContent } from './managed-block.js';
 import { identityEntry } from './identity-seed.js';
@@ -29,27 +39,18 @@ import { identityEntry } from './identity-seed.js';
  * avoiding import-time mutation surprises); the aggregator imports and
  * composes deterministically. Adding an entry (e.g. the 0.7.0
  * credentials side-file) is a one-file edit here: import the constant
- * and insert into `registered`. Do NOT mutate this array at runtime;
- * callers should treat the returned array as read-only.
+ * and insert into the returned array. Do NOT mutate the returned array
+ * at runtime; callers should treat it as read-only.
  *
- * @param {object} [override] - test-only aggregator extension (§10 unit
- *   test coverage): pass `{ extraEntries: [...] }` to compose an
- *   extended block without touching the source file. AC-3.6 uses this
- *   to exercise the extension path end-to-end without a mock or an
- *   array `.push`.
  * @returns {GitignoreEntry[]}
  */
-export function managedGitignoreEntries(override) {
-  const registered = [
+export function managedGitignoreEntries() {
+  return [
     identityEntry,
     // 0.7.0 will add:
     //   import { preflightEntry } from '../preflight/index.js';
     // above, and insert `preflightEntry` here.
   ];
-  if (override && Array.isArray(override.extraEntries) && override.extraEntries.length > 0) {
-    return [...registered, ...override.extraEntries];
-  }
-  return registered;
 }
 
 /** Owner-comment header on the begin marker (§4.3 canonical text). */
@@ -57,19 +58,17 @@ export const GITIGNORE_MARKER_BEGIN = '# rcf:managed:begin (managed by `rcf doct
 export const GITIGNORE_MARKER_END = '# rcf:managed:end';
 
 /**
- * Compose the managed block from the aggregator. Deterministic order
- * (aggregator's registered order); each entry preceded by its one-line
- * owner comment `# {owner} (since {since})`; trailing newline outside
- * the end marker so the block sits cleanly inside a file. Callers
- * splice the return value in place; the return is the FULL block
- * (marker + inner + marker + terminating newline).
+ * Compose the full managed block (marker + inner + marker + terminating
+ * newline) from an explicit entries array. Pure helper — used by the
+ * production accessor `composeGitignoreBlock()` (which sources entries
+ * from the aggregator) AND by tests that need to exercise the
+ * composition pipeline with a synthetic entries array without any
+ * production test hook.
  *
- * @param {object} [opts]
- * @param {GitignoreEntry[]} [opts.extraEntries] - test-only aggregator extension (see AC-3.6).
+ * @param {GitignoreEntry[]} entries
  * @returns {string}
  */
-export function composeGitignoreBlock(opts) {
-  const entries = managedGitignoreEntries(opts);
+export function composeGitignoreBlockFromEntries(entries) {
   const lines = [GITIGNORE_MARKER_BEGIN];
   for (const e of entries) {
     lines.push(`# ${e.owner} (since ${e.since})`);
@@ -80,16 +79,15 @@ export function composeGitignoreBlock(opts) {
 }
 
 /**
- * The inner-content string the composed block wraps: everything
- * strictly between the marker lines. Doctor's stale-hash primitive
- * hashes this (trimmed) so operator whitespace around markers is
- * ignored.
+ * Compose the inner content the block wraps (everything strictly
+ * between the marker lines) from an explicit entries array. Doctor's
+ * stale-hash primitive hashes this (trimmed) so operator whitespace
+ * around markers is ignored.
  *
- * @param {object} [opts]
+ * @param {GitignoreEntry[]} entries
  * @returns {string}
  */
-export function composeGitignoreInner(opts) {
-  const entries = managedGitignoreEntries(opts);
+export function composeGitignoreInnerFromEntries(entries) {
   const lines = [];
   for (const e of entries) {
     lines.push(`# ${e.owner} (since ${e.since})`);
@@ -99,15 +97,49 @@ export function composeGitignoreInner(opts) {
 }
 
 /**
- * SHA-256 of the composed inner content (trimmed). Doctor compares this
- * to the hash of the inner content extracted from the file; mismatch
- * means stale.
+ * SHA-256 of the composed inner content (trimmed) for an explicit
+ * entries array. Doctor compares this to the hash of the inner content
+ * extracted from the file; mismatch means stale.
  *
- * @param {object} [opts]
+ * @param {GitignoreEntry[]} entries
  * @returns {string}
  */
-export function computeGitignoreBlockHash(opts) {
-  return hashInnerContent(composeGitignoreInner(opts));
+export function computeGitignoreBlockHashFromEntries(entries) {
+  return hashInnerContent(composeGitignoreInnerFromEntries(entries));
+}
+
+/**
+ * Compose the full managed block from the aggregator. Deterministic
+ * order (aggregator's registered order); each entry preceded by its
+ * one-line owner comment `# {owner} (since {since})`; trailing newline
+ * outside the end marker so the block sits cleanly inside a file.
+ * Callers splice the return value in place; the return is the FULL
+ * block (marker + inner + marker + terminating newline).
+ *
+ * @returns {string}
+ */
+export function composeGitignoreBlock() {
+  return composeGitignoreBlockFromEntries(managedGitignoreEntries());
+}
+
+/**
+ * The inner-content string the composed block wraps, sourced from the
+ * aggregator.
+ *
+ * @returns {string}
+ */
+export function composeGitignoreInner() {
+  return composeGitignoreInnerFromEntries(managedGitignoreEntries());
+}
+
+/**
+ * SHA-256 of the composed inner content (trimmed), sourced from the
+ * aggregator. Doctor's `stale-hash` production callsite.
+ *
+ * @returns {string}
+ */
+export function computeGitignoreBlockHash() {
+  return computeGitignoreBlockHashFromEntries(managedGitignoreEntries());
 }
 
 /**
