@@ -1,16 +1,3 @@
-# Drop-in harness template
-
-## What this is
-
-The block that wires an agent into the RCF loop. **The golden path is `rcf init`**: it writes this fragment into your project's agent-instructions files automatically - **both `CLAUDE.md` and `AGENTS.md` on a fresh project** (vendor-neutral by default), or an existing instructions file refreshed in place - inside `<!-- rcf:managed:begin -->` / `<!-- rcf:managed:end -->` markers so re-running init or `rcf doctor --fix` refreshes it in place. Paste it by hand only if you skipped the bootstrap (`rcf init --no-agent-setup`) or your harness reads instructions from somewhere non-standard. The fragment is complete as shipped and names no specific harness.
-
-The `<!-- rcf:managed:begin -->` / `<!-- rcf:managed:end -->` marker convention was introduced in 0.6.0 (previously `<!-- rcf:begin -->` / `<!-- rcf:end -->`). If you are looking at an older repo whose file still carries the legacy pair, `rcf doctor --fix` migrates it in place; the MCP setup-funnel gate accepts either generation, so a legacy-inited repo is not spammed with setup notices while it waits to be migrated.
-
-These are operating rules for the agent, not suggestions. They exist because the failure modes are known: agents fabricate documents single-shot instead of asking, silently drop the tech or test layer, declare scaffold TODOs "done", stop after one build item instead of driving the queue, patch a reported bug in code without fixing the spec that let it through, commit a technology stack the owner's hosting cannot run before anyone asked where the app would run, push an undecided owner into standing up accounts and billing for a thing nobody has committed to building, ship with nothing the owner can actually run without a deploy, and claim a result is "verified" against a runtime the check never touched. The fragment forecloses each.
-
-## The fragment
-
-```markdown
 ## RCF
 
 This project uses RCF. The tree under `rcf/` is the requirements spine and
@@ -193,16 +180,3 @@ queue orchestration, PR authoring and bug triage. The
 for elicitation, AC coverage depth and conversation integrity. Run `rcf
 guidance` with no arguments to list every method document the installed
 package ships.
-```
-
-## Customisation points
-
-Two, and only two, are intended tuning: the optional PR-convention line at the end of the fragment, and your commit cadence if the driving workflow batches differently. Everything else is the method; editing it means running a different method. The RULE blocks in particular are load-bearing - they exist to stop observed failure modes.
-
-## Known limitation - the fragment has to be present
-
-These rules only govern a session that loads this fragment. A project that was never initialised with `rcf init`, or whose fragment was stripped from `CLAUDE.md` / `AGENTS.md`, gets neither the deploy-target elicitation surface nor the runtime-provenance rules, and nothing here will flag its absence. Re-running `rcf init` restores the fragment; a session that cannot find it under the `<!-- rcf:managed:begin -->` / `<!-- rcf:managed:end -->` markers should say so rather than proceed as if the method were in force.
-
-## Check it took
-
-Three checks. Ask the agent to state the loop; the answer should name the five stages and the mark commands. Ask what it does before authoring documents; the answer should name the elicitation playbook and stakeholder questions, not drafting. Then watch its first `rcf build --next` cycle: the bundle's runbook should be followed stage by stage, with a commit at each stage end.
