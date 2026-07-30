@@ -67,7 +67,7 @@ test('AC-802-3: the deploy target and its stack implication are captured as an A
 test('AC-802-4: the harness fragment forbids committing a stack before the deploy target is established', async () => {
   const fragment = await loadHarnessFragment();
   assert.match(fragment, /RULE 5/);
-  assert.match(fragment, /stack must NOT be committed before the deploy target/i);
+  assert.match(fragment, /stack must not be committed before the deploy target/i);
 });
 
 // --- US-803: hosting-choice walkthrough when the owner is unsure ---
@@ -107,9 +107,9 @@ test('AC-803-4: the walkthrough covers configuring the account, not only naming 
 
 test('deferral: RULE 5 orders target-before-stack without requiring the owner to have a target', async () => {
   const fragment = await loadHarnessFragment();
-  assert.match(fragment, /stack must NOT be committed before the deploy target/i);
+  assert.match(fragment, /stack must not be committed before the deploy target/i);
   assert.match(fragment, /ordering rule/i);
-  assert.match(fragment, /does not require the owner to\s+have a target/i);
+  assert.match(fragment, /does not require the owner to have a target/i);
   // The regression: a sentence reasserting unconditional earliness.
   assert.equal(
     /Where the app will run is elicited early/i.test(fragment), false,
@@ -120,9 +120,12 @@ test('deferral: RULE 5 orders target-before-stack without requiring the owner to
 test('deferral: RULE 5 names the defer / exploring / not-deploying answer as valid', async () => {
   const fragment = await loadHarnessFragment();
   assert.match(fragment, /defers, is still exploring, or is not deploying/i);
-  assert.match(fragment, /an answer, not a blocker/i);
-  assert.match(fragment, /do not stand\s+an account up/i);
-  assert.match(fragment, /never do\s+is turn into a silent stub/i);
+  assert.match(fragment, /an\s+answer, not a blocker/i);
+  assert.match(fragment, /do not stand an\s+account up/i);
+  // 0.6.0 canonical text carries the "deferred capability's acceptance
+  // criteria are deferred with it" phrasing rather than the pre-0.6.0
+  // "never do is turn into a silent stub". Both encode the same rule.
+  assert.match(fragment, /acceptance criteria are deferred with it/i);
 });
 
 test('deferral: the playbook carries a branch distinct from the hosting-choice walkthrough', async () => {
@@ -249,6 +252,6 @@ test('AC-805-4: no guidance claims the independent verification gate is still un
 // Fragment carries the deploy-aware and runtime-honest RULE blocks.
 test('the harness fragment carries the local-preview and runtime-provenance rules (RULE 6, RULE 7)', async () => {
   const fragment = await loadHarnessFragment();
-  assert.match(fragment, /RULE 6 - Every build lands a local preview/);
-  assert.match(fragment, /RULE 7 - Verification claims name their runtime/);
+  assert.match(fragment, /RULE 6: Every build lands a local preview/);
+  assert.match(fragment, /RULE 7: Verification claims name their runtime/);
 });

@@ -19,25 +19,25 @@ test('the fragment extracts from guidance/harness-template.md', async () => {
 test('the fragment carries the three firm rule areas', async () => {
   const fragment = await loadHarnessFragment();
   // Rule 1: elicitation first, no single-shot fabrication.
-  assert.match(fragment, /RULE 1 - Elicit first/);
+  assert.match(fragment, /RULE 1: Elicit first/);
   assert.match(fragment, /rcf_elicit_requirements/);
-  assert.match(fragment, /do not invent it - ask/);
+  assert.match(fragment, /do not invent it\./);
   // Rule 2: the full chain including the tech layer; TODOs are not done.
-  assert.match(fragment, /RULE 2 - The full chain/);
-  assert.match(fragment, /PRD -> REQ -> US -> AC -> TS -> TC/);
+  assert.match(fragment, /RULE 2: The full chain/);
+  assert.match(fragment, /PRD, REQ, US, AC, TS, TC/);
   assert.match(fragment, /TAD, TAC, ADR/);
-  assert.match(fragment, /TODO placeholders are NOT a finished state/);
+  assert.match(fragment, /TODO placeholders are not\s+a\s+finished state/);
   // Rule 3: mandatory test layer gated on coverage.
-  assert.match(fragment, /RULE 3 - The test layer/);
+  assert.match(fragment, /RULE 3: The test layer/);
   assert.match(fragment, /coverage --strict/);
 });
 
 test('the fragment presents as rules, not suggestions', async () => {
   const fragment = await loadHarnessFragment();
-  assert.match(fragment, /hard\s+rules, not suggestions/);
+  assert.match(fragment, /hard rules, not suggestions/);
 });
 
 test('the markers are stable strings init and the funnel agree on', () => {
-  assert.equal(MARKER_BEGIN, '<!-- rcf:begin -->');
-  assert.equal(MARKER_END, '<!-- rcf:end -->');
+  assert.equal(MARKER_BEGIN, '<!-- rcf:managed:begin -->');
+  assert.equal(MARKER_END, '<!-- rcf:managed:end -->');
 });

@@ -88,7 +88,7 @@ test('the two playbooks reach real content, not a stub', async () => {
 
 test('rcf guidance harness-template carries the fragment fence init writes', async () => {
   const { stdout } = await runBin(await treelessDir(), ['guidance', 'harness-template']);
-  assert.match(stdout, /```markdown\n[\s\S]*RULE 1 - Elicit first/);
+  assert.match(stdout, /```markdown\n[\s\S]*RULE 1: Elicit first/);
 });
 
 test('--path prints the resolved file path inside the installed package', async () => {

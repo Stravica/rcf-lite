@@ -31,8 +31,16 @@ test('manifest parses with docs and prompts arrays of the specced shape', async 
     assert.equal(typeof p.file, 'string');
     assert.equal(typeof p.description, 'string');
   }
-  // The locked inventories (§D3 / §D4): four docs, two prompts.
-  assert.deepEqual(m.docs.map((d) => d.slug), ['overview', 'document-model', 'build-cycle', 'harness-template']);
+  // The locked inventories (§D3 / §D4, extended in 0.6.0 spec D-6 with
+  // the managed/ sub-slug for the canonical CLAUDE.md/AGENTS.md block):
+  // five docs, two prompts.
+  assert.deepEqual(m.docs.map((d) => d.slug), [
+    'overview',
+    'document-model',
+    'build-cycle',
+    'harness-template',
+    'managed/agent-instructions-block',
+  ]);
   assert.deepEqual(m.prompts.map((p) => p.name), ['rcf_execute_build_cycle', 'rcf_elicit_requirements']);
 });
 

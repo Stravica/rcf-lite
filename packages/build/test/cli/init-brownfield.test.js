@@ -102,7 +102,7 @@ test('brownfield repo: authored tree untouched, foreign MCP config preserved, pr
   // 3. CLAUDE.md: prose outside the markers preserved verbatim, block appended.
   const claude = await readFile(join(tmp, 'CLAUDE.md'), 'utf8');
   assert.equal(claude.startsWith(PRIOR_CLAUDE), true, 'prior instructions intact and unmoved');
-  assert.match(claude, /<!-- rcf:begin -->/);
+  assert.match(claude, /<!-- rcf:managed:begin -->/);
 
   // 4. The other convention's file is not invented.
   assert.equal(await fileExists(join(tmp, 'AGENTS.md')), false, 'no AGENTS.md invented');

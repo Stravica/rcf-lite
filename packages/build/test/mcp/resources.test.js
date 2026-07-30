@@ -78,11 +78,19 @@ test('resources/list: complete vs the walker - every standalone and inline id, p
   }
 });
 
-test('rcf://docs/<slug>: all four methodology docs serve byte-faithful markdown from the pack manifest', async () => {
+test('rcf://docs/<slug>: every methodology doc in the pack manifest serves byte-faithful markdown', async () => {
   const tmp = await scaffold();
   const registry = createResourceRegistry({ projectRoot: tmp });
   const manifest = await readGuidanceManifest(GUIDANCE_DIR);
-  assert.deepEqual(manifest.docs.map((d) => d.slug), ['overview', 'document-model', 'build-cycle', 'harness-template']);
+  // Locked inventory (§D3, extended in 0.6.0 spec D-6 with the
+  // managed/ sub-slug for the canonical CLAUDE.md/AGENTS.md block).
+  assert.deepEqual(manifest.docs.map((d) => d.slug), [
+    'overview',
+    'document-model',
+    'build-cycle',
+    'harness-template',
+    'managed/agent-instructions-block',
+  ]);
   for (const doc of manifest.docs) {
     const result = await registry.read(`rcf://docs/${doc.slug}`);
     assert.equal(result.contents[0].mimeType, 'text/markdown');

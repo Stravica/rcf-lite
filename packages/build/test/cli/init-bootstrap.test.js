@@ -60,11 +60,11 @@ test('fresh dir: init creates the tree, .mcp.json and BOTH CLAUDE.md + AGENTS.md
   // each inside markers and carrying the three firm rules.
   for (const name of ['CLAUDE.md', 'AGENTS.md']) {
     const doc = await readFile(join(tmp, name), 'utf8');
-    assert.match(doc, /<!-- rcf:begin -->/, `${name} has begin marker`);
-    assert.match(doc, /<!-- rcf:end -->/, `${name} has end marker`);
-    assert.match(doc, /RULE 1 - Elicit first/, `${name} has rule 1`);
-    assert.match(doc, /RULE 2 - The full chain/, `${name} has rule 2`);
-    assert.match(doc, /RULE 3 - The test layer/, `${name} has rule 3`);
+    assert.match(doc, /<!-- rcf:managed:begin -->/, `${name} has begin marker`);
+    assert.match(doc, /<!-- rcf:managed:end -->/, `${name} has end marker`);
+    assert.match(doc, /RULE 1: Elicit first/, `${name} has rule 1`);
+    assert.match(doc, /RULE 2: The full chain/, `${name} has rule 2`);
+    assert.match(doc, /RULE 3: The test layer/, `${name} has rule 3`);
   }
 });
 
@@ -112,7 +112,7 @@ test('existing CLAUDE.md: fragment appended inside markers, prior content intact
   assert.match(stdout, /Agent instructions\s+updated in CLAUDE\.md/);
   const claude = await readFile(join(tmp, 'CLAUDE.md'), 'utf8');
   assert.equal(claude.startsWith(prior), true, 'prior content intact at the top');
-  assert.match(claude, /<!-- rcf:begin -->/);
+  assert.match(claude, /<!-- rcf:managed:begin -->/);
   // An existing instructions file is the routing target; the other
   // convention's file is NOT invented (only fresh repos get both).
   assert.equal(await fileExists(join(tmp, 'AGENTS.md')), false, 'no AGENTS.md invented');
@@ -125,7 +125,7 @@ test('existing AGENTS.md and no CLAUDE.md: fragment lands in AGENTS.md, no CLAUD
   assert.equal(code, 0);
   assert.match(stdout, /Agent instructions\s+updated in AGENTS\.md/);
   const agents = await readFile(join(tmp, 'AGENTS.md'), 'utf8');
-  assert.match(agents, /<!-- rcf:begin -->/);
+  assert.match(agents, /<!-- rcf:managed:begin -->/);
   assert.equal(await fileExists(join(tmp, 'CLAUDE.md')), false, 'no CLAUDE.md invented');
 });
 
@@ -141,8 +141,8 @@ test('re-run idempotency: tree untouched, marked block replaced not duplicated',
   // the marked block in either.
   for (const name of ['CLAUDE.md', 'AGENTS.md']) {
     const doc = await readFile(join(tmp, name), 'utf8');
-    assert.equal(doc.match(/<!-- rcf:begin -->/g).length, 1, `${name}: exactly one begin marker`);
-    assert.equal(doc.match(/<!-- rcf:end -->/g).length, 1, `${name}: exactly one end marker`);
+    assert.equal(doc.match(/<!-- rcf:managed:begin -->/g).length, 1, `${name}: exactly one begin marker`);
+    assert.equal(doc.match(/<!-- rcf:managed:end -->/g).length, 1, `${name}: exactly one end marker`);
   }
 });
 
