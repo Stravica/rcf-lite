@@ -21,13 +21,26 @@
 import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
 import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
 import {
-  loadHarnessFragment,
+  loadManagedBlock,
   manualSetupInstructions,
   writeAgentInstructions,
   writeMcpConfig,
 } from '../setup/agent-setup.js';
+import { writeKnowledgeSeed } from '../setup/knowledge-seed.js';
+import { writeIdentityTemplate } from '../setup/identity-seed.js';
+import {
+  composeGitignoreBlock,
+  computeGitignoreBlockHash,
+  extractGitignoreBlock,
+  GITIGNORE_MARKER_BEGIN,
+  GITIGNORE_MARKER_END,
+} from '../setup/managed-gitignore.js';
+import { hashInnerContent } from '../setup/managed-block.js';
 
 const OPTION_SPEC = {
   'project-name': { type: 'string' },
@@ -144,13 +157,24 @@ export async function main(argv, deps = {}) {
     return 2;
   }
 
-  // Step 2: agent-instructions fragment inside rcf markers (idempotent).
-  const fragment = await loadHarnessFragment();
+  // Step 2: agent-instructions managed block inside rcf markers (idempotent).
+  // Source is the 0.6.0 canonical asset, not the harness-template fenced
+  // fragment (which is now regenerated from the same canonical text at
+  // package build time via scripts/gen-managed-artefacts.mjs).
+  const fragment = await loadManagedBlock();
   if (typeof fragment !== 'string') {
     stderr.write(`[error] ${fragment.kind} ${fragment.message}\n`);
     return 1;
   }
   const instrResult = await writeAgentInstructions({ projectRoot: cwd, fragment });
+
+  // Step 3: knowledge space (§3, AC-2.1..AC-2.3). Idempotent per file.
+  const knowledgeResult = await writeKnowledgeSeed({ projectRoot: cwd });
+  // Step 4: identity template (§5, AC-4.1..AC-4.2). Idempotent.
+  const identityResult = await writeIdentityTemplate({ projectRoot: cwd });
+  // Step 5: managed .gitignore block (§4, AC-3.1..AC-3.2). Written or
+  // refreshed in place; operator content outside preserved byte-for-byte.
+  const gitignoreResult = await ensureManagedGitignore({ projectRoot: cwd });
 
   // High-level completion summary: what was set up and what to do next -
   // not a developer file list (operator review 2026-07-16, comment 3a).
@@ -175,8 +199,84 @@ export async function main(argv, deps = {}) {
     }
     stdout.write(`  MCP server         ${mcpDesc}.\n`);
     stdout.write(`  Agent instructions ${instrVerb} ${instrFiles}.\n`);
+    stdout.write(`  Knowledge space    ${knowledgeVerbAndTarget(knowledgeResult)}.\n`);
+    stdout.write(`  Operator profile   ${identityVerbAndTarget(identityResult)}.\n`);
+    stdout.write(`  Gitignore          ${gitignoreVerbAndTarget(gitignoreResult)}.\n`);
     stdout.write('\nNext: start your agent session in this directory and tell it what you want to build. '
       + 'It elicits the requirements and drives the build from there - you do not fill in the document chain by hand.\n');
   }
   return 0;
+}
+
+function knowledgeVerbAndTarget(result) {
+  const created = result.writes.filter((w) => w.action === 'created').length;
+  if (created === 0) return 'left as-is at rcf/knowledge/ (all managed files already present)';
+  if (created === result.writes.length) return 'seeded at rcf/knowledge/ (write what you learn; grep before asking)';
+  return `refreshed at rcf/knowledge/ (${created} new managed files)`;
+}
+
+function identityVerbAndTarget(result) {
+  if (result.action === 'kept') return 'left as-is at rcf/.identity/profile.md (already present)';
+  return 'template at rcf/.identity/profile.md (gitignored by default; fill in what is useful)';
+}
+
+function gitignoreVerbAndTarget(result) {
+  if (result.action === 'noop') return 'managed block already up to date in .gitignore';
+  if (result.action === 'created') return 'managed block written to .gitignore (rcf/.identity/ ignored)';
+  if (result.action === 'appended') return 'managed block appended to existing .gitignore (rcf/.identity/ ignored)';
+  return 'managed block refreshed in .gitignore (rcf/.identity/ ignored)';
+}
+
+/**
+ * Ensure the project-root `.gitignore` carries the current managed
+ * block. Writes/refreshes in place; operator entries outside markers
+ * preserved byte-for-byte. Idempotent when block is already current.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @returns {Promise<{ action: 'created' | 'appended' | 'replaced' | 'noop' }>}
+ */
+async function ensureManagedGitignore({ projectRoot }) {
+  const path = join(projectRoot, '.gitignore');
+  let existing;
+  try {
+    existing = await readFile(path, 'utf8');
+  } catch (err) {
+    if (/** @type {NodeJS.ErrnoException} */ (err).code !== 'ENOENT') throw err;
+    await writeFile(path, composeGitignoreBlock(), 'utf8');
+    return { action: 'created' };
+  }
+  const located = extractGitignoreBlock(existing);
+  const composed = composeGitignoreBlock();
+  if (!located) {
+    // No managed block yet - append with a blank-line separator.
+    const beginCount = countLocal(existing, GITIGNORE_MARKER_BEGIN);
+    const endCount = countLocal(existing, GITIGNORE_MARKER_END);
+    if (beginCount !== 0 || endCount !== 0) {
+      // Structurally malformed - leave alone; doctor will surface the
+      // drift and the operator repairs by hand.
+      return { action: 'noop' };
+    }
+    const sep = existing.length === 0 ? '' : (existing.endsWith('\n') ? '\n' : '\n\n');
+    await writeFile(path, `${existing}${sep}${composed}`, 'utf8');
+    return { action: 'appended' };
+  }
+  const innerHash = hashInnerContent(located.innerText);
+  const expected = computeGitignoreBlockHash();
+  if (innerHash === expected) return { action: 'noop' };
+  const next = existing.slice(0, located.beginIndex) + composed + existing.slice(located.endIndex);
+  await writeFile(path, next, 'utf8');
+  return { action: 'replaced' };
+}
+
+function countLocal(haystack, needle) {
+  if (!needle) return 0;
+  let n = 0;
+  let i = 0;
+  while (true) {
+    const at = haystack.indexOf(needle, i);
+    if (at < 0) return n;
+    n += 1;
+    i = at + needle.length;
+  }
 }

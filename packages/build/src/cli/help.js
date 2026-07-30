@@ -14,6 +14,7 @@ import { HELP as BUILD_HELP } from './build.js';
 import { HELP as COVERAGE_HELP } from './coverage.js';
 import { HELP as CREATE_HELP } from './create.js';
 import { HELP as DELETE_HELP } from './delete.js';
+import { HELP as DOCTOR_HELP } from './doctor.js';
 import { HELP as FINALISE_HELP } from './finalise.js';
 import { HELP as GUIDANCE_HELP } from './guidance.js';
 import { HELP as IMPACT_HELP } from './impact.js';
@@ -43,6 +44,7 @@ Commands:
   impact <id>         Impact fan-out with per-node action label
   build [fbs-id]      Assemble FBS spec bundles and drive the build queue
   finalise <fbs-id>   Ship gate: verify the deployed app, then mark verified
+  doctor              Diagnose init-hygiene drift (0.6.0 spec); --fix repairs
   guidance [topic]    Print a method document from the installed pack
   mcp                 Serve the project over MCP (local stdio)
   help [command]      Print help for a command
@@ -77,6 +79,7 @@ const HELP_MAP = {
   impact: IMPACT_HELP,
   build: BUILD_HELP,
   finalise: FINALISE_HELP,
+  doctor: DOCTOR_HELP,
   guidance: GUIDANCE_HELP,
   mcp: MCP_HELP,
   view: VIEW_HELP,
