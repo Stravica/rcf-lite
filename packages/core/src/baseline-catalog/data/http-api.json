@@ -1,0 +1,42 @@
+{
+  "sourceReqShape": "httpApi",
+  "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §5.2.2",
+  "entries": [
+    {
+      "baselineKey": "httpApi.errorEnvelope",
+      "canonicalText": "given any endpoint, when the endpoint returns a non-2xx response, then the body is a JSON object with fields `error.code` (string, machine-readable), `error.message` (string, human-readable), and `error.requestId` (string, correlatable to logs).",
+      "given": "any endpoint",
+      "when": "the endpoint returns a non-2xx response",
+      "then": "the body is a JSON object with fields `error.code` (string, machine-readable), `error.message` (string, human-readable), and `error.requestId` (string, correlatable to logs)",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "httpApi.contentType",
+      "canonicalText": "given any endpoint returning a response body, when the response is emitted, then `content-type: application/json; charset=utf-8` (or the project-declared content type in the REQ's `rationale`) is set explicitly on the response.",
+      "given": "any endpoint returning a response body",
+      "when": "the response is emitted",
+      "then": "`content-type: application/json; charset=utf-8` (or the project-declared content type in the REQ's `rationale`) is set explicitly on the response",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "httpApi.authBoundary",
+      "canonicalText": "given an endpoint the REQ marks as protected, when a request without valid credentials is received, then the response is 401 with the standard error envelope (never 200 with a generic \"not found\" that leaks the endpoint's existence in some sessions and hides it in others).",
+      "given": "an endpoint the REQ marks as protected",
+      "when": "a request without valid credentials is received",
+      "then": "the response is 401 with the standard error envelope (never 200 with a generic \"not found\" that leaks the endpoint's existence in some sessions and hides it in others)",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "httpApi.rateLimitDisclosure",
+      "canonicalText": "given a REQ that opts into rate limiting (via a rate-limit field on the REQ or explicit AC), when a request is throttled, then the response is 429 with `retry-after` set to the number of seconds until retry; when a request is NOT throttled but rate limits exist, then `x-ratelimit-remaining` is present on the response. Opting out is the norm for REQs with no rate limiting.",
+      "given": "a REQ that opts into rate limiting (via a rate-limit field on the REQ or explicit AC)",
+      "when": "a request is throttled",
+      "then": "the response is 429 with `retry-after` set to the number of seconds until retry; when a request is NOT throttled but rate limits exist, then `x-ratelimit-remaining` is present on the response",
+      "notes": "Opting out is the norm for REQs with no rate limiting.",
+      "testable": true
+    }
+  ]
+}

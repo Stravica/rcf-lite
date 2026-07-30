@@ -1,0 +1,60 @@
+{
+  "sourceReqShape": "webUi",
+  "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §5.2.1",
+  "entries": [
+    {
+      "baselineKey": "webUi.sharedNav",
+      "canonicalText": "given the user is signed in, when any authenticated route is loaded, then the response HTML renders the shared nav element (declared by `uiBaseline.defaults.sharedLayoutModule`) with `aria-current=\"page\"` on the nav link whose href matches the current route.",
+      "given": "the user is signed in",
+      "when": "any authenticated route is loaded",
+      "then": "the response HTML renders the shared nav element (declared by `uiBaseline.defaults.sharedLayoutModule`) with `aria-current=\"page\"` on the nav link whose href matches the current route",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "webUi.themeToggle",
+      "canonicalText": "given a first-load with no theme cookie set, when the page renders, then `<html data-theme=\"light\">` is present; AND a user-visible theme toggle control is rendered on every authenticated route; AND clicking the toggle persists the choice via cookie or local storage for subsequent requests. The default-light case is hardcoded here per Track B §8.3 `themeDefaultsToLight` invariant; projects that opt into a dark default supersede this AC via a `baselineAcOptOuts[]` entry (§3.3), which Track B's `themeDefaultsToLight` tolerates by design.",
+      "given": "a first-load with no theme cookie set",
+      "when": "the page renders",
+      "then": "`<html data-theme=\"light\">` is present; AND a user-visible theme toggle control is rendered on every authenticated route; AND clicking the toggle persists the choice via cookie or local storage for subsequent requests",
+      "notes": "The default-light case is hardcoded here per Track B §8.3 `themeDefaultsToLight` invariant; projects that opt into a dark default supersede this AC via a `baselineAcOptOuts[]` entry (§3.3), which Track B's `themeDefaultsToLight` tolerates by design.",
+      "testable": true
+    },
+    {
+      "baselineKey": "webUi.contrastFloor",
+      "canonicalText": "given the shipped palette, when the contrast test declared at `designStage.themeAndA11y.contrastTestPath` (Track B §3.1) runs, then every text-on-background pair meets WCAG AA (4.5 for text, 3.0 for large text and UI components); AND the test was authored before the palette (per Track B §7 mandate 10, attested via the boolean at `designStage.themeAndA11y.contrastTestAuthoredBeforePalette`). The runtime chain check that couples this AC to the shipped chain is Track B §8.3 `contrastTestExists`; this AC is the elicitation-time expression of that check.",
+      "given": "the shipped palette",
+      "when": "the contrast test declared at `designStage.themeAndA11y.contrastTestPath` (Track B §3.1) runs",
+      "then": "every text-on-background pair meets WCAG AA (4.5 for text, 3.0 for large text and UI components); AND the test was authored before the palette (per Track B §7 mandate 10, attested via the boolean at `designStage.themeAndA11y.contrastTestAuthoredBeforePalette`)",
+      "notes": "The runtime chain check that couples this AC to the shipped chain is Track B §8.3 `contrastTestExists`; this AC is the elicitation-time expression of that check.",
+      "testable": true
+    },
+    {
+      "baselineKey": "webUi.focusRings",
+      "canonicalText": "given any interactive element (button, input, link), when the element receives keyboard focus, then a visible focus ring is rendered in the current theme.",
+      "given": "any interactive element (button, input, link)",
+      "when": "the element receives keyboard focus",
+      "then": "a visible focus ring is rendered in the current theme",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "webUi.signedInAffordance",
+      "canonicalText": "given the user is signed in and the request carries the auth cookie, when any authenticated route is loaded, then the response HTML contains a visible signed-in-as affordance (per Track B `browserVerification` invariant `signedInAsAffordance`).",
+      "given": "the user is signed in and the request carries the auth cookie",
+      "when": "any authenticated route is loaded",
+      "then": "the response HTML contains a visible signed-in-as affordance (per Track B `browserVerification` invariant `signedInAsAffordance`)",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "webUi.oneJourneyOrMore",
+      "canonicalText": "given the story defines a user-facing outcome, when the Design substage runs (Track B §5), then `designStage.journeys[]` contains at least one entry whose `goal` traces to this AC's `then`. Track B's Design gate enforces journey PRESENCE via `designStageComplete` (§5.2, §5.5 refuse when the artefact is absent or empty); this AC ensures the story-level goal-to-AC trace is at least declarative on the AC so a reviewer can confirm the trace by reading the journey's `goal` alongside the AC's `then`. The trace itself is a review touchpoint, not a machine-checked chain assertion.",
+      "given": "the story defines a user-facing outcome",
+      "when": "the Design substage runs (Track B §5)",
+      "then": "`designStage.journeys[]` contains at least one entry whose `goal` traces to this AC's `then`",
+      "notes": "Track B's Design gate enforces journey PRESENCE via `designStageComplete` (§5.2, §5.5 refuse when the artefact is absent or empty); this AC ensures the story-level goal-to-AC trace is at least declarative on the AC so a reviewer can confirm the trace by reading the journey's `goal` alongside the AC's `then`. The trace itself is a review touchpoint, not a machine-checked chain assertion.",
+      "testable": true
+    }
+  ]
+}

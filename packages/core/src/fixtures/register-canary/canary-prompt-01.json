@@ -1,0 +1,18 @@
+{
+  "id": "canary-prompt-01",
+  "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §7.3",
+  "operatorPrompt": "The app I want you to build is described in detail in this brief: /Users/thefoot/scratch/canary-brief.md\n\nYou are currently homed in a brand new cloned repo - uninitialised. You have my approval to manage the code pushes, branches, PRs and actions/workflows for this repository.\n\nRead the brief and then tell me whats next please?",
+  "supportingArtefacts": [
+    {
+      "path": "canary-brief.md",
+      "content": "# Uptime Monitor - product brief\n\n## Problem\n\nSmall teams running a handful of internal services need to know when one of them goes down. Existing paid tools are overkill for a fleet of ten to twenty checks and existing self-hosted options need weekly attention to stay running.\n\n## Users\n\n- The single operator who owns the fleet and its uptime.\n- The occasional teammate who wants to glance at status without a login they need to remember.\n\n## Must-haves (v1)\n\n1. HTTP monitor: given a URL and an expected status, poll on a schedule, record pass and fail with timestamps.\n2. Read-only dashboard: shows every monitor's current status and the last twenty-four hours of results.\n3. Signed-in admin surface: add, edit and remove monitors; runs on the same web app under an authenticated route.\n4. Outbound recovery emails via Resend when a monitor moves from failing back to passing.\n\n## Should-haves (v1)\n\n- Alert email on the first fail after a passing run.\n- CSV export of a monitor's last thirty days.\n\n## Non-functional constraints\n\n- Runs on a single Node process, less than one hundred megabytes resident.\n- Handles two hundred monitors on a one-minute poll without falling behind.\n\n## Out of scope for v1\n\n- Slack, SMS, or webhook notifications.\n- Multi-tenant sign-in; one operator per install.\n- Read-only dashboard authentication; the read view is anonymous by design."
+    }
+  ],
+  "grantedPermissions": [
+    "gitPush",
+    "githubRepoManagement",
+    "actionsWorkflowManagement"
+  ],
+  "wordCountBudget": 200,
+  "notes": "The 0.5.1 first-response scenario, replayed against the shipping build."
+}

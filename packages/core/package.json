@@ -1,6 +1,6 @@
 {
   "name": "@stravica-ai/rcf-lite-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "Shared internals for the RCF Lite tooling suite: the RCF-chain store (read + write), the structured RcfError type, and the RCF-agnostic MCP protocol shell. Consumed by @stravica-ai/rcf-build-lite and @stravica-ai/rcf-verify-lite via workspace:*.",
   "license": "Apache-2.0",
@@ -27,7 +27,12 @@
     "./store/*": "./src/store/*",
     "./errors": "./src/errors/index.js",
     "./mcp-shell": "./src/mcp/index.js",
-    "./isolation": "./src/isolation/index.js"
+    "./isolation": "./src/isolation/index.js",
+    "./patterns/ui-shapes": "./src/patterns/ui-shapes.js",
+    "./patterns/req-shapes": "./src/patterns/req-shapes.js",
+    "./patterns/register-canary": "./src/patterns/register-canary.js",
+    "./baseline-catalog": "./src/baseline-catalog/index.js",
+    "./fixtures/register-canary/*": "./src/fixtures/register-canary/*"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
@@ -42,7 +47,7 @@
     "directory": "packages/core"
   },
   "dependencies": {
-    "@stravica-ai/rcf-schemas": "^0.3.1",
+    "@stravica-ai/rcf-schemas": "^0.4.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1"
   },

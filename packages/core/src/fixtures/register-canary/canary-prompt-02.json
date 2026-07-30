@@ -1,0 +1,21 @@
+{
+  "id": "canary-prompt-02",
+  "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §7.3",
+  "operatorPrompt": "mid-build check-in: we're on FBS-014, the recovery email dispatcher, and the integration test is failing with a 401 from Resend. I checked the key in the env, it's the sandbox one. Can you look and tell me what's going on, and what the plan is? I don't want to have to unwind anything if we don't have to.",
+  "supportingArtefacts": [
+    {
+      "path": "test-output.log",
+      "content": "PASS  src/monitor.test.ts (7 tests)\nFAIL  src/email-dispatcher.test.ts\n  ✗ dispatches recovery email on transition-to-passing\n    AssertionError: expected 200 but got 401\n      at Object.<anonymous> (src/email-dispatcher.test.ts:41:5)\n    body: { error: 'invalid_api_key' }\n"
+    },
+    {
+      "path": "fbs-014-summary.txt",
+      "content": "FBS-014: Recovery email dispatcher\n  acIds: AC-1401-1, AC-1401-2\n  dependsOnServices: [{ id: 'resend', attestationMode: 'sandboxed' }]\n  status: inProgress"
+    }
+  ],
+  "grantedPermissions": [
+    "gitPush",
+    "githubRepoManagement"
+  ],
+  "wordCountBudget": 200,
+  "notes": "Mid-build bug-report scenario. Exercises the bypass-offer grep in the exact context that produced the cold-run wobble - an in-progress FBS whose test just failed, with the operator hedging against a rollback. The 0.5.1 register regression was the offer to skip RCF for a small fix. This fixture is the shape of prompt that regression showed up in."
+}

@@ -1,0 +1,33 @@
+{
+  "sourceReqShape": "notifications",
+  "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §5.2.5",
+  "entries": [
+    {
+      "baselineKey": "notifications.deliveryObservability",
+      "canonicalText": "given a notification is dispatched, when dispatch succeeds, then an observable delivery record is produced (a log line, a database row, an admin-UI entry) with fields recipient, channel, status, and timestamp.",
+      "given": "a notification is dispatched",
+      "when": "dispatch succeeds",
+      "then": "an observable delivery record is produced (a log line, a database row, an admin-UI entry) with fields recipient, channel, status, and timestamp",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "notifications.retryOrDeadLetter",
+      "canonicalText": "given a notification dispatch fails and the channel supports retry, when the failure is transient, then the dispatcher retries per a documented policy; when retries are exhausted, the notification lands in a dead-letter store the operator can inspect.",
+      "given": "a notification dispatch fails and the channel supports retry",
+      "when": "the failure is transient",
+      "then": "the dispatcher retries per a documented policy; when retries are exhausted, the notification lands in a dead-letter store the operator can inspect",
+      "notes": null,
+      "testable": true
+    },
+    {
+      "baselineKey": "notifications.channelIdentification",
+      "canonicalText": "given a REQ that names a channel (email, SMS, webhook), when a notification is dispatched, then the payload identifies the sender to the recipient (email `from` address, SMS sender ID, webhook `x-source` header) per project convention.",
+      "given": "a REQ that names a channel (email, SMS, webhook)",
+      "when": "a notification is dispatched",
+      "then": "the payload identifies the sender to the recipient (email `from` address, SMS sender ID, webhook `x-source` header) per project convention",
+      "notes": null,
+      "testable": true
+    }
+  ]
+}
