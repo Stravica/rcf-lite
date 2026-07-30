@@ -1,14 +1,22 @@
-// Pre-session agent bootstrap (Theme 1, E2E matrix 2026-07-06-003).
-// `rcf init` is the single golden path that leaves a project fully
-// wired BEFORE the agent session starts: rcf/ tree + project-root
-// .mcp.json (rcf server entry) + the guidance fragment inside marked
-// begin/end comments in the agent-instructions file. Anything that
-// detects incomplete setup funnels back here: run `npx rcf init`, then
-// restart the agent session.
+// Pre-session agent bootstrap (Theme 1, E2E matrix 2026-07-06-003;
+// updated for 0.6.0 init-hygiene). `rcf init` is the single golden path
+// that leaves a project fully wired BEFORE the agent session starts:
+// rcf/ tree + project-root .mcp.json (rcf server entry) + the managed
+// canonical block inside marker comments in the agent-instructions
+// file. Anything that detects incomplete setup funnels back here: run
+// `npx rcf init`, then restart the agent session.
 //
-// The fragment's single source of truth is guidance/harness-template.md
-// (the first ```markdown fence); this module extracts it at runtime so
-// the paste-in doc and the init-written block can never drift.
+// 0.6.0 changes:
+// - Marker constants moved to `managed-markers.js` and imported here
+//   (D-7); the strand-1 legacy migration recognises both generations.
+// - Canonical block content is sourced from
+//   `guidance/managed/agent-instructions-block.md`, not from the
+//   `guidance/harness-template.md` fenced fragment. The two remain
+//   byte-identical after `scripts/gen-managed-artefacts.mjs` runs
+//   (AC-1.14); harness-template.md stays as the manual-paste-in doc.
+// - `hasAgentMarker` recognises BOTH the new managed markers and the
+//   pre-0.6.0 legacy markers so the MCP setup funnel does not spam
+//   legacy-inited repos with "Setup incomplete" notices (§2.5 / AC-1.13).
 
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -16,15 +24,36 @@ import { fileURLToPath } from 'node:url';
 
 import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
 
+import {
+  MARKER_BEGIN,
+  MARKER_END,
+  LEGACY_MARKER_BEGIN,
+  markerRegex,
+} from './managed-markers.js';
+
 const here = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(here, '..', '..');
+const MANAGED_BLOCK_PATH = join(PACKAGE_ROOT, 'guidance', 'managed', 'agent-instructions-block.md');
+const MANAGED_HASH_PATH = join(PACKAGE_ROOT, 'guidance', 'managed', 'agent-instructions-block.hash');
 
-export const MARKER_BEGIN = '<!-- rcf:begin -->';
-export const MARKER_END = '<!-- rcf:end -->';
+// Re-export the marker constants at the module boundary so callers that
+// already import from `agent-setup.js` (setup funnel, existing tests)
+// keep working without touching every import site.
+export { MARKER_BEGIN, MARKER_END, LEGACY_MARKER_BEGIN } from './managed-markers.js';
 
 /** Absolute path of this package's rcf bin - what .mcp.json points at. */
 export function rcfBinPath() {
   return join(PACKAGE_ROOT, 'bin', 'rcf.js');
+}
+
+/** Absolute path of the canonical managed block; test-visible for the byte-match AC. */
+export function managedBlockPath() {
+  return MANAGED_BLOCK_PATH;
+}
+
+/** Absolute path of the canonical managed-block hash file. */
+export function managedBlockHashPath() {
+  return MANAGED_HASH_PATH;
 }
 
 async function fileExists(path) {
@@ -46,9 +75,43 @@ async function readIfExists(path) {
 }
 
 /**
+ * Read the canonical managed block text (§2.4 verbatim). Returns the
+ * text with a trailing newline; callers wrap it in the markers. Fails
+ * with an RcfError if the shipped asset is missing (bad tarball, files
+ * whitelist regression) - doctor surfaces this rather than pretending
+ * clean (§12 risk).
+ *
+ * @returns {Promise<string | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ */
+export async function loadManagedBlock() {
+  const text = await readIfExists(MANAGED_BLOCK_PATH);
+  if (text === null) {
+    return rcfError({ kind: 'missingFile', message: `managed block not found: ${MANAGED_BLOCK_PATH}`, filePath: MANAGED_BLOCK_PATH });
+  }
+  return text.endsWith('\n') ? text : `${text}\n`;
+}
+
+/**
+ * Read the SHA-256 hash the package shipped for the managed block. One
+ * line, no trailing whitespace; on read failure, returns an RcfError
+ * with kind `hashFileMissing` so doctor emits a distinct error rather
+ * than reporting spurious clean.
+ *
+ * @returns {Promise<string | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ */
+export async function loadManagedBlockHash() {
+  const text = await readIfExists(MANAGED_HASH_PATH);
+  if (text === null) {
+    return rcfError({ kind: 'hashFileMissing', message: `managed-block hash not found: ${MANAGED_HASH_PATH}`, filePath: MANAGED_HASH_PATH });
+  }
+  return text.trim();
+}
+
+/**
  * Extract the paste-in fragment from guidance/harness-template.md (the
- * first ```markdown fence). Returns the fragment text (no fences) or an
- * RcfError if the template is missing or holds no fence.
+ * first ```markdown fence). Preserved for the paste-in doc use case,
+ * but the fragment is regenerated at package-build time from the
+ * managed block canonical source (AC-1.14) so the two are byte-identical.
  *
  * @param {object} [opts]
  * @param {string} [opts.templatePath] - test override
@@ -120,10 +183,16 @@ export async function writeMcpConfig({ projectRoot, binPath = rcfBinPath() }) {
 }
 
 /**
- * Write the fragment into one agent-instructions file inside the rcf
- * marker block. Idempotent: an existing marker block is replaced in
- * place, never duplicated; a file without one gets the block appended;
- * a missing file is created.
+ * Write the composed managed block into one agent-instructions file.
+ * Idempotent: an existing new-marker block is replaced in place, never
+ * duplicated; a file without one gets the block appended; a missing
+ * file is created. Init does not touch legacy markers - that migration
+ * is doctor's `--fix` path, so an existing pre-0.6.0 file whose only
+ * marker pair is the legacy one gets a NEW managed block appended
+ * alongside the legacy one, and the operator resolves via `rcf doctor
+ * --fix` afterwards. This preserves init's "leave operator content
+ * alone" discipline even for a file that also happens to carry the old
+ * managed convention.
  *
  * @param {string} target - absolute path
  * @param {string} file - display name (CLAUDE.md / AGENTS.md)
@@ -136,7 +205,7 @@ async function writeFragmentToFile(target, file, block) {
     await writeFile(target, `${block}\n`, 'utf8');
     return { file, action: 'created' };
   }
-  const markerRe = /<!-- rcf:begin -->[\s\S]*?<!-- rcf:end -->/;
+  const markerRe = markerRegex();
   if (markerRe.test(existing)) {
     await writeFile(target, existing.replace(markerRe, block), 'utf8');
     return { file, action: 'replaced' };
@@ -147,20 +216,20 @@ async function writeFragmentToFile(target, file, block) {
 }
 
 /**
- * Write the guidance fragment into the project's agent-instructions
- * file(s) inside the rcf marker block. Routing:
+ * Write the canonical managed block into the project's agent-instructions
+ * file(s) inside the rcf managed markers. Routing:
  * - An existing instructions file is refreshed in place (CLAUDE.md
  *   preferred as the write target, else an existing AGENTS.md). We
  *   never invent the other convention's file when one already exists.
  * - A fresh repo (neither present) gets BOTH CLAUDE.md and AGENTS.md,
  *   so the wiring is vendor-neutral by default (operator ruling
- *   2026-07-16). The same marked fragment goes into each.
+ *   2026-07-16). The same marked block goes into each.
  * Idempotent throughout: re-running replaces the marked block in place,
  * never duplicating it, in whichever file(s) are touched.
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {string} args.fragment
+ * @param {string} args.fragment - canonical block inner content (no markers).
  * @returns {Promise<{ writes: Array<{ file: string, action: 'created'|'appended'|'replaced' }> }>}
  */
 export async function writeAgentInstructions({ projectRoot, fragment }) {
@@ -168,7 +237,8 @@ export async function writeAgentInstructions({ projectRoot, fragment }) {
   const agentsPath = join(projectRoot, 'AGENTS.md');
   const claudeExists = await fileExists(claudePath);
   const agentsExists = await fileExists(agentsPath);
-  const block = `${MARKER_BEGIN}\n${fragment}\n${MARKER_END}`;
+  const trimmed = fragment.trim();
+  const block = `${MARKER_BEGIN}\n${trimmed}\n${MARKER_END}`;
   const writes = [];
 
   if (claudeExists) {
@@ -186,9 +256,17 @@ export async function writeAgentInstructions({ projectRoot, fragment }) {
 }
 
 /**
- * Does the project's agent-instructions file carry the rcf marker
- * block? The MCP setup funnel uses this: marker absent means the
- * session started without the init bootstrap.
+ * Does the project's agent-instructions file carry ANY generation of
+ * the rcf marker block? The MCP setup funnel uses this: marker absent
+ * means the session started without the init bootstrap.
+ *
+ * Recognises BOTH the 0.6.0+ managed marker (MARKER_BEGIN) and the
+ * pre-0.6.0 legacy marker (LEGACY_MARKER_BEGIN). Either presence
+ * satisfies the funnel so a legacy-inited repo is not spammed with
+ * setup notices for the process lifetime while it waits to migrate;
+ * the correct signal for "you should migrate" is doctor's
+ * `legacy-markers` drift item, which the operator sees on their next
+ * diagnostic run. §2.5, AC-1.13.
  *
  * @param {string} projectRoot
  * @returns {Promise<boolean>}
@@ -196,7 +274,9 @@ export async function writeAgentInstructions({ projectRoot, fragment }) {
 export async function hasAgentMarker(projectRoot) {
   for (const name of ['CLAUDE.md', 'AGENTS.md']) {
     const text = await readIfExists(join(projectRoot, name));
-    if (text !== null && text.includes(MARKER_BEGIN)) return true;
+    if (text === null) continue;
+    if (text.includes(MARKER_BEGIN)) return true;
+    if (text.includes(LEGACY_MARKER_BEGIN)) return true;
   }
   return false;
 }
