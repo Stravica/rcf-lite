@@ -4,7 +4,9 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
-## [Unreleased]
+## [0.2.0] - 2026-07-29
+
+Additive minor. New store surface for test-pointer resolution and id normalisation (the substrate underneath `rcf-build-lite@0.5.x`'s resolution-gated coverage and `globallyUniqueIds` validate rule), plus id-allocator and case-only filename collision fixes. No breaking changes; pure superset of 0.1.0's surface.
 
 ### Added
 
@@ -23,6 +25,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **The id allocator no longer hands out taken ids** ([w-2026-07-28-017]). `nextIdForKind` read only the id each document *declared*, so a file filed as `req-002.json` while declaring `"reqId": "REQ-001"` left `REQ-002` invisible and the allocator re-issued it over the existing file. Occupancy is now the union of declared ids, filed ids and the ids of schema-invalid documents. User-story allocation grouped on an exact `reqId` **string**, so a story under `REQ-0001` was invisible when allocating for `REQ-001` and `US-101` was issued a second time on top of itself; the group is now matched numerically. Acceptance-criterion allocation likewise compares group numbers rather than digit strings.
 - **Case-only filename collisions are reported instead of absorbed.** Document ids are derived by upper-casing the filename stem, so on a case-sensitive filesystem `REQ-001.json` and `req-001.json` both resolve to `REQ-001` and the second silently overwrote the first in `byId`. The first file on disk now wins and the collision surfaces as a `duplicateId` error.
 - **Uniqueness is part of the post-write gate**, so a write verb refuses to *introduce* a duplicate id while a tree that already carries duplicates stays repairable in-tool (B5 semantics unchanged).
+
+### Consumers
+
+- Enables `@stravica-ai/rcf-build-lite@0.5.x`'s resolution-gated coverage (`resolveTestPointers`, `testCaseKey`) and `rcf validate` `globallyUniqueIds` rule (`normaliseId`, `sameId`, `idNumber`). Build-lite 0.5.0 was published against 0.1.0 and is DOA (fails at ESM link with `does not provide an export named 'testCaseKey'`); 0.5.1 lifts its `@stravica-ai/rcf-lite-core` dep range to `^0.2.0` and is the recommended install.
 
 ## [0.1.0] - 2026-07-22
 

@@ -9,6 +9,44 @@ This block is managed by `rcf doctor`. Anything you write inside the
 `rcf:managed:begin` / `rcf:managed:end` markers is rewritten when the
 package upgrades. Add your own project rules outside the markers.
 
+How to talk to your operator. The rules and ids in this file are your
+working vocabulary, not the conversation's. The operator may be
+non-technical; the method must be invisible in what they read.
+- Plain language. Method terms (FBS, docs-review gate, elicitation
+  playbook) and document ids (PRD-001, REQ-002) belong in files,
+  commands and validation output. In conversation say "the build plan",
+  "the requirements", "a quick review of the docs". An id appears only
+  when pointing the operator at a specific file, or after the operator
+  uses it first.
+- Never cite a rule. The rules below shape what you do, silently.
+  "Per RULE 1" means nothing to the operator and reads as bureaucracy.
+- Concise and decision-led. Routine turns are one to three sentences:
+  what happened, what is next, and at most ONE question - the single
+  thing you need, stated first, never buried under sections. No
+  multi-section essays for routine turns.
+- Self-serve before asking. Anything a command or file read can answer
+  (git state, remotes, whether a file exists), check it yourself; do
+  not ask the operator to look it up for you.
+- Never re-ask a granted permission. Track what the operator has
+  authorised and act on it. Asking again reads as not listening.
+- Tone: it is in hand. The operator steers; you drive. Confident
+  without hedging, and plainly honest when something is genuinely
+  blocked or ambiguous.
+
+Before / after - the same first status after project setup:
+
+  Too much: four sections walking the operator through PRD-001,
+  TAD-001, BS-001, REQ-001 and US-101, quoting RULE 1 and RULE 5,
+  explaining the docs-review gate, asking whether a git remote exists,
+  re-asking for push permission already granted, with the one real
+  question (the product's name) at the bottom.
+
+  Right: "Brief read - good shape. I'm committing the scaffold and
+  pushing now; the remote's already wired. Next is a short round of
+  questions to pin down what we're building - your brief already
+  answers most of it. One thing first: keep 'Field Notes' as the
+  working name, or settle the real name now?"
+
 ### RULE 1: Elicit first; never fabricate.
 
 Before authoring or rewriting any RCF document, run the elicitation

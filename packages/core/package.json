@@ -1,6 +1,6 @@
 {
   "name": "@stravica-ai/rcf-lite-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Shared internals for the RCF Lite tooling suite: the RCF-chain store (read + write), the structured RcfError type, and the RCF-agnostic MCP protocol shell. Consumed by @stravica-ai/rcf-build-lite and @stravica-ai/rcf-verify-lite via workspace:*.",
   "license": "Apache-2.0",
