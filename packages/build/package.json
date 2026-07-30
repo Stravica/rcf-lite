@@ -1,6 +1,6 @@
 {
   "name": "@stravica-ai/rcf-build-lite",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "type": "module",
   "description": "RCF Build Lite - CLI, MCP server, view tool, and SDD build adapter for the Requirements Confidence Framework. First consumer of @stravica-ai/rcf-schemas.",
   "license": "Apache-2.0",
@@ -35,6 +35,8 @@
   "scripts": {
     "test": "node --test --test-concurrency=1 'test/**/*.test.js'",
     "vendor": "node scripts/vendor-mermaid.mjs",
+    "build:managed": "node scripts/gen-managed-artefacts.mjs",
+    "prepublishOnly": "node scripts/gen-managed-artefacts.mjs",
     "rcf": "node bin/rcf.js"
   },
   "repository": {
