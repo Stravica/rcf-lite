@@ -19,6 +19,14 @@ const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
 const PACKAGE_ROOT = resolve(here, '..', '..');
 const CANONICAL_PATH = resolve(PACKAGE_ROOT, 'guidance', 'managed', 'agent-instructions-block.md');
+// Pre-0.6.0 canonical fragment (build-v0.4.0). AC-1.5's legacy-markers
+// migration fixture uses this so its inner content is whitelisted by
+// §7.3's fail-safe detector and --fix does not require --force in the
+// non-interactive branch. Hand-edited legacy migration is exercised
+// separately in doctor-migration.test.js (AC-5.2).
+const LEGACY_CANONICAL_PATH = resolve(
+  PACKAGE_ROOT, 'test', 'fixtures', 'legacy-fragments', 'pre-0.6.0-canonical-fragment.md',
+);
 
 async function runBin(cwd, args, env = {}) {
   try {
@@ -96,8 +104,12 @@ test('AC-1.4: --fix on stale-hash rewrites the block, preserves operator content
 
 test('AC-1.5: --fix on legacy-markers rewrites block in place with new markers + new canonical text, preserves operator content', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-legacy-fix-'));
-  const canonical = await readFile(CANONICAL_PATH, 'utf8');
-  const before = `# legacy repo\n\n${LEGACY_BEGIN}\n${canonical.trim()}\n${LEGACY_END}\n\n## Post-block section\nOperator wrote this.\n`;
+  // Legacy block wraps the pre-0.6.0 canonical fragment (build-v0.4.0)
+  // so §7.3's whitelist detector treats it as unmodified canonical and
+  // --fix proceeds without --force in non-interactive mode. The
+  // hand-edited-legacy branch is exercised in doctor-migration.test.js AC-5.2.
+  const legacyFragment = await readFile(LEGACY_CANONICAL_PATH, 'utf8');
+  const before = `# legacy repo\n\n${LEGACY_BEGIN}\n${legacyFragment.trim()}\n${LEGACY_END}\n\n## Post-block section\nOperator wrote this.\n`;
   await writeFile(join(tmp, 'CLAUDE.md'), before, 'utf8');
   const { code, stdout } = await runBin(tmp, ['doctor', '--fix', '--check', 'agent-instructions']);
   assert.equal(code, 0, stdout);

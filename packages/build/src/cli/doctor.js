@@ -20,6 +20,7 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 
 import {
+  loadLegacyFragmentHashes,
   loadManagedBlock,
   loadManagedBlockHash,
   managedBlockPath,
@@ -134,11 +135,22 @@ export async function main(argv, deps = {}) {
     stderr.write(`[error] ${canonicalHash.kind} ${canonicalHash.message}\n`);
     return 1;
   }
+  // §7.3 fail-safe hand-edit detector: any legacy inner content whose
+  // hash is NOT in this whitelist is treated as hand-edited (warn on
+  // TTY, refuse without --force on non-TTY). A missing / malformed
+  // whitelist is a distinct error class so doctor never quietly falls
+  // back to a permissive heuristic.
+  const legacyFragmentHashes = await loadLegacyFragmentHashes();
+  if (!(legacyFragmentHashes instanceof Set)) {
+    stderr.write(`[error] ${legacyFragmentHashes.kind} ${legacyFragmentHashes.message}\n`);
+    return 1;
+  }
 
   const ctx = {
     projectRoot: cwd,
     canonical,
     canonicalHash,
+    legacyFragmentHashes,
     fix: Boolean(flags.fix),
     force: Boolean(flags.force),
     // isTty is deps-injectable for tests; falls back to real stdout.
@@ -245,7 +257,7 @@ async function runAgentInstructionsCheck(ctx) {
       if (state === 'legacy-markers' && !ctx.force) {
         // Hand-edited-legacy migration warning (§7.3). Non-interactive
         // runs REFUSE without --force to avoid destroying operator edits.
-        const legacyHasHandEdits = detectLegacyHandEdits(text);
+        const legacyHasHandEdits = detectLegacyHandEdits(text, ctx.legacyFragmentHashes);
         if (legacyHasHandEdits && !ctx.isTty) {
           // Convert the drift into a refused item without repairing.
           drift[drift.length - 1] = {
@@ -286,32 +298,33 @@ function messageForState(state, path) {
 
 /**
  * Detect whether a legacy-markers file's inner content diverges from
- * the pre-0.6.0 canonical fragment. Since we do not bundle the old
- * fragment, we use a size heuristic (legacy fragment shipped ~130 lines
- * of prose) plus a content marker check: if the inner content is
- * shorter than ~5000 chars and does not obviously start with `## RCF`,
- * or if it contains custom lines that were never in any shipped
- * fragment, we treat it as hand-edited and warn.
+ * the pre-0.6.0 canonical fragment as shipped in 0.4.x/0.5.x
+ * (§7.3 fail-safe). Hashes the extracted legacy inner content (trimmed,
+ * matching `writeAgentInstructions`'s pre-0.6.0 write convention: the
+ * fragment landed between markers as `\n${fragment}\n`, and the shipped
+ * `fragment` was itself `.trim()`-normalised by `loadHarnessFragment`,
+ * so the trimmed inner content is exactly the fragment) and checks
+ * membership in the shipped whitelist.
  *
- * The precise-legacy-canonical comparison is deliberately not attempted
- * in v1: the shipped fragment changed multiple times across 0.4.x, and
- * a false-negative "yes it matches" would silently destroy edits. Err
- * on the side of warning; --force lets the operator accept.
+ * Fail-safe by default: any hash NOT in the whitelist is treated as
+ * hand-edited. Empty whitelist (edge case) means "every legacy block
+ * is potentially hand-edited", which is the safer stance. The
+ * heuristic-based v0.6.0 draft (`length < 500`, `startsWith('## RCF')`
+ * denylist) was fail-open by design — a hand-edit that kept the
+ * leading `## RCF`, stayed above the length floor, and did not add one
+ * of the three named headers slipped past silently. This replacement
+ * inverts the safety profile so unknown content requires explicit
+ * `--force` in non-interactive mode.
+ *
+ * @param {string} fileText
+ * @param {Set<string>} legacyFragmentHashes - whitelist loaded via loadLegacyFragmentHashes.
+ * @returns {boolean}
  */
-function detectLegacyHandEdits(fileText) {
+function detectLegacyHandEdits(fileText, legacyFragmentHashes) {
   const inner = extractLegacyInner(fileText);
   if (inner === null) return false;
-  const trimmed = inner.trim();
-  // The pre-0.6.0 shipped fragment opens with `## RCF` and is ~130
-  // lines. Anything shorter than 500 chars is almost certainly a
-  // hand-edited stub, and anything that does not start with `## RCF`
-  // is not the canonical opener.
-  if (trimmed.length < 500) return true;
-  if (!trimmed.startsWith('## RCF')) return true;
-  // Look for common hand-edited signals: `## PR convention` custom
-  // sections, `TODO:` reminders operators sometimes leave.
-  if (/^##\s+(PR convention|Notes|Team)/mi.test(trimmed)) return true;
-  return false;
+  const innerHash = hashInnerContent(inner);
+  return !legacyFragmentHashes.has(innerHash);
 }
 
 function extractLegacyInner(fileText) {

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "description": "SHA-256 whitelist of the trimmed inner content between legacy `<!-- rcf:begin -->` / `<!-- rcf:end -->` markers, as written into CLAUDE.md/AGENTS.md by every pre-0.6.0 release. Doctor's `detectLegacyHandEdits` (packages/build/src/cli/doctor.js) hashes the extracted legacy inner content (trimmed) and treats any hash NOT in this whitelist as hand-edited. Fail-safe by default: unknown content requires the operator to pass `--force` in non-interactive mode. Spec §7.3 (packages/build/../specs/2026-07-30_init-hygiene-0.6.0-spec.md).",
+  "provenance": "Hashes derived deterministically from the repo's own git history. Each entry cites the release tag(s) whose `packages/build/guidance/harness-template.md` produced it. The pre-0.6.0 `agent-setup.js:loadHarnessFragment()` extracted `m[1].trim()` from the first ```markdown fence, then `writeAgentInstructions` wrote the block as `${MARKER_BEGIN}\\n${fragment}\\n${MARKER_END}`. Extraction via `fileText.slice(beginAt + MARKER_BEGIN.length, endAt)` returns `\\n${fragment}\\n`; `.trim()` recovers `fragment` verbatim. `sha256(fragment, utf8)` matches this whitelist. Regenerate with `node scripts/derive-legacy-fragment-hashes.mjs` if additional pre-0.6.0 revisions ever need coverage.",
+  "hashes": [
+    {
+      "hash": "3bc3c657f9b41b60bb3e0102e24c2f5e59baad96828e6647f02fbbbbea528f85",
+      "sources": ["build-v0.4.0"],
+      "fragmentLength": 5960
+    },
+    {
+      "hash": "607a8ce652e5a490726f7f5b4d56c4be0ec5682d18ba278c4642c31d0dc42ecd",
+      "sources": ["build-v0.5.0", "build-v0.5.1"],
+      "fragmentLength": 7044
+    },
+    {
+      "hash": "7e6402c683dadea9d77da8a5535bcedc49671f84531d1181c1c8a519ecf00929",
+      "sources": ["build-v0.5.2"],
+      "fragmentLength": 9147
+    }
+  ]
+}

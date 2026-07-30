@@ -35,6 +35,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(here, '..', '..');
 const MANAGED_BLOCK_PATH = join(PACKAGE_ROOT, 'guidance', 'managed', 'agent-instructions-block.md');
 const MANAGED_HASH_PATH = join(PACKAGE_ROOT, 'guidance', 'managed', 'agent-instructions-block.hash');
+const LEGACY_FRAGMENT_HASHES_PATH = join(PACKAGE_ROOT, 'guidance', 'managed', 'legacy-fragment-hashes.json');
 
 // Re-export the marker constants at the module boundary so callers that
 // already import from `agent-setup.js` (setup funnel, existing tests)
@@ -54,6 +55,14 @@ export function managedBlockPath() {
 /** Absolute path of the canonical managed-block hash file. */
 export function managedBlockHashPath() {
   return MANAGED_HASH_PATH;
+}
+
+/**
+ * Absolute path of the pre-0.6.0 canonical-fragment hash whitelist that
+ * §7.3's fail-safe hand-edit detector consults. Test-visible.
+ */
+export function legacyFragmentHashesPath() {
+  return LEGACY_FRAGMENT_HASHES_PATH;
 }
 
 async function fileExists(path) {
@@ -105,6 +114,50 @@ export async function loadManagedBlockHash() {
     return rcfError({ kind: 'hashFileMissing', message: `managed-block hash not found: ${MANAGED_HASH_PATH}`, filePath: MANAGED_HASH_PATH });
   }
   return text.trim();
+}
+
+/**
+ * Read the SHA-256 whitelist of pre-0.6.0 canonical fragments (§7.3).
+ * Doctor's `detectLegacyHandEdits` hashes the extracted legacy inner
+ * content (trimmed) and treats any hash NOT in the returned set as
+ * hand-edited. Fail-safe: a missing / malformed whitelist surfaces as
+ * an RcfError rather than silently allowing overwrite.
+ *
+ * @returns {Promise<Set<string> | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ */
+export async function loadLegacyFragmentHashes() {
+  const text = await readIfExists(LEGACY_FRAGMENT_HASHES_PATH);
+  if (text === null) {
+    return rcfError({
+      kind: 'legacyFragmentHashesMissing',
+      message: `legacy fragment hash whitelist not found: ${LEGACY_FRAGMENT_HASHES_PATH}`,
+      filePath: LEGACY_FRAGMENT_HASHES_PATH,
+    });
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (err) {
+    return rcfError({
+      kind: 'legacyFragmentHashesInvalid',
+      message: `legacy fragment hash whitelist is not valid JSON: ${err.message}`,
+      filePath: LEGACY_FRAGMENT_HASHES_PATH,
+    });
+  }
+  if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.hashes)) {
+    return rcfError({
+      kind: 'legacyFragmentHashesInvalid',
+      message: `legacy fragment hash whitelist missing hashes[] array`,
+      filePath: LEGACY_FRAGMENT_HASHES_PATH,
+    });
+  }
+  const set = new Set();
+  for (const entry of parsed.hashes) {
+    if (entry && typeof entry.hash === 'string' && /^[0-9a-f]{64}$/i.test(entry.hash)) {
+      set.add(entry.hash.toLowerCase());
+    }
+  }
+  return set;
 }
 
 /**
