@@ -10,3 +10,8 @@ export { detectVerify, findOnPath, resolvePackageBin, VERIFY_PACKAGE, VERIFY_BIN
 export { buildVerifyArgs, spawnVerify } from './spawn.js';
 export { promptYesNo, installVerify, resolveAbsentVerify } from './install.js';
 export { loadReport, summariseReport, findMockOnlyDeclaredAcs, reportHasMockOnlyDeclared } from './ingest.js';
+export {
+  composeShipWithoutVerifiedRecord,
+  nextShipWithoutVerifiedId,
+  writeShipWithoutVerifiedRecord,
+} from './ship-without-verified.js';

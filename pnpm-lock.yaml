@@ -18,8 +18,8 @@ importers:
         specifier: ^1.29.0
         version: 1.29.0(zod@4.4.3)
       '@stravica-ai/rcf-schemas':
-        specifier: ^0.3.1
-        version: 0.3.1
+        specifier: ^0.4.1
+        version: 0.4.1
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
@@ -33,8 +33,8 @@ importers:
   packages/core:
     dependencies:
       '@stravica-ai/rcf-schemas':
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^0.4.1
+        version: 0.4.1
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
@@ -103,12 +103,8 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@stravica-ai/rcf-schemas@0.3.1':
-    resolution: {integrity: sha512-cLM9QJ21XYxOa6UFOPT3wR+kUbbpw5ehC4rCDMiv6rh4nJGSnrPKOkQTJYZ0Bg5tolNLXdjR+rnB2NHif9NaGA==}
-    engines: {node: '>=24.0.0'}
-
-  '@stravica-ai/rcf-schemas@0.4.0':
-    resolution: {integrity: sha512-KKZfMkT3JyAwDq8W2qVifEMriQX6CN2DPxfJfL7AoeS8fJCDD63SfC22Q6t9ce54NeXjJMwZX7gXTc+q448ngw==}
+  '@stravica-ai/rcf-schemas@0.4.1':
+    resolution: {integrity: sha512-m0LrEuxdNj9VjDFsBSAa0gQPYuR5GR612QJjHCZYdl2QDlL8eQ0qucD9A9rl+ZQZ/vPg1hTmi1+axaSdHKrOfQ==}
     engines: {node: '>=24.0.0'}
 
   '@types/d3-array@3.2.2':
@@ -968,9 +964,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stravica-ai/rcf-schemas@0.3.1': {}
-
-  '@stravica-ai/rcf-schemas@0.4.0': {}
+  '@stravica-ai/rcf-schemas@0.4.1': {}
 
   '@types/d3-array@3.2.2': {}
 

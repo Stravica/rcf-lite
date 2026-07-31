@@ -36,6 +36,7 @@ import { findProjectRoot } from '../view/index.js';
 import { kindOf } from '../query/index.js';
 import {
   buildVerifyArgs,
+  composeShipWithoutVerifiedRecord,
   detectVerify,
   findMockOnlyDeclaredAcs,
   loadReport,
@@ -43,6 +44,7 @@ import {
   resolveAbsentVerify,
   spawnVerify,
   summariseReport,
+  writeShipWithoutVerifiedRecord,
 } from '../finalise/index.js';
 
 // Kept in sync with verify's own sets by contract (build never imports verify -
@@ -308,8 +310,29 @@ export async function main(argv, deps = {}) {
     if (passLoaded.ok && reportHasMockOnlyDeclared(passLoaded.report)) {
       const declared = findMockOnlyDeclaredAcs(passLoaded.report);
       if (flags['ship-without-verified']) {
+        // B-1 (spec section 5.2, review 2026-07-31): the ack is
+        // recorded on the manifest so it is durable and greppable at
+        // ship time. Stdout alone is neither. Written BEFORE the
+        // success confirmation so a manifest-write failure surfaces
+        // to the operator as a hard failure rather than a silent
+        // stdout-only ack.
+        const ackRecord = composeShipWithoutVerifiedRecord({
+          manifest: tree.manifest,
+          fbsId,
+          declaredAcs: declared,
+          reportPath: outPath,
+        });
+        const ackResult = await writeShipWithoutVerifiedRecord({
+          projectRoot, tree, record: ackRecord,
+        });
+        if (isRcfError(ackResult)) {
+          if (ackResult.kind === 'ioFailure') { writeUnexpectedFailure(ackResult, stderr); return 1; }
+          stderr.write(`[error] ${ackResult.kind} ${ackResult.message}\n`);
+          if (ackResult.kind === 'validation' || ackResult.kind === 'brokenReference') return 3;
+          return 1;
+        }
         if (!quiet) {
-          stdout.write(`[finalise] gate passed and ${declared.length} AC(s) came back with declared mock-only verdicts; --ship-without-verified acknowledged; ${fbsId} left '${currentStatus}'. Report: ${outPath}\n`);
+          stdout.write(`[finalise] gate passed and ${declared.length} AC(s) came back with declared mock-only verdicts; --ship-without-verified acknowledged (${ackRecord.id} on rcf/manifest.json); ${fbsId} left '${currentStatus}'. Report: ${outPath}\n`);
           stdout.write(summariseReport(passLoaded.report));
         }
         return 0;

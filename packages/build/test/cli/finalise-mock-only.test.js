@@ -96,6 +96,61 @@ test('finalise --ship-without-verified acknowledges the declaration and leaves t
   assert.match(deps.stdout.data, /--ship-without-verified acknowledged/);
 });
 
+test('finalise --ship-without-verified records the ack on the manifest (B-1 durable+greppable)', async () => {
+  // Spec section 5.2 / review 2026-07-31 B-1: the ack must be recorded on
+  // the manifest, not just printed to stdout, so it is durable across
+  // sessions and greppable at ship time.
+  const { tmp, stubPath } = await scaffoldComplete();
+  const deps = stubDeps({
+    tmp,
+    stubPath,
+    perAc: [
+      { acId: 'AC-101-2', verdict: 'MOCK-ONLY-DECLARED', reason: 'no live path' },
+      { acId: 'AC-101-3', verdict: 'BLOCKED-BY-DECLARATION' },
+    ],
+  });
+  const code = await finalise(['FBS-001', '--url', 'https://app.example.com', '--ship-without-verified'], deps);
+  assert.equal(code, 0, `stderr=${deps.stderr.data}`);
+  assert.equal(await readStatus(tmp), 'complete', 'FBS left at complete under ack');
+
+  const manifest = JSON.parse(await readFile(join(tmp, 'rcf/manifest.json'), 'utf8'));
+  assert.ok(Array.isArray(manifest.shipWithoutVerified), 'shipWithoutVerified[] on manifest');
+  assert.equal(manifest.shipWithoutVerified.length, 1, 'one ack record after one --ship-without-verified run');
+  const ack = manifest.shipWithoutVerified[0];
+  assert.equal(ack.id, 'swv-FBS-001-1', 'monotonic id (n=1) per FBS');
+  assert.equal(ack.fbsId, 'FBS-001');
+  assert.match(ack.ackedAt, /^\d{4}-\d{2}-\d{2}T/, 'ISO timestamp on ackedAt');
+  assert.equal(ack.declaredAcs.length, 2, 'both declared ACs recorded');
+  assert.deepEqual(ack.declaredAcs[0], {
+    acId: 'AC-101-2', verdict: 'MOCK-ONLY-DECLARED', reason: 'no live path',
+  });
+  assert.deepEqual(ack.declaredAcs[1], {
+    acId: 'AC-101-3', verdict: 'BLOCKED-BY-DECLARATION',
+  });
+  assert.match(ack.reportPath, /\.rcf-verify-report\.json$/, 'reportPath references the verify report');
+  // The confirmation line names the record id so the operator can grep it.
+  assert.match(deps.stdout.data, /swv-FBS-001-1/);
+});
+
+test('a second --ship-without-verified on the same FBS increments the ack id (swv-<fbs>-2)', async () => {
+  const { tmp, stubPath } = await scaffoldComplete();
+  const first = stubDeps({
+    tmp, stubPath,
+    perAc: [{ acId: 'AC-101-2', verdict: 'MOCK-ONLY-DECLARED' }],
+  });
+  await finalise(['FBS-001', '--url', 'https://app.example.com', '--ship-without-verified'], first);
+  const second = stubDeps({
+    tmp, stubPath,
+    perAc: [{ acId: 'AC-101-2', verdict: 'MOCK-ONLY-DECLARED' }],
+  });
+  const code = await finalise(['FBS-001', '--url', 'https://app.example.com', '--ship-without-verified'], second);
+  assert.equal(code, 0, `stderr=${second.stderr.data}`);
+  const manifest = JSON.parse(await readFile(join(tmp, 'rcf/manifest.json'), 'utf8'));
+  assert.equal(manifest.shipWithoutVerified.length, 2);
+  assert.equal(manifest.shipWithoutVerified[0].id, 'swv-FBS-001-1');
+  assert.equal(manifest.shipWithoutVerified[1].id, 'swv-FBS-001-2');
+});
+
 test('finalise on a report without perAcVerdicts promotes as usual (backwards compatible)', async () => {
   const { tmp, stubPath } = await scaffoldComplete();
   const deps = stubDeps({ tmp, stubPath, perAc: [] });
