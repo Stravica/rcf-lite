@@ -27,6 +27,10 @@ import { HELP as REVIEW_HELP } from './review.js';
 import { HELP as FBS_HELP } from './fbs.js';
 import { HELP as TEST_SUITE_HELP } from './test-suite.js';
 import { HELP as TRACE_HELP } from './trace.js';
+import { HELP as UI_CLASSIFY_HELP } from './ui-classify.js';
+import { HELP as UI_BASELINE_HELP } from './ui-baseline.js';
+import { HELP as DESIGN_HELP } from './design.js';
+import { HELP as BROWSER_VERIFY_HELP } from './browser-verify.js';
 import { HELP as UPDATE_HELP } from './update.js';
 import { HELP as VALIDATE_HELP } from './validate.js';
 import { HELP as VIEW_HELP } from './view.js';
@@ -55,6 +59,10 @@ Commands:
   fbs <fbs-id>        FBS-level verbs (depends-on)
   test-suite <ts-id>  Test-suite verbs (provenance, approve)
   review <fbs-id>     REVIEW-stage audit (test-theatre + mutation-sampling)
+  ui-classify <id>    Run the UI-bearing classifier on one FBS
+  ui-baseline <verb>  UI baseline: init | show | opt-out
+  design <fbs-id>     Design substage: dispatch worker or hand-author artefacts
+  browser-verify <id> Stage 5 browser-verification gate for a UI-bearing FBS
   help [command]      Print help for a command
 
 Options:
@@ -95,6 +103,10 @@ const HELP_MAP = {
   review: REVIEW_HELP,
   fbs: FBS_HELP,
   'test-suite': TEST_SUITE_HELP,
+  'ui-classify': UI_CLASSIFY_HELP,
+  'ui-baseline': UI_BASELINE_HELP,
+  design: DESIGN_HELP,
+  'browser-verify': BROWSER_VERIFY_HELP,
 };
 
 /**

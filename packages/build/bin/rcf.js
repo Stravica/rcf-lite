@@ -32,6 +32,10 @@ import { main as reviewMain } from '../src/cli/review.js';
 import { main as fbsMain } from '../src/cli/fbs.js';
 import { main as testSuiteMain } from '../src/cli/test-suite.js';
 import { main as traceMain } from '../src/cli/trace.js';
+import { main as uiBaselineMain } from '../src/cli/ui-baseline.js';
+import { main as uiClassifyMain } from '../src/cli/ui-classify.js';
+import { main as designMain } from '../src/cli/design.js';
+import { main as browserVerifyMain } from '../src/cli/browser-verify.js';
 import { main as updateMain } from '../src/cli/update.js';
 import { main as validateMain } from '../src/cli/validate.js';
 import { main as viewMain } from '../src/cli/view.js';
@@ -60,6 +64,10 @@ export const SUBCOMMANDS = {
   review: reviewMain,
   fbs: fbsMain,
   'test-suite': testSuiteMain,
+  'ui-classify': uiClassifyMain,
+  'ui-baseline': uiBaselineMain,
+  design: designMain,
+  'browser-verify': browserVerifyMain,
   help: helpMain,
 };
 

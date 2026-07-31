@@ -3,6 +3,12 @@
 
 export { computeQueue, selectNext, byBuildOrder, LIFECYCLE } from './queue.js';
 export { assembleBundle } from './bundle.js';
-export { checkCodeNodeGate, hasNoCodeNodesDeclaration, planMark } from './mark.js';
+export {
+  checkCodeNodeGate,
+  checkContrastBeforePaletteGate,
+  checkDesignGate,
+  hasNoCodeNodesDeclaration,
+  planMark,
+} from './mark.js';
 export { formatMarkdown } from './formatters/markdown.js';
 export { formatJson } from './formatters/json.js';

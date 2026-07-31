@@ -124,3 +124,54 @@ export function checkCodeNodeGate(tree, fbs) {
   if (missingAcIds.length === 0) return { ok: true };
   return { ok: false, missingAcIds: [...missingAcIds].sort() };
 }
+
+// Track B (ui-design-gate-0.7.0-spec §5.2, §5.5): the `--mark complete`
+// design gate. Refuses when the FBS is uiBearing=true and
+// designStageComplete is not true on the FBS record. The gate is the
+// boolean primitive per §12 O-3 (Decided); the executionStatus enum is
+// unchanged.
+/**
+ * @param {object} fbs
+ * @returns {{ ok: true } | { ok: false, reason: 'designStageIncomplete' }}
+ */
+export function checkDesignGate(fbs) {
+  if (fbs?.uiBearing !== true) return { ok: true };
+  if (fbs?.designStageComplete === true) return { ok: true };
+  return { ok: false, reason: 'designStageIncomplete' };
+}
+
+// Track B (ui-design-gate-0.7.0-spec §7 mandate 10). Refuses when the
+// operator's own attestation says the wrong order was authored, and
+// (optionally) when a git-history probe unambiguously contradicts the
+// operator's attestation. The git probe is out of scope for the pure
+// mark.js module; the caller (cli/build) supplies the probe result.
+/**
+ * @param {object} fbs
+ * @param {object} [historyProbe]  optional git-history corroboration result
+ * @param {boolean} [historyProbe.inconclusive]  true when git says nothing
+ * @param {boolean} [historyProbe.tokensCreatedFirst] true when history says tokens preceded contrast test
+ * @returns {{ ok: true } | { ok: false, reason: string, message: string }}
+ */
+export function checkContrastBeforePaletteGate(fbs, historyProbe = { inconclusive: true }) {
+  if (fbs?.uiBearing !== true) return { ok: true };
+  const stage = fbs?.designStage;
+  if (!stage?.themeAndA11y) return { ok: true }; // gate deferred to design-mark-complete surface
+  const boolean = stage.themeAndA11y.contrastTestAuthoredBeforePalette;
+  if (boolean === false) {
+    return {
+      ok: false,
+      reason: 'contrastTestAfterPalette',
+      message: `build --mark complete: refused - ${fbs.fbsId} designStage.themeAndA11y.contrastTestAuthoredBeforePalette is false. `
+        + 'Author the contrast test before the palette, or record the reversal by ratifying the ordering explicitly.',
+    };
+  }
+  if (boolean === true && historyProbe && historyProbe.inconclusive !== true && historyProbe.tokensCreatedFirst === true) {
+    return {
+      ok: false,
+      reason: 'contrastGitHistoryConflict',
+      message: `build --mark complete: refused - ${fbs.fbsId} attests contrastTestAuthoredBeforePalette=true, but git history shows the tokens module (${stage.themeAndA11y.themeTokensModule}) was created before the contrast test (${stage.themeAndA11y.contrastTestPath}). `
+        + 'Reconcile the attestation with the history: rewrite the test-authoring order in the log, or set contrastTestAuthoredBeforePalette=false and accept the ruling.',
+    };
+  }
+  return { ok: true };
+}

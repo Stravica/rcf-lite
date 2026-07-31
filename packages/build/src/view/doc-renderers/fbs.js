@@ -31,6 +31,8 @@ export function renderFbs(fbs, ctx) {
   const acBlocks = (fbs.acIds ?? []).map((acId) => renderResolvedAc(acId, ctx)).join('\n');
   const ctxReq = fbs.contextRequirements ?? {};
   const ctxBlocks = renderContextRequirements(ctxReq);
+  const designBlock = renderDesignBlock(fbs);
+  const designSlot = designBlock ? `\n  ${designBlock}` : '';
   return `
 <article id="${anchor}" class="doc doc-fbs">
   <h3>${escapeHtml(fbs.fbsId ?? 'FBS')} - ${escapeHtml(fbs.title ?? '')}</h3>
@@ -39,7 +41,7 @@ export function renderFbs(fbs, ctx) {
   ${fieldPara('Approach', fbs.approach)}
   ${acPills}
   <section class="field-list"><h4>Acceptance criteria delivered</h4>${acBlocks}</section>
-  ${ctxBlocks}
+  ${ctxBlocks}${designSlot}
   ${fbs.dependsOnFbsIds?.length ? `<section class="field-list"><h4>Depends on</h4><p>${docLinkList(fbs.dependsOnFbsIds)}</p></section>` : ''}
   ${fieldPara('Estimated size', fbs.estimatedSize)}
   ${fieldPara('Estimated hours', fbs.estimatedHours)}
@@ -50,6 +52,31 @@ export function renderFbs(fbs, ctx) {
   ${fieldPara('Notes', fbs.notes)}
   ${rawJsonDisclosure(ctx.raw, fbs, fbs.fbsId)}
 </article>`.trim();
+}
+
+/**
+ * Design substage block (Track B, ui-design-gate-0.7.0-spec §5.5
+ * "Honest cost" list: FBS view renderer surfaces designStageComplete +
+ * the designStage artefacts). Renders nothing for non-UI FBS.
+ *
+ * @param {object} fbs
+ * @returns {string}
+ */
+function renderDesignBlock(fbs) {
+  if (fbs?.uiBearing !== true && !fbs?.designStage && fbs?.designStageComplete !== true) return '';
+  const stage = fbs.designStage ?? {};
+  const journeyCount = Array.isArray(stage.journeys) ? stage.journeys.length : 0;
+  const navShape = stage.navModel?.shape ?? '(none)';
+  const routeCount = Array.isArray(stage.navModel?.routes) ? stage.navModel.routes.length : 0;
+  const themeMode = stage.themeAndA11y?.themeMode ?? '(none)';
+  const complete = fbs?.designStageComplete === true;
+  return `<section class="field-list"><h4>Design substage</h4>
+  <p><strong>UI-bearing:</strong> ${escapeHtml(String(fbs?.uiBearing ?? false))}</p>
+  <p><strong>Design stage complete:</strong> ${escapeHtml(String(complete))}</p>
+  <p><strong>Journeys:</strong> ${escapeHtml(String(journeyCount))}</p>
+  <p><strong>Nav model:</strong> ${escapeHtml(String(navShape))} (${escapeHtml(String(routeCount))} route(s))</p>
+  <p><strong>Theme and a11y:</strong> ${escapeHtml(String(themeMode))}</p>
+</section>`;
 }
 
 function renderAcPills(acIds) {

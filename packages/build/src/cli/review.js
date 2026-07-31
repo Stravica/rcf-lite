@@ -15,8 +15,8 @@
 // records the skip explicitly. `--dry-run` runs the audit without
 // writing the record.
 
-import { access, mkdir, rename, unlink, writeFile } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { access, mkdir, readdir, rename, unlink, writeFile } from 'node:fs/promises';
+import { join, dirname, relative } from 'node:path';
 import { parseArgs } from 'node:util';
 import process from 'node:process';
 
@@ -28,6 +28,7 @@ import {
   auditTestTheatre,
   composeReviewAuditRecord,
 } from '../review/index.js';
+import { auditUiBaselineDrift } from '../review/ui-baseline-drift.js';
 import {
   defaultMutationRunner,
   defaultSizing,
@@ -123,6 +124,19 @@ export async function main(argv, deps = {}) {
   const testPointers = await resolveTestPointers({ projectRoot, tree });
   const findings = auditTestTheatre({ tree, fbs, testPointers });
 
+  // Track B (ui-design-gate-0.7.0-spec §3.4): run the UI-baseline drift
+  // audit alongside the Track A test-theatre audit for uiBearing FBS.
+  // One brief, one worker, one record per FBS — the same reviewAudit
+  // record carries both Track A and Track B kinds (spec §12 O-12).
+  const listFiles = deps.listFiles ?? defaultListFiles(projectRoot);
+  const uiFindings = await auditUiBaselineDrift({
+    projectRoot,
+    fbs,
+    uiBaseline: tree.manifest?.uiBaseline ?? null,
+    listFiles,
+  });
+  for (const f of uiFindings) findings.push(f);
+
   // Mutation-sampling.
   let mutationRunner = deps.mutationRunner;
   if (!mutationRunner) mutationRunner = flags['skip-mutation'] ? skippedMutationRunner : defaultMutationRunner;
@@ -211,4 +225,71 @@ async function fileExists(path) {
   } catch {
     return false;
   }
+}
+
+/**
+ * Default file lister used by the UI-baseline drift audit. Walks the
+ * project tree once and matches each path against the supplied glob
+ * patterns. Supports the `**` suffix (recursive) and `*` mid-path
+ * wildcards. Deliberately minimal — the audit's callers pass either
+ * `src/ui/**` or `src/routes/**` in v1, so a formal glob library
+ * would be scope-creep. Returns project-root-relative paths.
+ *
+ * @param {string} projectRoot
+ * @returns {(patterns: string[]) => Promise<string[]>}
+ */
+function defaultListFiles(projectRoot) {
+  return async (patterns) => {
+    const out = new Set();
+    for (const raw of Array.isArray(patterns) ? patterns : []) {
+      const pattern = String(raw);
+      const idx = pattern.indexOf('**');
+      let root;
+      let recursive;
+      let suffix;
+      if (idx >= 0) {
+        root = pattern.slice(0, Math.max(0, idx - 1));
+        recursive = true;
+        suffix = pattern.slice(idx + 2).replace(/^\//, '');
+      } else if (pattern.includes('*')) {
+        const slash = pattern.lastIndexOf('/');
+        root = slash >= 0 ? pattern.slice(0, slash) : '.';
+        recursive = false;
+        suffix = pattern.slice(slash + 1);
+      } else {
+        // Literal path; include as-is.
+        root = pattern;
+        recursive = false;
+        suffix = '';
+      }
+      const absRoot = join(projectRoot, root);
+      const collected = [];
+      await walkDir(absRoot, recursive, collected);
+      for (const abs of collected) {
+        const rel = relative(projectRoot, abs);
+        if (matchesSuffix(rel, suffix)) out.add(rel);
+      }
+    }
+    return [...out];
+  };
+}
+
+async function walkDir(root, recursive, out) {
+  let entries;
+  try { entries = await readdir(root, { withFileTypes: true }); } catch { return; }
+  for (const entry of entries) {
+    const abs = join(root, entry.name);
+    if (entry.isDirectory()) {
+      if (recursive) await walkDir(abs, true, out);
+    } else if (entry.isFile()) {
+      out.push(abs);
+    }
+  }
+}
+
+function matchesSuffix(rel, suffix) {
+  if (!suffix || suffix.length === 0) return true;
+  // Support a single `*` wildcard on the suffix segment.
+  const escaped = suffix.split('*').map((p) => p.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*');
+  return new RegExp(`(?:^|/)${escaped}$`).test(rel);
 }

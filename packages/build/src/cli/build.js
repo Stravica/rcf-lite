@@ -25,6 +25,8 @@ import { scanUnbackedServices } from '../query/attestation.js';
 import {
   assembleBundle,
   checkCodeNodeGate,
+  checkContrastBeforePaletteGate,
+  checkDesignGate,
   computeQueue,
   formatJson,
   formatMarkdown,
@@ -32,6 +34,9 @@ import {
   planMark,
   selectNext,
 } from '../build/index.js';
+import { classifyFbs } from '../ui-detection/classifier.js';
+import { firstBaselineDisagreement } from '../design/index.js';
+import { writeBrowserVerificationAck } from '../browser-verify/index.js';
 
 const OPTION_SPEC = {
   next: { type: 'boolean' },
@@ -45,6 +50,12 @@ const OPTION_SPEC = {
   // producing no traceable code (docs-only, config-only), exempting it
   // from the mark-complete CN gate. Combines only with `--mark complete`.
   'no-code-nodes': { type: 'boolean' },
+  // Track B (ui-design-gate-0.7.0-spec §8.6): ship-without-verified
+  // escape hatch on --mark complete for a browserVerification record
+  // whose verdict is `block`. Records the operator's reason on the
+  // browserVerification record.
+  'accept-block': { type: 'boolean' },
+  reason: { type: 'string' },
 };
 
 export const HELP = `Usage: rcf build [fbs-id] [options]
@@ -87,6 +98,13 @@ Options:
                             genuinely producing no traceable code
                             (docs-only, config-only), recorded on the FBS
                             and exempting it from the mark-complete CN gate
+  --accept-block            With --mark complete on a uiBearing FBS: accept
+                            a browserVerification block (or a missing record)
+                            and ship the FBS at complete. Requires --reason
+                            "..." (>= 20 chars). Records the reason on the
+                            browserVerification.operatorShipDespiteBlockReason
+                            field. Track B ship-without-verified (spec §8.6).
+  --reason "..."            Reason string for --accept-block.
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
@@ -148,6 +166,14 @@ export async function main(argv, deps = {}) {
   if (flags['no-code-nodes'] && flags.mark !== 'complete') {
     return usage('--no-code-nodes only combines with --mark complete');
   }
+  // Track B (§8.6): --accept-block only makes sense with --mark complete
+  // and requires --reason "...".
+  if (flags['accept-block'] && flags.mark !== 'complete') {
+    return usage('--accept-block only combines with --mark complete');
+  }
+  if (flags['accept-block'] && (typeof flags.reason !== 'string' || flags.reason.length < 20)) {
+    return usage('--accept-block requires --reason "..." with at least 20 characters');
+  }
   const mode = flags.mark !== undefined
     ? 'mark'
     : flags.next
@@ -181,7 +207,10 @@ export async function main(argv, deps = {}) {
 
   if (mode === 'mark') {
     return await runMark({
-      tree, projectRoot, fbsId: positional, status: flags.mark, io, noCodeNodes: Boolean(flags['no-code-nodes']),
+      tree, projectRoot, fbsId: positional, status: flags.mark, io,
+      noCodeNodes: Boolean(flags['no-code-nodes']),
+      acceptBlock: Boolean(flags['accept-block']),
+      acceptReason: typeof flags.reason === 'string' ? flags.reason : null,
     });
   }
   if (mode === 'queue') {
@@ -229,6 +258,9 @@ async function emitBundle({ tree, fbsId, format, strict, io }) {
     io.stderr.write(`[error] usage ${classification.message}\n`);
     return 2;
   }
+  // Track B (spec §4.4): classifier signal alongside the single-FBS
+  // bundle. Same transparency rule as --next.
+  emitClassifierSignal(io, tree, fbsId);
   const bundle = assembleBundle(tree, { fbsId });
   // Blocked-dependency gate (§D12): warn by default (the BLOCKED block
   // in section 2), refuse under --strict.
@@ -259,6 +291,12 @@ async function emitNext({ tree, format, io }) {
       const names = unbacked.map((u) => u.serviceId).join(', ');
       io.stderr.write(`[warn] build --next: ${next.fbsId} touches services not covered by any preFlightConfig (${names}); run 'rcf preflight' before Stage 4.\n`);
     }
+    // Track B (spec §4.4): always print the classifier verdict + signals
+    // for the selected FBS. Transparent-by-default so a `notUi` verdict
+    // on prose that visibly contains UI keywords is still visible to the
+    // operator; missing the transparency would re-enable the silent
+    // shortcut pattern the cold-run "Skip RCF" wobble called out.
+    emitClassifierSignal(io, tree, next.fbsId);
     const bundle = assembleBundle(tree, { fbsId: next.fbsId });
     const output = format === 'json' ? formatJson(bundle, 'next') : formatMarkdown(bundle, 'next');
     return await emitToSink(output, io);
@@ -304,7 +342,7 @@ async function emitToSink(output, io) {
  * writer schema-validates and bumps updatedAt). Output is a fixed
  * one-line confirmation - exit codes carry the outcome (OQ-P6-4).
  */
-async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = false }) {
+async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = false, acceptBlock = false, acceptReason = null }) {
   const plan = planMark(tree, { fbsId, status });
   if (isRcfError(plan)) {
     io.stderr.write(`[error] usage ${plan.message}\n`);
@@ -322,12 +360,108 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
 
   const sets = [{ path: 'executionStatus', value: plan.to }];
 
+  // Track B (§5.2): soft warning on --mark inProgress for uiBearing
+  // FBS that has no designStage authored yet. Warn-only per spec.
+  if (plan.to === 'inProgress') {
+    const fbs = tree.byId.get(plan.fbsId);
+    if (fbs?.uiBearing === true && !fbs?.designStage) {
+      io.stderr.write(`[warn] build --mark inProgress: ${plan.fbsId} is uiBearing but has no designStage yet. Consider running 'rcf design ${plan.fbsId}' before Stage 2 build begins. Not a refusal; the hard gate fires at --mark complete.\n`);
+    }
+  }
+
   // Phase 10 (X2 CodeNode bridge, D17, operator ruling): the mark-complete
   // CN gate. Refuses (exit 3, structured missingCodeNodes) when any AC of
   // the completed spec carries no Code Node, unless the FBS already
   // carries the no-code-nodes declaration or this invocation supplies it.
   if (plan.to === 'complete') {
     const fbs = tree.byId.get(plan.fbsId);
+
+    // Track B (§5.5): the Design gate. Refuses --mark complete when
+    // the FBS is uiBearing=true and designStageComplete is not true.
+    // Fires before the CN gate so operators do not have to fix CN
+    // coverage on an FBS that also needs a design pass.
+    const designGate = checkDesignGate(fbs);
+    if (!designGate.ok) {
+      io.stderr.write(`[error] refused build: ${plan.fbsId} is uiBearing but designStageComplete is not true on the FBS record.\n`
+        + '  Complete the Design substage first:\n'
+        + `    rcf design ${plan.fbsId}              (dispatches the Design worker)\n`
+        + `    rcf design ${plan.fbsId} --mark-complete   (hand-authored equivalent, once all three artefacts are present)\n`);
+      return 4;
+    }
+
+    // Track B (§7 mandate 10, §6.2): contrast-before-palette gate.
+    // The boolean is the primary attestation (§12 O-5); git history
+    // corroboration is deferred to a future spec release (§7 mandate
+    // 10 permits this when history is inconclusive, and a fresh clone
+    // is the default posture for the sub-process runner). The pure
+    // gate refuses on the boolean alone.
+    const cbpGate = checkContrastBeforePaletteGate(fbs);
+    if (!cbpGate.ok) {
+      io.stderr.write(`[error] refused ${cbpGate.message}\n`);
+      return 4;
+    }
+
+    // Track B (§6.2): belt-and-braces baseline-vs-designStage
+    // disagreement refusal, in case the design --mark-complete path
+    // was bypassed (e.g. rcf update wrote the disagreement after
+    // design --mark-complete succeeded).
+    if (fbs?.uiBearing === true) {
+      const disagreement = firstBaselineDisagreement(tree, fbs);
+      if (disagreement) {
+        io.stderr.write(`[error] refused build: ${plan.fbsId} designStage.${disagreement.designStagePath} = ${JSON.stringify(disagreement.designValue)} conflicts with uiBaseline.defaults.${disagreement.path} = ${JSON.stringify(disagreement.baselineValue)} and there is no operatorOptOuts entry.\n`
+          + '  Options:\n'
+          + `    1) Change designStage.${disagreement.designStagePath} to match the baseline.\n`
+          + `    2) rcf ui-baseline opt-out --field ${disagreement.path} --reason "..." (project-wide override).\n`
+          + `    3) rcf update ${plan.fbsId} --set designStage.${disagreement.designStagePath}=... (per-FBS override; records ack).\n`);
+        return 4;
+      }
+    }
+
+    // Track B (§8.5, §8.6): browser-verification verdict gate.
+    // Reads the latest browserVerification record for the FBS and
+    // gates by verdict:
+    //   pass -> permitted
+    //   warn -> permitted only when operatorAckAt is populated
+    //   block -> refused unless --accept-block --reason "..."
+    // Absent record -> refused (finalise still refuses via the verify
+    //   `BROWSER-VERIFICATION-MISSING` verdict class, which lives in
+    //   the verify car; the build-side refusal here catches the same
+    //   defect earlier so the operator does not push the FBS to
+    //   complete without any evidence).
+    if (fbs?.uiBearing === true) {
+      const bvRecord = latestBrowserVerification(tree.manifest, plan.fbsId);
+      if (!bvRecord) {
+        io.stderr.write(`[error] refused build: ${plan.fbsId} is uiBearing but no browserVerification record exists on the manifest.\n`
+          + `  Run: rcf browser-verify ${plan.fbsId}\n`
+          + '  Or, if the browser gate is deliberately skipped, add --accept-block --reason "..." to acknowledge the missing evidence.\n');
+        if (!acceptBlock) return 4;
+      } else if (bvRecord.verdict === 'block' && !acceptBlock) {
+        io.stderr.write(`[error] refused build: ${plan.fbsId} browserVerification ${bvRecord.id} verdict is 'block'.\n`
+          + '  Re-run browser-verify after fixing the failures, or acknowledge with:\n'
+          + `    rcf build ${plan.fbsId} --mark complete --accept-block --reason "..."\n`);
+        return 4;
+      } else if (bvRecord.verdict === 'warn' && !bvRecord.operatorAckAt) {
+        io.stderr.write(`[error] refused build: ${plan.fbsId} browserVerification ${bvRecord.id} verdict is 'warn' but operatorAckAt is not set.\n`
+          + '  Ack the warn verdict with:\n'
+          + `    rcf browser-verify ${plan.fbsId} --ack\n`);
+        return 4;
+      }
+      // Ship-without-verified: record the operator's reason on the bv
+      // record when they used --accept-block.
+      if (acceptBlock && bvRecord && (bvRecord.verdict === 'block' || bvRecord.verdict === 'warn')) {
+        const ackResult = await writeBrowserVerificationAck({
+          projectRoot, tree, fbsId: plan.fbsId,
+          operatorAckAt: true,
+          operatorShipDespiteBlockReason: acceptReason,
+        });
+        if (ackResult && 'kind' in ackResult && 'message' in ackResult) {
+          if (ackResult.kind === 'ioFailure') { writeUnexpectedFailure(ackResult, io.stderr); return 1; }
+          io.stderr.write(`[error] ${ackResult.kind} ${ackResult.message}\n`);
+          return 3;
+        }
+      }
+    }
+
     const alreadyDeclared = hasNoCodeNodesDeclaration(fbs);
     if (noCodeNodes && !alreadyDeclared) {
       sets.push({ path: 'noCodeNodes', value: true });
@@ -367,4 +501,47 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
   }
   if (!io.quiet) io.stdout.write(`marked ${plan.fbsId} ${plan.from} -> ${plan.to}\n`);
   return 0;
+}
+
+/**
+ * Print the UI-bearing classifier verdict for an FBS on the bundle
+ * runbook (Track B, ui-design-gate-0.7.0-spec §4.4). Emits nothing when
+ * the FBS document is missing (defensive; the caller has already
+ * classified). Not enough to gate on its own; the operator ratifies
+ * via `rcf update <fbs-id> --set uiBearing=true|false`.
+ *
+ * @param {object} io
+ * @param {object} tree
+ * @param {string} fbsId
+ */
+function emitClassifierSignal(io, tree, fbsId) {
+  const fbs = tree.byId.get(fbsId);
+  if (!fbs) return;
+  const block = classifyFbs(tree, fbsId);
+  if (!block) return;
+  const signalCount = Array.isArray(block.signals) ? block.signals.length : 0;
+  const suffix = fbs.uiBearing === true ? ' [ratified: uiBearing=true]'
+    : fbs.uiBearing === false ? ' [ratified: uiBearing=false]'
+      : ' [not yet ratified]';
+  io.stderr.write(`[info] build: ui-classifier verdict=${block.verdict} reason=${block.reason} (${signalCount} signal(s))${suffix}\n`);
+  if (block.verdict === 'ui' && fbs.uiBearing !== true) {
+    io.stderr.write(`       Classified as UI-bearing. Ratify with: rcf update ${fbsId} --set uiBearing=true\n`);
+    io.stderr.write(`       Override with: rcf update ${fbsId} --set uiBearing=false (if the classifier is wrong).\n`);
+  }
+}
+
+/**
+ * Latest browserVerification record for an FBS. Returns null when
+ * none exists.
+ *
+ * @param {object|null} manifest
+ * @param {string} fbsId
+ * @returns {object|null}
+ */
+function latestBrowserVerification(manifest, fbsId) {
+  const records = Array.isArray(manifest?.browserVerification) ? manifest.browserVerification : [];
+  for (let i = records.length - 1; i >= 0; i -= 1) {
+    if (records[i]?.fbsId === fbsId) return records[i];
+  }
+  return null;
 }
