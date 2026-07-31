@@ -21,6 +21,7 @@ import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
 import { validateDocument } from '@stravica-ai/rcf-lite-core/store';
 
 import { composeDefaults, deepGet, deepSet } from './defaults.js';
+import { CATALOGUE_V1 } from '../preflight/design-shapes.js';
 
 /**
  * Compute the next `uib-YYYY-MM-DD-NNN` id: monotonic per project.
@@ -87,27 +88,47 @@ export function composeUiBaselineRecord({
  * `uiBaseline.defaults`. Idempotent seam: the answers stay in
  * preflight; the values land as defaults on baseline creation.
  *
- * v1 only surfaces the `defaults.authFlow.htmlLoginPageRequired`
- * answer that Track A's design-shape catalogue writes (spec §3.2 +
- * Track A ADDENDUM §A.2); the catalogue is deep-frozen data, so the
- * pickup is deterministic given the same preflight ratifications.
+ * Generalised (Track B review N-4): reads
+ * `uiBaselineWritePath` + `uiBaselineWriteValue` off the catalogue's
+ * per-choice metadata rather than hard-coding a single question id. Any
+ * answered question whose selected choice carries a write path targeting
+ * `defaults.*` lands as a seeded override; newest ratification wins.
+ * A future Track C+D catalogue addition that names its own write path
+ * flows through this seam without any wiring change here.
+ *
+ * The catalogue is injectable for tests via the second argument; in
+ * production, callers use the default `CATALOGUE_V1` import.
  *
  * @param {object|null} manifest
- * @returns {object} dot-path -> value overrides
+ * @param {Readonly<import('../preflight/design-shapes.js').DesignShapeQuestion[]>} [catalogue]
+ * @returns {object} dot-path -> value overrides (relative to `defaults`)
  */
-export function preflightSeamOverrides(manifest) {
+export function preflightSeamOverrides(manifest, catalogue = CATALOGUE_V1) {
   const overrides = {};
+  const questionsById = new Map();
+  for (const q of Array.isArray(catalogue) ? catalogue : []) {
+    if (q?.id) questionsById.set(q.id, q);
+  }
   const records = Array.isArray(manifest?.preFlightConfig) ? manifest.preFlightConfig : [];
   // Walk newest-first so a later ratification wins over an earlier one.
   for (let i = records.length - 1; i >= 0; i -= 1) {
     const rec = records[i];
     const answers = Array.isArray(rec?.designShapeAnswers) ? rec.designShapeAnswers : [];
     for (const answer of answers) {
-      if (answer?.questionId === 'auth.htmlLoginPage') {
-        const value = answer.answer === 'htmlLoginPage';
-        if (overrides['authFlow.htmlLoginPageRequired'] === undefined) {
-          overrides['authFlow.htmlLoginPageRequired'] = value;
-        }
+      const question = questionsById.get(answer?.questionId);
+      if (!question) continue;
+      const choice = Array.isArray(question.choices)
+        ? question.choices.find((c) => c?.value === answer?.answer)
+        : null;
+      if (!choice) continue;
+      const writePath = typeof choice.uiBaselineWritePath === 'string' ? choice.uiBaselineWritePath : null;
+      if (!writePath) continue;
+      // Strip the `defaults.` prefix (the write path is authored against
+      // the uiBaseline record; the seam applies against the defaults
+      // subtree, so the prefix is dropped here).
+      const key = writePath.startsWith('defaults.') ? writePath.slice('defaults.'.length) : writePath;
+      if (overrides[key] === undefined) {
+        overrides[key] = choice.uiBaselineWriteValue;
       }
     }
   }

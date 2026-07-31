@@ -28,8 +28,9 @@ import { classifyAttestationProfile, aggregateAttestationsByAc } from '../query/
 
 /**
  * @typedef {object} TestTheatreFinding
- * @property {string} tsId
+ * @property {string} [tsId] required for test-theatre kinds; omitted on kind=uiBaselineDrift (rcf-schemas 0.4.2)
  * @property {string} [tcId]
+ * @property {string} [anchorId] free-form anchor for kinds without a test suite (for example, uiBaselineDrift, anchored on an FBS id or file path)
  * @property {TestTheatreFindingKind} kind
  * @property {string} detail
  * @property {'advisory'|'warn'|'block'} severity

@@ -70,7 +70,15 @@ export async function auditUiBaselineDrift({ projectRoot, fbs, uiBaseline, listF
       if (match) {
         const severity = optOuts.has('noHexInViewFiles') ? 'advisory' : 'block';
         findings.push({
-          tsId: fbs.fbsId, // schema requires tsId on findings; use the FBS id as anchor when no TS is involved
+          // Track B review N-5 (@stravica-ai/rcf-schemas 0.4.2): the
+          // finding anchors on the FBS id via the dedicated anchorId
+          // field. Prior versions smuggled fbs.fbsId through the tsId
+          // slot to satisfy the pre-0.4.2 blanket required rule; the
+          // slot mismatch was a real category-vs-slot defect (a
+          // downstream reader assuming tsId names a TS would follow a
+          // broken pointer). 0.4.2 keeps tsId required for the
+          // test-theatre kinds only.
+          anchorId: fbs.fbsId,
           kind: 'uiBaselineDrift',
           detail: `hex literal ${match[0]} detected in ${rel} (baseline defaults.noHexInViewFiles: true). Move colours into ${tokensModule ?? 'the design tokens module'}.`,
           severity,
@@ -99,7 +107,9 @@ export async function auditUiBaselineDrift({ projectRoot, fbs, uiBaseline, listF
       if (!hasImport) {
         const severity = optOuts.has('sharedLayoutModule') ? 'advisory' : 'block';
         findings.push({
-          tsId: fbs.fbsId,
+          // See the noHexInViewFiles comment above for the anchorId
+          // rationale (rcf-schemas 0.4.2, Track B review N-5).
+          anchorId: fbs.fbsId,
           kind: 'uiBaselineDrift',
           detail: `${rel} does not import the shared layout module (${layoutModule}); baseline mandate 3 says every route uses one layout.`,
           severity,

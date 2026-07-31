@@ -80,3 +80,89 @@ test('preflightSeamOverrides: htmlLoginPage answer preserves the ruled default (
   });
   assert.equal(overrides['authFlow.htmlLoginPageRequired'], true);
 });
+
+// Track B review N-4: generality proof. `preflightSeamOverrides` reads
+// `uiBaselineWritePath` + `uiBaselineWriteValue` off the catalogue's
+// per-choice metadata rather than hard-coding the auth.htmlLoginPage
+// question. Any answered question whose choice carries a write path
+// flows through the seam unchanged; a future Track C+D catalogue
+// addition does not need a wiring change here.
+
+test('preflightSeamOverrides: generalises across catalogue entries (synthetic second question via injected catalogue)', async () => {
+  const syntheticCatalogue = [
+    {
+      id: 'auth.htmlLoginPage',
+      scope: 'reqScoped',
+      trigger: () => true,
+      prompt: 'HTML login page or API-only?',
+      choices: [
+        { value: 'htmlLoginPage', display: 'HTML', triggersOptOut: false, uiBaselineWritePath: 'defaults.authFlow.htmlLoginPageRequired', uiBaselineWriteValue: true },
+        { value: 'apiOnly', display: 'API', triggersOptOut: true, uiBaselineWritePath: 'defaults.authFlow.htmlLoginPageRequired', uiBaselineWriteValue: false },
+      ],
+      reasonMinLength: 20,
+      baselineKey: 'auth.htmlLoginPage',
+    },
+    {
+      id: 'ui.themePolicy',
+      scope: 'reqScoped',
+      trigger: () => true,
+      prompt: 'Which theme policy?',
+      choices: [
+        { value: 'lightOnly', display: 'Light only', triggersOptOut: false, uiBaselineWritePath: 'defaults.themeMode', uiBaselineWriteValue: 'light-only' },
+        { value: 'darkOnly', display: 'Dark only', triggersOptOut: false, uiBaselineWritePath: 'defaults.themeMode', uiBaselineWriteValue: 'dark-only' },
+      ],
+      reasonMinLength: 20,
+      baselineKey: 'ui.themePolicy',
+    },
+  ];
+  const overrides = preflightSeamOverrides({
+    preFlightConfig: [{
+      id: 'pfc-2026-07-30-001',
+      designShapeAnswers: [
+        { questionId: 'auth.htmlLoginPage', answer: 'apiOnly', answeredAt: 'x' },
+        { questionId: 'ui.themePolicy', answer: 'darkOnly', answeredAt: 'x' },
+      ],
+    }],
+  }, syntheticCatalogue);
+  assert.equal(overrides['authFlow.htmlLoginPageRequired'], false);
+  assert.equal(overrides['themeMode'], 'dark-only');
+});
+
+test('preflightSeamOverrides: an unknown questionId is silently skipped (catalogue is the source of truth)', async () => {
+  const overrides = preflightSeamOverrides({
+    preFlightConfig: [{
+      id: 'pfc-2026-07-30-001',
+      designShapeAnswers: [
+        { questionId: 'not.in.catalogue', answer: 'foo', answeredAt: 'x' },
+        { questionId: 'auth.htmlLoginPage', answer: 'htmlLoginPage', answeredAt: 'x' },
+      ],
+    }],
+  });
+  assert.equal(overrides['authFlow.htmlLoginPageRequired'], true);
+  assert.equal(Object.keys(overrides).length, 1);
+});
+
+test('preflightSeamOverrides: an answer whose choice has no uiBaselineWritePath is silently skipped', async () => {
+  const syntheticCatalogue = [
+    {
+      id: 'ui.noWritePath',
+      scope: 'reqScoped',
+      trigger: () => true,
+      prompt: '?',
+      choices: [
+        // No uiBaselineWritePath on this choice - the answer is stored in
+        // preflight for later use but does not seed a baseline default.
+        { value: 'yes', display: 'Yes', triggersOptOut: false },
+      ],
+      reasonMinLength: 20,
+      baselineKey: 'ui.noWritePath',
+    },
+  ];
+  const overrides = preflightSeamOverrides({
+    preFlightConfig: [{
+      id: 'pfc-2026-07-30-001',
+      designShapeAnswers: [{ questionId: 'ui.noWritePath', answer: 'yes', answeredAt: 'x' }],
+    }],
+  }, syntheticCatalogue);
+  assert.deepEqual(overrides, {});
+});

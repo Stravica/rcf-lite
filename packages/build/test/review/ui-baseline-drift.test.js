@@ -109,3 +109,73 @@ test('audit clears the sharedLayoutModule finding when the route imports the mod
   });
   assert.equal(findings.length, 0);
 });
+
+// Track B review N-5 (2026-07-31, rcf-schemas 0.4.2): the drift finding
+// anchors on the FBS id via the dedicated `anchorId` field, not by
+// smuggling the id through the `tsId` slot. The check is important for
+// two reasons: (1) downstream readers can no longer assume `tsId` names
+// a real TS on drift findings; (2) the schema now forbids that legacy
+// shape on new emissions if a caller wants a clean record (though
+// pre-0.4.2 emissions with tsId set are still schema-valid for back-
+// compat).
+
+test('N-5: hex-literal uiBaselineDrift finding uses anchorId (not tsId) as the FBS anchor', async () => {
+  const projectRoot = await makeProjectFiles({
+    'src/ui/dashboard.ts': 'const bg = "#ff00aa";',
+  });
+  const findings = await auditUiBaselineDrift({
+    projectRoot, fbs: uiBearingFbs, uiBaseline: baseline,
+    listFiles: async (patterns) => {
+      if (patterns.some((p) => p.startsWith('src/ui'))) return ['src/ui/dashboard.ts'];
+      return [];
+    },
+  });
+  const hex = findings.find((f) => /hex literal/.test(f.detail));
+  assert.ok(hex, 'expected a hex-literal finding');
+  assert.equal(hex.anchorId, 'FBS-016');
+  assert.equal(hex.tsId, undefined, 'drift findings must not populate the tsId slot');
+});
+
+test('N-5: sharedLayoutImport uiBaselineDrift finding uses anchorId (not tsId) as the FBS anchor', async () => {
+  const projectRoot = await makeProjectFiles({
+    'src/routes/dashboard.ts': 'export function DashboardPage() { return html("dash"); }',
+  });
+  const findings = await auditUiBaselineDrift({
+    projectRoot, fbs: uiBearingFbs, uiBaseline: baseline,
+    listFiles: async (patterns) => {
+      if (patterns.some((p) => p.startsWith('src/routes'))) return ['src/routes/dashboard.ts'];
+      return [];
+    },
+  });
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].anchorId, 'FBS-016');
+  assert.equal(findings[0].tsId, undefined, 'drift findings must not populate the tsId slot');
+});
+
+test('N-5: a drift-only reviewAudit record composed from these findings validates against the schema (no tsId required)', async () => {
+  const { validateDocument } = await import('@stravica-ai/rcf-lite-core/store');
+  const projectRoot = await makeProjectFiles({
+    'src/ui/dashboard.ts': 'const bg = "#ff00aa";',
+    'src/routes/dashboard.ts': 'export function DashboardPage() { return html("dash"); }',
+  });
+  const findings = await auditUiBaselineDrift({
+    projectRoot, fbs: uiBearingFbs, uiBaseline: baseline,
+    listFiles: async () => ['src/ui/dashboard.ts', 'src/routes/dashboard.ts'],
+  });
+  const manifest = {
+    version: '2.0.0',
+    projectName: 'N-5 smoke',
+    prd: { id: 'PRD-001', path: 'prd.json' },
+    tad: { id: 'TAD-001', path: 'tad.json' },
+    bs:  { id: 'BS-001',  path: 'build-sequence.json' },
+    reviewAudit: [{
+      id: 'ra-FBS-016-1',
+      fbsId: 'FBS-016',
+      createdAt: '2026-07-31T15:00:00Z',
+      testTheatreFindings: findings,
+      verdict: 'block',
+    }],
+  };
+  const err = validateDocument({ doc: manifest, kind: 'manifest', filePath: 'rcf/manifest.json' });
+  assert.equal(err, null, `manifest with drift-only findings should validate; got ${JSON.stringify(err)}`);
+});

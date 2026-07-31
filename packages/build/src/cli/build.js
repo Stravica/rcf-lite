@@ -431,10 +431,25 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
     if (fbs?.uiBearing === true) {
       const bvRecord = latestBrowserVerification(tree.manifest, plan.fbsId);
       if (!bvRecord) {
+        // Track B review B-1 (2026-07-31): refuse cleanly when no
+        // browserVerification record exists, even with --accept-block.
+        // Previously acceptBlock let execution fall through past the
+        // ack-writer (which is guarded on bvRecord being truthy),
+        // marking the FBS complete with only an ephemeral stderr line
+        // as evidence of the operator's reason. That is the exact
+        // "durable record or it did not happen" defect Track A's B-1
+        // closed for --ship-without-verified. Composing a synthetic
+        // browserVerification record here would invent evidence for a
+        // gate the operator never actually ran; the honest posture is
+        // to make the operator run the gate (the stub driver produces
+        // a warn record, which then legitimately anchors the ack) or
+        // ratify a real record. Two-command dance: acknowledged and
+        // preferred.
         io.stderr.write(`[error] refused build: ${plan.fbsId} is uiBearing but no browserVerification record exists on the manifest.\n`
           + `  Run: rcf browser-verify ${plan.fbsId}\n`
-          + '  Or, if the browser gate is deliberately skipped, add --accept-block --reason "..." to acknowledge the missing evidence.\n');
-        if (!acceptBlock) return 4;
+          + `  Then, if the resulting record is block or warn and you have decided to ship anyway, rerun with --accept-block --reason "..." on that record.\n`
+          + '  (--accept-block requires an existing browserVerification record; it acknowledges a real verdict rather than skipping the gate.)\n');
+        return 4;
       } else if (bvRecord.verdict === 'block' && !acceptBlock) {
         io.stderr.write(`[error] refused build: ${plan.fbsId} browserVerification ${bvRecord.id} verdict is 'block'.\n`
           + '  Re-run browser-verify after fixing the failures, or acknowledge with:\n'
@@ -447,8 +462,11 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
         return 4;
       }
       // Ship-without-verified: record the operator's reason on the bv
-      // record when they used --accept-block.
-      if (acceptBlock && bvRecord && (bvRecord.verdict === 'block' || bvRecord.verdict === 'warn')) {
+      // record when they used --accept-block. Only fires on `block`
+      // because the earlier `warn` guard already returned 4 when the
+      // record was warn-without-ack; the sanctioned warn clear is
+      // `rcf browser-verify <id> --ack`, not `--accept-block`.
+      if (acceptBlock && bvRecord && bvRecord.verdict === 'block') {
         const ackResult = await writeBrowserVerificationAck({
           projectRoot, tree, fbsId: plan.fbsId,
           operatorAckAt: true,

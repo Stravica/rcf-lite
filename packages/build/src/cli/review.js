@@ -126,7 +126,7 @@ export async function main(argv, deps = {}) {
 
   // Track B (ui-design-gate-0.7.0-spec §3.4): run the UI-baseline drift
   // audit alongside the Track A test-theatre audit for uiBearing FBS.
-  // One brief, one worker, one record per FBS — the same reviewAudit
+  // One brief, one worker, one record per FBS: the same reviewAudit
   // record carries both Track A and Track B kinds (spec §12 O-12).
   const listFiles = deps.listFiles ?? defaultListFiles(projectRoot);
   const uiFindings = await auditUiBaselineDrift({
@@ -231,7 +231,7 @@ async function fileExists(path) {
  * Default file lister used by the UI-baseline drift audit. Walks the
  * project tree once and matches each path against the supplied glob
  * patterns. Supports the `**` suffix (recursive) and `*` mid-path
- * wildcards. Deliberately minimal — the audit's callers pass either
+ * wildcards. Deliberately minimal: the audit's callers pass either
  * `src/ui/**` or `src/routes/**` in v1, so a formal glob library
  * would be scope-creep. Returns project-root-relative paths.
  *
