@@ -19,7 +19,7 @@ import { readChain as defaultReadChain } from '../chain/index.js';
 import { runProvisioning, cleanup as defaultCleanup } from '../provision/index.js';
 import { composeBrief } from './brief.js';
 import { resolveLauncher } from './launcher.js';
-import { aggregateVerdict, validateFinding } from '../verdict/index.js';
+import { aggregateVerdict, derivePerAcVerdicts, validateFinding } from '../verdict/index.js';
 import { buildReport } from '../report/index.js';
 
 /**
@@ -75,6 +75,18 @@ export async function runVerification(opts = {}, deps = {}) {
 
   const verdictAuthority = verdictAuthorityFor(profile, parityEnv);
 
+  // Per-AC verdicts (0.7.0). Derived from chain data — service attestations
+  // (Track A §5.2) and UI-bearing FBS × browserVerification[] (Track B §8.7)
+  // — before any structural refusal so the report always carries the
+  // honest chain-derived picture, not just the run-time findings. The
+  // finalise gate (build/src/finalise/ingest.js) reads this array and
+  // refuses `verified` on any MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION
+  // entry regardless of the run-level verdict.
+  const perAcVerdicts = derivePerAcVerdicts({
+    acs: chain.acs,
+    browserVerification: chain.manifest?.browserVerification ?? [],
+  });
+
   // 3. Deployed reachability gate (§4). Only consulted for profile==='deployed'.
   let reachability = null;
   if (profile === 'deployed') {
@@ -87,6 +99,7 @@ export async function runVerification(opts = {}, deps = {}) {
         verifierIsolation: isolationProvenance(),
         verdict: 'NOT-DEPLOYED', verdictAuthority,
         findings: [], blockedAcs: [], provisioning: null,
+        perAcVerdicts,
       });
       return { report };
     }
@@ -133,6 +146,7 @@ export async function runVerification(opts = {}, deps = {}) {
       verdict: 'LAUNCH-FAILURE', verdictAuthority,
       findings: [], blockedAcs, provisioning,
       launchFailure: { message: err.message, rawOutputPath: err.rawOutputPath ?? null },
+      perAcVerdicts,
     });
     return { report };
   }
@@ -156,6 +170,7 @@ export async function runVerification(opts = {}, deps = {}) {
     verdict, verdictAuthority,
     findings, blockedAcs, provisioning,
     runStats: launchResult?.runStats ?? null,
+    perAcVerdicts,
   });
 
   return { report };
