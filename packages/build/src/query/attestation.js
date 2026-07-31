@@ -149,6 +149,78 @@ export function findAttestationMissing(tree) {
 }
 
 /**
+ * Given a walker tree, list every preFlightConfig service whose
+ * `affectedFbsIds` back-reference is empty. The `attestation-missing`
+ * detector (findAttestationMissing) skips those services on purpose:
+ * without the back-reference there is nothing to cross-check against,
+ * but the honest posture is to surface the skip so the operator can
+ * back-fill the field (review N-3 non-blocking finding).
+ *
+ * notShipped services are excluded: they never gate ship and never
+ * contribute an FBS-level attestation, so an empty back-reference on
+ * them is fine.
+ *
+ * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @returns {Array<{ serviceId: string, preFlightConfigId: string, attestationMode: AttestationMode }>}
+ */
+export function findServicesWithEmptyAffectedFbsIds(tree) {
+  /** @type {Array<{ serviceId: string, preFlightConfigId: string, attestationMode: AttestationMode }>} */
+  const out = [];
+  const preflight = Array.isArray(tree.manifest?.preFlightConfig) ? tree.manifest.preFlightConfig : [];
+  for (const pfc of preflight) {
+    for (const s of pfc.servicesInScope ?? []) {
+      if (!s?.id) continue;
+      if (s.attestationMode === 'notShipped') continue;
+      const affected = Array.isArray(s.affectedFbsIds) ? s.affectedFbsIds : [];
+      if (affected.length === 0) {
+        out.push({ serviceId: s.id, preFlightConfigId: pfc.id, attestationMode: s.attestationMode });
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Given a walker tree and a target FBS id, return the FBS's
+ * `dependsOnServices[]` entries whose service `id` is not named in
+ * ANY `preFlightConfig[].servicesInScope[].id`. Powers the `rcf build
+ * --next` preflight-warning that the elicitation and build-cycle
+ * playbooks already advertise (spec section 4.2, review N-1
+ * non-blocking finding); the warning nudges the operator to run `rcf
+ * preflight` before the coverage-strict gate refuses at Stage 4.
+ *
+ * Returns an empty array when the FBS has no dependsOnServices,
+ * when the FBS is not found, or when every service is preflight-backed.
+ *
+ * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {string} fbsId
+ * @returns {Array<{ serviceId: string, displayName?: string, attestationMode?: AttestationMode }>}
+ */
+export function scanUnbackedServices(tree, fbsId) {
+  const fbs = tree?.byId?.get?.(fbsId);
+  if (!fbs || tree?.kindById?.get?.(fbsId) !== 'fbs') return [];
+  const services = Array.isArray(fbs.dependsOnServices) ? fbs.dependsOnServices : [];
+  if (services.length === 0) return [];
+  const preflight = Array.isArray(tree.manifest?.preFlightConfig) ? tree.manifest.preFlightConfig : [];
+  const covered = new Set();
+  for (const pfc of preflight) {
+    for (const s of pfc.servicesInScope ?? []) {
+      if (s?.id) covered.add(s.id);
+    }
+  }
+  /** @type {Array<{ serviceId: string, displayName?: string, attestationMode?: AttestationMode }>} */
+  const unbacked = [];
+  for (const s of services) {
+    if (!s?.id || covered.has(s.id)) continue;
+    const entry = { serviceId: s.id };
+    if (typeof s.displayName === 'string') entry.displayName = s.displayName;
+    if (typeof s.attestationMode === 'string') entry.attestationMode = s.attestationMode;
+    unbacked.push(entry);
+  }
+  return unbacked;
+}
+
+/**
  * Given a walker tree, list every TC that lacks `runtimeProvenance`
  * where the covering AC binds a dependsOnServices entry. This is the
  * §5.1 gate: provenance is authored, not remembered, on any AC that

@@ -67,3 +67,21 @@ test('validateDesignShapeAnswer refuses unknown questionId / answer', () => {
   assert.match(validateDesignShapeAnswer({ questionId: 'nope', answer: 'x' }), /unknown design-shape question/);
   assert.match(validateDesignShapeAnswer({ questionId: 'auth.htmlLoginPage', answer: 'maybe' }), /unknown answer/);
 });
+
+test('CATALOGUE_V1 is deep-frozen at every nested level (review N-6)', () => {
+  // Object.freeze is shallow, so the review flagged that a caller could
+  // mutate a choice's `triggersOptOut` even on the outwardly frozen
+  // catalogue. deepFreeze closes the gap.
+  assert.equal(Object.isFrozen(CATALOGUE_V1), true, 'top-level array frozen');
+  const question = CATALOGUE_V1[0];
+  assert.equal(Object.isFrozen(question), true, 'question object frozen');
+  assert.equal(Object.isFrozen(question.choices), true, 'choices array frozen');
+  for (const choice of question.choices) {
+    assert.equal(Object.isFrozen(choice), true, `choice ${choice.value} frozen`);
+    assert.throws(
+      () => { choice.triggersOptOut = !choice.triggersOptOut; },
+      TypeError,
+      `mutating triggersOptOut on ${choice.value} must throw in strict mode`,
+    );
+  }
+});

@@ -98,6 +98,36 @@ test('aggregateVerdict: a surviving mutant escalates to block', () => {
   assert.equal(aggregateVerdict([], { mode: 'agent-v1', survivors: [{ mutationId: 'x' }] }), 'block');
 });
 
+test('aggregateVerdict: unwired mutation runner (agent-v1-not-wired) promotes clean audit to warn (N-2)', () => {
+  // Review N-2: an unwired runner is indistinguishable at the exit-code
+  // layer from a wired runner that killed every mutant if we let it
+  // pass. Warn forces the operator to wire a runner or acknowledge the
+  // skip via --skip-mutation.
+  assert.equal(
+    aggregateVerdict([], { mode: 'agent-v1-not-wired', mutantsGenerated: 0, mutantsRun: 0, killed: 0, survived: 0 }),
+    'warn',
+  );
+});
+
+test('aggregateVerdict: explicit --skip-mutation (mode skipped) still passes on a clean audit (N-2)', () => {
+  // Distinct from agent-v1-not-wired: skipped is an operator-declared
+  // choice, so it remains pass rather than warn.
+  assert.equal(
+    aggregateVerdict([], { mode: 'skipped', mutantsGenerated: 0, mutantsRun: 0, killed: 0, survived: 0 }),
+    'pass',
+  );
+});
+
+test('aggregateVerdict: block finding still wins over agent-v1-not-wired warn (N-2)', () => {
+  assert.equal(
+    aggregateVerdict(
+      [{ severity: 'block' }],
+      { mode: 'agent-v1-not-wired', mutantsGenerated: 0, mutantsRun: 0, killed: 0, survived: 0 },
+    ),
+    'block',
+  );
+});
+
 test('composeReviewAuditRecord builds a valid record with monotonic id per FBS', () => {
   const fbs = { fbsId: 'FBS-001', acIds: ['AC-101-1'] };
   const tree = buildTree({ fbsItems: [fbs] });

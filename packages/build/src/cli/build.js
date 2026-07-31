@@ -21,6 +21,7 @@ import { formatErrors, isRcfError, rcfError, writeUnexpectedFailure } from '@str
 import { updateDocument, walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { findProjectRoot } from '../view/index.js';
 import { kindOf } from '../query/index.js';
+import { scanUnbackedServices } from '../query/attestation.js';
 import {
   assembleBundle,
   checkCodeNodeGate,
@@ -247,6 +248,17 @@ async function emitNext({ tree, format, io }) {
   const queue = computeQueue(tree);
   const next = selectNext(queue);
   if (next) {
+    // Spec section 4.2 / review N-1: warn when the selected FBS names
+    // dependsOnServices that no preFlightConfig record covers, so the
+    // operator sees the same signal the elicitation and build-cycle
+    // playbooks already advertise for `rcf build --next`. Warn-only
+    // (not exit-4) matches the spec's Stage 1 warn-only ruling; the
+    // hard refuse lives at Stage 4 via `coverage --strict`.
+    const unbacked = scanUnbackedServices(tree, next.fbsId);
+    if (unbacked.length > 0) {
+      const names = unbacked.map((u) => u.serviceId).join(', ');
+      io.stderr.write(`[warn] build --next: ${next.fbsId} touches services not covered by any preFlightConfig (${names}); run 'rcf preflight' before Stage 4.\n`);
+    }
     const bundle = assembleBundle(tree, { fbsId: next.fbsId });
     const output = format === 'json' ? formatJson(bundle, 'next') : formatMarkdown(bundle, 'next');
     return await emitToSink(output, io);

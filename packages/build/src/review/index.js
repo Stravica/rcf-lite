@@ -250,6 +250,15 @@ export function auditTestTheatre({ tree, fbs, testPointers }) {
  * survivor traces to an in-scope AC; warn if any warn and no block;
  * pass otherwise.
  *
+ * Review N-2 (non-blocking): an unwired mutation runner
+ * (`mode: 'agent-v1-not-wired'`) is promoted to `warn` even on an
+ * otherwise-clean audit. Without this, an unwired runner is
+ * indistinguishable from a wired runner that killed every mutant:
+ * both emit `verdict: pass`, so the exit-code layer conflates "audit
+ * clean" with "audit did not run". Warn forces the operator to wire a
+ * runner or pass `--skip-mutation` (mode: 'skipped'), which remains
+ * pass as an explicit operator choice.
+ *
  * @param {TestTheatreFinding[]} findings
  * @param {MutationSamplingRecord} [mutationSampling]
  * @returns {'pass'|'warn'|'block'}
@@ -259,6 +268,7 @@ export function aggregateVerdict(findings, mutationSampling) {
   if (severities.includes('block')) return 'block';
   if ((mutationSampling?.survivors?.length ?? 0) > 0) return 'block';
   if (severities.includes('warn')) return 'warn';
+  if (mutationSampling?.mode === 'agent-v1-not-wired') return 'warn';
   return 'pass';
 }
 

@@ -27,6 +27,7 @@ import {
   findAttestationDrift,
   findAttestationMissing,
   findProvenanceMissing,
+  findServicesWithEmptyAffectedFbsIds,
 } from '../query/attestation.js';
 
 const OPTION_SPEC = {
@@ -174,6 +175,16 @@ export async function main(argv, deps = {}) {
   // a passing --strict run; they only add exit-4 refusals on new
   // failure modes that the matrix now polices.
   if (flags.strict) {
+    // Review N-3 (non-blocking): surface preFlightConfig services with
+    // empty affectedFbsIds so the operator knows findAttestationMissing
+    // is skipping them on purpose (honest-but-invisible without this
+    // line). Warn-only, additive, never turns a passing strict run
+    // into a failing one.
+    const emptyAffected = findServicesWithEmptyAffectedFbsIds(tree);
+    for (const s of emptyAffected) {
+      stderr.write(`[warn] coverage --strict: preFlightConfig service '${s.serviceId}' (${s.preFlightConfigId}) has empty affectedFbsIds; the attestation-missing detector cannot cross-check it until the back-reference is populated.\n`);
+    }
+
     const missing = findAttestationMissing(tree);
     const provMissing = findProvenanceMissing(tree);
     const drift = findAttestationDrift(tree);

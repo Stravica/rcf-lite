@@ -73,36 +73,65 @@ function reqCarriesAuthShape(reqDoc) {
 }
 
 /**
+ * Deep-freeze helper. Object.freeze is shallow, so a caller could mutate
+ * a nested field even on an outwardly frozen object. Review N-6
+ * (non-blocking): the catalogue is a spec-committed data surface and
+ * must not drift in memory. This helper recurses through plain objects
+ * and arrays, freezing every reachable value, and returns the input
+ * for chaining. Functions (used as `trigger`) are frozen at the field
+ * level (Object.freeze on the containing object) but not descended
+ * into.
+ *
+ * @template T
+ * @param {T} value
+ * @returns {Readonly<T>}
+ */
+function deepFreeze(value) {
+  if (value === null || typeof value !== 'object') return value;
+  if (Object.isFrozen(value)) return value;
+  Object.freeze(value);
+  for (const key of Reflect.ownKeys(value)) {
+    const nested = /** @type {any} */ (value)[key];
+    if (nested !== null && typeof nested === 'object' && !Object.isFrozen(nested)) {
+      deepFreeze(nested);
+    }
+  }
+  return value;
+}
+
+/**
  * Ratified catalogue. Editing this array in-place is a spec change;
- * adding a question requires evidence per §A.3.
+ * adding a question requires evidence per §A.3. Deep-frozen so the
+ * shape cannot drift in memory even at nested field level (review
+ * N-6).
  *
  * @type {Readonly<DesignShapeQuestion[]>}
  */
-export const CATALOGUE_V1 = Object.freeze([
-  Object.freeze({
+export const CATALOGUE_V1 = deepFreeze([
+  {
     id: 'auth.htmlLoginPage',
     scope: 'reqScoped',
     trigger: reqCarriesAuthShape,
     prompt: 'HTML login page or API-only?',
-    choices: Object.freeze([
-      Object.freeze({
+    choices: [
+      {
         value: 'htmlLoginPage',
         display: 'HTML login page',
         triggersOptOut: false,
         uiBaselineWritePath: 'defaults.authFlow.htmlLoginPageRequired',
         uiBaselineWriteValue: true,
-      }),
-      Object.freeze({
+      },
+      {
         value: 'apiOnly',
         display: 'API-only',
         triggersOptOut: true,
         uiBaselineWritePath: 'defaults.authFlow.htmlLoginPageRequired',
         uiBaselineWriteValue: false,
-      }),
-    ]),
+      },
+    ],
     reasonMinLength: 20,
     baselineKey: 'auth.htmlLoginPage',
-  }),
+  },
 ]);
 
 /**

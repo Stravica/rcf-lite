@@ -131,3 +131,32 @@ test('coverage --strict --require-approved passes when the TS is approved', asyn
   const { code, stderr } = await runBin(tmp, ['coverage', '--strict', '--require-approved']);
   assert.equal(code, 0, `stderr=${stderr}`);
 });
+
+test('coverage --strict warns (but does not refuse) on a preFlightConfig service with empty affectedFbsIds (N-3)', async () => {
+  const tmp = await scaffoldChain({
+    tcProvenance: { profile: 'mock' },
+    fbsServices: [{ id: 'resend', displayName: 'Resend', purpose: 'email', attestationMode: 'declaredMockOnly', acIds: ['AC-101-1'] }],
+  });
+  // Add a preFlightConfig record whose service has no affectedFbsIds.
+  const manifestPath = join(tmp, 'rcf/manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.preFlightConfig = [{
+    id: 'pfc-2026-07-31-001',
+    createdAt: '2026-07-31T10:00:00Z',
+    prdId: 'PRD-001',
+    servicesInScope: [{
+      id: 'orphanService',
+      displayName: 'Orphan',
+      sourceRefs: ['PRD-001#external'],
+      attestationMode: 'live',
+      credentialSupplied: true,
+      sandboxProvisioned: false,
+    }],
+    operatorAckAt: '2026-07-31T10:02:00Z',
+  }];
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  const { code, stderr } = await runBin(tmp, ['coverage', '--strict']);
+  assert.equal(code, 0, `warn-only, should not exit 4: stderr=${stderr}`);
+  assert.match(stderr, /preFlightConfig service 'orphanService'/);
+  assert.match(stderr, /empty affectedFbsIds/);
+});

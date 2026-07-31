@@ -15,6 +15,8 @@ import {
   findAttestationDrift,
   findAttestationMissing,
   findProvenanceMissing,
+  findServicesWithEmptyAffectedFbsIds,
+  scanUnbackedServices,
 } from '../../src/query/attestation.js';
 
 const MATRIX = [
@@ -36,9 +38,17 @@ const MATRIX = [
   { attestation: 'declaredMockOnly', profile: 'live', verdict: 'passWithWarn' },
   { attestation: 'notShipped', profile: 'mock', verdict: 'pass' },
   { attestation: 'notShipped', profile: 'live', verdict: 'pass' },
-  // `mixed` is the anti-pattern refusal, regardless of attestation.
+  // `mixed` is the anti-pattern refusal, regardless of attestation,
+  // including `notShipped × mixed` (review N-5): the `mixed` short-
+  // circuit runs before any attestation branch, so the anti-pattern
+  // discipline wins over the "notShipped does not gate ship" rule.
+  // The intent is that a TC with mixed profile needs expansion into
+  // finer TCs even when its AC has no ship weight; landing `mixed` as
+  // notShipped-passing would legitimise the anti-pattern by the back
+  // door.
   { attestation: 'live', profile: 'mixed', verdict: 'refuse' },
   { attestation: 'mocked', profile: 'mixed', verdict: 'refuse' },
+  { attestation: 'notShipped', profile: 'mixed', verdict: 'refuse' },
 ];
 
 for (const row of MATRIX) {
@@ -160,4 +170,101 @@ test('findAttestationDrift raises declaredMockOnly × live as passWithWarn', () 
   const drift = findAttestationDrift(tree);
   assert.equal(drift.length, 1);
   assert.equal(drift[0].verdict, 'passWithWarn');
+});
+
+// -- Review N-3: findServicesWithEmptyAffectedFbsIds ---------------------
+
+test('findServicesWithEmptyAffectedFbsIds flags a live service with no back-reference', () => {
+  const tree = buildTree({
+    preFlightConfig: [{
+      id: 'pfc-2026-07-30-001', createdAt: '', prdId: 'PRD-001', operatorAckAt: '',
+      servicesInScope: [
+        { id: 'resend', displayName: 'r', sourceRefs: [], attestationMode: 'live',
+          credentialSupplied: true, sandboxProvisioned: false },
+      ],
+    }],
+  });
+  const empties = findServicesWithEmptyAffectedFbsIds(tree);
+  assert.equal(empties.length, 1);
+  assert.equal(empties[0].serviceId, 'resend');
+  assert.equal(empties[0].preFlightConfigId, 'pfc-2026-07-30-001');
+  assert.equal(empties[0].attestationMode, 'live');
+});
+
+test('findServicesWithEmptyAffectedFbsIds excludes notShipped services (never gate ship)', () => {
+  const tree = buildTree({
+    preFlightConfig: [{
+      id: 'pfc-2026-07-30-001', createdAt: '', prdId: 'PRD-001', operatorAckAt: '',
+      servicesInScope: [
+        { id: 'devTool', displayName: 'd', sourceRefs: [], attestationMode: 'notShipped',
+          credentialSupplied: false, sandboxProvisioned: false },
+      ],
+    }],
+  });
+  assert.equal(findServicesWithEmptyAffectedFbsIds(tree).length, 0);
+});
+
+test('findServicesWithEmptyAffectedFbsIds does not flag services with a populated back-reference', () => {
+  const tree = buildTree({
+    preFlightConfig: [{
+      id: 'pfc-2026-07-30-001', createdAt: '', prdId: 'PRD-001', operatorAckAt: '',
+      servicesInScope: [
+        { id: 'resend', displayName: 'r', sourceRefs: [], attestationMode: 'live',
+          credentialSupplied: true, sandboxProvisioned: false,
+          affectedFbsIds: ['FBS-001'] },
+      ],
+    }],
+  });
+  assert.equal(findServicesWithEmptyAffectedFbsIds(tree).length, 0);
+});
+
+// -- Review N-1: scanUnbackedServices ------------------------------------
+
+test('scanUnbackedServices returns dependsOnServices entries not named in preFlightConfig', () => {
+  const tree = buildTree({
+    fbsItems: [{ fbsId: 'FBS-001', acIds: ['AC-101-1'], dependsOnServices: [
+      { id: 'resend', displayName: 'Resend', attestationMode: 'live', acIds: ['AC-101-1'] },
+      { id: 'stripe', displayName: 'Stripe', attestationMode: 'sandboxed', acIds: ['AC-101-1'] },
+    ] }],
+    preFlightConfig: [{
+      id: 'pfc-2026-07-30-001', createdAt: '', prdId: 'PRD-001', operatorAckAt: '',
+      servicesInScope: [
+        { id: 'stripe', displayName: 's', sourceRefs: [], attestationMode: 'sandboxed',
+          credentialSupplied: true, sandboxProvisioned: true },
+      ],
+    }],
+  });
+  const unbacked = scanUnbackedServices(tree, 'FBS-001');
+  assert.equal(unbacked.length, 1);
+  assert.equal(unbacked[0].serviceId, 'resend');
+  assert.equal(unbacked[0].displayName, 'Resend');
+  assert.equal(unbacked[0].attestationMode, 'live');
+});
+
+test('scanUnbackedServices returns empty when every service is preflight-covered', () => {
+  const tree = buildTree({
+    fbsItems: [{ fbsId: 'FBS-001', acIds: ['AC-101-1'], dependsOnServices: [
+      { id: 'stripe', attestationMode: 'sandboxed', acIds: ['AC-101-1'] },
+    ] }],
+    preFlightConfig: [{
+      id: 'pfc-2026-07-30-001', createdAt: '', prdId: 'PRD-001', operatorAckAt: '',
+      servicesInScope: [
+        { id: 'stripe', displayName: 's', sourceRefs: [], attestationMode: 'sandboxed',
+          credentialSupplied: true, sandboxProvisioned: true },
+      ],
+    }],
+  });
+  assert.equal(scanUnbackedServices(tree, 'FBS-001').length, 0);
+});
+
+test('scanUnbackedServices returns empty for an FBS with no dependsOnServices', () => {
+  const tree = buildTree({
+    fbsItems: [{ fbsId: 'FBS-001', acIds: ['AC-101-1'] }],
+  });
+  assert.equal(scanUnbackedServices(tree, 'FBS-001').length, 0);
+});
+
+test('scanUnbackedServices returns empty for a missing fbsId', () => {
+  const tree = buildTree({ fbsItems: [] });
+  assert.equal(scanUnbackedServices(tree, 'FBS-999').length, 0);
 });
