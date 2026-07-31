@@ -15,6 +15,7 @@
 import { writeFile, readFile } from 'node:fs/promises';
 
 import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { matchServiceSignals } from '@stravica-ai/rcf-lite-core/patterns/services';
 
 /** Greppable prefix on every provisioned artefact (accounts + data alike). */
 export const ZZVERIFY_PREFIX = 'zzverify-';
@@ -26,7 +27,6 @@ export const MIN_AUTH_ACCOUNTS = 2;
 export const SECRET_FIELDS = Object.freeze(['password', 'token', 'secret', 'key', 'apiKey', 'credential', 'cookie']);
 
 const AUTH_PATTERNS = /\b(sign[\s-]?in|sign[\s-]?up|log[\s-]?in|logout|register|registration|authenticat|account|password|credential|session|onboard)/i;
-const SERVICE_PATTERNS = /\b(payment|stripe|checkout|billing|sandbox|webhook|third[\s-]?party|external api|e-?mail send|sms|twilio|sendgrid|oauth provider)/i;
 const SEEDDATA_PATTERNS = /\b(admin[\s-]?(created|seeded)|seeded|pre[\s-]?populated|existing (record|row|dataset)|another user|user b\b|other user)/i;
 
 /**
@@ -34,12 +34,19 @@ const SEEDDATA_PATTERNS = /\b(admin[\s-]?(created|seeded)|seeded|pre[\s-]?popula
  * the AC's given/when/then/description text. Heuristic — the honest hard part
  * (§6): where the route can't be derived, the caller BLOCKS rather than skips.
  *
+ * The `serviceSandbox` branch is delegated to core's shared pattern set
+ * (`@stravica-ai/rcf-lite-core/patterns/services`), the same seed data
+ * consumed by build's pre-flight scanner (verification-integrity-cluster-spec
+ * §5.3 / §8.4). Verify's original inline SERVICE_PATTERNS regex is
+ * superseded — a single shared source removes the class of drift that
+ * shipped the d-2026-07-30-142 "email channel" miss.
+ *
  * @param {object} ac - a flattened AC ({acId, description, given, when, then})
  * @returns {'authAccount'|'serviceSandbox'|'seedData'|null}
  */
 export function classifyPrerequisite(ac) {
   const text = [ac.description, ac.given, ac.when, ac.then, ac.title].filter(Boolean).join(' ');
-  if (SERVICE_PATTERNS.test(text)) return 'serviceSandbox';
+  if (matchServiceSignals(text).length > 0) return 'serviceSandbox';
   if (SEEDDATA_PATTERNS.test(text)) return 'seedData';
   if (AUTH_PATTERNS.test(text)) return 'authAccount';
   return null;

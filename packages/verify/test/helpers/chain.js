@@ -12,6 +12,8 @@ import { join } from 'node:path';
 /**
  * @param {object} [opts]
  * @param {object[]} [opts.acceptanceCriteria] - override the default ACs
+ * @param {object[]} [opts.fbsItems] - optional FBS docs to seed the chain; each is written verbatim under `rcf/fbs/`
+ * @param {object} [opts.manifestPatch] - shallow-merged into the initialised manifest (for `uiBaseline`, `browserVerification[]`, etc.)
  * @returns {Promise<{ root: string }>}
  */
 export async function scaffoldChain(opts = {}) {
@@ -50,6 +52,22 @@ export async function scaffoldChain(opts = {}) {
   us.acceptanceCriteria = acceptanceCriteria;
   us.title = 'Core purchase journey';
   await writeFile(usPath, `${JSON.stringify(us, null, 2)}\n`, 'utf8');
+
+  // Optional 0.7.0 additions: FBS docs (Track A `dependsOnServices[]`,
+  // Track B `uiBearing`) and manifest patches (`uiBaseline`,
+  // `browserVerification[]`). Written verbatim; scaffolders own the shape.
+  const fbsItems = Array.isArray(opts.fbsItems) ? opts.fbsItems : [];
+  for (const fbs of fbsItems) {
+    const fbsPath = join(root, 'rcf', 'fbs', `${(fbs.fbsId ?? 'FBS-000').toLowerCase()}.json`);
+    await writeFile(fbsPath, `${JSON.stringify(fbs, null, 2)}\n`, 'utf8');
+  }
+
+  if (opts.manifestPatch && typeof opts.manifestPatch === 'object') {
+    const manifestPath = join(root, 'rcf', 'manifest.json');
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+    const merged = { ...manifest, ...opts.manifestPatch };
+    await writeFile(manifestPath, `${JSON.stringify(merged, null, 2)}\n`, 'utf8');
+  }
 
   return { root };
 }

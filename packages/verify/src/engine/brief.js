@@ -23,16 +23,44 @@ export const DEFAULT_PERSONA = 'generic-sceptic';
  */
 export function composeBrief({ acs = [], url, persona = DEFAULT_PERSONA, chainRef } = {}) {
   const testable = acs.filter((ac) => ac.testable !== false);
-  const journeys = testable.map((ac) => ({
-    acId: ac.acId,
-    usId: ac.usId,
-    journey: ac.title || ac.usId || ac.acId,
-    given: ac.given,
-    when: ac.when,
-    then: ac.then,
-    // The disproof prompt for THIS criterion: try to make `then` false.
-    disprove: `Attempt to make the app FAIL "${ac.then}" starting from "${ac.given}" by doing "${ac.when}", and adversarial variations of it.`,
-  }));
+  const journeys = testable.map((ac) => {
+    // Base disprove line — the AC-only framing verify has always shipped.
+    const parts = [
+      `Attempt to make the app FAIL "${ac.then}" starting from "${ac.given}" by doing "${ac.when}", and adversarial variations of it.`,
+    ];
+    // 0.7.0: service-attestation suffix (verification-integrity-cluster-spec
+    // §5.2). Prompt-only; the chain records the attestation and verify
+    // asks the agent to hunt for a delivery observable on the live URL.
+    // No source-tree reading — the observable is a browser-reachable
+    // artefact (admin log endpoint, receipt confirmation, delivery-log
+    // page) or its absence is the honest verdict.
+    const attestations = Array.isArray(ac.serviceAttestations) ? ac.serviceAttestations : [];
+    for (const a of attestations) {
+      if (!a || typeof a.serviceId !== 'string' || typeof a.attestationMode !== 'string') continue;
+      parts.push(
+        `If the AC depends on service \`${a.serviceId}\` attested \`${a.attestationMode}\`, verify a delivery observable exists on the running URL (e.g. an admin-log endpoint the browser can poll).`,
+      );
+    }
+    // 0.7.0: UI-invariant suffix (ui-design-gate-0.7.0-spec §8.7). Fires
+    // when the AC belongs to a UI-bearing FBS. Disproof-oriented; no
+    // source-tree read; the check runs against the served HTML.
+    if (ac.fbsUiBearing === true) {
+      parts.push(
+        'The FBS is UI-bearing; a shared nav bar must be present on every enumerated authenticated route, the theme toggle must be reachable, and the signed-in-as affordance must be visible when authenticated. Disprove any of these by observation.',
+      );
+    }
+    return {
+      acId: ac.acId,
+      usId: ac.usId,
+      journey: ac.title || ac.usId || ac.acId,
+      given: ac.given,
+      when: ac.when,
+      then: ac.then,
+      // The disproof prompt for THIS criterion: try to make `then` false,
+      // plus any 0.7.0 attestation / UI suffixes the chain contributes.
+      disprove: parts.join(' '),
+    };
+  });
 
   const instructions = [
     'You are an adversarial verifier. Your job is to DISPROVE the application against its acceptance criteria, not to confirm it works.',

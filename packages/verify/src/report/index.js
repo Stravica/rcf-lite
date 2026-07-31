@@ -8,7 +8,7 @@
 import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
 
 import { redactSecrets } from '../provision/index.js';
-import { VERDICTS } from '../verdict/index.js';
+import { PER_AC_VERDICTS, VERDICTS } from '../verdict/index.js';
 
 /** The report schema version. Present from day one for build-lite's version-gated ingest. */
 export const SCHEMA_VERSION = '1';
@@ -49,6 +49,18 @@ export function buildReport(p) {
     // the preserved raw transcript so the §5.4 fix loop has something to ingest.
     launchFailure: p.launchFailure ?? null,
   };
+  // 0.7.0 per-AC verdicts (verification-integrity-cluster-spec §5.2,
+  // ui-design-gate §8.7). Present-only when at least one entry has been
+  // derived from the chain — an older chain with no 0.7.0 fields produces
+  // no per-AC verdicts and the field is omitted so backward-compatible
+  // consumers (rcf finalise pre-0.7.0) do not see an unexpected field.
+  if (Array.isArray(p.perAcVerdicts) && p.perAcVerdicts.length > 0) {
+    report.perAcVerdicts = p.perAcVerdicts.map((v) => ({
+      acId: v.acId,
+      verdict: v.verdict,
+      ...(v.reason !== undefined ? { reason: v.reason } : {}),
+    }));
+  }
   // Defence-in-depth: never let a secret reach the report body (§10).
   return redactSecrets(report);
 }
@@ -102,6 +114,26 @@ export function validateReportShape(doc) {
   }
   if (!doc.run || typeof doc.run !== 'object') {
     return rcfError({ kind: 'validation', message: 'report.run is required', field: 'run' });
+  }
+  // perAcVerdicts is optional (0.7.0 addition); when present every entry
+  // must carry an acId and a known per-AC verdict class. Unknown verdicts
+  // are rejected as data so a consumer never has to guess the class of an
+  // unfamiliar string.
+  if (doc.perAcVerdicts !== undefined) {
+    if (!Array.isArray(doc.perAcVerdicts)) {
+      return rcfError({ kind: 'validation', message: 'report.perAcVerdicts must be an array when present', field: 'perAcVerdicts' });
+    }
+    for (const entry of doc.perAcVerdicts) {
+      if (!entry || typeof entry !== 'object') {
+        return rcfError({ kind: 'validation', message: 'report.perAcVerdicts entries must be objects', field: 'perAcVerdicts' });
+      }
+      if (typeof entry.acId !== 'string' || entry.acId.length === 0) {
+        return rcfError({ kind: 'validation', message: 'report.perAcVerdicts[].acId is required', field: 'perAcVerdicts' });
+      }
+      if (!PER_AC_VERDICTS.includes(entry.verdict)) {
+        return rcfError({ kind: 'validation', message: `report.perAcVerdicts[].verdict must be one of ${PER_AC_VERDICTS.join('/')} (got ${entry.verdict})`, field: 'perAcVerdicts' });
+      }
+    }
   }
   return null;
 }

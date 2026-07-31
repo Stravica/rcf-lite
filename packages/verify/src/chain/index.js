@@ -4,6 +4,22 @@
 // the source tree, the test suite, or the builder's self-report (§9
 // independence guarantee 2). It imports core's READ path only — never
 // writer.js / init.js (§7.2 boundary).
+//
+// 0.7.0 additions (verification-integrity-cluster-spec §5.2, ui-design-gate
+// §8.7): the flattened AC read-out is extended with two derived fields —
+// `serviceAttestations` (aggregated from every FBS's `dependsOnServices[]`
+// whose `acIds` include this AC) and `fbsUiBearing` (true when any of the
+// FBSes bound to this AC has `uiBearing: true`). Both derivations live
+// HERE, in verify's chain reader, per the tonight's clarification (Track A
+// changelog 2026-07-31, Track B §18 N2 fold): core's walker surfaces raw
+// document fields only, verify does the AC-level aggregation. Core 0.3.0
+// carries a walker-guard test that asserts no such derivation leaks into
+// core (`packages/core/test/store/walker-0-7-0-fields.test.js:580`).
+//
+// The manifest fields verify's report and verdict pipelines need
+// (`uiBaseline`, `browserVerification[]`) are read verbatim off `tree.manifest`
+// and surfaced on the read result — verify's downstream code consumes them
+// through the chain reader, not by re-opening the manifest.
 
 import { access } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -38,14 +54,81 @@ export async function findProjectRoot(startPath) {
 }
 
 /**
+ * Aggregate FBS `dependsOnServices[]` into per-AC serviceAttestations. For
+ * each AC that an FBS binds (via `fbs.acIds`), every entry in the FBS's
+ * `dependsOnServices` whose `acIds` mention the AC produces a
+ * `{serviceId, attestationMode}` on that AC's attestation list. An AC bound
+ * by several FBSes accumulates every service dependency across all of them,
+ * so an `AC-101-2` covered by FBS-011 (`resend` attested `mocked`) and
+ * FBS-014 (`stripe` attested `live`) surfaces both attestations on that
+ * AC. Order is deterministic: FBSes visited in `fbsItems` order, services
+ * in each FBS's declared order.
+ *
+ * @param {object[]} fbsItems
+ * @param {string} acId
+ * @returns {Array<{serviceId: string, attestationMode: string}>}
+ */
+function serviceAttestationsFor(fbsItems, acId) {
+  const out = [];
+  for (const fbs of fbsItems ?? []) {
+    if (!Array.isArray(fbs.acIds) || !fbs.acIds.includes(acId)) continue;
+    for (const dep of fbs.dependsOnServices ?? []) {
+      if (!dep || typeof dep.id !== 'string' || typeof dep.attestationMode !== 'string') continue;
+      const acIds = Array.isArray(dep.acIds) ? dep.acIds : [];
+      if (acIds.length === 0 || acIds.includes(acId)) {
+        out.push({ serviceId: dep.id, attestationMode: dep.attestationMode });
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * True when any FBS bound to `acId` has `uiBearing: true`. Verify uses this
+ * flag to gate its UI-baseline verdict emission (§8.7) — a UI-bearing AC is
+ * exposed to `UI-BASELINE-UNMET` / `BROWSER-VERIFICATION-MISSING`, while a
+ * non-UI AC is not.
+ *
+ * @param {object[]} fbsItems
+ * @param {string} acId
+ * @returns {boolean}
+ */
+function fbsUiBearingFor(fbsItems, acId) {
+  for (const fbs of fbsItems ?? []) {
+    if (!Array.isArray(fbs.acIds) || !fbs.acIds.includes(acId)) continue;
+    if (fbs.uiBearing === true) return true;
+  }
+  return false;
+}
+
+/**
+ * The FBS ids bound to `acId` (via `fbs.acIds`), preserving `fbsItems`
+ * order. Verify uses this to resolve the browserVerification entries for
+ * an AC when deciding UI-BASELINE-UNMET vs BROWSER-VERIFICATION-MISSING.
+ *
+ * @param {object[]} fbsItems
+ * @param {string} acId
+ * @returns {string[]}
+ */
+function fbsIdsFor(fbsItems, acId) {
+  const out = [];
+  for (const fbs of fbsItems ?? []) {
+    if (!Array.isArray(fbs.acIds) || !fbs.acIds.includes(acId)) continue;
+    if (typeof fbs.fbsId === 'string') out.push(fbs.fbsId);
+  }
+  return out;
+}
+
+/**
  * Read the acceptance contract from the chain. Returns the flattened list of
  * acceptance criteria (each mapped back to its user story + requirement — the
- * chain-node addressing the report carries), plus the resolved chainRef.
+ * chain-node addressing the report carries), plus the resolved chainRef and
+ * the manifest fields verify's downstream stages consume.
  *
  * @param {object} opts
  * @param {string} opts.repo - path-or-ref to the RCF chain source
  * @param {string} [opts.chainRef] - which PRD/chain; default = the repo's PRD
- * @returns {Promise<{ acs: Array<object>, chainRef: string, projectRoot: string } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ acs: Array<object>, chainRef: string, projectRoot: string, manifest: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
  */
 export async function readChain({ repo, chainRef } = {}) {
   if (typeof repo !== 'string' || repo.length === 0) {
@@ -73,6 +156,7 @@ export async function readChain({ repo, chainRef } = {}) {
   }
 
   const resolvedRef = chainRef ?? tree.prd?.prdId ?? 'PRD-UNKNOWN';
+  const fbsItems = tree.fbsItems ?? [];
   const acs = [];
   for (const us of tree.userStories ?? []) {
     for (const ac of us.acceptanceCriteria ?? []) {
@@ -86,9 +170,21 @@ export async function readChain({ repo, chainRef } = {}) {
         when: ac.when ?? '',
         then: ac.then ?? '',
         testable: ac.testable !== false,
+        // 0.7.0 derived fields — verify does the aggregation here per Track A
+        // changelog 2026-07-31 and Track B §18 N2 fold; core does not.
+        serviceAttestations: serviceAttestationsFor(fbsItems, ac.id),
+        fbsUiBearing: fbsUiBearingFor(fbsItems, ac.id),
+        fbsIds: fbsIdsFor(fbsItems, ac.id),
       });
     }
   }
 
-  return { acs, chainRef: resolvedRef, projectRoot };
+  // Manifest carries the ruled UI baseline and the browser-verification
+  // record ledger; verify's report + verdict layers read them from here so
+  // downstream never re-opens the manifest. Missing manifest is not a
+  // failure at this layer (the walker would have surfaced a load error) —
+  // an older chain simply has no 0.7.0 fields, and `manifest` is `{}`.
+  const manifest = tree.manifest ?? {};
+
+  return { acs, chainRef: resolvedRef, projectRoot, manifest };
 }

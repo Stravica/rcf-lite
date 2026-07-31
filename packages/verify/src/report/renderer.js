@@ -68,6 +68,20 @@ export function renderReport(report) {
     lines.push('');
   }
 
+  // 0.7.0 per-AC verdicts. Rendered as a dedicated section so an operator
+  // reading the human render sees the honest picture on any AC that came
+  // back mock-only / declared / UI-baseline-unmet, even when the top-level
+  // verdict is PASS. Present-only — pre-0.7.0 reports skip this block.
+  const perAc = Array.isArray(report.perAcVerdicts) ? report.perAcVerdicts : [];
+  if (perAc.length > 0) {
+    lines.push(`Per-AC verdicts (${perAc.length}), chain-derived alongside the run verdict`);
+    for (const v of perAc) {
+      lines.push(`  [${v.verdict}] ${v.acId}`);
+      if (v.reason) lines.push(`      ${v.reason}`);
+    }
+    lines.push('');
+  }
+
   if (report.launchFailure) {
     lines.push('Launch failure');
     lines.push(`  ${report.launchFailure.message}`);
