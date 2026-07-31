@@ -135,6 +135,56 @@ test('--next distinguishes stuck (blocked/inProgress) from done', async () => {
   assert.deepEqual(body.inProgress, ['FBS-001']);
 });
 
+test('--next warns when the selected FBS names dependsOnServices with no preFlightConfig coverage (N-1)', async () => {
+  // Review N-1: the elicitation and build-cycle playbooks advertise a
+  // preflight warning on --next; landing the warning restores the
+  // operator signal without escalating Stage 1 to a hard refuse
+  // (§4.2 warn-only ruling stands).
+  const tmp = await scaffold();
+  // Add an unbacked service to FBS-001 without touching preFlightConfig.
+  const fbsPath = join(tmp, 'rcf/fbs/fbs-001.json');
+  const fbs = JSON.parse(await readFile(fbsPath, 'utf8'));
+  fbs.dependsOnServices = [{
+    id: 'resend',
+    displayName: 'Resend',
+    purpose: 'email',
+    attestationMode: 'live',
+    acIds: ['AC-101-1'],
+  }];
+  await writeFile(fbsPath, `${JSON.stringify(fbs, null, 2)}\n`, 'utf8');
+  const { code, stderr } = await runBin(tmp, ['build', '--next']);
+  assert.equal(code, 0, `warn only, should not fail: stderr=${stderr}`);
+  assert.match(stderr, /\[warn\] build --next: FBS-001 touches services not covered by any preFlightConfig \(resend\); run 'rcf preflight' before Stage 4\./);
+});
+
+test('--next stays silent when preFlightConfig covers every dependsOnServices entry (N-1 negative)', async () => {
+  const tmp = await scaffold();
+  const fbsPath = join(tmp, 'rcf/fbs/fbs-001.json');
+  const fbs = JSON.parse(await readFile(fbsPath, 'utf8'));
+  fbs.dependsOnServices = [{
+    id: 'resend', displayName: 'Resend', purpose: 'email',
+    attestationMode: 'live', acIds: ['AC-101-1'],
+  }];
+  await writeFile(fbsPath, `${JSON.stringify(fbs, null, 2)}\n`, 'utf8');
+  const manifestPath = join(tmp, 'rcf/manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.preFlightConfig = [{
+    id: 'pfc-2026-07-31-001',
+    createdAt: '2026-07-31T10:00:00Z',
+    prdId: 'PRD-001',
+    servicesInScope: [{
+      id: 'resend', displayName: 'Resend', sourceRefs: ['PRD-001#external'],
+      attestationMode: 'live', credentialSupplied: true, sandboxProvisioned: false,
+      affectedFbsIds: ['FBS-001'],
+    }],
+    operatorAckAt: '2026-07-31T10:02:00Z',
+  }];
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  const { code, stderr } = await runBin(tmp, ['build', '--next']);
+  assert.equal(code, 0);
+  assert.doesNotMatch(stderr, /touches services not covered/);
+});
+
 test('--mark writes through updateDocument: status changed, updatedAt bumped', async () => {
   const tmp = await scaffold();
   const before = await readFbs(tmp);

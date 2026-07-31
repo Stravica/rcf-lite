@@ -284,6 +284,30 @@ Zero covered is the correct end state for elicitation. Tests come from the build
 
 **Offer a review before the build starts.** The done-bar is met and the build loop is next, but the operator has not seen the tree you drafted from their answers. Do not roll straight into building. Offer the review, in plain words rather than document names: "The plan is drafted and everything checks out: what we're building, the requirements, and the build order. Want to look it over before I start building, or shall I go?" Then wait. A tree the operator never saw becomes a build they cannot course-correct, and the review is cheapest now, before any code hangs off the ACs. The build-cycle playbook (section 11) holds the same gate from the build side.
 
+## 8.5 Pre-flight config
+
+Between the tree being drafted (section 8) and the build cycle picking up its first FBS (build-cycle playbook, section 3), one more session runs: `rcf preflight`. The session is not part of elicitation but sits at the seam between it and the build. It exists because a mocked integration test looks identical to a live one, and the honest answer to "how are we verifying this" has to be captured while the operator is thinking about the product, not while a test suite is going green.
+
+**What it is.** One pass over every third-party service the PRD (and optionally a TAD) names. The scanner surfaces candidates; the session forces one of five attestation modes per service, plus any applicable design-shape answers (v1 catalogue: `auth.htmlLoginPage`), and writes a `preFlightConfig` record on the manifest. No code changes at this stage.
+
+**Why here and not later.** A credential absent at build-start is a decision, not an accident, and the chain records the decision now. When the build cycle picks up an FBS whose ACs reference a service, the FBS carries that attestation across into `dependsOnServices[]` at Define, and the covering test suites carry `runtimeProvenance` on every TC at Test. All three tie back to the pre-flight record so nobody has to remember what the operator ruled.
+
+**The five modes, one line each:**
+
+- `live` - tests hit the live service with a real key you supply.
+- `sandboxed` - provider sandbox mode with a real key (no delivery).
+- `mocked` - local fixtures or stubs; not ship-authoritative on its own.
+- `declaredMockOnly` - ship mock-only intentionally (feature-flagged off, stub for local dev, pre-launch).
+- `notShipped` - for local development only; no production path uses it.
+
+Pick honestly. A `mocked` where the ship intent is `live` is the exact failure this whole surface exists to prevent.
+
+**What "declared mock-only" costs at ship time.** Verify emits a `MOCK-ONLY-DECLARED` verdict on the run, disclosed on the finalise summary. The finalise gate refuses to promote the FBS to `verified` on that verdict unless you pass `--ship-without-verified`. This is legitimate for pre-launch stubs and feature-flagged-off code; the chain records it so it is greppable at ship time rather than a false PASS.
+
+**Credentials never enter the chain.** The session prompts for env-var NAMES only. Values are read from the shell at test / finalise time; the name-metadata lives in `.rcf/preflight-secrets.local.json`, which is gitignored via the managed block written by `rcf init`.
+
+**Hand-off to the build cycle.** Once the record is written, the build cycle picks up as normal. `rcf build --next` warns (not refuses) when an in-scope FBS touches an AC whose services are not covered by any `preFlightConfig` record; the operator re-runs `rcf preflight` and continues.
+
 ## 9. What this playbook deliberately does not do
 
 This is the lite tier. The following are the Define/Spec product - the second rung of the RCF suite - and are out of this playbook's scope. Do not improvise them; when the operator needs one, name the boundary instead:

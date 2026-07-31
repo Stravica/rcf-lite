@@ -35,6 +35,14 @@ Failure modes:
 - **Skipping the AC read-through.** Symptom: the plan restates the FBS summary instead of the AC set. Correction: plan per AC id, not per title.
 - **Gold-plating starts at Define.** Symptom: planned work exceeds the AC set (extra endpoints, extra options, extra refactors). Correction: the bundle is the spec; anything beyond it is escalation, not initiative.
 
+**Third-party service dependencies belong on the FBS at Define.** When the plan touches a service the pre-flight session recorded (`preFlightConfig` - see elicitation playbook §8.5), write the `dependsOnServices` binding on the FBS now, not later:
+
+```
+rcf fbs <fbs-id> depends-on --service <id> --mode <attestationMode> --acs <acIds> [--preflight <pfc-id>]
+```
+
+This is not a build-time optimisation; it is the seam the whole verification-integrity surface hangs on. `coverage --strict` at Stage 4 refuses when a TC covers an AC whose FBS was named in a preflight `affectedFbsIds` list but has no matching entry here; verify's deployed-verdict gate reads the same binding to decide whether a live-attested AC needs a live probe or a `MOCK-ONLY-DECLARED` verdict is the honest answer. If the plan touches a service the pre-flight session did NOT record - a runtime dependency discovered mid-Build - `rcf build --next` will warn and point at `rcf preflight` for a re-run; add the entry to the preflight record, then to the FBS.
+
 Stage end: mark pickup and commit any plan artefacts the driving workflow requires.
 
 ```
@@ -92,6 +100,16 @@ Failure modes:
 - **Rubber-stamp review.** Symptom: review completes in the time it takes to scroll. Correction: the per-AC question above, answered per AC, in writing if the workflow keeps review notes.
 - **Reviewing only what changed rather than what was promised.** Symptom: the review walks the diff top to bottom and never opens section 4. Correction: walk the AC list as the outer loop, the diff as the inner one. This is where AC-skipping is cheapest to catch.
 
+**Second gate on Stage 3: `rcf review <fbs-id>`.** After `rcf validate` clears the tree, run the test-theatre audit. The audit asks the meta-question the diff review does not: are the tests themselves honest? Five finding categories run deterministically over the FBS's in-scope ACs and their covering TSes:
+
+- `mockOnlyIntegrationClaim` - an integration-level TS whose every TC records `runtimeProvenance.profile` in `{mock, stub, fixture}` while at least one bound AC's aggregated attestation is `live` or `sandboxed`. This is the exact failure the whole 0.7.0 verification-integrity surface exists to catch (d-2026-07-30-142). Severity: block.
+- `testPointerBroken` - a TC's `testPointer` fails to resolve to a real test in the working tree. Severity: block.
+- `acIdsCoverageDrift` - a TS covers an AC the parent FBS does not claim in `acIds[]`. Severity: warn. (The reverse - an FBS claims an AC no TS covers - is caught by `coverage --strict` which already exits 4 on that.)
+- `attestationDrift` (recorded as `otherDeclared` with a `kindDescription`) - `declaredMockOnly × live`. Severity: warn.
+- Mutation-sampling survivors - the review agent generates 10 to 30 targeted semantic mutants of the FBS diff and records any the test suite failed to kill. Each surviving mutant traces back to the exact TS/TC that missed it. Severity: any survivor escalates the audit verdict to block.
+
+The verb writes a `reviewAudit` record on the manifest and exits 4 on any warn or block, refusing entry to Stage 4 until the operator resolves or acknowledges each finding. `--dry-run` runs the audit without writing. `--skip-mutation` records that mutation-sampling was skipped without invoking a runner; the record still validates. In production, the mutation runner is a subagent dispatch orchestrated by the harness per estate ladder (Opus 4.7).
+
 Stage end: commit.
 
 ## 6. Stage 4 - Test
@@ -121,6 +139,17 @@ Failure modes:
 - **Marking without verifying.** Symptom: a TC set to `passing` without a run. Correction: referee output is the precondition for every mark; run the suite, then record what it said.
 - **Testing the implementation instead of the AC.** Symptom: the test breaks when internals are refactored but would pass if the behaviour were wrong. Correction: write the assertion from the AC's `then` clause, not from the code.
 
+**Runtime provenance is authored, not remembered.** Every TC authored or updated in a build cycle carries `runtimeProvenance` on the same edit as `status`. The pattern:
+
+```
+rcf test-suite <ts-id> provenance --tc <tc-id> --profile <mock|stub|fixture|live|mixed> \
+    [--env-var VAR ...] [--host host ...] [--notes "..."]
+```
+
+`coverage --strict` refuses (exit 4) when a TC covers an AC that binds a `dependsOnServices` entry and lacks a provenance block, and enforces the section 3.5 attestation × profile matrix on every remaining TC. Belt and braces: the PR body still names the runtime it verified against (section 15), but the chain is now the source of truth and the PR is a rendering.
+
+**TS approval is a Stage 4 outcome, not an authoring guess.** Once `coverage --strict` exits 0 and the underlying test run exits 0, promote each touched TS with `rcf test-suite <ts-id> approve`. Stage 4 does this automatically at end-of-stage; the operator only needs the verb for manual override (a rare re-approval after `needsRevision` cycles, via `--force`). CI can add the opt-in `rcf coverage --strict --require-approved` gate to fail the build on any TS still `draft` after Stage 4.
+
 Stage end: commit.
 
 ## 7. Stage 5 - Finalise
@@ -139,6 +168,8 @@ Failure modes:
 - **AC-skipping at the finish line.** Symptom: a section-4 AC has no corresponding diff or test, discovered at PR time or never. Correction: a per-AC checklist pass before this stage ends; every AC id gets a tick against a diff location and a test.
 - **Marking complete pre-merge.** Symptom: `--mark complete` while the PR is still open. Correction: the merge is the event; the mark records it, it does not predict it.
 - **Reaching for `--no-code-nodes` out of impatience.** Symptom: the flag on a spec that plainly produced code. Correction: it declares a fact (no traceable code exists), not an escape from the CN-authoring step you skipped in Stage 2 - go back and author the CN instead.
+
+**The finalise gate reads the attestation, not just the exit code.** A passing verify run whose report carries per-AC verdicts in `{MOCK-ONLY-DECLARED, BLOCKED-BY-DECLARATION}` will not promote to `verified`. The gate stays at `complete -> verified` promotion, but a mock-only-declared AC refuses the promotion unless the operator explicitly ships the FBS complete-without-verified via `--ship-without-verified`. The summary always discloses these verdicts (whether the FBS ships or not) so the honest picture reaches the reviewer. Older verify reports without the `perAcVerdicts` field are handled gracefully - verify's train car may land later; older reports flow through with the pre-0.7.0 gate behaviour.
 
 Stage end: the merge is the commit.
 
@@ -406,6 +437,8 @@ Node app on Vercel:
 ```
 
 Both name the runtime, both refuse to imply the deployed profile, and both say plainly what is still unproven.
+
+**The PR is a rendering of what the chain already knows.** Since 0.7.0, every TC on the chain carries `runtimeProvenance` - the profile it ran under, any env vars it needs, any external hosts it reached. The PR body's runtime-provenance sentences continue to name the runtime for the reviewer, but the chain is the source of truth. A reviewer or auditor can walk the tree and see what every test actually verified, per-TC, without opening the diff.
 
 ## 16. In-loop fresh-context self-review
 
