@@ -90,6 +90,8 @@ test('rcf://docs/<slug>: every methodology doc in the pack manifest serves byte-
     'build-cycle',
     'harness-template',
     'managed/agent-instructions-block',
+    // Track C+D §10 shipped the persona-programme guidance file.
+    'persona-programme',
   ]);
   for (const doc of manifest.docs) {
     const result = await registry.read(`rcf://docs/${doc.slug}`);

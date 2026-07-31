@@ -10,6 +10,9 @@ import { isRcfError, writeUnexpectedFailure } from '@stravica-ai/rcf-lite-core/e
 import { splitCnPath, updateDocument, walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { deriveFileDeps, mapDerivedDepsToCnIds } from '@stravica-ai/rcf-lite-core/store/derive-deps.js';
 import { findProjectRoot } from '../view/index.js';
+// Track C+D §4.4: reclassify a REQ when its description-carrying fields
+// change so downstream tooling sees a fresh shapeClassification.
+import { classifyAndPersistReq } from '../req-detection/index.js';
 
 const OPTION_SPEC = {
   set: { type: 'string', multiple: true },
@@ -144,6 +147,38 @@ export async function main(argv, deps = {}) {
     return 0;
   }
   if (!flags.quiet) stdout.write(`${result.id} updated at ${result.filePath}\n`);
+
+  // Track C+D §4.4: reclassify a REQ when the update touched a
+  // shape-signal-carrying field (title / description / rationale).
+  const touched = new Set();
+  for (const s of sets) {
+    const head = String(s.path ?? '').split('.')[0];
+    if (head) touched.add(head);
+  }
+  if (patch && typeof patch === 'object') {
+    for (const key of Object.keys(patch)) touched.add(key);
+  }
+  const kindOfDoc = walkResult.tree.kindById.get(id);
+  const shouldReclassify = kindOfDoc === 'requirement'
+    && (touched.has('title') || touched.has('description') || touched.has('rationale'));
+  if (shouldReclassify) {
+    try {
+      const postWalk = await walkTree({ projectRoot });
+      const classifyOutcome = await classifyAndPersistReq({
+        projectRoot,
+        tree: postWalk.tree,
+        reqId: id,
+      });
+      if (classifyOutcome && classifyOutcome.ok === false) {
+        stderr.write(`[warn] ${classifyOutcome.message}\n`);
+      } else if (!flags.quiet && classifyOutcome?.changed && classifyOutcome.block?.shapes?.length > 0) {
+        const shapes = classifyOutcome.block.shapes.join(', ');
+        stdout.write(`${id} shapeClassification: [${shapes}] (${classifyOutcome.block.reason})\n`);
+      }
+    } catch (err) {
+      stderr.write(`[warn] req-classify (post-update): ${err.message}\n`);
+    }
+  }
   return 0;
 }
 

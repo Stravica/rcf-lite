@@ -1,3 +1,5 @@
+<!-- Never-skip-RCF invariant is a platform rule; the byte-identical statement lives at §13. Editors: any change to guidance wording is subject to canary release-block. -->
+
 # Build-cycle playbook
 
 ## 1. Read this if
@@ -414,6 +416,8 @@ PR mechanics - the branch, the target, the open command - belong to your driving
 
 ## 13. Triage a bug back to the spec first
 
+**Never-skip-RCF.** The bug-fix loop uses the same five-stage cycle as the initial build (Define, Build, Review, Test, Finalise); there is no fast-path, and there is no operator ruling that opens one. Do not offer a shortcut. Do not phrase the choice as "would you rather I skip the RCF wrapping" or any wording that presents bypassing the chain as a legitimate option. The offer itself is the defect. The operator's refusal is not a sign the invariant held; it is a sign the invariant was tested and the guidance surface leaked. Fix the guidance surface.
+
 A bug that reached a build is a bug a test did not catch, which is a behaviour an AC did not require. The bug is the symptom; the missing or weak AC is the cause. Fix the cause first - not out of process piety, but because a code-only fix leaves the chain blind to the next instance of the same bug, and the next build can reintroduce it under a clean coverage report.
 
 **The order - do not jump to the code:**
@@ -474,6 +478,7 @@ What this section adds is the cheap check that runs **in the loop, between build
 - **It targets the defect classes green suites miss.** Name them for the reviewer: **session-class bugs** (state that leaks or resets across requests/sessions), **false-promise UI** (buttons and screens that imply an action the code never performs), **runtime mismatch** (passes on localhost, fails on the deployed runtime), **dead auth paths** (login/signup flows that never actually work end to end), and **dead code** (paths shipped but never reachable). These are exactly the classes a passing unit suite reports nothing about.
 - **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **an in-loop check, not the independent verification gate** - the gate is `rcf finalise` (section 7) - and it is **guidance and prompt-level, not a new subsystem**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check: worth running before the gate, not worth overclaiming after it. Say both. A self-review pass is never evidence for a `verified` mark; only the finalise gate produces that.
 - **For UI-bearing FBSes, cross-reference to `rcf browser-verify`.** The in-loop reviewer's "drive the app against ACs" behaviour is a superset of what `rcf browser-verify <fbs-id>` does (open every enumerated route on every declared theme, record the DOM, run the versioned invariant set, run the auth smoke pack). Reach for `rcf browser-verify` first for uiBearing FBS: it writes a persisted `browserVerification[]` record on the manifest that the Stage 5 gate reads, and it names the exact invariants a passing browser check must satisfy. The self-review pass then adds the qualitative rubric on top (component consistency, typography, interaction affordances, modern-versus-dated feel) - the same rubric the browser-verify agent-mode critique carries on its record's `notes` field.
+- **Keep the review surface up across the pass.** `rcf view` gains `start | status | stop | logs` verbs and defaults to `--detach` on an interactive session (the pre-0.7.0 foreground default survives non-interactive callers, so CI scripts do not change behaviour). Start it once at the top of the loop; the supervisor persists across session death and the manifest carries `reviewSurface.viewServer` so a subsequent session can pick up where the last one left off. Explicit `rcf view stop` when the loop closes.
 
 ## 17. Speaking to the operator
 

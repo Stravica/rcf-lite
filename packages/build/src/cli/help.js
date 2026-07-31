@@ -34,6 +34,10 @@ import { HELP as BROWSER_VERIFY_HELP } from './browser-verify.js';
 import { HELP as UPDATE_HELP } from './update.js';
 import { HELP as VALIDATE_HELP } from './validate.js';
 import { HELP as VIEW_HELP } from './view.js';
+// Track C+D (elicitation-and-playbook-hardening-0.7.0) verbs.
+import { HELP as REQ_CLASSIFY_HELP } from './req-classify.js';
+import { HELP as REQ_BASELINE_HELP } from './req-baseline.js';
+import { HELP as INTAKE_HELP } from './intake.js';
 
 const TOP_LEVEL = `Usage: rcf <command> [options]
 
@@ -63,6 +67,9 @@ Commands:
   ui-baseline <verb>  UI baseline: init | show | opt-out
   design <fbs-id>     Design substage: dispatch worker or hand-author artefacts
   browser-verify <id> Stage 5 browser-verification gate for a UI-bearing FBS
+  req-classify <id>   Rerun the REQ-shape classifier and write the block
+  req-baseline <verb> Baseline-AC sweep and opt-out ledger for classified REQs
+  intake              Variable-fidelity intake stage (classify supplied artefacts)
   help [command]      Print help for a command
 
 Options:
@@ -107,6 +114,10 @@ const HELP_MAP = {
   'ui-baseline': UI_BASELINE_HELP,
   design: DESIGN_HELP,
   'browser-verify': BROWSER_VERIFY_HELP,
+  // Track C+D (elicitation-and-playbook-hardening-0.7.0) verbs.
+  'req-classify': REQ_CLASSIFY_HELP,
+  'req-baseline': REQ_BASELINE_HELP,
+  intake: INTAKE_HELP,
 };
 
 /**

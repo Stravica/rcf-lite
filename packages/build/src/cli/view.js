@@ -12,16 +12,44 @@ import { formatErrors } from '@stravica-ai/rcf-lite-core/errors';
 import { walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { findProjectRoot } from '../view/index.js';
 import { startServer } from '../server/index.js';
+// Track C+D §9 view-server persistence.
+import {
+  startDetached,
+  stopDetached,
+  statusOfDetached,
+  readLogTail,
+} from '../view-supervisor/index.js';
 
 export const DEFAULT_PORT = 4373;
 export const SHUTDOWN_BUDGET_MS = 2000;
 
-export const HELP = `Usage: rcf view [options]
+export const HELP = `Usage: rcf view [subverb] [options]
 
 Serve the on-disk RCF tree as a live HTML review surface. Runs a
 long-running HTTP + SSE server on 127.0.0.1 that watches rcf/ and pushes
 tree updates to the connected browser tab. No on-disk output; no static
 files are written.
+
+Subverbs (spec §9.2):
+  rcf view                  Foreground server (default; lifetime tied to
+                            the invoking session). Backward-compatible
+                            with pre-0.7.0 callers.
+  rcf view start [--detach|--foreground] [--persist-until <duration>]
+                            Start the server. --detach forks a supervised
+                            background process that persists across the
+                            parent session's death; the manifest carries
+                            reviewSurface.viewServer for a subsequent
+                            session to pick up. --persist-until keeps the
+                            supervisor alive until the named timestamp.
+                            Default on an interactive TTY is --detach;
+                            non-interactive callers keep --foreground so
+                            a script does not orphan a process.
+  rcf view status [--json]  Print the supervisor state:
+                            running | stale | not-started.
+  rcf view stop             Send SIGTERM to the supervised process, wait
+                            for a clean shutdown, and clear the manifest
+                            record.
+  rcf view logs [--tail <n>] Print the supervisor log tail (default 200).
 
 Options:
   --port <n>        Bind the HTTP server on the given port.
@@ -49,7 +77,8 @@ Security posture:
 Shutdown:
   Ctrl-C (SIGINT) or SIGTERM triggers a clean shutdown: watcher
   closed, SSE connections drained with a shutdown event, port
-  released, 2s force-exit budget.
+  released, 2s force-exit budget. Detached: rcf view stop sends
+  SIGTERM to the supervisor and waits for a clean unwind.
 
 Exit codes:
   0   normal shutdown
@@ -58,6 +87,8 @@ Exit codes:
   3   validation failure (with --strict, on the initial walk)
   130 SIGINT
 `;
+
+const SUBVERBS = new Set(['start', 'status', 'stop', 'logs']);
 
 /**
  * Parse the view subcommand argv. Hand-rolled so the CLI can pass
@@ -189,6 +220,15 @@ export async function main(argv, deps = {}) {
   const stderr = deps.stderr ?? process.stderr;
   const onSignal = deps.onSignal ?? ((sig, handler) => process.on(sig, handler));
 
+  // Track C+D §9: subverb routing. When the first argv token is
+  // `start | status | stop | logs`, dispatch to the lifecycle handler
+  // and skip the foreground-server path.
+  if (argv.length > 0 && SUBVERBS.has(argv[0])) {
+    const subverb = argv[0];
+    const rest = argv.slice(1);
+    return await runSubverb({ subverb, argv: rest, deps: { env, stdout, stderr } });
+  }
+
   const { opts, errors: argErrors } = parseArgs(argv);
   if (opts.help) {
     stdout.write(HELP);
@@ -275,4 +315,118 @@ export async function main(argv, deps = {}) {
     onSignal('SIGINT', () => { handle('SIGINT'); });
     onSignal('SIGTERM', () => { handle('SIGTERM'); });
   });
+}
+
+/**
+ * Route the four Track C+D lifecycle subverbs. Kept in the same file
+ * as the foreground main so the CLI test surface can exercise both
+ * without spawning a subprocess (except for the actual detach test,
+ * which spawns intentionally).
+ *
+ * @param {object} args
+ * @param {'start'|'status'|'stop'|'logs'} args.subverb
+ * @param {string[]} args.argv
+ * @param {{ env: NodeJS.ProcessEnv, stdout: NodeJS.WritableStream, stderr: NodeJS.WritableStream }} args.deps
+ * @returns {Promise<number>}
+ */
+async function runSubverb({ subverb, argv, deps }) {
+  const { stdout, stderr, env } = deps;
+  const cwd = process.cwd();
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
+    return 2;
+  }
+
+  if (subverb === 'status') {
+    const useJson = argv.includes('--json');
+    const status = await statusOfDetached(projectRoot);
+    if (useJson) {
+      stdout.write(`${JSON.stringify(status, null, 2)}\n`);
+      return 0;
+    }
+    if (status.state === 'not-started') {
+      stdout.write('view server: not-started\n');
+      return 0;
+    }
+    stdout.write(`view server: ${status.state} (pid ${status.pid ?? '?'})\n`);
+    if (status.url) stdout.write(`  url: ${status.url}\n`);
+    if (status.lastHeartbeatAt) stdout.write(`  lastHeartbeatAt: ${status.lastHeartbeatAt}\n`);
+    return 0;
+  }
+
+  if (subverb === 'stop') {
+    const outcome = await stopDetached(projectRoot);
+    if (outcome.stopped) {
+      stdout.write(`view server stopped (pid ${outcome.pid})\n`);
+    } else if (outcome.pid !== null) {
+      stdout.write(`view server: pid ${outcome.pid} was not alive; cleared stale record\n`);
+    } else {
+      stdout.write('view server: not-started (no record to clear)\n');
+    }
+    return 0;
+  }
+
+  if (subverb === 'logs') {
+    const tailIdx = argv.indexOf('--tail');
+    const tail = tailIdx >= 0 ? Number.parseInt(argv[tailIdx + 1] ?? '', 10) : 200;
+    const lines = await readLogTail(projectRoot, Number.isFinite(tail) ? tail : 200);
+    if (lines.length === 0) {
+      stdout.write('view server: no log entries yet\n');
+      return 0;
+    }
+    for (const line of lines) stdout.write(`${line}\n`);
+    return 0;
+  }
+
+  // subverb === 'start'
+  let detach = null;
+  let persistUntil = null;
+  let port = null;
+  const opts = argv.slice();
+  while (opts.length > 0) {
+    const flag = opts.shift();
+    if (flag === '--detach') detach = true;
+    else if (flag === '--foreground') detach = false;
+    else if (flag === '--persist-until') persistUntil = opts.shift() ?? null;
+    else if (flag === '--port') {
+      const raw = opts.shift();
+      const n = Number.parseInt(raw ?? '', 10);
+      if (!Number.isInteger(n) || n < 0 || n > 65535) {
+        stderr.write(`[error] usage view start: --port expects an integer 0..65535, got ${raw}\n`);
+        return 2;
+      }
+      port = n;
+    } else if (flag === '--help') {
+      stdout.write(HELP);
+      return 0;
+    } else {
+      stderr.write(`[error] usage view start: unknown option ${flag}\n`);
+      return 2;
+    }
+  }
+  const envPort = Number.parseInt(env.RCF_VIEW_PORT ?? '', 10);
+  const resolvedPort = port ?? (Number.isFinite(envPort) && envPort >= 0 ? envPort : DEFAULT_PORT);
+  // Detach default: interactive TTY implies detach; script/CI keeps foreground.
+  const shouldDetach = detach === null ? Boolean(process.stdout.isTTY && process.stdin.isTTY) : detach;
+  if (!shouldDetach) {
+    // Fall through to the classic foreground behaviour, passing through
+    // any port/verbose flags via the standard main-loop arg surface.
+    const passArgs = [];
+    if (port !== null) { passArgs.push('--port', String(resolvedPort)); }
+    return await main(passArgs, { stdout, stderr, env });
+  }
+  try {
+    const started = await startDetached({ projectRoot, port: resolvedPort, persistUntil });
+    if (started.alreadyRunning) {
+      stdout.write(`view server already running at ${started.url} (pid ${started.pid})\n`);
+      return 0;
+    }
+    stdout.write(`view server started detached at ${started.url} (pid ${started.pid})\n`);
+    if (persistUntil) stdout.write(`  persistUntil: ${persistUntil}\n`);
+    return 0;
+  } catch (err) {
+    stderr.write(`[error] ioFailure view start --detach: ${err.message}\n`);
+    return 1;
+  }
 }

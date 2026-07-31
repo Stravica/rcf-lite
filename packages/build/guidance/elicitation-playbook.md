@@ -1,3 +1,5 @@
+<!-- Never-skip-RCF invariant applies to every section below; see §11.1. Editors: any change to guidance wording is subject to canary release-block. -->
+
 # Elicitation playbook
 
 ## 1. Read this if
@@ -163,6 +165,22 @@ AC-301-5  (nfr)     given a store of 10,000 notes,
 
 Same story, one AC versus five. The extra four are not gold-plating - they are the boundaries and failures the feature will meet on its first real day, and AC-301-5 is the constraint the operator would have assumed and never said. That set is the difference between a spec the build can satisfy blind and a spec that only looks finished.
 
+## 5.5 REQ shape and its baselines
+
+Every REQ this playbook draws out has a shape (§5.5.1), and each shape carries a baseline set of acceptance criteria (§5.5.2) that must hold unless the operator explicitly rules otherwise. Baselines exist because a UI REQ without a shared-nav AC lets the build ship a UI without a shared nav, and a persistence REQ without a crash-safety AC lets the build ship a store that loses writes on kill. The four-questions sweep of §5 asks the operator what they want, which is the right question. It does not ask what any operator would want if they knew to ask. The baselines are that second question, mechanised.
+
+Silence is not agreement. When the sweep proposes a baseline AC, the operator either accepts it or opts out with a recorded reason. A "we can skip that for now" without a reason leaves the sweep open, and Stage 1 (Define) refuses `rcf build --next` for any FBS that binds ACs on a story with open sweeps. The refusal is the safeguard against the exact failure mode that produced four review-phase defects on the cold run.
+
+### 5.5.1 The five shapes
+
+`webUi` for HTML rendered for a person to look at. `httpApi` for programmatic HTTP endpoints for machine clients. `auth` for identity, sessions, credentials. `persistence` for durable storage the operator's data lives in across restarts. `notifications` for outbound delivery to a human channel. A REQ can carry more than one; a REQ that carries none records `shapes: [none]` (legitimate for pure business-rule REQs). Detection is deterministic keyword-scan over the REQ's `title`, `description` and `rationale` plus the parent PRD's `intent` and `problem` as fallback context; the classifier fires automatically on `rcf create req` and `rcf update req --description`, and `rcf req-classify <req-id>` re-runs it on demand.
+
+### 5.5.2 Baseline sweep and opt-out ledger
+
+`rcf req-baseline sweep --req <id>` walks every US under the target REQ and proposes any baseline AC not yet present. The operator accepts each candidate (which writes it as an AC with `provenance.authoredBy: baseline` and the `baselineKey` set) or opts out with a reason (which writes a `baselineAcOptOuts[]` entry so future USes under the same REQ inherit the ruling). The opt-out reason has a 20-character floor: a one-word "no" reads as silence, and silence is exactly what the ledger exists to prevent. The C+D-native `rcf req-baseline opt-out` verb is always available; Track A preflight's design-shape questions surface (`auth.htmlLoginPage` in v1) writes the same ledger for the preflight-driven case, so a preflight session and this playbook share one truth.
+
+Cross-references: the four-questions sweep of §5 still runs; baselines augment it, do not replace it. Track A preflight (see the build-cycle playbook §3 and `rcf preflight`) owns the design-shape questions that flip baselines before build. Track B's `uiBaseline.defaults` is the truth source for `webUi` baseline values (see `rcf ui-baseline`).
+
 ## 6. Capturing architecture as it emerges (TAC / ADR)
 
 ### Establish where it will run first, before any stack
@@ -242,6 +260,7 @@ The done-bar, all five together:
 3. The queue's head item is actionable: `rcf build` shows a `Next actionable` id.
 4. `rcf validate` is clean.
 5. `rcf coverage` has been run and its zero-covered baseline is understood.
+6. Every classified REQ has completed its baseline sweep (no open candidates). `rcf req-baseline sweep --all --status` prints the open-candidate queue; the Stage 1 gate refuses `rcf build --next` for any FBS binding an AC on a US that still has one.
 
 Queue-head evidence from the scratch project:
 
@@ -404,6 +423,10 @@ Two failure modes, both quiet, both about honesty in the conversation rather tha
 **Never attribute a rejection the operator did not make.** Do not justify your own preference by inventing that an alternative "was rejected" or "isn't possible" when the operator said no such thing. In the same episode the agent claimed a public share link had been "rejected outright" - it never was; the agent preferred authenticated accounts and dressed its own call up as the operator's. Fabricated justification is worse than an open question, because it launders your decision as theirs and removes the prompt that would have let them correct it. If a preference is yours, say so and give your reason. If the operator rejected something, quote them. If neither, it is an open question - ask it.
 
 The through-line: your job is to capture the operator's intent, not to resolve it for them. When capture and resolution pull against each other, capture the conflict and hand it back. This is also where thin ACs come from - a silently-resolved ambiguity yields one confident AC where an honest exchange yields a surfaced question and, once answered, the two or three ACs section 5 asks for. Integrity and depth are one discipline seen from two sides.
+
+## 11.1 Never-skip-RCF
+
+**Never-skip-RCF.** The bug-fix loop uses the same five-stage cycle as the initial build (Define, Build, Review, Test, Finalise); there is no fast-path, and there is no operator ruling that opens one. Do not offer a shortcut. Do not phrase the choice as "would you rather I skip the RCF wrapping" or any wording that presents bypassing the chain as a legitimate option. The offer itself is the defect. The operator's refusal is not a sign the invariant held; it is a sign the invariant was tested and the guidance surface leaked. Fix the guidance surface.
 
 ## 12. Speaking to the operator
 

@@ -25,6 +25,8 @@
 import { hashInnerContent } from './managed-block.js';
 import { identityEntry } from './identity-seed.js';
 import { preflightEntry } from '../preflight/secrets.js';
+// Track C+D §9.3: gitignore the view-server pid file and supervisor log.
+import { viewServerGitignoreEntry, viewServerLogGitignoreEntry } from '../view-supervisor/manifest-writer.js';
 
 /**
  * @typedef {object} GitignoreEntry
@@ -49,6 +51,8 @@ export function managedGitignoreEntries() {
   return [
     identityEntry,
     preflightEntry,
+    viewServerGitignoreEntry,
+    viewServerLogGitignoreEntry,
   ];
 }
 

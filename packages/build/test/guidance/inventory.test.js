@@ -40,6 +40,8 @@ test('manifest parses with docs and prompts arrays of the specced shape', async 
     'build-cycle',
     'harness-template',
     'managed/agent-instructions-block',
+    // Track C+D §10 shipped the persona-programme guidance file.
+    'persona-programme',
   ]);
   assert.deepEqual(m.prompts.map((p) => p.name), ['rcf_execute_build_cycle', 'rcf_elicit_requirements']);
 });

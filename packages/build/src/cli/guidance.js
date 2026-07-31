@@ -48,6 +48,11 @@ Topics (run 'rcf guidance' with no arguments to list them):
   build-cycle-playbook      Deep method: running the build cycle well
   elicitation-playbook      Deep method: drawing a valid tree out of a
                             conversation
+  persona-programme         Persona programme: the tail-interview template
+
+Platform-invariant printer (Track C+D):
+  rcf guidance invariants   Print the platform invariants block from the
+                            manifest (currently: never-skip-RCF).
 
 Options:
   --list                    List the topics, one per line, and exit
@@ -75,6 +80,12 @@ export async function listTopics(guidanceDir = GUIDANCE_DIR) {
   for (const d of manifest.docs ?? []) {
     topics.push({ slug: d.slug, file: d.file, title: d.title });
   }
+  // Note: Track C+D §8's `rcf guidance invariants` is deliberately NOT
+  // registered as a listTopics entry. It is a virtual verb (no backing
+  // file; it formats the platformInvariants[] array from the manifest),
+  // handled by the `positionals[0] === 'invariants'` branch in main().
+  // Listing it here would break the byte-faithful topic-serving contract
+  // (topic → file bytes verbatim) that the pack-inventory tests lock.
   for (const p of manifest.prompts ?? []) {
     topics.push({
       slug: p.file.replace(/\.md$/, ''),
@@ -130,6 +141,40 @@ export async function main(argv, deps = {}) {
     const width = Math.max(...topics.map((t) => t.slug.length));
     const lines = topics.map((t) => `  ${t.slug.padEnd(width)}  ${firstSentence(t.title)}`);
     stdout.write(`Guidance topics (rcf guidance <topic> prints one):\n${lines.join('\n')}\n`);
+    return 0;
+  }
+
+  // Special virtual topic: `invariants` prints the platform-invariant
+  // list from the manifest, not a guidance file. `--path` on this topic
+  // resolves to the manifest itself.
+  if (positionals[0] === 'invariants') {
+    const manifestPath = join(guidanceDir, 'manifest.json');
+    if (flags.path) {
+      stdout.write(`${manifestPath}\n`);
+      return 0;
+    }
+    let invariants;
+    try {
+      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+      invariants = Array.isArray(manifest?.platformInvariants) ? manifest.platformInvariants : [];
+    } catch (err) {
+      stderr.write(`[error] io guidance invariants: ${err.message}\n`);
+      return 1;
+    }
+    if (invariants.length === 0) {
+      stdout.write('no platform invariants declared in this build\n');
+      return 0;
+    }
+    const lines = [];
+    lines.push('# Platform invariants');
+    lines.push('');
+    for (const [i, inv] of invariants.entries()) {
+      lines.push(`## ${i + 1}. ${inv.title} (id: ${inv.id})`);
+      lines.push('');
+      lines.push(inv.text);
+      lines.push('');
+    }
+    stdout.write(lines.join('\n'));
     return 0;
   }
 
