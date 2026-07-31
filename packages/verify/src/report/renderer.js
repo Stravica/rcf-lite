@@ -1,20 +1,20 @@
 // Self-contained finding-renderer (spec §5.3, §7.2). v1 core is store + errors
-// + mcp-shell ONLY — the build `view/` layer is NOT a clean shell and is
+// + mcp-shell ONLY: the build `view/` layer is NOT a clean shell and is
 // firmly OUT of v1 core. So verify ships its OWN minimal, dependency-free human
-// render for `rcf-verify report`. Plain text, British English, ASCII hyphens —
-// mirrors build's help-surface conventions without importing any core view code.
+// render for `rcf-verify report`. Plain text, British English, ASCII hyphens,
+// mirroring build's help-surface conventions without importing any core view code.
 //
 // Honest-limit language (§9): the render NEVER says "fully verified" / "safe".
 
 /** One-line human summary of a verdict, including its ship implication. */
 const VERDICT_LINE = {
-  PASS: 'PASS — every AC verified against the running app; no defect above COSMETIC.',
-  BROKEN: 'BROKEN — one or more ACs fail on the running app. Blocks ship.',
-  DEGRADED: 'DEGRADED — app works but a criterion is materially weakened. Reported; may block per gate.',
-  COSMETIC: 'COSMETIC — hygiene only; no AC touched. Does not block.',
-  'NOT-DEPLOYED': 'NOT-DEPLOYED — deployed profile declared but no real deploy reachable. A refusal to issue a verdict, not a pass.',
-  BLOCKED: 'BLOCKED — a prerequisite could not be provisioned; dependent ACs were not exercisable.',
-  'LAUNCH-FAILURE': 'LAUNCH-FAILURE — the verifier agent could not run or its output could not be ingested. A refusal to issue a verdict, not a pass.',
+  PASS: 'PASS: every AC verified against the running app; no defect above COSMETIC.',
+  BROKEN: 'BROKEN: one or more ACs fail on the running app. Blocks ship.',
+  DEGRADED: 'DEGRADED: app works but a criterion is materially weakened. Reported; may block per gate.',
+  COSMETIC: 'COSMETIC: hygiene only; no AC touched. Does not block.',
+  'NOT-DEPLOYED': 'NOT-DEPLOYED: deployed profile declared but no real deploy reachable. A refusal to issue a verdict, not a pass.',
+  BLOCKED: 'BLOCKED: a prerequisite could not be provisioned; dependent ACs were not exercisable.',
+  'LAUNCH-FAILURE': 'LAUNCH-FAILURE: the verifier agent could not run or its output could not be ingested. A refusal to issue a verdict, not a pass.',
 };
 
 /**
@@ -26,7 +26,7 @@ const VERDICT_LINE = {
 export function renderReport(report) {
   const lines = [];
   const run = report.run ?? {};
-  lines.push('RCF Verify — verification report');
+  lines.push('RCF Verify: verification report');
   lines.push('='.repeat(40));
   lines.push(`Verdict:   ${report.verdict}  [authority: ${report.verdictAuthority}]`);
   lines.push(`  ${VERDICT_LINE[report.verdict] ?? ''}`.trimEnd());
@@ -51,7 +51,7 @@ export function renderReport(report) {
     lines.push('  (none)');
   } else {
     for (const f of findings) {
-      lines.push(`  [${f.severity}] ${f.acId} — ${f.journey}`);
+      lines.push(`  [${f.severity}] ${f.acId}: ${f.journey}`);
       for (const step of f.reproSteps ?? []) lines.push(`      - ${step}`);
       if (f.evidence) {
         const detail = f.evidence.detail ?? f.evidence.kind ?? JSON.stringify(f.evidence);
@@ -63,7 +63,7 @@ export function renderReport(report) {
 
   const blocked = report.blockedAcs ?? [];
   if (blocked.length > 0) {
-    lines.push(`Blocked ACs (${blocked.length}) — NOT exercisable, not silently skipped`);
+    lines.push(`Blocked ACs (${blocked.length}), NOT exercisable, not silently skipped`);
     for (const b of blocked) lines.push(`  ${b.acId}: ${b.reason}`);
     lines.push('');
   }
@@ -71,7 +71,7 @@ export function renderReport(report) {
   // 0.7.0 per-AC verdicts. Rendered as a dedicated section so an operator
   // reading the human render sees the honest picture on any AC that came
   // back mock-only / declared / UI-baseline-unmet, even when the top-level
-  // verdict is PASS. Present-only — pre-0.7.0 reports skip this block.
+  // verdict is PASS. Present-only; pre-0.7.0 reports skip this block.
   const perAc = Array.isArray(report.perAcVerdicts) ? report.perAcVerdicts : [];
   if (perAc.length > 0) {
     lines.push(`Per-AC verdicts (${perAc.length}), chain-derived alongside the run verdict`);

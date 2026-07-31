@@ -37,6 +37,23 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r test
+      # Register-regression canary (Track D §7). INFORMATIONAL ONLY, NEVER A
+      # RELEASE GATE. The canary infrastructure runs against the MOCK subagent
+      # driver in v1: MOCK_DRIVER_MARKER stamps every record and the aggregate
+      # verdict is FORCED to `fail` per the mock-driver honesty contract, so a
+      # non-zero exit here is expected. `continue-on-error: true` and the
+      # if-condition on build tags make this a machinery-exercise pass: it
+      # proves the canary script runs green-path in the release environment,
+      # nothing more. The gate turns on only when the live subagent driver
+      # (RCF_CANARY_DRIVER seam, Anthropic Agent SDK dispatch) ships as a
+      # separate follow-up. Do NOT remove `continue-on-error` before then.
+      - name: Register-regression canary (mock driver, informational)
+        if: startsWith(github.ref_name, 'build-v')
+        continue-on-error: true
+        working-directory: packages/build
+        run: |
+          echo "informational: mock-driver canary; MOCK_DRIVER_MARKER stamps every record; NOT a release gate"
+          npm run canary:register || echo "canary exit non-zero (expected in mock mode); continuing"
       - name: Resolve package from tag
         id: pkg
         run: |
