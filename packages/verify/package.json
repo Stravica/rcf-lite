@@ -1,6 +1,6 @@
 {
   "name": "@stravica-ai/rcf-verify-lite",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "description": "RCF Verify Lite - a fresh-context adversarial verifier. Given an RCF chain (the acceptance contract) and a running instance under a declared runtime profile, it launches an isolated verifier agent that walks real user journeys adversarially and emits a structured verdict stamped with the runtime it ran against.",
   "license": "Apache-2.0",
