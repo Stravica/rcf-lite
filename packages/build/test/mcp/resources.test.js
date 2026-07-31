@@ -72,10 +72,50 @@ test('resources/list: complete vs the walker - every standalone and inline id, p
   for (const slug of ['overview', 'document-model', 'build-cycle', 'harness-template']) {
     assert.ok(uris.has(`rcf://docs/${slug}`), `missing rcf://docs/${slug}`);
   }
+  // Track C+D §13.3 AC: the platform-invariants guidance resource is a
+  // first-class URI, distinct from `rcf://docs/*` because it does not
+  // serve a markdown file.
+  assert.ok(uris.has('rcf://guidance/platform-invariants'), 'missing rcf://guidance/platform-invariants');
   for (const r of resources) {
     assert.equal(typeof r.name, 'string');
     assert.equal(typeof r.mimeType, 'string');
   }
+});
+
+test('rcf://guidance/platform-invariants: serves the manifest.platformInvariants[] array as JSON, byte-verbatim', async () => {
+  const tmp = await scaffold();
+  const registry = createResourceRegistry({ projectRoot: tmp });
+  const { resources } = await registry.list();
+  const entry = resources.find((r) => r.uri === 'rcf://guidance/platform-invariants');
+  assert.ok(entry, 'expected rcf://guidance/platform-invariants in resources/list');
+  assert.equal(entry.mimeType, 'application/json');
+  assert.equal(entry.name, 'platform-invariants');
+  assert.equal(typeof entry.title, 'string');
+  const result = await registry.read('rcf://guidance/platform-invariants');
+  assert.equal(result.contents.length, 1);
+  assert.equal(result.contents[0].uri, 'rcf://guidance/platform-invariants');
+  assert.equal(result.contents[0].mimeType, 'application/json');
+  const invariants = JSON.parse(result.contents[0].text);
+  assert.ok(Array.isArray(invariants), 'served content must be a JSON array');
+  assert.ok(invariants.length >= 1, 'expected at least one platform invariant');
+  const neverSkip = invariants.find((i) => i.id === 'never-skip-rcf');
+  assert.ok(neverSkip, 'expected the never-skip-rcf invariant on the wire');
+  const manifest = await readGuidanceManifest(GUIDANCE_DIR);
+  assert.deepEqual(
+    invariants,
+    manifest.platformInvariants,
+    'served invariants must equal manifest.platformInvariants byte-for-byte (the resource serves the manifest, it does not paraphrase it).',
+  );
+});
+
+test('rcf://guidance/<unknown-slug>: is the -32002 resource error, not a passthrough', async () => {
+  const tmp = await scaffold();
+  const registry = createResourceRegistry({ projectRoot: tmp });
+  await assert.rejects(
+    () => registry.read('rcf://guidance/no-such-block'),
+    (err) => err.code === RESOURCE_NOT_FOUND,
+    'expected -32002 for an unknown guidance slug',
+  );
 });
 
 test('rcf://docs/<slug>: every methodology doc in the pack manifest serves byte-faithful markdown', async () => {
@@ -90,6 +130,8 @@ test('rcf://docs/<slug>: every methodology doc in the pack manifest serves byte-
     'build-cycle',
     'harness-template',
     'managed/agent-instructions-block',
+    // Track C+D §10 shipped the persona-programme guidance file.
+    'persona-programme',
   ]);
   for (const doc of manifest.docs) {
     const result = await registry.read(`rcf://docs/${doc.slug}`);

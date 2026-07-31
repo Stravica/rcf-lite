@@ -56,14 +56,19 @@ test('AC-3.1: rcf init creates a .gitignore with the managed block containing ex
   assert.match(gitignore, /# rcf:managed:begin/);
   assert.match(gitignore, /rcf\/\.identity\//);
   assert.match(gitignore, /\.rcf\/preflight-secrets\.local\.json/);
+  assert.match(gitignore, /\.rcf\/view-server\.pid/);
+  assert.match(gitignore, /\.rcf\/view-server\.log/);
   // Deterministic aggregator entries. 0.6.0 shipped one entry
   // (identityEntry); the 0.7.0 verification-integrity train adds the
-  // preflight credentials side-file via the same seam. The count and
-  // registered order are the load-bearing assertions.
+  // preflight credentials side-file via the same seam; Track C+D §9.3
+  // adds the view-server pid file and supervisor log at the same seam.
+  // The count and registered order are the load-bearing assertions.
   const entries = managedGitignoreEntries();
-  assert.equal(entries.length, 2);
+  assert.equal(entries.length, 4);
   assert.equal(entries[0].path, 'rcf/.identity/');
   assert.equal(entries[1].path, '.rcf/preflight-secrets.local.json');
+  assert.equal(entries[2].path, '.rcf/view-server.pid');
+  assert.equal(entries[3].path, '.rcf/view-server.log');
 });
 
 test('AC-3.2: rcf init on a repo with an existing .gitignore preserves operator entries and appends the managed block', async () => {
@@ -131,7 +136,7 @@ test('AC-3.6: aggregator extension pipeline (parts a-d) via the real compose hel
     since: '0.0.0-test',
   };
   const baseEntries = managedGitignoreEntries();
-  assert.equal(baseEntries.length, 2, '0.7.0 aggregator ships the identity + preflight entries');
+  assert.equal(baseEntries.length, 4, '0.7.0 aggregator ships the identity + preflight + view-server pid + view-server log entries');
   const extendedEntries = [...baseEntries, extraEntry];
 
   // Part (a): composeGitignoreBlockFromEntries produces both entries in

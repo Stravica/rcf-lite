@@ -1,11 +1,16 @@
-// MCP resources (Phase 7 §D15 / D15-A). Three URI forms over a fresh
+// MCP resources (Phase 7 §D15 / D15-A). Four URI forms over a fresh
 // walk per call (D14):
 //
-//   rcf://tree         - project index: {id, kind, title, filePath} per doc
-//   rcf://doc/<id>     - one resource per document id, incl. inline AC / TC
-//   rcf://docs/<slug>  - static methodology docs from the Phase 7.5
-//                        guidance pack, wired through guidance/manifest.json
-//                        (the pack owns content; this file serves bytes)
+//   rcf://tree                          - project index: {id, kind, title, filePath} per doc
+//   rcf://doc/<id>                      - one resource per document id, incl. inline AC / TC
+//   rcf://docs/<slug>                   - static methodology docs from the Phase 7.5
+//                                         guidance pack, wired through guidance/manifest.json
+//                                         (the pack owns content; this file serves bytes)
+//   rcf://guidance/<slug>               - manifest-declared guidance blocks that are not
+//                                         themselves markdown files. Currently one:
+//                                         `platform-invariants` serves the
+//                                         `manifest.platformInvariants[]` array as JSON
+//                                         (Track C+D §8.2 / §13.3 AC).
 //
 // No subscriptions, no listChanged, no resource templates (spec §7).
 // resources/list returns everything in one page; a cursor param is
@@ -27,6 +32,14 @@ export const GUIDANCE_DIR = resolve(here, '..', '..', 'guidance');
 const TREE_URI = 'rcf://tree';
 const DOC_PREFIX = 'rcf://doc/';
 const DOCS_PREFIX = 'rcf://docs/';
+const GUIDANCE_PREFIX = 'rcf://guidance/';
+
+// Track C+D §8.2 / §13.3 AC: the platform-invariants block gets its own
+// MCP resource, distinct from `rcf://docs/*` (which serves markdown
+// files). The list is derived from the shipping manifest.json; the URI
+// slug is stable.
+const PLATFORM_INVARIANTS_URI = `${GUIDANCE_PREFIX}platform-invariants`;
+const PLATFORM_INVARIANTS_SLUG = 'platform-invariants';
 
 /**
  * Read and parse guidance/manifest.json - the Phase 7.5 contract file
@@ -153,6 +166,15 @@ export function createResourceRegistry({ projectRoot, guidanceDir = GUIDANCE_DIR
         description: `RCF methodology: ${d.title}. Canonical web reference: https://stravica.ai/rcf-methodology/`,
         mimeType: 'text/markdown',
       })),
+      ...(Array.isArray(manifest.platformInvariants) && manifest.platformInvariants.length > 0
+        ? [{
+            uri: PLATFORM_INVARIANTS_URI,
+            name: PLATFORM_INVARIANTS_SLUG,
+            title: 'RCF platform invariants',
+            description: 'Platform-wide invariants (currently: never-skip-RCF). JSON array of {id, title, text} records lifted verbatim from guidance/manifest.json.',
+            mimeType: 'application/json',
+          }]
+        : []),
     ];
     return { resources };
   }
@@ -180,6 +202,25 @@ export function createResourceRegistry({ projectRoot, guidanceDir = GUIDANCE_DIR
       }
       const text = await readFile(join(guidanceDir, entry.file), 'utf8');
       return { contents: [{ uri, mimeType: 'text/markdown', text }] };
+    }
+    if (uri.startsWith(GUIDANCE_PREFIX)) {
+      const slug = uri.slice(GUIDANCE_PREFIX.length);
+      if (slug !== PLATFORM_INVARIANTS_SLUG) {
+        throw new JsonRpcError(RESOURCE_NOT_FOUND, 'Resource not found', { uri });
+      }
+      const manifest = await readGuidanceManifest(guidanceDir);
+      const invariants = Array.isArray(manifest.platformInvariants) ? manifest.platformInvariants : [];
+      // Serves the manifest bytes verbatim - the never-skip-RCF locking
+      // test in test/guidance/ owns the byte-for-byte canonicalness of
+      // each entry's text; this handler is the transport, not a second
+      // source of truth.
+      return {
+        contents: [{
+          uri,
+          mimeType: 'application/json',
+          text: JSON.stringify(invariants, null, 2),
+        }],
+      };
     }
     if (uri.startsWith(DOC_PREFIX)) {
       const id = uri.slice(DOC_PREFIX.length);

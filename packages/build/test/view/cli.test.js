@@ -299,6 +299,48 @@ test('rcf view SIGINT triggers a clean shutdown within the 2s budget', async () 
   await new Promise((r) => check.close(r));
 });
 
+test('rcf view start --persist-until 4h (the spec §9.2 sample) is accepted at parse time', async () => {
+  // Regression: pre-fix, `--persist-until 4h` reached the supervisor
+  // as-is; Date.parse('4h') returned NaN; no persist timer was set;
+  // supervisor ran forever. The CLI now normalises to ISO before
+  // dispatch. We prove the parse succeeds by asserting stderr does
+  // NOT carry the parser's refusal message; the busy port then forces
+  // a downstream EADDRINUSE exit that proves we reached dispatch.
+  const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-persist-4h-'));
+  await initProject({ projectRoot: tmp });
+  const busy = createServer();
+  await new Promise((r, j) => { busy.once('error', j); busy.listen(0, '127.0.0.1', r); });
+  const port = busy.address().port;
+  try {
+    const { stderr } = await runBin(tmp, [
+      'start', '--foreground', '--persist-until', '4h',
+      '--port', String(port),
+    ]);
+    assert.doesNotMatch(stderr, /--persist-until:/, 'parser rejected the spec §9.2 sample');
+  } finally {
+    await new Promise((r) => busy.close(r));
+  }
+});
+
+test('rcf view start --persist-until 4hrs (garbage) refuses cleanly with exit 2', async () => {
+  const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-persist-garbage-'));
+  await initProject({ projectRoot: tmp });
+  const { code, stderr } = await runBin(tmp, [
+    'start', '--foreground', '--persist-until', '4hrs',
+  ]);
+  assert.equal(code, 2);
+  assert.match(stderr, /--persist-until/);
+  assert.match(stderr, /4h/);
+  assert.match(stderr, /ISO timestamp/);
+});
+
+test('rcf view --help documents both --persist-until forms', async () => {
+  const { stdout } = await runBin(process.cwd(), ['--help']);
+  assert.match(stdout, /--persist-until/);
+  assert.match(stdout, /4h/);
+  assert.match(stdout, /ISO timestamp/);
+});
+
 test('rcf view runs from a subdirectory and walks upward to the project root', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-sub-'));
   await initProject({ projectRoot: tmp });

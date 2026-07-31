@@ -9,6 +9,13 @@ import { writeUnexpectedFailure } from '@stravica-ai/rcf-lite-core/errors';
 import { createDocument, deriveSlug, splitCnPath, walkTree } from '@stravica-ai/rcf-lite-core/store';
 import { deriveFileDeps, mapDerivedDepsToCnIds } from '@stravica-ai/rcf-lite-core/store/derive-deps.js';
 import { findProjectRoot } from '../view/index.js';
+// Track C+D §4.4: run the REQ-shape classifier on newly-created REQs
+// so downstream tooling (rcf req-baseline, rcf preflight, the Stage-1
+// gate) can act without a manual `rcf req-classify` first.
+import { classifyAndPersistReq } from '../req-detection/index.js';
+// Track C+D §5.3 moment 4: surface open baseline candidates on a
+// newly-created US so the operator sees the sweep queue immediately.
+import { openCandidatesForUs } from '../req-baseline/open-candidates.js';
 
 const OPTION_SPEC = {
   parent: { type: 'string' },
@@ -270,6 +277,50 @@ export async function main(argv, deps = {}) {
   }
   if (!flags.quiet) {
     stdout.write(`${result.id} created at ${result.filePath}\n`);
+  }
+  // Track C+D §5.3 moment 4: on a newly-created US under a
+  // shape-classified REQ, surface any baseline keys that will be OPEN
+  // until the operator resolves them. The Stage-1 gate refuses build
+  // on the same set; the operator sees the queue here rather than at
+  // the refusal.
+  if (kind === 'us') {
+    try {
+      const postWalk = await walkTree({ projectRoot });
+      const usDoc = postWalk.tree.byId.get(result.id);
+      if (usDoc) {
+        const open = openCandidatesForUs(postWalk.tree, usDoc);
+        if (open.length > 0 && !flags.quiet) {
+          const keys = open.map((c) => c.baselineKey).join(', ');
+          stdout.write(`${result.id} has ${open.length} open baseline candidate${open.length === 1 ? '' : 's'}: ${keys}\n`);
+          stdout.write(`  Resolve: rcf req-baseline sweep --req ${usDoc.reqId}\n`);
+        }
+      }
+    } catch (err) {
+      stderr.write(`[warn] baseline-scan (post-create-us): ${err.message}\n`);
+    }
+  }
+
+  // Track C+D §4.4: fire the classifier on newly-created REQs. Best-
+  // effort: a classification error surfaces on stderr but never fails
+  // the create (the REQ file was already written; classification is
+  // provenance layered on top).
+  if (kind === 'req') {
+    try {
+      const postWalk = await walkTree({ projectRoot });
+      const classifyOutcome = await classifyAndPersistReq({
+        projectRoot,
+        tree: postWalk.tree,
+        reqId: result.id,
+      });
+      if (classifyOutcome && classifyOutcome.ok === false) {
+        stderr.write(`[warn] ${classifyOutcome.message}\n`);
+      } else if (!flags.quiet && classifyOutcome?.block?.shapes?.length > 0) {
+        const shapes = classifyOutcome.block.shapes.join(', ');
+        stdout.write(`${result.id} shapeClassification: [${shapes}] (${classifyOutcome.block.reason})\n`);
+      }
+    } catch (err) {
+      stderr.write(`[warn] req-classify (post-create): ${err.message}\n`);
+    }
   }
   return 0;
 }

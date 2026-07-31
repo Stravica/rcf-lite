@@ -39,6 +39,10 @@ import { main as browserVerifyMain } from '../src/cli/browser-verify.js';
 import { main as updateMain } from '../src/cli/update.js';
 import { main as validateMain } from '../src/cli/validate.js';
 import { main as viewMain } from '../src/cli/view.js';
+// Track C+D (elicitation-and-playbook-hardening-0.7.0) verbs.
+import { main as reqClassifyMain } from '../src/cli/req-classify.js';
+import { main as reqBaselineMain } from '../src/cli/req-baseline.js';
+import { main as intakeMain } from '../src/cli/intake.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -68,6 +72,10 @@ export const SUBCOMMANDS = {
   'ui-baseline': uiBaselineMain,
   design: designMain,
   'browser-verify': browserVerifyMain,
+  // Track C+D (elicitation-and-playbook-hardening-0.7.0) verbs.
+  'req-classify': reqClassifyMain,
+  'req-baseline': reqBaselineMain,
+  intake: intakeMain,
   help: helpMain,
 };
 

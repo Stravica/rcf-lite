@@ -37,6 +37,8 @@ import {
 import { classifyFbs } from '../ui-detection/classifier.js';
 import { firstBaselineDisagreement } from '../design/index.js';
 import { writeBrowserVerificationAck } from '../browser-verify/index.js';
+// Track C+D §5.4 Stage-1 refusal gate.
+import { fbsRefusalForOpenSweep } from '../req-baseline/gate.js';
 
 const OPTION_SPEC = {
   next: { type: 'boolean' },
@@ -258,6 +260,14 @@ async function emitBundle({ tree, fbsId, format, strict, io }) {
     io.stderr.write(`[error] usage ${classification.message}\n`);
     return 2;
   }
+  // Track C+D §5.4: single-FBS bundle emission also refuses when the
+  // bound US has open baseline sweep candidates. Same shape as --next
+  // so a caller can rely on one refusal semantics regardless of entry.
+  const openSweep = fbsRefusalForOpenSweep(tree, fbsId);
+  if (openSweep) {
+    io.stderr.write(`[error] ${openSweep.message}\n`);
+    return 4;
+  }
   // Track B (spec §4.4): classifier signal alongside the single-FBS
   // bundle. Same transparency rule as --next.
   emitClassifierSignal(io, tree, fbsId);
@@ -280,6 +290,15 @@ async function emitNext({ tree, format, io }) {
   const queue = computeQueue(tree);
   const next = selectNext(queue);
   if (next) {
+    // Track C+D §5.4: Stage-1 (Define) refuses to enter Build for any
+    // FBS binding an AC on a US that still has open baseline sweep
+    // candidates. Fires before any classifier signal so the operator
+    // sees the refusal ahead of noise.
+    const openSweep = fbsRefusalForOpenSweep(tree, next.fbsId);
+    if (openSweep) {
+      io.stderr.write(`[error] ${openSweep.message}\n`);
+      return 4;
+    }
     // Spec section 4.2 / review N-1: warn when the selected FBS names
     // dependsOnServices that no preFlightConfig record covers, so the
     // operator sees the same signal the elicitation and build-cycle

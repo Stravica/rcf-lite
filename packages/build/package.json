@@ -36,6 +36,7 @@
     "test": "node --test --test-concurrency=1 'test/**/*.test.js'",
     "vendor": "node scripts/vendor-mermaid.mjs",
     "build:managed": "node scripts/gen-managed-artefacts.mjs",
+    "canary:register": "node scripts/canary-register.mjs",
     "prepublishOnly": "node scripts/gen-managed-artefacts.mjs",
     "rcf": "node bin/rcf.js"
   },
