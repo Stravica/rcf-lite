@@ -39,7 +39,7 @@ import { optOutMap } from './opt-out.js';
  *     REQ, or project-scoped);
  *   - the US's own baselineSweepQueue does not carry the key as OPEN
  *     (present-but-empty means the sweep ran and the operator decided
- *     "skip" without opting out — that also counts as OPEN because the
+ *     "skip" without opting out - that also counts as OPEN because the
  *     candidate is not resolved).
  *
  * Note the caller may pass reqId to narrow to one REQ.
@@ -96,7 +96,7 @@ export function openCandidatesForUs(tree, usDoc) {
   // presence of the key on the queue is what marks it as "the tool
   // knows about this and asked; nobody answered yet". Missing from the
   // queue AND missing from ACs AND not opted out means the sweep was
-  // never triggered on this US — also OPEN (the moment-4 posture: any
+  // never triggered on this US - also OPEN (the moment-4 posture: any
   // baseline-shaped key with no ruling anywhere is open).
   const queueKeys = new Set();
   for (const entry of usDoc.baselineSweepQueue ?? []) {

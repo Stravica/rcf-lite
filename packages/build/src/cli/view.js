@@ -19,6 +19,7 @@ import {
   statusOfDetached,
   readLogTail,
 } from '../view-supervisor/index.js';
+import { parsePersistUntil } from '../view-supervisor/persist-until.js';
 
 export const DEFAULT_PORT = 4373;
 export const SHUTDOWN_BUDGET_MS = 2000;
@@ -34,16 +35,21 @@ Subverbs (spec §9.2):
   rcf view                  Foreground server (default; lifetime tied to
                             the invoking session). Backward-compatible
                             with pre-0.7.0 callers.
-  rcf view start [--detach|--foreground] [--persist-until <duration>]
+  rcf view start [--detach|--foreground] [--persist-until <duration|iso>]
                             Start the server. --detach forks a supervised
                             background process that persists across the
                             parent session's death; the manifest carries
                             reviewSurface.viewServer for a subsequent
                             session to pick up. --persist-until keeps the
-                            supervisor alive until the named timestamp.
-                            Default on an interactive TTY is --detach;
-                            non-interactive callers keep --foreground so
-                            a script does not orphan a process.
+                            supervisor alive for the named duration
+                            (e.g. \`4h\`, \`30m\`, \`2h30m\`) or until
+                            the named ISO timestamp (e.g.
+                            \`2026-07-31T18:00:00Z\`); unrecognised
+                            values refuse (exit 2) rather than run
+                            forever. Default on an interactive TTY is
+                            --detach; non-interactive callers keep
+                            --foreground so a script does not orphan a
+                            process.
   rcf view status [--json]  Print the supervisor state:
                             running | stale | not-started.
   rcf view stop             Send SIGTERM to the supervised process, wait
@@ -381,14 +387,14 @@ async function runSubverb({ subverb, argv, deps }) {
 
   // subverb === 'start'
   let detach = null;
-  let persistUntil = null;
+  let persistUntilRaw = null;
   let port = null;
   const opts = argv.slice();
   while (opts.length > 0) {
     const flag = opts.shift();
     if (flag === '--detach') detach = true;
     else if (flag === '--foreground') detach = false;
-    else if (flag === '--persist-until') persistUntil = opts.shift() ?? null;
+    else if (flag === '--persist-until') persistUntilRaw = opts.shift() ?? null;
     else if (flag === '--port') {
       const raw = opts.shift();
       const n = Number.parseInt(raw ?? '', 10);
@@ -404,6 +410,20 @@ async function runSubverb({ subverb, argv, deps }) {
       stderr.write(`[error] usage view start: unknown option ${flag}\n`);
       return 2;
     }
+  }
+  // Parse --persist-until if supplied. The supervisor expects an ISO
+  // timestamp (its Date.parse silently no-ops on anything else); we
+  // accept the spec §9.2 sample form `4h` here and normalise to ISO
+  // before dispatch. Unrecognised input refuses cleanly (exit 2)
+  // instead of running forever.
+  let persistUntil = null;
+  if (persistUntilRaw !== null) {
+    const parsed = parsePersistUntil(persistUntilRaw);
+    if (!parsed.ok) {
+      stderr.write(`[error] usage view start: ${parsed.error}\n`);
+      return 2;
+    }
+    persistUntil = parsed.iso;
   }
   const envPort = Number.parseInt(env.RCF_VIEW_PORT ?? '', 10);
   const resolvedPort = port ?? (Number.isFinite(envPort) && envPort >= 0 ? envPort : DEFAULT_PORT);

@@ -15,7 +15,7 @@
     {
       "id": "never-skip-rcf",
       "title": "Never-skip-RCF",
-      "text": "Never-skip-RCF. The bug-fix loop uses the same five-stage cycle as the initial build (Define, Build, Review, Test, Finalise); there is no fast-path, and there is no operator ruling that opens one. Do not offer a shortcut. Do not phrase the choice as \"would you rather I skip the RCF wrapping\" or any wording that presents bypassing the chain as a legitimate option. The offer itself is the defect. The operator's refusal is not a sign the invariant held; it is a sign the invariant was tested and the guidance surface leaked. Fix the guidance surface."
+      "text": "**Never-skip-RCF.** The bug-fix loop uses the same five-stage cycle as the initial build (Define, Build, Review, Test, Finalise); there is no fast-path, and there is no operator ruling that opens one. Do not offer a shortcut. Do not phrase the choice as \"would you rather I skip the RCF wrapping\" or any wording that presents bypassing the chain as a legitimate option. The offer itself is the defect. The operator's refusal is not a sign the invariant held; it is a sign the invariant was tested and the guidance surface leaked. Fix the guidance surface."
     }
   ]
 }
