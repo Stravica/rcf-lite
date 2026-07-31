@@ -1,18 +1,18 @@
 // Open-sweep candidate tracker (spec §5.3 moment 4, §5.4 gate).
 //
 // The moment-4 posture: a non-interactive `rcf create us` under a
-// classified REQ auto-enqueues baseline keys that are neither present as
+// classified REQ surfaces baseline keys that are neither present as
 // ACs nor covered by an opt-out. This module answers "which USes have
 // baselineKeys that are still OPEN?" without ever writing to disk.
 //
-// The record itself lives inline on the US doc under
-// `baselineSweepQueue[]`. Each entry names its `baselineKey` and the
-// shape it came from. Sweep resolves them; the resolution deletes the
-// entry.
-//
-// Field is not in the schemas package's user-story schema today
-// (additive extension); this module treats it defensively: absent →
-// empty; only reads.
+// There is NO persisted sweep queue: `@stravica-ai/rcf-schemas`
+// user-story.schema.json is `additionalProperties: false` and carries
+// no `baselineSweepQueue` property, so writing one would fail schema
+// validation. Openness is DERIVED from three facts read live per call:
+// the parent REQ's `shapeClassification`, the US's own AC keys, and
+// the manifest's `baselineAcOptOuts[]`. Spec §18 2026-07-31 fold
+// ratifies the derivation as normative (replaces the earlier
+// "auto-enqueue" wording).
 
 import { getBaselineSet, getBaselineEntry, BASELINE_SHAPE_KEYS } from '@stravica-ai/rcf-lite-core/baseline-catalog';
 import { optOutMap } from './opt-out.js';
@@ -36,11 +36,11 @@ import { optOutMap } from './opt-out.js';
  *     on the US (neither authoredBy: baseline nor operatorEdited with
  *     the same key);
  *   - no baselineAcOptOuts entry covers the key (req-scoped for this
- *     REQ, or project-scoped);
- *   - the US's own baselineSweepQueue does not carry the key as OPEN
- *     (present-but-empty means the sweep ran and the operator decided
- *     "skip" without opting out - that also counts as OPEN because the
- *     candidate is not resolved).
+ *     REQ, or project-scoped).
+ *
+ * Openness is derived per call from these three signals; there is no
+ * persisted queue by ruling (spec §18 2026-07-31 fold; schema fence at
+ * user-story additionalProperties:false).
  *
  * Note the caller may pass reqId to narrow to one REQ.
  *
@@ -90,17 +90,6 @@ export function openCandidatesForUs(tree, usDoc) {
     const set = getBaselineSet(shape);
     if (!set) continue;
     for (const entry of set.entries) proposeAll.add(entry.baselineKey);
-  }
-
-  // A sweep queue entry that has NOT been resolved counts as OPEN. The
-  // presence of the key on the queue is what marks it as "the tool
-  // knows about this and asked; nobody answered yet". Missing from the
-  // queue AND missing from ACs AND not opted out means the sweep was
-  // never triggered on this US - also OPEN (the moment-4 posture: any
-  // baseline-shaped key with no ruling anywhere is open).
-  const queueKeys = new Set();
-  for (const entry of usDoc.baselineSweepQueue ?? []) {
-    if (typeof entry?.baselineKey === 'string') queueKeys.add(entry.baselineKey);
   }
 
   const results = [];
