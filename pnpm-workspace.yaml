@@ -1,2 +1,6 @@
 packages:
   - "packages/*"
+# Reserved slot for the future rcf-define-lite workspace package.
+# See docs/2026-08-06_packaging-consolidation-proposal.md (target layout section).
+# The `packages/*` glob above will pick it up when the directory is created;
+# this comment exists to make the intent visible before the code lands.
