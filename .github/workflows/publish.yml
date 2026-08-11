@@ -1,24 +1,25 @@
 name: publish
-# Tag-driven, per-package publishing for the rcf-lite monorepo.
+# Tag-driven publishing for the rcf-lite umbrella (post 0.7.1 packaging
+# consolidation). The suite ships as ONE npm package (`rcf-lite`,
+# lockstep-versioned) so there is exactly one publish route:
 #
-# Each package publishes INDEPENDENTLY under its own prefixed tag; the prefix
-# selects the package and a wrong tag can never publish the wrong one:
-#   build-v<version>   -> packages/build   (@stravica-ai/rcf-build-lite)
-#   verify-v<version>  -> packages/verify  (@stravica-ai/rcf-verify-lite)
-#   core-v<version>    -> packages/core    (@stravica-ai/rcf-lite-core)
+#   rcf-lite-v<version>  ->  packages/rcf-lite  (`rcf-lite`)
 #
-# The trusted-publisher (OIDC) binding is repo + workflow FILENAME (this file),
-# not path — every package's binding maps to this same `publish.yml`, so the
-# tag-prefix switch below stays within the bound workflow and keeps provenance.
-# (The prior single-package shape triggered on `v*` and hardcoded packages/build;
-# that glob would also have matched `verify-v*`, publishing the wrong package —
-# the prefixed scheme + version-match guard closes that footgun.)
+# The trusted-publisher (OIDC) binding is repo + workflow FILENAME (this
+# file). The Baz-owned re-registration under the new package name is
+# tracked in docs/2026-08-06_packaging-registry-runbook.md step 4;
+# nothing in this workflow executes registry admin.
+#
+# Legacy build-v* / verify-v* / core-v* tag routes are dropped: the
+# @stravica-ai/rcf-build-lite / rcf-verify-lite / rcf-lite-core packages
+# are DEPRECATED (never unpublished) via the runbook after the umbrella
+# publish. If a legacy patch is ever needed, it lands off a maintenance
+# branch and uses a temporary re-added tag route per the runbook's
+# rollback section.
 on:
   push:
     tags:
-      - 'build-v*'
-      - 'verify-v*'
-      - 'core-v*'
+      - 'rcf-lite-v*'
 permissions:
   contents: read
   id-token: write
@@ -41,28 +42,25 @@ jobs:
       # RELEASE GATE. The canary infrastructure runs against the MOCK subagent
       # driver in v1: MOCK_DRIVER_MARKER stamps every record and the aggregate
       # verdict is FORCED to `fail` per the mock-driver honesty contract, so a
-      # non-zero exit here is expected. `continue-on-error: true` and the
-      # if-condition on build tags make this a machinery-exercise pass: it
-      # proves the canary script runs green-path in the release environment,
-      # nothing more. The gate turns on only when the live subagent driver
-      # (RCF_CANARY_DRIVER seam, Anthropic Agent SDK dispatch) ships as a
-      # separate follow-up. Do NOT remove `continue-on-error` before then.
+      # non-zero exit here is expected. `continue-on-error: true` makes this
+      # a machinery-exercise pass: it proves the canary script runs green-path
+      # in the release environment, nothing more. The gate turns on only when
+      # the live subagent driver (RCF_CANARY_DRIVER seam, Anthropic Agent SDK
+      # dispatch) ships as a separate follow-up. Do NOT remove
+      # `continue-on-error` before then.
       - name: Register-regression canary (mock driver, informational)
-        if: startsWith(github.ref_name, 'build-v')
         continue-on-error: true
-        working-directory: packages/build
+        working-directory: packages/rcf-lite
         run: |
           echo "informational: mock-driver canary; MOCK_DRIVER_MARKER stamps every record; NOT a release gate"
           npm run canary:register || echo "canary exit non-zero (expected in mock mode); continuing"
-      - name: Resolve package from tag
+      - name: Resolve umbrella version from tag
         id: pkg
         run: |
           TAG="${GITHUB_REF_NAME}"
           case "$TAG" in
-            build-v*)  DIR="packages/build";  NAME="@stravica-ai/rcf-build-lite"; VERSION="${TAG#build-v}" ;;
-            verify-v*) DIR="packages/verify"; NAME="@stravica-ai/rcf-verify-lite"; VERSION="${TAG#verify-v}" ;;
-            core-v*)   DIR="packages/core";   NAME="@stravica-ai/rcf-lite-core";  VERSION="${TAG#core-v}" ;;
-            *) echo "::error::Unrecognised release tag '$TAG' — expected build-v* / verify-v* / core-v*"; exit 1 ;;
+            rcf-lite-v*) DIR="packages/rcf-lite"; NAME="rcf-lite"; VERSION="${TAG#rcf-lite-v}" ;;
+            *) echo "::error::Unrecognised release tag '$TAG' — expected rcf-lite-v*"; exit 1 ;;
           esac
           # Guard: the package.json version MUST equal the tag's version. A wrong
           # tag, or a tag pushed without the matching version bump, can never
@@ -73,8 +71,8 @@ jobs:
           fi
           # Prerelease detection runs on VERSION (the post-prefix part), never the
           # raw tag — the tag always contains a '-' inside its '<name>-v' prefix.
-          # A '-' in the version (e.g. 0.2.2-rebind-test.0) -> 'prerelease' dist-tag
-          # so a prerelease can never clobber 'latest'; a plain version -> 'latest'.
+          # A '-' in the version (e.g. 0.7.1-rc.0) -> 'prerelease' dist-tag so a
+          # prerelease can never clobber 'latest'; a plain version -> 'latest'.
           case "$VERSION" in
             *-*) DIST="prerelease" ;;
             *)   DIST="latest" ;;
@@ -86,13 +84,11 @@ jobs:
             echo "dist=$DIST"
           } >> "$GITHUB_OUTPUT"
           echo "Resolved $NAME@$VERSION from $DIR -> dist-tag '$DIST'"
-      # Publish via `pnpm publish` (not `npm publish`): the build and verify
-      # packages depend on @stravica-ai/rcf-lite-core via `workspace:*`, and pnpm
-      # rewrites that protocol to the resolved version at pack time. `npm publish`
-      # does NOT rewrite `workspace:*`, so it would ship a literal, unresolvable
-      # spec to consumers (spec §7.5 armed-footgun). `--provenance` keeps
-      # provenance / trusted publishing (OIDC). `--no-git-checks` because a tag
-      # build is a detached HEAD.
+      # Publish via `pnpm publish`. Post-consolidation the umbrella has no
+      # `workspace:*` runtime deps (core is inlined at src/core/ and reached
+      # through the `#core/*` subpath-imports alias), but pnpm publish still
+      # gives us `--provenance` and `--access public`. `--no-git-checks`
+      # because a tag build is a detached HEAD.
       - name: Publish package
         working-directory: ${{ steps.pkg.outputs.dir }}
         run: |
