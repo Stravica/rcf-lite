@@ -17,8 +17,8 @@
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { validateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError } from '#core/errors';
+import { validateDocument } from '#core/store';
 
 import { composeDefaults, deepGet, deepSet } from './defaults.js';
 import { CATALOGUE_V1 } from '../preflight/design-shapes.js';
@@ -142,10 +142,10 @@ export function preflightSeamOverrides(manifest, catalogue = CATALOGUE_V1) {
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {object} args.record
  * @param {object} [args.options]
- * @returns {Promise<{ record: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function writeUiBaselineRecord({
   projectRoot, tree, record, options = {},
@@ -195,12 +195,12 @@ export async function writeUiBaselineRecord({
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {string} args.field   dot-path into defaults (or `defaults.<...>`; both accepted)
  * @param {string} args.reason  operator's plain-text ruling
  * @param {(path: string) => boolean} [args.isKnownField]
  * @param {Date} [args.now]
- * @returns {Promise<{ record: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function writeUiBaselineOptOut({
   projectRoot, tree, field, reason, isKnownField, now = new Date(),

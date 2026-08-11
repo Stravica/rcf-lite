@@ -24,7 +24,7 @@ import { createInterface } from 'node:readline/promises';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
+import { initProject } from '#core/store/init.js';
 import {
   loadManagedBlock,
   manualSetupInstructions,

@@ -6,8 +6,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { runVerification } from '../../src/engine/index.js';
+import { isRcfError } from '#core/errors';
+import { runVerification } from '../../../src/verify/engine/index.js';
 import { scaffoldChain, stubLauncher } from '../helpers/chain.js';
 
 const FIXED_NOW = () => '2026-07-31T12:00:00.000Z';

@@ -17,7 +17,7 @@ import {
   provisionAuth,
   runProvisioning,
   cleanup,
-} from '../../src/provision/index.js';
+} from '../../../src/verify/provision/index.js';
 
 const authAc = { acId: 'AC-1', description: 'user can sign in', given: 'a registered account', when: 'the user logs in', then: 'dashboard shown' };
 const payAc = { acId: 'AC-2', description: 'checkout via payment sandbox', when: 'user pays with stripe', then: 'receipt shown' };

@@ -13,8 +13,8 @@
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { rcfError, isRcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { validateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError, isRcfError } from '#core/errors';
+import { validateDocument } from '#core/store';
 
 const OPT_OUT_ID_RE = /^boo-\d{4}-\d{2}-\d{2}-(\d{3})$/;
 
@@ -76,13 +76,13 @@ export function composeOptOutRecord({ manifest, reqId, baselineKey, reason, scop
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {string} args.reqId
  * @param {string} args.baselineKey
  * @param {string} args.reason
  * @param {'req'|'project'} [args.scope]
  * @param {Date} [args.now]
- * @returns {Promise<{ id: string, record: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ id: string, record: object } | import('#core/errors').RcfError>}
  */
 export async function writeOptOut({ projectRoot, tree, reqId, baselineKey, reason, scope = 'req', now = new Date() }) {
   const manifest = tree?.manifest ?? {};
@@ -125,10 +125,10 @@ export async function writeOptOut({ projectRoot, tree, reqId, baselineKey, reaso
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {string} args.reqId
  * @param {string} args.baselineKey
- * @returns {Promise<{ removed: number } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ removed: number } | import('#core/errors').RcfError>}
  */
 export async function removeOptOut({ projectRoot, tree, reqId, baselineKey }) {
   const manifest = tree?.manifest ?? {};

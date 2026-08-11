@@ -18,8 +18,8 @@
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { validateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError } from '#core/errors';
+import { validateDocument } from '#core/store';
 
 /**
  * @typedef {object} PreflightServiceRuling
@@ -200,12 +200,12 @@ export function composeOptOutRecord({
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {object} args.record         the composed preFlightConfig record
  * @param {object[]} [args.optOuts]    composed baselineAcOptOuts entries
  * @param {object} [args.uiBaselineWrites]  optional deep-set writes for uiBaseline.defaults (Track B fenced-TODO)
  * @param {object} [args.options]
- * @returns {Promise<{ record: object, optOutIds: string[], skippedUiBaseline: boolean } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: object, optOutIds: string[], skippedUiBaseline: boolean } | import('#core/errors').RcfError>}
  */
 export async function writePreflightRecord({
   projectRoot, tree, record, optOuts = [], options = {},

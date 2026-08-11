@@ -8,8 +8,8 @@
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { validateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError } from '#core/errors';
+import { validateDocument } from '#core/store';
 
 const ID_RE = /^ic-\d{4}-\d{2}-\d{2}-(\d{3})$/;
 
@@ -68,9 +68,9 @@ export function composeIntakeRecord({ manifest, fidelity, artefacts, validationF
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {object} args.record
- * @returns {Promise<{ record: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function writeIntakeRecord({ projectRoot, tree, record }) {
   const manifest = tree?.manifest ?? {};

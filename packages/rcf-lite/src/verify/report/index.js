@@ -5,7 +5,7 @@
 // builder passes an already-clean provisioning record, and redactSecrets is a
 // defence-in-depth guard on top.
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { rcfError } from '#core/errors';
 
 import { redactSecrets } from '../provision/index.js';
 import { PER_AC_VERDICTS, VERDICTS } from '../verdict/index.js';
@@ -79,7 +79,7 @@ export function serialiseReport(report) {
  * Parse a report artifact back (for `rcf-verify report`). Errors as data.
  *
  * @param {string} raw
- * @returns {object | import('@stravica-ai/rcf-lite-core/errors').RcfError}
+ * @returns {object | import('#core/errors').RcfError}
  */
 export function parseReport(raw) {
   let doc;
@@ -97,7 +97,7 @@ export function parseReport(raw) {
  * Minimal shape check on a report artifact.
  *
  * @param {object} doc
- * @returns {import('@stravica-ai/rcf-lite-core/errors').RcfError | null}
+ * @returns {import('#core/errors').RcfError | null}
  */
 export function validateReportShape(doc) {
   if (!doc || typeof doc !== 'object') {

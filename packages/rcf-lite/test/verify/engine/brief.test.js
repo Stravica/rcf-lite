@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { composeBrief, DEFAULT_PERSONA } from '../../src/engine/brief.js';
+import { composeBrief, DEFAULT_PERSONA } from '../../../src/verify/engine/brief.js';
 
 const acs = [
   { acId: 'AC-101-1', usId: 'US-101', title: 'sign-in', given: 'a registered account', when: 'the user logs in', then: 'dashboard shown', testable: true },

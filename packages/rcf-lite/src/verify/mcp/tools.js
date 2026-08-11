@@ -4,8 +4,8 @@
 // closed objects. Argument validation maps to tool execution errors
 // (isError: true) — the self-correction channel — not protocol errors.
 
-import { JsonRpcError, INVALID_PARAMS } from '@stravica-ai/rcf-lite-core/mcp-shell';
-import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { JsonRpcError, INVALID_PARAMS } from '#core/mcp-shell';
+import { isRcfError } from '#core/errors';
 
 import { runVerification } from '../engine/index.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';

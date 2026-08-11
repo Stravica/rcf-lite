@@ -28,7 +28,7 @@
 // blocked); they run alongside so a finalise-gate consumer can refuse
 // `verified` on an AC-level basis even when the run's aggregate is PASS.
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { rcfError } from '#core/errors';
 
 /** Finding severities, low → high. */
 export const FINDING_SEVERITIES = Object.freeze(['PASS', 'COSMETIC', 'DEGRADED', 'BROKEN']);
@@ -64,7 +64,7 @@ export const PER_AC_VERDICTS = Object.freeze([
  * bug.
  *
  * @param {object} finding
- * @returns {import('@stravica-ai/rcf-lite-core/errors').RcfError | null} error as data, or null if valid
+ * @returns {import('#core/errors').RcfError | null} error as data, or null if valid
  */
 export function validateFinding(finding) {
   if (!finding || typeof finding !== 'object') {

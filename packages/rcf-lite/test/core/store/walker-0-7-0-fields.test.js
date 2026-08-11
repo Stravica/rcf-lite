@@ -26,8 +26,8 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '../../src/store/init.js';
-import { walkTree } from '../../src/store/walker.js';
+import { initProject } from '../../../src/core/store/init.js';
+import { walkTree } from '../../../src/core/store/walker.js';
 
 const TIMESTAMP = '2026-07-30T14:20:00Z';
 

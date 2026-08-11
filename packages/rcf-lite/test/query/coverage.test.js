@@ -10,7 +10,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { testCaseKey } from '@stravica-ai/rcf-lite-core/store';
+import { testCaseKey } from '#core/store';
 import { classifyCoverageScope, computeCoverage } from '../../src/query/coverage.js';
 
 /**

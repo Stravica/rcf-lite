@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 // that identity to prove the compiled validator does not re-read it.
 import reqSchema from '@stravica-ai/rcf-schemas/schemas/req.schema.json' with { type: 'json' };
 
-import { documentIdOf, idFieldFor, knownKinds, validateDocument } from '../../src/store/validator.js';
+import { documentIdOf, idFieldFor, knownKinds, validateDocument } from '../../../src/core/store/validator.js';
 
 test('knownKinds covers every Phase 3 schema', () => {
   const kinds = knownKinds();

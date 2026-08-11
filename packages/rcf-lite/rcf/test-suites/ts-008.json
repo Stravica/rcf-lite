@@ -23,7 +23,7 @@
       "acId": "AC-303-2",
       "description": "a schema-invalidating update on a valid tree is refused with the validation error",
       "status": "pending",
-      "testPointer": "../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses"
+      "testPointer": "test/core/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses"
     },
     {
       "id": "TC-008-update-unknown-id-not-found",

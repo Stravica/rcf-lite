@@ -2,7 +2,7 @@
 // Register-regression canary CLI entry point (spec §7.4).
 //
 // Reads the shipped fixture pack from
-// `@stravica-ai/rcf-lite-core/fixtures/register-canary/`, injects the
+// `#core/fixtures/register-canary/`, injects the
 // shipping build's guidance content as system context for a subagent
 // driver (mock by default; production Anthropic Agent SDK driver is a
 // separate ship), grades every response with the core register-canary
@@ -46,7 +46,7 @@ const OPTION_SPEC = {
 const HELP = `Usage: canary-register [--accept-fail --reason "..."] [--dry-run] [--json]
 
 Runs the register-regression canary against the shipped fixture pack.
-Fixtures come from @stravica-ai/rcf-lite-core; the shipping build's
+Fixtures come from #core; the shipping build's
 guidance content is injected as system context for a subagent driver
 (mock by default). Records are appended to
 ${DEFAULT_CANARY_MANIFEST_PATH}.

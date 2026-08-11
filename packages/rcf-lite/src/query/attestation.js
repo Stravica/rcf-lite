@@ -82,7 +82,7 @@ export function classifyAttestationProfile(attestation, profile) {
  * core's walker (spec §5.2 / §9.2); build re-computes it locally for
  * `coverage --strict`.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @returns {Map<string, Array<{ serviceId: string, attestationMode: AttestationMode, fbsId: string }>>}
  */
 export function aggregateAttestationsByAc(tree) {
@@ -120,7 +120,7 @@ export function aggregateAttestationsByAc(tree) {
  * service must itself carry the `dependsOnServices` entry naming that
  * service.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @returns {Array<{ serviceId: string, fbsId: string, attestationMode: AttestationMode }>}
  */
 export function findAttestationMissing(tree) {
@@ -160,7 +160,7 @@ export function findAttestationMissing(tree) {
  * contribute an FBS-level attestation, so an empty back-reference on
  * them is fine.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @returns {Array<{ serviceId: string, preFlightConfigId: string, attestationMode: AttestationMode }>}
  */
 export function findServicesWithEmptyAffectedFbsIds(tree) {
@@ -192,7 +192,7 @@ export function findServicesWithEmptyAffectedFbsIds(tree) {
  * Returns an empty array when the FBS has no dependsOnServices,
  * when the FBS is not found, or when every service is preflight-backed.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {string} fbsId
  * @returns {Array<{ serviceId: string, displayName?: string, attestationMode?: AttestationMode }>}
  */
@@ -226,7 +226,7 @@ export function scanUnbackedServices(tree, fbsId) {
  * §5.1 gate: provenance is authored, not remembered, on any AC that
  * binds a service — coverage --strict refuses without it.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @returns {Array<{ tsId: string, tcId: string, acId: string }>}
  */
 export function findProvenanceMissing(tree) {
@@ -252,7 +252,7 @@ export function findProvenanceMissing(tree) {
  * covering an AC governed by two services can raise twice (both must
  * be resolved before ship).
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @returns {Array<{ tsId: string, tcId: string, acId: string, serviceId: string, attestationMode: AttestationMode, profile: ProvenanceProfile, verdict: MatrixVerdict, reason: string }>}
  */
 export function findAttestationDrift(tree) {

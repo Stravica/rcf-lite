@@ -10,7 +10,7 @@
 // for ci/local-dev (that is the CI use case, amendment 3). What is forbidden
 // is a lower profile claiming the authority of `deployed`.
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { rcfError } from '#core/errors';
 
 /** The three runtime profiles (spec §4). */
 export const PROFILES = Object.freeze(['deployed', 'ci', 'local-dev']);
@@ -21,7 +21,7 @@ export const PROFILES = Object.freeze(['deployed', 'ci', 'local-dev']);
  * them to a non-zero usage exit (spec §3 hard rules 1-2, §10).
  *
  * @param {{ profile?: string, url?: string, parityEnv?: boolean }} flags
- * @returns {{ profile: string, url: string, parityEnv: boolean } | import('@stravica-ai/rcf-lite-core/errors').RcfError}
+ * @returns {{ profile: string, url: string, parityEnv: boolean } | import('#core/errors').RcfError}
  */
 export function resolveProfile(flags = {}) {
   const { profile, url } = flags;

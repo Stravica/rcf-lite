@@ -8,7 +8,7 @@ import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { main as runMain } from '../../src/cli/run.js';
+import { main as runMain } from '../../../src/verify/cli/run.js';
 import { scaffoldChain, stubLauncher } from '../helpers/chain.js';
 
 function capture() {

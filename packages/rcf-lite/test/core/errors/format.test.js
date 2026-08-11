@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { formatError, formatErrors, isRcfError, rcfError } from '../../src/errors/index.js';
+import { formatError, formatErrors, isRcfError, rcfError } from '../../../src/core/errors/index.js';
 
 test('rcfError builds a structured error', () => {
   const err = rcfError({

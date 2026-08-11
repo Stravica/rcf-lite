@@ -8,8 +8,8 @@
 
 import { parseArgs } from 'node:util';
 
-import { formatErrors, writeUnexpectedFailure, rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { formatErrors, writeUnexpectedFailure, rcfError } from '#core/errors';
+import { walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import { classifyAndPersistReq } from '../req-detection/index.js';
@@ -30,7 +30,7 @@ block back onto the REQ.
 
 Reads REQ title, description and rationale plus the parent PRD's intent
 and problem as fallback context; matches against the versioned pattern
-set in @stravica-ai/rcf-lite-core/patterns/req-shapes and writes shapes,
+set in #core/patterns/req-shapes and writes shapes,
 signals and classifiedAt. Preserves any prior operatorOverride block.
 
 Options:

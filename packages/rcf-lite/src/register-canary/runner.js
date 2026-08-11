@@ -27,7 +27,7 @@
 // ladder) invokes with `driverMode: 'live'` and the overlay is skipped
 // entirely — the record is a genuine grader output.
 
-import { gradeResponse } from '@stravica-ai/rcf-lite-core/patterns/register-canary';
+import { gradeResponse } from '#core/patterns/register-canary';
 
 import { composeCanaryRecord } from './record-writer.js';
 

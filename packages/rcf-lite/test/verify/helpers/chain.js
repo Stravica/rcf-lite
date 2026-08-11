@@ -4,7 +4,7 @@
 // a plain journey). Uses core's write path — legitimate in TESTS; verify's own
 // src never imports the write path (§7.2 boundary).
 
-import { initProject } from '@stravica-ai/rcf-lite-core/store';
+import { initProject } from '#core/store';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

@@ -21,7 +21,7 @@ import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 import process from 'node:process';
 
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import {

@@ -1,13 +1,13 @@
 // Regression tests for the SERVICE_PATTERNS heuristic fix
 // (verification-integrity-cluster-spec §5.3): verify's provision layer
 // now delegates service detection to the shared core seed set
-// (`@stravica-ai/rcf-lite-core/patterns/services`), so the d-2026-07-30-142
+// (`#core/patterns/services`), so the d-2026-07-30-142
 // "email channel" miss cannot recur.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { classifyPrerequisite } from '../../src/provision/index.js';
+import { classifyPrerequisite } from '../../../src/verify/provision/index.js';
 
 test('classifyPrerequisite: catches "email channel via Resend" (the d-142 miss)', () => {
   const ac = {

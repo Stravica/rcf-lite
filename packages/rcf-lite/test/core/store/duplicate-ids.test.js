@@ -17,10 +17,10 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { normaliseId, sameId } from '@stravica-ai/rcf-lite-core/store/ids.js';
-import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store/walker.js';
-import { nextIdForKind } from '@stravica-ai/rcf-lite-core/store/writer.js';
+import { normaliseId, sameId } from '#core/store/ids.js';
+import { initProject } from '#core/store/init.js';
+import { walkTree } from '#core/store/walker.js';
+import { nextIdForKind } from '#core/store/writer.js';
 
 async function scaffold(tag) {
   const root = await mkdtemp(join(tmpdir(), `rcf-dupid-${tag}-`));

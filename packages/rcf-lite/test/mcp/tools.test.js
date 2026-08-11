@@ -9,9 +9,9 @@ import { mkdtemp, readFile, writeFile, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
+import { initProject } from '#core/store/init.js';
 import { createToolRegistry, validateToolArgs } from '../../src/mcp/tools.js';
-import { JsonRpcError } from '@stravica-ai/rcf-lite-core/mcp-shell';
+import { JsonRpcError } from '#core/mcp-shell';
 
 const silentLog = { info: () => {}, error: () => {} };
 

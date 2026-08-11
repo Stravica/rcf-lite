@@ -58,6 +58,9 @@ test('the docs set exists: README.md plus the docs/ files', async () => {
     'docs/getting-started.md',
     'docs/how-it-works.md',
     'docs/install.md',
+    // 0.7.1 packaging consolidation: verify's reference moved into the
+    // umbrella docs when packages/verify was folded in.
+    'docs/verify-reference.md',
     'docs/why-it-exists.md',
   ]);
 });

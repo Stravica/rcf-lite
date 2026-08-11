@@ -13,7 +13,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
+import { initProject } from '#core/store/init.js';
 
 import { main as review } from '../../src/cli/review.js';
 

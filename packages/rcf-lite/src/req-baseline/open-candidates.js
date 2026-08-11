@@ -14,7 +14,7 @@
 // ratifies the derivation as normative (replaces the earlier
 // "auto-enqueue" wording).
 
-import { getBaselineSet, getBaselineEntry, BASELINE_SHAPE_KEYS } from '@stravica-ai/rcf-lite-core/baseline-catalog';
+import { getBaselineSet, getBaselineEntry, BASELINE_SHAPE_KEYS } from '#core/baseline-catalog';
 import { optOutMap } from './opt-out.js';
 
 /**
@@ -44,7 +44,7 @@ import { optOutMap } from './opt-out.js';
  *
  * Note the caller may pass reqId to narrow to one REQ.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} [opts]
  * @param {string|null} [opts.reqId]
  * @returns {Array<{ usId: string, reqId: string, baselineKeys: string[] }>}
@@ -69,7 +69,7 @@ export function listOpenCandidates(tree, opts = {}) {
 /**
  * Enumerate open candidates for one loaded US.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} usDoc
  * @returns {OpenCandidate[]}
  */
@@ -117,7 +117,7 @@ export function openCandidatesForUs(tree, usDoc) {
 /**
  * True when the US has one or more open sweep candidates.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} usDoc
  * @returns {boolean}
  */

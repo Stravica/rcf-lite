@@ -24,8 +24,8 @@
 import { access } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError } from '#core/errors';
+import { walkTree } from '#core/store';
 
 /**
  * Resolve a --repo path-or-ref to the project root that holds rcf/manifest.json.
@@ -128,7 +128,7 @@ function fbsIdsFor(fbsItems, acId) {
  * @param {object} opts
  * @param {string} opts.repo - path-or-ref to the RCF chain source
  * @param {string} [opts.chainRef] - which PRD/chain; default = the repo's PRD
- * @returns {Promise<{ acs: Array<object>, chainRef: string, projectRoot: string, manifest: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ acs: Array<object>, chainRef: string, projectRoot: string, manifest: object } | import('#core/errors').RcfError>}
  */
 export async function readChain({ repo, chainRef } = {}) {
   if (typeof repo !== 'string' || repo.length === 0) {

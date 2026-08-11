@@ -10,10 +10,12 @@ import { fileURLToPath } from 'node:url';
 // no devDeps). Statically scans every bare-specifier import in the runtime
 // source shipped in the tarball (src/ + bin/, the graph reachable from
 // bin/rcf.js) and asserts each imported package is declared in
-// `dependencies` -- never `devDependencies`. Since the shared-core
-// extraction, the store/validator's ajv + @stravica-ai/rcf-schemas imports
-// live in @stravica-ai/rcf-lite-core; build's only runtime bare specifier
-// is that core package (workspace:*).
+// `dependencies` -- never `devDependencies`. Since the packaging consolidation
+// (0.7.1) core lives inline under src/core/ and reaches Node via the
+// `#core/*` subpath-imports alias declared in this package's package.json;
+// runtime bare specifiers are the schemas contract plus ajv / ajv-formats.
+// Subpath imports (`#core/*`) are internal and never a package dependency,
+// so they're excluded from the dependency check below.
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -61,16 +63,21 @@ test('every runtime bare-specifier import is declared in dependencies, not devDe
   for (const file of files) {
     for (const specifier of extractSpecifiers(readFileSync(file, 'utf8'))) {
       // Relative/absolute imports resolve inside the tarball; node: builtins
-      // need no declaration. Everything else must be an installed package.
+      // need no declaration; `#core/*` subpath imports are internal aliases
+      // (see package.json `imports` field). Everything else must be an
+      // installed package.
       if (specifier.startsWith('.') || specifier.startsWith('/')) continue;
       if (specifier.startsWith('node:')) continue;
+      if (specifier.startsWith('#')) continue;
       runtimePackages.add(packageName(specifier));
     }
   }
 
   // Sanity: the scan must see the known runtime packages, or the regex has
-  // silently rotted and the guard is asserting on an empty set.
-  for (const known of ['@stravica-ai/rcf-lite-core']) {
+  // silently rotted and the guard is asserting on an empty set. Post-0.7.1
+  // consolidation the guaranteed runtime bare specifiers are the schemas
+  // contract (used by src/core/store validator) and ajv / ajv-formats.
+  for (const known of ['@stravica-ai/rcf-schemas', 'ajv', 'ajv-formats']) {
     assert.ok(runtimePackages.has(known), `scan lost known runtime package ${known}`);
   }
 

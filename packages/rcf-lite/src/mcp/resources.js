@@ -21,9 +21,9 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { JsonRpcError, RESOURCE_NOT_FOUND } from '@stravica-ai/rcf-lite-core/mcp-shell';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
-import { pathForId } from '@stravica-ai/rcf-lite-core/store/loader.js';
+import { JsonRpcError, RESOURCE_NOT_FOUND } from '#core/mcp-shell';
+import { walkTree } from '#core/store';
+import { pathForId } from '#core/store/loader.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 /** The guidance pack ships with the server install, not the served project. */
@@ -71,7 +71,7 @@ function titleOf(doc) {
  * Relative file path for a document id; inline AC / TC ids resolve to
  * their parent's file.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {string} id
  * @returns {string | null}
  */
@@ -88,7 +88,7 @@ function filePathFor(tree, id) {
  * Enumerate every document id in the tree: standalone docs (byId) plus
  * inline AC / TC ids (parentByChild keys not present in byId).
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @returns {Array<{id: string, kind: string, doc: object | null}>}
  */
 function enumerateDocuments(tree) {

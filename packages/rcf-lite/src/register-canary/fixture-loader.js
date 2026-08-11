@@ -1,6 +1,6 @@
 // Fixture-pack loader for the register canary (spec §7.3).
 //
-// The fixture pack ships in `@stravica-ai/rcf-lite-core/fixtures/register-canary`.
+// The fixture pack ships in `#core/fixtures/register-canary`.
 // This loader reads each file by id, verifies the shape the runner
 // consumes, and returns the pack in canonical order. Operators can
 // extend the pack via a local `fixtures/register-canary/*.json` in
@@ -20,20 +20,19 @@ export const DEFAULT_FIXTURE_IDS = Object.freeze([
 ]);
 
 /**
- * Locate the core fixture directory by walking up from this module and
- * resolving into `packages/core/src/fixtures/register-canary`. Falls
- * back to the workspace path when the packages are hoisted, and to the
- * installed node_modules path when running from a consumer.
+ * Locate the core fixture directory. Post-0.7.1 consolidation the core src
+ * lives inline under `src/core/`, so the loader (which sits at
+ * `src/register-canary/`) can reach the fixture pack via a single relative
+ * walk. `RCF_CANARY_FIXTURE_DIR` still overrides for tests and operators.
  *
  * @returns {string}
  */
 export function defaultFixtureDir() {
-  // Monorepo path: build package sits under packages/build/src, so
-  // three levels up is the monorepo root.
-  const monorepoCandidate = join(here, '..', '..', '..', 'core', 'src', 'fixtures', 'register-canary');
-  // Installed-package path: node_modules resolution.
-  const installedCandidate = join(here, '..', '..', 'node_modules', '@stravica-ai', 'rcf-lite-core', 'src', 'fixtures', 'register-canary');
-  return process.env.RCF_CANARY_FIXTURE_DIR ?? monorepoCandidate ?? installedCandidate;
+  // src/register-canary/ -> up one -> src/ -> core/fixtures/register-canary.
+  // Same relative shape in dev and inside the published tarball because the
+  // umbrella ships src/ verbatim (no build step). See package.json `files`.
+  const fixtureCandidate = join(here, '..', 'core', 'fixtures', 'register-canary');
+  return process.env.RCF_CANARY_FIXTURE_DIR ?? fixtureCandidate;
 }
 
 /**

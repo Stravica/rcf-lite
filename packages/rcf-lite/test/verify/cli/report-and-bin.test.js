@@ -6,9 +6,9 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { main as reportMain } from '../../src/cli/report.js';
-import { main as binMain } from '../../bin/rcf-verify.js';
-import { buildReport, serialiseReport } from '../../src/report/index.js';
+import { main as reportMain } from '../../../src/verify/cli/report.js';
+import { main as binMain } from '../../../bin/rcf-verify.js';
+import { buildReport, serialiseReport } from '../../../src/verify/report/index.js';
 
 function capture() {
   const out = { text: '' };

@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { initProject } from '#core/store/init.js';
+import { walkTree } from '#core/store';
 import { buildTreeModel, listAllDocumentIds } from '../../src/view/tree-model.js';
 
 const here = dirname(fileURLToPath(import.meta.url));

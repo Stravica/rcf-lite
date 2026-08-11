@@ -26,10 +26,10 @@
 // Below-AC / cross-chain positionals (AC / TS / TC / FBS / TAC / ADR /
 // BS / TAD) are refused at the handler layer (exit 2).
 
-import { testCaseKey } from '@stravica-ai/rcf-lite-core/store';
+import { testCaseKey } from '#core/store';
 
 /**
- * @typedef {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} TreeModel
+ * @typedef {import('#core/store/walker.js').TreeModel} TreeModel
  */
 
 /**
@@ -80,7 +80,7 @@ import { testCaseKey } from '@stravica-ai/rcf-lite-core/store';
  * @param {boolean} [opts.strict] - per-AC-strict mode
  * @param {string} [opts.scopeId] - optional PRD / REQ / US id to scope
  * @param {boolean} [opts.withCode] - layer the code-axis classification
- * @param {Map<string, import('@stravica-ai/rcf-lite-core/store/tp-resolve.js').TestPointerResolution>} [opts.testPointers] -
+ * @param {Map<string, import('#core/store/tp-resolve.js').TestPointerResolution>} [opts.testPointers] -
  *   per-TC pointer resolution keyed by `testCaseKey(tsId, tcId)` (from
  *   core's `resolveTestPointers`). Absent entries / an absent map fail
  *   closed: the TC counts as unresolved.

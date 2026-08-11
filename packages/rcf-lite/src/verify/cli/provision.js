@@ -6,7 +6,7 @@
 
 import { parseArgs } from 'node:util';
 
-import { formatError, isRcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { formatError, isRcfError } from '#core/errors';
 
 import { readChain } from '../chain/index.js';
 import { runProvisioning } from '../provision/index.js';

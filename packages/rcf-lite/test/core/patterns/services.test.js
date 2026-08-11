@@ -1,4 +1,4 @@
-// Tests for `@stravica-ai/rcf-lite-core/patterns/services` - the
+// Tests for `#core/patterns/services` - the
 // third-party service seed set consumed by the Track A pre-flight scanner
 // (verification-integrity-cluster-spec §4.3 / §8.3) and by verify's
 // provisioning heuristic (§5.3 / §8.4) once the 0.7.0 build/verify cars
@@ -33,7 +33,7 @@ import {
   SERVICE_CATEGORY_KEYS,
   GENERIC_SERVICE_VERBS,
   matchServiceSignals,
-} from '../../src/patterns/services.js';
+} from '../../../src/core/patterns/services.js';
 
 test('services-01: SERVICE_SEED_PATTERNS_V1 exposes every category from spec §4.4 in document order', () => {
   const expected = [

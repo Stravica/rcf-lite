@@ -22,7 +22,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { rcfError } from '#core/errors';
 
 import {
   MARKER_BEGIN,
@@ -90,7 +90,7 @@ async function readIfExists(path) {
  * whitelist regression) - doctor surfaces this rather than pretending
  * clean (§12 risk).
  *
- * @returns {Promise<string | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<string | import('#core/errors').RcfError>}
  */
 export async function loadManagedBlock() {
   const text = await readIfExists(MANAGED_BLOCK_PATH);
@@ -106,7 +106,7 @@ export async function loadManagedBlock() {
  * with kind `hashFileMissing` so doctor emits a distinct error rather
  * than reporting spurious clean.
  *
- * @returns {Promise<string | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<string | import('#core/errors').RcfError>}
  */
 export async function loadManagedBlockHash() {
   const text = await readIfExists(MANAGED_HASH_PATH);
@@ -123,7 +123,7 @@ export async function loadManagedBlockHash() {
  * hand-edited. Fail-safe: a missing / malformed whitelist surfaces as
  * an RcfError rather than silently allowing overwrite.
  *
- * @returns {Promise<Set<string> | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<Set<string> | import('#core/errors').RcfError>}
  */
 export async function loadLegacyFragmentHashes() {
   const text = await readIfExists(LEGACY_FRAGMENT_HASHES_PATH);
@@ -168,7 +168,7 @@ export async function loadLegacyFragmentHashes() {
  *
  * @param {object} [opts]
  * @param {string} [opts.templatePath] - test override
- * @returns {Promise<string | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<string | import('#core/errors').RcfError>}
  */
 export async function loadHarnessFragment({ templatePath } = {}) {
   const path = templatePath ?? join(PACKAGE_ROOT, 'guidance', 'harness-template.md');
@@ -192,7 +192,7 @@ export async function loadHarnessFragment({ templatePath } = {}) {
  * @param {object} args
  * @param {string} args.projectRoot
  * @param {string} [args.binPath] - test override
- * @returns {Promise<{ file: string, action: 'created'|'merged'|'kept' } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ file: string, action: 'created'|'merged'|'kept' } | import('#core/errors').RcfError>}
  */
 export async function writeMcpConfig({ projectRoot, binPath = rcfBinPath() }) {
   const file = join(projectRoot, '.mcp.json');

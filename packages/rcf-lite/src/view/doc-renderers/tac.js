@@ -13,7 +13,7 @@ import {
  * @param {object} tac
  * @param {object} ctx
  * @param {string|undefined} ctx.raw
- * @param {import('@stravica-ai/rcf-lite-core/errors').RcfError[]} [ctx.errors]
+ * @param {import('#core/errors').RcfError[]} [ctx.errors]
  * @returns {string}
  */
 export function renderTac(tac, ctx) {

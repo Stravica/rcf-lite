@@ -153,7 +153,7 @@ test('N-5: sharedLayoutImport uiBaselineDrift finding uses anchorId (not tsId) a
 });
 
 test('N-5: a drift-only reviewAudit record composed from these findings validates against the schema (no tsId required)', async () => {
-  const { validateDocument } = await import('@stravica-ai/rcf-lite-core/store');
+  const { validateDocument } = await import('#core/store');
   const projectRoot = await makeProjectFiles({
     'src/ui/dashboard.ts': 'const bg = "#ff00aa";',
     'src/routes/dashboard.ts': 'export function DashboardPage() { return html("dash"); }',

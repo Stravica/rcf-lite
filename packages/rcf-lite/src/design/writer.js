@@ -10,8 +10,8 @@
 // arguments and does not need to defend against string positional
 // confusion at this layer.
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { updateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError } from '#core/errors';
+import { updateDocument } from '#core/store';
 
 import { baselineDesignDisagreement } from '../ui-baseline/manifest-writer.js';
 
@@ -48,7 +48,7 @@ const THEME_MODES = new Set([
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {string} args.fbsId
  * @param {DesignJourney} args.journey
  * @param {string} [args.authoredBy]
@@ -166,7 +166,7 @@ export async function writeThemeA11ySet({
  * the designStage without an opt-out (spec §6.2 second refusal shape).
  *
  * @param {object} args
- * @returns {Promise<{ ok: true } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ ok: true } | import('#core/errors').RcfError>}
  */
 export async function writeMarkComplete({
   projectRoot, tree, fbsId, authoredBy = 'operator', now = new Date(),
@@ -231,7 +231,7 @@ export function missingDesignStageArtefacts(fbs) {
  * First baseline-vs-designStage disagreement (per spec §6.2). Returns
  * null on agreement or when no baseline / designStage exists.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} fbs
  * @returns {{ path: string, designStagePath: string, baselineValue: *, designValue: * }|null}
  */

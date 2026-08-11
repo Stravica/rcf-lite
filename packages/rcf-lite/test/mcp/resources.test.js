@@ -9,10 +9,10 @@ import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { initProject } from '#core/store/init.js';
+import { walkTree } from '#core/store';
 import { createResourceRegistry, GUIDANCE_DIR, readGuidanceManifest } from '../../src/mcp/resources.js';
-import { RESOURCE_NOT_FOUND } from '@stravica-ai/rcf-lite-core/mcp-shell';
+import { RESOURCE_NOT_FOUND } from '#core/mcp-shell';
 
 async function scaffold() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-resources-'));

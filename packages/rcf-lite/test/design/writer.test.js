@@ -10,8 +10,8 @@ import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { initProject } from '#core/store/init.js';
+import { walkTree } from '#core/store';
 
 import {
   firstBaselineDisagreement,

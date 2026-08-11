@@ -208,7 +208,7 @@ function groupTiers(items) {
  * Compute the queue over a walked tree. Deterministic: same tree,
  * same result, always.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @returns {QueueResult}
  */
 export function computeQueue(tree) {

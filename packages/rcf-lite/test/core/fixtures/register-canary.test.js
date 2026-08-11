@@ -18,7 +18,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const FIXTURE_DIR = join(HERE, '..', '..', 'src', 'fixtures', 'register-canary');
+// test/core/fixtures/ -> up three -> packages/rcf-lite -> src/core/fixtures/register-canary
+const FIXTURE_DIR = join(HERE, '..', '..', '..', 'src', 'core', 'fixtures', 'register-canary');
 
 const REQUIRED_FIELDS = ['id', 'operatorPrompt', 'supportingArtefacts', 'grantedPermissions', 'wordCountBudget', 'notes'];
 const KNOWN_GRANT_IDS = new Set(['gitPush', 'githubRepoManagement', 'actionsWorkflowManagement']);
@@ -97,10 +98,10 @@ test('fixtures-05: no em-dashes in fixture text (shipped-canonical-text lint)', 
   }
 });
 
-test('fixtures-06: fixtures are exposed via the package export map', async () => {
-  // Dynamic import via the subpath the exports map declares. This is the
-  // path the build package's canary runner uses to load the pack from
-  // `@stravica-ai/rcf-lite-core/fixtures/register-canary/...`.
-  const mod = await import('../../src/fixtures/register-canary/canary-prompt-01.json', { with: { type: 'json' } });
+test('fixtures-06: fixtures are exposed via the #core/fixtures subpath import', async () => {
+  // Dynamic import via the #core/fixtures/register-canary/* subpath alias
+  // declared in the umbrella's package.json `imports` field. This is the
+  // path the canary runner uses to load the pack from src/core/fixtures/.
+  const mod = await import('#core/fixtures/register-canary/canary-prompt-01.json', { with: { type: 'json' } });
   assert.equal(mod.default.id, 'canary-prompt-01');
 });

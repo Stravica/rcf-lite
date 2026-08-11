@@ -1,4 +1,4 @@
-// Tests for `@stravica-ai/rcf-lite-core/patterns/ui-shapes` - the UI seed
+// Tests for `#core/patterns/ui-shapes` - the UI seed
 // pattern set consumed by the Track B UI-bearing FBS classifier AND (via
 // `req-shapes.js`) the Track C+D REQ-shape classifier.
 //
@@ -21,7 +21,7 @@ import {
   UI_SEED_PATTERNS_V1,
   UI_EXCLUDED_PHRASES,
   matchUiSignals,
-} from '../../src/patterns/ui-shapes.js';
+} from '../../../src/core/patterns/ui-shapes.js';
 
 test('ui-shapes-01: UI_SEED_PATTERNS_V1 exposes every category from spec §4.3', () => {
   const expected = [

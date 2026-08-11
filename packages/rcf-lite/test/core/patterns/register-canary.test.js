@@ -1,4 +1,4 @@
-// Tests for `@stravica-ai/rcf-lite-core/patterns/register-canary` - the
+// Tests for `#core/patterns/register-canary` - the
 // five graded-dimension pattern set consumed by the build package's canary
 // runner (Track D §7).
 //
@@ -22,7 +22,7 @@ import {
   CANARY_DIMENSION_KEYS,
   DEFAULT_WORD_COUNT_BUDGET,
   gradeResponse,
-} from '../../src/patterns/register-canary.js';
+} from '../../../src/core/patterns/register-canary.js';
 
 test('canary-01: CANARY_DIMENSION_KEYS matches spec §7.2 order', () => {
   assert.deepEqual([...CANARY_DIMENSION_KEYS], [

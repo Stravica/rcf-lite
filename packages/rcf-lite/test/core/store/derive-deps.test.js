@@ -7,7 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { deriveFileDeps, mapDerivedDepsToCnIds, NOT_RESOLVABLE_MESSAGE } from '../../src/store/derive-deps.js';
+import { deriveFileDeps, mapDerivedDepsToCnIds, NOT_RESOLVABLE_MESSAGE } from '../../../src/core/store/derive-deps.js';
 
 function fakeCruiserOutput(modules) {
   return { stdout: JSON.stringify({ modules }) };

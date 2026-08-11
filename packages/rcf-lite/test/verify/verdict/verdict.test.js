@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { isRcfError } from '#core/errors';
 import {
   FINDING_SEVERITIES,
   VERDICTS,
@@ -11,7 +11,7 @@ import {
   aggregateSeverity,
   aggregateVerdict,
   gateTripped,
-} from '../../src/verdict/index.js';
+} from '../../../src/verify/verdict/index.js';
 
 test('VERDICTS includes the structural LAUNCH-FAILURE class', () => {
   assert.ok(VERDICTS.includes('LAUNCH-FAILURE'));

@@ -10,13 +10,13 @@
 // on stderr but returns success (the write we care about is the REQ's
 // own body write; classification is provenance layered on top).
 
-import { updateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { updateDocument } from '#core/store';
 import { classifyReq, mergeClassificationOntoReq } from './classifier.js';
 
 /**
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {string} args.reqId              the id of the REQ to classify
  * @param {Date} [args.now]
  * @returns {Promise<{ ok: true, block: object, changed: boolean } | { ok: false, message: string }>}

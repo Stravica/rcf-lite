@@ -24,7 +24,7 @@
       "acId": "AC-304-2",
       "description": "cascade delete removes the sub-tree files leaving the tree valid",
       "status": "pending",
-      "testPointer": "../core/test/store/writer.test.js::deleteDocument REQ --cascade removes REQ + descendant USes + TSs"
+      "testPointer": "test/core/store/writer.test.js::deleteDocument REQ --cascade removes REQ + descendant USes + TSs"
     },
     {
       "id": "TC-009-leaf-delete-removes-file",

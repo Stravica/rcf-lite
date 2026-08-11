@@ -11,7 +11,7 @@ import {
   pathForId,
   rootPathFor,
   subdirFor,
-} from '../../src/store/loader.js';
+} from '../../../src/core/store/loader.js';
 
 async function makeFixtureRoot(name) {
   const root = await mkdtemp(join(tmpdir(), `rcf-loader-${name}-`));

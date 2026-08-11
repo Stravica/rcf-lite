@@ -29,8 +29,8 @@ import { resolve as resolvePath } from 'node:path';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
 
-import { isRcfError, rcfError, writeUnexpectedFailure } from '@stravica-ai/rcf-lite-core/errors';
-import { updateDocument, walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { isRcfError, rcfError, writeUnexpectedFailure } from '#core/errors';
+import { updateDocument, walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import { kindOf } from '../query/index.js';

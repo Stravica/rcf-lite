@@ -17,21 +17,21 @@
       "acId": "AC-701-1",
       "description": "a tree-invalidating update is refused and nothing is written",
       "status": "pending",
-      "testPointer": "../core/test/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED"
+      "testPointer": "test/core/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED"
     },
     {
       "id": "TC-018-written-doc-validates",
       "acId": "AC-701-2",
       "description": "a successful create writes a document that revalidates cleanly on reload",
       "status": "pending",
-      "testPointer": "../core/test/store/writer.test.js::createDocument req writes a schema-valid child file"
+      "testPointer": "test/core/store/writer.test.js::createDocument req writes a schema-valid child file"
     },
     {
       "id": "TC-018-registered-bundle-no-drift",
       "acId": "AC-701-3",
       "description": "validation reuses the registered schema bundle across passes without drift",
       "status": "pending",
-      "testPointer": "../core/test/store/validator.test.js::validateDocument re-validates the registered schema (no drift)"
+      "testPointer": "test/core/store/validator.test.js::validateDocument re-validates the registered schema (no drift)"
     }
   ],
   "status": "draft"

@@ -9,11 +9,11 @@ import { mkdtemp, readFile, readdir, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '../../src/store/init.js';
-import { walkTree } from '../../src/store/walker.js';
+import { initProject } from '../../../src/core/store/init.js';
+import { walkTree } from '../../../src/core/store/walker.js';
 import {
   createDocument, deleteDocument, deriveSlug, nextIdForKind, updateDocument,
-} from '../../src/store/writer.js';
+} from '../../../src/core/store/writer.js';
 
 async function scaffold() {
   const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-writer-'));

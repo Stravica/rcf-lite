@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { isRcfError } from '#core/errors';
 import {
   PROFILES,
   resolveProfile,
@@ -13,7 +13,7 @@ import {
   verdictAuthorityFor,
   isNotDeployed,
   stampProvenance,
-} from '../../src/profile/index.js';
+} from '../../../src/verify/profile/index.js';
 
 test('resolveProfile: --profile is mandatory (usage error as data)', () => {
   const err = resolveProfile({ url: 'https://x.com' });

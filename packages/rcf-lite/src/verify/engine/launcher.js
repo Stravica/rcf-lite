@@ -12,7 +12,7 @@
 // agent gets exactly the tool surface it needs — scoped via --allowedTools —
 // and nothing more (no --dangerously-skip-permissions).
 
-import { isolationEnv, isolationProvenance } from '@stravica-ai/rcf-lite-core/isolation';
+import { isolationEnv, isolationProvenance } from '#core/isolation';
 
 /** Env var naming a module (exporting `launchAgent`) to use instead of the default spawn launcher. The integration + manual-e2e seam. */
 export const LAUNCHER_ENV = 'RCF_VERIFY_LAUNCHER';

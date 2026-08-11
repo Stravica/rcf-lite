@@ -10,12 +10,12 @@ import { dirname, resolve } from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { main as runMain } from '../src/cli/run.js';
-import { main as reportMain } from '../src/cli/report.js';
-import { main as provisionMain } from '../src/cli/provision.js';
-import { main as cleanupMain } from '../src/cli/cleanup.js';
-import { main as mcpMain } from '../src/cli/mcp.js';
-import { main as helpMain, TOP_LEVEL_HELP } from '../src/cli/help.js';
+import { main as runMain } from '../src/verify/cli/run.js';
+import { main as reportMain } from '../src/verify/cli/report.js';
+import { main as provisionMain } from '../src/verify/cli/provision.js';
+import { main as cleanupMain } from '../src/verify/cli/cleanup.js';
+import { main as mcpMain } from '../src/verify/cli/mcp.js';
+import { main as helpMain, TOP_LEVEL_HELP } from '../src/verify/cli/help.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 

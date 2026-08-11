@@ -14,8 +14,8 @@
 
 import { writeFile, readFile } from 'node:fs/promises';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { matchServiceSignals } from '@stravica-ai/rcf-lite-core/patterns/services';
+import { rcfError } from '#core/errors';
+import { matchServiceSignals } from '#core/patterns/services';
 
 /** Greppable prefix on every provisioned artefact (accounts + data alike). */
 export const ZZVERIFY_PREFIX = 'zzverify-';
@@ -35,7 +35,7 @@ const SEEDDATA_PATTERNS = /\b(admin[\s-]?(created|seeded)|seeded|pre[\s-]?popula
  * (§6): where the route can't be derived, the caller BLOCKS rather than skips.
  *
  * The `serviceSandbox` branch is delegated to core's shared pattern set
- * (`@stravica-ai/rcf-lite-core/patterns/services`), the same seed data
+ * (`#core/patterns/services`), the same seed data
  * consumed by build's pre-flight scanner (verification-integrity-cluster-spec
  * §5.3 / §8.4). Verify's original inline SERVICE_PATTERNS regex is
  * superseded — a single shared source removes the class of drift that
@@ -100,7 +100,7 @@ export function redactSecrets(value) {
  *
  * @param {string} provisionPath
  * @param {object} data - full provisioning record including credentials
- * @returns {Promise<import('@stravica-ai/rcf-lite-core/errors').RcfError | null>}
+ * @returns {Promise<import('#core/errors').RcfError | null>}
  */
 export async function writeProvisionFile(provisionPath, data) {
   if (typeof provisionPath !== 'string' || provisionPath.length === 0) {
@@ -118,7 +118,7 @@ export async function writeProvisionFile(provisionPath, data) {
  * Read a provisioning file (credentials/fixtures) back for a run/cleanup.
  *
  * @param {string} provisionPath
- * @returns {Promise<object | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<object | import('#core/errors').RcfError>}
  */
 export async function readProvisionFile(provisionPath) {
   try {

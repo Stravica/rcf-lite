@@ -6,8 +6,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createMcpServer, PROTOCOL_VERSION } from '@stravica-ai/rcf-lite-core/mcp-shell';
-import { createToolRegistry } from '../../src/mcp/tools.js';
+import { createMcpServer, PROTOCOL_VERSION } from '#core/mcp-shell';
+import { createToolRegistry } from '../../../src/verify/mcp/tools.js';
 import { scaffoldChain, stubLauncher } from '../helpers/chain.js';
 
 const passFinding = { severity: 'PASS', acId: 'AC-101-3', journey: 'landing', reproSteps: ['load /'], evidence: { detail: 'ok' } };

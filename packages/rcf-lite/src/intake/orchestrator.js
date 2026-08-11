@@ -12,7 +12,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { basename, isAbsolute, join } from 'node:path';
 import { createHash } from 'node:crypto';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { rcfError } from '#core/errors';
 
 import { classifyFidelity } from './fidelity.js';
 import { scanArtefactForFindings } from './validate.js';
@@ -41,7 +41,7 @@ const KIND_MAP = new Map([
  * @param {string|null} [args.kindHint]
  * @param {object|null} [args.input]           optional non-interactive input file
  * @param {Date} [args.now]
- * @returns {Promise<{ record: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function runIntakePhases({ projectRoot, artefactPaths, kindHint = null, input = null, now = new Date() }) {
   const artefactMeta = [];

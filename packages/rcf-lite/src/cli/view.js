@@ -8,8 +8,8 @@
 import { spawn } from 'node:child_process';
 import { platform } from 'node:process';
 
-import { formatErrors } from '@stravica-ai/rcf-lite-core/errors';
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { formatErrors } from '#core/errors';
+import { walkTree } from '#core/store';
 import { findProjectRoot } from '../view/index.js';
 import { startServer } from '../server/index.js';
 // Track C+D §9 view-server persistence.

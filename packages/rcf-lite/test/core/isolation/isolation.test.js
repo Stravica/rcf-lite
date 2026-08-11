@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { ISOLATION_RECIPE, isolationEnv, isolationProvenance } from '../../src/isolation/index.js';
+import { ISOLATION_RECIPE, isolationEnv, isolationProvenance } from '../../../src/core/isolation/index.js';
 
 test('ISOLATION_RECIPE carries both proven flags (§7.3 run-05 clean sweep)', () => {
   assert.equal(ISOLATION_RECIPE.env.CLAUDE_CODE_DISABLE_AUTO_MEMORY, '1');

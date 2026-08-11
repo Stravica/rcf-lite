@@ -10,7 +10,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { composeBrief } from '../../src/engine/brief.js';
+import { composeBrief } from '../../../src/verify/engine/brief.js';
 
 const baseAc = {
   acId: 'AC-101-1',

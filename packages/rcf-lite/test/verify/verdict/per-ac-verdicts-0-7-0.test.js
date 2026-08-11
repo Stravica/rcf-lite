@@ -16,7 +16,7 @@ import {
   attestationPerAcVerdict,
   derivePerAcVerdicts,
   uiPerAcVerdict,
-} from '../../src/verdict/index.js';
+} from '../../../src/verify/verdict/index.js';
 
 test('PER_AC_VERDICTS enumerates the four 0.7.0 per-AC verdict classes', () => {
   assert.deepEqual([...PER_AC_VERDICTS], [

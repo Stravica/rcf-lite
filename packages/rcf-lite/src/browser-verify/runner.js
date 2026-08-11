@@ -50,7 +50,7 @@ export const stubBrowserDriver = Object.freeze({
  * Run the agent-screenshot-critique mode against a FBS.
  *
  * @param {object} args
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {object} args.fbs
  * @param {string} args.runtimeUrl
  * @param {'deployed'|'ci'|'local-dev'} args.runtimeProfile

@@ -19,7 +19,7 @@ import {
   extractFindingsObject,
   extractRunStats,
   parseAgentOutput,
-} from '../../src/engine/launcher.js';
+} from '../../../src/verify/engine/launcher.js';
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures');
 const readFixture = (name) => readFile(join(FIXTURES, name), 'utf8');

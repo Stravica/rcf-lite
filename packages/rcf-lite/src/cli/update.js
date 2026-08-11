@@ -6,9 +6,9 @@
 import { readFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
-import { isRcfError, writeUnexpectedFailure } from '@stravica-ai/rcf-lite-core/errors';
-import { splitCnPath, updateDocument, walkTree } from '@stravica-ai/rcf-lite-core/store';
-import { deriveFileDeps, mapDerivedDepsToCnIds } from '@stravica-ai/rcf-lite-core/store/derive-deps.js';
+import { isRcfError, writeUnexpectedFailure } from '#core/errors';
+import { splitCnPath, updateDocument, walkTree } from '#core/store';
+import { deriveFileDeps, mapDerivedDepsToCnIds } from '#core/store/derive-deps.js';
 import { findProjectRoot } from '../view/index.js';
 // Track C+D §4.4: reclassify a REQ when its description-carrying fields
 // change so downstream tooling sees a fresh shapeClassification.

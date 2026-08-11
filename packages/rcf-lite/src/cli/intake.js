@@ -12,7 +12,7 @@
 import { readFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import {

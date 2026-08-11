@@ -16,11 +16,11 @@
 // because the derivation catches unresolved keys directly. The Stage-1
 // gate remains the single unbypassable refusal surface.
 
-import { updateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { updateDocument } from '#core/store';
 import {
   BASELINE_SHAPE_KEYS,
   getBaselineSet,
-} from '@stravica-ai/rcf-lite-core/baseline-catalog';
+} from '#core/baseline-catalog';
 
 import { writeOptOut } from './opt-out.js';
 import { openCandidatesForUs } from './open-candidates.js';
@@ -28,7 +28,7 @@ import { openCandidatesForUs } from './open-candidates.js';
 /**
  * Plan the baseline sweep across the tree.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} opts
  * @param {string|null} [opts.reqId]
  * @param {boolean} [opts.all]
@@ -58,10 +58,10 @@ export function planSweep(tree, opts = {}) {
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {Array<{ candidate: object, action: 'accept'|'opt-out'|'skip', reason?: string }>} args.decisions
  * @param {Date} [args.now]
- * @returns {Promise<{ accepted: number, optedOut: number, left: number, optOutIds: string[], writtenAcIds: string[] } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ accepted: number, optedOut: number, left: number, optOutIds: string[], writtenAcIds: string[] } | import('#core/errors').RcfError>}
  */
 export async function applySweepDecisions({ projectRoot, tree, decisions, now = new Date() }) {
   let accepted = 0;
@@ -152,7 +152,7 @@ export async function applySweepDecisions({ projectRoot, tree, decisions, now = 
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {string} args.usId
  * @returns {Promise<{ enqueued: string[] }>}
  */

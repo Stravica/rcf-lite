@@ -14,7 +14,7 @@
 // Backward transitions are refused (exit 4) and the message names the
 // deliberate-correction escape hatch (`rcf update`).
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { rcfError } from '#core/errors';
 import { LIFECYCLE } from './queue.js';
 
 // Phase 10 (X2 CodeNode bridge, D17, operator ruling 2026-07-10): the
@@ -47,11 +47,11 @@ export function hasNoCodeNodesDeclaration(fbs) {
  * status value or a non-FBS id, a refused plan for a backward
  * transition, otherwise an executable plan.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} opts
  * @param {string} opts.fbsId
  * @param {string} opts.status - target executionStatus
- * @returns {MarkPlan | import('@stravica-ai/rcf-lite-core/errors').RcfError}
+ * @returns {MarkPlan | import('#core/errors').RcfError}
  */
 export function planMark(tree, { fbsId, status }) {
   if (!LIFECYCLE.includes(status)) {
@@ -115,7 +115,7 @@ export function planMark(tree, { fbsId, status }) {
  * skips this entirely when the FBS already carries the no-code-nodes
  * declaration or the invocation supplies `--no-code-nodes`.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} fbs - the FBS document being marked complete
  * @returns {{ ok: true } | { ok: false, missingAcIds: string[] }}
  */

@@ -18,8 +18,8 @@
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { validateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError } from '#core/errors';
+import { validateDocument } from '#core/store';
 
 /**
  * @typedef {object} ShipWithoutVerifiedDeclaredAc
@@ -96,7 +96,7 @@ export function composeShipWithoutVerifiedRecord({
  * @param {string} args.projectRoot
  * @param {object} args.tree
  * @param {ShipWithoutVerifiedRecord} args.record
- * @returns {Promise<{ record: ShipWithoutVerifiedRecord } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: ShipWithoutVerifiedRecord } | import('#core/errors').RcfError>}
  */
 export async function writeShipWithoutVerifiedRecord({ projectRoot, tree, record }) {
   const manifest = tree.manifest ?? {};

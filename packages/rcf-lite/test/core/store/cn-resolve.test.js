@@ -9,7 +9,7 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { checkCodeNodeResolution, splitCnPath } from '../../src/store/cn-resolve.js';
+import { checkCodeNodeResolution, splitCnPath } from '../../../src/core/store/cn-resolve.js';
 
 async function makeRoot(name) {
   return mkdtemp(join(tmpdir(), `rcf-cn-resolve-${name}-`));

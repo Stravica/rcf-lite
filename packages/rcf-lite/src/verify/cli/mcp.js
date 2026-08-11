@@ -8,7 +8,7 @@ import { dirname, resolve as resolvePath } from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
-import { createMcpServer, serveStreams } from '@stravica-ai/rcf-lite-core/mcp-shell';
+import { createMcpServer, serveStreams } from '#core/mcp-shell';
 
 import { createToolRegistry } from '../mcp/tools.js';
 

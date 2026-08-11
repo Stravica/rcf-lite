@@ -15,7 +15,7 @@
 // tool execution errors (isError: true) per D10 - the self-correction
 // channel, not a protocol error.
 
-import { JsonRpcError, INVALID_PARAMS } from '@stravica-ai/rcf-lite-core/mcp-shell';
+import { JsonRpcError, INVALID_PARAMS } from '#core/mcp-shell';
 import {
   errorResult,
   issuesFromErrors,
@@ -24,7 +24,7 @@ import {
   walkerBlockedResult,
   writerErrorResult,
 } from './map-errors.js';
-import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { isRcfError } from '#core/errors';
 import {
   checkCodeNodeResolution,
   createDocument,
@@ -33,7 +33,7 @@ import {
   resolveTestPointers,
   updateDocument,
   walkTree,
-} from '@stravica-ai/rcf-lite-core/store';
+} from '#core/store';
 import {
   classifyCoverageScope,
   computeCoverage,

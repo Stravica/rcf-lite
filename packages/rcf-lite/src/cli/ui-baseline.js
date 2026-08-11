@@ -21,8 +21,8 @@ import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 import process from 'node:process';
 
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
-import { writeUnexpectedFailure, rcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { walkTree } from '#core/store';
+import { writeUnexpectedFailure, rcfError } from '#core/errors';
 
 import { findProjectRoot } from '../view/index.js';
 import {

@@ -6,7 +6,7 @@ The full technical surface of `@stravica-ai/rcf-verify-lite`. If you're new here
 
 ## Runtime requirements
 
-Verify launches a separate agent and gives it a browser; the machine running `rcf-verify` supplies both. The [README](../README.md#requirements) carries the full what/why/how. In summary:
+Verify launches a separate agent and gives it a browser; the machine running `rcf-verify` supplies both. The [README](../README.md) carries the full what/why/how. In summary:
 
 | Requirement | Why | Satisfy it with |
 |---|---|---|

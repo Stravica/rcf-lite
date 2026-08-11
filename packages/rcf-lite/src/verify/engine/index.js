@@ -6,8 +6,8 @@
 // build the ingestible report. Every failure is returned as data (RcfError),
 // never a fabricated PASS (§9 false-confidence prohibition).
 
-import { rcfError, isRcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { isolationProvenance } from '@stravica-ai/rcf-lite-core/isolation';
+import { rcfError, isRcfError } from '#core/errors';
+import { isolationProvenance } from '#core/isolation';
 
 import {
   resolveProfile,
@@ -28,7 +28,7 @@ import { buildReport } from '../report/index.js';
  * every finding to be chain-node-addressed.
  *
  * @param {unknown} rawFindings
- * @returns {{ findings: object[] } | import('@stravica-ai/rcf-lite-core/errors').RcfError}
+ * @returns {{ findings: object[] } | import('#core/errors').RcfError}
  */
 export function normaliseFindings(rawFindings) {
   if (!Array.isArray(rawFindings)) {
@@ -57,7 +57,7 @@ export function normaliseFindings(rawFindings) {
  *
  * @param {object} opts - the CLI-parsed run options
  * @param {object} [deps] - injectable seams (launchAgent, fetchImpl, signup, teardown, now, readChain)
- * @returns {Promise<{ report: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ report: object } | import('#core/errors').RcfError>}
  */
 export async function runVerification(opts = {}, deps = {}) {
   const now = deps.now ?? (() => new Date().toISOString());

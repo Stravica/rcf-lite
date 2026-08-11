@@ -21,7 +21,7 @@
 // record; the Track B / Track C+D field composition documented in
 // ADDENDUM §A.2 and §A.5).
 
-import { matchReqShapeSignals } from '@stravica-ai/rcf-lite-core/patterns/req-shapes';
+import { matchReqShapeSignals } from '#core/patterns/req-shapes';
 
 /**
  * @typedef {'reqScoped'} DesignShapeQuestionScope

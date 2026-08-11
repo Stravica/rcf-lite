@@ -20,7 +20,7 @@
 // candidate list. Every side-effect (filesystem, prompting) belongs to
 // the CLI handler in `../cli/preflight.js`.
 
-import { matchServiceSignals, SERVICE_CATEGORY_KEYS } from '@stravica-ai/rcf-lite-core/patterns/services';
+import { matchServiceSignals, SERVICE_CATEGORY_KEYS } from '#core/patterns/services';
 
 /**
  * @typedef {object} ScannerSourceRef
@@ -157,7 +157,7 @@ function groupIntoCandidates(refsInDocOrder) {
  * documents named by id.
  *
  * @param {object} args
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {string} args.prdId
  * @param {string} [args.tadId]
  * @returns {ScannerResult}

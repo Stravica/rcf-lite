@@ -5,15 +5,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
+import { isRcfError } from '#core/errors';
 import {
   SCHEMA_VERSION,
   buildReport,
   serialiseReport,
   parseReport,
   validateReportShape,
-} from '../../src/report/index.js';
-import { renderReport } from '../../src/report/renderer.js';
+} from '../../../src/verify/report/index.js';
+import { renderReport } from '../../../src/verify/report/renderer.js';
 
 function sampleReport() {
   return buildReport({

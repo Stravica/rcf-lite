@@ -6,9 +6,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { runVerification, normaliseFindings } from '../../src/engine/index.js';
-import { gateTripped } from '../../src/verdict/index.js';
+import { isRcfError } from '#core/errors';
+import { runVerification, normaliseFindings } from '../../../src/verify/engine/index.js';
+import { gateTripped } from '../../../src/verify/verdict/index.js';
 import { scaffoldChain, stubLauncher } from '../helpers/chain.js';
 
 const FIXED_NOW = () => '2026-07-21T12:00:00.000Z';

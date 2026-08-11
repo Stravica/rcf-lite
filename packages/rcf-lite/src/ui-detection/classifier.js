@@ -21,7 +21,7 @@
 // the returned block carries `verdict: operatorOverride` with the
 // classifier's own evidence preserved in `signals[]` for provenance.
 
-import { matchUiSignals } from '@stravica-ai/rcf-lite-core/patterns/ui-shapes';
+import { matchUiSignals } from '#core/patterns/ui-shapes';
 
 /**
  * @typedef {'ui'|'notUi'|'operatorOverride'} UiClassifierVerdict
@@ -53,7 +53,7 @@ const AUTH_SERVICE_CATEGORIES = new Set([
 /**
  * Classify an FBS as UI-bearing or not.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {string} fbsId
  * @param {object} [opts]
  * @param {Date} [opts.now]
@@ -101,7 +101,7 @@ export function classifyFbs(tree, fbsId, opts = {}) {
  * iWant/soThat, then ancestor REQ description/rationale, then the
  * dependsOnServices auth-signal.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} fbs
  * @returns {UiClassifierSignal[]}
  */

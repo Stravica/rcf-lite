@@ -20,11 +20,11 @@ import { access, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '../../src/store/init.js';
-import { walkTree } from '../../src/store/walker.js';
+import { initProject } from '../../../src/core/store/init.js';
+import { walkTree } from '../../../src/core/store/walker.js';
 import {
   createDocument, deleteDocument, nextIdForKind, updateDocument,
-} from '../../src/store/writer.js';
+} from '../../../src/core/store/writer.js';
 
 // The exact TS-003 wedge shape: a test suite whose `status` fails the
 // schema enum. Everything else about the tree stays scaffold-valid.

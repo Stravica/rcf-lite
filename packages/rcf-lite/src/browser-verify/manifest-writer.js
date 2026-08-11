@@ -4,8 +4,8 @@
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { validateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError } from '#core/errors';
+import { validateDocument } from '#core/store';
 
 /**
  * Compute the next `bv-<fbsId>-<n>` id: monotonic per FBS.
@@ -99,10 +99,10 @@ function stripSeverity(check) {
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} args.tree
+ * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {object} args.record
  * @param {object} [args.options]
- * @returns {Promise<{ record: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function writeBrowserVerificationRecord({ projectRoot, tree, record, options = {} }) {
   const manifest = tree.manifest ?? {};
@@ -143,7 +143,7 @@ export async function writeBrowserVerificationRecord({ projectRoot, tree, record
  * latest `browserVerification` record for a FBS.
  *
  * @param {object} args
- * @returns {Promise<{ record: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function writeBrowserVerificationAck({
   projectRoot, tree, fbsId, operatorAckAt, operatorShipDespiteBlockReason, now = new Date(),

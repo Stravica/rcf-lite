@@ -11,7 +11,7 @@
 
 import { spawn } from 'node:child_process';
 
-import { isolationEnv } from '@stravica-ai/rcf-lite-core/isolation';
+import { isolationEnv } from '#core/isolation';
 
 /**
  * Assemble the `rcf-verify run` argument vector from finalise options.

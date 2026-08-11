@@ -22,7 +22,7 @@
 import { classifyAttestationProfile, aggregateAttestationsByAc } from '../query/attestation.js';
 
 /**
- * @typedef {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} TreeModel
+ * @typedef {import('#core/store/walker.js').TreeModel} TreeModel
  * @typedef {'mockOnlyIntegrationClaim'|'testPointerBroken'|'assertionStrengthWeak'|'acIdsCoverageDrift'|'uiBaselineDrift'|'otherDeclared'} TestTheatreFindingKind
  */
 

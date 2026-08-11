@@ -5,8 +5,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
-import { initProject } from '@stravica-ai/rcf-lite-core/store/init.js';
+import { walkTree } from '#core/store';
+import { initProject } from '#core/store/init.js';
 import {
   allRequirementSubdiagrams,
   requirementSubdiagram,

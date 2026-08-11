@@ -5369,17 +5369,17 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-001-init-clean-tree-roots">
   <p><strong>TC-001-init-clean-tree-roots</strong> - covers <a href="#AC-101-1">AC-101-1</a> <span class="status pending">pending</span></p>
   <p>initProject followed by walkTree yields a clean tree whose manifest declares the PRD, TAD and BS roots</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)</code></p>
 </div>
 <div class="tc" id="TC-001-init-refuses-overwrite">
   <p><strong>TC-001-init-refuses-overwrite</strong> - covers <a href="#AC-101-2">AC-101-2</a> <span class="status pending">pending</span></p>
   <p>a second initProject on the same directory refuses with a usage error reporting the project already exists</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/init.test.js::initProject refuses to overwrite an existing manifest (AC-101-2)</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/init.test.js::initProject refuses to overwrite an existing manifest (AC-101-2)</code></p>
 </div>
 <div class="tc" id="TC-001-children-discoverable-from-roots">
   <p><strong>TC-001-children-discoverable-from-roots</strong> - covers <a href="#AC-101-3">AC-101-3</a> <span class="status pending">pending</span></p>
   <p>every scaffolded child document is resolved by walking parent id lists from the manifest roots</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:17.054Z&quot;,
@@ -5400,21 +5400,21 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-101-1&quot;,
       &quot;description&quot;: &quot;initProject followed by walkTree yields a clean tree whose manifest declares the PRD, TAD and BS roots&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)&quot;
     },
     {
       &quot;id&quot;: &quot;TC-001-init-refuses-overwrite&quot;,
       &quot;acId&quot;: &quot;AC-101-2&quot;,
       &quot;description&quot;: &quot;a second initProject on the same directory refuses with a usage error reporting the project already exists&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/init.test.js::initProject refuses to overwrite an existing manifest (AC-101-2)&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/init.test.js::initProject refuses to overwrite an existing manifest (AC-101-2)&quot;
     },
     {
       &quot;id&quot;: &quot;TC-001-children-discoverable-from-roots&quot;,
       &quot;acId&quot;: &quot;AC-101-3&quot;,
       &quot;description&quot;: &quot;every scaffolded child document is resolved by walking parent id lists from the manifest roots&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -5771,22 +5771,22 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-007-create-id-collision-refused">
   <p><strong>TC-007-create-id-collision-refused</strong> - covers <a href="#AC-302-2">AC-302-2</a> <span class="status pending">pending</span></p>
   <p>create with a conflicting id returns a clear conflict error and writes nothing</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/writer.test.js::createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)</code></p>
 </div>
 <div class="tc" id="TC-007-create-writes-validating-child">
   <p><strong>TC-007-create-writes-validating-child</strong> - covers <a href="#AC-302-1">AC-302-1</a> <span class="status pending">pending</span></p>
   <p>create writes the requirement file carrying its prdId parent edge and the reloaded tree validates clean</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument req writes a schema-valid child file</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/writer.test.js::createDocument req writes a schema-valid child file</code></p>
 </div>
 <div class="tc" id="TC-007-create-leaves-prd-untouched">
   <p><strong>TC-007-create-leaves-prd-untouched</strong> - covers <a href="#AC-302-1">AC-302-1</a> <span class="status pending">pending</span></p>
   <p>create leaves the parent PRD file byte-identical (child-owned parent edges)</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument does NOT mutate the parent PRD file (Phase 3.7 §D2)</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/writer.test.js::createDocument does NOT mutate the parent PRD file (Phase 3.7 §D2)</code></p>
 </div>
 <div class="tc" id="TC-007-create-invalid-writes-nothing">
   <p><strong>TC-007-create-invalid-writes-nothing</strong> - covers <a href="#AC-302-3">AC-302-3</a> <span class="status pending">pending</span></p>
   <p>create with a schema-invalid body returns the validation error and writes no file</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument with a schema-invalid body writes nothing and returns the validation error (AC-302-3)</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/writer.test.js::createDocument with a schema-invalid body writes nothing and returns the validation error (AC-302-3)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:18.823Z&quot;,
@@ -5805,28 +5805,28 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-302-2&quot;,
       &quot;description&quot;: &quot;create with a conflicting id returns a clear conflict error and writes nothing&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/writer.test.js::createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)&quot;
     },
     {
       &quot;id&quot;: &quot;TC-007-create-writes-validating-child&quot;,
       &quot;acId&quot;: &quot;AC-302-1&quot;,
       &quot;description&quot;: &quot;create writes the requirement file carrying its prdId parent edge and the reloaded tree validates clean&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument req writes a schema-valid child file&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/writer.test.js::createDocument req writes a schema-valid child file&quot;
     },
     {
       &quot;id&quot;: &quot;TC-007-create-leaves-prd-untouched&quot;,
       &quot;acId&quot;: &quot;AC-302-1&quot;,
       &quot;description&quot;: &quot;create leaves the parent PRD file byte-identical (child-owned parent edges)&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument does NOT mutate the parent PRD file (Phase 3.7 §D2)&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/writer.test.js::createDocument does NOT mutate the parent PRD file (Phase 3.7 §D2)&quot;
     },
     {
       &quot;id&quot;: &quot;TC-007-create-invalid-writes-nothing&quot;,
       &quot;acId&quot;: &quot;AC-302-3&quot;,
       &quot;description&quot;: &quot;create with a schema-invalid body returns the validation error and writes no file&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument with a schema-invalid body writes nothing and returns the validation error (AC-302-3)&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/writer.test.js::createDocument with a schema-invalid body writes nothing and returns the validation error (AC-302-3)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -5852,7 +5852,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <div class="tc" id="TC-008-invalid-update-refused">
   <p><strong>TC-008-invalid-update-refused</strong> - covers <a href="#AC-303-2">AC-303-2</a> <span class="status pending">pending</span></p>
   <p>a schema-invalidating update on a valid tree is refused with the validation error</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses</code></p>
 </div>
 <div class="tc" id="TC-008-update-unknown-id-not-found">
   <p><strong>TC-008-update-unknown-id-not-found</strong> - covers <a href="#AC-303-3">AC-303-3</a> <span class="status pending">pending</span></p>
@@ -5884,7 +5884,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-303-2&quot;,
       &quot;description&quot;: &quot;a schema-invalidating update on a valid tree is refused with the validation error&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/writer-postwrite.test.js::(e) normal-path refusal intact: invalid doc into a VALID tree still refuses&quot;
     },
     {
       &quot;id&quot;: &quot;TC-008-update-unknown-id-not-found&quot;,
@@ -5917,7 +5917,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <div class="tc" id="TC-009-cascade-removes-subtree">
   <p><strong>TC-009-cascade-removes-subtree</strong> - covers <a href="#AC-304-2">AC-304-2</a> <span class="status pending">pending</span></p>
   <p>cascade delete removes the sub-tree files leaving the tree valid</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::deleteDocument REQ --cascade removes REQ + descendant USes + TSs</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/writer.test.js::deleteDocument REQ --cascade removes REQ + descendant USes + TSs</code></p>
 </div>
 <div class="tc" id="TC-009-leaf-delete-removes-file">
   <p><strong>TC-009-leaf-delete-removes-file</strong> - covers <a href="#AC-304-3">AC-304-3</a> <span class="status pending">pending</span></p>
@@ -5950,7 +5950,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-304-2&quot;,
       &quot;description&quot;: &quot;cascade delete removes the sub-tree files leaving the tree valid&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::deleteDocument REQ --cascade removes REQ + descendant USes + TSs&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/writer.test.js::deleteDocument REQ --cascade removes REQ + descendant USes + TSs&quot;
     },
     {
       &quot;id&quot;: &quot;TC-009-leaf-delete-removes-file&quot;,
@@ -6514,17 +6514,17 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-018-invalid-write-writes-nothing">
   <p><strong>TC-018-invalid-write-writes-nothing</strong> - covers <a href="#AC-701-1">AC-701-1</a> <span class="status pending">pending</span></p>
   <p>a tree-invalidating update is refused and nothing is written</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED</code></p>
 </div>
 <div class="tc" id="TC-018-written-doc-validates">
   <p><strong>TC-018-written-doc-validates</strong> - covers <a href="#AC-701-2">AC-701-2</a> <span class="status pending">pending</span></p>
   <p>a successful create writes a document that revalidates cleanly on reload</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/writer.test.js::createDocument req writes a schema-valid child file</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/writer.test.js::createDocument req writes a schema-valid child file</code></p>
 </div>
 <div class="tc" id="TC-018-registered-bundle-no-drift">
   <p><strong>TC-018-registered-bundle-no-drift</strong> - covers <a href="#AC-701-3">AC-701-3</a> <span class="status pending">pending</span></p>
   <p>validation reuses the registered schema bundle across passes without drift</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/validator.test.js::validateDocument re-validates the registered schema (no drift)</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/validator.test.js::validateDocument re-validates the registered schema (no drift)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:22.370Z&quot;,
@@ -6545,21 +6545,21 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-701-1&quot;,
       &quot;description&quot;: &quot;a tree-invalidating update is refused and nothing is written&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/writer-postwrite.test.js::(d) net-new breakage on the already-broken tree is still REFUSED&quot;
     },
     {
       &quot;id&quot;: &quot;TC-018-written-doc-validates&quot;,
       &quot;acId&quot;: &quot;AC-701-2&quot;,
       &quot;description&quot;: &quot;a successful create writes a document that revalidates cleanly on reload&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/writer.test.js::createDocument req writes a schema-valid child file&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/writer.test.js::createDocument req writes a schema-valid child file&quot;
     },
     {
       &quot;id&quot;: &quot;TC-018-registered-bundle-no-drift&quot;,
       &quot;acId&quot;: &quot;AC-701-3&quot;,
       &quot;description&quot;: &quot;validation reuses the registered schema bundle across passes without drift&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/validator.test.js::validateDocument re-validates the registered schema (no drift)&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/validator.test.js::validateDocument re-validates the registered schema (no drift)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -6580,7 +6580,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-019-failure-names-field-and-rule">
   <p><strong>TC-019-failure-names-field-and-rule</strong> - covers <a href="#AC-702-1">AC-702-1</a> <span class="status pending">pending</span></p>
   <p>a validation failure names the offending field and the rule it broke</p>
-  <p><em>Test pointer:</em> <code>../core/test/errors/format.test.js::formatError verbose mode appends field and rule</code></p>
+  <p><em>Test pointer:</em> <code>test/core/errors/format.test.js::formatError verbose mode appends field and rule</code></p>
 </div>
 <div class="tc" id="TC-019-mcp-errors-structured">
   <p><strong>TC-019-mcp-errors-structured</strong> - covers <a href="#AC-702-3">AC-702-3</a> <span class="status pending">pending</span></p>
@@ -6590,7 +6590,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <div class="tc" id="TC-019-multi-failures-returned-together">
   <p><strong>TC-019-multi-failures-returned-together</strong> - covers <a href="#AC-702-2">AC-702-2</a> <span class="status pending">pending</span></p>
   <p>two independent violations in one document surface together in the single returned error</p>
-  <p><em>Test pointer:</em> <code>../core/test/store/validator.test.js::validateDocument returns every failure in one document together (AC-702-2)</code></p>
+  <p><em>Test pointer:</em> <code>test/core/store/validator.test.js::validateDocument returns every failure in one document together (AC-702-2)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-07-29T12:57:22.767Z&quot;,
@@ -6610,7 +6610,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-702-1&quot;,
       &quot;description&quot;: &quot;a validation failure names the offending field and the rule it broke&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/errors/format.test.js::formatError verbose mode appends field and rule&quot;
+      &quot;testPointer&quot;: &quot;test/core/errors/format.test.js::formatError verbose mode appends field and rule&quot;
     },
     {
       &quot;id&quot;: &quot;TC-019-mcp-errors-structured&quot;,
@@ -6624,7 +6624,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-702-2&quot;,
       &quot;description&quot;: &quot;two independent violations in one document surface together in the single returned error&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;../core/test/store/validator.test.js::validateDocument returns every failure in one document together (AC-702-2)&quot;
+      &quot;testPointer&quot;: &quot;test/core/store/validator.test.js::validateDocument returns every failure in one document together (AC-702-2)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

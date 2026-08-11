@@ -10,8 +10,8 @@
 
 import { parseArgs } from 'node:util';
 
-import { isRcfError, writeUnexpectedFailure } from '@stravica-ai/rcf-lite-core/errors';
-import { updateDocument, walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { isRcfError, writeUnexpectedFailure } from '#core/errors';
+import { updateDocument, walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 

@@ -8,7 +8,7 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { resolveTestPointers, splitTestPointer, testCaseKey } from '../../src/store/tp-resolve.js';
+import { resolveTestPointers, splitTestPointer, testCaseKey } from '../../../src/core/store/tp-resolve.js';
 
 async function makeRoot(name) {
   return mkdtemp(join(tmpdir(), `rcf-tp-resolve-${name}-`));

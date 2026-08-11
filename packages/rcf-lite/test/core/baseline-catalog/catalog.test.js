@@ -1,4 +1,4 @@
-// Tests for `@stravica-ai/rcf-lite-core/baseline-catalog` - the five
+// Tests for `#core/baseline-catalog` - the five
 // REQ-shape baseline sets (Track C+D §5.2.1-§5.2.5).
 //
 // AC coverage:
@@ -22,7 +22,7 @@ import {
   getBaselineSet,
   getBaselineEntry,
   iterateBaselineEntries,
-} from '../../src/baseline-catalog/index.js';
+} from '../../../src/core/baseline-catalog/index.js';
 
 const EXPECTED_ENTRY_COUNT = {
   webUi: 6,

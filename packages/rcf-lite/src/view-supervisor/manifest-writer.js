@@ -7,8 +7,8 @@ import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 
-import { rcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { validateDocument } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError } from '#core/errors';
+import { validateDocument } from '#core/store';
 
 export const DEFAULT_PID_PATH = '.rcf/view-server.pid';
 
@@ -53,7 +53,7 @@ export async function readViewServerRecord(projectRoot) {
  * @param {object} args
  * @param {string} args.projectRoot
  * @param {object} args.record
- * @returns {Promise<{ record: object } | import('@stravica-ai/rcf-lite-core/errors').RcfError>}
+ * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function writeViewServerRecord({ projectRoot, record }) {
   const abs = join(projectRoot, 'rcf', 'manifest.json');

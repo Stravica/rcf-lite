@@ -13,8 +13,8 @@
 
 import { parseArgs } from 'node:util';
 
-import { formatErrors } from '@stravica-ai/rcf-lite-core/errors';
-import { resolveTestPointers, walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { formatErrors } from '#core/errors';
+import { resolveTestPointers, walkTree } from '#core/store';
 import { findProjectRoot } from '../view/index.js';
 import {
   classifyCoverageScope,

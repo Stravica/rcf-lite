@@ -10,7 +10,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { readChain } from '../../src/chain/index.js';
+import { readChain } from '../../../src/verify/chain/index.js';
 import { scaffoldChain } from '../helpers/chain.js';
 
 /** Convenience: a minimal 0.7.0-shape FBS built off the init-created FBS-001 slot. */

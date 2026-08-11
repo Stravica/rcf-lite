@@ -16,7 +16,7 @@
       "acId": "AC-702-1",
       "description": "a validation failure names the offending field and the rule it broke",
       "status": "pending",
-      "testPointer": "../core/test/errors/format.test.js::formatError verbose mode appends field and rule"
+      "testPointer": "test/core/errors/format.test.js::formatError verbose mode appends field and rule"
     },
     {
       "id": "TC-019-mcp-errors-structured",
@@ -30,7 +30,7 @@
       "acId": "AC-702-2",
       "description": "two independent violations in one document surface together in the single returned error",
       "status": "pending",
-      "testPointer": "../core/test/store/validator.test.js::validateDocument returns every failure in one document together (AC-702-2)"
+      "testPointer": "test/core/store/validator.test.js::validateDocument returns every failure in one document together (AC-702-2)"
     }
   ],
   "status": "draft"

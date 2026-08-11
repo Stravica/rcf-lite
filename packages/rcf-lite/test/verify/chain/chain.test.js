@@ -4,8 +4,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isRcfError } from '@stravica-ai/rcf-lite-core/errors';
-import { readChain, findProjectRoot } from '../../src/chain/index.js';
+import { isRcfError } from '#core/errors';
+import { readChain, findProjectRoot } from '../../../src/verify/chain/index.js';
 import { scaffoldChain } from '../helpers/chain.js';
 
 test('readChain: flattens ACs off the chain, mapped to their user story (chain-node addressing)', async () => {

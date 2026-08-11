@@ -16,7 +16,7 @@
 // records `shapes: []`, `reason: content-pending`; the classifier reruns
 // on the first `rcf update req --description ...` that adds real content.
 
-import { matchReqShapeSignals, SHAPE_KEYS } from '@stravica-ai/rcf-lite-core/patterns/req-shapes';
+import { matchReqShapeSignals, SHAPE_KEYS } from '#core/patterns/req-shapes';
 
 /**
  * @typedef {'webUi'|'httpApi'|'auth'|'persistence'|'notifications'} ReqShape

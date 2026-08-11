@@ -45,14 +45,26 @@
     "url": "git+https://github.com/Stravica/rcf-lite.git",
     "directory": "packages/build"
   },
+  "imports": {
+    "#core/store": "./src/core/store/index.js",
+    "#core/store/*": "./src/core/store/*",
+    "#core/errors": "./src/core/errors/index.js",
+    "#core/mcp-shell": "./src/core/mcp/index.js",
+    "#core/isolation": "./src/core/isolation/index.js",
+    "#core/patterns/ui-shapes": "./src/core/patterns/ui-shapes.js",
+    "#core/patterns/req-shapes": "./src/core/patterns/req-shapes.js",
+    "#core/patterns/services": "./src/core/patterns/services.js",
+    "#core/patterns/register-canary": "./src/core/patterns/register-canary.js",
+    "#core/baseline-catalog": "./src/core/baseline-catalog/index.js",
+    "#core/fixtures/register-canary/*": "./src/core/fixtures/register-canary/*"
+  },
   "dependencies": {
-    "@stravica-ai/rcf-lite-core": "workspace:*"
+    "@stravica-ai/rcf-schemas": "0.4.2",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@stravica-ai/rcf-schemas": "0.4.2",
-    "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1",
     "mermaid": "11.6.0"
   }
 }

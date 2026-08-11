@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PassThrough } from 'node:stream';
 
-import { attachLineReader, serialiseMessage, writeMessage } from '../../src/mcp/framing.js';
+import { attachLineReader, serialiseMessage, writeMessage } from '../../../src/core/mcp/framing.js';
 
 function collect(stream) {
   const messages = [];

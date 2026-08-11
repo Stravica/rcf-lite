@@ -20,8 +20,8 @@ import { join, dirname, relative } from 'node:path';
 import { parseArgs } from 'node:util';
 import process from 'node:process';
 
-import { rcfError, writeUnexpectedFailure } from '@stravica-ai/rcf-lite-core/errors';
-import { resolveTestPointers, validateDocument, walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { rcfError, writeUnexpectedFailure } from '#core/errors';
+import { resolveTestPointers, validateDocument, walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import {

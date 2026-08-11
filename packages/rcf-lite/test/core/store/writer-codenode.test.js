@@ -8,9 +8,9 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initProject } from '../../src/store/init.js';
-import { walkTree } from '../../src/store/walker.js';
-import { createDocument, deleteDocument, nextIdForKind, updateDocument } from '../../src/store/writer.js';
+import { initProject } from '../../../src/core/store/init.js';
+import { walkTree } from '../../../src/core/store/walker.js';
+import { createDocument, deleteDocument, nextIdForKind, updateDocument } from '../../../src/core/store/writer.js';
 
 async function scaffold(name) {
   const projectRoot = await mkdtemp(join(tmpdir(), `rcf-writer-cn-${name}-`));

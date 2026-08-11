@@ -12,7 +12,7 @@ import {
   JsonRpcError,
   PROTOCOL_VERSION,
   INVALID_PARAMS,
-} from '../../src/mcp/server.js';
+} from '../../../src/core/mcp/server.js';
 
 function makeServer(overrides = {}) {
   return createMcpServer({

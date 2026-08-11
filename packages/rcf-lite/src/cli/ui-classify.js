@@ -9,7 +9,7 @@
 import { parseArgs } from 'node:util';
 import process from 'node:process';
 
-import { walkTree } from '@stravica-ai/rcf-lite-core/store';
+import { walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import { classifyFbs } from '../ui-detection/classifier.js';

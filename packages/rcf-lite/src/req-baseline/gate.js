@@ -23,7 +23,7 @@ import { openCandidatesForUs } from './open-candidates.js';
  * their owning USes; any US with open baseline candidates fails the
  * gate. Returns null when the FBS is clear.
  *
- * @param {import('@stravica-ai/rcf-lite-core/store/walker.js').TreeModel} tree
+ * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {string} fbsId
  * @returns {Stage1Refusal|null}
  */

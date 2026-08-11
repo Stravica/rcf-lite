@@ -1,4 +1,4 @@
-// Tests for `@stravica-ai/rcf-lite-core/patterns/req-shapes` - the REQ-shape
+// Tests for `#core/patterns/req-shapes` - the REQ-shape
 // classifier's pattern set (Track C+D §4.3).
 //
 // AC coverage:
@@ -19,8 +19,8 @@ import {
   SHAPE_KEYS,
   SHAPE_KEYS_WITH_NONE,
   matchReqShapeSignals,
-} from '../../src/patterns/req-shapes.js';
-import { UI_SEED_PATTERNS_V1 } from '../../src/patterns/ui-shapes.js';
+} from '../../../src/core/patterns/req-shapes.js';
+import { UI_SEED_PATTERNS_V1 } from '../../../src/core/patterns/ui-shapes.js';
 
 test('req-shapes-01: REQ_SHAPE_PATTERNS_V1 exposes the five shapes and only those', () => {
   const expected = ['webUi', 'httpApi', 'auth', 'persistence', 'notifications'];
