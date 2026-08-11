@@ -1,0 +1,238 @@
+{
+  "ok": true,
+  "mode": "queue",
+  "bs": {
+    "bsId": "BS-001",
+    "title": "RCF Build Lite initial delivery",
+    "generationStrategy": "dependencyFirst"
+  },
+  "totals": {
+    "items": 15,
+    "notStarted": 2,
+    "inProgress": 0,
+    "complete": 13,
+    "verified": 0,
+    "actionable": 2,
+    "blocked": 0
+  },
+  "nextActionable": "FBS-013",
+  "tiers": [
+    {
+      "tier": 0,
+      "fbsIds": [
+        "FBS-001",
+        "FBS-013",
+        "FBS-014",
+        "FBS-015"
+      ]
+    },
+    {
+      "tier": 1,
+      "fbsIds": [
+        "FBS-002"
+      ]
+    },
+    {
+      "tier": 2,
+      "fbsIds": [
+        "FBS-003",
+        "FBS-004",
+        "FBS-005",
+        "FBS-008"
+      ]
+    },
+    {
+      "tier": 3,
+      "fbsIds": [
+        "FBS-006",
+        "FBS-009",
+        "FBS-010"
+      ]
+    },
+    {
+      "tier": 4,
+      "fbsIds": [
+        "FBS-007",
+        "FBS-011",
+        "FBS-012"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "fbsId": "FBS-001",
+      "buildOrder": 1,
+      "tier": 0,
+      "title": "Document store core",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-002",
+      "buildOrder": 2,
+      "tier": 1,
+      "title": "Tree walk and validate command",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-001"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-003",
+      "buildOrder": 3,
+      "tier": 2,
+      "title": "Diagram rendering",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-002"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-004",
+      "buildOrder": 4,
+      "tier": 2,
+      "title": "HTML page rendering",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-002"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-005",
+      "buildOrder": 5,
+      "tier": 2,
+      "title": "CLI read verbs",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-002"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-006",
+      "buildOrder": 6,
+      "tier": 3,
+      "title": "CLI create and update verbs",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-005"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-007",
+      "buildOrder": 7,
+      "tier": 4,
+      "title": "CLI delete with reference safety",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-006",
+        "FBS-008"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-008",
+      "buildOrder": 8,
+      "tier": 2,
+      "title": "Coverage and trace queries",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-002"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-009",
+      "buildOrder": 9,
+      "tier": 3,
+      "title": "Impact analysis",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-008"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-010",
+      "buildOrder": 10,
+      "tier": 3,
+      "title": "Build adapter prompt assembly",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-008"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-011",
+      "buildOrder": 11,
+      "tier": 4,
+      "title": "Mark-done on completion",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-010"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-012",
+      "buildOrder": 12,
+      "tier": 4,
+      "title": "MCP server over the full surface",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-006",
+        "FBS-008",
+        "FBS-010"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-013",
+      "buildOrder": 13,
+      "tier": 0,
+      "title": "Deploy-aware elicitation and hosting guidance",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-014",
+      "buildOrder": 14,
+      "tier": 0,
+      "title": "Local-preview default, runtime-honest verification, interim self-review",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-015",
+      "buildOrder": 15,
+      "tier": 0,
+      "title": "`rcf verify` subcommand routing (0.7.1 consolidation)",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [],
+      "state": "complete",
+      "blockedBy": []
+    }
+  ]
+}

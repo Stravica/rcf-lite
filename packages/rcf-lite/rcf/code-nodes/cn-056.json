@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-056",
+  "path": "src/cli/help.js",
+  "implementsAcIds": [
+    "AC-901-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-11T00:00:00Z",
+  "updatedAt": "2026-08-11T00:00:00Z",
+  "title": "Top-level help: verify subcommand advertised",
+  "description": "The top-level command table in TOP_LEVEL_HELP lists `verify <verb>`; HELP_MAP routes `help verify` to the verify subcommand tree's TOP_LEVEL_HELP block (single-source rule)."
+}

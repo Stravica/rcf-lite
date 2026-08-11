@@ -1,0 +1,76 @@
+{
+  "name": "rcf-lite",
+  "version": "0.7.1",
+  "type": "module",
+  "description": "One-install tooling for the Requirements Confidence Framework (RCF): the unified `rcf` CLI (init, view, validate, build, verify, finalise and 25+ more verbs), an MCP server, the live tree viewer and the fresh-context adversarial ship-gate verifier. Consumes @stravica-ai/rcf-schemas.",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Stravica/rcf-lite",
+  "bugs": "https://github.com/Stravica/rcf-lite/issues",
+  "keywords": [
+    "rcf",
+    "requirements",
+    "traceability",
+    "mcp",
+    "cli",
+    "sdd",
+    "verification",
+    "adversarial"
+  ],
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "bin": {
+    "rcf": "bin/rcf.js",
+    "rcf-verify": "bin/rcf-verify.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "guidance",
+    "rcf",
+    "fixtures",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 'test/**/*.test.js'",
+    "vendor": "node scripts/vendor-mermaid.mjs",
+    "build:managed": "node scripts/gen-managed-artefacts.mjs",
+    "canary:register": "node scripts/canary-register.mjs",
+    "prepublishOnly": "node scripts/gen-managed-artefacts.mjs",
+    "rcf": "node bin/rcf.js",
+    "rcf-verify": "node bin/rcf-verify.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stravica/rcf-lite.git",
+    "directory": "packages/rcf-lite"
+  },
+  "imports": {
+    "#core/store": "./src/core/store/index.js",
+    "#core/store/*": "./src/core/store/*",
+    "#core/errors": "./src/core/errors/index.js",
+    "#core/mcp-shell": "./src/core/mcp/index.js",
+    "#core/isolation": "./src/core/isolation/index.js",
+    "#core/patterns/ui-shapes": "./src/core/patterns/ui-shapes.js",
+    "#core/patterns/req-shapes": "./src/core/patterns/req-shapes.js",
+    "#core/patterns/services": "./src/core/patterns/services.js",
+    "#core/patterns/register-canary": "./src/core/patterns/register-canary.js",
+    "#core/baseline-catalog": "./src/core/baseline-catalog/index.js",
+    "#core/fixtures/register-canary/*": "./src/core/fixtures/register-canary/*"
+  },
+  "dependencies": {
+    "@stravica-ai/rcf-schemas": "0.4.2",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "mermaid": "11.6.0"
+  }
+}

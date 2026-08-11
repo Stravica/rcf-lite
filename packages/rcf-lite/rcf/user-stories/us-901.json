@@ -1,0 +1,40 @@
+{
+  "usId": "US-901",
+  "prdId": "PRD-001",
+  "reqId": "REQ-009",
+  "title": "Route `rcf verify` through the same dispatcher as the alias bin",
+  "description": "A consumer running the unified `rcf` CLI can reach the adversarial ship-gate verifier as `rcf verify <verb>` and get identical behaviour to the legacy `rcf-verify <verb>` invocation. The legacy bin remains available and emits a one-line deprecation notice on stderr so scripts can be migrated at their own pace.",
+  "asA": "consumer of the RCF Lite CLI",
+  "iWant": "to invoke the verify suite as `rcf verify <verb>` inside the unified CLI",
+  "soThat": "verify sits inside the same verb space as the rest of the RCF chain and I only have to install one package",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-901-1",
+      "description": "The `rcf` bin exposes `verify` as a top-level subcommand routed to the same dispatcher as the `rcf-verify` alias bin",
+      "given": "the unified `rcf` binary imported from bin/rcf.js",
+      "when": "`verify` is looked up on the top-level SUBCOMMANDS map",
+      "then": "the handler resolves to the same `main` function that bin/rcf-verify.js exports and dispatches over run/report/provision/cleanup/mcp/help",
+      "testable": true
+    },
+    {
+      "id": "AC-901-2",
+      "description": "The top-level `rcf --help` output advertises `verify` as an available subcommand",
+      "given": "the unified `rcf` binary",
+      "when": "`--help` or `help` runs",
+      "then": "the printed usage lists `verify <verb>` alongside the other top-level commands",
+      "testable": true
+    },
+    {
+      "id": "AC-901-3",
+      "description": "The `rcf-verify` alias bin emits a one-line stderr deprecation notice when invoked directly and stays fully functional",
+      "given": "the `rcf-verify` alias bin invoked as the entry point (isMain)",
+      "when": "the entry point runs without RCF_QUIET",
+      "then": "a single line describing the deprecation and the `rcf verify` replacement is written to stderr before dispatch, and the dispatch itself is unchanged",
+      "testable": true
+    }
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-11T00:00:00Z",
+  "updatedAt": "2026-08-11T00:00:00Z"
+}

@@ -8,15 +8,8 @@ importers:
 
   .: {}
 
-  packages/build:
+  packages/rcf-lite:
     dependencies:
-      '@stravica-ai/rcf-lite-core':
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.29.0
-        version: 1.29.0(zod@4.4.3)
       '@stravica-ai/rcf-schemas':
         specifier: 0.4.2
         version: 0.4.2
@@ -26,31 +19,13 @@ importers:
       ajv-formats:
         specifier: ^3.0.1
         version: 3.0.1(ajv@8.20.0)
+    devDependencies:
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.29.0
+        version: 1.29.0(zod@4.4.3)
       mermaid:
         specifier: 11.6.0
         version: 11.6.0
-
-  packages/core:
-    dependencies:
-      '@stravica-ai/rcf-schemas':
-        specifier: 0.4.2
-        version: 0.4.2
-      ajv:
-        specifier: ^8.20.0
-        version: 8.20.0
-      ajv-formats:
-        specifier: ^3.0.1
-        version: 3.0.1(ajv@8.20.0)
-    devDependencies:
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.29.0
-        version: 1.29.0(zod@4.4.3)
-
-  packages/verify:
-    dependencies:
-      '@stravica-ai/rcf-lite-core':
-        specifier: workspace:*
-        version: link:../core
 
 packages:
 

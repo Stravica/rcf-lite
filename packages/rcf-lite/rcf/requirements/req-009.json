@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-009",
+  "prdId": "PRD-001",
+  "title": "Umbrella CLI: verify as a first-class subcommand",
+  "description": "Post 0.7.1 packaging consolidation the RCF Lite suite ships as one npm package with one unified `rcf` CLI. The adversarial ship-gate verifier that used to live behind its own `rcf-verify` bin is mounted as `rcf verify <run|report|provision|cleanup|mcp>` on that unified CLI. The pre-existing `rcf-verify` bin remains as a transition-grace alias that dispatches through the same handlers, deprecated in favour of `rcf verify`. Behaviour of each verify verb is unchanged; only the invocation form gains a canonical route.",
+  "category": "functional",
+  "domain": "cli",
+  "priority": "must",
+  "rationale": "The packaging consolidation ruling (docs/2026-08-06_packaging-consolidation-proposal.md, ratified 2026-08-11) picks one install (`rcf-lite`) with one CLI verb space (`rcf`). Verify is a first-class part of the RCF chain (define, build, verify) and must sit inside that verb space, not beside it. Keeping `rcf-verify` as an alias avoids a hard break for existing scripts across a transition window.",
+  "tags": [
+    "packaging",
+    "cli",
+    "verify"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-11T00:00:00Z",
+  "updatedAt": "2026-08-11T00:00:00Z"
+}

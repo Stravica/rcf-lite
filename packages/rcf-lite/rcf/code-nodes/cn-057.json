@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-057",
+  "path": "bin/rcf-verify.js",
+  "implementsAcIds": [
+    "AC-901-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-11T00:00:00Z",
+  "updatedAt": "2026-08-11T00:00:00Z",
+  "title": "Alias bin: transition-grace deprecation notice",
+  "description": "Direct invocation of the `rcf-verify` alias bin emits a one-line stderr notice pointing at `rcf verify` as the preferred invocation. Guarded by RCF_QUIET for scripted callers who cannot tolerate stderr chatter."
+}
