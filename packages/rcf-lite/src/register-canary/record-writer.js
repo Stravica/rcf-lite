@@ -1,7 +1,7 @@
 // Canary record composer + fixture-manifest writer (spec §3.5, §7.4).
 //
 // Records land on a fixture manifest (not a real chain manifest) at
-// packages/build/fixtures/canary-manifest.json. Consumers grep the top
+// packages/rcf-lite/fixtures/canary-manifest.json. Consumers grep the top
 // record's verdict to decide whether to gate a release; a
 // ship-despite-fail record carries `shipDespiteFailReason` so the
 // operator's ruling is durable and greppable.

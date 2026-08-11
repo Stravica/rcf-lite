@@ -2,7 +2,7 @@
 // (verification-integrity-cluster-spec §5.2, ui-design-gate-0.7.0-spec §8.7).
 //
 // The four new verdict classes ride on report.perAcVerdicts[]; the
-// finalise gate (packages/build/src/finalise/ingest.js) reads that array
+// finalise gate (packages/rcf-lite/src/finalise/ingest.js) reads that array
 // and refuses `verified` on any MOCK-ONLY-DECLARED /
 // BLOCKED-BY-DECLARATION entry. These tests lock the derivation shape
 // against that contract.
@@ -144,7 +144,7 @@ test('derivePerAcVerdicts: pre-0.7.0 chain (empty derived fields) produces no pe
 });
 
 test('derivePerAcVerdicts: entries carry the finalise-gate contract shape ({acId, verdict, reason})', () => {
-  // packages/build/src/finalise/ingest.js:findMockOnlyDeclaredAcs filters
+  // packages/rcf-lite/src/finalise/ingest.js:findMockOnlyDeclaredAcs filters
   // perAcVerdicts by {verdict in {MOCK-ONLY-DECLARED, BLOCKED-BY-DECLARATION}}
   // and destructures {acId, verdict, reason}. Every emitted entry must
   // satisfy that shape exactly.

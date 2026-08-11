@@ -1,5 +1,5 @@
 // Report per-AC verdicts (0.7.0 train). The finalise-gate contract lives
-// in packages/build/src/finalise/ingest.js; these tests lock the shape
+// in packages/rcf-lite/src/finalise/ingest.js; these tests lock the shape
 // verify writes so `findMockOnlyDeclaredAcs` / `summariseReport` /
 // `reportHasMockOnlyDeclared` all keep passing unchanged.
 

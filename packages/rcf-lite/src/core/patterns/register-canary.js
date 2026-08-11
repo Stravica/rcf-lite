@@ -2,7 +2,7 @@
 // five graded dimensions defined in Track D §7.2 of the
 // elicitation-and-playbook-hardening-0.7.0 spec.
 //
-// Consumed by `packages/build/scripts/canary-register.js` (or wherever the
+// Consumed by `packages/rcf-lite/scripts/canary-register.js` (or wherever the
 // build package eventually places its CI runner) which replays the fixture
 // pack at `./fixtures/register-canary/*.json` against the shipping build,
 // captures the first response, and runs each dimension against the

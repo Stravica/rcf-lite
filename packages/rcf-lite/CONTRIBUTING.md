@@ -1,4 +1,4 @@
-# Contributing to RCF Build Lite
+# Contributing to RCF Lite
 
 Thanks for taking the time to contribute. This document covers how to get a working development setup, the one house rule that makes this repository unusual, and what we expect from a pull request.
 
@@ -25,7 +25,9 @@ The full test suite must pass before you open a pull request. There is no build 
 
 ## This repository runs on RCF
 
-Build Lite is developed using the methodology it implements. The repository's own PRD, requirements, user stories, acceptance criteria, TAD and build queue live as JSON under [`rcf/`](./rcf), and they are not decoration: they are the source of truth for what the tool does.
+RCF Lite is developed using the methodology it implements. The umbrella package's own PRD, requirements, user stories, acceptance criteria, TAD and build queue live as JSON under [`rcf/`](./rcf), and they are not decoration: they are the source of truth for what the tool does.
+
+**Schemas dependency doctrine.** `@stravica-ai/rcf-schemas` is an external, exact-pinned dependency (`"0.4.2"`, never `"^0.4.2"`). It stays standalone because the language-neutral schema contract serves the whole RCF product line, not just Lite. Every umbrella release deliberately reviews the schemas pin as a mandatory checklist item; the pack-verify step in the registry runbook catches a mis-pin at pre-publish time.
 
 **Any change to the tool's behaviour requires a matching update to the `rcf/` artefacts.** If you change what a verb does, add a flag, or alter an output format, the relevant requirement, story or acceptance criterion changes with it, in the same pull request. Spec-first is the house culture and the point of the project. If you are unsure which artefacts a change touches, `rcf query` can trace it, or ask in the pull request and we will help.
 

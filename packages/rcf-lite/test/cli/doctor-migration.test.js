@@ -19,7 +19,7 @@ const PACKAGE_ROOT = resolve(here, '..', '..');
 const CANONICAL_PATH = resolve(PACKAGE_ROOT, 'guidance', 'managed', 'agent-instructions-block.md');
 // Pre-0.6.0 canonical fragment as shipped in build-v0.4.0 (§7.3 whitelist
 // source entry #1). Fixture derives the exact bytes from the build-v0.4.0
-// tag's `packages/build/guidance/harness-template.md` first ```markdown
+// tag's `packages/rcf-lite/guidance/harness-template.md` first ```markdown
 // fence, `.trim()`-normalised — matching the pre-0.6.0 `loadHarnessFragment`
 // contract. Hash: 3bc3c657...528f85 (see guidance/managed/legacy-fragment-hashes.json).
 const LEGACY_CANONICAL_PATH = resolve(

@@ -14,7 +14,7 @@
 // changelog 2026-07-31, Track B §18 N2 fold): core's walker surfaces raw
 // document fields only, verify does the AC-level aggregation. Core 0.3.0
 // carries a walker-guard test that asserts no such derivation leaks into
-// core (`packages/core/test/store/walker-0-7-0-fields.test.js:580`).
+// core (`packages/rcf-lite/test/core/store/walker-0-7-0-fields.test.js:580`).
 //
 // The manifest fields verify's report and verdict pipelines need
 // (`uiBaseline`, `browserVerification[]`) are read verbatim off `tree.manifest`

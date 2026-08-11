@@ -1,7 +1,7 @@
 // End-to-end engine tests for the 0.7.0 per-AC verdict flow. Reads a
 // scaffolded chain, runs `runVerification` with a stub launcher, and
 // asserts the report emits perAcVerdicts in the shape the merged
-// finalise-gate consumer (packages/build/src/finalise/ingest.js) expects.
+// finalise-gate consumer (packages/rcf-lite/src/finalise/ingest.js) expects.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -134,7 +134,7 @@ test('runVerification: pre-0.7.0 chain (no FBS 0.7.0 fields, no manifest baselin
   // The scaffold's init-created FBS-001 has acIds:['AC-101-1'] but no
   // uiBearing / dependsOnServices, and no manifest browserVerification -
   // the report should not carry perAcVerdicts at all so
-  // `packages/build/src/finalise/ingest.js:findMockOnlyDeclaredAcs`
+  // `packages/rcf-lite/src/finalise/ingest.js:findMockOnlyDeclaredAcs`
   // returns empty (the backward-compatible pre-0.7.0 case).
   const { root } = await scaffoldChain();
   const res = await runVerification(

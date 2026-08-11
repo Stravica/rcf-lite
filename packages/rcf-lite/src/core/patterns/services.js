@@ -3,13 +3,13 @@
 // train.
 //
 // Consumed by:
-//   - `packages/build/src/preflight/scanner.js` (Track A pre-flight service
+//   - `packages/rcf-lite/src/preflight/scanner.js` (Track A pre-flight service
 //     candidate scanner, verification-integrity-cluster-spec §4.3 / §8.3);
 //     the scanner walks PRD + TAD prose, calls `matchServiceSignals(text)`,
 //     and packages each hit into a `preFlightConfig.servicesInScope[]`
 //     candidate with per-match provenance (doc path, section anchor, the
 //     matched phrase and its category).
-//   - `packages/verify/src/provision/index.js` (verify's provisioning
+//   - `packages/rcf-lite/src/verify/provision/index.js` (verify's provisioning
 //     heuristic, spec §5.3 / §8.4); verify's existing `SERVICE_PATTERNS`
 //     regex is superseded by this shared set so the "email channel" miss
 //     that motivated the whole cluster (d-2026-07-30-142 investigation)

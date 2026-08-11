@@ -7,7 +7,7 @@
 // driver (mock by default; production Anthropic Agent SDK driver is a
 // separate ship), grades every response with the core register-canary
 // pattern set, and appends one record per fixture onto the fixture
-// manifest at `packages/build/fixtures/canary-manifest.json`.
+// manifest at `packages/rcf-lite/fixtures/canary-manifest.json`.
 //
 // Exit codes:
 //   0  every fixture passed, or --accept-fail was set on a fail run

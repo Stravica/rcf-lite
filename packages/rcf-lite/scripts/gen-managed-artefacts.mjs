@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // Build-time regenerator for managed canonical artefacts (0.6.0 spec
-// §11, D-2 / finding G). Runs from `packages/build/scripts/` and reads
-// `packages/build/guidance/managed/agent-instructions-block.md` as the
+// §11, D-2 / finding G). Runs from `packages/rcf-lite/scripts/` and reads
+// `packages/rcf-lite/guidance/managed/agent-instructions-block.md` as the
 // single canonical source, then produces two derived artefacts:
 //
-//   1. `packages/build/guidance/managed/agent-instructions-block.hash`
+//   1. `packages/rcf-lite/guidance/managed/agent-instructions-block.hash`
 //      SHA-256 of the block's inner content (trimmed), one line, no
 //      trailing whitespace. `rcf doctor`'s stale-hash check reads this.
 //
-//   2. `packages/build/guidance/harness-template.md`
+//   2. `packages/rcf-lite/guidance/harness-template.md`
 //      The ```markdown fenced fragment inside this file is replaced
 //      byte-for-byte with the canonical block. The prose OUTSIDE the
 //      fence (the "What this is" preamble, the "Customisation points"
@@ -22,7 +22,7 @@
 // compared before overwriting so mtime does not churn).
 //
 // Wired into the release via `scripts.prepublishOnly` in
-// `packages/build/package.json` so a release cannot ship stale artefacts.
+// `packages/rcf-lite/package.json` so a release cannot ship stale artefacts.
 
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';

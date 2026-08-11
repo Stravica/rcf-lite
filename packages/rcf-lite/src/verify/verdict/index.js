@@ -49,7 +49,7 @@ export const VERDICTS = Object.freeze([...FINDING_SEVERITIES, 'NOT-DEPLOYED', 'B
  * Per-AC verdict classes emitted alongside the top-level verdict on
  * `report.perAcVerdicts[]`. Consumed by `rcf finalise` to refuse promotion
  * to `verified` on any of these AC-level verdicts (see
- * `packages/build/src/finalise/ingest.js:findMockOnlyDeclaredAcs`).
+ * `packages/rcf-lite/src/finalise/ingest.js:findMockOnlyDeclaredAcs`).
  */
 export const PER_AC_VERDICTS = Object.freeze([
   'MOCK-ONLY-DECLARED',
@@ -175,7 +175,7 @@ export function attestationPerAcVerdict(attestations = []) {
 /**
  * Resolve the Track B per-AC UI verdict for an AC. UI verdicts fire only
  * for `fbsUiBearing: true` ACs (the chain-derived flag from
- * `packages/verify/src/chain/index.js`). Priority:
+ * `packages/rcf-lite/src/verify/chain/index.js`). Priority:
  *   1. Any bound FBS has NO browserVerification entry → BROWSER-VERIFICATION-MISSING.
  *   2. Any bound FBS's browserVerification.verdict is `block` → UI-BASELINE-UNMET.
  *   3. Otherwise no per-AC UI verdict is emitted.
@@ -226,7 +226,7 @@ export function uiPerAcVerdict(ac, browserVerification = []) {
  * BOTH a service-attestation verdict AND a UI verdict (a UI-bearing FBS
  * that also depends on a mocked service produces two per-AC entries — one
  * per class). This matches the finalise gate contract in
- * `packages/build/src/finalise/ingest.js:findMockOnlyDeclaredAcs`, which
+ * `packages/rcf-lite/src/finalise/ingest.js:findMockOnlyDeclaredAcs`, which
  * filters on verdict class and does not deduplicate by acId.
  *
  * @param {object} opts

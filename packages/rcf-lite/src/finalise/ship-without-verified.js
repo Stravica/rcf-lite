@@ -12,7 +12,7 @@
 //     declaredAcs[{acId, verdict, reason?}], reportPath }
 //
 // Id allocation mirrors reviewAudit's `ra-<fbsId>-<n>` monotonic pattern
-// (packages/build/src/review/index.js:nextReviewAuditId) so a re-ack of
+// (packages/rcf-lite/src/review/index.js:nextReviewAuditId) so a re-ack of
 // the same FBS increments deterministically.
 
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';

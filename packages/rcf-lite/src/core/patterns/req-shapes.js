@@ -1,7 +1,7 @@
 // REQ-shape seed pattern set - single source of truth for REQ-shape
 // classification.
 //
-// Consumed by `packages/build/src/req-detection/classifier.js` (Track C+D
+// Consumed by `packages/rcf-lite/src/req-detection/classifier.js` (Track C+D
 // classifier, elicitation-and-playbook-hardening-0.7.0-spec §4.3), which
 // walks each in-scope field (`title`, `description`, `rationale` on the
 // REQ, plus parent PRD `intent` / `problem` as fallback context), matches

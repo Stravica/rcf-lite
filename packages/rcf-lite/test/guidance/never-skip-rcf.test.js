@@ -2,9 +2,9 @@
 // three surfaces. The register-regression canary catches wording drift
 // downstream via `bypassOffer`; this test locks the byte-identity of
 // the invariant paragraph across:
-//   1. packages/build/guidance/elicitation-playbook.md §11.1
-//   2. packages/build/guidance/build-cycle-playbook.md §13 opener
-//   3. packages/build/guidance/manifest.json platformInvariants[0].text
+//   1. packages/rcf-lite/guidance/elicitation-playbook.md §11.1
+//   2. packages/rcf-lite/guidance/build-cycle-playbook.md §13 opener
+//   3. packages/rcf-lite/guidance/manifest.json platformInvariants[0].text
 //
 // The reference passage lives at
 // `test/guidance/fixtures/never-skip-rcf.spec-8-2.txt` (bytes copied

@@ -1,6 +1,6 @@
 // AC-1.14 — the ```markdown fenced fragment inside
-// packages/build/guidance/harness-template.md byte-matches the contents
-// of packages/build/guidance/managed/agent-instructions-block.md.
+// packages/rcf-lite/guidance/harness-template.md byte-matches the contents
+// of packages/rcf-lite/guidance/managed/agent-instructions-block.md.
 //
 // The regeneration script (scripts/gen-managed-artefacts.mjs) is the
 // authority: running it must leave both derived artefacts (harness

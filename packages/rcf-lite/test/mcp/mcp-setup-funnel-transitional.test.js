@@ -1,4 +1,4 @@
-// AC-1.13 — the setup-funnel gate at packages/build/src/mcp/tools.js
+// AC-1.13 — the setup-funnel gate at packages/rcf-lite/src/mcp/tools.js
 // (via `hasAgentMarker`) recognises BOTH the pre-0.6.0 legacy marker
 // AND the 0.6.0+ managed marker. A legacy-inited repo does NOT get
 // spammed with "Setup incomplete" notices; the correct migration signal

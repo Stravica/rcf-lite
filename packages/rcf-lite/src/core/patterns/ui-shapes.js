@@ -1,9 +1,9 @@
 // UI seed pattern set - single source of truth for UI-shape detection.
 //
 // Consumed by:
-//   - `packages/build/src/ui-detection/classifier.js` (Track B UI-bearing FBS
+//   - `packages/rcf-lite/src/ui-detection/classifier.js` (Track B UI-bearing FBS
 //     classifier, ui-design-gate-0.7.0-spec §4.3).
-//   - `packages/core/src/patterns/req-shapes.js` (Track C+D REQ-shape
+//   - `packages/rcf-lite/src/core/patterns/req-shapes.js` (Track C+D REQ-shape
 //     classifier's `webUi` shape, elicitation-and-playbook-hardening-0.7.0
 //     spec §4.3, which requires this file as its single source of truth for
 //     the Web UI signal).

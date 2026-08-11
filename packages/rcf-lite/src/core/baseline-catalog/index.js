@@ -2,7 +2,7 @@
 // baseline sets defined in Track C+D §5.2 of the
 // elicitation-and-playbook-hardening-0.7.0 spec.
 //
-// Consumed by `packages/build/src/req-baseline/` (Track C+D injection
+// Consumed by `packages/rcf-lite/src/req-baseline/` (Track C+D injection
 // mechanism, spec §5.3): the build package reads a shape's baseline set
 // here, then writes each entry into a US as an AC with
 // `provenance.authoredBy: baseline` and `provenance.baselineKey` set to
