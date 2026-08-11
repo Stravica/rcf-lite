@@ -2,7 +2,7 @@
   "name": "rcf-lite-monorepo",
   "version": "0.0.0",
   "private": true,
-  "description": "pnpm workspace for the RCF Lite tooling monorepo. Houses @stravica-ai/rcf-build-lite (packages/build) and future workspace packages.",
+  "description": "pnpm workspace for the RCF Lite tooling monorepo. Houses the single published package `rcf-lite` (packages/rcf-lite), plus any future workspace-only siblings.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=24.0.0"
