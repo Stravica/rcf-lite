@@ -43,6 +43,10 @@ import { main as viewMain } from '../src/cli/view.js';
 import { main as reqClassifyMain } from '../src/cli/req-classify.js';
 import { main as reqBaselineMain } from '../src/cli/req-baseline.js';
 import { main as intakeMain } from '../src/cli/intake.js';
+// 0.7.1 packaging consolidation: `rcf verify <verb>` routes through the
+// same dispatcher the `rcf-verify` alias bin exposes. One place to wire
+// the verify subcommands; two entry points.
+import { main as verifyMain } from './rcf-verify.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -76,6 +80,10 @@ export const SUBCOMMANDS = {
   'req-classify': reqClassifyMain,
   'req-baseline': reqBaselineMain,
   intake: intakeMain,
+  // 0.7.1 packaging consolidation (R3, ratified 2026-08-06): the verify
+  // suite lives under `rcf verify <run|report|provision|cleanup|mcp>`.
+  // Dispatches to the same handlers as the `rcf-verify` alias bin.
+  verify: verifyMain,
   help: helpMain,
 };
 

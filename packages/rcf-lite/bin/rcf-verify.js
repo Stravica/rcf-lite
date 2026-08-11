@@ -1,8 +1,17 @@
 #!/usr/bin/env node
-// Unified `rcf-verify` binary (spec §3, dispatch pattern mirrors build's
-// bin/rcf.js). Argv layout: `rcf-verify <subcommand> [args...]`. The first
-// positional selects the subcommand handler; global --version / --help
-// short-circuit before dispatch.
+// The `rcf-verify` alias bin. Post 0.7.1 packaging consolidation the
+// unified `rcf` CLI grew a `verify` subcommand that dispatches to the
+// same handlers this file wires up; `rcf-verify` remains as a
+// transition-grace alias (see docs/2026-08-06_packaging-consolidation-
+// proposal.md R3). When run directly (as `rcf-verify <verb>` rather
+// than through the routing `rcf verify <verb>`), the entrypoint emits
+// a one-line stderr deprecation notice; behaviour is otherwise
+// unchanged.
+//
+// Argv layout: `rcf-verify <subcommand> [args...]`. The first positional
+// selects the subcommand handler; global --version / --help short-circuit
+// before dispatch. The `main` export is also imported by bin/rcf.js as
+// the `verify` subcommand handler, so the dispatcher lives in one place.
 
 import { realpathSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
@@ -93,6 +102,17 @@ export function isSameEntryPoint(metaUrl, argvPath) {
 
 const isMain = process.argv[1] && isSameEntryPoint(import.meta.url, process.argv[1]);
 if (isMain) {
+  // Transition-grace deprecation notice per proposal R3. Only fires when
+  // the alias bin is invoked directly (not when bin/rcf.js routes the
+  // `verify` subcommand through the exported `main`, since the isMain
+  // guard is false in that case). Suppressible via RCF_QUIET=1 for
+  // scripted callers who cannot tolerate stderr chatter.
+  if (!process.env.RCF_QUIET) {
+    process.stderr.write(
+      '[rcf-verify] deprecation: prefer `rcf verify` (the umbrella CLI subcommand). ' +
+      'The `rcf-verify` alias will be removed in a future major. Set RCF_QUIET=1 to silence.\n',
+    );
+  }
   main(process.argv.slice(2))
     .then((code) => process.exit(code))
     .catch((err) => {

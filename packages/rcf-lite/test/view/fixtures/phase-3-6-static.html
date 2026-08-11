@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Build Lite&quot;,
@@ -2946,6 +2946,157 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-009">
+  <summary><span class="summary-label">REQ-009 - Umbrella CLI: verify as a first-class subcommand</span><span class="status draft">draft</span></summary>
+  <article id="REQ-009" class="doc doc-req">
+  <h3>REQ-009 - Umbrella CLI: verify as a first-class subcommand</h3>
+  
+  <p><strong>Description:</strong> Post 0.7.1 packaging consolidation the RCF Lite suite ships as one npm package with one unified `rcf` CLI. The adversarial ship-gate verifier that used to live behind its own `rcf-verify` bin is mounted as `rcf verify &lt;run|report|provision|cleanup|mcp&gt;` on that unified CLI. The pre-existing `rcf-verify` bin remains as a transition-grace alias that dispatches through the same handlers, deprecated in favour of `rcf verify`. Behaviour of each verify verb is unchanged; only the invocation form gains a canonical route.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> cli</p>
+  <p><strong>Priority:</strong> must</p>
+  <p><strong>Rationale:</strong> The packaging consolidation ruling (docs/2026-08-06_packaging-consolidation-proposal.md, ratified 2026-08-11) picks one install (`rcf-lite`) with one CLI verb space (`rcf`). Verify is a first-class part of the RCF chain (define, build, verify) and must sit inside that verb space, not beside it. Keeping `rcf-verify` as an alias avoids a hard break for existing scripts across a transition window.</p>
+  <section class="field-list"><h4>Tags</h4><ul><li>packaging</li><li>cli</li><li>verify</li></ul></section>
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-009[&quot;REQ-009&lt;br/&gt;Umbrella CLI: verify as a first-class subcommand&quot;]
+  US-901[&quot;US-901&lt;br/&gt;Route `rcf verify` through the same dispatche...&quot;]
+  REQ-009 --&gt; US-901
+  AC-901-1[&quot;AC-901-1&quot;]
+  US-901 --&gt; AC-901-1
+  FBS-015[&quot;FBS-015&lt;br/&gt;`rcf verify` subcommand routing (0.7.1 consol...&quot;]
+  AC-901-1 -.-&gt;|delivered by| FBS-015
+  CN-055[&quot;CN-055&lt;br/&gt;Unified `rcf` bin: verify subcommand dispatch&quot;]
+  AC-901-1 -.-&gt;|implemented by| CN-055
+  AC-901-2[&quot;AC-901-2&quot;]
+  US-901 --&gt; AC-901-2
+  AC-901-2 -.-&gt;|delivered by| FBS-015
+  CN-056[&quot;CN-056&lt;br/&gt;Top-level help: verify subcommand advertised&quot;]
+  AC-901-2 -.-&gt;|implemented by| CN-056
+  AC-901-3[&quot;AC-901-3&quot;]
+  US-901 --&gt; AC-901-3
+  AC-901-3 -.-&gt;|delivered by| FBS-015
+  CN-057[&quot;CN-057&lt;br/&gt;Alias bin: transition-grace deprecation notice&quot;]
+  AC-901-3 -.-&gt;|implemented by| CN-057
+  click REQ-009 &quot;#REQ-009&quot;;
+  click US-901 &quot;#US-901&quot;;
+  click AC-901-1 &quot;#AC-901-1&quot;;
+  click FBS-015 &quot;#FBS-015&quot;;
+  click CN-055 &quot;#CN-055&quot;;
+  click AC-901-2 &quot;#AC-901-2&quot;;
+  click CN-056 &quot;#CN-056&quot;;
+  click AC-901-3 &quot;#AC-901-3&quot;;
+  click CN-057 &quot;#CN-057&quot;;
+  class REQ-009 req;
+  class US-901 us;
+  class AC-901-1 ac;
+  class FBS-015 fbs;
+  class CN-055 cn;
+  class AC-901-2 ac;
+  class CN-056 cn;
+  class AC-901-3 ac;
+  class CN-057 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;reqId&quot;: &quot;REQ-009&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Umbrella CLI: verify as a first-class subcommand&quot;,
+  &quot;description&quot;: &quot;Post 0.7.1 packaging consolidation the RCF Lite suite ships as one npm package with one unified `rcf` CLI. The adversarial ship-gate verifier that used to live behind its own `rcf-verify` bin is mounted as `rcf verify &lt;run|report|provision|cleanup|mcp&gt;` on that unified CLI. The pre-existing `rcf-verify` bin remains as a transition-grace alias that dispatches through the same handlers, deprecated in favour of `rcf verify`. Behaviour of each verify verb is unchanged; only the invocation form gains a canonical route.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;cli&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;rationale&quot;: &quot;The packaging consolidation ruling (docs/2026-08-06_packaging-consolidation-proposal.md, ratified 2026-08-11) picks one install (`rcf-lite`) with one CLI verb space (`rcf`). Verify is a first-class part of the RCF chain (define, build, verify) and must sit inside that verb space, not beside it. Keeping `rcf-verify` as an alias avoids a hard break for existing scripts across a transition window.&quot;,
+  &quot;tags&quot;: [
+    &quot;packaging&quot;,
+    &quot;cli&quot;,
+    &quot;verify&quot;
+  ],
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-11T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-11T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-901">
+  <summary><span class="summary-label">US-901 - Route `rcf verify` through the same dispatcher as the alias bin</span><span class="status draft">draft</span></summary>
+  <article id="US-901" class="doc doc-us">
+  <h3>US-901 - Route `rcf verify` through the same dispatcher as the alias bin</h3>
+  
+  <p><strong>As a:</strong> consumer of the RCF Lite CLI</p>
+  <p><strong>I want:</strong> to invoke the verify suite as `rcf verify &lt;verb&gt;` inside the unified CLI</p>
+  <p><strong>So that:</strong> verify sits inside the same verb space as the rest of the RCF chain and I only have to install one package</p>
+  <p><strong>Description:</strong> A consumer running the unified `rcf` CLI can reach the adversarial ship-gate verifier as `rcf verify &lt;verb&gt;` and get identical behaviour to the legacy `rcf-verify &lt;verb&gt;` invocation. The legacy bin remains available and emits a one-line deprecation notice on stderr so scripts can be migrated at their own pace.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-009">REQ-009</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-901-1" class="ac-item"><strong>AC-901-1</strong> - The `rcf` bin exposes `verify` as a top-level subcommand routed to the same dispatcher as the `rcf-verify` alias bin
+<div class="ac-gwt"><p><em>Given</em> the unified `rcf` binary imported from bin/rcf.js</p><p><em>When</em> `verify` is looked up on the top-level SUBCOMMANDS map</p><p><em>Then</em> the handler resolves to the same `main` function that bin/rcf-verify.js exports and dispatches over run/report/provision/cleanup/mcp/help</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-015">FBS-015</a></p></li>
+<li id="AC-901-2" class="ac-item"><strong>AC-901-2</strong> - The top-level `rcf --help` output advertises `verify` as an available subcommand
+<div class="ac-gwt"><p><em>Given</em> the unified `rcf` binary</p><p><em>When</em> `--help` or `help` runs</p><p><em>Then</em> the printed usage lists `verify &lt;verb&gt;` alongside the other top-level commands</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-015">FBS-015</a></p></li>
+<li id="AC-901-3" class="ac-item"><strong>AC-901-3</strong> - The `rcf-verify` alias bin emits a one-line stderr deprecation notice when invoked directly and stays fully functional
+<div class="ac-gwt"><p><em>Given</em> the `rcf-verify` alias bin invoked as the entry point (isMain)</p><p><em>When</em> the entry point runs without RCF_QUIET</p><p><em>Then</em> a single line describing the deprecation and the `rcf verify` replacement is written to stderr before dispatch, and the dispatch itself is unchanged</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-015">FBS-015</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-901&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-009&quot;,
+  &quot;title&quot;: &quot;Route `rcf verify` through the same dispatcher as the alias bin&quot;,
+  &quot;description&quot;: &quot;A consumer running the unified `rcf` CLI can reach the adversarial ship-gate verifier as `rcf verify &lt;verb&gt;` and get identical behaviour to the legacy `rcf-verify &lt;verb&gt;` invocation. The legacy bin remains available and emits a one-line deprecation notice on stderr so scripts can be migrated at their own pace.&quot;,
+  &quot;asA&quot;: &quot;consumer of the RCF Lite CLI&quot;,
+  &quot;iWant&quot;: &quot;to invoke the verify suite as `rcf verify &lt;verb&gt;` inside the unified CLI&quot;,
+  &quot;soThat&quot;: &quot;verify sits inside the same verb space as the rest of the RCF chain and I only have to install one package&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-901-1&quot;,
+      &quot;description&quot;: &quot;The `rcf` bin exposes `verify` as a top-level subcommand routed to the same dispatcher as the `rcf-verify` alias bin&quot;,
+      &quot;given&quot;: &quot;the unified `rcf` binary imported from bin/rcf.js&quot;,
+      &quot;when&quot;: &quot;`verify` is looked up on the top-level SUBCOMMANDS map&quot;,
+      &quot;then&quot;: &quot;the handler resolves to the same `main` function that bin/rcf-verify.js exports and dispatches over run/report/provision/cleanup/mcp/help&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-901-2&quot;,
+      &quot;description&quot;: &quot;The top-level `rcf --help` output advertises `verify` as an available subcommand&quot;,
+      &quot;given&quot;: &quot;the unified `rcf` binary&quot;,
+      &quot;when&quot;: &quot;`--help` or `help` runs&quot;,
+      &quot;then&quot;: &quot;the printed usage lists `verify &lt;verb&gt;` alongside the other top-level commands&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-901-3&quot;,
+      &quot;description&quot;: &quot;The `rcf-verify` alias bin emits a one-line stderr deprecation notice when invoked directly and stays fully functional&quot;,
+      &quot;given&quot;: &quot;the `rcf-verify` alias bin invoked as the entry point (isMain)&quot;,
+      &quot;when&quot;: &quot;the entry point runs without RCF_QUIET&quot;,
+      &quot;then&quot;: &quot;a single line describing the deprecation and the `rcf verify` replacement is written to stderr before dispatch, and the dispatch itself is unchanged&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-11T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-11T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -4005,7 +4156,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` subcommand routing (0.7.1 consolidation)</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -5352,6 +5503,76 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;Local-preview default, runtime-honest verification, interim self-review&quot;,
   &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-015">
+  <summary><span class="summary-label">FBS-015 - `rcf verify` subcommand routing (0.7.1 consolidation)</span><span class="status complete">complete</span></summary>
+  <article id="FBS-015" class="doc doc-fbs">
+  <h3>FBS-015 - `rcf verify` subcommand routing (0.7.1 consolidation)</h3>
+  
+  <p><strong>Summary:</strong> Route the adversarial ship-gate verifier under the unified `rcf` CLI as `rcf verify &lt;run|report|provision|cleanup|mcp&gt;`. The pre-existing `rcf-verify` bin becomes a transition-grace alias that dispatches through the same handlers and emits a one-line stderr deprecation notice when invoked directly.</p>
+  <p><strong>Approach:</strong> One dispatcher, two entry points. bin/rcf.js imports the `main` export from bin/rcf-verify.js and registers it as the `verify` entry on the top-level SUBCOMMANDS map, so `rcf verify --help` and `rcf-verify --help` share the same code path by construction. The alias bin gains a deprecation notice guarded by RCF_QUIET for scripted callers. The unified CLI&#39;s help output lists `verify &lt;verb&gt;` alongside the other top-level commands, sourced from the same verify TOP_LEVEL_HELP the alias bin uses (single-source rule).</p>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-901-1">AC-901-1</a><a class="ac-pill" href="#AC-901-2">AC-901-2</a><a class="ac-pill" href="#AC-901-3">AC-901-3</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-901-1">AC-901-1</a></strong> - The `rcf` bin exposes `verify` as a top-level subcommand routed to the same dispatcher as the `rcf-verify` alias bin</p>
+  <p><em>Given</em> the unified `rcf` binary imported from bin/rcf.js</p>
+  <p><em>When</em> `verify` is looked up on the top-level SUBCOMMANDS map</p>
+  <p><em>Then</em> the handler resolves to the same `main` function that bin/rcf-verify.js exports and dispatches over run/report/provision/cleanup/mcp/help</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-901-2">AC-901-2</a></strong> - The top-level `rcf --help` output advertises `verify` as an available subcommand</p>
+  <p><em>Given</em> the unified `rcf` binary</p>
+  <p><em>When</em> `--help` or `help` runs</p>
+  <p><em>Then</em> the printed usage lists `verify &lt;verb&gt;` alongside the other top-level commands</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-901-3">AC-901-3</a></strong> - The `rcf-verify` alias bin emits a one-line stderr deprecation notice when invoked directly and stays fully functional</p>
+  <p><em>Given</em> the `rcf-verify` alias bin invoked as the entry point (isMain)</p>
+  <p><em>When</em> the entry point runs without RCF_QUIET</p>
+  <p><em>Then</em> a single line describing the deprecation and the `rcf verify` replacement is written to stderr before dispatch, and the dispatch itself is unchanged</p>
+</div></section>
+  
+  
+  <p><strong>Estimated size:</strong> small</p>
+  <p><strong>Estimated hours:</strong> 1</p>
+  <section class="field-list"><h4>Deliverables</h4><ul><li>bin/rcf.js: `verify` on the top-level SUBCOMMANDS map, dispatching to the alias bin&#39;s exported main</li><li>bin/rcf-verify.js: one-line stderr deprecation notice on direct invocation, suppressible via RCF_QUIET</li><li>src/cli/help.js: `verify &lt;verb&gt;` listed in the top-level command table; `help verify` prints the alias bin&#39;s TOP_LEVEL_HELP block</li></ul></section>
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 15</p>
+  <p><strong>Execution status:</strong> complete</p>
+  <p><strong>Notes:</strong> Ratified in the 2026-08-06 packaging-consolidation proposal (R3). Pure repackage relative to 0.7.0 verify behaviour; the invocation form gains a canonical route, existing scripts keep working via the alias.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-015&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 15,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
+  &quot;title&quot;: &quot;`rcf verify` subcommand routing (0.7.1 consolidation)&quot;,
+  &quot;summary&quot;: &quot;Route the adversarial ship-gate verifier under the unified `rcf` CLI as `rcf verify &lt;run|report|provision|cleanup|mcp&gt;`. The pre-existing `rcf-verify` bin becomes a transition-grace alias that dispatches through the same handlers and emits a one-line stderr deprecation notice when invoked directly.&quot;,
+  &quot;approach&quot;: &quot;One dispatcher, two entry points. bin/rcf.js imports the `main` export from bin/rcf-verify.js and registers it as the `verify` entry on the top-level SUBCOMMANDS map, so `rcf verify --help` and `rcf-verify --help` share the same code path by construction. The alias bin gains a deprecation notice guarded by RCF_QUIET for scripted callers. The unified CLI&#39;s help output lists `verify &lt;verb&gt;` alongside the other top-level commands, sourced from the same verify TOP_LEVEL_HELP the alias bin uses (single-source rule).&quot;,
+  &quot;deliverables&quot;: [
+    &quot;bin/rcf.js: `verify` on the top-level SUBCOMMANDS map, dispatching to the alias bin&#39;s exported main&quot;,
+    &quot;bin/rcf-verify.js: one-line stderr deprecation notice on direct invocation, suppressible via RCF_QUIET&quot;,
+    &quot;src/cli/help.js: `verify &lt;verb&gt;` listed in the top-level command table; `help verify` prints the alias bin&#39;s TOP_LEVEL_HELP block&quot;
+  ],
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;estimatedHours&quot;: 1,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;domain&quot;: &quot;cli&quot;,
+  &quot;notes&quot;: &quot;Ratified in the 2026-08-06 packaging-consolidation proposal (R3). Pure repackage relative to 0.7.0 verify behaviour; the invocation form gains a canonical route, existing scripts keep working via the alias.&quot;,
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;acIds&quot;: [
+    &quot;AC-901-1&quot;,
+    &quot;AC-901-2&quot;,
+    &quot;AC-901-3&quot;
+  ],
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;createdAt&quot;: &quot;2026-08-11T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-11T00:00:00Z&quot;
 }
 </pre></details>
 </article>
@@ -7023,6 +7244,96 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-025">
+  <summary><span class="summary-label">TS-025 - `rcf verify` subcommand routing (0.7.1 consolidation)</span><span class="status draft">draft</span></summary>
+  <article id="TS-025" class="doc doc-ts">
+  <h3>TS-025 - `rcf verify` subcommand routing (0.7.1 consolidation)</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-901">US-901</a></p>
+  <p><strong>Purpose:</strong> Verify the umbrella CLI mounts `rcf verify` as a first-class subcommand that dispatches to the same handlers the transition-grace `rcf-verify` alias bin exposes, that the top-level help advertises it, and that the alias bin emits a one-line stderr deprecation notice (suppressible via RCF_QUIET) when run directly.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-901-1">AC-901-1</a>, <a href="#AC-901-2">AC-901-2</a>, <a href="#AC-901-3">AC-901-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-025-verify-routes-to-alias-dispatcher">
+  <p><strong>TC-025-verify-routes-to-alias-dispatcher</strong> - covers <a href="#AC-901-1">AC-901-1</a> <span class="status pending">pending</span></p>
+  <p>the `verify` entry on the top-level SUBCOMMANDS map is the same `main` function the alias bin exports</p>
+  <p><em>Test pointer:</em> <code>test/cli/rcf-verify-subcommand.test.js::AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin&#39;s dispatcher</code></p>
+</div>
+<div class="tc" id="TC-025-verify-help-parity">
+  <p><strong>TC-025-verify-help-parity</strong> - covers <a href="#AC-901-1">AC-901-1</a> <span class="status pending">pending</span></p>
+  <p>`rcf verify --help` and `rcf-verify --help` print byte-identical help</p>
+  <p><em>Test pointer:</em> <code>test/cli/rcf-verify-subcommand.test.js::AC-901-1 (routing surface): `rcf verify --help` dispatches to the same help block as `rcf-verify --help`</code></p>
+</div>
+<div class="tc" id="TC-025-top-level-help-lists-verify">
+  <p><strong>TC-025-top-level-help-lists-verify</strong> - covers <a href="#AC-901-2">AC-901-2</a> <span class="status pending">pending</span></p>
+  <p>the top-level rcf --help output lists `verify &lt;verb&gt;` alongside the other commands</p>
+  <p><em>Test pointer:</em> <code>test/cli/rcf-verify-subcommand.test.js::AC-901-2: `rcf --help` advertises the verify subcommand</code></p>
+</div>
+<div class="tc" id="TC-025-alias-emits-deprecation-notice">
+  <p><strong>TC-025-alias-emits-deprecation-notice</strong> - covers <a href="#AC-901-3">AC-901-3</a> <span class="status pending">pending</span></p>
+  <p>`rcf-verify` alias bin emits exactly one stderr line pointing at `rcf verify` when invoked directly</p>
+  <p><em>Test pointer:</em> <code>test/cli/rcf-verify-subcommand.test.js::AC-901-3: `rcf-verify` alias emits a one-line stderr deprecation notice on direct invocation</code></p>
+</div>
+<div class="tc" id="TC-025-alias-honours-quiet-env">
+  <p><strong>TC-025-alias-honours-quiet-env</strong> - covers <a href="#AC-901-3">AC-901-3</a> <span class="status pending">pending</span></p>
+  <p>RCF_QUIET=1 silences the deprecation notice for scripted callers</p>
+  <p><em>Test pointer:</em> <code>test/cli/rcf-verify-subcommand.test.js::AC-901-3 (silencing): `rcf-verify` with RCF_QUIET=1 does not emit the deprecation notice</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-025&quot;,
+  &quot;usId&quot;: &quot;US-901&quot;,
+  &quot;title&quot;: &quot;`rcf verify` subcommand routing (0.7.1 consolidation)&quot;,
+  &quot;purpose&quot;: &quot;Verify the umbrella CLI mounts `rcf verify` as a first-class subcommand that dispatches to the same handlers the transition-grace `rcf-verify` alias bin exposes, that the top-level help advertises it, and that the alias bin emits a one-line stderr deprecation notice (suppressible via RCF_QUIET) when run directly.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-901-1&quot;,
+    &quot;AC-901-2&quot;,
+    &quot;AC-901-3&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-025-verify-routes-to-alias-dispatcher&quot;,
+      &quot;acId&quot;: &quot;AC-901-1&quot;,
+      &quot;description&quot;: &quot;the `verify` entry on the top-level SUBCOMMANDS map is the same `main` function the alias bin exports&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/rcf-verify-subcommand.test.js::AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin&#39;s dispatcher&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-025-verify-help-parity&quot;,
+      &quot;acId&quot;: &quot;AC-901-1&quot;,
+      &quot;description&quot;: &quot;`rcf verify --help` and `rcf-verify --help` print byte-identical help&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/rcf-verify-subcommand.test.js::AC-901-1 (routing surface): `rcf verify --help` dispatches to the same help block as `rcf-verify --help`&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-025-top-level-help-lists-verify&quot;,
+      &quot;acId&quot;: &quot;AC-901-2&quot;,
+      &quot;description&quot;: &quot;the top-level rcf --help output lists `verify &lt;verb&gt;` alongside the other commands&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/rcf-verify-subcommand.test.js::AC-901-2: `rcf --help` advertises the verify subcommand&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-025-alias-emits-deprecation-notice&quot;,
+      &quot;acId&quot;: &quot;AC-901-3&quot;,
+      &quot;description&quot;: &quot;`rcf-verify` alias bin emits exactly one stderr line pointing at `rcf verify` when invoked directly&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/rcf-verify-subcommand.test.js::AC-901-3: `rcf-verify` alias emits a one-line stderr deprecation notice on direct invocation&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-025-alias-honours-quiet-env&quot;,
+      &quot;acId&quot;: &quot;AC-901-3&quot;,
+      &quot;description&quot;: &quot;RCF_QUIET=1 silences the deprecation notice for scripted callers&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/rcf-verify-subcommand.test.js::AC-901-3 (silencing): `rcf-verify` with RCF_QUIET=1 does not emit the deprecation notice&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-11T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-11T00:00:00Z&quot;
 }
 </pre></details>
 </article>

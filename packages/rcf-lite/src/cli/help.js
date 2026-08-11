@@ -38,6 +38,9 @@ import { HELP as VIEW_HELP } from './view.js';
 import { HELP as REQ_CLASSIFY_HELP } from './req-classify.js';
 import { HELP as REQ_BASELINE_HELP } from './req-baseline.js';
 import { HELP as INTAKE_HELP } from './intake.js';
+// 0.7.1 packaging consolidation: `rcf verify <verb>` routes to the same
+// help block the transition-grace `rcf-verify` alias bin uses.
+import { TOP_LEVEL_HELP as VERIFY_HELP } from '../verify/cli/help.js';
 
 const TOP_LEVEL = `Usage: rcf <command> [options]
 
@@ -70,6 +73,7 @@ Commands:
   req-classify <id>   Rerun the REQ-shape classifier and write the block
   req-baseline <verb> Baseline-AC sweep and opt-out ledger for classified REQs
   intake              Variable-fidelity intake stage (classify supplied artefacts)
+  verify <verb>       Adversarial ship gate (run|report|provision|cleanup|mcp); the legacy rcf-verify bin is a transition alias
   help [command]      Print help for a command
 
 Options:
@@ -118,6 +122,8 @@ const HELP_MAP = {
   'req-classify': REQ_CLASSIFY_HELP,
   'req-baseline': REQ_BASELINE_HELP,
   intake: INTAKE_HELP,
+  // 0.7.1 packaging consolidation: verify subcommand tree.
+  verify: VERIFY_HELP,
 };
 
 /**

@@ -66,20 +66,23 @@ function loadAll() {
 const expectedCounts = {
   manifest: 1,
   prd: 1,
-  req: 8,
-  userStory: 24,
+  // 0.7.1 packaging consolidation added REQ-009 (verify subcommand
+  // routing) with US-901, TS-025, FBS-015 and CN-055..057.
+  req: 9,
+  userStory: 25,
   tad: 1,
   tac: 8,
   adr: 9,
   buildSequence: 1,
-  fbs: 14,
+  fbs: 15,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
-  codeNode: 54,
+  // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
+  codeNode: 57,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
-  testSuite: 24,
+  testSuite: 25,
 };
 
 test('expected file counts by category', () => {

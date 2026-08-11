@@ -7,10 +7,10 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 14,
+    "items": 15,
     "notStarted": 2,
     "inProgress": 0,
-    "complete": 12,
+    "complete": 13,
     "verified": 0,
     "actionable": 2,
     "blocked": 0
@@ -22,7 +22,8 @@
       "fbsIds": [
         "FBS-001",
         "FBS-013",
-        "FBS-014"
+        "FBS-014",
+        "FBS-015"
       ]
     },
     {
@@ -221,6 +222,16 @@
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-015",
+      "buildOrder": 15,
+      "tier": 0,
+      "title": "`rcf verify` subcommand routing (0.7.1 consolidation)",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [],
+      "state": "complete",
       "blockedBy": []
     }
   ]

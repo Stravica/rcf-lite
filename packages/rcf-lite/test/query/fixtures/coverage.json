@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 8,
-    "covered": 8,
+    "requirements": 9,
+    "covered": 9,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -671,6 +671,39 @@
           "covered": true,
           "testCases": [
             "TC-024-in-loop-not-the-gate"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-009",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-901-1",
+          "covered": true,
+          "testCases": [
+            "TC-025-verify-help-parity",
+            "TC-025-verify-routes-to-alias-dispatcher"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-901-2",
+          "covered": true,
+          "testCases": [
+            "TC-025-top-level-help-lists-verify"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-901-3",
+          "covered": true,
+          "testCases": [
+            "TC-025-alias-emits-deprecation-notice",
+            "TC-025-alias-honours-quiet-env"
           ],
           "unresolvedTestCases": []
         }

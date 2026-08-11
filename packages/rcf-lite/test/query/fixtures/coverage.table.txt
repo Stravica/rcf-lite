@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 8  covered: 8  covered-unresolved: 0  uncovered: 0
+Requirements: 9  covered: 9  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC        AC covered  Test cases
 -----------  -------  --------  ----------  ------------------------------------------------------------
@@ -79,3 +79,6 @@ REQ-008      yes      AC-801-1  yes         TC-020-preview-in-definition-of-done
                       AC-805-2  yes         TC-024-reviewer-drives-the-app
                       AC-805-3  yes         TC-024-names-defect-classes
                       AC-805-4  yes         TC-024-in-loop-not-the-gate
+REQ-009      yes      AC-901-1  yes         TC-025-verify-help-parity, TC-025-verify-routes-to-alias-...
+                      AC-901-2  yes         TC-025-top-level-help-lists-verify
+                      AC-901-3  yes         TC-025-alias-emits-deprecation-notice, TC-025-alias-honou...

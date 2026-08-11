@@ -1,0 +1,32 @@
+{
+  "fbsId": "FBS-015",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 15,
+  "executionStatus": "complete",
+  "title": "`rcf verify` subcommand routing (0.7.1 consolidation)",
+  "summary": "Route the adversarial ship-gate verifier under the unified `rcf` CLI as `rcf verify <run|report|provision|cleanup|mcp>`. The pre-existing `rcf-verify` bin becomes a transition-grace alias that dispatches through the same handlers and emits a one-line stderr deprecation notice when invoked directly.",
+  "approach": "One dispatcher, two entry points. bin/rcf.js imports the `main` export from bin/rcf-verify.js and registers it as the `verify` entry on the top-level SUBCOMMANDS map, so `rcf verify --help` and `rcf-verify --help` share the same code path by construction. The alias bin gains a deprecation notice guarded by RCF_QUIET for scripted callers. The unified CLI's help output lists `verify <verb>` alongside the other top-level commands, sourced from the same verify TOP_LEVEL_HELP the alias bin uses (single-source rule).",
+  "deliverables": [
+    "bin/rcf.js: `verify` on the top-level SUBCOMMANDS map, dispatching to the alias bin's exported main",
+    "bin/rcf-verify.js: one-line stderr deprecation notice on direct invocation, suppressible via RCF_QUIET",
+    "src/cli/help.js: `verify <verb>` listed in the top-level command table; `help verify` prints the alias bin's TOP_LEVEL_HELP block"
+  ],
+  "estimatedSize": "small",
+  "estimatedHours": 1,
+  "riskLevel": "low",
+  "domain": "cli",
+  "notes": "Ratified in the 2026-08-06 packaging-consolidation proposal (R3). Pure repackage relative to 0.7.0 verify behaviour; the invocation form gains a canonical route, existing scripts keep working via the alias.",
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "acIds": [
+    "AC-901-1",
+    "AC-901-2",
+    "AC-901-3"
+  ],
+  "dependsOnFbsIds": [],
+  "createdAt": "2026-08-11T00:00:00Z",
+  "updatedAt": "2026-08-11T00:00:00Z"
+}
