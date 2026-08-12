@@ -82,8 +82,13 @@ export async function main(argv, deps = {}) {
     stderr.write('[error] usage test-suite: verb required (provenance | approve)\n');
     return 2;
   }
-  if (!/^TS-\d{3}$/.test(tsId)) {
-    stderr.write(`[error] usage test-suite: expected a TS id like TS-015, got '${tsId}'\n`);
+  // 0.8.0 slug-train (w-2026-07-28-012 landmine 3, consumer-path
+  // straggler): widened `\d{3}` -> `\d{3,}` in lockstep with rcf-schemas
+  // 0.4.3's TS pattern. The previous shape hard-refused any TS >= 1000 --
+  // silent from the operator's perspective (the tsId matched the schema
+  // but the CLI verb refused with a usage error citing "TS-015").
+  if (!/^TS-\d{3,}$/.test(tsId)) {
+    stderr.write(`[error] usage test-suite: expected a TS id like TS-015 or TS-1000, got '${tsId}'\n`);
     return 2;
   }
 

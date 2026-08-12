@@ -136,3 +136,56 @@ test('test-suite approve is a no-op when already approved', async () => {
   assert.equal(code, 0);
   assert.match(stdout, /already approved/);
 });
+
+// ---------------------------------------------------------------------------
+// 0.8.0 slug-train landmine 3 consumer-path straggler: `rcf test-suite`
+// used to gate its TS positional on `^TS-\d{3}$` and hard-refuse any TS
+// >= 1000 even though rcf-schemas 0.4.3 admits it. Widened to `\d{3,}`.
+// ---------------------------------------------------------------------------
+async function scaffoldWithFourDigitTs(tsStatus = 'draft') {
+  const tmp = await mkdtemp(join(tmpdir(), 'rcf-ts-cli-4digit-'));
+  await initProject({ projectRoot: tmp, projectName: 'TsFourDigitTest' });
+  const ts = {
+    id: 'TS-1000',
+    usId: 'US-101',
+    status: tsStatus,
+    title: 'US-101 coverage (four-digit)',
+    purpose: 'Cover AC-101-1 with a widened TS id',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [
+      { id: 'TC-1000-happy', acId: 'AC-101-1', description: 'happy', status: 'pending', testPointer: 'test/happy.test.js::happy path' },
+    ],
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(tmp, 'rcf/test-suites/ts-1000.json'), `${JSON.stringify(ts, null, 2)}\n`, 'utf8');
+  return tmp;
+}
+
+test('rcf test-suite TS-1000 provenance accepts a four-digit TS id (0.8.0 landmine 3, consumer-path)', async () => {
+  const tmp = await scaffoldWithFourDigitTs();
+  const { code, stderr } = await runBin(tmp, [
+    'test-suite', 'TS-1000', 'provenance', '--tc', 'TC-1000-happy', '--profile', 'mock', '--notes', 'four-digit ok',
+  ]);
+  assert.equal(code, 0, `stderr=${stderr}`);
+  const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-1000.json'), 'utf8'));
+  const happy = ts.testCases.find((t) => t.id === 'TC-1000-happy');
+  assert.equal(happy.runtimeProvenance.profile, 'mock');
+});
+
+test('rcf test-suite TS-1000 approve accepts a four-digit TS id (0.8.0 landmine 3, consumer-path)', async () => {
+  const tmp = await scaffoldWithFourDigitTs('draft');
+  const { code } = await runBin(tmp, ['test-suite', 'TS-1000', 'approve']);
+  assert.equal(code, 0);
+  const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-1000.json'), 'utf8'));
+  assert.equal(ts.status, 'approved');
+});
+
+test('rcf test-suite refuses a non-TS positional and cites both three-digit and four-digit shapes (0.8.0 landmine 3, error-text update)', async () => {
+  const tmp = await scaffoldWithTs();
+  const { code, stderr } = await runBin(tmp, ['test-suite', 'not-a-ts-id', 'approve']);
+  assert.equal(code, 2);
+  assert.match(stderr, /expected a TS id/);
+  assert.match(stderr, /TS-1000/, 'error text must cite the widened shape now that four-digit TS ids are admissible');
+});

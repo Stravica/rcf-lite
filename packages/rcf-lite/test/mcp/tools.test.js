@@ -415,3 +415,31 @@ test('rcf_build: a blocked item still returns its bundle - blockedBy is data, no
   assert.equal(result.isError, undefined, 'blocked bundles are data');
   assert.deepEqual(result.structuredContent.blockedBy, ['FBS-001']);
 });
+
+// ---------------------------------------------------------------------------
+// 0.8.0 slug-train landmine 3 consumer-path straggler: the MCP `rcf_read`
+// tool used to silently return null for TC ids beyond three digits
+// (`^TC-\d{3}-[a-z0-9-]+$` inline guard). Widened to `\d{3,}`.
+// ---------------------------------------------------------------------------
+test('rcf_read: resolves an inline TC on a widened (four-digit) TS (0.8.0 landmine 3, mcp-path)', async () => {
+  const tmp = await scaffold();
+  const ts = {
+    id: 'TS-1000',
+    usId: 'US-101',
+    title: 'US-101 coverage (four-digit TS)',
+    purpose: 'Prove rcf_read resolves a TC on a widened TS id via MCP',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    status: 'draft',
+    testCases: [
+      { id: 'TC-1000-first-case', acId: 'AC-101-1', description: 'first', status: 'pending', testPointer: 'test/x.test.js::x' },
+    ],
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(tmp, 'rcf/test-suites/ts-1000.json'), `${JSON.stringify(ts, null, 2)}\n`, 'utf8');
+  const registry = registryFor(tmp);
+  const result = await registry.call('rcf_read', { id: 'TC-1000-first-case' });
+  assert.equal(result.isError, undefined, `MCP read should resolve TC-1000-first-case; got ${JSON.stringify(result)}`);
+  assert.equal(result.structuredContent.value.id, 'TC-1000-first-case');
+});
