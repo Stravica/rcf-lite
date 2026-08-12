@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, chmod, mkdir } from 'node:fs/promises';
+import { mkdtemp, writeFile, chmod, mkdir, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -18,6 +18,8 @@ import {
   resolvePackageBin,
   resolveAbsentVerify,
   VERIFY_PACKAGE,
+  VERIFY_PACKAGE_LEGACY,
+  VERIFY_PACKAGE_CANDIDATES,
 } from '../../src/finalise/index.js';
 
 function sink() {
@@ -125,6 +127,61 @@ test('resolvePackageBin returns null when the package is not installed nearby', 
   const dir = await mkdtemp(join(tmpdir(), 'fin-res-'));
   const res = await resolvePackageBin(dir);
   assert.equal(res, null);
+});
+
+test('VERIFY_PACKAGE targets the umbrella (rcf-lite) with the legacy scoped name only as a fallback', () => {
+  assert.equal(VERIFY_PACKAGE, 'rcf-lite');
+  assert.equal(VERIFY_PACKAGE_LEGACY, '@stravica-ai/rcf-verify-lite');
+  assert.deepEqual(VERIFY_PACKAGE_CANDIDATES, [VERIFY_PACKAGE, VERIFY_PACKAGE_LEGACY]);
+});
+
+test('resolvePackageBin prefers the umbrella (rcf-lite) when both packages are installed', async () => {
+  // Stage a fake project whose node_modules holds BOTH packages: the current
+  // umbrella exposing `rcf-verify` via its bin map, and the legacy scoped
+  // package with a string bin. The umbrella must win. mkdtemp+realpath so the
+  // path we assert against matches what node's resolver returns on macOS
+  // (where /var/folders is a symlink into /private/var/folders).
+  const proj = await realpath(await mkdtemp(join(tmpdir(), 'fin-pref-')));
+  const umbrella = join(proj, 'node_modules', 'rcf-lite');
+  await mkdir(join(umbrella, 'bin'), { recursive: true });
+  await writeFile(join(umbrella, 'bin', 'rcf.js'), '#!/usr/bin/env node\n', 'utf8');
+  await writeFile(join(umbrella, 'bin', 'rcf-verify.js'), '#!/usr/bin/env node\n', 'utf8');
+  await writeFile(join(umbrella, 'package.json'), JSON.stringify({
+    name: 'rcf-lite',
+    version: '0.7.1',
+    bin: { rcf: 'bin/rcf.js', 'rcf-verify': 'bin/rcf-verify.js' },
+  }), 'utf8');
+  const legacyDir = join(proj, 'node_modules', '@stravica-ai', 'rcf-verify-lite');
+  await mkdir(join(legacyDir, 'bin'), { recursive: true });
+  await writeFile(join(legacyDir, 'bin', 'rcf-verify.js'), '#!/usr/bin/env node\n', 'utf8');
+  await writeFile(join(legacyDir, 'package.json'), JSON.stringify({
+    name: '@stravica-ai/rcf-verify-lite',
+    version: '0.6.0',
+    bin: 'bin/rcf-verify.js',
+  }), 'utf8');
+
+  const res = await resolvePackageBin(proj);
+  assert.equal(res, join(umbrella, 'bin', 'rcf-verify.js'),
+    'umbrella rcf-lite must be preferred over the legacy scoped package');
+});
+
+test('resolvePackageBin falls back to the legacy scoped package when only it is installed', async () => {
+  // Simulates a project whose lockfile still pins the pre-0.7.1 scoped
+  // package; detection MUST still succeed so an existing install keeps
+  // finalise working while the operator migrates lockfiles.
+  const proj = await realpath(await mkdtemp(join(tmpdir(), 'fin-legacy-')));
+  const legacyDir = join(proj, 'node_modules', '@stravica-ai', 'rcf-verify-lite');
+  await mkdir(join(legacyDir, 'bin'), { recursive: true });
+  await writeFile(join(legacyDir, 'bin', 'rcf-verify.js'), '#!/usr/bin/env node\n', 'utf8');
+  await writeFile(join(legacyDir, 'package.json'), JSON.stringify({
+    name: '@stravica-ai/rcf-verify-lite',
+    version: '0.6.0',
+    bin: { 'rcf-verify': 'bin/rcf-verify.js' },
+  }), 'utf8');
+
+  const res = await resolvePackageBin(proj);
+  assert.equal(res, join(legacyDir, 'bin', 'rcf-verify.js'),
+    'legacy scoped package must still resolve as the fallback');
 });
 
 test('detectVerify reports installed with a PATH invocation', async () => {

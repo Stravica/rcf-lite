@@ -16,14 +16,19 @@ You want this machine to run `rcf`. The steps are agent-executable; a human foll
 ## 3. Install from npm
 
 ```sh
-npm install -g @stravica-ai/rcf-build-lite @stravica-ai/rcf-verify-lite
+npm install -g rcf-lite
 ```
 
-That puts the `rcf` and `rcf-verify` binaries on your PATH. To try the build CLI without installing anything, `npx @stravica-ai/rcf-build-lite <verb>` runs the same thing.
+That puts both binaries on your PATH:
 
-**Why install both.** `rcf-verify` is the independent ship gate. `rcf finalise <fbs-id> --url <deploy-url>` promotes an FBS from `complete` to `verified` only when a fresh-context `rcf-verify` run against the deployed app passes - so the two are recommended together. They stay independently installable (verify alone for CI; build alone if you truly want no ship gate), and finalise will prompt to install `rcf-verify` if it is absent rather than silently skipping the gate. If you install build alone, `npm install -g @stravica-ai/rcf-build-lite` still works.
+- `rcf` - the unified CLI. 30+ verbs covering define, build, verify and finalise (`init`, `view`, `validate`, `build`, `verify`, `finalise`, ...).
+- `rcf-verify` - a transition-grace alias for the adversarial ship-gate verifier. Prefer `rcf verify <run|report|provision|cleanup|mcp>` in new work; the alias prints a one-line deprecation notice on stderr and will be removed in a future major (silence in scripts with `RCF_QUIET=1`).
 
-The only runtime dependency of the build CLI, `@stravica-ai/rcf-schemas`, installs from the public npm registry; no registry auth is needed.
+To try the CLI without installing anything, `npx rcf-lite <verb>` runs the same thing.
+
+**One package, one install.** Before 0.7.1 the suite shipped as three separately published packages (`@stravica-ai/rcf-build-lite`, `@stravica-ai/rcf-verify-lite`, `@stravica-ai/rcf-lite-core`). Those names are now deprecated on npm and resolve to `rcf-lite`. If your lockfile still pins one of them, migrate to `rcf-lite` on your next release; the runbook and the reasoning are linked from the [README](../../../README.md#where-this-came-from).
+
+The only runtime dependency, `@stravica-ai/rcf-schemas` (the JSON Schema contract, deliberately kept as a separate public package), installs from the public npm registry; no registry auth is needed.
 
 ## 4. Install from source
 
@@ -52,7 +57,7 @@ rcf --version
 ```
 
 ```
-rcf 0.1.0
+rcf 0.7.1
 ```
 
 `rcf help` prints the verb surface; `rcf help <verb>` is the canonical flag reference for every subcommand. These docs deliberately do not duplicate flag tables.
@@ -74,7 +79,7 @@ The golden path is one command, run in your project directory BEFORE you start t
 rcf init
 ```
 
-(With a global install, `rcf` is already on your PATH. Without one, `npx @stravica-ai/rcf-build-lite init` is the same thing; from a source clone, use the shell helper from [section 6](#6-verify-the-install).)
+(With a global install, `rcf` is already on your PATH. Without one, `npx rcf-lite init` is the same thing; from a source clone, use the shell helper from [section 6](#6-verify-the-install).)
 
 `rcf init` is the full pre-session bootstrap. It:
 
@@ -95,13 +100,13 @@ Running this in a repo that already has code, history and its own `CLAUDE.md` or
   "mcpServers": {
     "rcf": {
       "command": "node",
-      "args": ["/absolute/path/to/rcf-build-lite/bin/rcf.js", "mcp"]
+      "args": ["/absolute/path/to/rcf-lite/bin/rcf.js", "mcp"]
     }
   }
 }
 ```
 
-For a global npm install, the path is `$(npm root -g)/@stravica-ai/rcf-build-lite/bin/rcf.js`; for a source install, it is the clone's `bin/rcf.js`.
+For a global npm install, the path is `$(npm root -g)/rcf-lite/bin/rcf.js`; for a source install, it is the clone's `bin/rcf.js`.
 
 Then run `rcf guidance harness-template`, paste its first ```` ```markdown ```` fence into your project's `CLAUDE.md` or `AGENTS.md`, and restart the agent session. (`rcf guidance` prints the method documents out of the installed package, so you do not need a clone of this repo to reach them; run it with no arguments to list the topics.) The server nudges any session it detects as unwired (no rcf marker block in the instructions file) back to `rcf init` + restart.
 
@@ -172,9 +177,9 @@ What init gives a brownfield repo is an entry point, not a finished state: the m
 | Symptom | Cause | Fix |
 |---|---|---|
 | `npm install -g` or `pnpm install` fails on `engines` / `EBADENGINE` | Node older than 24 | Install Node 24+ (`node --version` to confirm), then reinstall. |
-| Install cannot resolve `@stravica-ai/rcf-build-lite` or `@stravica-ai/rcf-schemas` | Corporate proxy or a custom registry mirror that does not mirror the public npm registry | Point your package manager at the public registry for the scope: `npm config set @stravica-ai:registry https://registry.npmjs.org` (or the `pnpm config` equivalent). No auth token is needed. |
+| Install cannot resolve `rcf-lite` or `@stravica-ai/rcf-schemas` | Corporate proxy or a custom registry mirror that does not mirror the public npm registry | Point your package manager at the public registry: `npm config set registry https://registry.npmjs.org` for the unscoped umbrella, and `npm config set @stravica-ai:registry https://registry.npmjs.org` for the schemas dependency (or the `pnpm config` equivalents). No auth token is needed. |
 | `rcf view` page shows no diagrams | Vendored Mermaid bundle missing (`src/view/vendored/mermaid.min.js`) | Run `pnpm run vendor` from the clone root. |
 | `rcf view` exits 2 with `EADDRINUSE` | Port 4373 already bound | Pass `--port <n>` or stop the other process. `rcf help view` lists the precedence rules. |
-| `command not found: rcf` | No global install on this machine | `npm install -g @stravica-ai/rcf-build-lite`, or run without installing via `npx @stravica-ai/rcf-build-lite <verb>`. Inside a source clone, use `pnpm rcf <verb>` or the shell helper from [section 6](#6-verify-the-install). |
+| `command not found: rcf` | No global install on this machine | `npm install -g rcf-lite`, or run without installing via `npx rcf-lite <verb>`. Inside a source clone, use `pnpm rcf <verb>` or the shell helper from [section 6](#6-verify-the-install). |
 | MCP client shows zero `rcf_*` tools; the server subprocess is dead | `rcf mcp` found no `rcf/manifest.json` in its working directory or any ancestor. It exits 2 with a `no project root found` line on stderr before any protocol traffic; most MCP clients hide that stderr, so the only visible symptom is an empty tool list. | Run `rcf init` in the project the server should serve (it wires the tree, `.mcp.json` and the agent instructions), then restart the agent session; or point the server at an initialised project with `--project-root <path>`. See [section 7](#7-wire-into-an-agent-harness). |
 | Every tool response ends with a "Setup incomplete" instruction | The server found a tree but no `<!-- rcf:begin -->` block in the project-root `CLAUDE.md` / `AGENTS.md`; the session started without the init bootstrap. | Run `rcf init` in the project, then exit and restart the agent session. The notice disappears once the marker block exists. |
