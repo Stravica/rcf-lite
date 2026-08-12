@@ -1,0 +1,146 @@
+{
+  "$schemaComment": "rcf-lite shared standards ruleset v1. Machine-readable contract consumed by build-lite's chain-admissibility lint, verify's per-AC scope check, and (from the umbrella release that adds it) rcf-define-lite's elicitation checklist. camelCase per estate convention. The rulesetVersion is stamped at load time from the umbrella package.json (see src/ruleset/index.js) per NV-BL-SR-02: there is no separate ruleset semver, its version is the rcf-lite umbrella version.",
+  "id": "rcf-lite-ruleset",
+  "provenance": {
+    "requirementsDoc": "projects/rcf-build-lite/docs/2026-08-06_build-lite-nextver-requirements.md",
+    "rulingSheet": "projects/rcf-build-lite/docs/2026-08-06_nextver-ruling-sheet.md",
+    "designWorkItem": "w-2026-07-28-012",
+    "ratifiedItems": [1, 2, 3, 4, 6, 7, 8, 11, 14, 15, 16, 17, 19]
+  },
+  "admissibilityRules": [
+    {
+      "id": "NV-BL-ADM-01",
+      "title": "Every functional REQ terminates in at least one AC observable as behaviour of the running product",
+      "requiresScopeTagVocabulary": true,
+      "refuseByDefault": true,
+      "overrideChannel": "recordedInChain",
+      "notes": "For every REQ classified functional, the chain must contain at least one AC that is observable in the running product, not only in a library or a fixture. AC-shape classifier tags govern which REQ-shapes must terminate in a runtime- or deployed-scope AC."
+    },
+    {
+      "id": "NV-BL-ADM-02",
+      "title": "AC-shape classifier assigns each AC a scope tag (library / runtime / deployed)",
+      "requiresScopeTagVocabulary": true,
+      "refuseByDefault": true,
+      "overrideChannel": "migrationStateUnclassified",
+      "notes": "The scope-tag vocabulary and the AC schema field that carries the tag live in rcf-schemas. See scopeTagVocabulary below."
+    },
+    {
+      "id": "NV-BL-ADM-03",
+      "title": "Bound TCs must exercise their AC's declared scope",
+      "requiresScopeTagVocabulary": true,
+      "refuseByDefault": true,
+      "overrideChannel": "migrationStateUnclassified",
+      "notes": "For each AC, the bound TC's scope must be equal to or wider than the AC's scope tag. Bootstrap window: chains authored before scope tags land carry scope 'unclassified' and are tolerated for one release cycle."
+    },
+    {
+      "id": "NV-BL-ADM-04",
+      "title": "Source-comment honesty gate",
+      "refuseByDefault": true,
+      "overrideChannel": "adrExternalBoundaryOnly",
+      "markerVocabularyRef": "sourceCommentMarkers",
+      "notes": "Source files bound to any FBS at status complete are scanned for admission markers. Any match refuses FBS completion. Per ratified ruling-sheet item 16, the only permitted override channel is an ADR recording the deferral for a genuine external-boundary blocker; the ADR names the marker text, the blocker, and the reason. NV-BL-ADM-05's generic recorded-override channel no longer covers source markers."
+    },
+    {
+      "id": "NV-BL-ADM-05",
+      "title": "Chain-admissibility gate is refuse-first, override-recorded",
+      "refuseByDefault": true,
+      "overrideChannel": "recordedInChain",
+      "notes": "A chain failing any admissibility check is refused before build starts. Explicit overrides are permitted for non-source-marker checks, recorded in the chain with rule id, reason, and authoring identity, and surfaced in the finalise summary. Source-comment markers (NV-BL-ADM-04) fall outside this generic override channel."
+    },
+    {
+      "id": "NV-BL-ADM-06",
+      "title": "Build-stage refusal on ruleset-version drift",
+      "refuseByDefault": true,
+      "overrideChannel": "recordedInChain",
+      "notes": "At build start, build-lite compares the ruleset version the chain declares it was authored against with the version the shipping lint enforces. Behaviour-changing drift refuses; additive-only drift warns. Ratified 2026-08-11 ruling-sheet item 7: define-stage drift is a warning-with-acknowledgement; build-stage drift is a refusal."
+    }
+  ],
+  "gateRules": [
+    {
+      "id": "NV-BL-GATE-01",
+      "title": "Pull rcf-verify profile-vs-AC check into the REVIEW stage",
+      "notes": "The profile-vs-AC scope-mismatch check runs at REVIEW time for every FBS, not only at finalise. Verify carries the check; the review-stage gate consumes the same helper."
+    },
+    {
+      "id": "NV-BL-GATE-02",
+      "title": "Deploy-smoke FBS is a chain-mandatory element for any REQ with deployed-scope ACs",
+      "requiresScopeTagVocabulary": true,
+      "notes": "Any chain whose REQ set contains at least one deployed-scope AC must contain at least one FBS whose build sequence boots the built artefact against a real config and asserts operator-visible behaviour."
+    },
+    {
+      "id": "NV-BL-GATE-03",
+      "title": "Boot-integration TC template family for runtime-scope ACs",
+      "templateFamilyRef": "tcTemplateFamily",
+      "notes": "Runtime-scope ACs whose bound TC is not a boot-integration TC or a wider-scope TC fail admissibility (via NV-BL-ADM-03) and REVIEW (via NV-BL-GATE-01)."
+    },
+    {
+      "id": "NV-BL-GATE-04",
+      "title": "Ruling-set consistency light-check at ruling-application time",
+      "checkFamilyRef": "rulingConsistencyChecks",
+      "notes": "Light mechanical checks only per ratified ruling-sheet item 4: no two rulings name the same external resource with contradictory constraints; no ruling implies a capability the ruled-in service does not have on the ruled-in tier. Probabilistic and suitability work belongs in rcf-define-lite under DL-REQ-VALIDATE-04."
+    }
+  ],
+  "scopeTagVocabulary": {
+    "sourcePackage": "@stravica-ai/rcf-schemas",
+    "schemaRef": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/scopeTag",
+    "values": [
+      { "value": "library", "description": "Observable in an isolated library or fixture." },
+      { "value": "runtime", "description": "Observable in the running product against local integration." },
+      { "value": "deployed", "description": "Observable on a booted artefact against real config and real network." },
+      { "value": "unclassified", "description": "Migration state for chains authored before the scope-tag vocabulary shipped; ruleset-enforcing consumers decide whether unclassified is currently accepted." }
+    ],
+    "unclassifiedMigrationTolerance": {
+      "toleratedFor": "one release cycle from the umbrella release that first ships this ruleset",
+      "expiresWhen": "rcf-define-lite ships and can take over elicitation"
+    }
+  },
+  "sourceCommentMarkers": [
+    { "marker": "TODO", "caseInsensitive": true },
+    { "marker": "FIXME", "caseInsensitive": true },
+    { "marker": "XXX", "caseInsensitive": true },
+    { "marker": "HACK", "caseInsensitive": true },
+    { "marker": "placeholder", "caseInsensitive": true },
+    { "marker": "v1 refinement", "caseInsensitive": true },
+    { "marker": "deferred", "caseInsensitive": true },
+    { "marker": "stub", "caseInsensitive": true }
+  ],
+  "tcTemplateFamily": [
+    {
+      "id": "TCT-SERVER-BOOT",
+      "title": "Server-boot integration TC",
+      "surface": "server",
+      "notes": "Boots the built server against a real config and asserts an operator-visible observable (probe fires, page returns 200 with expected content, and so on)."
+    },
+    {
+      "id": "TCT-CLI-INVOKE",
+      "title": "CLI-invoke integration TC",
+      "surface": "cli",
+      "notes": "Invokes the packaged CLI as an installed artefact (not via the workspace source) against a real config and asserts an operator-visible observable."
+    },
+    {
+      "id": "TCT-CONTAINER-RUN",
+      "title": "Container-run integration TC",
+      "surface": "container",
+      "notes": "Runs the built container against a real config and asserts an operator-visible observable."
+    }
+  ],
+  "rulingConsistencyChecks": [
+    {
+      "id": "RCC-EXTERNAL-RESOURCE-CONTRADICTION",
+      "title": "No two rulings name the same external resource with contradictory constraints",
+      "kind": "lightMechanical",
+      "notes": "Detects the Resend-collision class: Ruling A names service.tier=free and Ruling B names service.domainCount=N with N > tier-limit(free)."
+    },
+    {
+      "id": "RCC-TIER-CAPABILITY-MISMATCH",
+      "title": "No ruling implies a capability the ruled-in service does not have on the ruled-in tier",
+      "kind": "lightMechanical",
+      "notes": "Detects the ruling-in of a capability against a tier that cannot deliver it. Deep suitability checks live in rcf-define-lite under DL-REQ-VALIDATE-04."
+    }
+  ],
+  "toolScope": {
+    "chainAdmissibility": true,
+    "traceabilityAndQueryTools": true,
+    "notes": "Per ratified ruling-sheet item 1 addendum: the same rule set governs what a traceability or query tool may return as much as it governs what build may consume. A query tool that hides an admissibility failure is the same class of defect as a build that hides one."
+  }
+}
