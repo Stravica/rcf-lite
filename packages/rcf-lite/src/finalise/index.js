@@ -17,7 +17,13 @@ export {
 } from './detect.js';
 export { buildVerifyArgs, spawnVerify } from './spawn.js';
 export { promptYesNo, installVerify, resolveAbsentVerify } from './install.js';
-export { loadReport, summariseReport, findMockOnlyDeclaredAcs, reportHasMockOnlyDeclared } from './ingest.js';
+export {
+  loadReport, summariseReport,
+  findMockOnlyDeclaredAcs, reportHasMockOnlyDeclared,
+  // 0.8.0 slug-train car 4: NV-BL-GATE-01 pull-in of the profile-vs-AC
+  // scope-mismatch check into REVIEW.
+  findScopeMismatchAcs, reportHasScopeMismatch,
+} from './ingest.js';
 export {
   composeShipWithoutVerifiedRecord,
   nextShipWithoutVerifiedId,

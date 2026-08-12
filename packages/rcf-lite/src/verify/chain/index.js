@@ -120,6 +120,29 @@ function fbsIdsFor(fbsItems, acId) {
 }
 
 /**
+ * The bound TCs for `acId`, each carrying its own scope tag (if the TC
+ * declares one; unspecified surfaces as `undefined`). 0.8.0 slug-train
+ * car 4 (NV-BL-GATE-01: pull rcf-verify profile-vs-AC check into the
+ * REVIEW stage). Verify uses this to detect SCOPE-MISMATCH per-AC
+ * verdicts: a bound TC whose scope is NARROWER than the AC's scope tag
+ * cannot legitimately cover that AC (per NV-BL-ADM-03).
+ *
+ * @param {object[]} testSuites
+ * @param {string} acId
+ * @returns {Array<{ tsId: string, tcId: string, scope: string|undefined }>}
+ */
+function boundTcsFor(testSuites, acId) {
+  const out = [];
+  for (const ts of testSuites ?? []) {
+    for (const tc of ts.testCases ?? []) {
+      if (tc?.acId !== acId) continue;
+      out.push({ tsId: ts.id, tcId: tc.id, scope: tc.scope });
+    }
+  }
+  return out;
+}
+
+/**
  * Read the acceptance contract from the chain. Returns the flattened list of
  * acceptance criteria (each mapped back to its user story + requirement — the
  * chain-node addressing the report carries), plus the resolved chainRef and
@@ -157,6 +180,7 @@ export async function readChain({ repo, chainRef } = {}) {
 
   const resolvedRef = chainRef ?? tree.prd?.prdId ?? 'PRD-UNKNOWN';
   const fbsItems = tree.fbsItems ?? [];
+  const testSuites = tree.testSuites ?? [];
   const acs = [];
   for (const us of tree.userStories ?? []) {
     for (const ac of us.acceptanceCriteria ?? []) {
@@ -175,6 +199,13 @@ export async function readChain({ repo, chainRef } = {}) {
         serviceAttestations: serviceAttestationsFor(fbsItems, ac.id),
         fbsUiBearing: fbsUiBearingFor(fbsItems, ac.id),
         fbsIds: fbsIdsFor(fbsItems, ac.id),
+        // 0.8.0 slug-train car 4 (NV-BL-GATE-01, NV-BL-ADM-03): scope
+        // tags read straight off rcf-schemas 0.4.3's AC/TC subschemas;
+        // the verdict layer runs the scope check per-AC in REVIEW,
+        // matching what NV-BL-GATE-01 pulls in from the finalise-time
+        // profile check.
+        scope: ac.scope,
+        boundTcs: boundTcsFor(testSuites, ac.id),
       });
     }
   }

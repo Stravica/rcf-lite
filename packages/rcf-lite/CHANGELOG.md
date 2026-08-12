@@ -4,7 +4,24 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
-## [0.8.0] - 2026-08-12 (in progress on `slug-train/0.8.0`)
+## [0.8.0] - 2026-08-12 (on `slug-train/0.8.0`, PR pending)
+
+### Added (Car 4, verify updates per requirements doc)
+
+- **`src/verify/chain/index.js` (`readChain`) surfaces AC `scope` and per-TC `boundTcs`.** Every flattened AC now carries the schema-declared scope tag (or `undefined` for bootstrap-era ACs) plus a `boundTcs[]` list of `{ tsId, tcId, scope }` for every bound TC. Verify's downstream verdict layer runs the scope check off this shape, matching the shape the admissibility lint's `scanTcScopeVsAc` consumes at build stage.
+- **`src/verify/verdict/index.js` (`scopePerAcVerdict`, extended `derivePerAcVerdicts`).** New `SCOPE-MISMATCH` per-AC verdict (NV-BL-GATE-01 + NV-BL-ADM-03). Fires when an AC declares a scope tag AND every bound TC's scope is narrower than the AC's scope AND at least one bound TC declares a scope tag (bootstrap-era TCs without a tag are silent -- the admissibility lint handles that class). At least one TC at or wider than the AC scope clears the mismatch (a wider TC is always admissible). Emitted alongside the four 0.7.0 per-AC verdict classes on `report.perAcVerdicts[]`. Existing report validator (`src/verify/report/index.js`) admits the new class via the widened `PER_AC_VERDICTS` enum.
+- **`src/finalise/ingest.js` (`findScopeMismatchAcs`, `reportHasScopeMismatch`; extended `summariseReport`).** NV-BL-GATE-01 REVIEW-stage consumers (`rcf review <fbs-id>`, `rcf finalise`) read the same shape via new predicates. `summariseReport` renders a dedicated `scope mismatches (N)` section when the report carries any SCOPE-MISMATCH entries (silent when none, so pre-0.8.0 reports remain byte-identical in the summary output).
+- **`src/finalise/index.js` re-exports** `findScopeMismatchAcs` and `reportHasScopeMismatch` alongside the pre-existing mock-only-declared predicates.
+- **`test/verify/chain/scope-derivation-0-8-0.test.js` (2 tests):** chain reader hands through AC.scope + per-TC scope on boundTcs; leaves AC.scope undefined when the AC has no tag.
+- **`test/verify/verdict/scope-mismatch-0-8-0.test.js` (7 tests):** narrower TC surfaces SCOPE-MISMATCH; wider or equal TC clears; deployed TC covering runtime AC is fine; AC without scope is silent; TC without scope is silent; AC with no bound TCs is silent; `derivePerAcVerdicts` emits SCOPE-MISMATCH alongside MOCK-ONLY-DECLARED on the same AC when both apply.
+- **`test/finalise/scope-mismatch-0-8-0.test.js` (5 tests):** `findScopeMismatchAcs` extracts SCOPE-MISMATCH only; graceful with absent perAcVerdicts; `reportHasScopeMismatch` truthiness; `summariseReport` renders a dedicated section; silent when no mismatches present.
+- **`test/verify/verdict/per-ac-verdicts-0-7-0.test.js` PER_AC_VERDICTS assertion updated** to include SCOPE-MISMATCH (0.8.0 slug-train car 4).
+
+### Version bump
+
+- **`package.json` version 0.7.1 -> 0.8.0.** Consumes `@stravica-ai/rcf-schemas@0.4.3` (exact pin per the umbrella exact-pin doctrine ratified alongside item 18; the 0.4.3 diff is additive-only and preserved by the existing back-compat fixtures on the schemas side). The `rcf-lite@0.8.0` tag + publish is out of this train's scope and Dave will cut it post-merge.
+
+
 
 The `0.8.0` admissibility-and-ruleset release, cut against the ratified next-version plan (`projects/rcf-build-lite/docs/2026-08-06_next-version-plan-amendment.md`) and requirements (`projects/rcf-build-lite/docs/2026-08-06_build-lite-nextver-requirements.md`). Ships the shared standards ruleset bundled inside this umbrella package, wires build-lite's fitness tracks around it (admissibility lint refuse-by-default, build-stage drift refusal, gate tightenings), and pulls verify's per-AC scope check into REVIEW. Car 1 of the slug-train, `@stravica-ai/rcf-schemas@0.4.3`, published to npm on 2026-08-12 and is EXACT-PINNED here (no caret, no range) per the umbrella exact-pin doctrine ratified alongside item 18. The 0.4.3 diff is additive-only: widened id patterns to accept an optional kebab-case slug tail on FBS / CN / ADR / TAC ids, widened TS/TC to drop the 999 cap, added the shared `scopeTag` vocabulary in `common.schema.json`, and added optional `scope` fields on AC and TC. Every existing chain continues to validate; no retro-slugging is performed.
 
