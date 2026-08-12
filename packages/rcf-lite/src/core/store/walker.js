@@ -21,6 +21,28 @@ import { listSubdirJsonFiles, loadDocument, loadRootDocument, pathForId, subdirF
 import { validateDocument } from './validator.js';
 
 /**
+ * Derive an id from a filename stem, upper-casing the prefix segment only
+ * and leaving any slug tail verbatim (0.8.0 slug-train; w-2026-07-28-012
+ * landmine 1). Every id shape rcf-schemas 0.4.3 admits is
+ * `<PREFIX>-<digits>[-<lower-kebab>]`, so the split is always on the
+ * FIRST hyphen. Segments after the first hyphen are lower-case by
+ * construction (schema pattern `[a-z0-9]+(?:-[a-z0-9]+)*`); we still
+ * leave them verbatim rather than round-tripping through
+ * .toLowerCase() so a slug that fails the pattern surfaces as-is at the
+ * schema-validation step instead of being silently masked here.
+ *
+ * @param {string} stem - filename stem, e.g. `fbs-004-user-login`.
+ * @returns {string} canonical id, e.g. `FBS-004-user-login`.
+ */
+function idFromFilenameStem(stem) {
+  const dash = stem.indexOf('-');
+  if (dash === -1) return stem.toUpperCase();
+  const prefix = stem.slice(0, dash).toUpperCase();
+  const tail = stem.slice(dash);
+  return `${prefix}${tail}`;
+}
+
+/**
  * @typedef {object} TreeModel
  * @property {object|null} manifest
  * @property {object|null} prd
@@ -182,7 +204,23 @@ async function loadChildKind(kind, { projectRoot, tree, errors }) {
   }
   for (const entry of listing.files) {
     const stem = entry.replace(/\.json$/, '');
-    const id = stem.toUpperCase();
+    // 0.8.0 slug-train (w-2026-07-28-012 landmine 1 / d-2026-07-28-011
+    // recon): upper-case the PREFIX segment only. Full-stem toUpperCase
+    // was lossless while every id was `<PREFIX>-<digits>`; the moment a
+    // slug lands (`fbs-004-user-login.json` -> body `FBS-004-user-login`),
+    // the whole-stem fold produced `FBS-004-USER-LOGIN` in tree.byId /
+    // kindById / parentByChild while every inbound reference
+    // (dependsOnFbsIds, contextRequirements.adrIds, us.tacIds,
+    // cn.dependencies) used the lower-case form. The graph silently
+    // detached. Fixing this here, before any slug-consuming change lands,
+    // is the single load-bearing precondition of the whole slug design
+    // (see the item's regression test in test/store/walker.test.js:
+    // "walkTree preserves case on slug tails when deriving id from
+    // filename"). Slugs are lower-case kebab by construction (rcf-schemas
+    // 0.4.3 pattern `[a-z0-9]+(?:-[a-z0-9]+)*`), so leaving the tail
+    // verbatim is safe. `PRD-001.json` / `req-002.json` / mixed-case
+    // filenames continue to normalise their prefix.
+    const id = idFromFilenameStem(stem);
     // Filename-derived ids are not injective: on a case-sensitive
     // filesystem `REQ-001.json` and `req-001.json` are two files that
     // both resolve to `REQ-001`. Recording both silently collapsed the
@@ -848,10 +886,18 @@ function collectBrokenReferences(tree, errors) {
       }
     }
     // Inline TC id pattern check: `TC-<TS-suffix>-<slug>`.
-    const tsSuffix = ts.id?.match(/^TS-(\d{3})$/)?.[1];
+    // 0.8.0 slug-train (w-2026-07-28-012 landmine 3): widened from
+    // `\d{3}` (three-digit-exact) to `\d{3,}` in lockstep with
+    // rcf-schemas 0.4.3's TS/TC pattern widening. The pre-0.8.0 shape
+    // silently skipped every TS above 999: a TS-1000 failed the exact
+    // three-digit match, tsSuffix was undefined, and the whole
+    // idPrefixMatchesParent rule never fired for that TS's inline TCs.
+    // No error, no warning, just an unchecked doc -- exactly the
+    // silent-skip class this train is chartered to eliminate.
+    const tsSuffix = ts.id?.match(/^TS-(\d{3,})$/)?.[1];
     if (tsSuffix) {
       for (const tc of ts.testCases ?? []) {
-        const m = String(tc.id ?? '').match(/^TC-(\d{3})-[a-z0-9-]+$/);
+        const m = String(tc.id ?? '').match(/^TC-(\d{3,})-[a-z0-9-]+$/);
         if (m && m[1] !== tsSuffix) {
           errors.push(rcfError({
             kind: 'brokenReference',

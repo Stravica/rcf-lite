@@ -11,8 +11,8 @@ importers:
   packages/rcf-lite:
     dependencies:
       '@stravica-ai/rcf-schemas':
-        specifier: 0.4.2
-        version: 0.4.2
+        specifier: 0.4.3
+        version: 0.4.3
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
@@ -78,8 +78,8 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@stravica-ai/rcf-schemas@0.4.2':
-    resolution: {integrity: sha512-zsC0TQSbKN4BJZ+xPCGLd06JhU3OfzS7gfrp01dSSlbBBRRPRXBMtYd9UmhdZiV3dWKG8GCSR3hLkjyHijcsMA==}
+  '@stravica-ai/rcf-schemas@0.4.3':
+    resolution: {integrity: sha512-HwxYOP8BxH42GTDCVsqQqo6GphTLtTDNeQFZDHZv2YkYWEM7spAOdEeVWXH//UkImPF34EiR6fDgHNO2vgJ1SA==}
     engines: {node: '>=24.0.0'}
 
   '@types/d3-array@3.2.2':
@@ -939,7 +939,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stravica-ai/rcf-schemas@0.4.2': {}
+  '@stravica-ai/rcf-schemas@0.4.3': {}
 
   '@types/d3-array@3.2.2': {}
 

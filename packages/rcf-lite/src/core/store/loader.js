@@ -154,7 +154,10 @@ export async function loadDocument({ projectRoot, id }) {
  * discovery mechanism for tree topology (topology comes from parent-id
  * fields); this is just the load-time enumeration required to bring every
  * on-disk file into memory. Callers derive the document id from the
- * filename stem in upper case (per the layout convention).
+ * filename stem by upper-casing the PREFIX segment only (0.8.0
+ * slug-train, w-2026-07-28-012 landmine 1); slug tails stay verbatim
+ * because rcf-schemas 0.4.3 admits lower-case kebab tails on FBS / CN /
+ * ADR / TAC and a full-stem fold would silently detach the graph.
  *
  * Returns `{ files: string[] }` on success. Missing subdir returns
  * `{ files: [] }` (an empty children collection is a valid tree state).

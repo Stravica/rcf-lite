@@ -249,7 +249,9 @@ export function nextIdForKind(tree, kind, opts = {}) {
       if (typeof slug !== 'string' || slug.length === 0) {
         throw new TypeError('nextIdForKind tc requires opts.slug');
       }
-      const mTs = /^TS-(\d{3})$/.exec(tsId);
+      // 0.8.0 slug-train (w-2026-07-28-012 landmine 3): widened to
+      // `\d{3,}` in lockstep with rcf-schemas 0.4.3.
+      const mTs = /^TS-(\d{3,})$/.exec(tsId);
       if (!mTs) throw new TypeError('nextIdForKind tc: unrecognised TS id');
       return `TC-${mTs[1]}-${slug}`;
     }
@@ -263,15 +265,24 @@ export function nextIdForKind(tree, kind, opts = {}) {
 // set fed in (see `occupiedIdsOfKind`). Comparison stays numeric and the
 // emitted id is always the canonical three-digit-minimum spelling, so a
 // freshly allocated id is never a leading-zero variant of a taken one.
+//
+// 0.8.0 slug-train (w-2026-07-28-012 landmine 2): the previous shape used
+// `^<PREFIX>-(\\d+)$` and slug-blindly ignored any id whose number was
+// followed by a slug tail. Verified empirically: /^FBS-(\d+)$/.test(
+// 'FBS-003-user-login') === false, so a slugged id was invisible to the
+// high-water mark and the allocator reset to 001 and re-issued taken
+// numbers. Use the shared `idNumber(id, prefix)` helper (ids.js:72-78,
+// pattern `^${prefix}-(\d+)(?:-|$)`) instead of writing a second parser
+// -- that helper's whole job is to parse a number out of any id shape the
+// schemas admit (numeric-only OR slug-suffixed), so numeric-only and
+// slugged ids feed into the SAME high-water mark and cannot collide by
+// spelling. w-2026-07-28-017's `occupiedIdsOfKind` already feeds the
+// right ids in; landmine 2 is that this reader could not parse them.
 function nextFlatId(prefix, ids) {
   let max = 0;
-  const re = new RegExp(`^${prefix}-(\\d+)$`);
   for (const id of ids) {
-    const m = re.exec(id ?? '');
-    if (m) {
-      const n = Number(m[1]);
-      if (n > max) max = n;
-    }
+    const n = idNumber(id, prefix);
+    if (n !== null && n > max) max = n;
   }
   return `${prefix}-${String(max + 1).padStart(3, '0')}`;
 }
@@ -904,8 +915,14 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
       message: 'create tc: --test-pointer is required (format filePath::testName; coverage counts a TC only when its pointer resolves to a real test)',
     });
   }
-  const slug = options.slug ?? deriveSlug(description);
-  const tsSuffix = /^TS-(\d{3})$/.exec(parentTsId)?.[1];
+  // 0.8.0 slug-train (w-2026-07-28-012 landmine 4): deriveSlug now returns
+  // '' on empty derivation so the TC-specific `|| 'tc'` fallback is applied
+  // here rather than leaking the literal 'tc' into non-TC callers. See
+  // deriveSlug for the full argument.
+  const slug = options.slug ?? (deriveSlug(description) || 'tc');
+  // 0.8.0 slug-train (w-2026-07-28-012 landmine 3): widened `\d{3}` ->
+  // `\d{3,}` in lockstep with rcf-schemas 0.4.3.
+  const tsSuffix = /^TS-(\d{3,})$/.exec(parentTsId)?.[1];
   if (!tsSuffix) {
     return rcfError({ kind: 'usage', message: `create tc: parent ${parentTsId} has an unrecognised id shape` });
   }
@@ -959,7 +976,17 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
  * partial word is dropped (B2 fix, E2E matrix 2026-07-06-003 - ids
  * like "...-saved-whil" chopped mid-word). A single unbroken word
  * longer than the limit keeps its 40-char prefix (no boundary exists).
+ *
+ * 0.8.0 slug-train (w-2026-07-28-012 landmine 4): returns '' when no
+ * slug can be derived (empty / non-word / whitespace input). The previous
+ * shape returned the literal 'tc' as a fallback, which leaked the TC
+ * kind-specific default into every slug caller -- an FBS whose title
+ * derived to empty would land as `FBS-004-tc`, entirely wrong for the
+ * kind. TC callers now apply `deriveSlug(description) || 'tc'` locally
+ * (createInlineTc); every non-TC caller decides what its own empty
+ * fallback should be, or refuses.
  * @param {string} description
+ * @returns {string} slug, or '' when no slug can be derived
  */
 export function deriveSlug(description) {
   const full = String(description)
@@ -973,7 +1000,7 @@ export function deriveSlug(description) {
     if (boundary > 0) slug = slug.slice(0, boundary);
   }
   slug = slug.replace(/-+$/g, '');
-  return slug.length > 0 ? slug : 'tc';
+  return slug;
 }
 
 /**
@@ -1160,7 +1187,10 @@ function checkCrossLinks(tree, kind, doc, docId) {
 function resolveInlineId(id) {
   if (typeof id !== 'string') return null;
   if (/^AC-\d+(-\d+)?$/.test(id)) return { kind: 'ac' };
-  if (/^TC-\d{3}-[a-z0-9-]+$/.test(id)) return { kind: 'tc' };
+  // 0.8.0 slug-train (w-2026-07-28-012 landmine 3): widened `\d{3}` -> `\d{3,}`
+  // in lockstep with rcf-schemas 0.4.3. A TC-1000-... would otherwise fail
+  // the inline resolver even though the schema admits it.
+  if (/^TC-\d{3,}-[a-z0-9-]+$/.test(id)) return { kind: 'tc' };
   return null;
 }
 

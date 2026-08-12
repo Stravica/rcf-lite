@@ -1005,7 +1005,10 @@ export function createToolRegistry({ projectRoot, log }) {
       if (kind === 'tc') {
         if (!args.acId) return usageErrorResult('create tc: acId is required');
         body.acId = args.acId;
-        options.slug = args.slug ?? deriveSlug(body.description);
+        // 0.8.0 slug-train (w-2026-07-28-012 landmine 4): deriveSlug returns
+        // '' on empty derivation; TC keeps its historical 'tc' fallback
+        // locally rather than letting deriveSlug bake it in.
+        options.slug = args.slug ?? (deriveSlug(body.description) || 'tc');
         if (args.testPointer !== undefined) options.testPointer = args.testPointer;
       }
 

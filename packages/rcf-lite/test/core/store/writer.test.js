@@ -489,7 +489,24 @@ test('deleteDocument TS is a no-op cascade (no downstream references)', async ()
 test('deriveSlug lowercases and squashes non-alphanumeric runs', () => {
   assert.equal(deriveSlug('Happy Path!'), 'happy-path');
   assert.equal(deriveSlug('   Multi  Space   '), 'multi-space');
-  assert.equal(deriveSlug('!!!'), 'tc');
+  // 0.8.0 slug-train (w-2026-07-28-012 landmine 4): deriveSlug returns ''
+  // on empty derivation now rather than the TC-specific literal 'tc'. TC
+  // callers apply `|| 'tc'` locally; every non-TC caller decides its own
+  // fallback (or refuses). The pre-0.8.0 shape leaked 'tc' into any
+  // kind whose title derived to empty (e.g. FBS-004-tc), which is wrong.
+  assert.equal(deriveSlug('!!!'), '');
+});
+
+test('0.8.0 slug-train (landmine 4): deriveSlug returns empty string, not the "tc" literal', () => {
+  // Regression guard for w-2026-07-28-012 landmine 4. If a caller regresses
+  // this to `slug.length > 0 ? slug : 'tc'`, non-TC callers (FBS, CN, ADR,
+  // TAC) that derive to an empty slug would silently produce an id ending
+  // in `-tc` -- wrong kind label baked in as a slug. The bare deriveSlug
+  // contract is now purely: derive OR empty.
+  assert.equal(deriveSlug(''), '');
+  assert.equal(deriveSlug('   '), '');
+  assert.equal(deriveSlug('---'), '');
+  assert.notEqual(deriveSlug('!!!'), 'tc');
 });
 
 // ---- B2 regression (E2E matrix 2026-07-06-003) -----------------------------
@@ -561,4 +578,124 @@ test('create ignores caller-supplied createdAt / updatedAt - the writer clock wi
   assert.equal(res.body.createdAt, res.body.updatedAt, 'both fields come from the same nowIso() call');
   const onDisk = JSON.parse(await readFile(join(projectRoot, 'rcf/requirements/req-002.json'), 'utf8'));
   assert.equal(onDisk.updatedAt, res.body.updatedAt);
+});
+
+// ---------------------------------------------------------------------------
+// 0.8.0 slug-train (w-2026-07-28-012 landmine 2): nextFlatId used to be
+// slug-blind. Its regex `^${prefix}-(\d+)$` matched only numeric-only ids;
+// a slugged id (rcf-schemas 0.4.3 admits FBS-003-user-login) was invisible
+// to the high-water mark and the allocator reset to 001 and re-issued
+// taken numbers. The fix uses the shared idNumber(id, prefix) helper
+// (ids.js) which parses both shapes.
+// ---------------------------------------------------------------------------
+test('nextIdForKind sees slugged ids in the occupancy set (0.8.0 landmine 2)', async () => {
+  const { projectRoot } = await scaffold();
+  // Author a slugged FBS with number 4. Without the landmine 2 fix,
+  // nextIdForKind('fbs') would re-issue FBS-001 (because the allocator's
+  // regex `^FBS-(\d+)$` fails against `FBS-004-user-login`, so the
+  // high-water mark stays at 0 for FBS on a fresh scaffold that carries
+  // only the slugged one).
+  const { writeFile } = await import('node:fs/promises');
+  const slugFbs = {
+    fbsId: 'FBS-004-user-login',
+    prdId: 'PRD-001',
+    bsId: 'BS-001',
+    title: 'User login (slugged)',
+    summary: 'Regression fixture for landmine 2: allocator must see FBS-004 through the slug tail.',
+    approach: 'The allocator parses id numbers via ids.js idNumber(), not a local slug-blind regex.',
+    acIds: ['AC-101-1'],
+    dependsOnFbsIds: [],
+    buildOrder: 2,
+    executionStatus: 'notStarted',
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(projectRoot, 'rcf', 'fbs', 'fbs-004-user-login.json'), JSON.stringify(slugFbs), 'utf8');
+  const reloaded = await reload(projectRoot);
+  const nextId = nextIdForKind(reloaded.tree, 'fbs');
+  // Without the fix this would be FBS-002 (only the scaffold's FBS-001
+  // was visible to the regex). With the fix the slugged FBS-004 is
+  // visible and nextIdForKind returns FBS-005.
+  assert.equal(nextId, 'FBS-005', 'allocator must see slugged FBS-004 in the high-water mark');
+});
+
+test('nextIdForKind never re-issues a slugged FBS number even without a companion numeric-only FBS at the same slot (0.8.0 landmine 2)', async () => {
+  const { projectRoot } = await scaffold();
+  const { writeFile, unlink } = await import('node:fs/promises');
+  // Remove the scaffold's FBS-001 and replace with a slugged FBS-007 only:
+  // the fix must still resolve nextId to FBS-008, not FBS-001 (fresh reset).
+  await unlink(join(projectRoot, 'rcf', 'fbs', 'fbs-001.json'));
+  const slugFbs = {
+    fbsId: 'FBS-007-lonely-slug',
+    prdId: 'PRD-001',
+    bsId: 'BS-001',
+    title: 'Lonely slug',
+    summary: 'Fixture proving the high-water mark is set from a slugged id alone.',
+    approach: 'When the only FBS on disk is slugged, the allocator still sees its number.',
+    acIds: ['AC-101-1'],
+    dependsOnFbsIds: [],
+    buildOrder: 1,
+    executionStatus: 'notStarted',
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(projectRoot, 'rcf', 'fbs', 'fbs-007-lonely-slug.json'), JSON.stringify(slugFbs), 'utf8');
+  const reloaded = await reload(projectRoot);
+  assert.equal(nextIdForKind(reloaded.tree, 'fbs'), 'FBS-008');
+});
+
+// ---------------------------------------------------------------------------
+// 0.8.0 slug-train (w-2026-07-28-012 landmine 3): the writer's TC-slot
+// allocator used a hardcoded `\d{3}` TS-suffix match. The moment a TS
+// crosses 999 (rcf-schemas 0.4.3 admits TS-1000), the allocator refused
+// with "unrecognised TS id" even though the schema admitted the parent.
+// ---------------------------------------------------------------------------
+test('nextIdForKind tc admits a TS beyond 999 (0.8.0 landmine 3)', async () => {
+  const { projectRoot } = await scaffold();
+  const { writeFile } = await import('node:fs/promises');
+  const bigTs = {
+    id: 'TS-1000',
+    usId: 'US-101',
+    status: 'draft',
+    title: 'TS beyond the 999 wall',
+    purpose: 'Regression fixture for landmine 3: allocator must parse a four-digit TS suffix.',
+    acIds: ['AC-101-1'],
+    testLevel: 'unit',
+    testCases: [],
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(projectRoot, 'rcf', 'test-suites', 'ts-1000.json'), JSON.stringify(bigTs), 'utf8');
+  const reloaded = await reload(projectRoot);
+  // Without the widening this throws "nextIdForKind tc: unrecognised TS id".
+  const tcId = nextIdForKind(reloaded.tree, 'tc', { parentId: 'TS-1000', slug: 'first-case' });
+  assert.equal(tcId, 'TC-1000-first-case');
+});
+
+test('walker inline-TC prefix-match rule fires for TS beyond 999 (0.8.0 landmine 3, walker.js:851)', async () => {
+  // The dual of the writer widening: the walker's inline-TC prefix-mismatch
+  // check used the same hardcoded \d{3}. On a TS-1000 the tsSuffix match
+  // failed, the check silently skipped every inline TC under that TS, and a
+  // mismatched TC prefix would ship un-flagged. This test asserts the
+  // check now fires (a TC-999-x under TS-1000 must surface as a
+  // brokenReference / idPrefixMatchesParent).
+  const { projectRoot } = await scaffold();
+  const { writeFile } = await import('node:fs/promises');
+  const badTs = {
+    id: 'TS-1000',
+    usId: 'US-101',
+    status: 'draft',
+    title: 'TS with a mismatched TC prefix',
+    purpose: 'Landmine 3 walker guard: prove the prefix-match check fires beyond 999.',
+    acIds: ['AC-101-1'],
+    testLevel: 'unit',
+    // TC prefix says 999 while the parent TS is 1000 -- must be flagged.
+    testCases: [{ id: 'TC-999-wrong-prefix', acId: 'AC-101-1', description: 'x', status: 'pending', testPointer: 'test/x.test.js::x' }],
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(projectRoot, 'rcf', 'test-suites', 'ts-1000.json'), JSON.stringify(badTs), 'utf8');
+  const reloaded = await reload(projectRoot);
+  const mismatch = reloaded.errors.find((e) => e.rule === 'idPrefixMatchesParent' && e.documentId === 'TS-1000');
+  assert.ok(mismatch, `expected an idPrefixMatchesParent error for TS-1000; got ${JSON.stringify(reloaded.errors, null, 2)}`);
 });
