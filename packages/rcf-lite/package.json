@@ -63,7 +63,8 @@
     "#core/patterns/register-canary": "./src/core/patterns/register-canary.js",
     "#core/baseline-catalog": "./src/core/baseline-catalog/index.js",
     "#core/fixtures/register-canary/*": "./src/core/fixtures/register-canary/*",
-    "#ruleset": "./src/ruleset/index.js"
+    "#ruleset": "./src/ruleset/index.js",
+    "#admissibility": "./src/admissibility/index.js"
   },
   "dependencies": {
     "@stravica-ai/rcf-schemas": "0.4.3",
