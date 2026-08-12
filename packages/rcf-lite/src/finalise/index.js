@@ -6,7 +6,15 @@
 // absent - prompts to install rather than silently skipping the gate (detect.js
 // + install.js).
 
-export { detectVerify, findOnPath, resolvePackageBin, VERIFY_PACKAGE, VERIFY_BIN } from './detect.js';
+export {
+  detectVerify,
+  findOnPath,
+  resolvePackageBin,
+  VERIFY_PACKAGE,
+  VERIFY_PACKAGE_LEGACY,
+  VERIFY_PACKAGE_CANDIDATES,
+  VERIFY_BIN,
+} from './detect.js';
 export { buildVerifyArgs, spawnVerify } from './spawn.js';
 export { promptYesNo, installVerify, resolveAbsentVerify } from './install.js';
 export { loadReport, summariseReport, findMockOnlyDeclaredAcs, reportHasMockOnlyDeclared } from './ingest.js';

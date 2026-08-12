@@ -1,23 +1,32 @@
 // rcf-verify install detection (spec §8.3, amendment 5 - install-together
-// posture). build-lite's finalise gate MUST detect whether `rcf-verify` is
-// resolvable and, when it is absent, prompt to install it - NEVER silently
-// skip the ship gate (the one behaviour §8.3 explicitly forbids).
+// posture). The finalise gate MUST detect whether `rcf-verify` is resolvable
+// and, when it is absent, prompt to install it - NEVER silently skip the ship
+// gate (the one behaviour §8.3 explicitly forbids).
 //
-// Two detection routes, in order, matching how the two packages are actually
-// installed:
-//   1. The `rcf-verify` bin on PATH - the install-together default is two
-//      global bins (`npm i -g @stravica-ai/rcf-build-lite @stravica-ai/rcf-verify-lite`).
+// Two detection routes, in order, matching how the CLI is actually installed:
+//   1. The `rcf-verify` bin on PATH - the umbrella install exposes both `rcf`
+//      and `rcf-verify` as global bins (`npm i -g rcf-lite`).
 //   2. Package resolution from the project dir - the local-project install
-//      (`npm i @stravica-ai/rcf-verify-lite` in a repo's node_modules).
-// Either hit yields a concrete invocation the finalise spawn (spawn.js) uses
-// verbatim. A miss returns { installed:false } and the caller enters the
-// prompt-or-explicit-flag path.
+//      (`npm i rcf-lite` in a repo's node_modules). Two package specifiers
+//      are tried in order: the current umbrella `rcf-lite`, then the legacy
+//      `@stravica-ai/rcf-verify-lite` name (deprecated at 0.7.1 but still
+//      resolvable in lockfiles that pinned it). Either resolves to the same
+//      `bin/rcf-verify.js` entry point.
+// Either route yields a concrete invocation the finalise spawn (spawn.js)
+// uses verbatim. A miss returns { installed:false } and the caller enters
+// the prompt-or-explicit-flag path.
 
 import { access, constants } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { delimiter, dirname, join, resolve } from 'node:path';
 
-const VERIFY_PACKAGE = '@stravica-ai/rcf-verify-lite';
+// VERIFY_PACKAGE is the current install target and the name shown to
+// operators in absent-verify messaging. VERIFY_PACKAGE_LEGACY is only used
+// as a resolution fallback for lockfiles still pinning the pre-0.7.1 scoped
+// name; it is never displayed as an install target.
+const VERIFY_PACKAGE = 'rcf-lite';
+const VERIFY_PACKAGE_LEGACY = '@stravica-ai/rcf-verify-lite';
+const VERIFY_PACKAGE_CANDIDATES = [VERIFY_PACKAGE, VERIFY_PACKAGE_LEGACY];
 const VERIFY_BIN = 'rcf-verify';
 
 /**
@@ -69,31 +78,44 @@ export async function findOnPath(name, { env = process.env } = {}) {
 }
 
 /**
- * Resolve the rcf-verify package's bin entry point from a starting directory,
- * following the normal node_modules resolution the caller's project sees.
- * Returns the absolute path to `bin/rcf-verify.js`, or null if the package is
- * not installed / not resolvable from there.
+ * Resolve the rcf-verify bin entry point from a starting directory, following
+ * the normal node_modules resolution the caller's project sees. Returns the
+ * absolute path to `bin/rcf-verify.js`, or null if no candidate package is
+ * installed / resolvable from there.
+ *
+ * Candidates are tried in the order defined by VERIFY_PACKAGE_CANDIDATES: the
+ * current umbrella (`rcf-lite`) first, then the deprecated scoped name
+ * (`@stravica-ai/rcf-verify-lite`) as a fallback for lockfiles pinned to it.
+ * The first candidate whose bin resolves and exists on disk wins.
  *
  * @param {string} fromDir - directory to resolve from (the project root / cwd)
  * @returns {Promise<string|null>}
  */
 export async function resolvePackageBin(fromDir) {
+  // Resolve from a synthetic module living in fromDir so node walks that
+  // project's node_modules chain, not this package's own.
+  let req;
   try {
-    // Resolve from a synthetic module living in fromDir so node walks that
-    // project's node_modules chain, not build-lite's own.
-    const req = createRequire(join(fromDir, 'noop.js'));
-    const pkgJsonPath = req.resolve(`${VERIFY_PACKAGE}/package.json`);
-    const req2 = createRequire(pkgJsonPath);
-    const pkg = req2(`${VERIFY_PACKAGE}/package.json`);
-    const binField = pkg.bin;
-    const rel = typeof binField === 'string' ? binField : binField?.[VERIFY_BIN];
-    if (!rel) return null;
-    const abs = resolve(dirname(pkgJsonPath), rel);
-    await access(abs, constants.F_OK);
-    return abs;
+    req = createRequire(join(fromDir, 'noop.js'));
   } catch {
     return null;
   }
+  for (const candidate of VERIFY_PACKAGE_CANDIDATES) {
+    try {
+      const pkgJsonPath = req.resolve(`${candidate}/package.json`);
+      const req2 = createRequire(pkgJsonPath);
+      const pkg = req2(`${candidate}/package.json`);
+      const binField = pkg.bin;
+      const rel = typeof binField === 'string' ? binField : binField?.[VERIFY_BIN];
+      if (!rel) continue;
+      const abs = resolve(dirname(pkgJsonPath), rel);
+      await access(abs, constants.F_OK);
+      return abs;
+    } catch {
+      // Candidate not resolvable from here; try the next one.
+    }
+  }
+  return null;
 }
 
 /**
@@ -126,4 +148,4 @@ export async function detectVerify(deps = {}) {
   return { installed: false, invocation: null };
 }
 
-export { VERIFY_PACKAGE, VERIFY_BIN };
+export { VERIFY_PACKAGE, VERIFY_PACKAGE_LEGACY, VERIFY_PACKAGE_CANDIDATES, VERIFY_BIN };
