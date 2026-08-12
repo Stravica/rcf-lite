@@ -119,7 +119,13 @@ function resolveTarget(tree, id) {
     const entry = (us.acceptanceCriteria ?? []).find((ac) => ac.id === id);
     return entry ? { doc: entry, containerId: parentId, invalid: false } : null;
   }
-  if (/^TC-\d{3}-[a-z0-9-]+$/.test(id)) {
+  // 0.8.0 slug-train (w-2026-07-28-012 landmine 3, consumer-path
+  // straggler): widened `\d{3}` -> `\d{3,}` in lockstep with rcf-schemas
+  // 0.4.3's TC pattern. Under the previous shape `rcf read TC-1000-x`
+  // fell through to the `return null` below (silent skip) even when the
+  // TC existed under a widened TS -- exactly the class the landmine
+  // charter names.
+  if (/^TC-\d{3,}-[a-z0-9-]+$/.test(id)) {
     const parentId = tree.parentByChild.get(id);
     if (!parentId) return null;
     const ts = tree.byId.get(parentId);

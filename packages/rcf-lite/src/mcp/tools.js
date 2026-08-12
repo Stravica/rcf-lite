@@ -762,7 +762,12 @@ function resolveTarget(tree, id) {
     const entry = (us.acceptanceCriteria ?? []).find((ac) => ac.id === id);
     return entry ? { doc: entry } : null;
   }
-  if (/^TC-\d{3}-[a-z0-9-]+$/.test(id)) {
+  // 0.8.0 slug-train (w-2026-07-28-012 landmine 3, consumer-path
+  // straggler): widened `\d{3}` -> `\d{3,}` in lockstep with rcf-schemas
+  // 0.4.3's TC pattern. Under the previous shape a `read TC-1000-x` MCP
+  // call silently returned null even when the TC existed -- the same
+  // silent-skip class as the CLI `rcf read` path (src/cli/read.js).
+  if (/^TC-\d{3,}-[a-z0-9-]+$/.test(id)) {
     const parentId = tree.parentByChild.get(id);
     if (!parentId) return null;
     const ts = tree.byId.get(parentId);
@@ -1005,7 +1010,10 @@ export function createToolRegistry({ projectRoot, log }) {
       if (kind === 'tc') {
         if (!args.acId) return usageErrorResult('create tc: acId is required');
         body.acId = args.acId;
-        options.slug = args.slug ?? deriveSlug(body.description);
+        // 0.8.0 slug-train (w-2026-07-28-012 landmine 4): deriveSlug returns
+        // '' on empty derivation; TC keeps its historical 'tc' fallback
+        // locally rather than letting deriveSlug bake it in.
+        options.slug = args.slug ?? (deriveSlug(body.description) || 'tc');
         if (args.testPointer !== undefined) options.testPointer = args.testPointer;
       }
 

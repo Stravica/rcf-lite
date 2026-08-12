@@ -50,12 +50,19 @@ export const VERDICTS = Object.freeze([...FINDING_SEVERITIES, 'NOT-DEPLOYED', 'B
  * `report.perAcVerdicts[]`. Consumed by `rcf finalise` to refuse promotion
  * to `verified` on any of these AC-level verdicts (see
  * `packages/rcf-lite/src/finalise/ingest.js:findMockOnlyDeclaredAcs`).
+ *
+ * 0.8.0 slug-train car 4 addition (NV-BL-GATE-01 + NV-BL-ADM-03):
+ *   - SCOPE-MISMATCH: an AC whose declared scope tag exceeds the scope
+ *     of every bound TC. Verify emits this at REVIEW time so the pull-in
+ *     from the finalise-time profile-vs-AC check fires per FBS rather
+ *     than only at finalise.
  */
 export const PER_AC_VERDICTS = Object.freeze([
   'MOCK-ONLY-DECLARED',
   'BLOCKED-BY-DECLARATION',
   'UI-BASELINE-UNMET',
   'BROWSER-VERIFICATION-MISSING',
+  'SCOPE-MISMATCH',
 ]);
 
 /**
@@ -221,6 +228,61 @@ export function uiPerAcVerdict(ac, browserVerification = []) {
 }
 
 /**
+ * Rank each scope tag so we can compare "TC scope >= AC scope"
+ * numerically. Mirrors `packages/rcf-lite/src/admissibility/scope-lint.js`
+ * (single source of truth on rcf-schemas 0.4.3's scopeTag values;
+ * this copy stays deliberately local so the verdict layer does not
+ * depend on the admissibility module -- both consume the same schemas
+ * vocabulary and the same values, and duplicating the ranking here
+ * keeps the verdict layer standalone).
+ */
+const SCOPE_RANK = Object.freeze({
+  library: 1,
+  runtime: 2,
+  deployed: 3,
+});
+
+/**
+ * 0.8.0 slug-train car 4 (NV-BL-GATE-01 + NV-BL-ADM-03): the profile-vs-AC
+ * scope-mismatch check, pulled from finalise into REVIEW so it fires
+ * per FBS. An AC declared runtime-scope bound only to library-scope TCs
+ * emits SCOPE-MISMATCH; a wider TC (deployed covering runtime) is fine;
+ * an AC with no scope declaration is silent here (NV-BL-ADM-02 catches
+ * it at admissibility); a bound TC with no declared scope is silent
+ * here (bootstrap window; NV-BL-ADM-03 in the admissibility lint
+ * catches it there).
+ *
+ * @param {object} ac - flattened AC with `scope` and `boundTcs`
+ * @returns {{ verdict: 'SCOPE-MISMATCH', reason: string } | null}
+ */
+export function scopePerAcVerdict(ac) {
+  if (!ac || typeof ac.scope !== 'string') return null;
+  if (!Object.prototype.hasOwnProperty.call(SCOPE_RANK, ac.scope)) return null;
+  const boundTcs = Array.isArray(ac.boundTcs) ? ac.boundTcs : [];
+  if (boundTcs.length === 0) return null; // coverage rule handles "no TC at all".
+  const acRank = SCOPE_RANK[ac.scope];
+  const narrower = [];
+  let anyAtLeastAsWide = false;
+  for (const tc of boundTcs) {
+    if (typeof tc?.scope !== 'string') continue;
+    if (!Object.prototype.hasOwnProperty.call(SCOPE_RANK, tc.scope)) continue;
+    const tcRank = SCOPE_RANK[tc.scope];
+    if (tcRank >= acRank) {
+      anyAtLeastAsWide = true;
+      break;
+    }
+    narrower.push({ tsId: tc.tsId, tcId: tc.tcId, scope: tc.scope });
+  }
+  if (anyAtLeastAsWide) return null;
+  if (narrower.length === 0) return null;
+  const detail = narrower.map((n) => `${n.tcId} on ${n.tsId} (scope=${n.scope})`).join(', ');
+  return {
+    verdict: 'SCOPE-MISMATCH',
+    reason: `AC ${ac.acId} is scope=${ac.scope} but every bound TC is narrower: ${detail}. NV-BL-GATE-01 pulls this check into REVIEW; NV-BL-ADM-03 refuses at admissibility.`,
+  };
+}
+
+/**
  * Emit per-AC verdicts across the whole chain. Combines Track A's service
  * attestation verdicts with Track B's UI-baseline verdicts. An AC can carry
  * BOTH a service-attestation verdict AND a UI verdict (a UI-bearing FBS
@@ -228,6 +290,9 @@ export function uiPerAcVerdict(ac, browserVerification = []) {
  * per class). This matches the finalise gate contract in
  * `packages/rcf-lite/src/finalise/ingest.js:findMockOnlyDeclaredAcs`, which
  * filters on verdict class and does not deduplicate by acId.
+ *
+ * 0.8.0 slug-train car 4: SCOPE-MISMATCH runs here too, alongside the
+ * attestation and UI verdicts.
  *
  * @param {object} opts
  * @param {Array<object>} opts.acs - flattened ACs from `readChain`
@@ -241,6 +306,8 @@ export function derivePerAcVerdicts({ acs = [], browserVerification = [] } = {})
     if (attest) out.push({ acId: ac.acId, verdict: attest.verdict, reason: attest.reason });
     const ui = uiPerAcVerdict(ac, browserVerification);
     if (ui) out.push({ acId: ac.acId, verdict: ui.verdict, reason: ui.reason });
+    const scopeMismatch = scopePerAcVerdict(ac);
+    if (scopeMismatch) out.push({ acId: ac.acId, verdict: scopeMismatch.verdict, reason: scopeMismatch.reason });
   }
   return out;
 }

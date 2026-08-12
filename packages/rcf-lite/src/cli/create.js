@@ -261,7 +261,10 @@ export async function main(argv, deps = {}) {
       return 2;
     }
     body.acId = flags.ac;
-    options.slug = flags.slug ?? deriveSlug(body.description);
+    // 0.8.0 slug-train (w-2026-07-28-012 landmine 4): deriveSlug returns ''
+    // on empty derivation; TC keeps its historical 'tc' fallback locally
+    // rather than letting deriveSlug bake it in.
+    options.slug = flags.slug ?? (deriveSlug(body.description) || 'tc');
     options.testPointer = flags['test-pointer'];
   }
 

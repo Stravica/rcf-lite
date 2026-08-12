@@ -7,3 +7,7 @@ export { computeImpact, labelFor } from './impact.js';
 export { formatTable } from './formatters/table.js';
 export { formatJson } from './formatters/json.js';
 export { formatMermaid } from './formatters/mermaid.js';
+// 0.8.0 slug-train car 3: NV-BL-SR-03 addendum (ruling-sheet item 1)
+// -- traceability / query tools share the refuse-first posture that
+// gates rcf build. Callers wrap their query producer with this.
+export { runWithAdmissibilityGate } from './refuse-on-admissibility.js';

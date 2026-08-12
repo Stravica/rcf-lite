@@ -111,3 +111,31 @@ test('rcf read --help prints help', async () => {
   assert.equal(code, 0);
   assert.match(stdout, /Usage: rcf read/);
 });
+
+// ---------------------------------------------------------------------------
+// 0.8.0 slug-train landmine 3 consumer-path straggler: `rcf read TC-1000-x`
+// used to silently fall through to null even when the TC existed under a
+// widened TS. Widened the inline-TC guard to `\d{3,}`.
+// ---------------------------------------------------------------------------
+test('rcf read TC-1000-first-case resolves the inline TC on a widened (four-digit) TS (0.8.0 landmine 3, consumer-path)', async () => {
+  const tmp = await scaffold();
+  const ts = {
+    id: 'TS-1000',
+    usId: 'US-101',
+    title: 'US-101 coverage (four-digit TS)',
+    purpose: 'Prove rcf read resolves a TC on a widened TS id',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    status: 'draft',
+    testCases: [
+      { id: 'TC-1000-first-case', acId: 'AC-101-1', description: 'first', status: 'pending', testPointer: 'test/x.test.js::x' },
+    ],
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(tmp, 'rcf/test-suites/ts-1000.json'), `${JSON.stringify(ts, null, 2)}\n`, 'utf8');
+  const { code, stdout } = await runBin(tmp, ['read', 'TC-1000-first-case']);
+  assert.equal(code, 0);
+  const body = JSON.parse(stdout);
+  assert.equal(body.id, 'TC-1000-first-case');
+});

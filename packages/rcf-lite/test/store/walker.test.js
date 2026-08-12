@@ -359,3 +359,78 @@ test('walkTree flags duplicate buildOrder within a BS as brokenReference', async
   const dup = errors.find((e) => e.rule === 'uniqueBuildOrderPerBs');
   assert.ok(dup, JSON.stringify(errors, null, 2));
 });
+
+// ---------------------------------------------------------------------------
+// 0.8.0 slug-train (w-2026-07-28-012 landmine 1): the walker used to derive
+// tree ids by upper-casing the whole filename stem. Fine while every id was
+// `<PREFIX>-<digits>`. The moment a slug lands (rcf-schemas 0.4.3 admits
+// FBS-004-user-login), the whole-stem fold produces FBS-004-USER-LOGIN in
+// tree.byId while the body's fbsId + every inbound reference use the
+// lower-case form; the graph silently detaches. This test is the single most
+// important regression guard for the slug design and must land BEFORE any
+// slug-consuming change (allocator, TC-prefix widen, deriveSlug leak).
+// ---------------------------------------------------------------------------
+test('walkTree preserves case on slug tails when deriving id from filename (0.8.0 landmine 1)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-slug-tail-'));
+  await initProject({ projectRoot: root });
+  // Author a slugged FBS: filename lower-case kebab (fbs-004-user-login.json),
+  // body's fbsId matches (FBS-004-user-login).
+  const slugFbs = {
+    fbsId: 'FBS-004-user-login',
+    prdId: 'PRD-001',
+    bsId: 'BS-001',
+    title: 'User login',
+    summary: 'Slug design regression fixture: exercise walker prefix-only-upper.',
+    approach: 'Prove the walker preserves the slug tail case verbatim so byId keys resolve inbound references.',
+    acIds: ['AC-101-1'],
+    dependsOnFbsIds: [],
+    buildOrder: 2,
+    executionStatus: 'notStarted',
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(root, 'rcf', 'fbs', 'fbs-004-user-login.json'), JSON.stringify(slugFbs), 'utf8');
+  // Author a second FBS that references FBS-004-user-login via
+  // dependsOnFbsIds: the graph must resolve this without a brokenReference,
+  // proving byId keys the slugged id verbatim rather than a whole-stem fold.
+  const referencingFbs = {
+    fbsId: 'FBS-005',
+    prdId: 'PRD-001',
+    bsId: 'BS-001',
+    title: 'Depends on user-login',
+    summary: 'Inbound reference proof: build sequence carrying FBS-004-user-login as a dep.',
+    approach: 'Assert the inbound reference resolves to the byId entry the walker keyed from the slugged filename.',
+    acIds: ['AC-101-1'],
+    dependsOnFbsIds: ['FBS-004-user-login'],
+    buildOrder: 3,
+    executionStatus: 'notStarted',
+    createdAt: '2026-08-12T00:00:00Z',
+    updatedAt: '2026-08-12T00:00:00Z',
+  };
+  await writeFile(join(root, 'rcf', 'fbs', 'fbs-005.json'), JSON.stringify(referencingFbs), 'utf8');
+
+  const { tree, errors } = await walkTree({ projectRoot: root });
+
+  // The slugged id is keyed in byId with its slug tail verbatim (lower-case).
+  // A regression here (whole-stem toUpperCase) would key it as
+  // FBS-004-USER-LOGIN and the assertion below would fail.
+  assert.ok(tree.byId.has('FBS-004-user-login'), `byId missing slugged id; keys: ${[...tree.byId.keys()].join(',')}`);
+  assert.equal(tree.kindById.get('FBS-004-user-login'), 'fbs');
+
+  // The critical property: the inbound dependsOnFbsIds reference resolves to
+  // the byId entry the walker keyed from the slugged filename. A silent
+  // graph detachment would surface as a brokenReference on FBS-005.
+  const broken = errors.find((e) => e.kind === 'brokenReference' && e.field?.startsWith('dependsOnFbsIds'));
+  assert.equal(broken, undefined, `unexpected brokenReference on the slug tail: ${JSON.stringify(broken, null, 2)}`);
+  const dependents = tree.dependentsByFbsId.get('FBS-004-user-login') ?? [];
+  assert.ok(dependents.includes('FBS-005'), `dependentsByFbsId did not invert the slugged edge; got ${dependents.join(',')}`);
+});
+
+test('walkTree upper-cases the prefix segment on numeric-only ids unchanged (0.8.0 landmine 1 back-compat)', async () => {
+  const { tree } = await walkTree({ projectRoot: repoRoot });
+  // Every existing numeric-only id continues to key by its canonical upper-cased
+  // prefix; the landmine fix is additive and does not touch pre-slug behaviour.
+  assert.equal(tree.kindById.get('REQ-001'), 'req');
+  assert.equal(tree.kindById.get('FBS-003'), 'fbs');
+  assert.equal(tree.kindById.get('TS-001'), 'testSuite');
+});

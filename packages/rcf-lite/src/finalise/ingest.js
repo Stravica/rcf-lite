@@ -82,6 +82,17 @@ export function summariseReport(report) {
       lines.push(`  - ${d.acId ?? '?'} (${d.verdict}): ${d.reason ?? 'declaredMockOnly at pre-flight; verify emitted the honest verdict rather than a false PASS.'}`);
     }
   }
+  // 0.8.0 slug-train car 4: NV-BL-GATE-01 pulls verify's profile-vs-AC
+  // scope-mismatch check into REVIEW. When verify emits SCOPE-MISMATCH
+  // on perAcVerdicts[] the summary surfaces it so REVIEW / finalise see
+  // it. Zero-mismatch reports render nothing (no false-flag noise).
+  const scopeMismatches = findScopeMismatchAcs(report);
+  if (scopeMismatches.length > 0) {
+    lines.push(`scope mismatches (${scopeMismatches.length}):`);
+    for (const s of scopeMismatches) {
+      lines.push(`  - ${s.acId ?? '?'} (${s.verdict}): ${s.reason ?? 'a bound TC is narrower than the AC scope; NV-BL-ADM-03 / NV-BL-GATE-01.'}`);
+    }
+  }
   if (report.launchFailure?.message) {
     lines.push(`launch failure: ${report.launchFailure.message}`);
   }
@@ -116,4 +127,34 @@ export function findMockOnlyDeclaredAcs(report) {
  */
 export function reportHasMockOnlyDeclared(report) {
   return findMockOnlyDeclaredAcs(report).length > 0;
+}
+
+/**
+ * Extract SCOPE-MISMATCH per-AC verdicts from a verify report. Introduced
+ * in the 0.8.0 slug-train (car 4) so REVIEW consumes the same shape via
+ * NV-BL-GATE-01. Earlier reports carry no such entries; this returns an
+ * empty array on those.
+ *
+ * @param {object} report
+ * @returns {Array<{ acId: string, verdict: string, reason?: string }>}
+ */
+export function findScopeMismatchAcs(report) {
+  const perAc = Array.isArray(report?.perAcVerdicts) ? report.perAcVerdicts : [];
+  return perAc
+    .filter((e) => e && e.verdict === 'SCOPE-MISMATCH')
+    .map((e) => ({ acId: e.acId, verdict: e.verdict, reason: e.reason }));
+}
+
+/**
+ * True when a verify report carries at least one SCOPE-MISMATCH per-AC
+ * verdict. NV-BL-GATE-01 (0.8.0 slug-train car 4): the REVIEW gate
+ * consumes this so a scope mismatch caught at REVIEW-time fails the
+ * gate and returns the FBS to BUILD; the finalise gate reads the same
+ * shape as a last-mile refusal.
+ *
+ * @param {object} report
+ * @returns {boolean}
+ */
+export function reportHasScopeMismatch(report) {
+  return findScopeMismatchAcs(report).length > 0;
 }

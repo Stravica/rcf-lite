@@ -18,12 +18,16 @@ import {
   uiPerAcVerdict,
 } from '../../../src/verify/verdict/index.js';
 
-test('PER_AC_VERDICTS enumerates the four 0.7.0 per-AC verdict classes', () => {
+test('PER_AC_VERDICTS enumerates the four 0.7.0 per-AC verdict classes plus SCOPE-MISMATCH (0.8.0 slug-train car 4)', () => {
   assert.deepEqual([...PER_AC_VERDICTS], [
     'MOCK-ONLY-DECLARED',
     'BLOCKED-BY-DECLARATION',
     'UI-BASELINE-UNMET',
     'BROWSER-VERIFICATION-MISSING',
+    // 0.8.0 slug-train car 4: NV-BL-GATE-01 pulls verify's profile-vs-AC
+    // scope-mismatch check into REVIEW. The verdict flows on the same
+    // perAcVerdicts[] array as the four 0.7.0 classes.
+    'SCOPE-MISMATCH',
   ]);
 });
 
