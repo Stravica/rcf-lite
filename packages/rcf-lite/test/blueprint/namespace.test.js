@@ -61,24 +61,31 @@ test('stampId: bare suffix-family id gains the slug as SUFFIX', () => {
 test('stampId: already-namespaced id for the same slug is idempotent (exact slug)', () => {
   assert.deepEqual(stampId('spa-REQ-001', 'spa'), { id: 'spa-REQ-001' });
   assert.deepEqual(stampId('ADR-005-spa', 'spa'), { id: 'ADR-005-spa' });
-  // A longer slug is its OWN blueprint's namespace, so the same-slug
-  // idempotency does NOT extend: `ADR-005-spa-theme` belongs to
-  // blueprint `spa-theme`, not blueprint `spa`.
   assert.deepEqual(stampId('ADR-005-spa-theme', 'spa-theme'), { id: 'ADR-005-spa-theme' });
 });
 
-test('stampId: suffix slug that is a hyphen-prefix of another slug is NOT idempotent (exact-slug match)', () => {
-  // Pre-fix, `startsWith('spa-')` treated `ADR-005-spa-theme` as
-  // already namespaced for `spa` and silently returned it unchanged;
-  // apply.js then wrote it as if `spa` owned it. Now refused.
-  const result = stampId('ADR-005-spa-theme', 'spa');
-  assert.ok('error' in result, `expected refusal, got ${JSON.stringify(result)}`);
-  assert.match(result.error, /already carries suffix namespace 'spa-theme'/);
+test('stampId: suffix-family id with a slug+tail is accepted as declared (w-2026-08-19-005)', () => {
+  // The blueprint's declared contribution list IS the truth for what
+  // this blueprint owns; stamping does not veto on string parse. This
+  // is what lets a suffix-family id with a semantic tail after the
+  // slug (`ADR-201-spa-routing`, `TAC-201-spa-app-shell`) apply
+  // cleanly under blueprint `spa`. Cross-blueprint ownership
+  // ambiguity (spa vs spa-theme) is caught by the manifest-record
+  // check in apply.js, not here in the string grammar.
+  assert.deepEqual(stampId('ADR-201-spa-routing', 'spa'), { id: 'ADR-201-spa-routing' });
+  assert.deepEqual(stampId('TAC-201-spa-app-shell', 'spa'), { id: 'TAC-201-spa-app-shell' });
+  assert.deepEqual(stampId('ADR-005-spa-theme', 'spa'), { id: 'ADR-005-spa-theme' });
 });
 
-test('stampId: id already namespaced for a DIFFERENT slug is refused with an error', () => {
-  assert.ok('error' in stampId('spa-REQ-001', 'rest'));
-  assert.ok('error' in stampId('ADR-005-spa', 'rest'));
+test('stampId: prefix-family id already carrying any slug segment is accepted as declared (w-2026-08-19-005)', () => {
+  // Symmetrical with the suffix side: a prefix-family id with a slug
+  // that does not equal the applying blueprint's slug is trusted as
+  // declared. The manifest-record cross-claim check in apply.js
+  // catches the case where that id is already owned by another
+  // applied blueprint.
+  assert.deepEqual(stampId('spa-REQ-001', 'rest'), { id: 'spa-REQ-001' });
+  assert.deepEqual(stampId('ADR-005-spa', 'rest'), { id: 'ADR-005-spa' });
+  assert.deepEqual(stampId('spa-theme-REQ-001', 'spa'), { id: 'spa-theme-REQ-001' });
 });
 
 test('stampId: AC and TC ids pass through unchanged (no namespacing family)', () => {
@@ -96,22 +103,21 @@ test('stampId: unknown-family id is refused', () => {
   assert.ok('error' in stampId('XYZ-001', 'spa'));
 });
 
-test('isNamespacedFor: recognises prefix and suffix namespacing for a given slug (exact-slug match)', () => {
+test('isNamespacedFor: GRAMMAR predicate — parsed slug segment equals `slug` (exact-slug match, NOT an ownership check)', () => {
+  // The predicate reports what the id STRING parses to. It is not an
+  // ownership decision -- ownership of an applied contribution is
+  // answered by the manifest's appliedBlueprintRecord.contributions[]
+  // list. Downstream consumers (docs generators, id audit tooling)
+  // may still care about the grammar shape, so the exact-slug
+  // semantics are pinned here.
   assert.equal(isNamespacedFor('spa-REQ-001', 'spa'), true);
   assert.equal(isNamespacedFor('spa-REQ-001', 'rest'), false);
   assert.equal(isNamespacedFor('ADR-005-spa', 'spa'), true);
-  // Exact-slug match. `ADR-005-spa-theme` belongs to blueprint
-  // `spa-theme`, NOT blueprint `spa`. The prior loose check
-  // (`startsWith('spa-')`) let blueprint `spa` claim ownership of
-  // ids that actually belonged to a longer-slug sibling, which
-  // apply.js relied on when deciding whether an on-disk overwrite
-  // was a same-blueprint re-apply.
+  // Slug+tail parses as the whole tail, exact-slug false.
   assert.equal(isNamespacedFor('ADR-005-spa-theme', 'spa'), false);
   assert.equal(isNamespacedFor('ADR-005-spa-theme', 'spa-theme'), true);
-  // Symmetry check both directions: the longer blueprint slug
-  // never claims a shorter-slug id either.
+  // Symmetry both directions.
   assert.equal(isNamespacedFor('ADR-005-spa', 'spa-theme'), false);
-  // Prefix-family symmetry (was already exact pre-fix; pin it).
   assert.equal(isNamespacedFor('spa-theme-REQ-001', 'spa'), false);
   assert.equal(isNamespacedFor('spa-REQ-001', 'spa-theme'), false);
   assert.equal(isNamespacedFor('REQ-001', 'spa'), false);

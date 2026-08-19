@@ -12,10 +12,10 @@ import { dirname, join, resolve } from 'node:path';
 
 import { rcfError } from '../core/errors/index.js';
 import { subdirFor } from '#core/store';
-import { detectGlobalAdrConflicts } from './conflicts.js';
+import { detectCrossBlueprintClaims, detectGlobalAdrConflicts } from './conflicts.js';
 import { loadBlueprint } from './loader.js';
 import { updateManifest } from './manifest-writer.js';
-import { isNamespacedFor, stampId } from './namespace.js';
+import { stampId } from './namespace.js';
 
 /**
  * @typedef {object} ApplyResult
@@ -53,14 +53,27 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
     return rcfError({ kind: 'validation', message: stamped.error });
   }
 
-  // Conflict detection ALWAYS runs, including on re-apply.
-  const conflicts = detectGlobalAdrConflicts(applied, {
-    slug: blueprint.slug,
-    contributions: stamped.contributions,
-  });
+  // Conflict detection ALWAYS runs, including on re-apply. Two classes
+  // fire pre-write: scope:global ADR topic collisions (design brief),
+  // and cross-blueprint ownership claims where an incoming id is
+  // already recorded as owned by a DIFFERENT applied blueprint (the
+  // spa vs spa-theme ambiguity class -- now caught here via the
+  // authoritative manifest record instead of via string grammar).
+  const incomingForConflicts = { slug: blueprint.slug, contributions: stamped.contributions };
+  const conflicts = [
+    ...detectGlobalAdrConflicts(applied, incomingForConflicts),
+    ...detectCrossBlueprintClaims(applied, incomingForConflicts),
+  ];
   if (conflicts.length > 0) {
     return { applied: false, slug: blueprint.slug, version: blueprint.version, contributions: [], conflicts };
   }
+
+  // Ownership set for the overwrite guard below. On a re-apply, the
+  // authoritative record is `existing.contributions[].id` -- the exact
+  // list of ids the currently-applied version of this blueprint owns.
+  // On first apply this is an empty set (any file already on disk at a
+  // destination path is by definition foreign or author-owned).
+  const ownedIds = new Set((existing?.contributions ?? []).map((c) => c.id));
 
   if (existing && existing.version === blueprint.version) {
     return { applied: false, alreadyApplied: true, slug: blueprint.slug, version: blueprint.version, contributions: stamped.contributions };
@@ -109,11 +122,19 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
       }
       const alreadyThere = await stat(absDest).catch(() => null);
       if (alreadyThere) {
-        if (!isNamespacedFor(c.id, namespace)) {
+        // Authoritative ownership: only a file whose id is already
+        // recorded on THIS blueprint's manifest entry is safe to
+        // overwrite (the re-apply idempotency case). Anything else --
+        // first-apply into a tree that already has the file, or a new
+        // contribution appearing in a re-applied version -- is treated
+        // as foreign and refused. Grammar is deliberately not consulted
+        // here: `ADR-201-spa-theme` may be a legitimate `spa`-owned id
+        // whose author put a semantic tail after the slug.
+        if (!ownedIds.has(c.id)) {
           for (const w of stagedWrites) await unlink(w.tmpAbs).catch(() => {});
           return rcfError({
             kind: 'duplicateId',
-            message: `blueprint apply: contribution ${c.id} would overwrite an existing file at ${relDest} and is not namespaced for '${namespace}'.`,
+            message: `blueprint apply: contribution ${c.id} would overwrite an existing file at ${relDest} that is not recorded as owned by blueprint '${blueprint.slug}'.`,
             filePath: relDest,
           });
         }
