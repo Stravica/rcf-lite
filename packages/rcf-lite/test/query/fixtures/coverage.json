@@ -773,13 +773,11 @@
         },
         {
           "id": "AC-1002-3",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-027-conflict-report-shape"
           ],
-          "unresolvedTestCases": [
-            "TC-027-conflict-report-shape"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-1002-4",
@@ -856,12 +854,5 @@
       ]
     }
   ],
-  "unresolvedTestPointers": [
-    {
-      "tsId": "TS-027",
-      "tcId": "TC-027-conflict-report-shape",
-      "testPointer": "test/blueprint/conflicts.test.js::renderConflictReport: lists both sides and names three resolution paths (AC-1002-3)",
-      "reason": "test-missing"
-    }
-  ]
+  "unresolvedTestPointers": []
 }

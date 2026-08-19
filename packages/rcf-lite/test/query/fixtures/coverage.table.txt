@@ -89,7 +89,7 @@ REQ-010      yes      AC-1001-1  yes         TC-026-add-writes-manifest
                       AC-1001-5  yes         TC-026-help-advertises-blueprint
                       AC-1002-1  yes         TC-027-prefix-namespacing, TC-027-suffix-namespacing
                       AC-1002-2  yes         TC-027-global-adr-conflict-surfaced
-                      AC-1002-3  unresolved  TC-027-conflict-report-shape[unresolved]
+                      AC-1002-3  yes         TC-027-conflict-report-shape
                       AC-1002-4  yes         TC-027-nonglobal-namespaced-no-conflict
                       AC-1003-1  yes         TC-028-add-writes-manifest-entry
                       AC-1003-2  yes         TC-028-inrepo-referenced-in-place
@@ -99,6 +99,3 @@ REQ-010      yes      AC-1001-1  yes         TC-026-add-writes-manifest
                       AC-1004-2  yes         TC-029-operator-override
                       AC-1004-3  yes         TC-029-empty-never-blocks
                       AC-1004-4  yes         TC-029-deterministic
-
-Unresolved test pointers (never counted as coverage):
-  TC-027-conflict-report-shape (TS-027): test/blueprint/conflicts.test.js::renderConflictReport: lists both sides and names three resolution paths (AC-1002-3) - test-missing

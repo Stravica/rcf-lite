@@ -35,8 +35,8 @@
     {
       "id": "TC-027-conflict-report-shape",
       "acId": "AC-1002-3",
-      "description": "conflict report lists both sides and names three resolutions",
-      "testPointer": "test/blueprint/conflicts.test.js::renderConflictReport: lists both sides and names three resolution paths (AC-1002-3)",
+      "description": "conflict report leads with per-side title + decision headers and names four honest resolution paths with actual blueprint slugs substituted (Phase 3.5 reshape)",
+      "testPointer": "test/blueprint/conflicts.test.js::renderConflictReport: leads with per-side headers (topic in parens) and names four honest resolution paths (Phase 3.5)",
       "status": "pending"
     },
     {
