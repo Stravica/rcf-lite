@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Forms and validation UX: inline on blur, summarised on submit, accessible error binding",
+  "description": "Form fields validate inline on blur and re-validate on change after a first failure. Submission failures render a submit-level summary listing every failed field with links to each. Error text is programmatically tied to its field via aria-describedby. Required fields are marked visibly and programmatically. Personal-data fields carry autocomplete tokens. Mobile keyboards match field intent via inputmode and type attributes.",
+  "category": "functional",
+  "domain": "forms",
+  "priority": "must",
+  "rationale": "Forms are where users do the work that matters. Validation timing, error binding, and keyboard intent are the difference between a form that helps and a form that blames.",
+  "tags": [
+    "blueprint:spa",
+    "category:07-forms-validation"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

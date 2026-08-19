@@ -1,0 +1,100 @@
+{
+  "usId": "spa-US-1110",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Overlays: modals, drawers, tooltips, popovers, toasts",
+  "asA": "user encountering layered UI",
+  "iWant": "overlays that manage focus and dismissal correctly",
+  "soThat": "layered content never strands, traps, or surprises me",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1110-1",
+      "description": "Modals trap focus while open, move initial focus to the first meaningful element, restore focus to the trigger on close, and mark background content inert.",
+      "given": "an open modal",
+      "when": "Tab is cycled and the modal closed",
+      "then": "focus stays inside while open and returns to the trigger on close",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1110-2",
+      "description": "Modals close on Escape and on an explicit close control; destructive-intent modals do not close on backdrop click.",
+      "given": "an open modal of each intent",
+      "when": "Escape, close control, and backdrop are tried",
+      "then": "dismissal follows the declared per-intent rules",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1110-3",
+      "description": "Drawers animate from the appropriate edge using motion tokens, share the modal focus and dismissal contract, and are sized per breakpoint (full-width at 360).",
+      "given": "an open drawer at each breakpoint",
+      "when": "rendered and dismissed",
+      "then": "sizing, focus, and dismissal follow the contract",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1110-4",
+      "description": "Tooltips appear on hover and on keyboard focus, disappear on blur and Escape, carry no interactive content, and are exposed via aria-describedby.",
+      "given": "a control with a tooltip",
+      "when": "focused via keyboard",
+      "then": "the tooltip shows, is announced, and dismisses on Escape",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1110-5",
+      "description": "Popovers with interactive content receive focus on open, return it on close, close on Escape and outside click, and reposition to stay within the viewport.",
+      "given": "an open popover near a viewport edge",
+      "when": "rendered and dismissed",
+      "then": "it remains fully visible and follows the focus contract",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1110-6",
+      "description": "Toasts render in one shell-owned region, auto-dismiss on a motion-token duration, pause dismissal on hover and focus, and are announced via a live region without stealing focus.",
+      "given": "an action that raises a toast",
+      "when": "the toast appears",
+      "then": "it announces politely, never takes focus, and pauses on hover",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1110-7",
+      "description": "Toasts never carry the only path to an action; anything actionable from a toast is also reachable from a persistent surface.",
+      "given": "a toast offering an action",
+      "when": "the toast expires unseen",
+      "then": "the same action remains reachable elsewhere",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1110-8",
+      "description": "Stacked overlays dismiss strictly topmost-first on Escape.",
+      "given": "a popover open above a modal",
+      "when": "Escape is pressed twice",
+      "then": "the popover closes first, then the modal",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1110-9",
+      "description": "All overlays derive surface, elevation, and backdrop styling from tokens and render correctly in both themes.",
+      "given": "each overlay type in both themes",
+      "when": "rendered",
+      "then": "styling is token-driven with no theme-specific defects",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-203-spa-component-library",
+    "TAC-201-spa-app-shell"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

@@ -1,0 +1,63 @@
+{
+  "usId": "spa-US-1123",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-016",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Journey events, error-boundary reports, and performance marks",
+  "asA": "product team member reading dashboards",
+  "iWant": "stable, named signals from every journey and failure",
+  "soThat": "we can see where users struggle without instrumenting after the fact",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1123-1",
+      "description": "Every checkpoint in the journey inventory emits its declared event with the ADR-209 naming scheme; emitted names match the registry exactly.",
+      "given": "each declared journey",
+      "when": "walked end to end",
+      "then": "every checkpoint event fires with its registered name",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1123-2",
+      "description": "Events carry the declared minimal context (route, journey step, outcome) and never include personal data beyond the declared allow-list.",
+      "given": "captured events",
+      "when": "payloads are audited",
+      "then": "context is present and no disallowed personal data appears",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1123-3",
+      "description": "Error boundaries exist at shell and route level; a component crash renders the designed error state per spa-REQ-010 instead of a white screen, and reports the catch with route and component context.",
+      "given": "a component forced to throw during render",
+      "when": "the boundary catches",
+      "then": "the designed error state renders and one report is emitted",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1123-4",
+      "description": "Performance marks fire at first paint and time-to-interactive with the reserved registry names.",
+      "given": "a cold application load",
+      "when": "marks are captured",
+      "then": "both marks fire once each with correct names",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1123-5",
+      "description": "With no telemetry backend configured, instrumentation no-ops cleanly: no console errors, no failed requests, no behavioural difference.",
+      "given": "a deployment without a telemetry endpoint",
+      "when": "the application is used normally",
+      "then": "no telemetry-related errors surface",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-206-spa-telemetry"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

@@ -1,0 +1,73 @@
+{
+  "usId": "spa-US-1117",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-010",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The state quartet on every route and data-bearing component",
+  "asA": "user meeting real-world data conditions",
+  "iWant": "considered screens when things are empty, loading, or broken",
+  "soThat": "the application never looks abandoned at exactly the wrong moment",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1117-1",
+      "description": "Every data-bearing route renders designed loading, empty, error, and success states; a state matrix over the route inventory has no unspecified applicable cell.",
+      "given": "the route inventory",
+      "when": "each applicable state is induced per route",
+      "then": "every applicable cell renders a designed state",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1117-2",
+      "description": "Loading states use skeletons wherever the incoming content shape is known; spinners appear only for indeterminate operations per spa-US-1112.",
+      "given": "each loading state",
+      "when": "audited against content shape",
+      "then": "known shapes use skeletons; spinner use is justified",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1117-3",
+      "description": "Empty states are per-context, naming the specific absent content and its filling action; a single generic empty component text is not reused verbatim across unrelated routes.",
+      "given": "each empty state",
+      "when": "copy and action are compared across routes",
+      "then": "each names its own content and action",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1117-4",
+      "description": "Error states distinguish user-fixable failures from system failures and offer retry where retry can help.",
+      "given": "a 4xx-class and a 5xx-class failure",
+      "when": "each error state renders",
+      "then": "copy and affordances differ appropriately",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1117-5",
+      "description": "Success states after mutations confirm the outcome visibly (toast or inline confirmation per the journey spec) and reflect the new data without manual refresh.",
+      "given": "a successful mutation",
+      "when": "the response lands",
+      "then": "confirmation renders and affected views show the new data",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1117-6",
+      "description": "State transitions never flash intermediate wrong states: loading does not flicker for cached data, and empty never renders while data is still loading.",
+      "given": "a route with cached data and a route loading slowly",
+      "when": "transitions are observed",
+      "then": "no wrong-state flash occurs in either",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-203-spa-component-library",
+    "TAC-204-spa-client-data-layer"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

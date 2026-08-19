@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-016",
+  "prdId": "PRD-001",
+  "title": "Telemetry hooks: journey checkpoint events, error boundary reports, performance marks",
+  "description": "The application emits named telemetry events at each declared journey checkpoint, reports every error-boundary catch with route and component context, and records performance marks at first paint and time-to-interactive. Event names follow the declared naming scheme so dashboards survive refactors.",
+  "category": "technical",
+  "domain": "telemetry",
+  "priority": "must",
+  "rationale": "A journey that cannot be observed cannot be improved. Naming the events in the spec stops telemetry being an unplanned afterthought with unstable names.",
+  "tags": [
+    "blueprint:spa",
+    "category:16-telemetry"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

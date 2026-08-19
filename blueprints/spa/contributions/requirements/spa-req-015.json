@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-015",
+  "prdId": "PRD-001",
+  "title": "Internationalisation readiness: extracted strings, locale-aware formatting, RTL-safe layout",
+  "description": "All user-facing strings live in an extraction layer, none hard-coded in components. Dates, numbers, and currency render through locale-aware formatting. The layout survives an RTL locale without visual breakage: mirrored ordering where required, no clipped or overlapped text. Shipping additional translations is out of scope; readiness is in scope.",
+  "category": "technical",
+  "domain": "i18n",
+  "priority": "must",
+  "rationale": "Retrofitting extraction into a string-littered codebase costs an order of magnitude more than building against it. Readiness now is what keeps localisation a content task later.",
+  "tags": [
+    "blueprint:spa",
+    "category:15-i18n-readiness"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

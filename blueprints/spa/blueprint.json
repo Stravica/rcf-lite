@@ -1,0 +1,336 @@
+{
+  "slug": "spa",
+  "version": "1.0.0",
+  "contributions": [
+    {
+      "id": "spa-REQ-001",
+      "kind": "req",
+      "path": "requirements/spa-req-001.json"
+    },
+    {
+      "id": "spa-REQ-002",
+      "kind": "req",
+      "path": "requirements/spa-req-002.json"
+    },
+    {
+      "id": "spa-REQ-003",
+      "kind": "req",
+      "path": "requirements/spa-req-003.json"
+    },
+    {
+      "id": "spa-REQ-004",
+      "kind": "req",
+      "path": "requirements/spa-req-004.json"
+    },
+    {
+      "id": "spa-REQ-005",
+      "kind": "req",
+      "path": "requirements/spa-req-005.json"
+    },
+    {
+      "id": "spa-REQ-006",
+      "kind": "req",
+      "path": "requirements/spa-req-006.json"
+    },
+    {
+      "id": "spa-REQ-007",
+      "kind": "req",
+      "path": "requirements/spa-req-007.json"
+    },
+    {
+      "id": "spa-REQ-008",
+      "kind": "req",
+      "path": "requirements/spa-req-008.json"
+    },
+    {
+      "id": "spa-REQ-009",
+      "kind": "req",
+      "path": "requirements/spa-req-009.json"
+    },
+    {
+      "id": "spa-REQ-010",
+      "kind": "req",
+      "path": "requirements/spa-req-010.json"
+    },
+    {
+      "id": "spa-REQ-011",
+      "kind": "req",
+      "path": "requirements/spa-req-011.json"
+    },
+    {
+      "id": "spa-REQ-012",
+      "kind": "req",
+      "path": "requirements/spa-req-012.json"
+    },
+    {
+      "id": "spa-REQ-013",
+      "kind": "req",
+      "path": "requirements/spa-req-013.json"
+    },
+    {
+      "id": "spa-REQ-014",
+      "kind": "req",
+      "path": "requirements/spa-req-014.json"
+    },
+    {
+      "id": "spa-REQ-015",
+      "kind": "req",
+      "path": "requirements/spa-req-015.json"
+    },
+    {
+      "id": "spa-REQ-016",
+      "kind": "req",
+      "path": "requirements/spa-req-016.json"
+    },
+    {
+      "id": "spa-REQ-017",
+      "kind": "req",
+      "path": "requirements/spa-req-017.json"
+    },
+    {
+      "id": "spa-REQ-018",
+      "kind": "req",
+      "path": "requirements/spa-req-018.json"
+    },
+    {
+      "id": "spa-REQ-019",
+      "kind": "req",
+      "path": "requirements/spa-req-019.json"
+    },
+    {
+      "id": "spa-REQ-020",
+      "kind": "req",
+      "path": "requirements/spa-req-020.json"
+    },
+    {
+      "id": "spa-REQ-021",
+      "kind": "req",
+      "path": "requirements/spa-req-021.json"
+    },
+    {
+      "id": "spa-US-1101",
+      "kind": "us",
+      "path": "user-stories/spa-us-1101.json"
+    },
+    {
+      "id": "spa-US-1102",
+      "kind": "us",
+      "path": "user-stories/spa-us-1102.json"
+    },
+    {
+      "id": "spa-US-1103",
+      "kind": "us",
+      "path": "user-stories/spa-us-1103.json"
+    },
+    {
+      "id": "spa-US-1104",
+      "kind": "us",
+      "path": "user-stories/spa-us-1104.json"
+    },
+    {
+      "id": "spa-US-1105",
+      "kind": "us",
+      "path": "user-stories/spa-us-1105.json"
+    },
+    {
+      "id": "spa-US-1106",
+      "kind": "us",
+      "path": "user-stories/spa-us-1106.json"
+    },
+    {
+      "id": "spa-US-1107",
+      "kind": "us",
+      "path": "user-stories/spa-us-1107.json"
+    },
+    {
+      "id": "spa-US-1108",
+      "kind": "us",
+      "path": "user-stories/spa-us-1108.json"
+    },
+    {
+      "id": "spa-US-1109",
+      "kind": "us",
+      "path": "user-stories/spa-us-1109.json"
+    },
+    {
+      "id": "spa-US-1110",
+      "kind": "us",
+      "path": "user-stories/spa-us-1110.json"
+    },
+    {
+      "id": "spa-US-1111",
+      "kind": "us",
+      "path": "user-stories/spa-us-1111.json"
+    },
+    {
+      "id": "spa-US-1112",
+      "kind": "us",
+      "path": "user-stories/spa-us-1112.json"
+    },
+    {
+      "id": "spa-US-1113",
+      "kind": "us",
+      "path": "user-stories/spa-us-1113.json"
+    },
+    {
+      "id": "spa-US-1114",
+      "kind": "us",
+      "path": "user-stories/spa-us-1114.json"
+    },
+    {
+      "id": "spa-US-1115",
+      "kind": "us",
+      "path": "user-stories/spa-us-1115.json"
+    },
+    {
+      "id": "spa-US-1116",
+      "kind": "us",
+      "path": "user-stories/spa-us-1116.json"
+    },
+    {
+      "id": "spa-US-1117",
+      "kind": "us",
+      "path": "user-stories/spa-us-1117.json"
+    },
+    {
+      "id": "spa-US-1118",
+      "kind": "us",
+      "path": "user-stories/spa-us-1118.json"
+    },
+    {
+      "id": "spa-US-1119",
+      "kind": "us",
+      "path": "user-stories/spa-us-1119.json"
+    },
+    {
+      "id": "spa-US-1120",
+      "kind": "us",
+      "path": "user-stories/spa-us-1120.json"
+    },
+    {
+      "id": "spa-US-1121",
+      "kind": "us",
+      "path": "user-stories/spa-us-1121.json"
+    },
+    {
+      "id": "spa-US-1122",
+      "kind": "us",
+      "path": "user-stories/spa-us-1122.json"
+    },
+    {
+      "id": "spa-US-1123",
+      "kind": "us",
+      "path": "user-stories/spa-us-1123.json"
+    },
+    {
+      "id": "spa-US-1124",
+      "kind": "us",
+      "path": "user-stories/spa-us-1124.json"
+    },
+    {
+      "id": "spa-US-1125",
+      "kind": "us",
+      "path": "user-stories/spa-us-1125.json"
+    },
+    {
+      "id": "spa-US-1126",
+      "kind": "us",
+      "path": "user-stories/spa-us-1126.json"
+    },
+    {
+      "id": "spa-US-1127",
+      "kind": "us",
+      "path": "user-stories/spa-us-1127.json"
+    },
+    {
+      "id": "spa-US-1128",
+      "kind": "us",
+      "path": "user-stories/spa-us-1128.json"
+    },
+    {
+      "id": "TAC-201-spa-app-shell",
+      "kind": "tac",
+      "path": "tacs/tac-201-spa-app-shell.json"
+    },
+    {
+      "id": "TAC-202-spa-theme-system",
+      "kind": "tac",
+      "path": "tacs/tac-202-spa-theme-system.json"
+    },
+    {
+      "id": "TAC-203-spa-component-library",
+      "kind": "tac",
+      "path": "tacs/tac-203-spa-component-library.json"
+    },
+    {
+      "id": "TAC-204-spa-client-data-layer",
+      "kind": "tac",
+      "path": "tacs/tac-204-spa-client-data-layer.json"
+    },
+    {
+      "id": "TAC-205-spa-forms-engine",
+      "kind": "tac",
+      "path": "tacs/tac-205-spa-forms-engine.json"
+    },
+    {
+      "id": "TAC-206-spa-telemetry",
+      "kind": "tac",
+      "path": "tacs/tac-206-spa-telemetry.json"
+    },
+    {
+      "id": "ADR-201-spa-routing",
+      "kind": "adr",
+      "path": "adrs/adr-201-spa-routing.json",
+      "scope": "global",
+      "topic": "clientRouting"
+    },
+    {
+      "id": "ADR-202-spa-theming",
+      "kind": "adr",
+      "path": "adrs/adr-202-spa-theming.json",
+      "scope": "global",
+      "topic": "theming"
+    },
+    {
+      "id": "ADR-203-spa-client-state",
+      "kind": "adr",
+      "path": "adrs/adr-203-spa-client-state.json",
+      "scope": "global",
+      "topic": "clientState"
+    },
+    {
+      "id": "ADR-204-spa-error-envelope",
+      "kind": "adr",
+      "path": "adrs/adr-204-spa-error-envelope.json",
+      "scope": "global",
+      "topic": "errorEnvelope"
+    },
+    {
+      "id": "ADR-205-spa-auth-model",
+      "kind": "adr",
+      "path": "adrs/adr-205-spa-auth-model.json",
+      "scope": "global",
+      "topic": "authModel"
+    },
+    {
+      "id": "ADR-206-spa-iconography",
+      "kind": "adr",
+      "path": "adrs/adr-206-spa-iconography.json"
+    },
+    {
+      "id": "ADR-207-spa-motion",
+      "kind": "adr",
+      "path": "adrs/adr-207-spa-motion.json"
+    },
+    {
+      "id": "ADR-208-spa-i18n",
+      "kind": "adr",
+      "path": "adrs/adr-208-spa-i18n.json"
+    },
+    {
+      "id": "ADR-209-spa-telemetry-naming",
+      "kind": "adr",
+      "path": "adrs/adr-209-spa-telemetry-naming.json"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "usId": "spa-US-1122",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-015",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Extracted strings, locale-aware formatting, RTL-safe layout",
+  "asA": "user in any locale",
+  "iWant": "text, dates, and numbers presented in ways my locale expects",
+  "soThat": "the product can meet me where I am without a rebuild",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1122-1",
+      "description": "Every user-facing string renders through the extraction catalogue; hard-coded display strings in components are absent.",
+      "given": "component source and the catalogue",
+      "when": "rendered strings are traced to origin",
+      "then": "each traces to a catalogue key",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1122-2",
+      "description": "Catalogue entries are whole messages with placeholders; sentences are never assembled from concatenated fragments in code.",
+      "given": "messages containing dynamic values",
+      "when": "their construction is inspected",
+      "then": "each is one catalogue entry with named placeholders",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1122-3",
+      "description": "Dates and times format through locale-aware APIs; no hand-rolled date formatting appears.",
+      "given": "every rendered date and time",
+      "when": "formatting paths are audited",
+      "then": "all route through Intl-based formatting per ADR-208",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1122-4",
+      "description": "Numbers and currency format through locale-aware APIs, including group separators and currency symbols.",
+      "given": "every rendered number and amount",
+      "when": "formatting paths are audited",
+      "then": "all route through Intl-based formatting",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1122-5",
+      "description": "Under an RTL test locale the layout mirrors correctly with no clipped, overlapped, or misaligned content on any declared route at any baseline breakpoint.",
+      "given": "an RTL locale",
+      "when": "each route renders at each breakpoint",
+      "then": "the layout survives with correct mirroring",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1122-6",
+      "description": "Pluralised messages use plural-aware catalogue forms, not \"(s)\" suffixes.",
+      "given": "messages varying by count",
+      "when": "zero, one, and many are rendered",
+      "then": "each count renders its correct form",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

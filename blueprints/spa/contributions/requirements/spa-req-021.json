@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-021",
+  "prdId": "PRD-001",
+  "title": "Performance budget: sub-2s first meaningful paint on 3G-fast, Lighthouse 90+, main-thread under 3s",
+  "description": "On the 3G-fast reference profile, first meaningful paint lands under 2 seconds. Lighthouse performance scores at least 90 on the declared key routes. Total main-thread work during initial load stays under 3 seconds. The budget is enforced against production builds, not development servers.",
+  "category": "nonFunctional",
+  "domain": "performance",
+  "priority": "must",
+  "rationale": "A stated budget converts performance from a mood into a gate. The reference profile and thresholds are the ratified quality bar.",
+  "tags": [
+    "blueprint:spa",
+    "quality-bar:performance"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

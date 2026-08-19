@@ -1,0 +1,69 @@
+{
+  "usId": "spa-US-1105",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Reflow without horizontal overflow at every baseline breakpoint",
+  "asA": "user on a small phone, a tablet, or a desktop",
+  "iWant": "every screen to fit my viewport and reorganise sensibly",
+  "soThat": "I never scroll sideways or squint at scaled-down desktop layouts",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1105-1",
+      "description": "No declared route produces page-level horizontal overflow at viewport widths 360, 768, 1024, or 1440.",
+      "given": "every route in the inventory",
+      "when": "rendered at each baseline breakpoint",
+      "then": "document scroll width does not exceed viewport width",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1105-2",
+      "description": "Layout reorganises across breakpoints (stacking, column changes, navigation collapse) rather than uniformly scaling desktop layout down.",
+      "given": "a route with multi-column desktop layout",
+      "when": "rendered at 360",
+      "then": "columns stack or reorganise; content is not proportionally shrunk",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1105-3",
+      "description": "Images declare intrinsic dimensions or aspect-ratio, render within their containers, and never force layout shift or overflow.",
+      "given": "any route with images",
+      "when": "images load at each breakpoint",
+      "then": "no layout shift from late image sizing and no container overflow",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1105-4",
+      "description": "Data tables below 768 either adopt the card layout or scroll inside an explicitly scoped container; the page itself never scrolls horizontally.",
+      "given": "a route containing a data table",
+      "when": "rendered below 768",
+      "then": "the table is card-formatted or contained in its own scroll region",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1105-5",
+      "description": "Type scales fluidly between breakpoints per the typography tokens; no text is clipped or truncated by reflow at any baseline width.",
+      "given": "any route",
+      "when": "the viewport is resized across the baseline range",
+      "then": "text wraps or scales without clipping or unintended truncation",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1105-6",
+      "description": "Interactive controls remain at or above the minimum target size at every breakpoint; touch targets do not shrink below 24x24 on small viewports.",
+      "given": "any interactive control",
+      "when": "measured at 360",
+      "then": "its target area is at least 24x24 CSS pixels",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

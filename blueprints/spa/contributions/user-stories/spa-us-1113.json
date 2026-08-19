@@ -1,0 +1,82 @@
+{
+  "usId": "spa-US-1113",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Form validation timing, error summary, and accessible field binding",
+  "asA": "user filling in a form",
+  "iWant": "mistakes pointed out early, precisely, and politely",
+  "soThat": "I can fix problems where they are instead of hunting for them after a failed submit",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1113-1",
+      "description": "Fields validate on blur; a field that failed once re-validates on change so corrections clear errors immediately.",
+      "given": "a field with a validation rule",
+      "when": "the user blurs with invalid content, then corrects it",
+      "then": "the error appears on blur and clears as the correction is typed",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1113-2",
+      "description": "Submitting with failures renders a submit-level summary listing every failed field, each entry a link that moves focus to its field.",
+      "given": "a form with three invalid fields",
+      "when": "submit is pressed",
+      "then": "a summary lists all three and each link focuses its field",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1113-3",
+      "description": "Focus moves to the error summary on failed submit and the summary is announced assertively.",
+      "given": "a failed submit",
+      "when": "the summary renders",
+      "then": "focus lands on the summary and it is announced",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1113-4",
+      "description": "Every field error message is tied to its field via aria-describedby with aria-invalid set, and removed when resolved.",
+      "given": "a field in error",
+      "when": "the accessibility tree is inspected",
+      "then": "the message is associated and the state accurate through the fix",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1113-5",
+      "description": "Required fields are marked visibly in the label and programmatically via required semantics; optionality is derivable without colour alone.",
+      "given": "a form with required and optional fields",
+      "when": "labels are inspected",
+      "then": "required marking is visible and programmatic",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1113-6",
+      "description": "Personal-data fields carry correct autocomplete tokens (name, email, tel, and peers) and mobile-intent attributes (inputmode, type) matching the data.",
+      "given": "a form collecting personal data",
+      "when": "field attributes are inspected on mobile",
+      "then": "autofill offers correctly and the matching keyboard opens",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1113-7",
+      "description": "Entered values survive a failed submit and a theme or locale switch; the form never clears user input on error.",
+      "given": "a form with entered values and one invalid field",
+      "when": "submit fails",
+      "then": "every entered value is still present",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-205-spa-forms-engine",
+    "TAC-203-spa-component-library"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

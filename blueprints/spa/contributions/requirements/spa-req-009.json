@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-009",
+  "prdId": "PRD-001",
+  "title": "User arrival and auth surfaces: landing, sign-in, sign-out, expiry, recovery, onboarding, and deep-link redirects",
+  "description": "The application ships designed surfaces for: first-visit unauthenticated landing, sign-in, sign-out confirmation, session-expired, forgot-password, account-recovery, and first-run onboarding. Deep links visited while unauthenticated redirect to sign-in and return the user to the originally requested route after successful authentication.",
+  "category": "functional",
+  "domain": "auth",
+  "priority": "must",
+  "rationale": "Arrival and auth surfaces are the first and the worst-tested screens in most applications. Specifying them as first-class surfaces stops them shipping as afterthoughts.",
+  "tags": [
+    "blueprint:spa",
+    "category:09-arrival-auth"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

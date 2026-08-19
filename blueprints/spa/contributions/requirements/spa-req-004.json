@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Responsive behaviour: reflow without horizontal overflow at 360, 768, 1024, and 1440",
+  "description": "Every declared route renders without horizontal overflow at viewport widths 360, 768, 1024, and 1440. Layout reflows rather than scales: content reorganises per breakpoint instead of shrinking. Images carry intrinsic size hints and respond to container width. Data tables below 768 adopt a card layout or an explicit scroll container scoped to the table, never page-level overflow.",
+  "category": "nonFunctional",
+  "domain": "responsive",
+  "priority": "must",
+  "rationale": "The four breakpoints are the ratified baseline. Overflow at any of them is the single most common visible defect in unspecified builds.",
+  "tags": [
+    "blueprint:spa",
+    "category:04-responsive"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

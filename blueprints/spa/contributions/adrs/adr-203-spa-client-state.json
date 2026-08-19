@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-203-spa-client-state",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Server-state cache separated from UI state, stale-while-revalidate by default",
+  "context": "spa-REQ-013 requires a client cache discipline. Whether client state is one store or two regimes is a whole-project decision; mixing regimes per feature produces stale lists, flicker, and phantom optimistic state.",
+  "decision": "Server state lives in a keyed query cache with stale-while-revalidate reads and explicit invalidation on writes. UI state (selection, open panels, form drafts) lives in local component or page state and never enters the server-state cache. Optimistic updates are opt-in per mutation and roll back visibly on failure. Cache keys derive from canonical resource URLs.",
+  "consequences": "Data freshness has one policy to verify. Screens read query status instead of hand-rolling loading flags, which is what makes the spa-REQ-010 state quartet cheap. The discipline forbids stuffing view state into the cache even when convenient.",
+  "alternativesConsidered": [
+    {
+      "name": "Single global store for everything",
+      "summary": "One store holding server data and view state.",
+      "reasonNotChosen": "Couples wire lifecycles to view lifecycles; invalidation becomes manual and error-prone."
+    },
+    {
+      "name": "Fetch-per-render, no cache",
+      "summary": "Always fetch fresh.",
+      "reasonNotChosen": "Fails the performance budget and produces loading flicker on every navigation."
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

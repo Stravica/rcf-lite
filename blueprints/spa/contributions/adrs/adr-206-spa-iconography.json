@@ -1,0 +1,13 @@
+{
+  "adrId": "ADR-206-spa-iconography",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "One icon set behind semantic aliases",
+  "context": "spa-REQ-011 requires a single icon set. Which construction (stroke width, grid) and how components reference icons needs one recorded answer inside the SPA.",
+  "decision": "The project selects exactly one icon set (consistent stroke and grid across all glyphs) and components reference icons only through semantic aliases (icon.close, icon.danger, icon.search, and peers) declared in one registry. Bespoke per-component artwork requires extending the registry, not inlining SVG.",
+  "consequences": "Swapping icon sets is a registry edit. Decorative versus meaningful icon semantics get one enforcement point for the spa-REQ-019 naming rules.",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

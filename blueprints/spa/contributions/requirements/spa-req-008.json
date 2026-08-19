@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-008",
+  "prdId": "PRD-001",
+  "title": "Journey completeness: every declared journey specified for arrival, loading, empty, error, success, and re-entry",
+  "description": "Every user journey the project declares is walked and specified for six states: arrival (first render), loading, empty, error, success, and re-entry (returning with existing state or an expired session). Each state has a designed layout; no state falls through to a blank region, an unstyled exception, or a spinner without context.",
+  "category": "functional",
+  "domain": "journeys",
+  "priority": "must",
+  "rationale": "Journey gaps are exactly the class of defect the watchpost run3 QA surfaced: functionally sound flows that look abandoned in their non-happy states.",
+  "tags": [
+    "blueprint:spa",
+    "category:08-journey-completeness"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

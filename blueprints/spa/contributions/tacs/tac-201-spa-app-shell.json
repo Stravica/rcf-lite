@@ -1,0 +1,45 @@
+{
+  "tacId": "TAC-201-spa-app-shell",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Application shell and navigation",
+  "purpose": "Owns the persistent frame around every route: top navigation, optional side navigation, skip-link, landmark structure, and the outlet the router renders into.",
+  "responsibilities": [
+    "Render top navigation and, where the project declares secondary structure, side navigation, with active-state semantics per spa-REQ-002.",
+    "Expose ARIA landmarks (banner, navigation, main, contentinfo) and the skip-link as the first focusable element.",
+    "Own keyboard behaviour for shell-level interaction: Tab traversal, arrow-key movement within menus, Escape closing overlays.",
+    "Host the global surfaces that outlive routes: network-state banner (spa-REQ-014), toast region, and theme toggle.",
+    "Apply safe-area insets so shell chrome clears hardware cutouts (spa-REQ-003)."
+  ],
+  "internalStructure": "A shell layout component wrapping the router outlet; navigation data is declarative (the route inventory from spa-REQ-001), not hand-wired per link.",
+  "interfaces": [
+    {
+      "name": "route inventory",
+      "kind": "configuration",
+      "description": "Declared route table consumed to render navigation and breadcrumbs."
+    },
+    {
+      "name": "toast region",
+      "kind": "ui-slot",
+      "description": "Imperative enqueue API for transient notifications, rendered in one landmark-safe region."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Theme system",
+      "kind": "tac",
+      "tacId": "TAC-202-spa-theme-system",
+      "description": "Shell chrome consumes semantic tokens only."
+    },
+    {
+      "name": "Component library",
+      "kind": "tac",
+      "tacId": "TAC-203-spa-component-library"
+    }
+  ],
+  "tradeoffs": "A single persistent shell trades a little initial bundle weight for consistent navigation, one focus-management seam, and one place to verify landmarks.",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

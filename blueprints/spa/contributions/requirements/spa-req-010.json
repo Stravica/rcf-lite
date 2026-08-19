@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-010",
+  "prdId": "PRD-001",
+  "title": "Empty, loading, error, and success states on every route and data-bearing component",
+  "description": "No route or data-bearing component ships without designed empty, loading, error, and success states where applicable. Loading states use skeleton loaders when the incoming content shape is known and spinners only for genuinely indeterminate operations. Empty states name what would fill the space and offer the action that fills it. Error states say what failed and what the user can do next.",
+  "category": "functional",
+  "domain": "ui-states",
+  "priority": "must",
+  "rationale": "The state quartet is the cheapest place to look unfinished. Making it a requirement with per-state ACs makes the absence mechanical to catch.",
+  "tags": [
+    "blueprint:spa",
+    "category:10-state-quartet"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}
