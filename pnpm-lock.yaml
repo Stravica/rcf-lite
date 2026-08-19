@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@stravica-ai/rcf-schemas': github:Stravica/rcf-schemas#8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c
-
 importers:
 
   .: {}
@@ -14,8 +11,8 @@ importers:
   packages/rcf-lite:
     dependencies:
       '@stravica-ai/rcf-schemas':
-        specifier: github:Stravica/rcf-schemas#8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c
-        version: https://codeload.github.com/Stravica/rcf-schemas/tar.gz/8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c
+        specifier: 0.4.4
+        version: 0.4.4
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
@@ -81,9 +78,8 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@stravica-ai/rcf-schemas@https://codeload.github.com/Stravica/rcf-schemas/tar.gz/8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c':
-    resolution: {tarball: https://codeload.github.com/Stravica/rcf-schemas/tar.gz/8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c}
-    version: 0.4.4
+  '@stravica-ai/rcf-schemas@0.4.4':
+    resolution: {integrity: sha512-OE2ZxDpgeTCekm1flEKZmx3POAowQG0xBLSJrhSxA/AqYNoXclRkowGAlCSOKcz9fuxdg5yLBUzp0LWLIKBMLg==}
     engines: {node: '>=24.0.0'}
 
   '@types/d3-array@3.2.2':
@@ -943,7 +939,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@stravica-ai/rcf-schemas@https://codeload.github.com/Stravica/rcf-schemas/tar.gz/8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c': {}
+  '@stravica-ai/rcf-schemas@0.4.4': {}
 
   '@types/d3-array@3.2.2': {}
 

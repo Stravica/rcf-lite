@@ -9,11 +9,5 @@
   },
   "scripts": {
     "test": "pnpm -r test"
-  },
-  "//": "TEMPORARY DEV PIN (Phase 1, w-2026-08-18-016) — DO NOT MERGE. Consumes @stravica-ai/rcf-schemas from the paired Step 1 branch on the schemas repo. Flip to the published 0.4.4 (Baz 2FA publish morning of 2026-08-19) BEFORE merging this PR. Pre-merge checklist item lives in the PR body. Removing this override once the flip is in flight is the gate: schemas PR must be merged AND published to npm first. Kept in package.json (not pnpm-workspace.yaml) so pnpm v9 on CI honours it.",
-  "pnpm": {
-    "overrides": {
-      "@stravica-ai/rcf-schemas": "github:Stravica/rcf-schemas#8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c"
-    }
   }
 }
