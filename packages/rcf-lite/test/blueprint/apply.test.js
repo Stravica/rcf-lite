@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -119,4 +119,84 @@ test('applyBlueprint: scope:global ADR conflict across two applied blueprints re
   assert.equal(second.conflicts[0].topic, 'versioning');
   const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
   assert.equal(manifest.blueprints.length, 1, 'refused apply must not add a manifest entry');
+});
+
+// ---------------------------------------------------------------------------
+// w-2026-08-19-004 item 3: apply atomicity. A partial write on failure
+// must leave no orphan contribution files in the tree and no partial
+// manifest entry. The write phase stages every contribution into a
+// per-batch sidecar (`<name>.rcf-tmp-<slug>-<epoch>`) and only renames
+// the sidecars into place after ALL copies succeed; a failure during
+// the copy loop unlinks every already-staged sidecar and returns an
+// ioFailure with a "rolled back N staged file(s)" preamble.
+// ---------------------------------------------------------------------------
+
+test('applyBlueprint: a mid-batch copy failure rolls back every already-staged sidecar and writes nothing to the tree or manifest (w-2026-08-19-004)', async () => {
+  const root = await scaffoldProject();
+  const reqA = {
+    reqId: 'spa-REQ-001', prdId: 'PRD-001',
+    title: 'First requirement', description: 'x', category: 'functional',
+    priority: 'must', domain: 'ui', version: '0.1.0', status: 'draft',
+    createdAt: '2026-08-19T00:00:00Z', updatedAt: '2026-08-19T00:00:00Z',
+  };
+  const reqB = { ...reqA, reqId: 'spa-REQ-002', title: 'Second requirement' };
+  const source = await writeBlueprint(root, {
+    slug: 'spa', version: '1.0.0',
+    contributions: [
+      { kind: 'req', id: 'spa-REQ-001', path: 'spa-req-001.json', body: reqA },
+      { kind: 'req', id: 'spa-REQ-002', path: 'spa-req-002.json', body: reqB },
+    ],
+  });
+
+  // Inject a copyFile that succeeds on the first call and throws on the
+  // second. This proves the loop unlinks the first sidecar when the
+  // second copy fails.
+  const { copyFile: realCopy } = await import('node:fs/promises');
+  let calls = 0;
+  const copyFileForTest = async (src, dest) => {
+    calls += 1;
+    if (calls === 2) throw new Error('injected mid-apply copy failure');
+    return realCopy(src, dest);
+  };
+  const manifestBefore = await readFile(join(root, 'rcf', 'manifest.json'), 'utf8');
+  const { tree } = await walkTree({ projectRoot: root });
+  const result = await applyBlueprint({
+    projectRoot: root, tree, source, now, _copyFileForTest: copyFileForTest,
+  });
+  assert.equal(result.kind, 'ioFailure', `expected ioFailure, got ${JSON.stringify(result)}`);
+  assert.match(result.message, /rolled back 1 staged file/);
+  assert.match(result.message, /injected mid-apply copy failure/);
+
+  // No orphan contribution files in requirements/.
+  const files = await readdir(join(root, 'rcf', 'requirements'));
+  const spaLeftover = files.filter((f) => f.startsWith('spa-req-') || f.includes('rcf-tmp-'));
+  assert.deepEqual(spaLeftover, [], `expected no spa-req or sidecar files left in tree, saw: ${JSON.stringify(files)}`);
+
+  // Manifest byte-identical to pre-call state.
+  const manifestAfter = await readFile(join(root, 'rcf', 'manifest.json'), 'utf8');
+  assert.equal(manifestAfter, manifestBefore, 'manifest must not be written when the write phase rolled back');
+});
+
+test('applyBlueprint: rolls back on failure of the very first copy (no partial sidecars survive)', async () => {
+  const root = await scaffoldProject();
+  const reqA = {
+    reqId: 'spa-REQ-001', prdId: 'PRD-001',
+    title: 'First requirement', description: 'x', category: 'functional',
+    priority: 'must', domain: 'ui', version: '0.1.0', status: 'draft',
+    createdAt: '2026-08-19T00:00:00Z', updatedAt: '2026-08-19T00:00:00Z',
+  };
+  const source = await writeBlueprint(root, {
+    slug: 'spa', version: '1.0.0',
+    contributions: [{ kind: 'req', id: 'spa-REQ-001', path: 'spa-req-001.json', body: reqA }],
+  });
+  const copyFileForTest = async () => { throw new Error('injected first-copy failure'); };
+  const { tree } = await walkTree({ projectRoot: root });
+  const result = await applyBlueprint({
+    projectRoot: root, tree, source, now, _copyFileForTest: copyFileForTest,
+  });
+  assert.equal(result.kind, 'ioFailure');
+  assert.match(result.message, /rolled back 0 staged file/);
+  const files = await readdir(join(root, 'rcf', 'requirements'));
+  const spaLeftover = files.filter((f) => f.startsWith('spa-req-') || f.includes('rcf-tmp-'));
+  assert.deepEqual(spaLeftover, []);
 });

@@ -23,6 +23,15 @@ pnpm test
 
 The full test suite must pass before you open a pull request. There is no build step; the CLI runs directly from source (`pnpm rcf <verb>`).
 
+### pnpm version discipline
+
+CI runs pnpm 9. Local pnpm 9 keeps you in step with what the pipeline actually installs from, and there is one lockfile-shape concern that matters if you happen to have pnpm 11 or newer on your machine:
+
+- Any override pins (`pnpm.overrides`) belong in the ROOT `package.json`. That is the location pnpm 9 reads them from.
+- pnpm 11 introduced an alternative `overrides:` block inside `pnpm-workspace.yaml`. Do NOT put pins there. pnpm 9 does not read that location and CI will silently skip your override; if you put the same pin in both, pnpm 9 rejects the workspace file with a hard error on install.
+
+If your local pnpm is newer than 9 and refuses to install because a dependency was published inside its minimum-release-age window, run once with `--config.minimum-release-age=0` and note it in your PR description. Do not commit a config change to weaken the guard globally.
+
 ## This repository runs on RCF
 
 RCF Lite is developed using the methodology it implements. The umbrella package's own PRD, requirements, user stories, acceptance criteria, TAD and build queue live as JSON under [`rcf/`](./rcf), and they are not decoration: they are the source of truth for what the tool does.

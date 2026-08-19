@@ -11,9 +11,20 @@
 // network path so tests are hermetic.
 
 import { readFile, stat } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { isAbsolute, join, resolve } from 'node:path';
 
 import { rcfError } from '../core/errors/index.js';
+
+// Contribution kinds a blueprint MAY carry. The RCF hierarchy is composed
+// downward: a blueprint contributes REQuirements, UserStories, TACs and
+// ADRs (plus their supporting FBS / TS / CN artefacts written by later
+// phases). PRDs, TADs and the Build Sequence are project-level singletons
+// -- one PRD per project, one TAD per project, one BS per project -- so
+// no blueprint gets to own them. FBS is excluded by ratified principle
+// (composition happens at the requirements layer, not the build layer).
+const CONTRIBUTABLE_KINDS = new Set(['req', 'us', 'tac', 'adr', 'ts', 'cn']);
+const ROOT_SINGLETON_KINDS = new Set(['prd', 'tad', 'bs']);
+const EXCLUDED_KINDS = new Set(['fbs']);
 
 /**
  * @typedef {object} BlueprintContribution
@@ -92,12 +103,61 @@ function validateMetadata(doc, metaPath) {
     if (typeof c.id !== 'string' || typeof c.kind !== 'string' || typeof c.path !== 'string') {
       return rcfError({ kind: 'validation', message: 'blueprint.json: every contribution needs { id, kind, path }', filePath: metaPath });
     }
+    // Kind gate. Blueprints compose downward from project singletons;
+    // PRD / TAD / BS are per-project artefacts a blueprint never gets
+    // to overwrite, and FBS is excluded by ratified principle
+    // (composition sits at the requirements layer). This is enforced
+    // pre-registry so a mis-authored blueprint fails at load time
+    // rather than at the apply-time collision.
+    if (ROOT_SINGLETON_KINDS.has(c.kind)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: contribution ${c.id} kind '${c.kind}' is a project singleton and cannot be blueprint-owned`,
+        filePath: metaPath,
+      });
+    }
+    if (EXCLUDED_KINDS.has(c.kind)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: contribution ${c.id} kind '${c.kind}' is excluded from blueprint composition by ratified principle (FBS lives at the project's build layer)`,
+        filePath: metaPath,
+      });
+    }
+    if (!CONTRIBUTABLE_KINDS.has(c.kind)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: contribution ${c.id} kind '${c.kind}' is not a recognised contributable kind (expected one of: ${[...CONTRIBUTABLE_KINDS].join(', ')})`,
+        filePath: metaPath,
+      });
+    }
+    // Path guard. Contribution paths are ALWAYS relative to the
+    // blueprint's contributions/ directory. Reject absolute paths and
+    // `..` traversal outright; a registry-fetched blueprint that
+    // slipped through with an escaping path would land arbitrary
+    // bytes wherever the resolved path pointed. Belt-and-braces
+    // before Phase 2 fronts this loader with a registry.
+    const pathError = validateContributionPath(c.path, c.id);
+    if (pathError) return rcfError({ kind: 'validation', message: pathError, filePath: metaPath });
     if (c.scope !== undefined && c.scope !== 'global') {
       return rcfError({ kind: 'validation', message: `blueprint.json: contribution ${c.id} scope must be 'global' when present`, filePath: metaPath });
     }
     if (c.scope === 'global' && typeof c.topic !== 'string') {
       return rcfError({ kind: 'validation', message: `blueprint.json: scope=global contribution ${c.id} requires a topic`, filePath: metaPath });
     }
+  }
+  return null;
+}
+
+function validateContributionPath(p, id) {
+  if (typeof p !== 'string' || p.length === 0) {
+    return `blueprint.json: contribution ${id} path must be a non-empty string`;
+  }
+  if (isAbsolute(p) || /^[A-Za-z]:[\\/]/.test(p)) {
+    return `blueprint.json: contribution ${id} path '${p}' must be relative (absolute paths are refused)`;
+  }
+  const segments = p.split(/[\\/]/);
+  if (segments.some((s) => s === '..')) {
+    return `blueprint.json: contribution ${id} path '${p}' contains a '..' segment (parent-directory traversal is refused)`;
   }
   return null;
 }

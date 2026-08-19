@@ -74,8 +74,8 @@ export function renderConflictReport(conflicts) {
   }
   lines.push('');
   lines.push('resolutions (pick one):');
-  lines.push('  1. `--pick <slug>` — accept one blueprint\'s ADR and re-run `rcf blueprint add`.');
-  lines.push('  2. Author a project-level ADR that supersedes both, then re-run.');
-  lines.push('  3. Decline: leave both blueprints unapplied, or remove the applied one first.');
+  lines.push('  1. Keep the currently applied blueprint. Run `rcf blueprint remove <slug>` on the incoming side\'s slug if it is already partially in-flight, then leave things as they are.');
+  lines.push('  2. Adopt the incoming blueprint instead: `rcf blueprint remove <existing-slug>` first, then re-run `rcf blueprint add` for the incoming source.');
+  lines.push('  3. Author a project-level ADR that supersedes both, then re-run `rcf blueprint add` on the incoming source.');
   return `${lines.join('\n')}\n`;
 }

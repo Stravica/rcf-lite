@@ -88,3 +88,31 @@ test('registerStandardsPack: re-registering the same pack is idempotent', async 
   const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
   assert.equal(manifest.standards.length, 1);
 });
+
+test('registerStandardsPack: byte-identical re-registration short-circuits before the manifest is rewritten (w-2026-08-19-004)', async () => {
+  // Mirrors applyBlueprint's alreadyApplied fast-path: a duplicate call
+  // MUST leave the manifest file byte-identical (and its mtime
+  // untouched) so downstream watchers do not spuriously re-load.
+  const root = await scaffoldProject();
+  await mkdir(join(root, 'docs', 'standards', 'wsd-naming'), { recursive: true });
+  await writeFile(join(root, 'docs', 'standards', 'wsd-naming', 'x.md'), 'x', 'utf8');
+  const opts = {
+    projectRoot: root,
+    sourcePath: join(root, 'docs', 'standards', 'wsd-naming'),
+    slug: 'wsd-naming', tags: ['naming'],
+    testsProvidedBy: 'agent', provenance: 'corporate',
+  };
+  await registerStandardsPack({ ...opts, tree: (await walkTree({ projectRoot: root })).tree });
+  const manifestPath = join(root, 'rcf', 'manifest.json');
+  const bytesBefore = await readFile(manifestPath, 'utf8');
+  const mtimeBefore = (await stat(manifestPath)).mtimeMs;
+  // Sleep past filesystem mtime resolution so a rewrite would move mtime.
+  await new Promise((r) => setTimeout(r, 25));
+  const result = await registerStandardsPack({ ...opts, tree: (await walkTree({ projectRoot: root })).tree });
+  assert.equal(result.registered, false);
+  assert.equal(result.alreadyRegistered, true);
+  const bytesAfter = await readFile(manifestPath, 'utf8');
+  const mtimeAfter = (await stat(manifestPath)).mtimeMs;
+  assert.equal(bytesAfter, bytesBefore, 'byte-identical re-registration must not rewrite the manifest');
+  assert.equal(mtimeAfter, mtimeBefore, 'byte-identical re-registration must not touch the manifest mtime');
+});

@@ -98,6 +98,20 @@ export async function registerStandardsPack({
 
   const existing = (tree.manifest?.standards ?? []).find((s) => s.slug === slug);
   const alreadyRegistered = existing && JSON.stringify(existing) === JSON.stringify(entry);
+  if (alreadyRegistered) {
+    // Short-circuit before rewriting the manifest -- mirrors
+    // applyBlueprint's `alreadyApplied` fast-path (apply.js). Re-writing
+    // the same bytes churns the manifest's mtime and forces every
+    // consumer that watches it to re-load, so a truly idempotent call
+    // stays a no-op end-to-end.
+    return {
+      registered: false,
+      alreadyRegistered: true,
+      entry,
+      copied,
+      ...(copyPath ? { copyPath } : {}),
+    };
+  }
   const manifestResult = await updateManifest({
     projectRoot,
     manifest: tree.manifest,
@@ -112,8 +126,8 @@ export async function registerStandardsPack({
   if (manifestResult.kind) return manifestResult;
 
   return {
-    registered: !alreadyRegistered,
-    alreadyRegistered: !!alreadyRegistered,
+    registered: true,
+    alreadyRegistered: false,
     entry,
     copied,
     ...(copyPath ? { copyPath } : {}),

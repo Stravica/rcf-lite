@@ -82,10 +82,15 @@ test('renderConflictReport: lists both sides and names three resolution paths (A
   assert.match(report, /conflict on topic "versioning"/);
   assert.match(report, /incoming: ADR ADR-005-beta \(blueprint beta\)/);
   assert.match(report, /existing: ADR ADR-004-alpha \(blueprint alpha\)/);
-  // Three resolutions named.
-  assert.match(report, /1\. `--pick <slug>`/);
-  assert.match(report, /2\. Author a project-level ADR that supersedes both/);
-  assert.match(report, /3\. Decline/);
+  // Three resolutions named. Phase 3 introduces `--pick` (and the wider
+  // conflict-resolution verbs) with its own ergonomics gate; until then
+  // the report names implemented paths only (remove-then-re-add).
+  assert.match(report, /1\. Keep the currently applied blueprint/);
+  assert.match(report, /2\. Adopt the incoming blueprint instead/);
+  assert.match(report, /3\. Author a project-level ADR that supersedes both/);
+  // The unimplemented `--pick` guidance is gone; a user following it hit
+  // `parseArgs strict:true` and exited 2 on an unknown option.
+  assert.doesNotMatch(report, /`--pick/);
 });
 
 test('renderConflictReport: empty conflict list returns empty string', () => {

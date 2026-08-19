@@ -16,74 +16,39 @@
 // `dependentsByFbsId`, `tsByAcId`, `tcsByAcId`, `usByTacId`.
 
 import { rcfError } from '../errors/index.js';
-import { normaliseId } from './ids.js';
+import { canonicaliseStem, normaliseId } from './ids.js';
 import { listSubdirJsonFiles, loadDocument, loadRootDocument, pathForId, subdirFor } from './loader.js';
 import { validateDocument } from './validator.js';
-import { parseIdParts, _internal as namespaceInternal } from '../../blueprint/namespace.js';
-
-// Every family the id grammar admits, prefix- OR suffix-namespaced. Cached
-// at module load so `idFromFilenameStem` is a Set lookup per segment rather
-// than repeated `Set` construction. Kept in one place (namespace.js) so the
-// walker and the loader read the same grammar.
-const ID_FAMILIES = new Set([
-  ...namespaceInternal.PREFIX_FAMILIES,
-  ...namespaceInternal.SUFFIX_FAMILIES,
-]);
 
 /**
- * Derive an id from a filename stem. Locates the family segment
- * (REQ / US / PRD / BS / TAD / TS / ADR / TAC / FBS / CN) — which may sit
- * after an optional lower-case slug prefix (`spa-req-001` under blueprint
- * `spa`, `spa-theme-req-001` under `spa-theme`) — upper-cases only that
- * segment, and leaves the surrounding lower-case slug segments verbatim.
+ * Derive an id from a filename stem. Delegates to the core grammar in
+ * `ids.js` (`canonicaliseStem`), which understands BOTH id families
+ * (rcf-schemas 0.4.4):
  *
- * The rcf-schemas 0.4.4 grammar admits two families of namespaced ids:
+ *   - Prefix families (REQ / US / PRD / BS / TAD / TS) admit an optional
+ *     kebab-slug PREFIX -- `spa-req-001` -> `spa-REQ-001`.
+ *   - Suffix families (ADR / TAC / FBS / CN) admit an optional kebab-slug
+ *     SUFFIX -- `fbs-004-user-login` -> `FBS-004-user-login`,
+ *     `adr-005-spa` -> `ADR-005-spa`.
  *
- *   - prefix families (REQ, US, PRD, BS, TAD, TS): `spa-REQ-001`
- *   - suffix families (ADR, TAC, FBS, CN):         `ADR-005-spa`
+ * Before this delegation the walker upper-cased only the FIRST dash
+ * segment, which was correct for suffix families but yielded
+ * `SPA-req-001` for a prefix-family stem `spa-req-001`. That id then
+ * failed `pathForId` at load time and every consuming verb refused with
+ * "Unrecognised document id" (w-2026-08-19-003).
  *
- * Bare `<PREFIX>-<digits>` and suffix-family `<PREFIX>-<digits>-<slug>`
- * both continue to derive as they did pre-fix — the family segment is
- * still position 0 for those shapes. The prefix-family slug shape
- * `<slug>-<PREFIX>-<digits>` is the case the pre-fix code missed:
- * splitting on the first dash upper-cased the slug and left the family
- * lower-case (`SPA-req-001` from `spa-req-001`), and every downstream
- * consumer (`pathForId`, `byId`, kindById) then failed to resolve the id.
+ * Defensive fallback: for stems that match no family pattern (a
+ * genuinely garbage filename), keep the old first-dash upper-case fold
+ * so the walker still records SOMETHING addressable and the subsequent
+ * load / validation step surfaces the real error. A crash here would
+ * hide the file's true problem.
  *
- * Routed through `parseIdParts` so grammar knowledge lives in one place;
- * the walker's job here is only to identify the family segment. When no
- * segment resolves to a family the pre-fix split-on-first-dash behaviour
- * is preserved as a fallback so ill-formed stems still surface at the
- * schema-validation step rather than being silently masked here.
- *
- * @param {string} stem - filename stem, e.g. `spa-req-001`, `fbs-004-user-login`.
- * @returns {string} canonical id, e.g. `spa-REQ-001`, `FBS-004-user-login`.
+ * @param {string} stem - filename stem, e.g. `spa-req-001` or `fbs-004-user-login`.
+ * @returns {string} canonical id.
  */
 function idFromFilenameStem(stem) {
-  if (typeof stem !== 'string' || stem.length === 0) return stem;
-  const segments = stem.split('-');
-  // Walk left-to-right; the first segment whose upper-case matches a known
-  // family AND which is followed by a 3+-digit run is the family segment.
-  // Both conditions matter: `fbs` alone (no digits) is a slug fragment, not
-  // a family; a run of digits after some other prefix (`spa-004-…`) is a
-  // slug fragment, not the number of a family without a family marker.
-  for (let i = 0; i < segments.length; i++) {
-    const upper = segments[i].toUpperCase();
-    if (!ID_FAMILIES.has(upper)) continue;
-    const next = segments[i + 1];
-    if (typeof next !== 'string' || !/^\d{3,}$/.test(next)) continue;
-    const candidate = segments
-      .map((seg, idx) => (idx === i ? upper : seg))
-      .join('-');
-    // Route through parseIdParts so we only accept a candidate the shared
-    // grammar recognises. Anything else (e.g. an odd suffix on a prefix
-    // family) falls through to the legacy behaviour and surfaces at
-    // schema validation.
-    if (parseIdParts(candidate)) return candidate;
-  }
-  // Fallback: pre-fix behaviour. Upper-cases the first segment only. Kept
-  // so ill-formed filenames (no recognisable family segment) surface as-is
-  // at the schema-validation step instead of being silently rewritten.
+  const canonical = canonicaliseStem(stem);
+  if (canonical) return canonical;
   const dash = stem.indexOf('-');
   if (dash === -1) return stem.toUpperCase();
   return `${stem.slice(0, dash).toUpperCase()}${stem.slice(dash)}`;
