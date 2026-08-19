@@ -37,6 +37,26 @@ test('pathForId returns null for unknown id shapes', () => {
   assert.equal(pathForId(null), null);
 });
 
+// w-2026-08-19-001: rcf-schemas 0.4.4 prefix- and suffix-family
+// blueprint namespacing. The pre-fix ladder of `id.startsWith('REQ-')`
+// etc. missed `spa-REQ-001` (slug prefix) entirely, and `blueprint add`
+// wrote files the walker could not resolve back to their id.
+test('pathForId resolves prefix-namespaced ids (rcf-schemas 0.4.4, w-2026-08-19-001)', () => {
+  assert.deepEqual(pathForId('spa-REQ-001'), { kind: 'req', relPath: 'requirements/spa-req-001.json' });
+  assert.deepEqual(pathForId('spa-US-101'), { kind: 'userStory', relPath: 'user-stories/spa-us-101.json' });
+  assert.deepEqual(pathForId('spa-theme-REQ-002'), { kind: 'req', relPath: 'requirements/spa-theme-req-002.json' });
+  assert.deepEqual(pathForId('spa-TS-005'), { kind: 'testSuite', relPath: 'test-suites/spa-ts-005.json' });
+});
+
+test('pathForId resolves suffix-namespaced ids (rcf-schemas 0.4.4, w-2026-08-19-001)', () => {
+  // Suffix families (ADR / TAC / FBS / CN) already matched via startsWith
+  // pre-fix; keep the coverage explicit under the shared-seat routing.
+  assert.deepEqual(pathForId('ADR-005-spa'), { kind: 'adr', relPath: 'adrs/adr-005-spa.json' });
+  assert.deepEqual(pathForId('TAC-007-spa-theme'), { kind: 'tac', relPath: 'tacs/tac-007-spa-theme.json' });
+  assert.deepEqual(pathForId('FBS-016-spa'), { kind: 'fbs', relPath: 'fbs/fbs-016-spa.json' });
+  assert.deepEqual(pathForId('CN-001-spa'), { kind: 'codeNode', relPath: 'code-nodes/cn-001-spa.json' });
+});
+
 test('subdirFor maps kinds to layout dirs', () => {
   assert.equal(subdirFor('req'), 'requirements');
   assert.equal(subdirFor('userStory'), 'user-stories');

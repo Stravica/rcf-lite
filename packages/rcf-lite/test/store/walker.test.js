@@ -428,6 +428,48 @@ test('walkTree preserves case on slug tails when deriving id from filename (0.8.
   assert.ok(dependents.includes('FBS-005'), `dependentsByFbsId did not invert the slugged edge; got ${dependents.join(',')}`);
 });
 
+// ---------------------------------------------------------------------------
+// w-2026-08-19-001: rcf-schemas 0.4.4 prefix-family blueprint namespacing.
+//
+// The suffix-family case (FBS-004-user-login above) worked pre-fix because
+// its filename stem still starts with the family prefix. Prefix families
+// (REQ / US / PRD / BS / TAD / TS) namespace by prepending a lowercase
+// slug: `spa-REQ-001` -> `spa-req-001.json`. Pre-fix, `idFromFilenameStem`
+// split on the first dash and upper-cased only the leading segment, so
+// the stem became `SPA-req-001` -- an id `pathForId` did not recognise
+// and `byId` keyed under the wrong string. The fix routes both walker
+// and loader through the shared `parseIdParts` seat.
+// ---------------------------------------------------------------------------
+test('walkTree keys prefix-family slug-prefixed ids under the correct id (0.4.4 grammar, w-2026-08-19-001)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-prefix-slug-'));
+  await initProject({ projectRoot: root });
+  // Prefix-family: filename stem `spa-req-001` derives id `spa-REQ-001`
+  // (slug lower-case, family upper-case, digits verbatim).
+  const spaReq = {
+    reqId: 'spa-REQ-001',
+    prdId: 'PRD-001',
+    title: 'SPA prefix REQ',
+    description: 'w-2026-08-19-001 regression: derive prefix-family id from a slug-prefixed filename stem.',
+    category: 'functional', priority: 'must', domain: 'ui',
+    version: '0.1.0', status: 'draft',
+    createdAt: '2026-08-19T00:00:00Z', updatedAt: '2026-08-19T00:00:00Z',
+  };
+  await writeFile(join(root, 'rcf', 'requirements', 'spa-req-001.json'), JSON.stringify(spaReq), 'utf8');
+
+  const { tree, errors } = await walkTree({ projectRoot: root });
+
+  // Pre-fix this key was `SPA-req-001` (whole leading segment upper-cased)
+  // and the doc silently detached from the graph.
+  assert.ok(tree.byId.has('spa-REQ-001'),
+    `byId missing prefix-namespaced id; keys: ${[...tree.byId.keys()].join(',')}`);
+  assert.equal(tree.kindById.get('spa-REQ-001'), 'req');
+
+  // No `Unrecognised document id` (usage) error from loadDocument.
+  const usageErr = errors.find((e) => e.kind === 'usage');
+  assert.equal(usageErr, undefined, `unexpected usage error: ${JSON.stringify(usageErr, null, 2)}`);
+});
+
+
 test('walkTree upper-cases the prefix segment on numeric-only ids unchanged (0.8.0 landmine 1 back-compat)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   // Every existing numeric-only id continues to key by its canonical upper-cased
