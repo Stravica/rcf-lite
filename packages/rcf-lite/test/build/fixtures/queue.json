@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 15,
-    "notStarted": 2,
+    "items": 19,
+    "notStarted": 6,
     "inProgress": 0,
     "complete": 13,
     "verified": 0,
-    "actionable": 2,
-    "blocked": 0
+    "actionable": 4,
+    "blocked": 2
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -23,13 +23,17 @@
         "FBS-001",
         "FBS-013",
         "FBS-014",
-        "FBS-015"
+        "FBS-015",
+        "FBS-016",
+        "FBS-018"
       ]
     },
     {
       "tier": 1,
       "fbsIds": [
-        "FBS-002"
+        "FBS-002",
+        "FBS-017",
+        "FBS-019"
       ]
     },
     {
@@ -233,6 +237,54 @@
       "dependsOnFbsIds": [],
       "state": "complete",
       "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-016",
+      "buildOrder": 16,
+      "tier": 0,
+      "title": "Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-017",
+      "buildOrder": 17,
+      "tier": 1,
+      "title": "Namespaced blueprint ids and scope:global ADR conflict surfacing",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-016"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-016"
+      ]
+    },
+    {
+      "fbsId": "FBS-018",
+      "buildOrder": 18,
+      "tier": 0,
+      "title": "Standards ingestion: rcf standards add + reference-by-default",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-019",
+      "buildOrder": 19,
+      "tier": 1,
+      "title": "Selective retrieval at bundle assembly (contextRequirements.standardIds)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-018"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-018"
+      ]
     }
   ]
 }

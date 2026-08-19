@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-065",
+  "path": "src/blueprint/standards.js#registerStandardsPack",
+  "title": "Standards ingestion (reference-by-default + out-of-root copy)",
+  "description": "Detects whether the source lives inside the project root; references-in-place when yes, copies into rcf/standards/<slug>/ when no; writes the manifest.standards[] entry.",
+  "implementsAcIds": [
+    "AC-1003-1",
+    "AC-1003-2",
+    "AC-1003-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

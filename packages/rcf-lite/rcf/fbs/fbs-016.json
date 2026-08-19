@@ -1,0 +1,39 @@
+{
+  "fbsId": "FBS-016",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 16,
+  "executionStatus": "notStarted",
+  "title": "Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes",
+  "summary": "Introduce the `rcf blueprint <verb>` verb family and its manifest-writing path. Adds `src/blueprint/` module (loader, applier, contribution-writer) and `src/cli/blueprint.js` (parseArgs, dispatch, HELP block). Adds `blueprint` to the top-level SUBCOMMANDS map on `bin/rcf.js` and to the `TOP_LEVEL` block on `src/cli/help.js` so `rcf --help` advertises it. Every apply writes an entry to `manifest.blueprints[]` per the 0.4.4 schema (slug, version, appliedAt, source, namespace, contributions[]). `add` is idempotent on a clean re-apply; `remove` refuses when any project-authored doc references a contribution id.",
+  "approach": "One dispatcher, one loader, one applier, one writer. bin/rcf.js gains `blueprint: blueprintMain` on SUBCOMMANDS; src/cli/blueprint.js parses `add|list|remove|upgrade` and dispatches to src/blueprint/ handlers. Blueprint loading is a small package-metadata reader (slug, version, ADR contributions with optional scope, doc contributions manifest); Phase 1 keeps the resolver `file://` and `link:` only, with the registry/git-ref shape captured in the source string so the schema forward-compat holds. Contribution writing goes through the existing store writer paths so a blueprint apply produces the same doc files a hand-created doc would. Removal is a manifest patch + contribution-path unlink; the referring-doc check reuses the existing tree walker to enumerate every string field for id occurrences.",
+  "deliverables": [
+    "src/cli/blueprint.js: parseArgs + HELP + main() dispatching add/list/remove/upgrade",
+    "src/blueprint/index.js: barrel re-exporting apply, list, remove, upgrade, loadBlueprint, detectGlobalAdrConflicts",
+    "src/blueprint/apply.js: apply(tree, blueprint, opts) — idempotency + conflict detection + contribution writes + manifest update",
+    "src/blueprint/loader.js: loadBlueprint(source) — reads a blueprint's metadata (slug, version, ADR contributions with scope, doc contributions)",
+    "src/blueprint/remove.js: remove(tree, slug, opts) — referring-doc scan + manifest patch + file unlinks",
+    "src/blueprint/list.js: list(tree) — reads manifest.blueprints[] and returns rows",
+    "bin/rcf.js: `blueprint: blueprintMain` on SUBCOMMANDS",
+    "src/cli/help.js: `blueprint <verb>` on the TOP_LEVEL block, `help blueprint` prints the blueprint HELP",
+    "test/blueprint/apply.test.js, list.test.js, remove.test.js, cli.test.js — behaviour tests keyed to AC-1001-1..5"
+  ],
+  "acIds": [
+    "AC-1001-1",
+    "AC-1001-2",
+    "AC-1001-3",
+    "AC-1001-4",
+    "AC-1001-5"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "dependsOnFbsIds": [],
+  "domain": "cli",
+  "estimatedSize": "medium",
+  "riskLevel": "low",
+  "notes": "Landing car of Phase 1 blueprint mechanism (w-2026-08-18-016, design-brief.md v2 §Composition model). Written against @stravica-ai/rcf-schemas 0.4.4 (blueprints[] host schema); dev pin to feature/blueprint-additive-0.4.4 on the schemas repo carries until the Baz 2FA publish flips the pin to registry-resolved 0.4.4.",
+  "createdAt": "2026-08-18T22:56:02.353Z",
+  "updatedAt": "2026-08-18T22:56:02.353Z"
+}

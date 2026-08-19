@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-068",
+  "path": "src/build/bundle.js#assembleBundle",
+  "title": "Bundle assembler standardIds host (0.4.4)",
+  "description": "Bundle assembler branch that hosts operator-authored contextRequirements.standardIds override + agentic selection, and renders the standards payload alongside TACs/ADRs.",
+  "implementsAcIds": [
+    "AC-1004-2",
+    "AC-1004-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

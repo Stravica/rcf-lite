@@ -1,0 +1,34 @@
+{
+  "fbsId": "FBS-017",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 17,
+  "executionStatus": "notStarted",
+  "title": "Namespaced blueprint ids and scope:global ADR conflict surfacing",
+  "summary": "Blueprint-contributed docs are namespaced by the blueprint's slug: REQ/US/PRD/BS/TAD/TS via the 0.4.4 slug PREFIX (e.g. `spa-REQ-001`), and ADR/TAC/FBS/CN via the 0.4.3 kebab SUFFIX (e.g. `ADR-005-rest-versioning`). `rcf blueprint add` runs a conflict-detection pass BEFORE writing anything: two blueprints both contributing an ADR tagged `scope: global` on the same topic exit non-zero with both sides printed and three resolution paths named (pick, supersede, decline). Non-global TACs, ADRs, REQs, USs and FBSes namespace cleanly and cannot conflict.",
+  "approach": "Namespacing is enforced at the loader: contribution ids are stamped with the blueprint slug at load time; a contribution whose declared id already carries a namespace is validated to match the applying blueprint's namespace. Conflict detection reads the applied `blueprints[]` and the applying blueprint's contributions; it scores collisions along two axes — same id across namespaces (impossible by construction, defence-in-depth check) and `scope: global` ADR topic collision (two applied ADRs both tagged `scope: global` with a matching `topic` field). Presentation is minimal-viable per prototype-unknown #1: both ids, both blueprint slugs, both paths, and a three-line resolution hint (`--pick`, author project-level ADR, decline).",
+  "deliverables": [
+    "src/blueprint/namespace.js: pure functions that stamp/verify contribution namespacing for all doc kinds",
+    "src/blueprint/conflicts.js: detectGlobalAdrConflicts(appliedBlueprints, incomingContributions) returning zero-or-more Conflict records",
+    "Updates to src/blueprint/apply.js: conflict pass runs BEFORE any file write; non-empty conflict list short-circuits with a printed report + non-zero exit",
+    "test/blueprint/namespace.test.js: prefix/suffix stamping tests keyed to AC-1002-1",
+    "test/blueprint/conflicts.test.js: global-ADR conflict cases keyed to AC-1002-2 / AC-1002-3, non-conflict cases for AC-1002-4"
+  ],
+  "acIds": [
+    "AC-1002-1",
+    "AC-1002-2",
+    "AC-1002-3",
+    "AC-1002-4"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "dependsOnFbsIds": ["FBS-016"],
+  "domain": "cli",
+  "estimatedSize": "medium",
+  "riskLevel": "medium",
+  "notes": "Prototype-unknown #1 (design-brief.md v2 §Depth for v1) — conflict-presentation ergonomics settled here as first pass; Phase 3 (REST blueprint) iterates against the real SPA+REST conflict.",
+  "createdAt": "2026-08-18T22:56:02.353Z",
+  "updatedAt": "2026-08-18T22:56:02.353Z"
+}

@@ -1,0 +1,46 @@
+{
+  "id": "TS-028",
+  "usId": "US-1003",
+  "title": "Standards ingestion",
+  "purpose": "Cover rcf standards add reference-by-default and out-of-root copy paths.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1003-1",
+    "AC-1003-2",
+    "AC-1003-3",
+    "AC-1003-4"
+  ],
+  "testCases": [
+    {
+      "id": "TC-028-add-writes-manifest-entry",
+      "acId": "AC-1003-1",
+      "description": "add writes a validated standards[] manifest entry",
+      "testPointer": "test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-028-inrepo-referenced-in-place",
+      "acId": "AC-1003-2",
+      "description": "in-repo source is referenced in place, no copy written",
+      "testPointer": "test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-028-outofroot-copied-in",
+      "acId": "AC-1003-3",
+      "description": "out-of-root source copied into rcf/standards/<slug>/",
+      "testPointer": "test/blueprint/standards.test.js::registerStandardsPack: out-of-root source is copied into rcf/standards/<slug>/ (AC-1003-3)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-028-manifest-validates",
+      "acId": "AC-1003-4",
+      "description": "manifest with standards[] entries validates against the shipped schema",
+      "testPointer": "test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)",
+      "status": "pending"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

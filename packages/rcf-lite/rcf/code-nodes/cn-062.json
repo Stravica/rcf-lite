@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-062",
+  "path": "src/blueprint/namespace.js#stampId",
+  "title": "Blueprint id namespacing (prefix + suffix families)",
+  "description": "Stamps a doc id with a blueprint slug according to family: prefix for REQ/US/PRD/BS/TAD/TS, suffix for ADR/TAC/FBS/CN.",
+  "implementsAcIds": [
+    "AC-1002-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

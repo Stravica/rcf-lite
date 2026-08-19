@@ -11,6 +11,7 @@
 // authored acIds.
 
 import { byBuildOrder, computeQueue } from './queue.js';
+import { selectStandards } from './standards-selector.js';
 
 /**
  * Copy `fields` from `source` onto a new object, skipping fields not
@@ -106,18 +107,23 @@ export function assembleBundle(tree, { fbsId }) {
   }
 
   // Section 5 - architectural context (§D11). Omitted entirely when
-  // contextRequirements is absent.
-  let context;
+  // contextRequirements is absent, EXCEPT when the FBS drives an agentic
+  // standards selection off manifest.standards[] alone (0.4.4). In that
+  // case a minimal context is synthesised so the standards payload has
+  // somewhere to land.
+  const manifestStandards = tree.manifest?.standards ?? [];
   const ctx = fbs.contextRequirements;
-  if (ctx) {
-    const tacs = (ctx.tacIds ?? [])
+  let context;
+  if (ctx || (manifestStandards.length > 0 && !fbs.contextRequirements)) {
+    const safeCtx = ctx ?? {};
+    const tacs = (safeCtx.tacIds ?? [])
       .map((id) => tree.byId.get(id))
       .filter(Boolean)
       .map((tac) => pick(tac, [
         'tacId', 'name', 'purpose', 'responsibilities', 'interfaces',
         'dependencies', 'tradeoffs', 'notes',
       ]));
-    const adrs = (ctx.adrIds ?? [])
+    const adrs = (safeCtx.adrIds ?? [])
       .map((id) => tree.byId.get(id))
       .filter(Boolean)
       .map((adr) => pick(adr, [
@@ -136,19 +142,36 @@ export function assembleBundle(tree, { fbsId }) {
       }
       return out;
     };
-    const tadSections = resolveSections(ctx.tadSections, tree.tad);
-    const prdSections = resolveSections(ctx.prdSections, tree.prd);
+    const tadSections = resolveSections(safeCtx.tadSections, tree.tad);
+    const prdSections = resolveSections(safeCtx.prdSections, tree.prd);
+
+    // 0.4.4 selective retrieval. Operator-authored standardIds override
+    // the agentic selection; empty selection is legitimate and never
+    // blocks the assembler.
+    const authoredStandardIds = Array.isArray(safeCtx.standardIds) ? safeCtx.standardIds : null;
+    const selection = authoredStandardIds
+      ? { standardIds: authoredStandardIds, source: 'operatorOverride' }
+      : { standardIds: selectStandards(fbs, manifestStandards).standardIds, source: 'agenticSelection' };
+    const standardsById = new Map(manifestStandards.map((s) => [s.slug, s]));
+    const standardsPayload = selection.standardIds
+      .map((slug) => standardsById.get(slug))
+      .filter(Boolean)
+      .map((pack) => pick(pack, ['id', 'slug', 'tags', 'summary', 'testsProvidedBy', 'provenance', 'sourcePath', 'copyPath']));
+
     context = {
       tacs,
       adrs,
       tadSections,
       prdSections,
       unresolvedSections,
+      standardIds: selection.standardIds,
+      standardsSource: selection.source,
+      standards: standardsPayload,
       passThrough: {
-        existingModules: ctx.existingModules ?? [],
-        schemas: ctx.schemas ?? [],
-        externalDocs: ctx.externalDocs ?? [],
-        other: ctx.other ?? [],
+        existingModules: safeCtx.existingModules ?? [],
+        schemas: safeCtx.schemas ?? [],
+        externalDocs: safeCtx.externalDocs ?? [],
+        other: safeCtx.other ?? [],
       },
     };
   }

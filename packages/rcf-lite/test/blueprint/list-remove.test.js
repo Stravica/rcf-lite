@@ -1,0 +1,107 @@
+// End-to-end tests for src/blueprint/list.js and src/blueprint/remove.js.
+// Covers AC-1001-2 (list prints applied blueprints in apply order),
+// AC-1001-3 (remove refuses on referring docs) and the clean-remove
+// happy path.
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdir, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+import { initProject, walkTree } from '#core/store';
+import { applyBlueprint } from '../../src/blueprint/apply.js';
+import { listBlueprints } from '../../src/blueprint/list.js';
+import { removeBlueprint } from '../../src/blueprint/remove.js';
+
+async function scaffoldProject() {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-blueprint-lr-'));
+  const init = await initProject({ projectRoot: root, projectName: 'BLR' });
+  assert.equal(init.kind, undefined);
+  return root;
+}
+
+async function writeBlueprintSource(rootDir, name, spec) {
+  const dir = join(rootDir, `blueprint-${name}`);
+  await mkdir(join(dir, 'contributions'), { recursive: true });
+  await writeFile(join(dir, 'blueprint.json'), JSON.stringify(spec, null, 2), 'utf8');
+  for (const c of spec.contributions ?? []) {
+    await writeFile(join(dir, 'contributions', c.path), JSON.stringify(c.body ?? {}, null, 2), 'utf8');
+  }
+  return dir;
+}
+
+function reqBody(reqId) {
+  return {
+    reqId, prdId: 'PRD-001', title: 'x', description: 'y',
+    category: 'functional', priority: 'must', domain: 'ui',
+    version: '0.1.0', status: 'draft',
+    createdAt: '2026-08-19T00:00:00Z', updatedAt: '2026-08-19T00:00:00Z',
+  };
+}
+
+test('listBlueprints: two applied blueprints render in appliedAt order (AC-1001-2)', async () => {
+  const root = await scaffoldProject();
+  const alphaSrc = await writeBlueprintSource(root, 'alpha', {
+    slug: 'alpha', version: '1.0.0',
+    contributions: [{ kind: 'req', id: 'alpha-REQ-001', path: 'alpha-req-001.json', body: reqBody('alpha-REQ-001') }],
+  });
+  const betaSrc = await writeBlueprintSource(root, 'beta', {
+    slug: 'beta', version: '2.0.0',
+    contributions: [{ kind: 'req', id: 'beta-REQ-001', path: 'beta-req-001.json', body: reqBody('beta-REQ-001') }],
+  });
+  await applyBlueprint({ projectRoot: root, tree: (await walkTree({ projectRoot: root })).tree, source: alphaSrc, now: new Date('2026-08-19T10:00:00Z') });
+  await applyBlueprint({ projectRoot: root, tree: (await walkTree({ projectRoot: root })).tree, source: betaSrc, now: new Date('2026-08-19T11:00:00Z') });
+  const { tree } = await walkTree({ projectRoot: root });
+  const rows = listBlueprints(tree);
+  assert.equal(rows.length, 2);
+  assert.equal(rows[0].slug, 'alpha');
+  assert.equal(rows[1].slug, 'beta');
+  assert.equal(rows[0].contributionCount, 1);
+});
+
+test('removeBlueprint: clean remove drops the entry and deletes contribution files', async () => {
+  const root = await scaffoldProject();
+  const src = await writeBlueprintSource(root, 'alpha', {
+    slug: 'alpha', version: '1.0.0',
+    contributions: [{ kind: 'req', id: 'alpha-REQ-001', path: 'alpha-req-001.json', body: reqBody('alpha-REQ-001') }],
+  });
+  await applyBlueprint({ projectRoot: root, tree: (await walkTree({ projectRoot: root })).tree, source: src, now: new Date('2026-08-19T10:00:00Z') });
+  const { tree } = await walkTree({ projectRoot: root });
+  const result = await removeBlueprint({ projectRoot: root, tree, slug: 'alpha' });
+  assert.equal(result.removed, true);
+  assert.equal(result.deletedPaths.length, 1);
+  // File is gone.
+  await assert.rejects(stat(join(root, 'rcf', 'requirements', 'alpha-req-001.json')));
+  // Manifest entry is gone.
+  const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  assert.equal(manifest.blueprints, undefined);
+});
+
+test('removeBlueprint: refuses when a project-authored doc references a contribution id (AC-1001-3)', async () => {
+  const root = await scaffoldProject();
+  // Blueprint contributes a REQ; also add a project-authored US that references the blueprint REQ.
+  const src = await writeBlueprintSource(root, 'alpha', {
+    slug: 'alpha', version: '1.0.0',
+    contributions: [{ kind: 'req', id: 'alpha-REQ-001', path: 'alpha-req-001.json', body: reqBody('alpha-REQ-001') }],
+  });
+  await applyBlueprint({ projectRoot: root, tree: (await walkTree({ projectRoot: root })).tree, source: src, now: new Date('2026-08-19T10:00:00Z') });
+  // Author a US that references the blueprint's REQ.
+  const us = {
+    usId: 'US-999', prdId: 'PRD-001', reqId: 'alpha-REQ-001',
+    version: '0.1.0', status: 'draft',
+    title: 'refers', asA: 'x', iWant: 'y', soThat: 'z',
+    acceptanceCriteria: [{ id: 'AC-999-1', description: 'x', testable: true }],
+    createdAt: '2026-08-19T00:00:00Z', updatedAt: '2026-08-19T00:00:00Z',
+  };
+  await writeFile(join(root, 'rcf', 'user-stories', 'us-999.json'), JSON.stringify(us, null, 2), 'utf8');
+  const { tree } = await walkTree({ projectRoot: root });
+  const result = await removeBlueprint({ projectRoot: root, tree, slug: 'alpha' });
+  assert.equal(result.removed, false);
+  assert.ok(result.referringDocs.length >= 1);
+  assert.ok(result.referringDocs.some((r) => r.docId === 'US-999' && r.matchedId === 'alpha-REQ-001'));
+  // Blueprint file and manifest entry still present.
+  await stat(join(root, 'rcf', 'requirements', 'alpha-req-001.json'));
+  const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  assert.equal(manifest.blueprints.length, 1);
+});

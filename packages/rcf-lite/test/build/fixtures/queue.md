@@ -19,12 +19,16 @@ Generation strategy: dependencyFirst
 | 13 | 0 | FBS-013 | Deploy-aware elicitation and hosting guidance | notStarted | actionable |  |
 | 14 | 0 | FBS-014 | Local-preview default, runtime-honest verification, interim self-review | notStarted | actionable |  |
 | 15 | 0 | FBS-015 | `rcf verify` subcommand routing (0.7.1 consolidation) | complete | complete |  |
+| 16 | 0 | FBS-016 | Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes | notStarted | actionable |  |
+| 17 | 1 | FBS-017 | Namespaced blueprint ids and scope:global ADR conflict surfacing | notStarted | blocked | FBS-016 |
+| 18 | 0 | FBS-018 | Standards ingestion: rcf standards add + reference-by-default | notStarted | actionable |  |
+| 19 | 1 | FBS-019 | Selective retrieval at bundle assembly (contextRequirements.standardIds) | notStarted | blocked | FBS-018 |
 
-Totals: items 15 | notStarted 2 | inProgress 0 | complete 13 | verified 0 | actionable 2 | blocked 0
+Totals: items 19 | notStarted 6 | inProgress 0 | complete 13 | verified 0 | actionable 4 | blocked 2
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015
-- tier 1: FBS-002
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018
+- tier 1: FBS-002, FBS-017, FBS-019
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008
 - tier 3: FBS-006, FBS-009, FBS-010
 - tier 4: FBS-007, FBS-011, FBS-012

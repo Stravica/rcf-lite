@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Build Lite&quot;,
@@ -3097,6 +3097,544 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-010">
+  <summary><span class="summary-label">REQ-010 - Blueprint library mechanism (composition, standards, selective retrieval)</span><span class="status draft">draft</span></summary>
+  <article id="REQ-010" class="doc doc-req">
+  <h3>REQ-010 - Blueprint library mechanism (composition, standards, selective retrieval)</h3>
+  
+  <p><strong>Description:</strong> The framework provides a Blueprint mechanism the operator uses to compose blueprint packages (specifications + assets, not code) onto a project tree at any point in its life. Composition is many blueprints per project. Blueprint-contributed docs are namespaced by the blueprint&#39;s slug so multiple blueprints cannot collide on ids. Standards packs register at rcf init (or later via rcf standards add), reference-by-default, copied to rcf/standards/&lt;slug&gt;/ only when the source lives outside the project root. Manifest registration is authoritative. Selective retrieval populates fbs.contextRequirements.standardIds at bundle-assembly time by analysing the FBS work text against the standards tag vocabulary; operator override is supported by authoring the array on the FBS. scope:global ADR contributions surface as blocking conflicts at rcf blueprint add time.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> cli</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-010[&quot;REQ-010&lt;br/&gt;Blueprint library mechanism (composition, sta...&quot;]
+  US-1001[&quot;US-1001&lt;br/&gt;Blueprint verb family: add, list, remove, upg...&quot;]
+  REQ-010 --&gt; US-1001
+  AC-1001-1[&quot;AC-1001-1&quot;]
+  US-1001 --&gt; AC-1001-1
+  FBS-016[&quot;FBS-016&lt;br/&gt;Blueprint verb family (add, list, remove, upg...&quot;]
+  AC-1001-1 -.-&gt;|delivered by| FBS-016
+  CN-058[&quot;CN-058&lt;br/&gt;Blueprint apply orchestrator&quot;]
+  AC-1001-1 -.-&gt;|implemented by| CN-058
+  AC-1001-2[&quot;AC-1001-2&quot;]
+  US-1001 --&gt; AC-1001-2
+  AC-1001-2 -.-&gt;|delivered by| FBS-016
+  CN-059[&quot;CN-059&lt;br/&gt;Blueprint list projection&quot;]
+  AC-1001-2 -.-&gt;|implemented by| CN-059
+  AC-1001-3[&quot;AC-1001-3&quot;]
+  US-1001 --&gt; AC-1001-3
+  AC-1001-3 -.-&gt;|delivered by| FBS-016
+  CN-060[&quot;CN-060&lt;br/&gt;Blueprint remove with referring-doc guard&quot;]
+  AC-1001-3 -.-&gt;|implemented by| CN-060
+  AC-1001-4[&quot;AC-1001-4&quot;]
+  US-1001 --&gt; AC-1001-4
+  AC-1001-4 -.-&gt;|delivered by| FBS-016
+  AC-1001-4 -.-&gt;|implemented by| CN-058
+  AC-1001-5[&quot;AC-1001-5&quot;]
+  US-1001 --&gt; AC-1001-5
+  AC-1001-5 -.-&gt;|delivered by| FBS-016
+  CN-061[&quot;CN-061&lt;br/&gt;rcf blueprint CLI dispatcher&quot;]
+  AC-1001-5 -.-&gt;|implemented by| CN-061
+  US-1002[&quot;US-1002&lt;br/&gt;Composition, namespaced ids and scope:global ...&quot;]
+  REQ-010 --&gt; US-1002
+  AC-1002-1[&quot;AC-1002-1&quot;]
+  US-1002 --&gt; AC-1002-1
+  FBS-017[&quot;FBS-017&lt;br/&gt;Namespaced blueprint ids and scope:global ADR...&quot;]
+  AC-1002-1 -.-&gt;|delivered by| FBS-017
+  CN-062[&quot;CN-062&lt;br/&gt;Blueprint id namespacing (prefix + suffix fam...&quot;]
+  AC-1002-1 -.-&gt;|implemented by| CN-062
+  AC-1002-2[&quot;AC-1002-2&quot;]
+  US-1002 --&gt; AC-1002-2
+  AC-1002-2 -.-&gt;|delivered by| FBS-017
+  AC-1002-2 -.-&gt;|implemented by| CN-058
+  CN-063[&quot;CN-063&lt;br/&gt;scope:global ADR conflict detection&quot;]
+  AC-1002-2 -.-&gt;|implemented by| CN-063
+  AC-1002-3[&quot;AC-1002-3&quot;]
+  US-1002 --&gt; AC-1002-3
+  AC-1002-3 -.-&gt;|delivered by| FBS-017
+  CN-064[&quot;CN-064&lt;br/&gt;Conflict-presentation report writer&quot;]
+  AC-1002-3 -.-&gt;|implemented by| CN-064
+  AC-1002-4[&quot;AC-1002-4&quot;]
+  US-1002 --&gt; AC-1002-4
+  AC-1002-4 -.-&gt;|delivered by| FBS-017
+  AC-1002-4 -.-&gt;|implemented by| CN-063
+  US-1003[&quot;US-1003&lt;br/&gt;Standards ingestion: reference by default, co...&quot;]
+  REQ-010 --&gt; US-1003
+  AC-1003-1[&quot;AC-1003-1&quot;]
+  US-1003 --&gt; AC-1003-1
+  FBS-018[&quot;FBS-018&lt;br/&gt;Standards ingestion: rcf standards add + refe...&quot;]
+  AC-1003-1 -.-&gt;|delivered by| FBS-018
+  CN-065[&quot;CN-065&lt;br/&gt;Standards ingestion (reference-by-default + o...&quot;]
+  AC-1003-1 -.-&gt;|implemented by| CN-065
+  AC-1003-2[&quot;AC-1003-2&quot;]
+  US-1003 --&gt; AC-1003-2
+  AC-1003-2 -.-&gt;|delivered by| FBS-018
+  AC-1003-2 -.-&gt;|implemented by| CN-065
+  AC-1003-3[&quot;AC-1003-3&quot;]
+  US-1003 --&gt; AC-1003-3
+  AC-1003-3 -.-&gt;|delivered by| FBS-018
+  AC-1003-3 -.-&gt;|implemented by| CN-065
+  AC-1003-4[&quot;AC-1003-4&quot;]
+  US-1003 --&gt; AC-1003-4
+  AC-1003-4 -.-&gt;|delivered by| FBS-018
+  CN-066[&quot;CN-066&lt;br/&gt;rcf standards CLI dispatcher&quot;]
+  AC-1003-4 -.-&gt;|implemented by| CN-066
+  US-1004[&quot;US-1004&lt;br/&gt;Selective retrieval at bundle assembly (conte...&quot;]
+  REQ-010 --&gt; US-1004
+  AC-1004-1[&quot;AC-1004-1&quot;]
+  US-1004 --&gt; AC-1004-1
+  FBS-019[&quot;FBS-019&lt;br/&gt;Selective retrieval at bundle assembly (conte...&quot;]
+  AC-1004-1 -.-&gt;|delivered by| FBS-019
+  CN-067[&quot;CN-067&lt;br/&gt;Deterministic tag-scoring standards selector&quot;]
+  AC-1004-1 -.-&gt;|implemented by| CN-067
+  AC-1004-2[&quot;AC-1004-2&quot;]
+  US-1004 --&gt; AC-1004-2
+  AC-1004-2 -.-&gt;|delivered by| FBS-019
+  CN-068[&quot;CN-068&lt;br/&gt;Bundle assembler standardIds host (0.4.4)&quot;]
+  AC-1004-2 -.-&gt;|implemented by| CN-068
+  AC-1004-3[&quot;AC-1004-3&quot;]
+  US-1004 --&gt; AC-1004-3
+  AC-1004-3 -.-&gt;|delivered by| FBS-019
+  AC-1004-3 -.-&gt;|implemented by| CN-068
+  AC-1004-4[&quot;AC-1004-4&quot;]
+  US-1004 --&gt; AC-1004-4
+  AC-1004-4 -.-&gt;|delivered by| FBS-019
+  AC-1004-4 -.-&gt;|implemented by| CN-067
+  click REQ-010 &quot;#REQ-010&quot;;
+  click US-1001 &quot;#US-1001&quot;;
+  click AC-1001-1 &quot;#AC-1001-1&quot;;
+  click FBS-016 &quot;#FBS-016&quot;;
+  click CN-058 &quot;#CN-058&quot;;
+  click AC-1001-2 &quot;#AC-1001-2&quot;;
+  click CN-059 &quot;#CN-059&quot;;
+  click AC-1001-3 &quot;#AC-1001-3&quot;;
+  click CN-060 &quot;#CN-060&quot;;
+  click AC-1001-4 &quot;#AC-1001-4&quot;;
+  click AC-1001-5 &quot;#AC-1001-5&quot;;
+  click CN-061 &quot;#CN-061&quot;;
+  click US-1002 &quot;#US-1002&quot;;
+  click AC-1002-1 &quot;#AC-1002-1&quot;;
+  click FBS-017 &quot;#FBS-017&quot;;
+  click CN-062 &quot;#CN-062&quot;;
+  click AC-1002-2 &quot;#AC-1002-2&quot;;
+  click CN-063 &quot;#CN-063&quot;;
+  click AC-1002-3 &quot;#AC-1002-3&quot;;
+  click CN-064 &quot;#CN-064&quot;;
+  click AC-1002-4 &quot;#AC-1002-4&quot;;
+  click US-1003 &quot;#US-1003&quot;;
+  click AC-1003-1 &quot;#AC-1003-1&quot;;
+  click FBS-018 &quot;#FBS-018&quot;;
+  click CN-065 &quot;#CN-065&quot;;
+  click AC-1003-2 &quot;#AC-1003-2&quot;;
+  click AC-1003-3 &quot;#AC-1003-3&quot;;
+  click AC-1003-4 &quot;#AC-1003-4&quot;;
+  click CN-066 &quot;#CN-066&quot;;
+  click US-1004 &quot;#US-1004&quot;;
+  click AC-1004-1 &quot;#AC-1004-1&quot;;
+  click FBS-019 &quot;#FBS-019&quot;;
+  click CN-067 &quot;#CN-067&quot;;
+  click AC-1004-2 &quot;#AC-1004-2&quot;;
+  click CN-068 &quot;#CN-068&quot;;
+  click AC-1004-3 &quot;#AC-1004-3&quot;;
+  click AC-1004-4 &quot;#AC-1004-4&quot;;
+  class REQ-010 req;
+  class US-1001 us;
+  class AC-1001-1 ac;
+  class FBS-016 fbs;
+  class CN-058 cn;
+  class AC-1001-2 ac;
+  class CN-059 cn;
+  class AC-1001-3 ac;
+  class CN-060 cn;
+  class AC-1001-4 ac;
+  class AC-1001-5 ac;
+  class CN-061 cn;
+  class US-1002 us;
+  class AC-1002-1 ac;
+  class FBS-017 fbs;
+  class CN-062 cn;
+  class AC-1002-2 ac;
+  class CN-063 cn;
+  class AC-1002-3 ac;
+  class CN-064 cn;
+  class AC-1002-4 ac;
+  class US-1003 us;
+  class AC-1003-1 ac;
+  class FBS-018 fbs;
+  class CN-065 cn;
+  class AC-1003-2 ac;
+  class AC-1003-3 ac;
+  class AC-1003-4 ac;
+  class CN-066 cn;
+  class US-1004 us;
+  class AC-1004-1 ac;
+  class FBS-019 fbs;
+  class CN-067 cn;
+  class AC-1004-2 ac;
+  class CN-068 cn;
+  class AC-1004-3 ac;
+  class AC-1004-4 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-08-18T22:54:27.031Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:57:45.660Z&quot;,
+  &quot;description&quot;: &quot;The framework provides a Blueprint mechanism the operator uses to compose blueprint packages (specifications + assets, not code) onto a project tree at any point in its life. Composition is many blueprints per project. Blueprint-contributed docs are namespaced by the blueprint&#39;s slug so multiple blueprints cannot collide on ids. Standards packs register at rcf init (or later via rcf standards add), reference-by-default, copied to rcf/standards/&lt;slug&gt;/ only when the source lives outside the project root. Manifest registration is authoritative. Selective retrieval populates fbs.contextRequirements.standardIds at bundle-assembly time by analysing the FBS work text against the standards tag vocabulary; operator override is supported by authoring the array on the FBS. scope:global ADR contributions surface as blocking conflicts at rcf blueprint add time.&quot;,
+  &quot;reqId&quot;: &quot;REQ-010&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Blueprint library mechanism (composition, standards, selective retrieval)&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;cli&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;none&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-08-18T22:54:27.048Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-1001">
+  <summary><span class="summary-label">US-1001 - Blueprint verb family: add, list, remove, upgrade</span><span class="status draft">draft</span></summary>
+  <article id="US-1001" class="doc doc-us">
+  <h3>US-1001 - Blueprint verb family: add, list, remove, upgrade</h3>
+  
+  <p><strong>As a:</strong> operator on an RCF project</p>
+  <p><strong>I want:</strong> to add, list, remove and upgrade blueprints against my project tree from a single `rcf blueprint` verb family</p>
+  <p><strong>So that:</strong> composition is a first-class action instead of a one-shot init flag, and I can layer several blueprints across the life of a project without hand-editing the manifest</p>
+  <p><strong>Description:</strong> A `rcf blueprint` verb family provides the primary operator seat for composing blueprints onto a project. Every verb runs against the current tree, is idempotent where the semantics allow, and writes to the manifest&#39;s `blueprints[]` registry so the applied set is greppable and mechanical.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-010">REQ-010</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1001-1" class="ac-item"><strong>AC-1001-1</strong> - `rcf blueprint add &lt;slug&gt;` on a project with no blueprints applied writes an entry into `manifest.blueprints[]` and prints the applied slug and version
+<div class="ac-gwt"><p><em>Given</em> a validated project tree with no existing `blueprints[]` entries and a resolvable blueprint slug</p><p><em>When</em> `rcf blueprint add &lt;slug&gt;` runs</p><p><em>Then</em> the manifest gains one `blueprints[]` entry (slug, version, appliedAt, source, and any contributions[] the blueprint wrote), and stdout names the slug and applied version</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-016">FBS-016</a></p></li>
+<li id="AC-1001-2" class="ac-item"><strong>AC-1001-2</strong> - `rcf blueprint list` prints every applied blueprint (slug, version, appliedAt) in apply order
+<div class="ac-gwt"><p><em>Given</em> a project with one or more blueprints already applied</p><p><em>When</em> `rcf blueprint list` runs</p><p><em>Then</em> every applied blueprint prints, one per line, ordered by `appliedAt`, with slug, version and apply timestamp columns</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-016">FBS-016</a></p></li>
+<li id="AC-1001-3" class="ac-item"><strong>AC-1001-3</strong> - `rcf blueprint remove &lt;slug&gt;` removes the manifest entry and refuses when any project-authored doc references a contributed id
+<div class="ac-gwt"><p><em>Given</em> a project with the blueprint applied and no project-authored doc referencing any of the contributions[] ids</p><p><em>When</em> `rcf blueprint remove &lt;slug&gt;` runs</p><p><em>Then</em> the `blueprints[]` entry is dropped from the manifest; when a project-authored doc DOES reference a contribution, the verb exits non-zero and prints the referencing id + path without mutating the manifest</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-016">FBS-016</a></p></li>
+<li id="AC-1001-4" class="ac-item"><strong>AC-1001-4</strong> - `rcf blueprint add &lt;slug&gt;` is idempotent: repeating on an already-applied clean slug is a no-op with a friendly message
+<div class="ac-gwt"><p><em>Given</em> a project with `&lt;slug&gt;` already in `blueprints[]`</p><p><em>When</em> `rcf blueprint add &lt;slug&gt;` runs again with no conflicts to surface</p><p><em>Then</em> the manifest is not rewritten, exit code is 0, and stdout names the slug as already applied at the applied version</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-016">FBS-016</a></p></li>
+<li id="AC-1001-5" class="ac-item"><strong>AC-1001-5</strong> - `rcf --help` lists `blueprint` alongside the other top-level commands
+<div class="ac-gwt"><p><em>Given</em> the unified `rcf` bin</p><p><em>When</em> `rcf --help` runs</p><p><em>Then</em> the top-level usage advertises `blueprint &lt;verb&gt;` as an available command</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-016">FBS-016</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-010&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Blueprint verb family: add, list, remove, upgrade&quot;,
+  &quot;description&quot;: &quot;A `rcf blueprint` verb family provides the primary operator seat for composing blueprints onto a project. Every verb runs against the current tree, is idempotent where the semantics allow, and writes to the manifest&#39;s `blueprints[]` registry so the applied set is greppable and mechanical.&quot;,
+  &quot;asA&quot;: &quot;operator on an RCF project&quot;,
+  &quot;iWant&quot;: &quot;to add, list, remove and upgrade blueprints against my project tree from a single `rcf blueprint` verb family&quot;,
+  &quot;soThat&quot;: &quot;composition is a first-class action instead of a one-shot init flag, and I can layer several blueprints across the life of a project without hand-editing the manifest&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1001-1&quot;,
+      &quot;description&quot;: &quot;`rcf blueprint add &lt;slug&gt;` on a project with no blueprints applied writes an entry into `manifest.blueprints[]` and prints the applied slug and version&quot;,
+      &quot;given&quot;: &quot;a validated project tree with no existing `blueprints[]` entries and a resolvable blueprint slug&quot;,
+      &quot;when&quot;: &quot;`rcf blueprint add &lt;slug&gt;` runs&quot;,
+      &quot;then&quot;: &quot;the manifest gains one `blueprints[]` entry (slug, version, appliedAt, source, and any contributions[] the blueprint wrote), and stdout names the slug and applied version&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1001-2&quot;,
+      &quot;description&quot;: &quot;`rcf blueprint list` prints every applied blueprint (slug, version, appliedAt) in apply order&quot;,
+      &quot;given&quot;: &quot;a project with one or more blueprints already applied&quot;,
+      &quot;when&quot;: &quot;`rcf blueprint list` runs&quot;,
+      &quot;then&quot;: &quot;every applied blueprint prints, one per line, ordered by `appliedAt`, with slug, version and apply timestamp columns&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1001-3&quot;,
+      &quot;description&quot;: &quot;`rcf blueprint remove &lt;slug&gt;` removes the manifest entry and refuses when any project-authored doc references a contributed id&quot;,
+      &quot;given&quot;: &quot;a project with the blueprint applied and no project-authored doc referencing any of the contributions[] ids&quot;,
+      &quot;when&quot;: &quot;`rcf blueprint remove &lt;slug&gt;` runs&quot;,
+      &quot;then&quot;: &quot;the `blueprints[]` entry is dropped from the manifest; when a project-authored doc DOES reference a contribution, the verb exits non-zero and prints the referencing id + path without mutating the manifest&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1001-4&quot;,
+      &quot;description&quot;: &quot;`rcf blueprint add &lt;slug&gt;` is idempotent: repeating on an already-applied clean slug is a no-op with a friendly message&quot;,
+      &quot;given&quot;: &quot;a project with `&lt;slug&gt;` already in `blueprints[]`&quot;,
+      &quot;when&quot;: &quot;`rcf blueprint add &lt;slug&gt;` runs again with no conflicts to surface&quot;,
+      &quot;then&quot;: &quot;the manifest is not rewritten, exit code is 0, and stdout names the slug as already applied at the applied version&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1001-5&quot;,
+      &quot;description&quot;: &quot;`rcf --help` lists `blueprint` alongside the other top-level commands&quot;,
+      &quot;given&quot;: &quot;the unified `rcf` bin&quot;,
+      &quot;when&quot;: &quot;`rcf --help` runs&quot;,
+      &quot;then&quot;: &quot;the top-level usage advertises `blueprint &lt;verb&gt;` as an available command&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;createdAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1002">
+  <summary><span class="summary-label">US-1002 - Composition, namespaced ids and scope:global ADR conflict surfacing</span><span class="status draft">draft</span></summary>
+  <article id="US-1002" class="doc doc-us">
+  <h3>US-1002 - Composition, namespaced ids and scope:global ADR conflict surfacing</h3>
+  
+  <p><strong>As a:</strong> operator on an RCF project</p>
+  <p><strong>I want:</strong> blueprint contributions to compose without id collisions, and for `scope: global` ADR conflicts to be surfaced with both sides visible before anything is written</p>
+  <p><strong>So that:</strong> composition never silently merges incompatible whole-project decisions</p>
+  <p><strong>Description:</strong> Multiple blueprints may be applied to a single project. Blueprint-contributed docs are namespaced by the blueprint&#39;s slug so ids cannot collide across blueprints. A blueprint&#39;s ADR contributions may be tagged `scope: global`; two applied blueprints each contributing a `scope: global` ADR are a genuine conflict and `rcf blueprint add` surfaces both entries and refuses to write. Conflict-presentation ergonomics are prototype-unknown #1 (design brief); this US covers the first pass.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-010">REQ-010</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1002-1" class="ac-item"><strong>AC-1002-1</strong> - Blueprint-contributed doc ids are namespaced with the blueprint&#39;s slug so composition cannot collide on ids at the id layer
+<div class="ac-gwt"><p><em>Given</em> two blueprints `spa` and `rest` that both contribute a REQ, a US and an ADR</p><p><em>When</em> both are applied to the same project via `rcf blueprint add`</p><p><em>Then</em> every contributed id carries the blueprint slug as its prefix (REQ/US: `spa-REQ-001`, `rest-REQ-001`) or as its kebab-suffix (ADR: `ADR-004-spa-theme`, `ADR-005-rest-versioning`); no two contributed ids across the two blueprints match</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
+<li id="AC-1002-2" class="ac-item"><strong>AC-1002-2</strong> - `rcf blueprint add &lt;slug&gt;` refuses when the new blueprint contributes a `scope: global` ADR on a topic already contributed by an applied blueprint
+<div class="ac-gwt"><p><em>Given</em> a project with blueprint `alpha` already applied contributing an ADR tagged `scope: global` on topic `versioning`</p><p><em>When</em> `rcf blueprint add beta` runs and blueprint `beta` also contributes a `scope: global` ADR on `versioning`</p><p><em>Then</em> the verb exits non-zero, prints both ADR ids and their file paths, and the manifest is unchanged</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
+<li id="AC-1002-3" class="ac-item"><strong>AC-1002-3</strong> - Conflict output includes both sides and names three resolution paths (pick, supersede, decline)
+<div class="ac-gwt"><p><em>Given</em> the conflict case above</p><p><em>When</em> the verb prints the conflict</p><p><em>Then</em> the output enumerates both ADRs (id, blueprint slug, path) and names the three resolution paths available to the operator (pick one and re-run with `--pick`, author a project-level superseding ADR, or decline the add)</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
+<li id="AC-1002-4" class="ac-item"><strong>AC-1002-4</strong> - Non-global TACs, ADRs, REQs, USs and FBSes are namespaced and cannot conflict
+<div class="ac-gwt"><p><em>Given</em> two blueprints each contributing a TAC on the same topic without `scope: global`</p><p><em>When</em> both are applied</p><p><em>Then</em> both TACs co-exist under distinct namespaced ids; no conflict is surfaced</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1002&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-010&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Composition, namespaced ids and scope:global ADR conflict surfacing&quot;,
+  &quot;description&quot;: &quot;Multiple blueprints may be applied to a single project. Blueprint-contributed docs are namespaced by the blueprint&#39;s slug so ids cannot collide across blueprints. A blueprint&#39;s ADR contributions may be tagged `scope: global`; two applied blueprints each contributing a `scope: global` ADR are a genuine conflict and `rcf blueprint add` surfaces both entries and refuses to write. Conflict-presentation ergonomics are prototype-unknown #1 (design brief); this US covers the first pass.&quot;,
+  &quot;asA&quot;: &quot;operator on an RCF project&quot;,
+  &quot;iWant&quot;: &quot;blueprint contributions to compose without id collisions, and for `scope: global` ADR conflicts to be surfaced with both sides visible before anything is written&quot;,
+  &quot;soThat&quot;: &quot;composition never silently merges incompatible whole-project decisions&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1002-1&quot;,
+      &quot;description&quot;: &quot;Blueprint-contributed doc ids are namespaced with the blueprint&#39;s slug so composition cannot collide on ids at the id layer&quot;,
+      &quot;given&quot;: &quot;two blueprints `spa` and `rest` that both contribute a REQ, a US and an ADR&quot;,
+      &quot;when&quot;: &quot;both are applied to the same project via `rcf blueprint add`&quot;,
+      &quot;then&quot;: &quot;every contributed id carries the blueprint slug as its prefix (REQ/US: `spa-REQ-001`, `rest-REQ-001`) or as its kebab-suffix (ADR: `ADR-004-spa-theme`, `ADR-005-rest-versioning`); no two contributed ids across the two blueprints match&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1002-2&quot;,
+      &quot;description&quot;: &quot;`rcf blueprint add &lt;slug&gt;` refuses when the new blueprint contributes a `scope: global` ADR on a topic already contributed by an applied blueprint&quot;,
+      &quot;given&quot;: &quot;a project with blueprint `alpha` already applied contributing an ADR tagged `scope: global` on topic `versioning`&quot;,
+      &quot;when&quot;: &quot;`rcf blueprint add beta` runs and blueprint `beta` also contributes a `scope: global` ADR on `versioning`&quot;,
+      &quot;then&quot;: &quot;the verb exits non-zero, prints both ADR ids and their file paths, and the manifest is unchanged&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1002-3&quot;,
+      &quot;description&quot;: &quot;Conflict output includes both sides and names three resolution paths (pick, supersede, decline)&quot;,
+      &quot;given&quot;: &quot;the conflict case above&quot;,
+      &quot;when&quot;: &quot;the verb prints the conflict&quot;,
+      &quot;then&quot;: &quot;the output enumerates both ADRs (id, blueprint slug, path) and names the three resolution paths available to the operator (pick one and re-run with `--pick`, author a project-level superseding ADR, or decline the add)&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1002-4&quot;,
+      &quot;description&quot;: &quot;Non-global TACs, ADRs, REQs, USs and FBSes are namespaced and cannot conflict&quot;,
+      &quot;given&quot;: &quot;two blueprints each contributing a TAC on the same topic without `scope: global`&quot;,
+      &quot;when&quot;: &quot;both are applied&quot;,
+      &quot;then&quot;: &quot;both TACs co-exist under distinct namespaced ids; no conflict is surfaced&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;createdAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1003">
+  <summary><span class="summary-label">US-1003 - Standards ingestion: reference by default, copy only when out of root</span><span class="status draft">draft</span></summary>
+  <article id="US-1003" class="doc doc-us">
+  <h3>US-1003 - Standards ingestion: reference by default, copy only when out of root</h3>
+  
+  <p><strong>As a:</strong> operator on an RCF project</p>
+  <p><strong>I want:</strong> to register standards packs against my project tree, referencing in place when the source is already inside the repo and copying into `rcf/standards/&lt;slug&gt;/` only when the source lives outside the project root</p>
+  <p><strong>So that:</strong> duplication inside the repo is not accepted, portability across machines is preserved for external sources, and the manifest is the single source of truth for what standards apply</p>
+  <p><strong>Description:</strong> Standards packs are per operator or organisation and register at `rcf init` (or later via `rcf standards add`). Manifest registration is authoritative. In-repo sources are referenced in place. Out-of-root sources are copied into `rcf/standards/&lt;slug&gt;/` so the tree remains portable. Provenance (personal vs corporate) is recorded per pack.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-010">REQ-010</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1003-1" class="ac-item"><strong>AC-1003-1</strong> - `rcf standards add &lt;path&gt;` writes a manifest entry with the pack&#39;s id, slug, sourcePath, tag vocabulary, testsProvidedBy and provenance
+<div class="ac-gwt"><p><em>Given</em> a project with no standards registered and a valid standards folder anywhere on disk</p><p><em>When</em> `rcf standards add &lt;path&gt; --slug wsd-naming --tags naming,conventions --tests-provided-by agent --provenance corporate` runs</p><p><em>Then</em> the manifest gains one `standards[]` entry with all named fields populated and validates against the schema</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-018">FBS-018</a></p></li>
+<li id="AC-1003-2" class="ac-item"><strong>AC-1003-2</strong> - In-repo sources are referenced in place; no copy is written
+<div class="ac-gwt"><p><em>Given</em> a standards folder path inside the project root (e.g. `docs/standards/wsd-naming`)</p><p><em>When</em> `rcf standards add` runs against it</p><p><em>Then</em> the `sourcePath` records the in-repo path, `copyPath` is absent, and no file is written under `rcf/standards/`</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-018">FBS-018</a></p></li>
+<li id="AC-1003-3" class="ac-item"><strong>AC-1003-3</strong> - Out-of-root sources are mirrored into `rcf/standards/&lt;slug&gt;/` and `copyPath` records the mirror
+<div class="ac-gwt"><p><em>Given</em> a standards folder path outside the project root (an absolute path pointing outside the repo)</p><p><em>When</em> `rcf standards add` runs against it</p><p><em>Then</em> the source is copied into `rcf/standards/&lt;slug&gt;/`, the manifest entry records the original `sourcePath` and the in-tree `copyPath`, and re-running the verb is idempotent (no double copy)</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-018">FBS-018</a></p></li>
+<li id="AC-1003-4" class="ac-item"><strong>AC-1003-4</strong> - The manifest.standards[] entry validates against the shipped schema (@stravica-ai/rcf-schemas standardsPackRecord)
+<div class="ac-gwt"><p><em>Given</em> a manifest with one or more standards[] entries</p><p><em>When</em> `rcf validate` runs</p><p><em>Then</em> the manifest validates without errors under the shipped schema</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-018">FBS-018</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1003&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-010&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Standards ingestion: reference by default, copy only when out of root&quot;,
+  &quot;description&quot;: &quot;Standards packs are per operator or organisation and register at `rcf init` (or later via `rcf standards add`). Manifest registration is authoritative. In-repo sources are referenced in place. Out-of-root sources are copied into `rcf/standards/&lt;slug&gt;/` so the tree remains portable. Provenance (personal vs corporate) is recorded per pack.&quot;,
+  &quot;asA&quot;: &quot;operator on an RCF project&quot;,
+  &quot;iWant&quot;: &quot;to register standards packs against my project tree, referencing in place when the source is already inside the repo and copying into `rcf/standards/&lt;slug&gt;/` only when the source lives outside the project root&quot;,
+  &quot;soThat&quot;: &quot;duplication inside the repo is not accepted, portability across machines is preserved for external sources, and the manifest is the single source of truth for what standards apply&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1003-1&quot;,
+      &quot;description&quot;: &quot;`rcf standards add &lt;path&gt;` writes a manifest entry with the pack&#39;s id, slug, sourcePath, tag vocabulary, testsProvidedBy and provenance&quot;,
+      &quot;given&quot;: &quot;a project with no standards registered and a valid standards folder anywhere on disk&quot;,
+      &quot;when&quot;: &quot;`rcf standards add &lt;path&gt; --slug wsd-naming --tags naming,conventions --tests-provided-by agent --provenance corporate` runs&quot;,
+      &quot;then&quot;: &quot;the manifest gains one `standards[]` entry with all named fields populated and validates against the schema&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1003-2&quot;,
+      &quot;description&quot;: &quot;In-repo sources are referenced in place; no copy is written&quot;,
+      &quot;given&quot;: &quot;a standards folder path inside the project root (e.g. `docs/standards/wsd-naming`)&quot;,
+      &quot;when&quot;: &quot;`rcf standards add` runs against it&quot;,
+      &quot;then&quot;: &quot;the `sourcePath` records the in-repo path, `copyPath` is absent, and no file is written under `rcf/standards/`&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1003-3&quot;,
+      &quot;description&quot;: &quot;Out-of-root sources are mirrored into `rcf/standards/&lt;slug&gt;/` and `copyPath` records the mirror&quot;,
+      &quot;given&quot;: &quot;a standards folder path outside the project root (an absolute path pointing outside the repo)&quot;,
+      &quot;when&quot;: &quot;`rcf standards add` runs against it&quot;,
+      &quot;then&quot;: &quot;the source is copied into `rcf/standards/&lt;slug&gt;/`, the manifest entry records the original `sourcePath` and the in-tree `copyPath`, and re-running the verb is idempotent (no double copy)&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1003-4&quot;,
+      &quot;description&quot;: &quot;The manifest.standards[] entry validates against the shipped schema (@stravica-ai/rcf-schemas standardsPackRecord)&quot;,
+      &quot;given&quot;: &quot;a manifest with one or more standards[] entries&quot;,
+      &quot;when&quot;: &quot;`rcf validate` runs&quot;,
+      &quot;then&quot;: &quot;the manifest validates without errors under the shipped schema&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;createdAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1004">
+  <summary><span class="summary-label">US-1004 - Selective retrieval at bundle assembly (contextRequirements.standardIds)</span><span class="status draft">draft</span></summary>
+  <article id="US-1004" class="doc doc-us">
+  <h3>US-1004 - Selective retrieval at bundle assembly (contextRequirements.standardIds)</h3>
+  
+  <p><strong>As a:</strong> operator on an RCF project with standards registered</p>
+  <p><strong>I want:</strong> the bundle assembler to select relevant standards per FBS automatically, and to honour my override when I author the array on the FBS itself</p>
+  <p><strong>So that:</strong> the default path does not require operator authoring and the override path exists when the agentic selection needs correcting</p>
+  <p><strong>Description:</strong> The build-context bundle assembler runs a deterministic selector during FBS bundle assembly that reads the FBS work text plus the standards manifest (tags, titles, and short summaries) and returns the subset of standard slugs relevant to the FBS. The selected slugs populate `contextRequirements.standardIds` for that bundle only. Operator override is supported by authoring the array on the FBS.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-010">REQ-010</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1004-1" class="ac-item"><strong>AC-1004-1</strong> - The bundle for an FBS with no operator-authored standardIds carries the agentically-selected subset
+<div class="ac-gwt"><p><em>Given</em> a project with two standards packs (`wsd-naming` tagged `naming`, `security-baseline` tagged `security`) and an FBS whose summary names `security`</p><p><em>When</em> the bundle assembler runs for that FBS with no operator-authored `standardIds`</p><p><em>Then</em> the bundle&#39;s `context` section carries `standardIds` including `security-baseline` and the pack&#39;s rendered summary in the standards payload</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-019">FBS-019</a></p></li>
+<li id="AC-1004-2" class="ac-item"><strong>AC-1004-2</strong> - Operator-authored `contextRequirements.standardIds` on the FBS overrides the agentic selection
+<div class="ac-gwt"><p><em>Given</em> the same project and FBS as AC-1004-1, but with `contextRequirements.standardIds: [&#39;wsd-naming&#39;]` authored on the FBS</p><p><em>When</em> the bundle assembler runs</p><p><em>Then</em> the bundle&#39;s `context.standardIds` matches the operator-authored value byte-for-byte; the agentic selection is not invoked</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-019">FBS-019</a></p></li>
+<li id="AC-1004-3" class="ac-item"><strong>AC-1004-3</strong> - The assembler never blocks on an empty selection
+<div class="ac-gwt"><p><em>Given</em> a project with no standards registered, or an FBS whose work text matches no standard</p><p><em>When</em> the bundle assembler runs</p><p><em>Then</em> the bundle assembles with `context.standardIds` empty (or absent) and no standards payload; the assembler does not error</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-019">FBS-019</a></p></li>
+<li id="AC-1004-4" class="ac-item"><strong>AC-1004-4</strong> - Selection is stable per input (deterministic tag-scoring; no wall-clock or random source)
+<div class="ac-gwt"><p><em>Given</em> an FBS work text and a standards manifest, both fixed</p><p><em>When</em> the selector is invoked twice</p><p><em>Then</em> the two returned selections are equal (same slugs, same order)</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-019">FBS-019</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1004&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-010&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Selective retrieval at bundle assembly (contextRequirements.standardIds)&quot;,
+  &quot;description&quot;: &quot;The build-context bundle assembler runs a deterministic selector during FBS bundle assembly that reads the FBS work text plus the standards manifest (tags, titles, and short summaries) and returns the subset of standard slugs relevant to the FBS. The selected slugs populate `contextRequirements.standardIds` for that bundle only. Operator override is supported by authoring the array on the FBS.&quot;,
+  &quot;asA&quot;: &quot;operator on an RCF project with standards registered&quot;,
+  &quot;iWant&quot;: &quot;the bundle assembler to select relevant standards per FBS automatically, and to honour my override when I author the array on the FBS itself&quot;,
+  &quot;soThat&quot;: &quot;the default path does not require operator authoring and the override path exists when the agentic selection needs correcting&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1004-1&quot;,
+      &quot;description&quot;: &quot;The bundle for an FBS with no operator-authored standardIds carries the agentically-selected subset&quot;,
+      &quot;given&quot;: &quot;a project with two standards packs (`wsd-naming` tagged `naming`, `security-baseline` tagged `security`) and an FBS whose summary names `security`&quot;,
+      &quot;when&quot;: &quot;the bundle assembler runs for that FBS with no operator-authored `standardIds`&quot;,
+      &quot;then&quot;: &quot;the bundle&#39;s `context` section carries `standardIds` including `security-baseline` and the pack&#39;s rendered summary in the standards payload&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1004-2&quot;,
+      &quot;description&quot;: &quot;Operator-authored `contextRequirements.standardIds` on the FBS overrides the agentic selection&quot;,
+      &quot;given&quot;: &quot;the same project and FBS as AC-1004-1, but with `contextRequirements.standardIds: [&#39;wsd-naming&#39;]` authored on the FBS&quot;,
+      &quot;when&quot;: &quot;the bundle assembler runs&quot;,
+      &quot;then&quot;: &quot;the bundle&#39;s `context.standardIds` matches the operator-authored value byte-for-byte; the agentic selection is not invoked&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1004-3&quot;,
+      &quot;description&quot;: &quot;The assembler never blocks on an empty selection&quot;,
+      &quot;given&quot;: &quot;a project with no standards registered, or an FBS whose work text matches no standard&quot;,
+      &quot;when&quot;: &quot;the bundle assembler runs&quot;,
+      &quot;then&quot;: &quot;the bundle assembles with `context.standardIds` empty (or absent) and no standards payload; the assembler does not error&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1004-4&quot;,
+      &quot;description&quot;: &quot;Selection is stable per input (deterministic tag-scoring; no wall-clock or random source)&quot;,
+      &quot;given&quot;: &quot;an FBS work text and a standards manifest, both fixed&quot;,
+      &quot;when&quot;: &quot;the selector is invoked twice&quot;,
+      &quot;then&quot;: &quot;the two returned selections are equal (same slugs, same order)&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;createdAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -4156,7 +4694,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` subcommand routing (0.7.1 consolidation)</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` subcommand routing (0.7.1 consolidation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -5573,6 +6111,328 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;dependsOnFbsIds&quot;: [],
   &quot;createdAt&quot;: &quot;2026-08-11T00:00:00Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-08-11T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-016">
+  <summary><span class="summary-label">FBS-016 - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-016" class="doc doc-fbs">
+  <h3>FBS-016 - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</h3>
+  
+  <p><strong>Summary:</strong> Introduce the `rcf blueprint &lt;verb&gt;` verb family and its manifest-writing path. Adds `src/blueprint/` module (loader, applier, contribution-writer) and `src/cli/blueprint.js` (parseArgs, dispatch, HELP block). Adds `blueprint` to the top-level SUBCOMMANDS map on `bin/rcf.js` and to the `TOP_LEVEL` block on `src/cli/help.js` so `rcf --help` advertises it. Every apply writes an entry to `manifest.blueprints[]` per the 0.4.4 schema (slug, version, appliedAt, source, namespace, contributions[]). `add` is idempotent on a clean re-apply; `remove` refuses when any project-authored doc references a contribution id.</p>
+  <p><strong>Approach:</strong> One dispatcher, one loader, one applier, one writer. bin/rcf.js gains `blueprint: blueprintMain` on SUBCOMMANDS; src/cli/blueprint.js parses `add|list|remove|upgrade` and dispatches to src/blueprint/ handlers. Blueprint loading is a small package-metadata reader (slug, version, ADR contributions with optional scope, doc contributions manifest); Phase 1 keeps the resolver `file://` and `link:` only, with the registry/git-ref shape captured in the source string so the schema forward-compat holds. Contribution writing goes through the existing store writer paths so a blueprint apply produces the same doc files a hand-created doc would. Removal is a manifest patch + contribution-path unlink; the referring-doc check reuses the existing tree walker to enumerate every string field for id occurrences.</p>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1001-1">AC-1001-1</a><a class="ac-pill" href="#AC-1001-2">AC-1001-2</a><a class="ac-pill" href="#AC-1001-3">AC-1001-3</a><a class="ac-pill" href="#AC-1001-4">AC-1001-4</a><a class="ac-pill" href="#AC-1001-5">AC-1001-5</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1001-1">AC-1001-1</a></strong> - `rcf blueprint add &lt;slug&gt;` on a project with no blueprints applied writes an entry into `manifest.blueprints[]` and prints the applied slug and version</p>
+  <p><em>Given</em> a validated project tree with no existing `blueprints[]` entries and a resolvable blueprint slug</p>
+  <p><em>When</em> `rcf blueprint add &lt;slug&gt;` runs</p>
+  <p><em>Then</em> the manifest gains one `blueprints[]` entry (slug, version, appliedAt, source, and any contributions[] the blueprint wrote), and stdout names the slug and applied version</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1001-2">AC-1001-2</a></strong> - `rcf blueprint list` prints every applied blueprint (slug, version, appliedAt) in apply order</p>
+  <p><em>Given</em> a project with one or more blueprints already applied</p>
+  <p><em>When</em> `rcf blueprint list` runs</p>
+  <p><em>Then</em> every applied blueprint prints, one per line, ordered by `appliedAt`, with slug, version and apply timestamp columns</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1001-3">AC-1001-3</a></strong> - `rcf blueprint remove &lt;slug&gt;` removes the manifest entry and refuses when any project-authored doc references a contributed id</p>
+  <p><em>Given</em> a project with the blueprint applied and no project-authored doc referencing any of the contributions[] ids</p>
+  <p><em>When</em> `rcf blueprint remove &lt;slug&gt;` runs</p>
+  <p><em>Then</em> the `blueprints[]` entry is dropped from the manifest; when a project-authored doc DOES reference a contribution, the verb exits non-zero and prints the referencing id + path without mutating the manifest</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1001-4">AC-1001-4</a></strong> - `rcf blueprint add &lt;slug&gt;` is idempotent: repeating on an already-applied clean slug is a no-op with a friendly message</p>
+  <p><em>Given</em> a project with `&lt;slug&gt;` already in `blueprints[]`</p>
+  <p><em>When</em> `rcf blueprint add &lt;slug&gt;` runs again with no conflicts to surface</p>
+  <p><em>Then</em> the manifest is not rewritten, exit code is 0, and stdout names the slug as already applied at the applied version</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1001-5">AC-1001-5</a></strong> - `rcf --help` lists `blueprint` alongside the other top-level commands</p>
+  <p><em>Given</em> the unified `rcf` bin</p>
+  <p><em>When</em> `rcf --help` runs</p>
+  <p><em>Then</em> the top-level usage advertises `blueprint &lt;verb&gt;` as an available command</p>
+</div></section>
+  
+  
+  <p><strong>Estimated size:</strong> medium</p>
+  
+  <section class="field-list"><h4>Deliverables</h4><ul><li>src/cli/blueprint.js: parseArgs + HELP + main() dispatching add/list/remove/upgrade</li><li>src/blueprint/index.js: barrel re-exporting apply, list, remove, upgrade, loadBlueprint, detectGlobalAdrConflicts</li><li>src/blueprint/apply.js: apply(tree, blueprint, opts) — idempotency + conflict detection + contribution writes + manifest update</li><li>src/blueprint/loader.js: loadBlueprint(source) — reads a blueprint&#39;s metadata (slug, version, ADR contributions with scope, doc contributions)</li><li>src/blueprint/remove.js: remove(tree, slug, opts) — referring-doc scan + manifest patch + file unlinks</li><li>src/blueprint/list.js: list(tree) — reads manifest.blueprints[] and returns rows</li><li>bin/rcf.js: `blueprint: blueprintMain` on SUBCOMMANDS</li><li>src/cli/help.js: `blueprint &lt;verb&gt;` on the TOP_LEVEL block, `help blueprint` prints the blueprint HELP</li><li>test/blueprint/apply.test.js, list.test.js, remove.test.js, cli.test.js — behaviour tests keyed to AC-1001-1..5</li></ul></section>
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 16</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Notes:</strong> Landing car of Phase 1 blueprint mechanism (w-2026-08-18-016, design-brief.md v2 §Composition model). Written against @stravica-ai/rcf-schemas 0.4.4 (blueprints[] host schema); dev pin to feature/blueprint-additive-0.4.4 on the schemas repo carries until the Baz 2FA publish flips the pin to registry-resolved 0.4.4.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-016&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 16,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes&quot;,
+  &quot;summary&quot;: &quot;Introduce the `rcf blueprint &lt;verb&gt;` verb family and its manifest-writing path. Adds `src/blueprint/` module (loader, applier, contribution-writer) and `src/cli/blueprint.js` (parseArgs, dispatch, HELP block). Adds `blueprint` to the top-level SUBCOMMANDS map on `bin/rcf.js` and to the `TOP_LEVEL` block on `src/cli/help.js` so `rcf --help` advertises it. Every apply writes an entry to `manifest.blueprints[]` per the 0.4.4 schema (slug, version, appliedAt, source, namespace, contributions[]). `add` is idempotent on a clean re-apply; `remove` refuses when any project-authored doc references a contribution id.&quot;,
+  &quot;approach&quot;: &quot;One dispatcher, one loader, one applier, one writer. bin/rcf.js gains `blueprint: blueprintMain` on SUBCOMMANDS; src/cli/blueprint.js parses `add|list|remove|upgrade` and dispatches to src/blueprint/ handlers. Blueprint loading is a small package-metadata reader (slug, version, ADR contributions with optional scope, doc contributions manifest); Phase 1 keeps the resolver `file://` and `link:` only, with the registry/git-ref shape captured in the source string so the schema forward-compat holds. Contribution writing goes through the existing store writer paths so a blueprint apply produces the same doc files a hand-created doc would. Removal is a manifest patch + contribution-path unlink; the referring-doc check reuses the existing tree walker to enumerate every string field for id occurrences.&quot;,
+  &quot;deliverables&quot;: [
+    &quot;src/cli/blueprint.js: parseArgs + HELP + main() dispatching add/list/remove/upgrade&quot;,
+    &quot;src/blueprint/index.js: barrel re-exporting apply, list, remove, upgrade, loadBlueprint, detectGlobalAdrConflicts&quot;,
+    &quot;src/blueprint/apply.js: apply(tree, blueprint, opts) — idempotency + conflict detection + contribution writes + manifest update&quot;,
+    &quot;src/blueprint/loader.js: loadBlueprint(source) — reads a blueprint&#39;s metadata (slug, version, ADR contributions with scope, doc contributions)&quot;,
+    &quot;src/blueprint/remove.js: remove(tree, slug, opts) — referring-doc scan + manifest patch + file unlinks&quot;,
+    &quot;src/blueprint/list.js: list(tree) — reads manifest.blueprints[] and returns rows&quot;,
+    &quot;bin/rcf.js: `blueprint: blueprintMain` on SUBCOMMANDS&quot;,
+    &quot;src/cli/help.js: `blueprint &lt;verb&gt;` on the TOP_LEVEL block, `help blueprint` prints the blueprint HELP&quot;,
+    &quot;test/blueprint/apply.test.js, list.test.js, remove.test.js, cli.test.js — behaviour tests keyed to AC-1001-1..5&quot;
+  ],
+  &quot;acIds&quot;: [
+    &quot;AC-1001-1&quot;,
+    &quot;AC-1001-2&quot;,
+    &quot;AC-1001-3&quot;,
+    &quot;AC-1001-4&quot;,
+    &quot;AC-1001-5&quot;
+  ],
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;domain&quot;: &quot;cli&quot;,
+  &quot;estimatedSize&quot;: &quot;medium&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Landing car of Phase 1 blueprint mechanism (w-2026-08-18-016, design-brief.md v2 §Composition model). Written against @stravica-ai/rcf-schemas 0.4.4 (blueprints[] host schema); dev pin to feature/blueprint-additive-0.4.4 on the schemas repo carries until the Baz 2FA publish flips the pin to registry-resolved 0.4.4.&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-017">
+  <summary><span class="summary-label">FBS-017 - Namespaced blueprint ids and scope:global ADR conflict surfacing</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-017" class="doc doc-fbs">
+  <h3>FBS-017 - Namespaced blueprint ids and scope:global ADR conflict surfacing</h3>
+  
+  <p><strong>Summary:</strong> Blueprint-contributed docs are namespaced by the blueprint&#39;s slug: REQ/US/PRD/BS/TAD/TS via the 0.4.4 slug PREFIX (e.g. `spa-REQ-001`), and ADR/TAC/FBS/CN via the 0.4.3 kebab SUFFIX (e.g. `ADR-005-rest-versioning`). `rcf blueprint add` runs a conflict-detection pass BEFORE writing anything: two blueprints both contributing an ADR tagged `scope: global` on the same topic exit non-zero with both sides printed and three resolution paths named (pick, supersede, decline). Non-global TACs, ADRs, REQs, USs and FBSes namespace cleanly and cannot conflict.</p>
+  <p><strong>Approach:</strong> Namespacing is enforced at the loader: contribution ids are stamped with the blueprint slug at load time; a contribution whose declared id already carries a namespace is validated to match the applying blueprint&#39;s namespace. Conflict detection reads the applied `blueprints[]` and the applying blueprint&#39;s contributions; it scores collisions along two axes — same id across namespaces (impossible by construction, defence-in-depth check) and `scope: global` ADR topic collision (two applied ADRs both tagged `scope: global` with a matching `topic` field). Presentation is minimal-viable per prototype-unknown #1: both ids, both blueprint slugs, both paths, and a three-line resolution hint (`--pick`, author project-level ADR, decline).</p>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1002-1">AC-1002-1</a><a class="ac-pill" href="#AC-1002-2">AC-1002-2</a><a class="ac-pill" href="#AC-1002-3">AC-1002-3</a><a class="ac-pill" href="#AC-1002-4">AC-1002-4</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1002-1">AC-1002-1</a></strong> - Blueprint-contributed doc ids are namespaced with the blueprint&#39;s slug so composition cannot collide on ids at the id layer</p>
+  <p><em>Given</em> two blueprints `spa` and `rest` that both contribute a REQ, a US and an ADR</p>
+  <p><em>When</em> both are applied to the same project via `rcf blueprint add`</p>
+  <p><em>Then</em> every contributed id carries the blueprint slug as its prefix (REQ/US: `spa-REQ-001`, `rest-REQ-001`) or as its kebab-suffix (ADR: `ADR-004-spa-theme`, `ADR-005-rest-versioning`); no two contributed ids across the two blueprints match</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1002-2">AC-1002-2</a></strong> - `rcf blueprint add &lt;slug&gt;` refuses when the new blueprint contributes a `scope: global` ADR on a topic already contributed by an applied blueprint</p>
+  <p><em>Given</em> a project with blueprint `alpha` already applied contributing an ADR tagged `scope: global` on topic `versioning`</p>
+  <p><em>When</em> `rcf blueprint add beta` runs and blueprint `beta` also contributes a `scope: global` ADR on `versioning`</p>
+  <p><em>Then</em> the verb exits non-zero, prints both ADR ids and their file paths, and the manifest is unchanged</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1002-3">AC-1002-3</a></strong> - Conflict output includes both sides and names three resolution paths (pick, supersede, decline)</p>
+  <p><em>Given</em> the conflict case above</p>
+  <p><em>When</em> the verb prints the conflict</p>
+  <p><em>Then</em> the output enumerates both ADRs (id, blueprint slug, path) and names the three resolution paths available to the operator (pick one and re-run with `--pick`, author a project-level superseding ADR, or decline the add)</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1002-4">AC-1002-4</a></strong> - Non-global TACs, ADRs, REQs, USs and FBSes are namespaced and cannot conflict</p>
+  <p><em>Given</em> two blueprints each contributing a TAC on the same topic without `scope: global`</p>
+  <p><em>When</em> both are applied</p>
+  <p><em>Then</em> both TACs co-exist under distinct namespaced ids; no conflict is surfaced</p>
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-016">FBS-016</a></p></section>
+  <p><strong>Estimated size:</strong> medium</p>
+  
+  <section class="field-list"><h4>Deliverables</h4><ul><li>src/blueprint/namespace.js: pure functions that stamp/verify contribution namespacing for all doc kinds</li><li>src/blueprint/conflicts.js: detectGlobalAdrConflicts(appliedBlueprints, incomingContributions) returning zero-or-more Conflict records</li><li>Updates to src/blueprint/apply.js: conflict pass runs BEFORE any file write; non-empty conflict list short-circuits with a printed report + non-zero exit</li><li>test/blueprint/namespace.test.js: prefix/suffix stamping tests keyed to AC-1002-1</li><li>test/blueprint/conflicts.test.js: global-ADR conflict cases keyed to AC-1002-2 / AC-1002-3, non-conflict cases for AC-1002-4</li></ul></section>
+  <p><strong>Risk level:</strong> medium</p>
+  <p><strong>Build order:</strong> 17</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Notes:</strong> Prototype-unknown #1 (design-brief.md v2 §Depth for v1) — conflict-presentation ergonomics settled here as first pass; Phase 3 (REST blueprint) iterates against the real SPA+REST conflict.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-017&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 17,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;Namespaced blueprint ids and scope:global ADR conflict surfacing&quot;,
+  &quot;summary&quot;: &quot;Blueprint-contributed docs are namespaced by the blueprint&#39;s slug: REQ/US/PRD/BS/TAD/TS via the 0.4.4 slug PREFIX (e.g. `spa-REQ-001`), and ADR/TAC/FBS/CN via the 0.4.3 kebab SUFFIX (e.g. `ADR-005-rest-versioning`). `rcf blueprint add` runs a conflict-detection pass BEFORE writing anything: two blueprints both contributing an ADR tagged `scope: global` on the same topic exit non-zero with both sides printed and three resolution paths named (pick, supersede, decline). Non-global TACs, ADRs, REQs, USs and FBSes namespace cleanly and cannot conflict.&quot;,
+  &quot;approach&quot;: &quot;Namespacing is enforced at the loader: contribution ids are stamped with the blueprint slug at load time; a contribution whose declared id already carries a namespace is validated to match the applying blueprint&#39;s namespace. Conflict detection reads the applied `blueprints[]` and the applying blueprint&#39;s contributions; it scores collisions along two axes — same id across namespaces (impossible by construction, defence-in-depth check) and `scope: global` ADR topic collision (two applied ADRs both tagged `scope: global` with a matching `topic` field). Presentation is minimal-viable per prototype-unknown #1: both ids, both blueprint slugs, both paths, and a three-line resolution hint (`--pick`, author project-level ADR, decline).&quot;,
+  &quot;deliverables&quot;: [
+    &quot;src/blueprint/namespace.js: pure functions that stamp/verify contribution namespacing for all doc kinds&quot;,
+    &quot;src/blueprint/conflicts.js: detectGlobalAdrConflicts(appliedBlueprints, incomingContributions) returning zero-or-more Conflict records&quot;,
+    &quot;Updates to src/blueprint/apply.js: conflict pass runs BEFORE any file write; non-empty conflict list short-circuits with a printed report + non-zero exit&quot;,
+    &quot;test/blueprint/namespace.test.js: prefix/suffix stamping tests keyed to AC-1002-1&quot;,
+    &quot;test/blueprint/conflicts.test.js: global-ADR conflict cases keyed to AC-1002-2 / AC-1002-3, non-conflict cases for AC-1002-4&quot;
+  ],
+  &quot;acIds&quot;: [
+    &quot;AC-1002-1&quot;,
+    &quot;AC-1002-2&quot;,
+    &quot;AC-1002-3&quot;,
+    &quot;AC-1002-4&quot;
+  ],
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;dependsOnFbsIds&quot;: [&quot;FBS-016&quot;],
+  &quot;domain&quot;: &quot;cli&quot;,
+  &quot;estimatedSize&quot;: &quot;medium&quot;,
+  &quot;riskLevel&quot;: &quot;medium&quot;,
+  &quot;notes&quot;: &quot;Prototype-unknown #1 (design-brief.md v2 §Depth for v1) — conflict-presentation ergonomics settled here as first pass; Phase 3 (REST blueprint) iterates against the real SPA+REST conflict.&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-018">
+  <summary><span class="summary-label">FBS-018 - Standards ingestion: rcf standards add + reference-by-default</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-018" class="doc doc-fbs">
+  <h3>FBS-018 - Standards ingestion: rcf standards add + reference-by-default</h3>
+  
+  <p><strong>Summary:</strong> Introduce a `rcf standards &lt;verb&gt;` verb family (`add`, `list`) that registers standards packs on the project manifest. Reference-by-default when the source lives inside the project root; copy into `rcf/standards/&lt;slug&gt;/` only when the source lives outside. Manifest registration is authoritative; every add writes a `manifest.standards[]` entry per the 0.4.4 `standardsPackRecord` schema.</p>
+  <p><strong>Approach:</strong> One dispatcher, one applier. src/cli/standards.js parses `add|list`; src/blueprint/standards.js resolves whether the source is inside or outside the project root (via node:path.relative + startsWith), copies when needed, and writes the manifest entry. Copy path is fs.cp recursive with a per-run overwrite guard (idempotent re-adds refuse to re-copy unless `--refresh` is passed; Phase 1 keeps to add-only + idempotent read, `refresh` verb deferred to Phase 3).</p>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1003-1">AC-1003-1</a><a class="ac-pill" href="#AC-1003-2">AC-1003-2</a><a class="ac-pill" href="#AC-1003-3">AC-1003-3</a><a class="ac-pill" href="#AC-1003-4">AC-1003-4</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1003-1">AC-1003-1</a></strong> - `rcf standards add &lt;path&gt;` writes a manifest entry with the pack&#39;s id, slug, sourcePath, tag vocabulary, testsProvidedBy and provenance</p>
+  <p><em>Given</em> a project with no standards registered and a valid standards folder anywhere on disk</p>
+  <p><em>When</em> `rcf standards add &lt;path&gt; --slug wsd-naming --tags naming,conventions --tests-provided-by agent --provenance corporate` runs</p>
+  <p><em>Then</em> the manifest gains one `standards[]` entry with all named fields populated and validates against the schema</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1003-2">AC-1003-2</a></strong> - In-repo sources are referenced in place; no copy is written</p>
+  <p><em>Given</em> a standards folder path inside the project root (e.g. `docs/standards/wsd-naming`)</p>
+  <p><em>When</em> `rcf standards add` runs against it</p>
+  <p><em>Then</em> the `sourcePath` records the in-repo path, `copyPath` is absent, and no file is written under `rcf/standards/`</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1003-3">AC-1003-3</a></strong> - Out-of-root sources are mirrored into `rcf/standards/&lt;slug&gt;/` and `copyPath` records the mirror</p>
+  <p><em>Given</em> a standards folder path outside the project root (an absolute path pointing outside the repo)</p>
+  <p><em>When</em> `rcf standards add` runs against it</p>
+  <p><em>Then</em> the source is copied into `rcf/standards/&lt;slug&gt;/`, the manifest entry records the original `sourcePath` and the in-tree `copyPath`, and re-running the verb is idempotent (no double copy)</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1003-4">AC-1003-4</a></strong> - The manifest.standards[] entry validates against the shipped schema (@stravica-ai/rcf-schemas standardsPackRecord)</p>
+  <p><em>Given</em> a manifest with one or more standards[] entries</p>
+  <p><em>When</em> `rcf validate` runs</p>
+  <p><em>Then</em> the manifest validates without errors under the shipped schema</p>
+</div></section>
+  
+  
+  <p><strong>Estimated size:</strong> small</p>
+  
+  <section class="field-list"><h4>Deliverables</h4><ul><li>src/cli/standards.js: parseArgs + HELP + main() for add/list</li><li>src/blueprint/standards.js: registerStandardsPack(root, opts) — in-root vs out-of-root detection + optional copy + manifest.standards[] write</li><li>bin/rcf.js: `standards: standardsMain` on SUBCOMMANDS</li><li>src/cli/help.js: `standards &lt;verb&gt;` on the TOP_LEVEL block</li><li>test/blueprint/standards.test.js: in-root reference / out-of-root copy / idempotency cases keyed to AC-1003-1..4</li></ul></section>
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 18</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Notes:</strong> Reference-by-default is ratified decision 2 (design-brief.md v2). Copy path targets rcf/standards/&lt;slug&gt;/ (ratified decision 3).</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-018&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 18,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;Standards ingestion: rcf standards add + reference-by-default&quot;,
+  &quot;summary&quot;: &quot;Introduce a `rcf standards &lt;verb&gt;` verb family (`add`, `list`) that registers standards packs on the project manifest. Reference-by-default when the source lives inside the project root; copy into `rcf/standards/&lt;slug&gt;/` only when the source lives outside. Manifest registration is authoritative; every add writes a `manifest.standards[]` entry per the 0.4.4 `standardsPackRecord` schema.&quot;,
+  &quot;approach&quot;: &quot;One dispatcher, one applier. src/cli/standards.js parses `add|list`; src/blueprint/standards.js resolves whether the source is inside or outside the project root (via node:path.relative + startsWith), copies when needed, and writes the manifest entry. Copy path is fs.cp recursive with a per-run overwrite guard (idempotent re-adds refuse to re-copy unless `--refresh` is passed; Phase 1 keeps to add-only + idempotent read, `refresh` verb deferred to Phase 3).&quot;,
+  &quot;deliverables&quot;: [
+    &quot;src/cli/standards.js: parseArgs + HELP + main() for add/list&quot;,
+    &quot;src/blueprint/standards.js: registerStandardsPack(root, opts) — in-root vs out-of-root detection + optional copy + manifest.standards[] write&quot;,
+    &quot;bin/rcf.js: `standards: standardsMain` on SUBCOMMANDS&quot;,
+    &quot;src/cli/help.js: `standards &lt;verb&gt;` on the TOP_LEVEL block&quot;,
+    &quot;test/blueprint/standards.test.js: in-root reference / out-of-root copy / idempotency cases keyed to AC-1003-1..4&quot;
+  ],
+  &quot;acIds&quot;: [
+    &quot;AC-1003-1&quot;,
+    &quot;AC-1003-2&quot;,
+    &quot;AC-1003-3&quot;,
+    &quot;AC-1003-4&quot;
+  ],
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;domain&quot;: &quot;cli&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Reference-by-default is ratified decision 2 (design-brief.md v2). Copy path targets rcf/standards/&lt;slug&gt;/ (ratified decision 3).&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-019">
+  <summary><span class="summary-label">FBS-019 - Selective retrieval at bundle assembly (contextRequirements.standardIds)</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-019" class="doc doc-fbs">
+  <h3>FBS-019 - Selective retrieval at bundle assembly (contextRequirements.standardIds)</h3>
+  
+  <p><strong>Summary:</strong> Extend `src/build/bundle.js#assembleBundle` so its `context` section reads `contextRequirements.standardIds`. When the FBS carries an operator-authored `standardIds` array, that array is honoured verbatim. Otherwise a deterministic tag-scoring selector reads the FBS work text (title + summary + approach + notes + AC descriptions) against `manifest.standards[]` (tags + slug + summary) and returns the subset of slugs whose tags occur in the work text. The bundle&#39;s context.standardIds carries the selection; the standards&#39; summaries render into the standards payload alongside TACs and ADRs.</p>
+  <p><strong>Approach:</strong> The selector is a pure function in src/build/standards-selector.js — no wall clock, no random source, no network. Scoring is deterministic tag-hit counting with lowercase-normalised substring match; ties break by manifest order (standards[] is authored). The bundle assembler prefers operator-authored `contextRequirements.standardIds` when present (design principle 5 override path) and calls the selector otherwise. Empty selection is legitimate and never blocks. Phase 1 keeps the selector local and heuristic; the design brief allows a small model call, but adding an LLM dependency to a pure projection is out of scope for the mechanism landing — the heuristic satisfies the ACs and the seam is where a smarter selector plugs in.</p>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1004-1">AC-1004-1</a><a class="ac-pill" href="#AC-1004-2">AC-1004-2</a><a class="ac-pill" href="#AC-1004-3">AC-1004-3</a><a class="ac-pill" href="#AC-1004-4">AC-1004-4</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1004-1">AC-1004-1</a></strong> - The bundle for an FBS with no operator-authored standardIds carries the agentically-selected subset</p>
+  <p><em>Given</em> a project with two standards packs (`wsd-naming` tagged `naming`, `security-baseline` tagged `security`) and an FBS whose summary names `security`</p>
+  <p><em>When</em> the bundle assembler runs for that FBS with no operator-authored `standardIds`</p>
+  <p><em>Then</em> the bundle&#39;s `context` section carries `standardIds` including `security-baseline` and the pack&#39;s rendered summary in the standards payload</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1004-2">AC-1004-2</a></strong> - Operator-authored `contextRequirements.standardIds` on the FBS overrides the agentic selection</p>
+  <p><em>Given</em> the same project and FBS as AC-1004-1, but with `contextRequirements.standardIds: [&#39;wsd-naming&#39;]` authored on the FBS</p>
+  <p><em>When</em> the bundle assembler runs</p>
+  <p><em>Then</em> the bundle&#39;s `context.standardIds` matches the operator-authored value byte-for-byte; the agentic selection is not invoked</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1004-3">AC-1004-3</a></strong> - The assembler never blocks on an empty selection</p>
+  <p><em>Given</em> a project with no standards registered, or an FBS whose work text matches no standard</p>
+  <p><em>When</em> the bundle assembler runs</p>
+  <p><em>Then</em> the bundle assembles with `context.standardIds` empty (or absent) and no standards payload; the assembler does not error</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1004-4">AC-1004-4</a></strong> - Selection is stable per input (deterministic tag-scoring; no wall-clock or random source)</p>
+  <p><em>Given</em> an FBS work text and a standards manifest, both fixed</p>
+  <p><em>When</em> the selector is invoked twice</p>
+  <p><em>Then</em> the two returned selections are equal (same slugs, same order)</p>
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-018">FBS-018</a></p></section>
+  <p><strong>Estimated size:</strong> small</p>
+  
+  <section class="field-list"><h4>Deliverables</h4><ul><li>src/build/standards-selector.js: selectStandards(fbs, standards) — deterministic tag-hit scoring returning the ordered subset of slugs</li><li>src/build/bundle.js: contextRequirements.standardIds hosts operator override or selector output; standards payload rendered into context alongside tacs/adrs</li><li>test/build/standards-selector.test.js: deterministic-selection cases keyed to AC-1004-1, AC-1004-3, AC-1004-4</li><li>test/build/bundle-standards.test.js: bundle-shape cases (default + override) keyed to AC-1004-1, AC-1004-2</li></ul></section>
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 19</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Notes:</strong> Ratified decision 4 (agentic at bundle-assembly time, operator override supported). Heuristic-tag selector satisfies the deterministic ACs; a smarter selector plugs into the same seam without touching the bundle assembler.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-019&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 19,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;Selective retrieval at bundle assembly (contextRequirements.standardIds)&quot;,
+  &quot;summary&quot;: &quot;Extend `src/build/bundle.js#assembleBundle` so its `context` section reads `contextRequirements.standardIds`. When the FBS carries an operator-authored `standardIds` array, that array is honoured verbatim. Otherwise a deterministic tag-scoring selector reads the FBS work text (title + summary + approach + notes + AC descriptions) against `manifest.standards[]` (tags + slug + summary) and returns the subset of slugs whose tags occur in the work text. The bundle&#39;s context.standardIds carries the selection; the standards&#39; summaries render into the standards payload alongside TACs and ADRs.&quot;,
+  &quot;approach&quot;: &quot;The selector is a pure function in src/build/standards-selector.js — no wall clock, no random source, no network. Scoring is deterministic tag-hit counting with lowercase-normalised substring match; ties break by manifest order (standards[] is authored). The bundle assembler prefers operator-authored `contextRequirements.standardIds` when present (design principle 5 override path) and calls the selector otherwise. Empty selection is legitimate and never blocks. Phase 1 keeps the selector local and heuristic; the design brief allows a small model call, but adding an LLM dependency to a pure projection is out of scope for the mechanism landing — the heuristic satisfies the ACs and the seam is where a smarter selector plugs in.&quot;,
+  &quot;deliverables&quot;: [
+    &quot;src/build/standards-selector.js: selectStandards(fbs, standards) — deterministic tag-hit scoring returning the ordered subset of slugs&quot;,
+    &quot;src/build/bundle.js: contextRequirements.standardIds hosts operator override or selector output; standards payload rendered into context alongside tacs/adrs&quot;,
+    &quot;test/build/standards-selector.test.js: deterministic-selection cases keyed to AC-1004-1, AC-1004-3, AC-1004-4&quot;,
+    &quot;test/build/bundle-standards.test.js: bundle-shape cases (default + override) keyed to AC-1004-1, AC-1004-2&quot;
+  ],
+  &quot;acIds&quot;: [
+    &quot;AC-1004-1&quot;,
+    &quot;AC-1004-2&quot;,
+    &quot;AC-1004-3&quot;,
+    &quot;AC-1004-4&quot;
+  ],
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;dependsOnFbsIds&quot;: [&quot;FBS-018&quot;],
+  &quot;domain&quot;: &quot;build&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Ratified decision 4 (agentic at bundle-assembly time, operator override supported). Heuristic-tag selector satisfies the deterministic ACs; a smarter selector plugs into the same seam without touching the bundle assembler.&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;
 }
 </pre></details>
 </article>
@@ -7334,6 +8194,347 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;status&quot;: &quot;draft&quot;,
   &quot;createdAt&quot;: &quot;2026-08-11T00:00:00Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-08-11T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-026">
+  <summary><span class="summary-label">TS-026 - Blueprint verb family</span><span class="status draft">draft</span></summary>
+  <article id="TS-026" class="doc doc-ts">
+  <h3>TS-026 - Blueprint verb family</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1001">US-1001</a></p>
+  <p><strong>Purpose:</strong> Cover rcf blueprint add/list/remove verb family behaviour and the manifest.blueprints[] write path.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1001-1">AC-1001-1</a>, <a href="#AC-1001-2">AC-1001-2</a>, <a href="#AC-1001-3">AC-1001-3</a>, <a href="#AC-1001-4">AC-1001-4</a>, <a href="#AC-1001-5">AC-1001-5</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-026-add-writes-manifest">
+  <p><strong>TC-026-add-writes-manifest</strong> - covers <a href="#AC-1001-1">AC-1001-1</a> <span class="status pending">pending</span></p>
+  <p>add on a clean project writes manifest.blueprints[] and copies namespaced contributions</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/apply.test.js::applyBlueprint: writes an entry to manifest.blueprints[] and copies namespaced contributions (AC-1001-1)</code></p>
+</div>
+<div class="tc" id="TC-026-list-in-apply-order">
+  <p><strong>TC-026-list-in-apply-order</strong> - covers <a href="#AC-1001-2">AC-1001-2</a> <span class="status pending">pending</span></p>
+  <p>list prints applied blueprints in appliedAt order</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/list-remove.test.js::listBlueprints: two applied blueprints render in appliedAt order (AC-1001-2)</code></p>
+</div>
+<div class="tc" id="TC-026-remove-refuses-on-referring">
+  <p><strong>TC-026-remove-refuses-on-referring</strong> - covers <a href="#AC-1001-3">AC-1001-3</a> <span class="status pending">pending</span></p>
+  <p>remove refuses when a project-authored doc references a contribution id</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/list-remove.test.js::removeBlueprint: refuses when a project-authored doc references a contribution id (AC-1001-3)</code></p>
+</div>
+<div class="tc" id="TC-026-add-idempotent-reapply">
+  <p><strong>TC-026-add-idempotent-reapply</strong> - covers <a href="#AC-1001-4">AC-1001-4</a> <span class="status pending">pending</span></p>
+  <p>re-apply of same slug+version is a no-op</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/apply.test.js::applyBlueprint: idempotent re-apply of the same slug + version returns alreadyApplied and does not rewrite the manifest (AC-1001-4)</code></p>
+</div>
+<div class="tc" id="TC-026-help-advertises-blueprint">
+  <p><strong>TC-026-help-advertises-blueprint</strong> - covers <a href="#AC-1001-5">AC-1001-5</a> <span class="status pending">pending</span></p>
+  <p>rcf --help advertises blueprint as a top-level command</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf --help advertises `blueprint` and `standards` as top-level commands (AC-1001-5)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-026&quot;,
+  &quot;usId&quot;: &quot;US-1001&quot;,
+  &quot;title&quot;: &quot;Blueprint verb family&quot;,
+  &quot;purpose&quot;: &quot;Cover rcf blueprint add/list/remove verb family behaviour and the manifest.blueprints[] write path.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1001-1&quot;,
+    &quot;AC-1001-2&quot;,
+    &quot;AC-1001-3&quot;,
+    &quot;AC-1001-4&quot;,
+    &quot;AC-1001-5&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-026-add-writes-manifest&quot;,
+      &quot;acId&quot;: &quot;AC-1001-1&quot;,
+      &quot;description&quot;: &quot;add on a clean project writes manifest.blueprints[] and copies namespaced contributions&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/apply.test.js::applyBlueprint: writes an entry to manifest.blueprints[] and copies namespaced contributions (AC-1001-1)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-026-list-in-apply-order&quot;,
+      &quot;acId&quot;: &quot;AC-1001-2&quot;,
+      &quot;description&quot;: &quot;list prints applied blueprints in appliedAt order&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/list-remove.test.js::listBlueprints: two applied blueprints render in appliedAt order (AC-1001-2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-026-remove-refuses-on-referring&quot;,
+      &quot;acId&quot;: &quot;AC-1001-3&quot;,
+      &quot;description&quot;: &quot;remove refuses when a project-authored doc references a contribution id&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/list-remove.test.js::removeBlueprint: refuses when a project-authored doc references a contribution id (AC-1001-3)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-026-add-idempotent-reapply&quot;,
+      &quot;acId&quot;: &quot;AC-1001-4&quot;,
+      &quot;description&quot;: &quot;re-apply of same slug+version is a no-op&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/apply.test.js::applyBlueprint: idempotent re-apply of the same slug + version returns alreadyApplied and does not rewrite the manifest (AC-1001-4)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-026-help-advertises-blueprint&quot;,
+      &quot;acId&quot;: &quot;AC-1001-5&quot;,
+      &quot;description&quot;: &quot;rcf --help advertises blueprint as a top-level command&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf --help advertises `blueprint` and `standards` as top-level commands (AC-1001-5)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-19T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-19T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-027">
+  <summary><span class="summary-label">TS-027 - Namespacing + scope:global ADR conflict surfacing</span><span class="status draft">draft</span></summary>
+  <article id="TS-027" class="doc doc-ts">
+  <h3>TS-027 - Namespacing + scope:global ADR conflict surfacing</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1002">US-1002</a></p>
+  <p><strong>Purpose:</strong> Cover blueprint-contributed id namespacing and the scope:global ADR conflict-detection path.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1002-1">AC-1002-1</a>, <a href="#AC-1002-2">AC-1002-2</a>, <a href="#AC-1002-3">AC-1002-3</a>, <a href="#AC-1002-4">AC-1002-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-027-prefix-namespacing">
+  <p><strong>TC-027-prefix-namespacing</strong> - covers <a href="#AC-1002-1">AC-1002-1</a> <span class="status pending">pending</span></p>
+  <p>prefix-family ids gain a kebab-slug prefix on stamp</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/namespace.test.js::stampId: bare prefix-family id gains the slug as PREFIX</code></p>
+</div>
+<div class="tc" id="TC-027-suffix-namespacing">
+  <p><strong>TC-027-suffix-namespacing</strong> - covers <a href="#AC-1002-1">AC-1002-1</a> <span class="status pending">pending</span></p>
+  <p>suffix-family ids gain a kebab-slug suffix on stamp</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/namespace.test.js::stampId: bare suffix-family id gains the slug as SUFFIX</code></p>
+</div>
+<div class="tc" id="TC-027-global-adr-conflict-surfaced">
+  <p><strong>TC-027-global-adr-conflict-surfaced</strong> - covers <a href="#AC-1002-2">AC-1002-2</a> <span class="status pending">pending</span></p>
+  <p>add refuses on scope:global ADR topic collision</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/apply.test.js::applyBlueprint: scope:global ADR conflict across two applied blueprints refuses the second add (AC-1002-2)</code></p>
+</div>
+<div class="tc" id="TC-027-conflict-report-shape">
+  <p><strong>TC-027-conflict-report-shape</strong> - covers <a href="#AC-1002-3">AC-1002-3</a> <span class="status pending">pending</span></p>
+  <p>conflict report lists both sides and names three resolutions</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/conflicts.test.js::renderConflictReport: lists both sides and names three resolution paths (AC-1002-3)</code></p>
+</div>
+<div class="tc" id="TC-027-nonglobal-namespaced-no-conflict">
+  <p><strong>TC-027-nonglobal-namespaced-no-conflict</strong> - covers <a href="#AC-1002-4">AC-1002-4</a> <span class="status pending">pending</span></p>
+  <p>namespaced non-global TACs do not conflict</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/conflicts.test.js::detectGlobalAdrConflicts: namespaced TACs never conflict (AC-1002-4)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-027&quot;,
+  &quot;usId&quot;: &quot;US-1002&quot;,
+  &quot;title&quot;: &quot;Namespacing + scope:global ADR conflict surfacing&quot;,
+  &quot;purpose&quot;: &quot;Cover blueprint-contributed id namespacing and the scope:global ADR conflict-detection path.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1002-1&quot;,
+    &quot;AC-1002-2&quot;,
+    &quot;AC-1002-3&quot;,
+    &quot;AC-1002-4&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-027-prefix-namespacing&quot;,
+      &quot;acId&quot;: &quot;AC-1002-1&quot;,
+      &quot;description&quot;: &quot;prefix-family ids gain a kebab-slug prefix on stamp&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/namespace.test.js::stampId: bare prefix-family id gains the slug as PREFIX&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-suffix-namespacing&quot;,
+      &quot;acId&quot;: &quot;AC-1002-1&quot;,
+      &quot;description&quot;: &quot;suffix-family ids gain a kebab-slug suffix on stamp&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/namespace.test.js::stampId: bare suffix-family id gains the slug as SUFFIX&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-global-adr-conflict-surfaced&quot;,
+      &quot;acId&quot;: &quot;AC-1002-2&quot;,
+      &quot;description&quot;: &quot;add refuses on scope:global ADR topic collision&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/apply.test.js::applyBlueprint: scope:global ADR conflict across two applied blueprints refuses the second add (AC-1002-2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-conflict-report-shape&quot;,
+      &quot;acId&quot;: &quot;AC-1002-3&quot;,
+      &quot;description&quot;: &quot;conflict report lists both sides and names three resolutions&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/conflicts.test.js::renderConflictReport: lists both sides and names three resolution paths (AC-1002-3)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-nonglobal-namespaced-no-conflict&quot;,
+      &quot;acId&quot;: &quot;AC-1002-4&quot;,
+      &quot;description&quot;: &quot;namespaced non-global TACs do not conflict&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/conflicts.test.js::detectGlobalAdrConflicts: namespaced TACs never conflict (AC-1002-4)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-19T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-19T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-028">
+  <summary><span class="summary-label">TS-028 - Standards ingestion</span><span class="status draft">draft</span></summary>
+  <article id="TS-028" class="doc doc-ts">
+  <h3>TS-028 - Standards ingestion</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1003">US-1003</a></p>
+  <p><strong>Purpose:</strong> Cover rcf standards add reference-by-default and out-of-root copy paths.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1003-1">AC-1003-1</a>, <a href="#AC-1003-2">AC-1003-2</a>, <a href="#AC-1003-3">AC-1003-3</a>, <a href="#AC-1003-4">AC-1003-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-028-add-writes-manifest-entry">
+  <p><strong>TC-028-add-writes-manifest-entry</strong> - covers <a href="#AC-1003-1">AC-1003-1</a> <span class="status pending">pending</span></p>
+  <p>add writes a validated standards[] manifest entry</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)</code></p>
+</div>
+<div class="tc" id="TC-028-inrepo-referenced-in-place">
+  <p><strong>TC-028-inrepo-referenced-in-place</strong> - covers <a href="#AC-1003-2">AC-1003-2</a> <span class="status pending">pending</span></p>
+  <p>in-repo source is referenced in place, no copy written</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)</code></p>
+</div>
+<div class="tc" id="TC-028-outofroot-copied-in">
+  <p><strong>TC-028-outofroot-copied-in</strong> - covers <a href="#AC-1003-3">AC-1003-3</a> <span class="status pending">pending</span></p>
+  <p>out-of-root source copied into rcf/standards/&lt;slug&gt;/</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/standards.test.js::registerStandardsPack: out-of-root source is copied into rcf/standards/&lt;slug&gt;/ (AC-1003-3)</code></p>
+</div>
+<div class="tc" id="TC-028-manifest-validates">
+  <p><strong>TC-028-manifest-validates</strong> - covers <a href="#AC-1003-4">AC-1003-4</a> <span class="status pending">pending</span></p>
+  <p>manifest with standards[] entries validates against the shipped schema</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-028&quot;,
+  &quot;usId&quot;: &quot;US-1003&quot;,
+  &quot;title&quot;: &quot;Standards ingestion&quot;,
+  &quot;purpose&quot;: &quot;Cover rcf standards add reference-by-default and out-of-root copy paths.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1003-1&quot;,
+    &quot;AC-1003-2&quot;,
+    &quot;AC-1003-3&quot;,
+    &quot;AC-1003-4&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-028-add-writes-manifest-entry&quot;,
+      &quot;acId&quot;: &quot;AC-1003-1&quot;,
+      &quot;description&quot;: &quot;add writes a validated standards[] manifest entry&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-028-inrepo-referenced-in-place&quot;,
+      &quot;acId&quot;: &quot;AC-1003-2&quot;,
+      &quot;description&quot;: &quot;in-repo source is referenced in place, no copy written&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-028-outofroot-copied-in&quot;,
+      &quot;acId&quot;: &quot;AC-1003-3&quot;,
+      &quot;description&quot;: &quot;out-of-root source copied into rcf/standards/&lt;slug&gt;/&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/standards.test.js::registerStandardsPack: out-of-root source is copied into rcf/standards/&lt;slug&gt;/ (AC-1003-3)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-028-manifest-validates&quot;,
+      &quot;acId&quot;: &quot;AC-1003-4&quot;,
+      &quot;description&quot;: &quot;manifest with standards[] entries validates against the shipped schema&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/standards.test.js::registerStandardsPack: in-repo source is referenced in place (AC-1003-1, AC-1003-2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-19T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-19T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-029">
+  <summary><span class="summary-label">TS-029 - Selective retrieval at bundle assembly</span><span class="status draft">draft</span></summary>
+  <article id="TS-029" class="doc doc-ts">
+  <h3>TS-029 - Selective retrieval at bundle assembly</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1004">US-1004</a></p>
+  <p><strong>Purpose:</strong> Cover the agentic tag-scoring selector and its operator-override path at bundle assembly.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1004-1">AC-1004-1</a>, <a href="#AC-1004-2">AC-1004-2</a>, <a href="#AC-1004-3">AC-1004-3</a>, <a href="#AC-1004-4">AC-1004-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-029-agentic-selection">
+  <p><strong>TC-029-agentic-selection</strong> - covers <a href="#AC-1004-1">AC-1004-1</a> <span class="status pending">pending</span></p>
+  <p>bundle carries agentically-selected standardIds</p>
+  <p><em>Test pointer:</em> <code>test/build/bundle-standards.test.js::bundle: agentic selection picks matching standards from manifest.standards[] (AC-1004-1)</code></p>
+</div>
+<div class="tc" id="TC-029-operator-override">
+  <p><strong>TC-029-operator-override</strong> - covers <a href="#AC-1004-2">AC-1004-2</a> <span class="status pending">pending</span></p>
+  <p>operator-authored standardIds override the selector</p>
+  <p><em>Test pointer:</em> <code>test/build/bundle-standards.test.js::bundle: operator-authored contextRequirements.standardIds overrides the agentic selection (AC-1004-2)</code></p>
+</div>
+<div class="tc" id="TC-029-empty-never-blocks">
+  <p><strong>TC-029-empty-never-blocks</strong> - covers <a href="#AC-1004-3">AC-1004-3</a> <span class="status pending">pending</span></p>
+  <p>empty selection is legitimate; bundle assembles without blocking</p>
+  <p><em>Test pointer:</em> <code>test/build/bundle-standards.test.js::bundle: empty selection is legitimate and never blocks (AC-1004-3)</code></p>
+</div>
+<div class="tc" id="TC-029-deterministic">
+  <p><strong>TC-029-deterministic</strong> - covers <a href="#AC-1004-4">AC-1004-4</a> <span class="status pending">pending</span></p>
+  <p>selection is stable per input across repeat invocations</p>
+  <p><em>Test pointer:</em> <code>test/build/standards-selector.test.js::selectStandards: selection is deterministic across repeat invocations (AC-1004-4)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-029&quot;,
+  &quot;usId&quot;: &quot;US-1004&quot;,
+  &quot;title&quot;: &quot;Selective retrieval at bundle assembly&quot;,
+  &quot;purpose&quot;: &quot;Cover the agentic tag-scoring selector and its operator-override path at bundle assembly.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1004-1&quot;,
+    &quot;AC-1004-2&quot;,
+    &quot;AC-1004-3&quot;,
+    &quot;AC-1004-4&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-029-agentic-selection&quot;,
+      &quot;acId&quot;: &quot;AC-1004-1&quot;,
+      &quot;description&quot;: &quot;bundle carries agentically-selected standardIds&quot;,
+      &quot;testPointer&quot;: &quot;test/build/bundle-standards.test.js::bundle: agentic selection picks matching standards from manifest.standards[] (AC-1004-1)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-029-operator-override&quot;,
+      &quot;acId&quot;: &quot;AC-1004-2&quot;,
+      &quot;description&quot;: &quot;operator-authored standardIds override the selector&quot;,
+      &quot;testPointer&quot;: &quot;test/build/bundle-standards.test.js::bundle: operator-authored contextRequirements.standardIds overrides the agentic selection (AC-1004-2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-029-empty-never-blocks&quot;,
+      &quot;acId&quot;: &quot;AC-1004-3&quot;,
+      &quot;description&quot;: &quot;empty selection is legitimate; bundle assembles without blocking&quot;,
+      &quot;testPointer&quot;: &quot;test/build/bundle-standards.test.js::bundle: empty selection is legitimate and never blocks (AC-1004-3)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-029-deterministic&quot;,
+      &quot;acId&quot;: &quot;AC-1004-4&quot;,
+      &quot;description&quot;: &quot;selection is stable per input across repeat invocations&quot;,
+      &quot;testPointer&quot;: &quot;test/build/standards-selector.test.js::selectStandards: selection is deterministic across repeat invocations (AC-1004-4)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-08-19T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-08-19T00:00:00Z&quot;
 }
 </pre></details>
 </article>

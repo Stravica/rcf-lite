@@ -1,0 +1,53 @@
+{
+  "id": "TS-027",
+  "usId": "US-1002",
+  "title": "Namespacing + scope:global ADR conflict surfacing",
+  "purpose": "Cover blueprint-contributed id namespacing and the scope:global ADR conflict-detection path.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1002-1",
+    "AC-1002-2",
+    "AC-1002-3",
+    "AC-1002-4"
+  ],
+  "testCases": [
+    {
+      "id": "TC-027-prefix-namespacing",
+      "acId": "AC-1002-1",
+      "description": "prefix-family ids gain a kebab-slug prefix on stamp",
+      "testPointer": "test/blueprint/namespace.test.js::stampId: bare prefix-family id gains the slug as PREFIX",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-suffix-namespacing",
+      "acId": "AC-1002-1",
+      "description": "suffix-family ids gain a kebab-slug suffix on stamp",
+      "testPointer": "test/blueprint/namespace.test.js::stampId: bare suffix-family id gains the slug as SUFFIX",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-global-adr-conflict-surfaced",
+      "acId": "AC-1002-2",
+      "description": "add refuses on scope:global ADR topic collision",
+      "testPointer": "test/blueprint/apply.test.js::applyBlueprint: scope:global ADR conflict across two applied blueprints refuses the second add (AC-1002-2)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-conflict-report-shape",
+      "acId": "AC-1002-3",
+      "description": "conflict report lists both sides and names three resolutions",
+      "testPointer": "test/blueprint/conflicts.test.js::renderConflictReport: lists both sides and names three resolution paths (AC-1002-3)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-nonglobal-namespaced-no-conflict",
+      "acId": "AC-1002-4",
+      "description": "namespaced non-global TACs do not conflict",
+      "testPointer": "test/blueprint/conflicts.test.js::detectGlobalAdrConflicts: namespaced TACs never conflict (AC-1002-4)",
+      "status": "pending"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

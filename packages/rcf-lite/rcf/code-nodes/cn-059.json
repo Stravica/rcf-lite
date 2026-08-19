@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-059",
+  "path": "src/blueprint/list.js#listBlueprints",
+  "title": "Blueprint list projection",
+  "description": "Reads manifest.blueprints[] and returns rows in appliedAt order.",
+  "implementsAcIds": [
+    "AC-1001-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

@@ -336,6 +336,77 @@ flowchart LR
   AC-901-3 -.-> TC-025-alias-emits-deprecation-notice
   TC-025-alias-honours-quiet-env["TC-025-alias-honours-quiet-env"]
   AC-901-3 -.-> TC-025-alias-honours-quiet-env
+  REQ-010["REQ-010"]
+  AC-1001-1["AC-1001-1"]
+  REQ-010 --> AC-1001-1
+  TC-026-add-writes-manifest["TC-026-add-writes-manifest"]
+  AC-1001-1 -.-> TC-026-add-writes-manifest
+  AC-1001-2["AC-1001-2"]
+  REQ-010 --> AC-1001-2
+  TC-026-list-in-apply-order["TC-026-list-in-apply-order"]
+  AC-1001-2 -.-> TC-026-list-in-apply-order
+  AC-1001-3["AC-1001-3"]
+  REQ-010 --> AC-1001-3
+  TC-026-remove-refuses-on-referring["TC-026-remove-refuses-on-referring"]
+  AC-1001-3 -.-> TC-026-remove-refuses-on-referring
+  AC-1001-4["AC-1001-4"]
+  REQ-010 --> AC-1001-4
+  TC-026-add-idempotent-reapply["TC-026-add-idempotent-reapply"]
+  AC-1001-4 -.-> TC-026-add-idempotent-reapply
+  AC-1001-5["AC-1001-5"]
+  REQ-010 --> AC-1001-5
+  TC-026-help-advertises-blueprint["TC-026-help-advertises-blueprint"]
+  AC-1001-5 -.-> TC-026-help-advertises-blueprint
+  AC-1002-1["AC-1002-1"]
+  REQ-010 --> AC-1002-1
+  TC-027-prefix-namespacing["TC-027-prefix-namespacing"]
+  AC-1002-1 -.-> TC-027-prefix-namespacing
+  TC-027-suffix-namespacing["TC-027-suffix-namespacing"]
+  AC-1002-1 -.-> TC-027-suffix-namespacing
+  AC-1002-2["AC-1002-2"]
+  REQ-010 --> AC-1002-2
+  TC-027-global-adr-conflict-surfaced["TC-027-global-adr-conflict-surfaced"]
+  AC-1002-2 -.-> TC-027-global-adr-conflict-surfaced
+  AC-1002-3["AC-1002-3"]
+  REQ-010 --> AC-1002-3
+  TC-027-conflict-report-shape["TC-027-conflict-report-shape"]
+  AC-1002-3 -.-> TC-027-conflict-report-shape
+  AC-1002-4["AC-1002-4"]
+  REQ-010 --> AC-1002-4
+  TC-027-nonglobal-namespaced-no-conflict["TC-027-nonglobal-namespaced-no-conflict"]
+  AC-1002-4 -.-> TC-027-nonglobal-namespaced-no-conflict
+  AC-1003-1["AC-1003-1"]
+  REQ-010 --> AC-1003-1
+  TC-028-add-writes-manifest-entry["TC-028-add-writes-manifest-entry"]
+  AC-1003-1 -.-> TC-028-add-writes-manifest-entry
+  AC-1003-2["AC-1003-2"]
+  REQ-010 --> AC-1003-2
+  TC-028-inrepo-referenced-in-place["TC-028-inrepo-referenced-in-place"]
+  AC-1003-2 -.-> TC-028-inrepo-referenced-in-place
+  AC-1003-3["AC-1003-3"]
+  REQ-010 --> AC-1003-3
+  TC-028-outofroot-copied-in["TC-028-outofroot-copied-in"]
+  AC-1003-3 -.-> TC-028-outofroot-copied-in
+  AC-1003-4["AC-1003-4"]
+  REQ-010 --> AC-1003-4
+  TC-028-manifest-validates["TC-028-manifest-validates"]
+  AC-1003-4 -.-> TC-028-manifest-validates
+  AC-1004-1["AC-1004-1"]
+  REQ-010 --> AC-1004-1
+  TC-029-agentic-selection["TC-029-agentic-selection"]
+  AC-1004-1 -.-> TC-029-agentic-selection
+  AC-1004-2["AC-1004-2"]
+  REQ-010 --> AC-1004-2
+  TC-029-operator-override["TC-029-operator-override"]
+  AC-1004-2 -.-> TC-029-operator-override
+  AC-1004-3["AC-1004-3"]
+  REQ-010 --> AC-1004-3
+  TC-029-empty-never-blocks["TC-029-empty-never-blocks"]
+  AC-1004-3 -.-> TC-029-empty-never-blocks
+  AC-1004-4["AC-1004-4"]
+  REQ-010 --> AC-1004-4
+  TC-029-deterministic["TC-029-deterministic"]
+  AC-1004-4 -.-> TC-029-deterministic
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -509,6 +580,42 @@ flowchart LR
   class AC-901-3 ac;
   class TC-025-alias-emits-deprecation-notice tc;
   class TC-025-alias-honours-quiet-env tc;
+  class REQ-010 req;
+  class AC-1001-1 ac;
+  class TC-026-add-writes-manifest tc;
+  class AC-1001-2 ac;
+  class TC-026-list-in-apply-order tc;
+  class AC-1001-3 ac;
+  class TC-026-remove-refuses-on-referring tc;
+  class AC-1001-4 ac;
+  class TC-026-add-idempotent-reapply tc;
+  class AC-1001-5 ac;
+  class TC-026-help-advertises-blueprint tc;
+  class AC-1002-1 ac;
+  class TC-027-prefix-namespacing tc;
+  class TC-027-suffix-namespacing tc;
+  class AC-1002-2 ac;
+  class TC-027-global-adr-conflict-surfaced tc;
+  class AC-1002-3 ac;
+  class TC-027-conflict-report-shape tc;
+  class AC-1002-4 ac;
+  class TC-027-nonglobal-namespaced-no-conflict tc;
+  class AC-1003-1 ac;
+  class TC-028-add-writes-manifest-entry tc;
+  class AC-1003-2 ac;
+  class TC-028-inrepo-referenced-in-place tc;
+  class AC-1003-3 ac;
+  class TC-028-outofroot-copied-in tc;
+  class AC-1003-4 ac;
+  class TC-028-manifest-validates tc;
+  class AC-1004-1 ac;
+  class TC-029-agentic-selection tc;
+  class AC-1004-2 ac;
+  class TC-029-operator-override tc;
+  class AC-1004-3 ac;
+  class TC-029-empty-never-blocks tc;
+  class AC-1004-4 ac;
+  class TC-029-deterministic tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

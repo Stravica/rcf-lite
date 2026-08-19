@@ -23,7 +23,7 @@
   },
   "queue": {
     "position": 1,
-    "total": 15
+    "total": 19
   },
   "bs": {
     "bsId": "BS-001",
@@ -196,6 +196,9 @@
     },
     "prdSections": {},
     "unresolvedSections": [],
+    "standardIds": [],
+    "standardsSource": "agenticSelection",
+    "standards": [],
     "passThrough": {
       "existingModules": [],
       "schemas": [
