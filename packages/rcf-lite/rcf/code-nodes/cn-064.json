@@ -2,9 +2,10 @@
   "cnId": "CN-064",
   "path": "src/blueprint/conflicts.js#renderConflictReport",
   "title": "Conflict-presentation report writer",
-  "description": "Renders a Conflict[] list into an operator-facing block with both sides and the three resolution paths.",
+  "description": "Renders a Conflict[] list into an operator-facing block with per-side `blueprint <slug>: <title> — <decision>` headers (Phase 3.5 reshape; falls back to `<id> at <path>` when the tree did not carry the ADR body), a refs footer, and four honest resolution paths with actual conflicting blueprint slugs substituted. Symmetric enrichment: BOTH sides (incoming from the blueprint's ADR file on disk, existing from the walker's tree) are decorated with title + one-sentence decision before rendering. A parallel `conflictReportJson(conflicts)` returns the same shape as a JSON object with per-conflict `resolutions[]` triples for agent-driven composition.",
   "implementsAcIds": [
-    "AC-1002-3"
+    "AC-1002-3",
+    "AC-1002-8"
   ],
   "dependencies": [],
   "version": "0.1.0",

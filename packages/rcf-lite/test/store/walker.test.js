@@ -27,7 +27,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   assert.equal(tree.requirements.length, 10);
   assert.equal(tree.userStories.length, 29);
   assert.equal(tree.tacs.length, 8);
-  assert.equal(tree.adrs.length, 9);
+  // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
+  // topic-as-free-label-lookup-key decision (Baz ruling on shipped
+  // camelCase topics).
+  assert.equal(tree.adrs.length, 10);
   assert.equal(tree.fbsItems.length, 19);
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901.

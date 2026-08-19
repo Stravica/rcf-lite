@@ -1,101 +1,107 @@
 Coverage mode: shallow-any
 Requirements: 10  covered: 10  covered-unresolved: 0  uncovered: 0
 
-Requirement  Covered  AC         AC covered  Test cases
------------  -------  ---------  ----------  ------------------------------------------------------------
-REQ-001      yes      AC-101-1   yes         TC-001-init-clean-tree-roots
-                      AC-101-2   yes         TC-001-init-refuses-overwrite
-                      AC-101-3   yes         TC-001-children-discoverable-from-roots
-                      AC-102-1   yes         TC-002-walk-loads-every-document
-                      AC-102-2   yes         TC-002-parse-failure-structured-no-crash
-                      AC-102-3   yes         TC-002-broken-reference-reported
-REQ-002      yes      AC-201-1   yes         TC-003-one-subdiagram-per-req, TC-003-per-req-subdiagram-...
-                      AC-201-2   yes         TC-003-broken-node-marked-visibly
-                      AC-201-3   yes         TC-003-diagram-emitted-as-source
-                      AC-202-1   yes         TC-004-served-live-no-files-written, TC-004-valid-html5-page
-                      AC-202-2   yes         TC-004-curated-fields-not-raw-json
-                      AC-202-3   yes         TC-004-doc-links-navigate-to-sections
-                      AC-203-1   yes         TC-005-edit-present-after-regenerate
-                      AC-203-2   yes         TC-005-no-cached-prior-state
-REQ-003      yes      AC-301-1   yes         TC-006-read-reports-valid
-                      AC-301-2   yes         TC-006-read-unknown-id-not-found
-                      AC-301-3   yes         TC-006-read-invalid-content-plus-errors
-                      AC-302-1   yes         TC-007-create-leaves-prd-untouched, TC-007-create-writes-...
-                      AC-302-2   yes         TC-007-create-id-collision-refused
-                      AC-302-3   yes         TC-007-create-invalid-writes-nothing
-                      AC-303-1   yes         TC-008-valid-update-persists-updatedat
-                      AC-303-2   yes         TC-008-invalid-update-refused
-                      AC-303-3   yes         TC-008-update-unknown-id-not-found
-                      AC-304-1   yes         TC-009-delete-refused-with-dependents
-                      AC-304-2   yes         TC-009-cascade-removes-subtree
-                      AC-304-3   yes         TC-009-leaf-delete-removes-file
-REQ-004      yes      AC-401-1   yes         TC-010-req-without-us-uncovered
-                      AC-401-2   yes         TC-010-ac-without-tc-uncovered
-                      AC-401-3   yes         TC-010-full-coverage-no-gaps
-                      AC-402-1   yes         TC-011-trace-forward-req-subtree
-                      AC-402-2   yes         TC-011-trace-back-ac-ancestry
-                      AC-402-3   yes         TC-011-backward-intent-chain-only, TC-011-forward-fbs-cro...
-                      AC-403-1   yes         TC-012-req-impact-includes-fbs-slots
-                      AC-403-2   yes         TC-012-adr-impact-reaches-fbs
-                      AC-403-3   yes         TC-012-no-dependents-empty-impact
-REQ-005      yes      AC-501-1   yes         TC-013-bundle-ac-gwt-ancestry
-                      AC-501-2   yes         TC-013-bundle-inlines-tacs-adrs
-                      AC-501-3   yes         TC-013-bundle-single-markdown-document
-                      AC-502-1   yes         TC-014-dependency-precedes-dependent
-                      AC-502-2   yes         TC-014-independent-items-share-tier
-                      AC-502-3   yes         TC-014-cycle-detected-reported
-                      AC-503-1   yes         TC-015-mark-advances-status
-                      AC-503-2   yes         TC-015-mark-unknown-id-not-found
-                      AC-503-3   yes         TC-015-mark-touches-status-only
-REQ-006      yes      AC-601-1   yes         TC-016-tools-list-structured-schemas
-                      AC-601-2   yes         TC-016-mcp-coverage-cli-parity
-                      AC-601-3   yes         TC-016-stdio-only-no-listener
-                      AC-602-1   yes         TC-017-mcp-create-cli-validation
-                      AC-602-2   yes         TC-017-mcp-build-returns-bundle
-                      AC-602-3   yes         TC-017-mcp-invalid-write-refused
-REQ-007      yes      AC-701-1   yes         TC-018-invalid-write-writes-nothing
-                      AC-701-2   yes         TC-018-written-doc-validates
-                      AC-701-3   yes         TC-018-registered-bundle-no-drift
-                      AC-702-1   yes         TC-019-failure-names-field-and-rule
-                      AC-702-2   yes         TC-019-multi-failures-returned-together
-                      AC-702-3   yes         TC-019-mcp-errors-structured
-REQ-008      yes      AC-801-1   yes         TC-020-preview-in-definition-of-done
-                      AC-801-2   yes         TC-020-single-start-command
-                      AC-801-3   yes         TC-020-preview-hosting-independent
-                      AC-801-4   yes         TC-020-seeded-data-required
-                      AC-802-1   yes         TC-021-deploy-target-question-early
-                      AC-802-2   yes         TC-021-stack-constrained-by-target
-                      AC-802-3   yes         TC-021-target-captured-as-adr
-                      AC-802-4   yes         TC-021-fragment-forbids-early-stack
-                      AC-803-1   yes         TC-022-walkthrough-not-silent-choice
-                      AC-803-2   yes         TC-022-plain-language-options
-                      AC-803-3   yes         TC-022-human-steps-named-honestly
-                      AC-803-4   yes         TC-022-covers-account-configuration
-                      AC-804-1   yes         TC-023-claims-name-runtime
-                      AC-804-2   yes         TC-023-no-implied-deploy-verification
-                      AC-804-3   yes         TC-023-pr-section-runtime-label
-                      AC-804-4   yes         TC-023-labelled-claim-example
-                      AC-805-1   yes         TC-024-periodic-fresh-context-review
-                      AC-805-2   yes         TC-024-reviewer-drives-the-app
-                      AC-805-3   yes         TC-024-names-defect-classes
-                      AC-805-4   yes         TC-024-in-loop-not-the-gate
-REQ-009      yes      AC-901-1   yes         TC-025-verify-help-parity, TC-025-verify-routes-to-alias-...
-                      AC-901-2   yes         TC-025-top-level-help-lists-verify
-                      AC-901-3   yes         TC-025-alias-emits-deprecation-notice, TC-025-alias-honou...
-REQ-010      yes      AC-1001-1  yes         TC-026-add-writes-manifest
-                      AC-1001-2  yes         TC-026-list-in-apply-order
-                      AC-1001-3  yes         TC-026-remove-refuses-on-referring
-                      AC-1001-4  yes         TC-026-add-idempotent-reapply
-                      AC-1001-5  yes         TC-026-help-advertises-blueprint
-                      AC-1002-1  yes         TC-027-prefix-namespacing, TC-027-suffix-namespacing
-                      AC-1002-2  yes         TC-027-global-adr-conflict-surfaced
-                      AC-1002-3  yes         TC-027-conflict-report-shape
-                      AC-1002-4  yes         TC-027-nonglobal-namespaced-no-conflict
-                      AC-1003-1  yes         TC-028-add-writes-manifest-entry
-                      AC-1003-2  yes         TC-028-inrepo-referenced-in-place
-                      AC-1003-3  yes         TC-028-outofroot-copied-in
-                      AC-1003-4  yes         TC-028-manifest-validates
-                      AC-1004-1  yes         TC-029-agentic-selection
-                      AC-1004-2  yes         TC-029-operator-override
-                      AC-1004-3  yes         TC-029-empty-never-blocks
-                      AC-1004-4  yes         TC-029-deterministic
+Requirement  Covered  AC          AC covered  Test cases
+-----------  -------  ----------  ----------  ------------------------------------------------------------
+REQ-001      yes      AC-101-1    yes         TC-001-init-clean-tree-roots
+                      AC-101-2    yes         TC-001-init-refuses-overwrite
+                      AC-101-3    yes         TC-001-children-discoverable-from-roots
+                      AC-102-1    yes         TC-002-walk-loads-every-document
+                      AC-102-2    yes         TC-002-parse-failure-structured-no-crash
+                      AC-102-3    yes         TC-002-broken-reference-reported
+REQ-002      yes      AC-201-1    yes         TC-003-one-subdiagram-per-req, TC-003-per-req-subdiagram-...
+                      AC-201-2    yes         TC-003-broken-node-marked-visibly
+                      AC-201-3    yes         TC-003-diagram-emitted-as-source
+                      AC-202-1    yes         TC-004-served-live-no-files-written, TC-004-valid-html5-page
+                      AC-202-2    yes         TC-004-curated-fields-not-raw-json
+                      AC-202-3    yes         TC-004-doc-links-navigate-to-sections
+                      AC-203-1    yes         TC-005-edit-present-after-regenerate
+                      AC-203-2    yes         TC-005-no-cached-prior-state
+REQ-003      yes      AC-301-1    yes         TC-006-read-reports-valid
+                      AC-301-2    yes         TC-006-read-unknown-id-not-found
+                      AC-301-3    yes         TC-006-read-invalid-content-plus-errors
+                      AC-302-1    yes         TC-007-create-leaves-prd-untouched, TC-007-create-writes-...
+                      AC-302-2    yes         TC-007-create-id-collision-refused
+                      AC-302-3    yes         TC-007-create-invalid-writes-nothing
+                      AC-303-1    yes         TC-008-valid-update-persists-updatedat
+                      AC-303-2    yes         TC-008-invalid-update-refused
+                      AC-303-3    yes         TC-008-update-unknown-id-not-found
+                      AC-304-1    yes         TC-009-delete-refused-with-dependents
+                      AC-304-2    yes         TC-009-cascade-removes-subtree
+                      AC-304-3    yes         TC-009-leaf-delete-removes-file
+REQ-004      yes      AC-401-1    yes         TC-010-req-without-us-uncovered
+                      AC-401-2    yes         TC-010-ac-without-tc-uncovered
+                      AC-401-3    yes         TC-010-full-coverage-no-gaps
+                      AC-402-1    yes         TC-011-trace-forward-req-subtree
+                      AC-402-2    yes         TC-011-trace-back-ac-ancestry
+                      AC-402-3    yes         TC-011-backward-intent-chain-only, TC-011-forward-fbs-cro...
+                      AC-403-1    yes         TC-012-req-impact-includes-fbs-slots
+                      AC-403-2    yes         TC-012-adr-impact-reaches-fbs
+                      AC-403-3    yes         TC-012-no-dependents-empty-impact
+REQ-005      yes      AC-501-1    yes         TC-013-bundle-ac-gwt-ancestry
+                      AC-501-2    yes         TC-013-bundle-inlines-tacs-adrs
+                      AC-501-3    yes         TC-013-bundle-single-markdown-document
+                      AC-502-1    yes         TC-014-dependency-precedes-dependent
+                      AC-502-2    yes         TC-014-independent-items-share-tier
+                      AC-502-3    yes         TC-014-cycle-detected-reported
+                      AC-503-1    yes         TC-015-mark-advances-status
+                      AC-503-2    yes         TC-015-mark-unknown-id-not-found
+                      AC-503-3    yes         TC-015-mark-touches-status-only
+REQ-006      yes      AC-601-1    yes         TC-016-tools-list-structured-schemas
+                      AC-601-2    yes         TC-016-mcp-coverage-cli-parity
+                      AC-601-3    yes         TC-016-stdio-only-no-listener
+                      AC-602-1    yes         TC-017-mcp-create-cli-validation
+                      AC-602-2    yes         TC-017-mcp-build-returns-bundle
+                      AC-602-3    yes         TC-017-mcp-invalid-write-refused
+REQ-007      yes      AC-701-1    yes         TC-018-invalid-write-writes-nothing
+                      AC-701-2    yes         TC-018-written-doc-validates
+                      AC-701-3    yes         TC-018-registered-bundle-no-drift
+                      AC-702-1    yes         TC-019-failure-names-field-and-rule
+                      AC-702-2    yes         TC-019-multi-failures-returned-together
+                      AC-702-3    yes         TC-019-mcp-errors-structured
+REQ-008      yes      AC-801-1    yes         TC-020-preview-in-definition-of-done
+                      AC-801-2    yes         TC-020-single-start-command
+                      AC-801-3    yes         TC-020-preview-hosting-independent
+                      AC-801-4    yes         TC-020-seeded-data-required
+                      AC-802-1    yes         TC-021-deploy-target-question-early
+                      AC-802-2    yes         TC-021-stack-constrained-by-target
+                      AC-802-3    yes         TC-021-target-captured-as-adr
+                      AC-802-4    yes         TC-021-fragment-forbids-early-stack
+                      AC-803-1    yes         TC-022-walkthrough-not-silent-choice
+                      AC-803-2    yes         TC-022-plain-language-options
+                      AC-803-3    yes         TC-022-human-steps-named-honestly
+                      AC-803-4    yes         TC-022-covers-account-configuration
+                      AC-804-1    yes         TC-023-claims-name-runtime
+                      AC-804-2    yes         TC-023-no-implied-deploy-verification
+                      AC-804-3    yes         TC-023-pr-section-runtime-label
+                      AC-804-4    yes         TC-023-labelled-claim-example
+                      AC-805-1    yes         TC-024-periodic-fresh-context-review
+                      AC-805-2    yes         TC-024-reviewer-drives-the-app
+                      AC-805-3    yes         TC-024-names-defect-classes
+                      AC-805-4    yes         TC-024-in-loop-not-the-gate
+REQ-009      yes      AC-901-1    yes         TC-025-verify-help-parity, TC-025-verify-routes-to-alias-...
+                      AC-901-2    yes         TC-025-top-level-help-lists-verify
+                      AC-901-3    yes         TC-025-alias-emits-deprecation-notice, TC-025-alias-honou...
+REQ-010      yes      AC-1001-1   yes         TC-026-add-writes-manifest
+                      AC-1001-2   yes         TC-026-list-in-apply-order
+                      AC-1001-3   yes         TC-026-remove-refuses-on-referring
+                      AC-1001-4   yes         TC-026-add-idempotent-reapply
+                      AC-1001-5   yes         TC-026-help-advertises-blueprint
+                      AC-1002-1   yes         TC-027-prefix-namespacing, TC-027-suffix-namespacing
+                      AC-1002-2   yes         TC-027-global-adr-conflict-surfaced
+                      AC-1002-3   yes         TC-027-conflict-report-shape
+                      AC-1002-4   yes         TC-027-nonglobal-namespaced-no-conflict
+                      AC-1002-5   yes         TC-027-shipped-blueprints-option-3-executable
+                      AC-1002-6   yes         TC-027-add-reason-persists, TC-027-add-reason-whitespace-...
+                      AC-1002-7   yes         TC-027-add-resolve-dedupes-with-warn, TC-027-add-resolve-...
+                      AC-1002-8   yes         TC-027-conflict-enrichment-symmetric
+                      AC-1002-9   yes         TC-027-topic-free-label-camelcase-verbatim
+                      AC-1002-10  yes         TC-027-supersede-no-double-prefix
+                      AC-1003-1   yes         TC-028-add-writes-manifest-entry
+                      AC-1003-2   yes         TC-028-inrepo-referenced-in-place
+                      AC-1003-3   yes         TC-028-outofroot-copied-in
+                      AC-1003-4   yes         TC-028-manifest-validates
+                      AC-1004-1   yes         TC-029-agentic-selection
+                      AC-1004-2   yes         TC-029-operator-override
+                      AC-1004-3   yes         TC-029-empty-never-blocks
+                      AC-1004-4   yes         TC-029-deterministic

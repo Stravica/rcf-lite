@@ -76,7 +76,7 @@ test('detectGlobalAdrConflicts: re-applying the same blueprint against itself is
   assert.equal(conflicts.length, 0);
 });
 
-test('renderConflictReport: lists both sides and names three resolution paths (AC-1002-3)', () => {
+test('renderConflictReport: leads with per-side headers (topic in parens) and names four honest resolution paths (Phase 3.5)', () => {
   const report = renderConflictReport([
     {
       kind: 'globalAdrTopic',
@@ -85,18 +85,28 @@ test('renderConflictReport: lists both sides and names three resolution paths (A
       existing: { slug: 'alpha', id: 'ADR-004-alpha', path: 'rcf/adrs/adr-004-alpha.json' },
     },
   ]);
-  assert.match(report, /conflict on topic "versioning"/);
-  assert.match(report, /incoming: ADR ADR-005-beta \(blueprint beta\)/);
-  assert.match(report, /existing: ADR ADR-004-alpha \(blueprint alpha\)/);
-  // Three resolutions named. Phase 3 introduces `--pick` (and the wider
-  // conflict-resolution verbs) with its own ergonomics gate; until then
-  // the report names implemented paths only (remove-then-re-add).
-  assert.match(report, /1\. Keep the currently applied blueprint/);
-  assert.match(report, /2\. Adopt the incoming blueprint instead/);
-  assert.match(report, /3\. Author a project-level ADR that supersedes both/);
-  // The unimplemented `--pick` guidance is gone; a user following it hit
-  // `parseArgs strict:true` and exited 2 on an unknown option.
+  // Header carries the topic in parens (Phase 3.5 reshape).
+  assert.match(report, /conflict on topic \(versioning\)/);
+  // Per-side headers name the blueprint slug. Titles / decisions are
+  // absent in this raw call, so the header falls back to id + path;
+  // renderer-integration coverage of the title + decision path lives
+  // in the applyBlueprint integration tests.
+  assert.match(report, /incoming\s+blueprint beta:\s+ADR-005-beta at rcf\/adrs\/adr-005-beta\.json/);
+  assert.match(report, /existing\s+blueprint alpha:\s+ADR-004-alpha at rcf\/adrs\/adr-004-alpha\.json/);
+  // Footer refs block.
+  assert.match(report, /refs:\s+ADR-005-beta at rcf\/adrs\/adr-005-beta\.json/);
+  // Four honest resolutions, with actual blueprint slugs filled in
+  // (no placeholder <slug> prose). The old resolution 1 ("run remove
+  // on the incoming side" — a nonsensical instruction since the
+  // incoming is not applied yet) is gone.
+  assert.match(report, /1\. Adopt the incoming blueprint. Run:[\s\S]*rcf blueprint remove alpha/);
+  assert.match(report, /2\. Keep the existing blueprint. Do not add beta on this project\./);
+  assert.match(report, /3\. Author a project-level ADR that supersedes both. Run:[\s\S]*rcf blueprint supersede versioning/);
+  assert.match(report, /4\. Declare the resolution on the add itself:[\s\S]*--resolve versioning=project:<ADR-id>/);
+  // The unimplemented `--pick` guidance is still gone.
   assert.doesNotMatch(report, /`--pick/);
+  // No placeholder <slug> prose survives.
+  assert.doesNotMatch(report, /<slug>/);
 });
 
 test('renderConflictReport: empty conflict list returns empty string', () => {
@@ -167,7 +177,12 @@ test('renderConflictReport: renders a crossBlueprintOwnership conflict with the 
       existing: { slug: 'spa', path: 'rcf/adrs/adr-201-spa-routing.json' },
     },
   ]);
-  assert.match(report, /conflict on id "ADR-201-spa-routing"/);
-  assert.match(report, /incoming: blueprint spa-theme declares ADR-201-spa-routing/);
-  assert.match(report, /existing: blueprint spa already owns ADR-201-spa-routing/);
+  assert.match(report, /conflict on id ADR-201-spa-routing/);
+  assert.match(report, /incoming\s+blueprint spa-theme declares ADR-201-spa-routing/);
+  assert.match(report, /existing\s+blueprint spa already owns ADR-201-spa-routing/);
+  // Cross-blueprint ownership resolutions are honest — no manifest
+  // ruling can resolve a cross-claim; it is an author-side fix.
+  assert.match(report, /1\. Adopt the incoming blueprint. Run:[\s\S]*rcf blueprint remove spa/);
+  assert.match(report, /2\. Keep the existing blueprint. Do not add spa-theme on this project\./);
+  assert.match(report, /3\. Fix the incoming blueprint's contribution ids/);
 });
