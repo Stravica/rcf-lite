@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-064",
+  "path": "src/blueprint/conflicts.js#renderConflictReport",
+  "title": "Conflict-presentation report writer",
+  "description": "Renders a Conflict[] list into an operator-facing block with both sides and the three resolution paths.",
+  "implementsAcIds": [
+    "AC-1002-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

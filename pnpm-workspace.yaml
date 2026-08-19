@@ -4,3 +4,12 @@ packages:
 # See docs/2026-08-06_packaging-consolidation-proposal.md (target layout section).
 # The `packages/*` glob above will pick it up when the directory is created;
 # this comment exists to make the intent visible before the code lands.
+
+# TEMPORARY DEV PIN (Phase 1, w-2026-08-18-016) — DO NOT MERGE.
+# Consumes @stravica-ai/rcf-schemas from the paired Step 1 branch on the
+# schemas repo. Flip to the published 0.4.4 (Baz 2FA publish morning of
+# 2026-08-19) BEFORE merging this PR. Pre-merge checklist item lives in
+# the PR body. Removing this override once the flip is in flight is the
+# gate: schemas PR must be merged AND published to npm first.
+overrides:
+  "@stravica-ai/rcf-schemas": "github:Stravica/rcf-schemas#feature/blueprint-additive-0.4.4"

@@ -1,0 +1,33 @@
+{
+  "fbsId": "FBS-019",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 19,
+  "executionStatus": "notStarted",
+  "title": "Selective retrieval at bundle assembly (contextRequirements.standardIds)",
+  "summary": "Extend `src/build/bundle.js#assembleBundle` so its `context` section reads `contextRequirements.standardIds`. When the FBS carries an operator-authored `standardIds` array, that array is honoured verbatim. Otherwise a deterministic tag-scoring selector reads the FBS work text (title + summary + approach + notes + AC descriptions) against `manifest.standards[]` (tags + slug + summary) and returns the subset of slugs whose tags occur in the work text. The bundle's context.standardIds carries the selection; the standards' summaries render into the standards payload alongside TACs and ADRs.",
+  "approach": "The selector is a pure function in src/build/standards-selector.js — no wall clock, no random source, no network. Scoring is deterministic tag-hit counting with lowercase-normalised substring match; ties break by manifest order (standards[] is authored). The bundle assembler prefers operator-authored `contextRequirements.standardIds` when present (design principle 5 override path) and calls the selector otherwise. Empty selection is legitimate and never blocks. Phase 1 keeps the selector local and heuristic; the design brief allows a small model call, but adding an LLM dependency to a pure projection is out of scope for the mechanism landing — the heuristic satisfies the ACs and the seam is where a smarter selector plugs in.",
+  "deliverables": [
+    "src/build/standards-selector.js: selectStandards(fbs, standards) — deterministic tag-hit scoring returning the ordered subset of slugs",
+    "src/build/bundle.js: contextRequirements.standardIds hosts operator override or selector output; standards payload rendered into context alongside tacs/adrs",
+    "test/build/standards-selector.test.js: deterministic-selection cases keyed to AC-1004-1, AC-1004-3, AC-1004-4",
+    "test/build/bundle-standards.test.js: bundle-shape cases (default + override) keyed to AC-1004-1, AC-1004-2"
+  ],
+  "acIds": [
+    "AC-1004-1",
+    "AC-1004-2",
+    "AC-1004-3",
+    "AC-1004-4"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "dependsOnFbsIds": ["FBS-018"],
+  "domain": "build",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Ratified decision 4 (agentic at bundle-assembly time, operator override supported). Heuristic-tag selector satisfies the deterministic ACs; a smarter selector plugs into the same seam without touching the bundle assembler.",
+  "createdAt": "2026-08-18T22:56:02.353Z",
+  "updatedAt": "2026-08-18T22:56:02.353Z"
+}

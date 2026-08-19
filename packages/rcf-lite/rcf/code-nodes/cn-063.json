@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-063",
+  "path": "src/blueprint/conflicts.js#detectGlobalAdrConflicts",
+  "title": "scope:global ADR conflict detection",
+  "description": "Detects two applied blueprints each contributing a scope:global ADR on the same topic; returns Conflict records.",
+  "implementsAcIds": [
+    "AC-1002-2",
+    "AC-1002-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

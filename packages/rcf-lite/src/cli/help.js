@@ -41,6 +41,9 @@ import { HELP as INTAKE_HELP } from './intake.js';
 // 0.7.1 packaging consolidation: `rcf verify <verb>` routes to the same
 // help block the transition-grace `rcf-verify` alias bin uses.
 import { TOP_LEVEL_HELP as VERIFY_HELP } from '../verify/cli/help.js';
+// Blueprint mechanism (Phase 1, w-2026-08-18-016).
+import { HELP as BLUEPRINT_HELP } from './blueprint.js';
+import { HELP as STANDARDS_HELP } from './standards.js';
 
 const TOP_LEVEL = `Usage: rcf <command> [options]
 
@@ -74,6 +77,8 @@ Commands:
   req-baseline <verb> Baseline-AC sweep and opt-out ledger for classified REQs
   intake              Variable-fidelity intake stage (classify supplied artefacts)
   verify <verb>       Adversarial ship gate (run|report|provision|cleanup|mcp); the legacy rcf-verify bin is a transition alias
+  blueprint <verb>    Compose blueprints onto the project (add | list | remove)
+  standards <verb>    Register standards packs against the project (add | list)
   help [command]      Print help for a command
 
 Options:
@@ -124,6 +129,9 @@ const HELP_MAP = {
   intake: INTAKE_HELP,
   // 0.7.1 packaging consolidation: verify subcommand tree.
   verify: VERIFY_HELP,
+  // Blueprint mechanism (Phase 1, w-2026-08-18-016).
+  blueprint: BLUEPRINT_HELP,
+  standards: STANDARDS_HELP,
 };
 
 /**

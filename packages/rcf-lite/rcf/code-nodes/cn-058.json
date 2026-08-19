@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-058",
+  "path": "src/blueprint/apply.js#applyBlueprint",
+  "title": "Blueprint apply orchestrator",
+  "description": "Loads a blueprint from a source directory, runs the conflict-detection pass BEFORE any file write, stamps contribution ids into the blueprint's namespace, copies contribution files into the tree, and appends a validated entry to manifest.blueprints[]. Idempotent on same-slug + same-version re-apply.",
+  "implementsAcIds": [
+    "AC-1001-1",
+    "AC-1001-4",
+    "AC-1002-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

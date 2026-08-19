@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-067",
+  "path": "src/build/standards-selector.js#selectStandards",
+  "title": "Deterministic tag-scoring standards selector",
+  "description": "Reads FBS work text against manifest standards tags and returns the deterministic subset of relevant slugs.",
+  "implementsAcIds": [
+    "AC-1004-1",
+    "AC-1004-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

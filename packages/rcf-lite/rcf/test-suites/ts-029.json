@@ -1,0 +1,46 @@
+{
+  "id": "TS-029",
+  "usId": "US-1004",
+  "title": "Selective retrieval at bundle assembly",
+  "purpose": "Cover the agentic tag-scoring selector and its operator-override path at bundle assembly.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1004-1",
+    "AC-1004-2",
+    "AC-1004-3",
+    "AC-1004-4"
+  ],
+  "testCases": [
+    {
+      "id": "TC-029-agentic-selection",
+      "acId": "AC-1004-1",
+      "description": "bundle carries agentically-selected standardIds",
+      "testPointer": "test/build/bundle-standards.test.js::bundle: agentic selection picks matching standards from manifest.standards[] (AC-1004-1)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-029-operator-override",
+      "acId": "AC-1004-2",
+      "description": "operator-authored standardIds override the selector",
+      "testPointer": "test/build/bundle-standards.test.js::bundle: operator-authored contextRequirements.standardIds overrides the agentic selection (AC-1004-2)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-029-empty-never-blocks",
+      "acId": "AC-1004-3",
+      "description": "empty selection is legitimate; bundle assembles without blocking",
+      "testPointer": "test/build/bundle-standards.test.js::bundle: empty selection is legitimate and never blocks (AC-1004-3)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-029-deterministic",
+      "acId": "AC-1004-4",
+      "description": "selection is stable per input across repeat invocations",
+      "testPointer": "test/build/standards-selector.test.js::selectStandards: selection is deterministic across repeat invocations (AC-1004-4)",
+      "status": "pending"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

@@ -1,0 +1,54 @@
+{
+  "id": "TS-026",
+  "usId": "US-1001",
+  "title": "Blueprint verb family",
+  "purpose": "Cover rcf blueprint add/list/remove verb family behaviour and the manifest.blueprints[] write path.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1001-1",
+    "AC-1001-2",
+    "AC-1001-3",
+    "AC-1001-4",
+    "AC-1001-5"
+  ],
+  "testCases": [
+    {
+      "id": "TC-026-add-writes-manifest",
+      "acId": "AC-1001-1",
+      "description": "add on a clean project writes manifest.blueprints[] and copies namespaced contributions",
+      "testPointer": "test/blueprint/apply.test.js::applyBlueprint: writes an entry to manifest.blueprints[] and copies namespaced contributions (AC-1001-1)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-026-list-in-apply-order",
+      "acId": "AC-1001-2",
+      "description": "list prints applied blueprints in appliedAt order",
+      "testPointer": "test/blueprint/list-remove.test.js::listBlueprints: two applied blueprints render in appliedAt order (AC-1001-2)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-026-remove-refuses-on-referring",
+      "acId": "AC-1001-3",
+      "description": "remove refuses when a project-authored doc references a contribution id",
+      "testPointer": "test/blueprint/list-remove.test.js::removeBlueprint: refuses when a project-authored doc references a contribution id (AC-1001-3)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-026-add-idempotent-reapply",
+      "acId": "AC-1001-4",
+      "description": "re-apply of same slug+version is a no-op",
+      "testPointer": "test/blueprint/apply.test.js::applyBlueprint: idempotent re-apply of the same slug + version returns alreadyApplied and does not rewrite the manifest (AC-1001-4)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-026-help-advertises-blueprint",
+      "acId": "AC-1001-5",
+      "description": "rcf --help advertises blueprint as a top-level command",
+      "testPointer": "test/blueprint/cli.test.js::rcf --help advertises `blueprint` and `standards` as top-level commands (AC-1001-5)",
+      "status": "pending"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

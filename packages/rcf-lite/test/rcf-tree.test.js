@@ -68,21 +68,24 @@ const expectedCounts = {
   prd: 1,
   // 0.7.1 packaging consolidation added REQ-009 (verify subcommand
   // routing) with US-901, TS-025, FBS-015 and CN-055..057.
-  req: 9,
-  userStory: 25,
+  // Phase 1 blueprint mechanism (w-2026-08-18-016) added REQ-010 with
+  // US-1001..1004, TS-026..029, FBS-016..019 and CN-058..068.
+  req: 10,
+  userStory: 29,
   tad: 1,
   tac: 8,
   adr: 9,
   buildSequence: 1,
-  fbs: 15,
+  fbs: 19,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
-  codeNode: 57,
+  // Phase 1 blueprint mechanism added 11 CNs for the mechanism modules.
+  codeNode: 68,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
-  testSuite: 25,
+  testSuite: 29,
 };
 
 test('expected file counts by category', () => {

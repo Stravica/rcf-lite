@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 9,
-    "covered": 9,
+    "requirements": 10,
+    "covered": 10,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -704,6 +704,150 @@
           "testCases": [
             "TC-025-alias-emits-deprecation-notice",
             "TC-025-alias-honours-quiet-env"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-010",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1001-1",
+          "covered": true,
+          "testCases": [
+            "TC-026-add-writes-manifest"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1001-2",
+          "covered": true,
+          "testCases": [
+            "TC-026-list-in-apply-order"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1001-3",
+          "covered": true,
+          "testCases": [
+            "TC-026-remove-refuses-on-referring"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1001-4",
+          "covered": true,
+          "testCases": [
+            "TC-026-add-idempotent-reapply"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1001-5",
+          "covered": true,
+          "testCases": [
+            "TC-026-help-advertises-blueprint"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1002-1",
+          "covered": true,
+          "testCases": [
+            "TC-027-prefix-namespacing",
+            "TC-027-suffix-namespacing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1002-2",
+          "covered": true,
+          "testCases": [
+            "TC-027-global-adr-conflict-surfaced"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1002-3",
+          "covered": true,
+          "testCases": [
+            "TC-027-conflict-report-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1002-4",
+          "covered": true,
+          "testCases": [
+            "TC-027-nonglobal-namespaced-no-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1003-1",
+          "covered": true,
+          "testCases": [
+            "TC-028-add-writes-manifest-entry"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1003-2",
+          "covered": true,
+          "testCases": [
+            "TC-028-inrepo-referenced-in-place"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1003-3",
+          "covered": true,
+          "testCases": [
+            "TC-028-outofroot-copied-in"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1003-4",
+          "covered": true,
+          "testCases": [
+            "TC-028-manifest-validates"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1004-1",
+          "covered": true,
+          "testCases": [
+            "TC-029-agentic-selection"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1004-2",
+          "covered": true,
+          "testCases": [
+            "TC-029-operator-override"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1004-3",
+          "covered": true,
+          "testCases": [
+            "TC-029-empty-never-blocks"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1004-4",
+          "covered": true,
+          "testCases": [
+            "TC-029-deterministic"
           ],
           "unresolvedTestCases": []
         }

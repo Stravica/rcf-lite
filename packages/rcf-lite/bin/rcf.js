@@ -36,6 +36,9 @@ import { main as uiBaselineMain } from '../src/cli/ui-baseline.js';
 import { main as uiClassifyMain } from '../src/cli/ui-classify.js';
 import { main as designMain } from '../src/cli/design.js';
 import { main as browserVerifyMain } from '../src/cli/browser-verify.js';
+// Blueprint mechanism (Phase 1, w-2026-08-18-016).
+import { main as blueprintMain } from '../src/cli/blueprint.js';
+import { main as standardsMain } from '../src/cli/standards.js';
 import { main as updateMain } from '../src/cli/update.js';
 import { main as validateMain } from '../src/cli/validate.js';
 import { main as viewMain } from '../src/cli/view.js';
@@ -76,6 +79,9 @@ export const SUBCOMMANDS = {
   'ui-baseline': uiBaselineMain,
   design: designMain,
   'browser-verify': browserVerifyMain,
+  // Blueprint mechanism (Phase 1, w-2026-08-18-016).
+  blueprint: blueprintMain,
+  standards: standardsMain,
   // Track C+D (elicitation-and-playbook-hardening-0.7.0) verbs.
   'req-classify': reqClassifyMain,
   'req-baseline': reqBaselineMain,

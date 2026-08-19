@@ -1,0 +1,48 @@
+{
+  "usId": "US-1002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-010",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Composition, namespaced ids and scope:global ADR conflict surfacing",
+  "description": "Multiple blueprints may be applied to a single project. Blueprint-contributed docs are namespaced by the blueprint's slug so ids cannot collide across blueprints. A blueprint's ADR contributions may be tagged `scope: global`; two applied blueprints each contributing a `scope: global` ADR are a genuine conflict and `rcf blueprint add` surfaces both entries and refuses to write. Conflict-presentation ergonomics are prototype-unknown #1 (design brief); this US covers the first pass.",
+  "asA": "operator on an RCF project",
+  "iWant": "blueprint contributions to compose without id collisions, and for `scope: global` ADR conflicts to be surfaced with both sides visible before anything is written",
+  "soThat": "composition never silently merges incompatible whole-project decisions",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1002-1",
+      "description": "Blueprint-contributed doc ids are namespaced with the blueprint's slug so composition cannot collide on ids at the id layer",
+      "given": "two blueprints `spa` and `rest` that both contribute a REQ, a US and an ADR",
+      "when": "both are applied to the same project via `rcf blueprint add`",
+      "then": "every contributed id carries the blueprint slug as its prefix (REQ/US: `spa-REQ-001`, `rest-REQ-001`) or as its kebab-suffix (ADR: `ADR-004-spa-theme`, `ADR-005-rest-versioning`); no two contributed ids across the two blueprints match",
+      "testable": true
+    },
+    {
+      "id": "AC-1002-2",
+      "description": "`rcf blueprint add <slug>` refuses when the new blueprint contributes a `scope: global` ADR on a topic already contributed by an applied blueprint",
+      "given": "a project with blueprint `alpha` already applied contributing an ADR tagged `scope: global` on topic `versioning`",
+      "when": "`rcf blueprint add beta` runs and blueprint `beta` also contributes a `scope: global` ADR on `versioning`",
+      "then": "the verb exits non-zero, prints both ADR ids and their file paths, and the manifest is unchanged",
+      "testable": true
+    },
+    {
+      "id": "AC-1002-3",
+      "description": "Conflict output includes both sides and names three resolution paths (pick, supersede, decline)",
+      "given": "the conflict case above",
+      "when": "the verb prints the conflict",
+      "then": "the output enumerates both ADRs (id, blueprint slug, path) and names the three resolution paths available to the operator (pick one and re-run with `--pick`, author a project-level superseding ADR, or decline the add)",
+      "testable": true
+    },
+    {
+      "id": "AC-1002-4",
+      "description": "Non-global TACs, ADRs, REQs, USs and FBSes are namespaced and cannot conflict",
+      "given": "two blueprints each contributing a TAC on the same topic without `scope: global`",
+      "when": "both are applied",
+      "then": "both TACs co-exist under distinct namespaced ids; no conflict is surfaced",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-08-18T22:54:33.194Z",
+  "updatedAt": "2026-08-18T22:54:33.194Z"
+}

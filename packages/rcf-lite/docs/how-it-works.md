@@ -119,6 +119,7 @@ Thirty subcommands under the single `rcf` bin, grouped by job:
 | Design | `ui-classify`, `ui-baseline`, `design`, `browser-verify` |
 | Elicit | `intake`, `req-classify`, `req-baseline` |
 | Verify | `verify` |
+| Compose | `blueprint`, `standards` |
 | Agent | `mcp`, `guidance` |
 | Help | `help` |
 

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-061",
+  "path": "src/cli/blueprint.js#main",
+  "title": "rcf blueprint CLI dispatcher",
+  "description": "Wires the blueprint verb family into the unified rcf bin; dispatches add|list|remove.",
+  "implementsAcIds": [
+    "AC-1001-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

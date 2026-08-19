@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-060",
+  "path": "src/blueprint/remove.js#removeBlueprint",
+  "title": "Blueprint remove with referring-doc guard",
+  "description": "Refuses when any project-authored doc references a contribution id; otherwise unlinks contribution files and rewrites the manifest.",
+  "implementsAcIds": [
+    "AC-1001-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z"
+}

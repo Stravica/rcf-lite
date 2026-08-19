@@ -1,0 +1,34 @@
+{
+  "fbsId": "FBS-018",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 18,
+  "executionStatus": "notStarted",
+  "title": "Standards ingestion: rcf standards add + reference-by-default",
+  "summary": "Introduce a `rcf standards <verb>` verb family (`add`, `list`) that registers standards packs on the project manifest. Reference-by-default when the source lives inside the project root; copy into `rcf/standards/<slug>/` only when the source lives outside. Manifest registration is authoritative; every add writes a `manifest.standards[]` entry per the 0.4.4 `standardsPackRecord` schema.",
+  "approach": "One dispatcher, one applier. src/cli/standards.js parses `add|list`; src/blueprint/standards.js resolves whether the source is inside or outside the project root (via node:path.relative + startsWith), copies when needed, and writes the manifest entry. Copy path is fs.cp recursive with a per-run overwrite guard (idempotent re-adds refuse to re-copy unless `--refresh` is passed; Phase 1 keeps to add-only + idempotent read, `refresh` verb deferred to Phase 3).",
+  "deliverables": [
+    "src/cli/standards.js: parseArgs + HELP + main() for add/list",
+    "src/blueprint/standards.js: registerStandardsPack(root, opts) — in-root vs out-of-root detection + optional copy + manifest.standards[] write",
+    "bin/rcf.js: `standards: standardsMain` on SUBCOMMANDS",
+    "src/cli/help.js: `standards <verb>` on the TOP_LEVEL block",
+    "test/blueprint/standards.test.js: in-root reference / out-of-root copy / idempotency cases keyed to AC-1003-1..4"
+  ],
+  "acIds": [
+    "AC-1003-1",
+    "AC-1003-2",
+    "AC-1003-3",
+    "AC-1003-4"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "dependsOnFbsIds": [],
+  "domain": "cli",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Reference-by-default is ratified decision 2 (design-brief.md v2). Copy path targets rcf/standards/<slug>/ (ratified decision 3).",
+  "createdAt": "2026-08-18T22:56:02.353Z",
+  "updatedAt": "2026-08-18T22:56:02.353Z"
+}

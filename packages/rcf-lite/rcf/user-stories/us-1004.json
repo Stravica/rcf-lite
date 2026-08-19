@@ -1,0 +1,48 @@
+{
+  "usId": "US-1004",
+  "prdId": "PRD-001",
+  "reqId": "REQ-010",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Selective retrieval at bundle assembly (contextRequirements.standardIds)",
+  "description": "The build-context bundle assembler runs a deterministic selector during FBS bundle assembly that reads the FBS work text plus the standards manifest (tags, titles, and short summaries) and returns the subset of standard slugs relevant to the FBS. The selected slugs populate `contextRequirements.standardIds` for that bundle only. Operator override is supported by authoring the array on the FBS.",
+  "asA": "operator on an RCF project with standards registered",
+  "iWant": "the bundle assembler to select relevant standards per FBS automatically, and to honour my override when I author the array on the FBS itself",
+  "soThat": "the default path does not require operator authoring and the override path exists when the agentic selection needs correcting",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1004-1",
+      "description": "The bundle for an FBS with no operator-authored standardIds carries the agentically-selected subset",
+      "given": "a project with two standards packs (`wsd-naming` tagged `naming`, `security-baseline` tagged `security`) and an FBS whose summary names `security`",
+      "when": "the bundle assembler runs for that FBS with no operator-authored `standardIds`",
+      "then": "the bundle's `context` section carries `standardIds` including `security-baseline` and the pack's rendered summary in the standards payload",
+      "testable": true
+    },
+    {
+      "id": "AC-1004-2",
+      "description": "Operator-authored `contextRequirements.standardIds` on the FBS overrides the agentic selection",
+      "given": "the same project and FBS as AC-1004-1, but with `contextRequirements.standardIds: ['wsd-naming']` authored on the FBS",
+      "when": "the bundle assembler runs",
+      "then": "the bundle's `context.standardIds` matches the operator-authored value byte-for-byte; the agentic selection is not invoked",
+      "testable": true
+    },
+    {
+      "id": "AC-1004-3",
+      "description": "The assembler never blocks on an empty selection",
+      "given": "a project with no standards registered, or an FBS whose work text matches no standard",
+      "when": "the bundle assembler runs",
+      "then": "the bundle assembles with `context.standardIds` empty (or absent) and no standards payload; the assembler does not error",
+      "testable": true
+    },
+    {
+      "id": "AC-1004-4",
+      "description": "Selection is stable per input (deterministic tag-scoring; no wall-clock or random source)",
+      "given": "an FBS work text and a standards manifest, both fixed",
+      "when": "the selector is invoked twice",
+      "then": "the two returned selections are equal (same slugs, same order)",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-08-18T22:54:33.194Z",
+  "updatedAt": "2026-08-18T22:54:33.194Z"
+}
