@@ -213,14 +213,25 @@ test('supersede: refuses to overwrite an existing file at the scaffolded path', 
   assert.match(result.message, /refuse to overwrite/);
 });
 
-test('supersede: topic is validated; empty and non-kebab topics are refused', async () => {
+test('supersede: topic is validated as a lookup key; empty and whitespace-only are refused, camelCase / kebab / snake are accepted (Phase 3.5 round 2 loosen)', async () => {
   const root = await scaffoldProject();
   const { tree } = await walkTree({ projectRoot: root });
+  // Empty / whitespace-only fail at the writer edge (schema minLength
+  // is 1 but is silent on whitespace).
   const empty = await supersedeBlueprintTopic({ projectRoot: root, tree, topic: '', now });
   assert.equal(empty.kind, 'usage');
   const whitespace = await supersedeBlueprintTopic({ projectRoot: root, tree, topic: '   ', now });
   assert.equal(whitespace.kind, 'usage');
-  const upper = await supersedeBlueprintTopic({ projectRoot: root, tree, topic: 'AuthModel', now });
-  assert.equal(upper.kind, 'usage');
-  assert.match(upper.message, /not a valid kebab slug/);
+  // Non-empty vocabularies (camelCase, snake_case, kebab-case) all
+  // pass writer validation; they will only fail with a "no applied
+  // scope:global ADR on that topic" message when the topic does not
+  // match any applied ADR. Round-1 rejected camelCase outright with
+  // 'not a valid kebab slug', which broke the shipped SPA + REST
+  // blueprints (authModel, errorEnvelope). Loosening the writer to
+  // accept any string that matches an applied ADR topic exactly is
+  // the ratified fix; the ADR slug tail is kebab-ified downstream.
+  const camel = await supersedeBlueprintTopic({ projectRoot: root, tree, topic: 'authModel', now });
+  assert.equal(camel.kind, 'usage');
+  assert.match(camel.message, /has 0 applied scope:global ADR/);
+  assert.doesNotMatch(camel.message, /not a valid kebab slug/);
 });

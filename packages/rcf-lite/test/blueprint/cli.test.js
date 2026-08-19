@@ -287,3 +287,159 @@ test('rcf blueprint add --resolve rejects a whitespace-only topic and a mis-shap
   assert.equal(bad2.code, 2);
   assert.match(bad2.stderr, /resolvedByAdrId 'notAnAdrId' is not a well-formed ADR id/);
 });
+
+// ---------------------------------------------------------------------------
+// HQ round-2 review findings (w-2026-08-19-008 rev-2):
+//   P1-1: supersede accepts camelCase topics (shipped SPA + REST are
+//         camelCase — authModel, errorEnvelope); option 3 as printed
+//         is executable end-to-end against the shipped blueprints.
+//   P1-2: --reason on `add` is wired end-to-end.
+//   P3-a: --resolve validation error carries no double 'blueprint add:'
+//         prefix.
+//   P3-b: duplicate --resolve for the same topic dedupes with a warn.
+//   Nit:  conflict enrichment is symmetric (incoming side gets title
+//         + decision read from the blueprint's ADR file on disk).
+// ---------------------------------------------------------------------------
+
+import { readFile as _readFile } from 'node:fs/promises';
+import { resolve as _resolveP } from 'node:path';
+
+// The shipped SPA + REST blueprints live in the repo root's blueprints/
+// tree (../../../blueprints/spa, ../../../blueprints/rest relative to
+// packages/rcf-lite/test/blueprint/). Use them verbatim; this is the
+// probe HQ round-2 will re-run.
+const shippedSpa  = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'spa');
+const shippedRest = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'rest');
+
+test('shipped SPA + REST: option 3 (supersede + re-add) as printed by the reshaped message is executable end-to-end (rev-2 P1-1)', async () => {
+  const root = await scaffold();
+
+  // 1. add spa.
+  const addSpa = await runBin(root, ['blueprint', 'add', shippedSpa]);
+  assert.equal(addSpa.code, 0, `spa add: ${addSpa.stderr}`);
+
+  // 2. add rest -> conflict (authModel is on both, camelCase).
+  const conflict = await runBin(root, ['blueprint', 'add', shippedRest]);
+  assert.equal(conflict.code, 3);
+  // Reshaped header prints the raw camelCase topic in parens.
+  assert.match(conflict.stderr, /conflict on topic \(authModel\)/);
+  // Option 3 tells the operator to run `rcf blueprint supersede authModel`.
+  assert.match(conflict.stderr, /rcf blueprint supersede authModel/);
+
+  // 3. Run supersede EXACTLY as printed (was `exit 2 not a valid kebab slug`
+  //    on round-1). Supersede scans applied blueprints for the topic;
+  //    only spa is applied yet, so we first stand rest up via --resolve
+  //    against a placeholder so supersede has both sides.
+  const restViaResolve = await runBin(root, [
+    'blueprint', 'add', shippedRest,
+    '--resolve', 'authModel=project:ADR-999',
+    '--resolve', 'errorEnvelope=project:ADR-999',
+  ]);
+  assert.equal(restViaResolve.code, 0, `rest via --resolve: ${restViaResolve.stderr}\n${restViaResolve.stdout}`);
+
+  // Now run supersede as printed by the message — no --reason, no
+  // ceremony. camelCase topic must be honoured.
+  const sup = await runBin(root, ['blueprint', 'supersede', 'authModel']);
+  assert.equal(sup.code, 0, `supersede authModel: ${sup.stderr}\n${sup.stdout}`);
+  // The scaffolded project ADR id carries a kebab-ified slug tail
+  // (adrId grammar requires lowercase kebab after the digits).
+  assert.match(sup.stdout, /via ADR-\d{3}-auth-model at rcf\/adrs\/adr-\d{3}-auth-model\.json/);
+  assert.match(sup.stdout, /resolution recorded as res-\d{4}-\d{2}-\d{2}-\d{3}/);
+
+  // The persisted resolution record carries the topic verbatim
+  // (camelCase), not the kebab-ified derivative.
+  const manifest = JSON.parse(await _readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  const supersedeRec = manifest.resolutions.find((r) => r.topic === 'authModel' && /^ADR-\d{3}-auth-model$/.test(r.resolvedByAdrId));
+  assert.ok(supersedeRec, `expected a supersede-minted resolution with topic 'authModel' and adr-\\d+-auth-model resolvedByAdrId; got ${JSON.stringify(manifest.resolutions)}`);
+});
+
+test('rcf blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)', async () => {
+  const root = await scaffold();
+  const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
+  const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
+  await runBin(root, ['blueprint', 'add', spa]);
+
+  const ok = await runBin(root, [
+    'blueprint', 'add', rest,
+    '--resolve', 'auth=project:ADR-042',
+    '--reason',  'Project auth ruling stands over both blueprint defaults.',
+  ]);
+  assert.equal(ok.code, 0, `stderr: ${ok.stderr}`);
+  const manifest = JSON.parse(await _readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  assert.equal(manifest.resolutions.length, 1);
+  assert.equal(
+    manifest.resolutions[0].reason,
+    'Project auth ruling stands over both blueprint defaults.',
+    'round-1 shipped --reason as dead code; this reason MUST persist end-to-end',
+  );
+});
+
+test('rcf blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)', async () => {
+  const root = await scaffold();
+  const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
+  const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
+  await runBin(root, ['blueprint', 'add', spa]);
+
+  const bad = await runBin(root, [
+    'blueprint', 'add', rest,
+    '--resolve', 'auth=project:ADR-042',
+    '--reason',  '   ',
+  ]);
+  assert.equal(bad.code, 2);
+  assert.match(bad.stderr, /--resolve reason for topic 'auth' must not be whitespace-only/);
+});
+
+test('rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)', async () => {
+  const root = await scaffold();
+  const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
+  const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
+  await runBin(root, ['blueprint', 'add', spa]);
+
+  const dup = await runBin(root, [
+    'blueprint', 'add', rest,
+    '--resolve', 'auth=project:ADR-042',
+    '--resolve', 'auth=project:ADR-999',
+  ]);
+  assert.equal(dup.code, 0, `stderr: ${dup.stderr}\nstdout: ${dup.stdout}`);
+  assert.match(dup.stderr, /\[warn\] blueprint add: duplicate --resolve for topic 'auth'; keeping the first declaration only/);
+  const manifest = JSON.parse(await _readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  const authRes = manifest.resolutions.filter((r) => r.topic === 'auth');
+  assert.equal(authRes.length, 1, `expected exactly one authtopic resolution record, got ${authRes.length}`);
+  // First-wins: the ADR-042 declaration is the one that persists.
+  assert.equal(authRes[0].resolvedByAdrId, 'ADR-042');
+});
+
+test('rcf blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)', async () => {
+  const root = await scaffold();
+  const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'x', decision: 'y.' });
+  const bad = await runBin(root, ['blueprint', 'add', rest, '--resolve', 'auth=project:notAnAdrId']);
+  assert.equal(bad.code, 2);
+  // The CLI prefixes '[error] blueprint add: '; the rcfError message
+  // MUST NOT prepend its own 'blueprint add: '.
+  assert.match(bad.stderr, /^\[error\] blueprint add: --resolve resolvedByAdrId 'notAnAdrId' is not a well-formed ADR id\./m);
+  assert.doesNotMatch(bad.stderr, /blueprint add: blueprint add:/);
+});
+
+test('conflict enrichment is symmetric: incoming side carries title + decision read off the blueprint contribution file (rev-2 nit)', async () => {
+  const root = await scaffold();
+  const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA auth: cookies',      decision: 'Cookies for sessions.' });
+  const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST auth: bearer',      decision: 'JWT bearer for API.' });
+  await runBin(root, ['blueprint', 'add', spa]);
+
+  const conflict = await runBin(root, ['blueprint', 'add', rest]);
+  assert.equal(conflict.code, 3);
+  // Both sides carry `blueprint <slug>: <title> — <decision>` on the
+  // header, not `<id> at <path>`.
+  assert.match(conflict.stderr, /incoming\s+blueprint rest: REST auth: bearer — JWT bearer for API\./);
+  assert.match(conflict.stderr, /existing\s+blueprint spa: SPA auth: cookies — Cookies for sessions\./);
+
+  // --json shape also carries title + decision on both sides.
+  const json = await runBin(root, ['blueprint', 'add', rest, '--json']);
+  assert.equal(json.code, 3);
+  const parsed = JSON.parse(json.stdout);
+  const c = parsed.conflicts[0];
+  assert.equal(c.incoming.title, 'REST auth: bearer');
+  assert.equal(c.incoming.decision, 'JWT bearer for API.');
+  assert.equal(c.existing.title, 'SPA auth: cookies');
+  assert.equal(c.existing.decision, 'Cookies for sessions.');
+});

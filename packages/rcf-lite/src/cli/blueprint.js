@@ -135,7 +135,7 @@ export async function main(argv, deps = {}) {
       return 2;
     }
     const source = rest[0];
-    const resolveDeclarations = parseResolveOptions(parsed.values.resolve);
+    const resolveDeclarations = parseResolveOptions(parsed.values.resolve, parsed.values.reason);
     if (resolveDeclarations.error) {
       stderr.write(`[error] blueprint add: ${resolveDeclarations.error}\n`);
       return 2;
@@ -147,6 +147,19 @@ export async function main(argv, deps = {}) {
       now,
       dryRun: parsed.values['dry-run'] === true,
     });
+    // Surface any writer-side warnings (currently only
+    // duplicate-topic --resolve dedupe). Warnings do not change the
+    // exit code; they land on stderr so the human sees them alongside
+    // the applied line on stdout.
+    if (result && !isRcfError(result) && Array.isArray(result.warnings)) {
+      for (const w of result.warnings) {
+        if (w.kind === 'duplicateResolveTopic' && Array.isArray(w.topics)) {
+          for (const t of w.topics) {
+            stderr.write(`[warn] blueprint add: duplicate --resolve for topic '${t}'; keeping the first declaration only.\n`);
+          }
+        }
+      }
+    }
     if (isRcfError(result)) {
       if (parsed.values.json) {
         stderr.write(`${JSON.stringify({ refused: true, error: { kind: result.kind, message: result.message } })}\n`);
@@ -263,11 +276,21 @@ export async function main(argv, deps = {}) {
 
 /**
  * Parse `--resolve <topic>=project:<ADR-id>` occurrences into a list
- * of declarations. Returns `{ value: Array }` on success or
- * `{ error: string }` on any mis-shaped input.
+ * of declarations, attaching an optional shared `reason` (from the
+ * single `--reason` flag) to every declaration on this add. Returns
+ * `{ value: Array }` on success or `{ error: string }` on any
+ * mis-shaped input.
+ *
+ * The `--reason` flag is singular per invocation because a single
+ * add's resolutions typically share one operator justification
+ * (`--reason "Project auth model stands over both blueprint
+ * defaults."`); if per-topic reasons are needed later, the flag can
+ * grow a `--reason <topic>=<text>` shape without breaking this call
+ * shape.
  */
-function parseResolveOptions(rawList) {
+function parseResolveOptions(rawList, reason) {
   if (!Array.isArray(rawList) || rawList.length === 0) return { value: [] };
+  const trimmedReason = typeof reason === 'string' ? reason : undefined;
   const out = [];
   for (const raw of rawList) {
     if (typeof raw !== 'string' || raw.length === 0) {
@@ -285,7 +308,9 @@ function parseResolveOptions(rawList) {
     }
     const adrId = rhs.slice('project:'.length);
     if (adrId.length === 0) return { error: `--resolve resolvedByAdrId is empty for topic '${topic}'` };
-    out.push({ topic, resolvedByAdrId: adrId });
+    const decl = { topic, resolvedByAdrId: adrId };
+    if (trimmedReason !== undefined) decl.reason = trimmedReason;
+    out.push(decl);
   }
   return { value: out };
 }

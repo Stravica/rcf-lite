@@ -8,7 +8,11 @@
     "AC-1002-1",
     "AC-1002-2",
     "AC-1002-3",
-    "AC-1002-4"
+    "AC-1002-4",
+    "AC-1002-5",
+    "AC-1002-6",
+    "AC-1002-7",
+    "AC-1002-8"
   ],
   "testCases": [
     {
@@ -44,6 +48,48 @@
       "acId": "AC-1002-4",
       "description": "namespaced non-global TACs do not conflict",
       "testPointer": "test/blueprint/conflicts.test.js::detectGlobalAdrConflicts: namespaced TACs never conflict (AC-1002-4)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-shipped-blueprints-option-3-executable",
+      "acId": "AC-1002-5",
+      "description": "shipped SPA + REST option-3-as-printed money probe: supersede on a camelCase topic (authModel) is executable end-to-end; scaffolded ADR id kebab-tails the topic; resolutions[] topic stored verbatim",
+      "testPointer": "test/blueprint/cli.test.js::shipped SPA + REST: option 3 (supersede + re-add) as printed by the reshaped message is executable end-to-end (rev-2 P1-1)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-add-reason-persists",
+      "acId": "AC-1002-6",
+      "description": "rcf blueprint add --reason attaches the ruling text to every resolutions[] record on that add",
+      "testPointer": "test/blueprint/cli.test.js::rcf blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-add-reason-whitespace-refused",
+      "acId": "AC-1002-6",
+      "description": "whitespace-only --reason on add refused at the writer edge (exit 2, no record written)",
+      "testPointer": "test/blueprint/cli.test.js::rcf blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-add-resolve-dedupes-with-warn",
+      "acId": "AC-1002-7",
+      "description": "duplicate --resolve for the same topic keeps the first declaration, drops the rest, and warns on stderr",
+      "testPointer": "test/blueprint/cli.test.js::rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-add-resolve-error-no-double-prefix",
+      "acId": "AC-1002-7",
+      "description": "--resolve validation error carries the CLI's single '[error] blueprint add: ' prefix — the underlying rcfError message MUST NOT prepend its own 'blueprint add: '",
+      "testPointer": "test/blueprint/cli.test.js::rcf blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)",
+      "status": "pending"
+    },
+    {
+      "id": "TC-027-conflict-enrichment-symmetric",
+      "acId": "AC-1002-8",
+      "description": "conflict rendering + --json shape carry title + one-sentence decision on BOTH sides (incoming read from disk, existing read from tree)",
+      "testPointer": "test/blueprint/cli.test.js::conflict enrichment is symmetric: incoming side carries title + decision read off the blueprint contribution file (rev-2 nit)",
       "status": "pending"
     }
   ],

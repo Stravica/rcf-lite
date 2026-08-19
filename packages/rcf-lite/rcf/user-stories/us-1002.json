@@ -41,8 +41,40 @@
       "when": "both are applied",
       "then": "both TACs co-exist under distinct namespaced ids; no conflict is surfaced",
       "testable": true
+    },
+    {
+      "id": "AC-1002-5",
+      "description": "Topic vocabulary is a lookup key, not a slug: `rcf blueprint supersede <topic>` and `rcf blueprint add --resolve <topic>=project:<ADR-id>` accept any topic that exact-matches an applied `scope:global` ADR's declared topic (the shipped SPA and REST blueprints use camelCase topics — authModel, errorEnvelope). The scaffolded project ADR id derives its slug tail by kebab-ifying the topic (`authModel` -> `ADR-NNN-auth-model`) so the ADR grammar's `[a-z0-9](-[a-z0-9]+)*` tail constraint is satisfied. Whitespace-only topics are refused at the writer edge (schema minLength: 1 does not reject whitespace). Following option 3 as printed by the reshaped conflict message against the shipped blueprints MUST be executable end-to-end.",
+      "given": "the shipped SPA + REST blueprints both applied on a project (both carry a scope:global ADR on the camelCase topic `authModel`)",
+      "when": "the operator runs `rcf blueprint supersede authModel` as printed in option 3",
+      "then": "the verb exits 0, scaffolds a project ADR at `rcf/adrs/adr-NNN-auth-model.json` (kebab-tailed adrId), records a `manifest.resolutions[]` entry with `topic: 'authModel'` (verbatim) and `resolvedByAdrId: 'ADR-NNN-auth-model'`, and both blueprint ADRs remain on disk as superseded history",
+      "testable": true
+    },
+    {
+      "id": "AC-1002-6",
+      "description": "`rcf blueprint add --reason <text>` attaches the operator's ruling text to every `manifest.resolutions[]` record minted on that add. Whitespace-only reasons are refused at the writer edge (schema does not enforce a minimum floor on the field itself; the writer's floor is emptiness, not length).",
+      "given": "an incoming blueprint whose apply would collide on one or more topics, resolved via one or more --resolve declarations",
+      "when": "the operator adds `--reason \"...\"` alongside the --resolve flags",
+      "then": "every newly-minted resolutions[] record carries the reason string verbatim; a whitespace-only --reason exits 2 with an error naming the topic and no record is written",
+      "testable": true
+    },
+    {
+      "id": "AC-1002-7",
+      "description": "Duplicate `--resolve` declarations for the same topic within a single `rcf blueprint add` are deduped: the first declaration is kept, subsequent declarations on the same topic are dropped, and a `[warn]` line names each dropped topic on stderr. The add still exits 0 on success; the manifest carries exactly one resolutions[] record per topic.",
+      "given": "an incoming blueprint whose apply would collide on topic X",
+      "when": "the operator passes `--resolve X=project:ADR-A --resolve X=project:ADR-B` on the same command",
+      "then": "the manifest carries exactly one resolutions[] record on topic X with `resolvedByAdrId: ADR-A` (first-wins), and stderr carries a warn line naming X as a duplicate --resolve topic",
+      "testable": true
+    },
+    {
+      "id": "AC-1002-8",
+      "description": "Conflict enrichment is symmetric: the CLI's conflict report and `--json` output both carry `title` + one-sentence `decision` on BOTH sides of a globalAdrTopic conflict — the existing side read from the walker's tree, the incoming side read from the blueprint's ADR file on disk. Round-1 only enriched the existing side, which read asymmetrically against shipped blueprints.",
+      "given": "an incoming blueprint that would collide with an applied blueprint on a scope:global ADR topic, both ADRs carrying a title and a decision",
+      "when": "`rcf blueprint add <source>` refuses with the reshaped message (with or without --json)",
+      "then": "both `incoming` and `existing` sides render `blueprint <slug>: <title> — <decision>` in the terminal output, and `conflicts[].incoming` and `conflicts[].existing` both carry `title` and `decision` in the --json output",
+      "testable": true
     }
   ],
   "createdAt": "2026-08-18T22:54:33.194Z",
-  "updatedAt": "2026-08-18T22:54:33.194Z"
+  "updatedAt": "2026-08-19T14:30:00.000Z"
 }

@@ -82,6 +82,7 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
   if (declResult.kind) return declResult; // RcfError
   const workingManifest = declResult.manifest;
   const newResolutionRecords = declResult.newRecords;
+  const duplicateResolveTopics = declResult.duplicateTopics ?? [];
 
   // Conflict detection ALWAYS runs, including on re-apply. Two classes
   // fire pre-write: scope:global ADR topic collisions (design brief),
@@ -94,7 +95,7 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
   // it.
   const rawGlobalConflicts = detectGlobalAdrConflicts(applied, incomingForConflicts, workingManifest);
   const conflicts = [
-    ...enrichAdrConflicts(rawGlobalConflicts, tree, blueprint),
+    ...await enrichAdrConflicts(rawGlobalConflicts, tree, blueprint),
     ...detectCrossBlueprintClaims(applied, incomingForConflicts),
   ];
   if (conflicts.length > 0) {
@@ -109,7 +110,12 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
   const ownedIds = new Set((existing?.contributions ?? []).map((c) => c.id));
 
   if (existing && existing.version === blueprint.version) {
-    return { applied: false, alreadyApplied: true, slug: blueprint.slug, version: blueprint.version, contributions: stamped.contributions };
+    return {
+      applied: false, alreadyApplied: true,
+      slug: blueprint.slug, version: blueprint.version,
+      contributions: stamped.contributions,
+      ...(duplicateResolveTopics.length > 0 ? { warnings: [{ kind: 'duplicateResolveTopic', topics: duplicateResolveTopics }] } : {}),
+    };
   }
 
   // Write contributions atomically at the batch level: every contribution
@@ -243,6 +249,7 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
     slug: blueprint.slug,
     version: blueprint.version,
     contributions: writtenContributions,
+    ...(duplicateResolveTopics.length > 0 ? { warnings: [{ kind: 'duplicateResolveTopic', topics: duplicateResolveTopics }] } : {}),
   };
 }
 
@@ -300,29 +307,43 @@ function filenameForId(id, kind) {
  */
 function composeDeclaredResolutions({ manifest, applied, incoming, declarations, now }) {
   if (!Array.isArray(declarations) || declarations.length === 0) {
-    return { manifest: manifest ?? null, newRecords: [] };
+    return { manifest: manifest ?? null, newRecords: [], duplicateTopics: [] };
   }
   const incomingGlobals = (incoming.contributions ?? [])
     .filter((c) => c.kind === 'adr' && c.scope === 'global' && typeof c.topic === 'string');
   const workingManifest = manifest ? JSON.parse(JSON.stringify(manifest)) : {};
   const newRecords = [];
   const iso = now.toISOString();
-  let dateSuffixBumper = 0;
+  // Error messages here are prefix-free: the CLI edge prepends
+  // `[error] blueprint add: ` on every rcfError, and doubling the
+  // prefix reads badly on the terminal (`blueprint add: blueprint
+  // add: ...`).
+  // Dedupe by topic within a single add: two --resolve declarations
+  // on the same topic silently minted two records on the first
+  // implementation. Keep the FIRST occurrence per topic (operator
+  // wrote it first, before whatever came after), record the drops
+  // so the CLI can surface a warning.
+  const seenTopics = new Set();
+  const duplicateTopics = [];
   for (const decl of declarations) {
     if (typeof decl?.topic !== 'string' || decl.topic.trim().length === 0) {
       // Schema minLength:1 accepts whitespace-only; the writer refuses
       // it up-front so a whitespace-only topic never lands on disk.
-      return rcfError({ kind: 'usage', message: `blueprint add: --resolve declaration is missing a topic.` });
+      return rcfError({ kind: 'usage', message: `--resolve declaration is missing a topic.` });
     }
     if (typeof decl.resolvedByAdrId !== 'string' || !/^ADR-\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?$/.test(decl.resolvedByAdrId)) {
-      return rcfError({ kind: 'usage', message: `blueprint add: --resolve resolvedByAdrId '${decl.resolvedByAdrId}' is not a well-formed ADR id.` });
+      return rcfError({ kind: 'usage', message: `--resolve resolvedByAdrId '${decl.resolvedByAdrId}' is not a well-formed ADR id.` });
     }
     if (typeof decl.reason === 'string' && decl.reason.length > 0 && decl.reason.trim().length === 0) {
-      return rcfError({ kind: 'usage', message: `blueprint add: --resolve reason for topic '${decl.topic}' must not be whitespace-only.` });
+      return rcfError({ kind: 'usage', message: `--resolve reason for topic '${decl.topic}' must not be whitespace-only.` });
+    }
+    if (seenTopics.has(decl.topic)) {
+      duplicateTopics.push(decl.topic);
+      continue;
     }
     const incomingHit = incomingGlobals.find((c) => c.topic === decl.topic);
     if (!incomingHit) {
-      return rcfError({ kind: 'usage', message: `blueprint add: --resolve topic '${decl.topic}' does not match any scope:global ADR on the incoming blueprint.` });
+      return rcfError({ kind: 'usage', message: `--resolve topic '${decl.topic}' does not match any scope:global ADR on the incoming blueprint.` });
     }
     const existingHits = [];
     for (const bp of applied) {
@@ -334,12 +355,12 @@ function composeDeclaredResolutions({ manifest, applied, incoming, declarations,
       }
     }
     if (existingHits.length === 0) {
-      return rcfError({ kind: 'usage', message: `blueprint add: --resolve topic '${decl.topic}' has no applied blueprint carrying a scope:global ADR on that topic; nothing to resolve against.` });
+      return rcfError({ kind: 'usage', message: `--resolve topic '${decl.topic}' has no applied blueprint carrying a scope:global ADR on that topic; nothing to resolve against.` });
     }
+    seenTopics.add(decl.topic);
     // Mint the next id off the WORKING manifest so successive
     // declarations increment cleanly within the same batch.
-    const id = bumpedResolutionId(workingManifest, now, dateSuffixBumper);
-    dateSuffixBumper += 1;
+    const id = nextResolutionId(workingManifest, now);
     const record = {
       id,
       createdAt: iso,
@@ -357,26 +378,25 @@ function composeDeclaredResolutions({ manifest, applied, incoming, declarations,
     list.push(record);
     workingManifest.resolutions = list;
   }
-  return { manifest: workingManifest, newRecords };
-}
-
-// nextResolutionId reads the manifest state; when composing several
-// resolutions in one batch, each subsequent id needs to see the
-// previously-appended record. bumpedResolutionId walks the working
-// manifest which is mutated as records are pushed, so the caller
-// doesn't need to hand-track counters.
-function bumpedResolutionId(workingManifest, now, _bumper) {
-  return nextResolutionId(workingManifest, now);
+  return { manifest: workingManifest, newRecords, duplicateTopics };
 }
 
 /**
- * Enrich a global-ADR conflict list with title / decision text from the
- * tree's byId map (existing blueprint side) and from the incoming
- * blueprint's on-disk contribution files (incoming side, which is not
- * yet in the tree). Best-effort: if a lookup fails the enriched fields
- * are simply absent and the renderer falls back to id + path.
+ * Enrich a global-ADR conflict list with title / decision text from
+ * BOTH sides: the tree's byId map (existing blueprint, already loaded
+ * by the walker) and the incoming blueprint's on-disk contribution
+ * file (incoming blueprint, not yet in the tree). Best-effort on
+ * either side: if a lookup fails the enriched fields are simply
+ * absent and the renderer falls back to id-at-path for that side.
+ *
+ * Round-2 review nit: the earlier version only enriched the existing
+ * side, so a conflict report against shipped SPA + REST rendered
+ * asymmetrically (spa gets 'SPA auth: cookie sessions — HttpOnly
+ * cookies.' while rest gets 'ADR-003-rest at rcf/adrs/...'). Both
+ * sides are readable — the existing side from tree, the incoming
+ * side from disk — and both sides should be rendered.
  */
-function enrichAdrConflicts(conflicts, tree, blueprint) {
+async function enrichAdrConflicts(conflicts, tree, blueprint) {
   if (conflicts.length === 0) return conflicts;
   const out = [];
   for (const c of conflicts) {
@@ -391,6 +411,15 @@ function enrichAdrConflicts(conflicts, tree, blueprint) {
       if (typeof existingDoc.title === 'string') enriched.existing.title = existingDoc.title;
       if (typeof existingDoc.decision === 'string') enriched.existing.decision = firstSentence(existingDoc.decision);
     }
+    // Incoming side: read the ADR file straight from the blueprint's
+    // contribution directory. blueprint.source is absolute (loader
+    // resolves it), the contribution path is relative to contributions/.
+    const incomingDoc = await _readIncomingAdrForEnrichment({
+      blueprintSource: blueprint.source,
+      contributionPath: c.incoming.path,
+    });
+    if (typeof incomingDoc.title === 'string') enriched.incoming.title = incomingDoc.title;
+    if (typeof incomingDoc.decision === 'string') enriched.incoming.decision = incomingDoc.decision;
     out.push(enriched);
   }
   return out;
@@ -398,15 +427,8 @@ function enrichAdrConflicts(conflicts, tree, blueprint) {
 
 /**
  * Read the incoming ADR file from a blueprint's contribution directory
- * and pull title/decision. Left as a promise-returning helper so the
- * enrichment loop can `await` it batched; the enrichAdrConflicts caller
- * runs synchronously today, and we intentionally do NOT block the
- * conflict return on incoming-side enrichment (the operator's next
- * action is either supersede or add --resolve, both of which point at
- * the topic string, not the incoming ADR body).
- *
- * Exposed as a separate helper so a future refactor can await-batch
- * these reads without threading through the whole applyBlueprint call.
+ * and pull title/decision. Best-effort: any read/parse failure returns
+ * an empty object and the renderer falls back to id-at-path.
  */
 export async function _readIncomingAdrForEnrichment({ blueprintSource, contributionPath }) {
   try {

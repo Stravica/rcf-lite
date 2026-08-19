@@ -3160,6 +3160,23 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-1002 --&gt; AC-1002-4
   AC-1002-4 -.-&gt;|delivered by| FBS-017
   AC-1002-4 -.-&gt;|implemented by| CN-063
+  AC-1002-5[&quot;AC-1002-5&quot;]
+  US-1002 --&gt; AC-1002-5
+  AC-1002-5 -.-&gt;|delivered by| FBS-017
+  CN-069[&quot;CN-069&lt;br/&gt;Project-ADR supersession scaffolder&quot;]
+  AC-1002-5 -.-&gt;|implemented by| CN-069
+  AC-1002-6[&quot;AC-1002-6&quot;]
+  US-1002 --&gt; AC-1002-6
+  AC-1002-6 -.-&gt;|delivered by| FBS-017
+  AC-1002-6 -.-&gt;|implemented by| CN-058
+  AC-1002-7[&quot;AC-1002-7&quot;]
+  US-1002 --&gt; AC-1002-7
+  AC-1002-7 -.-&gt;|delivered by| FBS-017
+  AC-1002-7 -.-&gt;|implemented by| CN-058
+  AC-1002-8[&quot;AC-1002-8&quot;]
+  US-1002 --&gt; AC-1002-8
+  AC-1002-8 -.-&gt;|delivered by| FBS-017
+  AC-1002-8 -.-&gt;|implemented by| CN-064
   US-1003[&quot;US-1003&lt;br/&gt;Standards ingestion: reference by default, co...&quot;]
   REQ-010 --&gt; US-1003
   AC-1003-1[&quot;AC-1003-1&quot;]
@@ -3223,6 +3240,11 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click AC-1002-3 &quot;#AC-1002-3&quot;;
   click CN-064 &quot;#CN-064&quot;;
   click AC-1002-4 &quot;#AC-1002-4&quot;;
+  click AC-1002-5 &quot;#AC-1002-5&quot;;
+  click CN-069 &quot;#CN-069&quot;;
+  click AC-1002-6 &quot;#AC-1002-6&quot;;
+  click AC-1002-7 &quot;#AC-1002-7&quot;;
+  click AC-1002-8 &quot;#AC-1002-8&quot;;
   click US-1003 &quot;#US-1003&quot;;
   click AC-1003-1 &quot;#AC-1003-1&quot;;
   click FBS-018 &quot;#FBS-018&quot;;
@@ -3260,6 +3282,11 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class AC-1002-3 ac;
   class CN-064 cn;
   class AC-1002-4 ac;
+  class AC-1002-5 ac;
+  class CN-069 cn;
+  class AC-1002-6 ac;
+  class AC-1002-7 ac;
+  class AC-1002-8 ac;
   class US-1003 us;
   class AC-1003-1 ac;
   class FBS-018 fbs;
@@ -3425,6 +3452,18 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <li id="AC-1002-4" class="ac-item"><strong>AC-1002-4</strong> - Non-global TACs, ADRs, REQs, USs and FBSes are namespaced and cannot conflict
 <div class="ac-gwt"><p><em>Given</em> two blueprints each contributing a TAC on the same topic without `scope: global`</p><p><em>When</em> both are applied</p><p><em>Then</em> both TACs co-exist under distinct namespaced ids; no conflict is surfaced</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
+<li id="AC-1002-5" class="ac-item"><strong>AC-1002-5</strong> - Topic vocabulary is a lookup key, not a slug: `rcf blueprint supersede &lt;topic&gt;` and `rcf blueprint add --resolve &lt;topic&gt;=project:&lt;ADR-id&gt;` accept any topic that exact-matches an applied `scope:global` ADR&#39;s declared topic (the shipped SPA and REST blueprints use camelCase topics — authModel, errorEnvelope). The scaffolded project ADR id derives its slug tail by kebab-ifying the topic (`authModel` -&gt; `ADR-NNN-auth-model`) so the ADR grammar&#39;s `[a-z0-9](-[a-z0-9]+)*` tail constraint is satisfied. Whitespace-only topics are refused at the writer edge (schema minLength: 1 does not reject whitespace). Following option 3 as printed by the reshaped conflict message against the shipped blueprints MUST be executable end-to-end.
+<div class="ac-gwt"><p><em>Given</em> the shipped SPA + REST blueprints both applied on a project (both carry a scope:global ADR on the camelCase topic `authModel`)</p><p><em>When</em> the operator runs `rcf blueprint supersede authModel` as printed in option 3</p><p><em>Then</em> the verb exits 0, scaffolds a project ADR at `rcf/adrs/adr-NNN-auth-model.json` (kebab-tailed adrId), records a `manifest.resolutions[]` entry with `topic: &#39;authModel&#39;` (verbatim) and `resolvedByAdrId: &#39;ADR-NNN-auth-model&#39;`, and both blueprint ADRs remain on disk as superseded history</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
+<li id="AC-1002-6" class="ac-item"><strong>AC-1002-6</strong> - `rcf blueprint add --reason &lt;text&gt;` attaches the operator&#39;s ruling text to every `manifest.resolutions[]` record minted on that add. Whitespace-only reasons are refused at the writer edge (schema does not enforce a minimum floor on the field itself; the writer&#39;s floor is emptiness, not length).
+<div class="ac-gwt"><p><em>Given</em> an incoming blueprint whose apply would collide on one or more topics, resolved via one or more --resolve declarations</p><p><em>When</em> the operator adds `--reason &quot;...&quot;` alongside the --resolve flags</p><p><em>Then</em> every newly-minted resolutions[] record carries the reason string verbatim; a whitespace-only --reason exits 2 with an error naming the topic and no record is written</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
+<li id="AC-1002-7" class="ac-item"><strong>AC-1002-7</strong> - Duplicate `--resolve` declarations for the same topic within a single `rcf blueprint add` are deduped: the first declaration is kept, subsequent declarations on the same topic are dropped, and a `[warn]` line names each dropped topic on stderr. The add still exits 0 on success; the manifest carries exactly one resolutions[] record per topic.
+<div class="ac-gwt"><p><em>Given</em> an incoming blueprint whose apply would collide on topic X</p><p><em>When</em> the operator passes `--resolve X=project:ADR-A --resolve X=project:ADR-B` on the same command</p><p><em>Then</em> the manifest carries exactly one resolutions[] record on topic X with `resolvedByAdrId: ADR-A` (first-wins), and stderr carries a warn line naming X as a duplicate --resolve topic</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
+<li id="AC-1002-8" class="ac-item"><strong>AC-1002-8</strong> - Conflict enrichment is symmetric: the CLI&#39;s conflict report and `--json` output both carry `title` + one-sentence `decision` on BOTH sides of a globalAdrTopic conflict — the existing side read from the walker&#39;s tree, the incoming side read from the blueprint&#39;s ADR file on disk. Round-1 only enriched the existing side, which read asymmetrically against shipped blueprints.
+<div class="ac-gwt"><p><em>Given</em> an incoming blueprint that would collide with an applied blueprint on a scope:global ADR topic, both ADRs carrying a title and a decision</p><p><em>When</em> `rcf blueprint add &lt;source&gt;` refuses with the reshaped message (with or without --json)</p><p><em>Then</em> both `incoming` and `existing` sides render `blueprint &lt;slug&gt;: &lt;title&gt; — &lt;decision&gt;` in the terminal output, and `conflicts[].incoming` and `conflicts[].existing` both carry `title` and `decision` in the --json output</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-017">FBS-017</a></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
@@ -3470,10 +3509,42 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;when&quot;: &quot;both are applied&quot;,
       &quot;then&quot;: &quot;both TACs co-exist under distinct namespaced ids; no conflict is surfaced&quot;,
       &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1002-5&quot;,
+      &quot;description&quot;: &quot;Topic vocabulary is a lookup key, not a slug: `rcf blueprint supersede &lt;topic&gt;` and `rcf blueprint add --resolve &lt;topic&gt;=project:&lt;ADR-id&gt;` accept any topic that exact-matches an applied `scope:global` ADR&#39;s declared topic (the shipped SPA and REST blueprints use camelCase topics — authModel, errorEnvelope). The scaffolded project ADR id derives its slug tail by kebab-ifying the topic (`authModel` -&gt; `ADR-NNN-auth-model`) so the ADR grammar&#39;s `[a-z0-9](-[a-z0-9]+)*` tail constraint is satisfied. Whitespace-only topics are refused at the writer edge (schema minLength: 1 does not reject whitespace). Following option 3 as printed by the reshaped conflict message against the shipped blueprints MUST be executable end-to-end.&quot;,
+      &quot;given&quot;: &quot;the shipped SPA + REST blueprints both applied on a project (both carry a scope:global ADR on the camelCase topic `authModel`)&quot;,
+      &quot;when&quot;: &quot;the operator runs `rcf blueprint supersede authModel` as printed in option 3&quot;,
+      &quot;then&quot;: &quot;the verb exits 0, scaffolds a project ADR at `rcf/adrs/adr-NNN-auth-model.json` (kebab-tailed adrId), records a `manifest.resolutions[]` entry with `topic: &#39;authModel&#39;` (verbatim) and `resolvedByAdrId: &#39;ADR-NNN-auth-model&#39;`, and both blueprint ADRs remain on disk as superseded history&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1002-6&quot;,
+      &quot;description&quot;: &quot;`rcf blueprint add --reason &lt;text&gt;` attaches the operator&#39;s ruling text to every `manifest.resolutions[]` record minted on that add. Whitespace-only reasons are refused at the writer edge (schema does not enforce a minimum floor on the field itself; the writer&#39;s floor is emptiness, not length).&quot;,
+      &quot;given&quot;: &quot;an incoming blueprint whose apply would collide on one or more topics, resolved via one or more --resolve declarations&quot;,
+      &quot;when&quot;: &quot;the operator adds `--reason \&quot;...\&quot;` alongside the --resolve flags&quot;,
+      &quot;then&quot;: &quot;every newly-minted resolutions[] record carries the reason string verbatim; a whitespace-only --reason exits 2 with an error naming the topic and no record is written&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1002-7&quot;,
+      &quot;description&quot;: &quot;Duplicate `--resolve` declarations for the same topic within a single `rcf blueprint add` are deduped: the first declaration is kept, subsequent declarations on the same topic are dropped, and a `[warn]` line names each dropped topic on stderr. The add still exits 0 on success; the manifest carries exactly one resolutions[] record per topic.&quot;,
+      &quot;given&quot;: &quot;an incoming blueprint whose apply would collide on topic X&quot;,
+      &quot;when&quot;: &quot;the operator passes `--resolve X=project:ADR-A --resolve X=project:ADR-B` on the same command&quot;,
+      &quot;then&quot;: &quot;the manifest carries exactly one resolutions[] record on topic X with `resolvedByAdrId: ADR-A` (first-wins), and stderr carries a warn line naming X as a duplicate --resolve topic&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1002-8&quot;,
+      &quot;description&quot;: &quot;Conflict enrichment is symmetric: the CLI&#39;s conflict report and `--json` output both carry `title` + one-sentence `decision` on BOTH sides of a globalAdrTopic conflict — the existing side read from the walker&#39;s tree, the incoming side read from the blueprint&#39;s ADR file on disk. Round-1 only enriched the existing side, which read asymmetrically against shipped blueprints.&quot;,
+      &quot;given&quot;: &quot;an incoming blueprint that would collide with an applied blueprint on a scope:global ADR topic, both ADRs carrying a title and a decision&quot;,
+      &quot;when&quot;: &quot;`rcf blueprint add &lt;source&gt;` refuses with the reshaped message (with or without --json)&quot;,
+      &quot;then&quot;: &quot;both `incoming` and `existing` sides render `blueprint &lt;slug&gt;: &lt;title&gt; — &lt;decision&gt;` in the terminal output, and `conflicts[].incoming` and `conflicts[].existing` both carry `title` and `decision` in the --json output&quot;,
+      &quot;testable&quot;: true
     }
   ],
   &quot;createdAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-08-18T22:54:33.194Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-08-19T14:30:00.000Z&quot;
 }
 </pre></details>
 </article>
@@ -6211,7 +6282,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Summary:</strong> Blueprint-contributed docs are namespaced by the blueprint&#39;s slug: REQ/US/PRD/BS/TAD/TS via the 0.4.4 slug PREFIX (e.g. `spa-REQ-001`), and ADR/TAC/FBS/CN via the 0.4.3 kebab SUFFIX (e.g. `ADR-005-rest-versioning`). `rcf blueprint add` runs a conflict-detection pass BEFORE writing anything: two blueprints both contributing an ADR tagged `scope: global` on the same topic exit non-zero with both sides printed and four honest resolution paths named (adopt-incoming, keep-existing, supersede via project ADR, declare-on-add via `--resolve`). Non-global TACs, ADRs, REQs, USs and FBSes namespace cleanly and cannot topic-conflict; cross-blueprint id claims (an incoming id already recorded on another applied blueprint) are refused via the authoritative manifest record, not string grammar.</p>
   <p><strong>Approach:</strong> Namespacing is enforced at the loader: contribution ids are stamped with the blueprint slug at load time; a contribution whose declared id already carries a namespace is trusted verbatim (author declaration is the truth for what that blueprint owns; the earlier grammar-veto of legitimate slug-tail ids like `ADR-201-spa-theme` under blueprint `spa` was retired in w-2026-08-19-005). Ownership of a written contribution is answered by the manifest&#39;s `appliedBlueprintRecord.contributions[]` list — the authoritative record — not by re-parsing the id string. Conflict detection reads the applied `blueprints[]` and the applying blueprint&#39;s contributions, and scores collisions along two axes: `scope: global` ADR topic collision (two applied ADRs both tagged `scope: global` with a matching `topic` field), and cross-blueprint ownership (an incoming id whose manifest record is on a DIFFERENT applied blueprint&#39;s contribution list — the class the record consultation catches once grammar stopped being a trust surface). Presentation: per-conflict block leads with both ADR titles and their one-sentence decisions, ids and paths as a footer, and four honest resolution paths with actual blueprint slugs filled in — no placeholders. A `--json` output shape is available for agent-driven composition. Phase 3.5 (w-2026-08-19-008) added the `supersede` and `diff` verbs plus the `--resolve` add-time flag, backed by `manifest.resolutions[]` on the 0.4.5 schema; both blueprint ADRs may now co-reside on disk as superseded history alongside a project-level ADR that supersedes them.</p>
-  <div class="ac-pills"><a class="ac-pill" href="#AC-1002-1">AC-1002-1</a><a class="ac-pill" href="#AC-1002-2">AC-1002-2</a><a class="ac-pill" href="#AC-1002-3">AC-1002-3</a><a class="ac-pill" href="#AC-1002-4">AC-1002-4</a></div>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1002-1">AC-1002-1</a><a class="ac-pill" href="#AC-1002-2">AC-1002-2</a><a class="ac-pill" href="#AC-1002-3">AC-1002-3</a><a class="ac-pill" href="#AC-1002-4">AC-1002-4</a><a class="ac-pill" href="#AC-1002-5">AC-1002-5</a><a class="ac-pill" href="#AC-1002-6">AC-1002-6</a><a class="ac-pill" href="#AC-1002-7">AC-1002-7</a><a class="ac-pill" href="#AC-1002-8">AC-1002-8</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
   <p><strong><a href="#AC-1002-1">AC-1002-1</a></strong> - Blueprint-contributed doc ids are namespaced with the blueprint&#39;s slug so composition cannot collide on ids at the id layer</p>
   <p><em>Given</em> two blueprints `spa` and `rest` that both contribute a REQ, a US and an ADR</p>
@@ -6235,6 +6306,30 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><em>Given</em> two blueprints each contributing a TAC on the same topic without `scope: global`</p>
   <p><em>When</em> both are applied</p>
   <p><em>Then</em> both TACs co-exist under distinct namespaced ids; no conflict is surfaced</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1002-5">AC-1002-5</a></strong> - Topic vocabulary is a lookup key, not a slug: `rcf blueprint supersede &lt;topic&gt;` and `rcf blueprint add --resolve &lt;topic&gt;=project:&lt;ADR-id&gt;` accept any topic that exact-matches an applied `scope:global` ADR&#39;s declared topic (the shipped SPA and REST blueprints use camelCase topics — authModel, errorEnvelope). The scaffolded project ADR id derives its slug tail by kebab-ifying the topic (`authModel` -&gt; `ADR-NNN-auth-model`) so the ADR grammar&#39;s `[a-z0-9](-[a-z0-9]+)*` tail constraint is satisfied. Whitespace-only topics are refused at the writer edge (schema minLength: 1 does not reject whitespace). Following option 3 as printed by the reshaped conflict message against the shipped blueprints MUST be executable end-to-end.</p>
+  <p><em>Given</em> the shipped SPA + REST blueprints both applied on a project (both carry a scope:global ADR on the camelCase topic `authModel`)</p>
+  <p><em>When</em> the operator runs `rcf blueprint supersede authModel` as printed in option 3</p>
+  <p><em>Then</em> the verb exits 0, scaffolds a project ADR at `rcf/adrs/adr-NNN-auth-model.json` (kebab-tailed adrId), records a `manifest.resolutions[]` entry with `topic: &#39;authModel&#39;` (verbatim) and `resolvedByAdrId: &#39;ADR-NNN-auth-model&#39;`, and both blueprint ADRs remain on disk as superseded history</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1002-6">AC-1002-6</a></strong> - `rcf blueprint add --reason &lt;text&gt;` attaches the operator&#39;s ruling text to every `manifest.resolutions[]` record minted on that add. Whitespace-only reasons are refused at the writer edge (schema does not enforce a minimum floor on the field itself; the writer&#39;s floor is emptiness, not length).</p>
+  <p><em>Given</em> an incoming blueprint whose apply would collide on one or more topics, resolved via one or more --resolve declarations</p>
+  <p><em>When</em> the operator adds `--reason &quot;...&quot;` alongside the --resolve flags</p>
+  <p><em>Then</em> every newly-minted resolutions[] record carries the reason string verbatim; a whitespace-only --reason exits 2 with an error naming the topic and no record is written</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1002-7">AC-1002-7</a></strong> - Duplicate `--resolve` declarations for the same topic within a single `rcf blueprint add` are deduped: the first declaration is kept, subsequent declarations on the same topic are dropped, and a `[warn]` line names each dropped topic on stderr. The add still exits 0 on success; the manifest carries exactly one resolutions[] record per topic.</p>
+  <p><em>Given</em> an incoming blueprint whose apply would collide on topic X</p>
+  <p><em>When</em> the operator passes `--resolve X=project:ADR-A --resolve X=project:ADR-B` on the same command</p>
+  <p><em>Then</em> the manifest carries exactly one resolutions[] record on topic X with `resolvedByAdrId: ADR-A` (first-wins), and stderr carries a warn line naming X as a duplicate --resolve topic</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1002-8">AC-1002-8</a></strong> - Conflict enrichment is symmetric: the CLI&#39;s conflict report and `--json` output both carry `title` + one-sentence `decision` on BOTH sides of a globalAdrTopic conflict — the existing side read from the walker&#39;s tree, the incoming side read from the blueprint&#39;s ADR file on disk. Round-1 only enriched the existing side, which read asymmetrically against shipped blueprints.</p>
+  <p><em>Given</em> an incoming blueprint that would collide with an applied blueprint on a scope:global ADR topic, both ADRs carrying a title and a decision</p>
+  <p><em>When</em> `rcf blueprint add &lt;source&gt;` refuses with the reshaped message (with or without --json)</p>
+  <p><em>Then</em> both `incoming` and `existing` sides render `blueprint &lt;slug&gt;: &lt;title&gt; — &lt;decision&gt;` in the terminal output, and `conflicts[].incoming` and `conflicts[].existing` both carry `title` and `decision` in the --json output</p>
 </div></section>
   
   <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-016">FBS-016</a></p></section>
@@ -6265,7 +6360,11 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     &quot;AC-1002-1&quot;,
     &quot;AC-1002-2&quot;,
     &quot;AC-1002-3&quot;,
-    &quot;AC-1002-4&quot;
+    &quot;AC-1002-4&quot;,
+    &quot;AC-1002-5&quot;,
+    &quot;AC-1002-6&quot;,
+    &quot;AC-1002-7&quot;,
+    &quot;AC-1002-8&quot;
   ],
   &quot;contextRequirements&quot;: {
     &quot;tacIds&quot;: [],
@@ -8298,7 +8397,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>Verifies user story:</strong> <a href="#US-1002">US-1002</a></p>
   <p><strong>Purpose:</strong> Cover blueprint-contributed id namespacing and the scope:global ADR conflict-detection path.</p>
   <p><strong>Test level:</strong> unit</p>
-  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1002-1">AC-1002-1</a>, <a href="#AC-1002-2">AC-1002-2</a>, <a href="#AC-1002-3">AC-1002-3</a>, <a href="#AC-1002-4">AC-1002-4</a></p></section>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1002-1">AC-1002-1</a>, <a href="#AC-1002-2">AC-1002-2</a>, <a href="#AC-1002-3">AC-1002-3</a>, <a href="#AC-1002-4">AC-1002-4</a>, <a href="#AC-1002-5">AC-1002-5</a>, <a href="#AC-1002-6">AC-1002-6</a>, <a href="#AC-1002-7">AC-1002-7</a>, <a href="#AC-1002-8">AC-1002-8</a></p></section>
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-027-prefix-namespacing">
   <p><strong>TC-027-prefix-namespacing</strong> - covers <a href="#AC-1002-1">AC-1002-1</a> <span class="status pending">pending</span></p>
@@ -8324,6 +8423,36 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-027-nonglobal-namespaced-no-conflict</strong> - covers <a href="#AC-1002-4">AC-1002-4</a> <span class="status pending">pending</span></p>
   <p>namespaced non-global TACs do not conflict</p>
   <p><em>Test pointer:</em> <code>test/blueprint/conflicts.test.js::detectGlobalAdrConflicts: namespaced TACs never conflict (AC-1002-4)</code></p>
+</div>
+<div class="tc" id="TC-027-shipped-blueprints-option-3-executable">
+  <p><strong>TC-027-shipped-blueprints-option-3-executable</strong> - covers <a href="#AC-1002-5">AC-1002-5</a> <span class="status pending">pending</span></p>
+  <p>shipped SPA + REST option-3-as-printed money probe: supersede on a camelCase topic (authModel) is executable end-to-end; scaffolded ADR id kebab-tails the topic; resolutions[] topic stored verbatim</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::shipped SPA + REST: option 3 (supersede + re-add) as printed by the reshaped message is executable end-to-end (rev-2 P1-1)</code></p>
+</div>
+<div class="tc" id="TC-027-add-reason-persists">
+  <p><strong>TC-027-add-reason-persists</strong> - covers <a href="#AC-1002-6">AC-1002-6</a> <span class="status pending">pending</span></p>
+  <p>rcf blueprint add --reason attaches the ruling text to every resolutions[] record on that add</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)</code></p>
+</div>
+<div class="tc" id="TC-027-add-reason-whitespace-refused">
+  <p><strong>TC-027-add-reason-whitespace-refused</strong> - covers <a href="#AC-1002-6">AC-1002-6</a> <span class="status pending">pending</span></p>
+  <p>whitespace-only --reason on add refused at the writer edge (exit 2, no record written)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)</code></p>
+</div>
+<div class="tc" id="TC-027-add-resolve-dedupes-with-warn">
+  <p><strong>TC-027-add-resolve-dedupes-with-warn</strong> - covers <a href="#AC-1002-7">AC-1002-7</a> <span class="status pending">pending</span></p>
+  <p>duplicate --resolve for the same topic keeps the first declaration, drops the rest, and warns on stderr</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)</code></p>
+</div>
+<div class="tc" id="TC-027-add-resolve-error-no-double-prefix">
+  <p><strong>TC-027-add-resolve-error-no-double-prefix</strong> - covers <a href="#AC-1002-7">AC-1002-7</a> <span class="status pending">pending</span></p>
+  <p>--resolve validation error carries the CLI&#39;s single &#39;[error] blueprint add: &#39; prefix — the underlying rcfError message MUST NOT prepend its own &#39;blueprint add: &#39;</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)</code></p>
+</div>
+<div class="tc" id="TC-027-conflict-enrichment-symmetric">
+  <p><strong>TC-027-conflict-enrichment-symmetric</strong> - covers <a href="#AC-1002-8">AC-1002-8</a> <span class="status pending">pending</span></p>
+  <p>conflict rendering + --json shape carry title + one-sentence decision on BOTH sides (incoming read from disk, existing read from tree)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::conflict enrichment is symmetric: incoming side carries title + decision read off the blueprint contribution file (rev-2 nit)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;id&quot;: &quot;TS-027&quot;,
@@ -8335,7 +8464,11 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     &quot;AC-1002-1&quot;,
     &quot;AC-1002-2&quot;,
     &quot;AC-1002-3&quot;,
-    &quot;AC-1002-4&quot;
+    &quot;AC-1002-4&quot;,
+    &quot;AC-1002-5&quot;,
+    &quot;AC-1002-6&quot;,
+    &quot;AC-1002-7&quot;,
+    &quot;AC-1002-8&quot;
   ],
   &quot;testCases&quot;: [
     {
@@ -8371,6 +8504,48 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-1002-4&quot;,
       &quot;description&quot;: &quot;namespaced non-global TACs do not conflict&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/conflicts.test.js::detectGlobalAdrConflicts: namespaced TACs never conflict (AC-1002-4)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-shipped-blueprints-option-3-executable&quot;,
+      &quot;acId&quot;: &quot;AC-1002-5&quot;,
+      &quot;description&quot;: &quot;shipped SPA + REST option-3-as-printed money probe: supersede on a camelCase topic (authModel) is executable end-to-end; scaffolded ADR id kebab-tails the topic; resolutions[] topic stored verbatim&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::shipped SPA + REST: option 3 (supersede + re-add) as printed by the reshaped message is executable end-to-end (rev-2 P1-1)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-add-reason-persists&quot;,
+      &quot;acId&quot;: &quot;AC-1002-6&quot;,
+      &quot;description&quot;: &quot;rcf blueprint add --reason attaches the ruling text to every resolutions[] record on that add&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-add-reason-whitespace-refused&quot;,
+      &quot;acId&quot;: &quot;AC-1002-6&quot;,
+      &quot;description&quot;: &quot;whitespace-only --reason on add refused at the writer edge (exit 2, no record written)&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-add-resolve-dedupes-with-warn&quot;,
+      &quot;acId&quot;: &quot;AC-1002-7&quot;,
+      &quot;description&quot;: &quot;duplicate --resolve for the same topic keeps the first declaration, drops the rest, and warns on stderr&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-add-resolve-error-no-double-prefix&quot;,
+      &quot;acId&quot;: &quot;AC-1002-7&quot;,
+      &quot;description&quot;: &quot;--resolve validation error carries the CLI&#39;s single &#39;[error] blueprint add: &#39; prefix — the underlying rcfError message MUST NOT prepend its own &#39;blueprint add: &#39;&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)&quot;,
+      &quot;status&quot;: &quot;pending&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-027-conflict-enrichment-symmetric&quot;,
+      &quot;acId&quot;: &quot;AC-1002-8&quot;,
+      &quot;description&quot;: &quot;conflict rendering + --json shape carry title + one-sentence decision on BOTH sides (incoming read from disk, existing read from tree)&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::conflict enrichment is symmetric: incoming side carries title + decision read off the blueprint contribution file (rev-2 nit)&quot;,
       &quot;status&quot;: &quot;pending&quot;
     }
   ],

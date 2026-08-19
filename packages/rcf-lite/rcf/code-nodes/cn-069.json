@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-069",
+  "path": "src/blueprint/supersede.js#supersedeBlueprintTopic",
+  "title": "Project-ADR supersession scaffolder",
+  "description": "Scaffolds a project-level ADR under rcf/adrs/adr-NNN-<kebab-topic>.json that supersedes every applied blueprint's scope:global ADR on the topic, and appends a matching manifest.resolutions[] record so the conflict detector honours the resolution on subsequent adds. Topic is treated as a LOOKUP KEY, not a slug: any string that exact-matches an applied ADR's declared topic is accepted (schema minLength:1, whitespace-only refused at the writer edge; camelCase, snake_case and kebab-case all pass). The scaffolded ADR id derives its slug tail by kebab-ifying the topic (`authModel` -> `ADR-NNN-auth-model`) so the ADR grammar's `[a-z0-9](-[a-z0-9]+)*` tail is satisfied. Refuses when the manifest is missing prd or tad, when fewer than two applied blueprints carry a scope:global ADR on the topic, and when a file already exists at the scaffolded ADR path.",
+  "implementsAcIds": [
+    "AC-1002-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-19T14:35:00.000Z",
+  "updatedAt": "2026-08-19T14:35:00.000Z"
+}

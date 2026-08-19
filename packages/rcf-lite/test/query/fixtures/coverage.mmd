@@ -375,6 +375,26 @@ flowchart LR
   REQ-010 --> AC-1002-4
   TC-027-nonglobal-namespaced-no-conflict["TC-027-nonglobal-namespaced-no-conflict"]
   AC-1002-4 -.-> TC-027-nonglobal-namespaced-no-conflict
+  AC-1002-5["AC-1002-5"]
+  REQ-010 --> AC-1002-5
+  TC-027-shipped-blueprints-option-3-executable["TC-027-shipped-blueprints-option-3-executable"]
+  AC-1002-5 -.-> TC-027-shipped-blueprints-option-3-executable
+  AC-1002-6["AC-1002-6"]
+  REQ-010 --> AC-1002-6
+  TC-027-add-reason-persists["TC-027-add-reason-persists"]
+  AC-1002-6 -.-> TC-027-add-reason-persists
+  TC-027-add-reason-whitespace-refused["TC-027-add-reason-whitespace-refused"]
+  AC-1002-6 -.-> TC-027-add-reason-whitespace-refused
+  AC-1002-7["AC-1002-7"]
+  REQ-010 --> AC-1002-7
+  TC-027-add-resolve-dedupes-with-warn["TC-027-add-resolve-dedupes-with-warn"]
+  AC-1002-7 -.-> TC-027-add-resolve-dedupes-with-warn
+  TC-027-add-resolve-error-no-double-prefix["TC-027-add-resolve-error-no-double-prefix"]
+  AC-1002-7 -.-> TC-027-add-resolve-error-no-double-prefix
+  AC-1002-8["AC-1002-8"]
+  REQ-010 --> AC-1002-8
+  TC-027-conflict-enrichment-symmetric["TC-027-conflict-enrichment-symmetric"]
+  AC-1002-8 -.-> TC-027-conflict-enrichment-symmetric
   AC-1003-1["AC-1003-1"]
   REQ-010 --> AC-1003-1
   TC-028-add-writes-manifest-entry["TC-028-add-writes-manifest-entry"]
@@ -600,6 +620,16 @@ flowchart LR
   class TC-027-conflict-report-shape tc;
   class AC-1002-4 ac;
   class TC-027-nonglobal-namespaced-no-conflict tc;
+  class AC-1002-5 ac;
+  class TC-027-shipped-blueprints-option-3-executable tc;
+  class AC-1002-6 ac;
+  class TC-027-add-reason-persists tc;
+  class TC-027-add-reason-whitespace-refused tc;
+  class AC-1002-7 ac;
+  class TC-027-add-resolve-dedupes-with-warn tc;
+  class TC-027-add-resolve-error-no-double-prefix tc;
+  class AC-1002-8 ac;
+  class TC-027-conflict-enrichment-symmetric tc;
   class AC-1003-1 ac;
   class TC-028-add-writes-manifest-entry tc;
   class AC-1003-2 ac;

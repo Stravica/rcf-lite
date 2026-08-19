@@ -51,11 +51,18 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, now = 
   if (typeof topic !== 'string' || topic.trim().length === 0) {
     // Schema minLength:1 accepts whitespace-only; the writer refuses
     // it up-front so a whitespace-only topic never lands on disk.
-    return rcfError({ kind: 'usage', message: `blueprint supersede: topic is required (e.g. rcf blueprint supersede auth)` });
+    return rcfError({ kind: 'usage', message: `blueprint supersede: topic is required (e.g. rcf blueprint supersede errorEnvelope)` });
   }
-  if (!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(topic)) {
-    return rcfError({ kind: 'usage', message: `blueprint supersede: topic '${topic}' is not a valid kebab slug` });
-  }
+  // Topic is a LOOKUP KEY into applied ADR topics, not a slug. Schema
+  // is minLength:1 with no character constraint and the schema docs
+  // explicitly cite camelCase examples ('errorEnvelope'). Rejecting
+  // non-kebab topics gate-tightened past the schema and made the
+  // reshaped message's option 3 unusable on the shipped SPA+REST
+  // blueprints (whose topics are camelCase: authModel, errorEnvelope,
+  // clientRouting, ...). Accept any topic string that will
+  // exact-match the applied ADR topics below; kebab-ify only when
+  // deriving the project-ADR id slug tail (adrId grammar requires
+  // lowercase kebab after the digits).
   if (reason !== undefined && typeof reason === 'string' && reason.length > 0 && reason.trim().length === 0) {
     // Non-empty whitespace-only reason: refuse before write. An
     // undefined / empty-string reason is fine (the field is optional
@@ -195,5 +202,38 @@ function mintProjectAdrId(tree, topic) {
     for (const c of bp.contributions ?? []) walk(c.id);
   }
   const next = (maxN + 1).toString().padStart(3, '0');
-  return `ADR-${next}-${topic}`;
+  // adrId grammar requires lowercase kebab after the digits
+  // (^ADR-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$), so a camelCase topic
+  // like 'authModel' becomes the slug tail 'auth-model'. Topic itself
+  // remains stored verbatim on manifest.resolutions[].topic — it is a
+  // lookup key, not a slug.
+  return `ADR-${next}-${kebabise(topic)}`;
+}
+
+/**
+ * Convert a topic string to a well-formed kebab slug suitable for use
+ * as the adrId slug-tail (lowercase alnum segments joined by single
+ * hyphens; leading letter enforced by the ADR grammar's optional-tail
+ * regex when the tail is non-empty). Handles:
+ *   - camelCase -> kebab-case (`authModel` -> `auth-model`)
+ *   - snake / SCREAMING_SNAKE -> kebab (`error_envelope` -> `error-envelope`)
+ *   - existing kebab (`auth-model`) -> unchanged
+ *   - spaces / punctuation collapsed to single hyphens; leading/trailing
+ *     hyphens trimmed
+ *
+ * Guaranteed to return a string that matches `[a-z0-9]+(?:-[a-z0-9]+)*`
+ * or empty; the empty case is refused by the caller (topic non-empty
+ * check runs first).
+ */
+export function kebabise(topic) {
+  if (typeof topic !== 'string') return '';
+  let s = topic;
+  // camelCase -> insert hyphen before each uppercase letter that
+  // follows a lowercase letter or digit (`authModel` -> `auth-Model`).
+  s = s.replace(/([a-z0-9])([A-Z])/g, '$1-$2');
+  // SCREAMING_CASE runs: `ABc` -> `A-Bc` so acronyms split cleanly.
+  s = s.replace(/([A-Z])([A-Z][a-z])/g, '$1-$2');
+  // Lowercase, collapse non-alnum runs to single hyphen, trim.
+  s = s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return s;
 }
