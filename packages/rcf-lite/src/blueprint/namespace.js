@@ -1,20 +1,23 @@
 // Namespacing rules for blueprint-contributed doc ids.
 //
+// THE id grammar (family membership, regex shapes, filename inversion)
+// lives in `../core/store/ids.js` -- one implementation shared by the
+// blueprint stamper, the walker (idFromFilenameStem) and the loader
+// (pathForId). This module carries the blueprint-facing helpers on top
+// of that grammar (stampId / isNamespacedFor / namespaceStyleFor) and
+// re-exports parseIdParts so the public blueprint surface stays stable.
+//
 // Two families, per the 0.4.4 schemas grammar (see docs/id-conventions.md
 // in @stravica-ai/rcf-schemas):
 //
 // - Prefix families (REQ, US, PRD, BS, TAD, TS): the blueprint slug is
 //   attached as a lowercase kebab-slug PREFIX joined by `-` to the
 //   family prefix. `REQ-001` under blueprint `spa` becomes `spa-REQ-001`.
-//   Schema pattern (common.reqId etc.):
-//     ^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?<PREFIX>-\d{3,}$
 //
 // - Suffix families (ADR, TAC, FBS, CN): the blueprint slug is attached
 //   as a lowercase kebab-slug SUFFIX joined by `-` to the numeric tail.
-//   `ADR-005` under blueprint `spa` becomes `ADR-005-spa`; a longer
-//   slug segment (`spa-theme`) becomes `ADR-005-spa-theme`. Schema
-//   pattern (common.adrId etc.):
-//     ^<PREFIX>-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$
+//   `ADR-005` under blueprint `spa` becomes `ADR-005-spa`; a longer slug
+//   segment (`spa-theme`) becomes `ADR-005-spa-theme`.
 //
 // - AC and TC: not namespaced. AC ids are anchored to their parent US
 //   (whose id is prefix-namespaced) and TC ids are anchored to their
@@ -23,55 +26,18 @@
 //
 // This module is pure: no I/O, no wall clock.
 
-const PREFIX_FAMILIES = new Set(['REQ', 'US', 'PRD', 'BS', 'TAD', 'TS']);
-const SUFFIX_FAMILIES = new Set(['ADR', 'TAC', 'FBS', 'CN']);
-const UNNAMESPACED_FAMILIES = new Set(['AC', 'TC']);
+import {
+  PREFIX_FAMILY_SET,
+  SLUG_PATTERN,
+  SUFFIX_FAMILY_SET,
+  UNNAMESPACED_FAMILY_SET,
+  parseIdParts,
+} from '../core/store/ids.js';
 
-const SLUG_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-
-// Precompiled per-family regexes. Prefix families are anchored so the
-// optional slug prefix is captured cleanly; suffix families capture the
-// optional slug suffix.
-const PREFIX_REGEXES = new Map();
-for (const family of PREFIX_FAMILIES) {
-  PREFIX_REGEXES.set(family, new RegExp(`^(?:([a-z][a-z0-9]*(?:-[a-z0-9]+)*)-)?${family}-(\\d{3,})$`));
-}
-const SUFFIX_REGEXES = new Map();
-for (const family of SUFFIX_FAMILIES) {
-  SUFFIX_REGEXES.set(family, new RegExp(`^${family}-(\\d{3,})(?:-([a-z0-9]+(?:-[a-z0-9]+)*))?$`));
-}
-const UNNAMESPACED_REGEXES = new Map([
-  ['AC', /^AC-(\d{3,})(?:-(\d+))?$/],
-  ['TC', /^TC-(\d{3,})-([a-z0-9-]+)$/],
-]);
-
-/**
- * Split an id into { family, prefixSlug, digits, suffixSlug }. Returns
- * null when the id matches no known family pattern.
- *
- * @param {string} id
- * @returns {{ family: string, prefixSlug: string|null, digits: string, suffixSlug: string|null } | null}
- */
-export function parseIdParts(id) {
-  if (typeof id !== 'string' || !id.length) return null;
-  // Suffix families are checked first (they never carry a leading slug),
-  // then prefix families, then unnamespaced families. Deterministic per-
-  // pattern lookup, no ordering ambiguity across families of the same
-  // prefix length.
-  for (const [family, regex] of SUFFIX_REGEXES) {
-    const match = id.match(regex);
-    if (match) return { family, prefixSlug: null, digits: match[1], suffixSlug: match[2] ?? null };
-  }
-  for (const [family, regex] of PREFIX_REGEXES) {
-    const match = id.match(regex);
-    if (match) return { family, prefixSlug: match[1] ?? null, digits: match[2], suffixSlug: null };
-  }
-  for (const [family, regex] of UNNAMESPACED_REGEXES) {
-    const match = id.match(regex);
-    if (match) return { family, prefixSlug: null, digits: match[1], suffixSlug: null };
-  }
-  return null;
-}
+// Re-exported so `import { parseIdParts } from '../blueprint/namespace.js'`
+// (and the transitive `blueprint/index.js` re-export) keep working. The
+// implementation lives in core.
+export { parseIdParts };
 
 /**
  * Which namespacing style applies to a given id.
@@ -82,8 +48,8 @@ export function parseIdParts(id) {
 export function namespaceStyleFor(id) {
   const parts = parseIdParts(id);
   if (!parts) return null;
-  if (PREFIX_FAMILIES.has(parts.family)) return 'prefix';
-  if (SUFFIX_FAMILIES.has(parts.family)) return 'suffix';
+  if (PREFIX_FAMILY_SET.has(parts.family)) return 'prefix';
+  if (SUFFIX_FAMILY_SET.has(parts.family)) return 'suffix';
   return 'none';
 }
 
@@ -110,9 +76,12 @@ export function stampId(id, slug) {
     if (parts.prefixSlug === slug) return { id };
     return { error: `stampId: id '${id}' already carries prefix namespace '${parts.prefixSlug}'; cannot re-stamp as '${slug}'` };
   }
-  // suffix
+  // suffix. Exact-slug idempotency, symmetrical with isNamespacedFor:
+  // an id whose suffix is `spa-theme` is NOT blueprint `spa`'s to
+  // re-stamp, so stampId refuses. Loose `startsWith` here would let
+  // blueprint `spa` silently claim ownership of `ADR-005-spa-theme`.
   if (parts.suffixSlug === null) return { id: `${parts.family}-${parts.digits}-${slug}` };
-  if (parts.suffixSlug === slug || parts.suffixSlug.startsWith(`${slug}-`)) return { id };
+  if (parts.suffixSlug === slug) return { id };
   return { error: `stampId: id '${id}' already carries suffix namespace '${parts.suffixSlug}'; cannot re-stamp as '${slug}'` };
 }
 
@@ -124,12 +93,25 @@ export function stampId(id, slug) {
  * @returns {boolean}
  */
 export function isNamespacedFor(id, slug) {
+  // Exact-slug match on BOTH sides. The prior implementation matched a
+  // suffix slug of the form `${slug}-...` too, which meant blueprint
+  // `spa` claimed `ADR-005-spa-theme` (the actual owner is blueprint
+  // `spa-theme`). Because apply.js consults this predicate to decide
+  // whether an overwrite is safe, the loose match let a same-file id
+  // originating from one blueprint be treated as another blueprint's
+  // own contribution. Prefix-side symmetry was already exact; suffix
+  // now matches.
   const parts = parseIdParts(id);
   if (!parts) return false;
   const style = namespaceStyleFor(id);
   if (style === 'prefix') return parts.prefixSlug === slug;
-  if (style === 'suffix') return parts.suffixSlug === slug || (parts.suffixSlug ?? '').startsWith(`${slug}-`);
+  if (style === 'suffix') return parts.suffixSlug === slug;
   return false;
 }
 
-export const _internal = { PREFIX_FAMILIES, SUFFIX_FAMILIES, UNNAMESPACED_FAMILIES, SLUG_PATTERN };
+export const _internal = {
+  PREFIX_FAMILIES: PREFIX_FAMILY_SET,
+  SUFFIX_FAMILIES: SUFFIX_FAMILY_SET,
+  UNNAMESPACED_FAMILIES: UNNAMESPACED_FAMILY_SET,
+  SLUG_PATTERN,
+};

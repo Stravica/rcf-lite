@@ -58,10 +58,22 @@ test('stampId: bare suffix-family id gains the slug as SUFFIX', () => {
   assert.deepEqual(stampId('FBS-007', 'spa'), { id: 'FBS-007-spa' });
 });
 
-test('stampId: already-namespaced id for the same slug is idempotent', () => {
+test('stampId: already-namespaced id for the same slug is idempotent (exact slug)', () => {
   assert.deepEqual(stampId('spa-REQ-001', 'spa'), { id: 'spa-REQ-001' });
   assert.deepEqual(stampId('ADR-005-spa', 'spa'), { id: 'ADR-005-spa' });
-  assert.deepEqual(stampId('ADR-005-spa-theme', 'spa'), { id: 'ADR-005-spa-theme' });
+  // A longer slug is its OWN blueprint's namespace, so the same-slug
+  // idempotency does NOT extend: `ADR-005-spa-theme` belongs to
+  // blueprint `spa-theme`, not blueprint `spa`.
+  assert.deepEqual(stampId('ADR-005-spa-theme', 'spa-theme'), { id: 'ADR-005-spa-theme' });
+});
+
+test('stampId: suffix slug that is a hyphen-prefix of another slug is NOT idempotent (exact-slug match)', () => {
+  // Pre-fix, `startsWith('spa-')` treated `ADR-005-spa-theme` as
+  // already namespaced for `spa` and silently returned it unchanged;
+  // apply.js then wrote it as if `spa` owned it. Now refused.
+  const result = stampId('ADR-005-spa-theme', 'spa');
+  assert.ok('error' in result, `expected refusal, got ${JSON.stringify(result)}`);
+  assert.match(result.error, /already carries suffix namespace 'spa-theme'/);
 });
 
 test('stampId: id already namespaced for a DIFFERENT slug is refused with an error', () => {
@@ -84,10 +96,23 @@ test('stampId: unknown-family id is refused', () => {
   assert.ok('error' in stampId('XYZ-001', 'spa'));
 });
 
-test('isNamespacedFor: recognises prefix and suffix namespacing for a given slug', () => {
+test('isNamespacedFor: recognises prefix and suffix namespacing for a given slug (exact-slug match)', () => {
   assert.equal(isNamespacedFor('spa-REQ-001', 'spa'), true);
   assert.equal(isNamespacedFor('spa-REQ-001', 'rest'), false);
   assert.equal(isNamespacedFor('ADR-005-spa', 'spa'), true);
-  assert.equal(isNamespacedFor('ADR-005-spa-theme', 'spa'), true);
+  // Exact-slug match. `ADR-005-spa-theme` belongs to blueprint
+  // `spa-theme`, NOT blueprint `spa`. The prior loose check
+  // (`startsWith('spa-')`) let blueprint `spa` claim ownership of
+  // ids that actually belonged to a longer-slug sibling, which
+  // apply.js relied on when deciding whether an on-disk overwrite
+  // was a same-blueprint re-apply.
+  assert.equal(isNamespacedFor('ADR-005-spa-theme', 'spa'), false);
+  assert.equal(isNamespacedFor('ADR-005-spa-theme', 'spa-theme'), true);
+  // Symmetry check both directions: the longer blueprint slug
+  // never claims a shorter-slug id either.
+  assert.equal(isNamespacedFor('ADR-005-spa', 'spa-theme'), false);
+  // Prefix-family symmetry (was already exact pre-fix; pin it).
+  assert.equal(isNamespacedFor('spa-theme-REQ-001', 'spa'), false);
+  assert.equal(isNamespacedFor('spa-REQ-001', 'spa-theme'), false);
   assert.equal(isNamespacedFor('REQ-001', 'spa'), false);
 });

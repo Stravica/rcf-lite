@@ -37,26 +37,6 @@ test('pathForId returns null for unknown id shapes', () => {
   assert.equal(pathForId(null), null);
 });
 
-// w-2026-08-19-001: rcf-schemas 0.4.4 prefix- and suffix-family
-// blueprint namespacing. The pre-fix ladder of `id.startsWith('REQ-')`
-// etc. missed `spa-REQ-001` (slug prefix) entirely, and `blueprint add`
-// wrote files the walker could not resolve back to their id.
-test('pathForId resolves prefix-namespaced ids (rcf-schemas 0.4.4, w-2026-08-19-001)', () => {
-  assert.deepEqual(pathForId('spa-REQ-001'), { kind: 'req', relPath: 'requirements/spa-req-001.json' });
-  assert.deepEqual(pathForId('spa-US-101'), { kind: 'userStory', relPath: 'user-stories/spa-us-101.json' });
-  assert.deepEqual(pathForId('spa-theme-REQ-002'), { kind: 'req', relPath: 'requirements/spa-theme-req-002.json' });
-  assert.deepEqual(pathForId('spa-TS-005'), { kind: 'testSuite', relPath: 'test-suites/spa-ts-005.json' });
-});
-
-test('pathForId resolves suffix-namespaced ids (rcf-schemas 0.4.4, w-2026-08-19-001)', () => {
-  // Suffix families (ADR / TAC / FBS / CN) already matched via startsWith
-  // pre-fix; keep the coverage explicit under the shared-seat routing.
-  assert.deepEqual(pathForId('ADR-005-spa'), { kind: 'adr', relPath: 'adrs/adr-005-spa.json' });
-  assert.deepEqual(pathForId('TAC-007-spa-theme'), { kind: 'tac', relPath: 'tacs/tac-007-spa-theme.json' });
-  assert.deepEqual(pathForId('FBS-016-spa'), { kind: 'fbs', relPath: 'fbs/fbs-016-spa.json' });
-  assert.deepEqual(pathForId('CN-001-spa'), { kind: 'codeNode', relPath: 'code-nodes/cn-001-spa.json' });
-});
-
 test('subdirFor maps kinds to layout dirs', () => {
   assert.equal(subdirFor('req'), 'requirements');
   assert.equal(subdirFor('userStory'), 'user-stories');
@@ -128,6 +108,41 @@ test('loadDocument flags unknown id shapes as usage errors', async () => {
 
 test('pathForId maps TS-* to the test-suite kind and path', () => {
   assert.deepEqual(pathForId('TS-001'), { kind: 'testSuite', relPath: 'test-suites/ts-001.json' });
+});
+
+// w-2026-08-19-003: prefix-family ids (blueprint-contributed REQ / US /
+// TS / PRD / BS / TAD) carry a lowercase kebab-slug PREFIX. Before the
+// grammar move, pathForId's `startsWith('REQ-')` checks refused any id
+// whose first segment was the slug rather than the family prefix,
+// bricking every downstream verb after a prefix-family contribution was
+// written.
+test('pathForId resolves prefix-family ids that carry a blueprint slug', () => {
+  assert.deepEqual(pathForId('spa-REQ-001'), { kind: 'req', relPath: 'requirements/spa-req-001.json' });
+  assert.deepEqual(pathForId('spa-US-201'), { kind: 'userStory', relPath: 'user-stories/spa-us-201.json' });
+  assert.deepEqual(pathForId('spa-TS-001'), { kind: 'testSuite', relPath: 'test-suites/spa-ts-001.json' });
+  assert.deepEqual(
+    pathForId('my-blueprint-REQ-042'),
+    { kind: 'req', relPath: 'requirements/my-blueprint-req-042.json' },
+  );
+});
+
+// Suffix-family ids (ADR / TAC / FBS / CN) carry a lowercase kebab-slug
+// SUFFIX. These worked before the grammar move but the tests only
+// covered the bare form; guarding the slugged form here alongside the
+// prefix cases keeps the grammar coverage symmetric.
+test('pathForId resolves suffix-family ids that carry a blueprint slug', () => {
+  assert.deepEqual(pathForId('ADR-005-spa'), { kind: 'adr', relPath: 'adrs/adr-005-spa.json' });
+  assert.deepEqual(pathForId('TAC-007-spa'), { kind: 'tac', relPath: 'tacs/tac-007-spa.json' });
+  assert.deepEqual(pathForId('FBS-004-user-login'), { kind: 'fbs', relPath: 'fbs/fbs-004-user-login.json' });
+  assert.deepEqual(pathForId('CN-001-spa'), { kind: 'codeNode', relPath: 'code-nodes/cn-001-spa.json' });
+});
+
+// AC and TC live inline under their parent US / TS; they never resolve
+// to a top-level file, and pathForId returns null on them by design.
+test('pathForId returns null for AC and TC ids (inline under parents)', () => {
+  assert.equal(pathForId('AC-101'), null);
+  assert.equal(pathForId('AC-101-1'), null);
+  assert.equal(pathForId('TC-101-happy-path'), null);
 });
 
 test('subdirFor maps testSuite to test-suites', () => {
