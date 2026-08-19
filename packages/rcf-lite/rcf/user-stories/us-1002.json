@@ -28,10 +28,10 @@
     },
     {
       "id": "AC-1002-3",
-      "description": "Conflict output includes both sides and names three resolution paths (pick, supersede, decline)",
+      "description": "Conflict output leads with per-side headers (ADR title + one-sentence decision) and names four honest resolution paths with actual blueprint slugs filled in (Phase 3.5 reshape)",
       "given": "the conflict case above",
       "when": "the verb prints the conflict",
-      "then": "the output enumerates both ADRs (id, blueprint slug, path) and names the three resolution paths available to the operator (pick one and re-run with `--pick`, author a project-level superseding ADR, or decline the add)",
+      "then": "the output opens with `conflict on topic (<topic>)` and one line per side carrying `blueprint <slug>: <title> — <decision>` (or `<id> at <path>` when the tree did not carry the ADR body), a `refs:` footer with both ids + paths, and four honest resolutions numbered 1-4: adopt-incoming (`rcf blueprint remove <existing-slug>`), keep-existing (do not add the incoming), supersede via a project-level ADR (`rcf blueprint supersede <topic>`), and declare-on-add (`rcf blueprint add <source> --resolve <topic>=project:<ADR-id>`) — all with the actual conflicting blueprint slugs already substituted, no `<slug>` placeholders",
       "testable": true
     },
     {

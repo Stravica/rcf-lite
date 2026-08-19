@@ -4,6 +4,25 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
+## Unreleased
+
+### Added (blueprint conflict-resolution verbs, w-2026-08-19-008)
+
+- **`src/blueprint/resolutions.js`.** Pure helpers on top of the new `manifest.resolutions[]` seam (rcf-schemas 0.4.5): `nextResolutionId(manifest, now)` mints monotonic `res-YYYY-MM-DD-NNN` ids; `matchingResolution(manifest, { topic, incoming, existing })` returns the resolution record that resolves a specific globalAdrTopic conflict pair, matching on kind + topic + both `{slug, adrId}` pairs listed in `supersedes[]` (superset OK, subset not).
+- **`src/blueprint/supersede.js` + `rcf blueprint supersede <topic>` verb.** Scaffolds a project-level ADR at `rcf/adrs/adr-NNN-<topic>.json` (well-formed against `adr.schema.json`, editable stubs) that supersedes every applied blueprint's scope:global ADR on the topic, and appends a `manifest.resolutions[]` record so the detector honours the resolution on subsequent `rcf blueprint add` runs. Refuses when the topic has fewer than two applied scope:global ADRs, when the manifest is missing prd or tad, and when a file already exists at the scaffolded ADR path. Optional `--reason` operator note; whitespace-only reasons are refused at the writer edge.
+- **`rcf blueprint add --resolve <topic>=project:<ADR-id>` flag.** Repeatable per conflicted topic. Records a `manifest.resolutions[]` entry in-memory BEFORE conflict detection runs, so a freshly declared resolution is honoured; the record then persists via the manifest write alongside the applied-blueprint update. Refuses declarations whose topic does not match a scope:global ADR on the incoming blueprint, whose topic has no matching applied blueprint, whose `resolvedByAdrId` is mis-shaped, or whose `--reason` is whitespace-only.
+- **`src/blueprint/conflicts.js` reshape.** `detectGlobalAdrConflicts` accepts an optional manifest and honours matching resolutions. `renderConflictReport` now leads each conflict block with per-side `blueprint <slug>: <title> — <decision>` headers (falls back to `<id> at <path>` when the tree did not carry the ADR body), footers ids + paths under `refs:`, and names four honest resolution paths (adopt-incoming, keep-existing, supersede via project ADR, declare-on-add via `--resolve`) with the actual conflicting blueprint slugs already substituted — no `<slug>` placeholders. New `conflictReportJson(conflicts)` returns the same shape as a machine-readable object for agent-driven composition.
+- **`src/blueprint/apply.js` enrichment.** ADR title + one-sentence decision are pulled off `tree.byId` for the existing side and threaded onto the conflict record so the renderer's per-side headers render cleanly.
+- **`src/blueprint/diff.js` + `rcf blueprint diff <topic>` verb.** Read-only side-by-side view of every applied blueprint's scope:global ADR on a topic: id, path, title, status, decision.
+- **`src/cli/blueprint.js` wiring.** New verbs `supersede`, `diff`; new flags `--resolve` (repeatable), `--reason`, `--json` on `add`.
+- **`src/blueprint/index.js` re-exports** the new APIs: `nextResolutionId`, `matchingResolution`, `supersedeBlueprintTopic`, `diffBlueprintTopic`, `renderDiff`, `conflictReportJson`, `detectCrossBlueprintClaims`.
+- **New tests.** `test/blueprint/resolutions.test.js` (10), `test/blueprint/supersede.test.js` (5), `test/blueprint/coresidence.test.js` (3 — the SPA + REST co-residence money paths via supersede-first, declare-on-add, and honour-idempotency), `test/blueprint/diff.test.js` (4), plus 5 new cases on `test/blueprint/cli.test.js` (--resolve success + reshape refuse, --json refuse + apply, supersede verb, diff verb, --resolve validation) and 2 updated cases on `test/blueprint/conflicts.test.js` (reshape assertions).
+- **`fbs-017` + `us-1002` prose refresh (residual fold-in).** `fbs/fbs-017.json` approach + notes now name the manifest-record ownership model (Phase 3.5 rewrite of the earlier grammar narrative) and the Phase 3.5 verbs; `user-stories/us-1002.json` AC-1002-3 now describes the reshaped four-honest-paths message rather than the pre-Phase-3.5 three-path placeholder prose. `test/view/fixtures/phase-3-6-static.html` regenerated to match.
+
+### Changed
+
+- **`packages/rcf-lite/package.json`** dependency `@stravica-ai/rcf-schemas` bumped `0.4.4 -> 0.4.5` (exact pin, per the umbrella exact-pin doctrine). 0.4.5 is an additive-only patch adding `manifest.resolutions[]`.
+
 ## [0.8.0] - 2026-08-12 (on `slug-train/0.8.0`, PR pending)
 
 ### Added (Car 4, verify updates per requirements doc)

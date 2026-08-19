@@ -1,14 +1,27 @@
-// `rcf blueprint <verb>` — Phase 1 landing (add | list | remove).
-// Upgrade is deferred to Phase 3 iteration alongside SPA+REST conflict
-// ergonomics (design-brief.md v2 §Depth for v1, prototype-unknown #1).
+// `rcf blueprint <verb>` CLI landing.
+//
+// Verbs:
+//   add          apply a blueprint (with optional --resolve)
+//   list         projection over manifest.blueprints[]
+//   remove       remove an applied blueprint
+//   supersede    scaffold a project ADR + record a resolutions[] entry
+//   diff         side-by-side view of applied blueprints' scope:global
+//                ADRs on a topic
 
 import { parseArgs } from 'node:util';
 
 import { isRcfError } from '#core/errors';
 import { walkTree } from '#core/store';
 import { findProjectRoot } from '../view/index.js';
-import { applyBlueprint, listBlueprints, removeBlueprint } from '../blueprint/index.js';
-import { renderConflictReport } from '../blueprint/conflicts.js';
+import {
+  applyBlueprint,
+  diffBlueprintTopic,
+  listBlueprints,
+  removeBlueprint,
+  renderDiff,
+  supersedeBlueprintTopic,
+} from '../blueprint/index.js';
+import { conflictReportJson, renderConflictReport } from '../blueprint/conflicts.js';
 
 export const HELP = `Usage: rcf blueprint <verb> [options]
 
@@ -23,10 +36,35 @@ Verbs:
   remove <slug>          Remove an applied blueprint. Refuses when any
                          project-authored doc references a contribution
                          id; prints the referring docs and exits 3.
+  supersede <topic>      Author a project-level ADR that supersedes every
+                         applied blueprint's scope:global ADR on <topic>,
+                         and record a manifest.resolutions[] entry so
+                         the conflict detector honours the resolution.
+                         Both blueprint ADRs co-reside on disk as
+                         superseded history.
+  diff <topic>           Side-by-side view of every applied blueprint's
+                         scope:global ADR on <topic>: id, path, title,
+                         status, decision. Read-only.
 
 Options:
   --namespace <slug>     Override the blueprint's default namespace
                          (defaults to the blueprint's slug).
+  --resolve <t=project:ADR-id>
+                         (add only) Declare a resolution on this add.
+                         Repeatable per conflicted topic. Records a
+                         manifest.resolutions[] entry before conflict
+                         detection runs, so a would-be conflict on the
+                         topic is honoured. resolvedByAdrId must be a
+                         well-formed ADR id; the referenced ADR should
+                         already exist on the project (this verb does
+                         not scaffold one -- use \`supersede\` for that).
+  --reason <text>        (supersede, add --resolve) Optional operator
+                         note attached to the manifest.resolutions[]
+                         record.
+  --json                 (add only) Emit the result (or conflict
+                         report) as a machine-readable JSON object.
+                         Exit code is unchanged (0 on apply, 3 on
+                         conflict).
   --dry-run              Print intended writes without executing.
   --quiet                Suppress non-error stdout.
   --help                 Print this help.
@@ -37,12 +75,17 @@ Composition and namespacing:
   REQ / US / PRD / BS / TAD / TS: slug PREFIX (spa-REQ-001).
   ADR / TAC / FBS / CN: slug SUFFIX (ADR-005-spa).
   Two blueprints both contributing a scope:global ADR on the same topic
-  is a genuine conflict: rcf blueprint add exits non-zero and prints
-  both sides.
+  is a genuine conflict: rcf blueprint add refuses and prints both
+  sides, plus four resolution paths (adopt incoming, keep existing,
+  supersede via project ADR, or declare on the add itself via
+  --resolve).
 `;
 
 const OPTION_SPEC = {
   namespace: { type: 'string' },
+  resolve: { type: 'string', multiple: true },
+  reason: { type: 'string' },
+  json: { type: 'boolean' },
   'dry-run': { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
@@ -92,19 +135,44 @@ export async function main(argv, deps = {}) {
       return 2;
     }
     const source = rest[0];
+    const resolveDeclarations = parseResolveOptions(parsed.values.resolve);
+    if (resolveDeclarations.error) {
+      stderr.write(`[error] blueprint add: ${resolveDeclarations.error}\n`);
+      return 2;
+    }
     const result = await applyBlueprint({
       projectRoot, tree, source,
       namespaceOverride: parsed.values.namespace,
+      resolveDeclarations: resolveDeclarations.value,
       now,
       dryRun: parsed.values['dry-run'] === true,
     });
     if (isRcfError(result)) {
-      stderr.write(`[error] blueprint add: ${result.message}\n`);
+      if (parsed.values.json) {
+        stderr.write(`${JSON.stringify({ refused: true, error: { kind: result.kind, message: result.message } })}\n`);
+      } else {
+        stderr.write(`[error] blueprint add: ${result.message}\n`);
+      }
       return 2;
     }
     if (result.conflicts && result.conflicts.length > 0) {
-      stderr.write(renderConflictReport(result.conflicts));
+      if (parsed.values.json) {
+        stdout.write(`${JSON.stringify(conflictReportJson(result.conflicts), null, 2)}\n`);
+      } else {
+        stderr.write(renderConflictReport(result.conflicts));
+      }
       return 3;
+    }
+    if (parsed.values.json) {
+      stdout.write(`${JSON.stringify({
+        refused: false,
+        applied: result.applied === true,
+        alreadyApplied: result.alreadyApplied === true,
+        slug: result.slug,
+        version: result.version,
+        contributionCount: Array.isArray(result.contributions) ? result.contributions.length : 0,
+      })}\n`);
+      return 0;
     }
     if (result.alreadyApplied) {
       if (!parsed.values.quiet) stdout.write(`[blueprint] '${result.slug}' already applied at ${result.version}; no changes.\n`);
@@ -153,7 +221,71 @@ export async function main(argv, deps = {}) {
     return 0;
   }
 
+  if (verb === 'supersede') {
+    if (rest.length === 0) {
+      stderr.write('[error] blueprint supersede: missing <topic>\n');
+      return 2;
+    }
+    const topic = rest[0];
+    const result = await supersedeBlueprintTopic({
+      projectRoot, tree, topic,
+      now,
+      dryRun: parsed.values['dry-run'] === true,
+      reason: parsed.values.reason,
+    });
+    if (isRcfError(result)) {
+      stderr.write(`[error] blueprint supersede: ${result.message}\n`);
+      return 2;
+    }
+    if (!parsed.values.quiet) {
+      stdout.write(`[blueprint] superseded topic '${result.topic}' via ${result.resolvedByAdrId} at ${result.resolvedByAdrPath}.\n`);
+      stdout.write(`[blueprint] resolution recorded as ${result.resolutionId}; superseded: ${result.supersedes.map((s) => `${s.adrId} (blueprint ${s.slug})`).join(', ')}.\n`);
+      stdout.write(`[blueprint] edit ${result.resolvedByAdrPath} to fill out the operator's ruling context / decision / consequences.\n`);
+    }
+    return 0;
+  }
+
+  if (verb === 'diff') {
+    if (rest.length === 0) {
+      stderr.write('[error] blueprint diff: missing <topic>\n');
+      return 2;
+    }
+    const topic = rest[0];
+    const result = diffBlueprintTopic({ tree, topic });
+    stdout.write(renderDiff(result));
+    return 0;
+  }
+
   stderr.write(`[error] blueprint: unknown verb '${verb}'\n`);
   stderr.write(HELP);
   return 2;
+}
+
+/**
+ * Parse `--resolve <topic>=project:<ADR-id>` occurrences into a list
+ * of declarations. Returns `{ value: Array }` on success or
+ * `{ error: string }` on any mis-shaped input.
+ */
+function parseResolveOptions(rawList) {
+  if (!Array.isArray(rawList) || rawList.length === 0) return { value: [] };
+  const out = [];
+  for (const raw of rawList) {
+    if (typeof raw !== 'string' || raw.length === 0) {
+      return { error: `--resolve expects <topic>=project:<ADR-id>, got '${raw}'` };
+    }
+    const eq = raw.indexOf('=');
+    if (eq === -1) {
+      return { error: `--resolve expects <topic>=project:<ADR-id>, got '${raw}' (missing '=')` };
+    }
+    const topic = raw.slice(0, eq);
+    const rhs = raw.slice(eq + 1);
+    if (topic.length === 0) return { error: `--resolve expects a topic before '=', got '${raw}'` };
+    if (!rhs.startsWith('project:')) {
+      return { error: `--resolve rhs must start with 'project:' (that is the currently supported resolution target), got '${rhs}'` };
+    }
+    const adrId = rhs.slice('project:'.length);
+    if (adrId.length === 0) return { error: `--resolve resolvedByAdrId is empty for topic '${topic}'` };
+    out.push({ topic, resolvedByAdrId: adrId });
+  }
+  return { value: out };
 }
