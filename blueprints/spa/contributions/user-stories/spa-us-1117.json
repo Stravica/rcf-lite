@@ -38,7 +38,7 @@
     },
     {
       "id": "AC-1117-4",
-      "description": "Error states distinguish user-fixable failures from system failures and offer retry where retry can help.",
+      "description": "Error states distinguish user-fixable failures from system failures and offer retry on transient failures (network, 5xx); not on user-fixable 4xx.",
       "given": "a 4xx-class and a 5xx-class failure",
       "when": "each error state renders",
       "then": "copy and affordances differ appropriately",

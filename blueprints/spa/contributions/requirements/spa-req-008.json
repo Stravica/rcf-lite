@@ -6,7 +6,7 @@
   "category": "functional",
   "domain": "journeys",
   "priority": "must",
-  "rationale": "Journey gaps are exactly the class of defect the watchpost run3 QA surfaced: functionally sound flows that look abandoned in their non-happy states.",
+  "rationale": "Journey gaps are the classic silent defect class: functionally sound flows that present abandoned-looking non-happy states. Walking every declared journey through all six states makes the absence mechanical to catch.",
   "tags": [
     "blueprint:spa",
     "category:08-journey-completeness"

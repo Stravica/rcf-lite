@@ -31,7 +31,7 @@ The doc set is contributions (copied into the project tree by `rcf blueprint add
 
 Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (ratified decision 5) and no code.
 
-No FBS contributions, as a matter of principle (Baz ruling, 2026-08-19): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT; the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing. Structurally the same conclusion falls out of the mechanism: an FBS binds to a bsId and a buildOrder slot the blueprint cannot know.
+No FBS contributions, as a matter of principle (ratified policy 2026-08-19): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT; the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing. Structurally the same conclusion falls out of the mechanism: an FBS binds to a bsId and a buildOrder slot the blueprint cannot know.
 
 ## The five global decisions
 

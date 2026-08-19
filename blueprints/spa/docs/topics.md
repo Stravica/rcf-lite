@@ -16,7 +16,7 @@ Rules for new topics: lower camel case, one concept per topic, no version suffix
 
 ## Id number bands
 
-AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.4.4 schema grammar; only the band allocation prevents cross-blueprint AC collisions. Band allocation is approved policy (Baz, 2026-08-19):
+AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.4.4 schema grammar; only the band allocation prevents cross-blueprint AC collisions. The band IS the AC-collision enforcement mechanism: composing blueprints take a fresh band rather than proposing namespaced AC ids. Band allocation is ratified policy (2026-08-19):
 
 | Band | Owner |
 |---|---|
