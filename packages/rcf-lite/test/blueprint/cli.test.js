@@ -311,46 +311,109 @@ import { resolve as _resolveP } from 'node:path';
 const shippedSpa  = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'spa');
 const shippedRest = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'rest');
 
-test('shipped SPA + REST: option 3 (supersede + re-add) as printed by the reshaped message is executable end-to-end (rev-2 P1-1)', async () => {
+test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, Baz ruling on the conflict-pair supersede precondition)', async () => {
+  // AC-1002-5 + AC-1002-9 + AC-1002-10 as ratified in round 3: option
+  // 3 as printed in the reshaped conflict message MUST be executable
+  // EXACTLY as printed, from the refused-add state, with ZERO prep.
+  // Two blueprints (spa + rest); rest is refused; the printed option-3
+  // commands MUST be copy-paste-runnable and reach co-residence.
+  // Round-2 shipped a test that pre-resolved via --resolve first, then
+  // ran supersede — a different workflow. Never doing that again;
+  // when the AC cannot pass as written, escalate.
   const root = await scaffold();
 
-  // 1. add spa.
+  // 1. add spa (verbatim off the shipped pack).
   const addSpa = await runBin(root, ['blueprint', 'add', shippedSpa]);
   assert.equal(addSpa.code, 0, `spa add: ${addSpa.stderr}`);
 
-  // 2. add rest -> conflict (authModel is on both, camelCase).
+  // 2. add rest -> refused (two collisions, camelCase: authModel + errorEnvelope).
   const conflict = await runBin(root, ['blueprint', 'add', shippedRest]);
   assert.equal(conflict.code, 3);
   // Reshaped header prints the raw camelCase topic in parens.
   assert.match(conflict.stderr, /conflict on topic \(authModel\)/);
-  // Option 3 tells the operator to run `rcf blueprint supersede authModel`.
-  assert.match(conflict.stderr, /rcf blueprint supersede authModel/);
+  assert.match(conflict.stderr, /conflict on topic \(errorEnvelope\)/);
+  // Round-3 (Baz ruling): option 3 carries `--incoming <source>` where
+  // <source> is the same source the operator just typed on the refused
+  // add — so the printed command is copy-paste-runnable.
+  const shippedRestRe = shippedRest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  assert.match(conflict.stderr, new RegExp(`rcf blueprint supersede authModel --incoming ${shippedRestRe}`));
+  assert.match(conflict.stderr, new RegExp(`rcf blueprint supersede errorEnvelope --incoming ${shippedRestRe}`));
 
-  // 3. Run supersede EXACTLY as printed (was `exit 2 not a valid kebab slug`
-  //    on round-1). Supersede scans applied blueprints for the topic;
-  //    only spa is applied yet, so we first stand rest up via --resolve
-  //    against a placeholder so supersede has both sides.
-  const restViaResolve = await runBin(root, [
-    'blueprint', 'add', shippedRest,
-    '--resolve', 'authModel=project:ADR-999',
-    '--resolve', 'errorEnvelope=project:ADR-999',
-  ]);
-  assert.equal(restViaResolve.code, 0, `rest via --resolve: ${restViaResolve.stderr}\n${restViaResolve.stdout}`);
+  // 3. Run option 3 EXACTLY as printed — no prep, no --resolve, no
+  //    hand-edits — for BOTH conflicting topics. This was the money
+  //    probe HQ round-3 targeted.
+  const supAuth = await runBin(root, ['blueprint', 'supersede', 'authModel', '--incoming', shippedRest]);
+  assert.equal(supAuth.code, 0, `supersede authModel: ${supAuth.stderr}\n${supAuth.stdout}`);
+  assert.match(supAuth.stdout, /via ADR-\d{3}-auth-model at rcf\/adrs\/adr-\d{3}-auth-model\.json/);
+  assert.match(supAuth.stdout, /resolution recorded as res-\d{4}-\d{2}-\d{2}-\d{3}/);
 
-  // Now run supersede as printed by the message — no --reason, no
-  // ceremony. camelCase topic must be honoured.
-  const sup = await runBin(root, ['blueprint', 'supersede', 'authModel']);
-  assert.equal(sup.code, 0, `supersede authModel: ${sup.stderr}\n${sup.stdout}`);
-  // The scaffolded project ADR id carries a kebab-ified slug tail
-  // (adrId grammar requires lowercase kebab after the digits).
-  assert.match(sup.stdout, /via ADR-\d{3}-auth-model at rcf\/adrs\/adr-\d{3}-auth-model\.json/);
-  assert.match(sup.stdout, /resolution recorded as res-\d{4}-\d{2}-\d{2}-\d{3}/);
+  const supErr = await runBin(root, ['blueprint', 'supersede', 'errorEnvelope', '--incoming', shippedRest]);
+  assert.equal(supErr.code, 0, `supersede errorEnvelope: ${supErr.stderr}\n${supErr.stdout}`);
+  assert.match(supErr.stdout, /via ADR-\d{3}-error-envelope at rcf\/adrs\/adr-\d{3}-error-envelope\.json/);
 
-  // The persisted resolution record carries the topic verbatim
-  // (camelCase), not the kebab-ified derivative.
+  // 4. Re-run add rest — printed as the closing step of options 1 and
+  //    3 in the message. Must succeed (detector honours both fresh
+  //    resolutions), reaching co-residence.
+  const readd = await runBin(root, ['blueprint', 'add', shippedRest]);
+  assert.equal(readd.code, 0, `re-add rest after supersede pair: ${readd.stderr}\n${readd.stdout}`);
+  assert.match(readd.stdout, /applied 'rest' at 1\.0\.0/);
+
+  // Co-residence proven: both blueprint entries in manifest.blueprints[],
+  // and manifest.resolutions[] carries the topic strings VERBATIM
+  // (camelCase; per AC-1002-9 + ADR-010) and the resolvedByAdrId
+  // strings carry the kebab-ified slug tail.
   const manifest = JSON.parse(await _readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
-  const supersedeRec = manifest.resolutions.find((r) => r.topic === 'authModel' && /^ADR-\d{3}-auth-model$/.test(r.resolvedByAdrId));
-  assert.ok(supersedeRec, `expected a supersede-minted resolution with topic 'authModel' and adr-\\d+-auth-model resolvedByAdrId; got ${JSON.stringify(manifest.resolutions)}`);
+  const bpSlugs = manifest.blueprints.map((b) => b.slug).sort();
+  assert.deepEqual(bpSlugs, ['rest', 'spa']);
+  const authRec = manifest.resolutions.find((r) => r.topic === 'authModel');
+  const errRec  = manifest.resolutions.find((r) => r.topic === 'errorEnvelope');
+  assert.ok(authRec, `expected a resolution on topic 'authModel'; got ${JSON.stringify(manifest.resolutions.map(r => r.topic))}`);
+  assert.ok(errRec, `expected a resolution on topic 'errorEnvelope'; got ${JSON.stringify(manifest.resolutions.map(r => r.topic))}`);
+  assert.match(authRec.resolvedByAdrId, /^ADR-\d{3}-auth-model$/);
+  assert.match(errRec.resolvedByAdrId, /^ADR-\d{3}-error-envelope$/);
+  // Both blueprint sides listed in supersedes[] of each resolution.
+  for (const rec of [authRec, errRec]) {
+    const slugs = rec.supersedes.map((s) => s.slug).sort();
+    assert.deepEqual(slugs, ['rest', 'spa'], `resolution '${rec.topic}' should list both spa + rest in supersedes[]`);
+  }
+});
+
+test('rcf blueprint supersede: every rcfError message lands with exactly one `[error] blueprint supersede:` prefix (rev-3 mechanical P1)', async () => {
+  // AC-1002-10: no rcfError message body carries a `blueprint
+  // supersede: ` prefix (the CLI edge prepends `[error] blueprint
+  // supersede: `). Round-3 caught the doubled string on the shipped
+  // -blueprints run. Exercise every writer-side error path.
+  const root = await scaffold();
+
+  // (a) missing <topic> positional.
+  const missingTopic = await runBin(root, ['blueprint', 'supersede']);
+  assert.equal(missingTopic.code, 2);
+  assert.match(missingTopic.stderr, /\[error\] blueprint supersede: missing <topic>/);
+  assert.doesNotMatch(missingTopic.stderr, /blueprint supersede: blueprint supersede:/);
+
+  // (b) whitespace-only topic.
+  const wsTopic = await runBin(root, ['blueprint', 'supersede', '   ']);
+  assert.equal(wsTopic.code, 2);
+  assert.match(wsTopic.stderr, /^\[error\] blueprint supersede: topic is required/m);
+  assert.doesNotMatch(wsTopic.stderr, /blueprint supersede: blueprint supersede:/);
+
+  // (c) --reason whitespace-only, applied+incoming < 2 (any topic).
+  const wsReason = await runBin(root, ['blueprint', 'supersede', 'authModel', '--reason', '   ']);
+  assert.equal(wsReason.code, 2);
+  assert.match(wsReason.stderr, /^\[error\] blueprint supersede: --reason must not be whitespace-only\./m);
+  assert.doesNotMatch(wsReason.stderr, /blueprint supersede: blueprint supersede:/);
+
+  // (d) topic has 0 applied ADRs, no --incoming.
+  const noSides = await runBin(root, ['blueprint', 'supersede', 'authModel']);
+  assert.equal(noSides.code, 2);
+  assert.match(noSides.stderr, /^\[error\] blueprint supersede: topic 'authModel' has 0 scope:global ADR\(s\) across applied\+incoming/m);
+  assert.doesNotMatch(noSides.stderr, /blueprint supersede: blueprint supersede:/);
+
+  // (e) --incoming pointed at a non-existent path.
+  const badIncoming = await runBin(root, ['blueprint', 'supersede', 'authModel', '--incoming', '/no/such/blueprint/dir']);
+  assert.equal(badIncoming.code, 2);
+  assert.match(badIncoming.stderr, /^\[error\] blueprint supersede: --incoming/m);
+  assert.doesNotMatch(badIncoming.stderr, /blueprint supersede: blueprint supersede:/);
 });
 
 test('rcf blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)', async () => {

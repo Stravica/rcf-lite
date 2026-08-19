@@ -1,9 +1,26 @@
-// `rcf blueprint supersede <topic>` implementation.
+// `rcf blueprint supersede <topic> [--incoming <source>]` implementation.
 //
-// Scaffolds a project-level ADR at `rcf/adrs/adr-NNN-<topic>.json` that
-// supersedes every applied blueprint's scope:global ADR on the topic,
+// Scaffolds a project-level ADR at `rcf/adrs/adr-NNN-<kebab-topic>.json`
+// that supersedes the CONFLICT PAIR on the topic (one currently-applied
+// blueprint's scope:global ADR + one incoming (would-be-applied)
+// blueprint's scope:global ADR — Baz ruling, w-2026-08-19-008 round 3),
 // and appends a matching `manifest.resolutions[]` record so the conflict
-// detector honours the resolution on the next `rcf blueprint add`.
+// detector honours the resolution when the operator re-runs
+// `rcf blueprint add <incoming source>`.
+//
+// The `incomingSource` argument (mapped to `--incoming <source>` on the
+// CLI) is REQUIRED when the applied-blueprints count on the topic is
+// < 2, and silently accepted (informational) when it is already >= 2.
+// This is what makes option 3 as printed by the reshaped conflict
+// message executable VERBATIM from the refused-add state: the operator
+// runs `rcf blueprint supersede <topic> --incoming <source>` immediately
+// after the refused add, with zero prep; the verb loads the incoming
+// blueprint from disk, finds its scope:global ADR on <topic>, stamps
+// the id into the incoming blueprint's namespace, and uses that
+// {slug, adrId} as the second side of supersedes[]. Round-2 shipped
+// with the writer requiring 2 already-applied ADRs, which meant option
+// 3 as printed exited 2 in the refused-add state; the escalation the
+// worker adapted around was that AC-1002-5 could not pass as written.
 //
 // Two side effects, both governed by dryRun:
 //   1. Writes the project ADR file (JSON, minimally valid — the operator
@@ -19,12 +36,20 @@
 // against (idempotent by resolvedByAdrId) or hand-clean; the reverse
 // order would leave a manifest resolution pointing at a non-existent
 // ADR, which is the worse failure mode.
+//
+// Error-message prefix discipline (round-3 mechanical P1):
+// every rcfError returned from this module is PREFIX-FREE — no
+// `blueprint supersede: ` in the message body. The CLI edge prepends
+// `[error] blueprint supersede: ` on every rcfError from the supersede
+// verb, and doubling the prefix reads badly on the terminal.
 
 import { mkdir, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { rcfError } from '../core/errors/index.js';
+import { loadBlueprint } from './loader.js';
 import { updateManifest } from './manifest-writer.js';
+import { stampId } from './namespace.js';
 import { nextResolutionId } from './resolutions.js';
 
 /**
@@ -42,32 +67,39 @@ import { nextResolutionId } from './resolutions.js';
  * @param {string} args.projectRoot
  * @param {import('#core/store/walker.js').TreeModel} args.tree
  * @param {string} args.topic
+ * @param {string} [args.incomingSource]
+ *   Path to a blueprint source directory (a `blueprint.json` + a
+ *   `contributions/` tree). Required when the applied-blueprints count
+ *   on `topic` is < 2 — the verb loads the blueprint from disk, finds
+ *   its scope:global ADR on `topic`, stamps its id into the incoming
+ *   blueprint's namespace, and uses that {slug, adrId} as the second
+ *   side of `supersedes[]`. Silently accepted (informational, does not
+ *   contribute a second entry beyond dedupe) when >= 2 applied ADRs on
+ *   the topic already exist.
  * @param {Date} [args.now]
  * @param {boolean} [args.dryRun]
  * @param {string} [args.reason]
  * @returns {Promise<SupersedeResult | import('../core/errors/index.js').RcfError>}
  */
-export async function supersedeBlueprintTopic({ projectRoot, tree, topic, now = new Date(), dryRun = false, reason }) {
+export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomingSource, now = new Date(), dryRun = false, reason }) {
   if (typeof topic !== 'string' || topic.trim().length === 0) {
     // Schema minLength:1 accepts whitespace-only; the writer refuses
     // it up-front so a whitespace-only topic never lands on disk.
-    return rcfError({ kind: 'usage', message: `blueprint supersede: topic is required (e.g. rcf blueprint supersede errorEnvelope)` });
+    return rcfError({ kind: 'usage', message: `topic is required (e.g. rcf blueprint supersede errorEnvelope --incoming ./blueprints/rest)` });
   }
-  // Topic is a LOOKUP KEY into applied ADR topics, not a slug. Schema
-  // is minLength:1 with no character constraint and the schema docs
-  // explicitly cite camelCase examples ('errorEnvelope'). Rejecting
-  // non-kebab topics gate-tightened past the schema and made the
-  // reshaped message's option 3 unusable on the shipped SPA+REST
-  // blueprints (whose topics are camelCase: authModel, errorEnvelope,
-  // clientRouting, ...). Accept any topic string that will
-  // exact-match the applied ADR topics below; kebab-ify only when
-  // deriving the project-ADR id slug tail (adrId grammar requires
+  // Topic is a LOOKUP KEY into applied ADR topics, not a slug (ADR-010).
+  // Schema is minLength:1 with no character constraint and the schema
+  // docs explicitly cite camelCase examples ('errorEnvelope'). The
+  // shipped SPA + REST blueprints declare camelCase topics; we accept
+  // any topic string that exact-matches an applied or incoming ADR
+  // topic below, and kebab-ify only when projecting into the
+  // scaffolded project-ADR id slug tail (adrId grammar requires
   // lowercase kebab after the digits).
   if (reason !== undefined && typeof reason === 'string' && reason.length > 0 && reason.trim().length === 0) {
     // Non-empty whitespace-only reason: refuse before write. An
     // undefined / empty-string reason is fine (the field is optional
     // on the schema; empty-string simply becomes 'omit').
-    return rcfError({ kind: 'usage', message: `blueprint supersede: --reason must not be whitespace-only.` });
+    return rcfError({ kind: 'usage', message: `--reason must not be whitespace-only.` });
   }
 
   const applied = Array.isArray(tree.manifest?.blueprints) ? tree.manifest.blueprints : [];
@@ -79,10 +111,57 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, now = 
       }
     }
   }
+
+  // Baz ruling (round 3): the supersession record's two sides are the
+  // CONFLICT PAIR — one applied + one incoming — and this verb must
+  // accept the incoming blueprint as the second side. `--incoming
+  // <source>` loads the incoming blueprint from disk, finds its
+  // scope:global ADR on the topic, and adds it to supersedes[]. When
+  // supersedes[] already has >= 2 entries from applied blueprints, an
+  // incomingSource is informational only (skipped silently unless it
+  // would add a distinct {slug, adrId} pair, in which case it is
+  // appended for a >= 3-blueprint scenario).
+  if (typeof incomingSource === 'string' && incomingSource.length > 0) {
+    const loaded = await loadBlueprint(incomingSource);
+    if (loaded.kind) {
+      // Preserve the loader's own rcfError but drop any 'blueprint: '
+      // narrator prefix so the CLI's `[error] blueprint supersede: `
+      // reads clean.
+      return rcfError({
+        kind: loaded.kind === 'usage' ? 'usage' : loaded.kind,
+        message: `--incoming ${incomingSource}: ${loaded.message.replace(/^blueprint(?:\s+add|\s+supersede)?:\s*/, '')}`,
+        filePath: loaded.filePath,
+      });
+    }
+    let matched = null;
+    for (const c of loaded.contributions ?? []) {
+      if (c.kind === 'adr' && c.scope === 'global' && c.topic === topic) {
+        matched = c;
+        break;
+      }
+    }
+    if (!matched) {
+      return rcfError({
+        kind: 'usage',
+        message: `--incoming ${incomingSource}: blueprint '${loaded.slug}' declares no scope:global ADR on topic '${topic}'.`,
+      });
+    }
+    const stamped = stampId(matched.id, loaded.slug);
+    if ('error' in stamped) {
+      return rcfError({ kind: 'validation', message: `--incoming ${incomingSource}: ${stamped.error}` });
+    }
+    const incomingPair = { slug: loaded.slug, adrId: stamped.id, path: `rcf/adrs/${stamped.id.toLowerCase()}.json` };
+    // Dedupe against the applied side: an incoming blueprint that is
+    // also currently applied (unusual — refused-add state means it is
+    // NOT applied) would otherwise be double-listed.
+    const alreadyListed = supersedes.some((s) => s.slug === incomingPair.slug && s.adrId === incomingPair.adrId);
+    if (!alreadyListed) supersedes.push(incomingPair);
+  }
+
   if (supersedes.length < 2) {
     return rcfError({
       kind: 'usage',
-      message: `blueprint supersede: topic '${topic}' has ${supersedes.length} applied scope:global ADR(s); at least two are required for a supersession record.`,
+      message: `topic '${topic}' has ${supersedes.length} scope:global ADR(s) across applied+incoming; at least two are required for a supersession record. If the incoming blueprint has not been named, add \`--incoming <source>\` (the same source you passed to \`rcf blueprint add\`).`,
     });
   }
 
@@ -104,7 +183,7 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, now = 
   const prdId = tree.manifest?.prd?.id;
   const tadId = tree.manifest?.tad?.id;
   if (typeof prdId !== 'string' || typeof tadId !== 'string') {
-    return rcfError({ kind: 'usage', message: `blueprint supersede: manifest is missing prd or tad; cannot scaffold a project ADR without prdId / tadId.` });
+    return rcfError({ kind: 'usage', message: `manifest is missing prd or tad; cannot scaffold a project ADR without prdId / tadId.` });
   }
 
   const isoNow = now.toISOString();
@@ -142,7 +221,7 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, now = 
     if (already) {
       return rcfError({
         kind: 'duplicateId',
-        message: `blueprint supersede: refuse to overwrite existing file at ${projectAdrPath}. Re-run supersede after removing or renaming that file, or edit it directly if it is the intended supersession record.`,
+        message: `refuse to overwrite existing file at ${projectAdrPath}. Re-run supersede after removing or renaming that file, or edit it directly if it is the intended supersession record.`,
         filePath: projectAdrPath,
       });
     }
@@ -157,7 +236,7 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, now = 
         throw err;
       }
     } catch (err) {
-      return rcfError({ kind: 'ioFailure', message: `blueprint supersede: ADR write failed: ${err.message}`, filePath: projectAdrPath });
+      return rcfError({ kind: 'ioFailure', message: `ADR write failed: ${err.message}`, filePath: projectAdrPath });
     }
   }
 

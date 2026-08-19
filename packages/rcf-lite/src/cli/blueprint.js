@@ -36,12 +36,19 @@ Verbs:
   remove <slug>          Remove an applied blueprint. Refuses when any
                          project-authored doc references a contribution
                          id; prints the referring docs and exits 3.
-  supersede <topic>      Author a project-level ADR that supersedes every
-                         applied blueprint's scope:global ADR on <topic>,
-                         and record a manifest.resolutions[] entry so
-                         the conflict detector honours the resolution.
-                         Both blueprint ADRs co-reside on disk as
-                         superseded history.
+  supersede <topic> [--incoming <source>]
+                         Author a project-level ADR that supersedes the
+                         conflict pair on <topic> (one applied blueprint
+                         ADR + one incoming blueprint ADR named via
+                         --incoming <source>), and record a
+                         manifest.resolutions[] entry so the conflict
+                         detector honours the resolution when the
+                         operator re-runs \`rcf blueprint add <source>\`.
+                         --incoming is required when the topic has fewer
+                         than two applied scope:global ADRs (the
+                         refused-add state) and is silently accepted
+                         when already >= 2 are applied. Both blueprint
+                         ADRs co-reside on disk as superseded history.
   diff <topic>           Side-by-side view of every applied blueprint's
                          scope:global ADR on <topic>: id, path, title,
                          status, decision. Read-only.
@@ -85,6 +92,7 @@ const OPTION_SPEC = {
   namespace: { type: 'string' },
   resolve: { type: 'string', multiple: true },
   reason: { type: 'string' },
+  incoming: { type: 'string' },
   json: { type: 'boolean' },
   'dry-run': { type: 'boolean' },
   quiet: { type: 'boolean' },
@@ -242,6 +250,7 @@ export async function main(argv, deps = {}) {
     const topic = rest[0];
     const result = await supersedeBlueprintTopic({
       projectRoot, tree, topic,
+      incomingSource: parsed.values.incoming,
       now,
       dryRun: parsed.values['dry-run'] === true,
       reason: parsed.values.reason,

@@ -395,6 +395,14 @@ flowchart LR
   REQ-010 --> AC-1002-8
   TC-027-conflict-enrichment-symmetric["TC-027-conflict-enrichment-symmetric"]
   AC-1002-8 -.-> TC-027-conflict-enrichment-symmetric
+  AC-1002-9["AC-1002-9"]
+  REQ-010 --> AC-1002-9
+  TC-027-topic-free-label-camelcase-verbatim["TC-027-topic-free-label-camelcase-verbatim"]
+  AC-1002-9 -.-> TC-027-topic-free-label-camelcase-verbatim
+  AC-1002-10["AC-1002-10"]
+  REQ-010 --> AC-1002-10
+  TC-027-supersede-no-double-prefix["TC-027-supersede-no-double-prefix"]
+  AC-1002-10 -.-> TC-027-supersede-no-double-prefix
   AC-1003-1["AC-1003-1"]
   REQ-010 --> AC-1003-1
   TC-028-add-writes-manifest-entry["TC-028-add-writes-manifest-entry"]
@@ -630,6 +638,10 @@ flowchart LR
   class TC-027-add-resolve-error-no-double-prefix tc;
   class AC-1002-8 ac;
   class TC-027-conflict-enrichment-symmetric tc;
+  class AC-1002-9 ac;
+  class TC-027-topic-free-label-camelcase-verbatim tc;
+  class AC-1002-10 ac;
+  class TC-027-supersede-no-double-prefix tc;
   class AC-1003-1 ac;
   class TC-028-add-writes-manifest-entry tc;
   class AC-1003-2 ac;

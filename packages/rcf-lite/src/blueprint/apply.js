@@ -95,7 +95,12 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
   // it.
   const rawGlobalConflicts = detectGlobalAdrConflicts(applied, incomingForConflicts, workingManifest);
   const conflicts = [
-    ...await enrichAdrConflicts(rawGlobalConflicts, tree, blueprint),
+    // Thread the CLI-supplied `source` (what the operator typed) onto
+    // each enriched conflict so the renderer can print option 3
+    // exactly as printed - `rcf blueprint supersede <topic> --incoming
+    // <source>` - with a real source path the operator can copy back
+    // into a fresh shell.
+    ...await enrichAdrConflicts(rawGlobalConflicts, tree, blueprint, source),
     ...detectCrossBlueprintClaims(applied, incomingForConflicts),
   ];
   if (conflicts.length > 0) {
@@ -396,7 +401,7 @@ function composeDeclaredResolutions({ manifest, applied, incoming, declarations,
  * sides are readable — the existing side from tree, the incoming
  * side from disk — and both sides should be rendered.
  */
-async function enrichAdrConflicts(conflicts, tree, blueprint) {
+async function enrichAdrConflicts(conflicts, tree, blueprint, sourceLabel) {
   if (conflicts.length === 0) return conflicts;
   const out = [];
   for (const c of conflicts) {
@@ -405,6 +410,14 @@ async function enrichAdrConflicts(conflicts, tree, blueprint) {
       continue;
     }
     const enriched = { ...c, incoming: { ...c.incoming }, existing: { ...c.existing } };
+    // Round-3 (Baz ruling): thread the CLI-supplied source (what the
+    // operator typed on `rcf blueprint add SRC`) onto the incoming
+    // side so the renderer can print option 3 verbatim — the operator
+    // can copy the same source path into the supersede invocation
+    // with zero editing.
+    if (typeof sourceLabel === 'string' && sourceLabel.length > 0) {
+      enriched.incoming.source = sourceLabel;
+    }
     // Existing side: the walker already loaded it into tree.byId.
     const existingDoc = tree.byId?.get(c.existing.id);
     if (existingDoc) {

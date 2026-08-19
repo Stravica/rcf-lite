@@ -74,7 +74,10 @@ const expectedCounts = {
   userStory: 29,
   tad: 1,
   tac: 8,
-  adr: 9,
+  // Phase 3.5 rev-3 (w-2026-08-19-008): ADR-010 records the topic-
+  // as-free-label-lookup-key decision (Baz ruling, camelCase canonical
+  // on shipped blueprints).
+  adr: 10,
   buildSequence: 1,
   fbs: 19,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.

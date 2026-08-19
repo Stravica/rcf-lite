@@ -822,6 +822,22 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-1002-9",
+          "covered": true,
+          "testCases": [
+            "TC-027-topic-free-label-camelcase-verbatim"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1002-10",
+          "covered": true,
+          "testCases": [
+            "TC-027-supersede-no-double-prefix"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-1003-1",
           "covered": true,
           "testCases": [

@@ -91,13 +91,18 @@ async function twoBlueprintsCollidingOnAuth() {
   return { root, spa, rest };
 }
 
-test('supersede: refuses when the topic has fewer than two applied scope:global ADRs', async () => {
+test('supersede: refuses when the topic has fewer than two ADRs across applied + incoming AND no --incoming source was named (rev-3)', async () => {
   const { root } = await twoBlueprintsCollidingOnAuth();
   const { tree } = await walkTree({ projectRoot: root });
+  // Only spa is applied so far, no --incoming provided: supersede has
+  // only ONE scope:global ADR on 'auth' across applied+incoming.
   const result = await supersedeBlueprintTopic({ projectRoot: root, tree, topic: 'auth', now });
-  // Only spa is applied so far; supersede needs two applied globals on the topic.
   assert.equal(result.kind, 'usage');
-  assert.match(result.message, /topic 'auth' has 1 applied scope:global ADR/);
+  assert.match(result.message, /topic 'auth' has 1 scope:global ADR\(s\) across applied\+incoming/);
+  assert.match(result.message, /--incoming <source>/);
+  // Prefix discipline: rcfError body does NOT carry a `blueprint
+  // supersede: ` prefix (the CLI edge adds it).
+  assert.doesNotMatch(result.message, /^blueprint supersede: /);
 });
 
 test('supersede: scaffolds a project ADR + appends manifest.resolutions[] when two blueprints collide on a topic', async () => {
@@ -232,6 +237,7 @@ test('supersede: topic is validated as a lookup key; empty and whitespace-only a
   // the ratified fix; the ADR slug tail is kebab-ified downstream.
   const camel = await supersedeBlueprintTopic({ projectRoot: root, tree, topic: 'authModel', now });
   assert.equal(camel.kind, 'usage');
-  assert.match(camel.message, /has 0 applied scope:global ADR/);
+  // rev-3 message reshape: applied+incoming count exposed together.
+  assert.match(camel.message, /has 0 scope:global ADR\(s\) across applied\+incoming/);
   assert.doesNotMatch(camel.message, /not a valid kebab slug/);
 });

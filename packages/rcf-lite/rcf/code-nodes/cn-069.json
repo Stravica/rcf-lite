@@ -1,10 +1,12 @@
 {
   "cnId": "CN-069",
   "path": "src/blueprint/supersede.js#supersedeBlueprintTopic",
-  "title": "Project-ADR supersession scaffolder",
-  "description": "Scaffolds a project-level ADR under rcf/adrs/adr-NNN-<kebab-topic>.json that supersedes every applied blueprint's scope:global ADR on the topic, and appends a matching manifest.resolutions[] record so the conflict detector honours the resolution on subsequent adds. Topic is treated as a LOOKUP KEY, not a slug: any string that exact-matches an applied ADR's declared topic is accepted (schema minLength:1, whitespace-only refused at the writer edge; camelCase, snake_case and kebab-case all pass). The scaffolded ADR id derives its slug tail by kebab-ifying the topic (`authModel` -> `ADR-NNN-auth-model`) so the ADR grammar's `[a-z0-9](-[a-z0-9]+)*` tail is satisfied. Refuses when the manifest is missing prd or tad, when fewer than two applied blueprints carry a scope:global ADR on the topic, and when a file already exists at the scaffolded ADR path.",
+  "title": "Project-ADR supersession scaffolder (conflict-pair second side)",
+  "description": "Scaffolds a project-level ADR under rcf/adrs/adr-NNN-<kebab-topic>.json that supersedes the CONFLICT PAIR on the topic (one currently-applied blueprint's scope:global ADR + one incoming blueprint's scope:global ADR — Baz ruling, w-2026-08-19-008 round 3), and appends a matching manifest.resolutions[] record so the conflict detector honours the resolution when the operator re-runs `rcf blueprint add <incoming source>`. The verb accepts an optional `--incoming <source>` argument (required when applied count on the topic is < 2; informational when >= 2): the verb loads the incoming blueprint from disk, finds its scope:global ADR on the topic, stamps the id into the incoming blueprint's namespace, and uses that {slug, adrId} as the second side of supersedes[]. This lets option 3 as printed by the reshaped conflict message execute VERBATIM from the refused-add state — no --resolve prep, no menu-copy weakening. Topic is a LOOKUP KEY (see ADR-010): any string that exact-matches an applied ADR's declared topic is accepted (schema minLength:1, whitespace-only refused at the writer edge; camelCase, snake_case and kebab-case all pass). The scaffolded ADR id derives its slug tail by kebab-ifying the topic (`authModel` -> `ADR-NNN-auth-model`) so the ADR grammar's `[a-z0-9](-[a-z0-9]+)*` tail is satisfied. Every rcfError message returned by this module is prefix-free (no `blueprint supersede: ` in the message body); the CLI edge prepends the single `[error] blueprint supersede: ` line. Refuses when the manifest is missing prd or tad, when applied+incoming count on the topic is < 2, and when a file already exists at the scaffolded ADR path.",
   "implementsAcIds": [
-    "AC-1002-5"
+    "AC-1002-5",
+    "AC-1002-9",
+    "AC-1002-10"
   ],
   "dependencies": [],
   "version": "0.1.0",

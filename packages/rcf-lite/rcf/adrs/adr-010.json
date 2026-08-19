@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-010",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Blueprint conflict-topic vocabulary is a free-label lookup key (camelCase canonical on shipped blueprints)",
+  "context": "Round-1 of Phase 3.5 (w-2026-08-19-008) gate-tightened the topic vocabulary at the supersede writer by requiring topics to be kebab slugs; the SHIPPED SPA and REST blueprints declare their scope:global ADR topics in camelCase (authModel, errorEnvelope, clientRouting, theming, clientState, apiVersioning, logging), so following the reshaped conflict message's option 3 exactly as printed exited 2 with 'not a valid kebab slug' on every shipped topic. The 0.4.5 manifest schema is silent on topic character class (minLength: 1) and the schema docs cite errorEnvelope as an example. Gate-tightening past the schema is a first-class defect on this estate.",
+  "decision": "The blueprint conflict-topic vocabulary is a FREE LABEL — a lookup key used by the conflict detector (exact-match between an incoming ADR's declared topic and each applied ADR's declared topic) and by the resolution record (verbatim on manifest.resolutions[].topic). No character-class constraint beyond the schema's own minLength: 1 plus a writer-edge whitespace-only refuse. The shipped blueprint packs are canonical: their topics MUST be camelCase kebab-free single-word or camelCase identifiers (authModel, errorEnvelope, clientRouting, ...); new shipped blueprints follow the same convention. When a topic string must be projected into an id grammar that does require a kebab slug (specifically the scaffolded project-ADR id tail, whose grammar is `^ADR-\\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$`), the writer kebab-ifies at the projection edge (`authModel` -> `ADR-NNN-auth-model`) and never at the vocabulary edge.",
+  "consequences": "The reshaped conflict message's option 3 executes verbatim from the refused-add state against the shipped SPA + REST blueprints. Topic strings on manifest.resolutions[].topic remain byte-identical to the topic strings on the applied blueprint's ADR.contributions[].topic, so exact-match lookup is trivial to reason about. Kebab-ification is confined to the project-ADR id tail; the same topic string may appear verbatim in the manifest and kebab-cased inside an ADR id in the same tree without conflict. Blueprint authors who ship non-camelCase topics (kebab-case, snake_case) still validate against the schema; the exact-match detector still functions; only the ADR id tail projection changes.",
+  "alternativesConsidered": [
+    {
+      "name": "Enforce kebab-slug topics at the writer edge",
+      "summary": "Reject any topic string that is not `[a-z][a-z0-9]*(?:-[a-z0-9]+)*` at supersede and add --resolve.",
+      "reasonNotChosen": "Gate-tightens past the manifest schema (which is minLength: 1 with no character constraint), incompatible with the shipped SPA + REST blueprints' camelCase topic vocabulary, and made option 3 unexecutable as printed against the shipped packs."
+    },
+    {
+      "name": "Retroactively kebab-case the shipped blueprint packs' topics",
+      "summary": "Change SPA + REST blueprints to declare kebab topics (auth-model, error-envelope, ...); consumers migrate.",
+      "reasonNotChosen": "The blueprint packs are canonical content the mechanism serves; the mechanism does not get to dictate the packs' vocabulary. camelCase is a legitimate identifier shape (the schema examples confirm it)."
+    },
+    {
+      "name": "Normalise topics at the detector",
+      "summary": "Fold both sides to a canonical form (kebab or lowercased-strip-nonalnum) before comparing.",
+      "reasonNotChosen": "Introduces vocabulary drift (two different topic strings comparing equal) and makes the operator's mental model of what matches what harder, not easier. Exact-match on the free label is the least surprising rule."
+    }
+  ],
+  "createdAt": "2026-08-19T15:45:00.000Z",
+  "updatedAt": "2026-08-19T15:45:00.000Z"
+}
