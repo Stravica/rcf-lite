@@ -1,0 +1,72 @@
+{
+  "usId": "rest-US-2112",
+  "prdId": "PRD-001",
+  "reqId": "rest-REQ-010",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Idempotency keys: retries replay, duplicates never apply twice",
+  "asA": "API consumer retrying over an unreliable network",
+  "iWant": "my retried mutation to return the original outcome instead of applying again",
+  "soThat": "network failures cost me a retry, never a duplicate side effect",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2112-1",
+      "description": "The project declares which verb and resource-class combinations require an Idempotency-Key; the declaration is published in the generated spec per operation.",
+      "given": "the generated OpenAPI document",
+      "when": "operations on non-safe verbs are inspected",
+      "then": "each declares whether Idempotency-Key is required, and every duplicate-harmful operation declares it required",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2112-2",
+      "description": "An operation declared key-required rejects a request without the header: 400 with a problem-details body naming the missing header.",
+      "given": "a key-required operation",
+      "when": "a request without Idempotency-Key is submitted",
+      "then": "the service responds 400 with the error envelope naming the header",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2112-3",
+      "description": "Repeating a request with the same key and identical body within the TTL returns the original response (same status, same body) and does not re-apply the side effect.",
+      "given": "a completed keyed mutation",
+      "when": "the identical request is repeated within the TTL",
+      "then": "the original response is replayed and exactly one side effect exists",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2112-4",
+      "description": "Reusing a key with a different request body is rejected with 422 and a problem-details body naming the key conflict, protecting against accidental key sharing.",
+      "given": "a key already used for one request body",
+      "when": "the same key arrives with a different body within the TTL",
+      "then": "the service responds 422 with the error envelope naming the conflict",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2112-5",
+      "description": "A retry arriving while the original request is still in flight receives 409 with a problem-details body indicating processing is in progress, rather than triggering a concurrent second application.",
+      "given": "a keyed request still executing",
+      "when": "the same key and body arrive concurrently",
+      "then": "the second request receives 409 with the error envelope and the side effect applies exactly once",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2112-6",
+      "description": "The de-duplication cache honours its declared TTL: within it replays occur, after it a reused key is treated as a fresh request, and the TTL value is documented.",
+      "given": "the declared TTL",
+      "when": "a keyed request is repeated inside and after the TTL window",
+      "then": "the inside repeat replays; the after repeat executes as new; the TTL matches its documentation",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-301-rest-request-pipeline"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

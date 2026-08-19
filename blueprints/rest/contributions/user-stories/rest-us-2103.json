@@ -1,0 +1,63 @@
+{
+  "usId": "rest-US-2103",
+  "prdId": "PRD-001",
+  "reqId": "rest-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Path-versioned contract with announced deprecation and a stated drop policy",
+  "asA": "API consumer maintaining a long-lived integration",
+  "iWant": "the contract version visible in every URL and version retirement announced on the wire",
+  "soThat": "I can plan migrations from response headers instead of discovering breakage in production",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2103-1",
+      "description": "Every business endpoint lives under a major-version path prefix (/v1/...); only the probe endpoints and the documentation endpoints sit outside it.",
+      "given": "the generated OpenAPI path inventory",
+      "when": "paths are checked for the version prefix",
+      "then": "every path is version-prefixed except /healthz/*, /openapi.*, and /docs",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2103-2",
+      "description": "A request to an unrecognised major version returns 404 with a problem-details body naming the supported versions.",
+      "given": "a request to /v9/ where v9 does not exist",
+      "when": "the request is submitted",
+      "then": "the service responds 404 with the declared error envelope listing supported versions",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2103-3",
+      "description": "Breaking changes never land inside an existing major version; additive changes (new fields, new endpoints) are the only in-version evolution.",
+      "given": "two releases of the service within one major version",
+      "when": "their generated specs are diffed",
+      "then": "no field is removed or retyped and no endpoint's contract narrows within the version",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2103-4",
+      "description": "Every response from a deprecated version carries Deprecation and Sunset headers with the retirement date.",
+      "given": "a version marked deprecated",
+      "when": "any of its endpoints responds",
+      "then": "Deprecation and Sunset headers are present and the Sunset date matches the declared policy",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2103-5",
+      "description": "The version-drop policy is stated in the served documentation: minimum notice period and the response clients receive after drop (410 with a problem-details body pointing at the successor version).",
+      "given": "the served documentation and a dropped version",
+      "when": "a request reaches a dropped version",
+      "then": "the service responds 410 with the declared error envelope naming the successor, matching the documented policy",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-304-rest-resource-layer"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

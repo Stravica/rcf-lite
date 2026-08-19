@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-306-rest-idempotency",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Idempotency-Key with a server-side replay cache for duplicate-harmful mutations",
+  "context": "Clients retry; networks guarantee it. For mutations whose double application harms (creations, payments, state transitions), the service needs a mechanism that makes a retry safe without asking every client to build its own de-duplication.",
+  "decision": "Duplicate-harmful operations declare Idempotency-Key required in the contract. The server keys a replay cache on (endpoint, principal, key): first execution stores the response, repeats within the declared TTL (default 24 hours, project-configurable) replay it, same key with a different body is 422, concurrent duplicate is 409 while the original is in flight. The cache lives in the project's shared state store so replay works across instances (rest-REQ-010, rest-US-2112).",
+  "consequences": "Retries become free for clients and safe for the business. The costs: a state-store dependency for the cache, TTL-bounded storage per keyed mutation, and the declared-required set must be maintained as the surface grows; the contract validation that already checks auth classes checks the idempotency declaration the same way.",
+  "alternativesConsidered": [
+    {
+      "name": "Natural-key idempotency only",
+      "summary": "Rely on unique constraints (one order per cart, one user per email) to reject duplicates.",
+      "reasonNotChosen": "Covers creations with natural keys and nothing else; state transitions and value-carrying operations have no natural key, and the client gets a constraint error rather than the original response."
+    },
+    {
+      "name": "Client-side de-duplication",
+      "summary": "Require clients not to retry non-safe verbs without their own tracking.",
+      "reasonNotChosen": "Pushes the hardest distributed-systems problem onto every client, and one badly behaved client still produces duplicates the business pays for."
+    }
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

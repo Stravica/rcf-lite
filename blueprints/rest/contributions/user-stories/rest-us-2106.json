@@ -1,0 +1,73 @@
+{
+  "usId": "rest-US-2106",
+  "prdId": "PRD-001",
+  "reqId": "rest-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Auth-class declaration: every endpoint names its class and middleware enforces it",
+  "asA": "security reviewer auditing the API surface",
+  "iWant": "each endpoint's auth posture declared in the contract and enforced by middleware, not by handler code",
+  "soThat": "the auth posture of the whole surface is enumerable from the spec and cannot be silently weakened",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2106-1",
+      "description": "Every operation in the generated OpenAPI spec carries the x-auth-class extension with one of exactly four values: public, user, admin, or service.",
+      "given": "the generated OpenAPI document",
+      "when": "every operation's x-auth-class value is read",
+      "then": "each carries exactly one of the four declared values and no other",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2106-2",
+      "description": "An endpoint without a declared auth class fails contract validation at build time; classlessness is a build failure, not a default.",
+      "given": "a deliberately added endpoint with no auth-class declaration",
+      "when": "contract validation runs",
+      "then": "validation fails naming the classless endpoint",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2106-3",
+      "description": "Class enforcement happens in middleware before the handler runs; a handler is never invoked for a request that fails its endpoint's class check.",
+      "given": "a request failing the endpoint's auth-class check",
+      "when": "the request is processed",
+      "then": "the middleware rejects it and the handler observably does not execute",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2106-4",
+      "description": "Enforcement is driven by the same declaration the spec publishes: changing an endpoint's declared class changes its enforcement with no second edit site.",
+      "given": "an endpoint whose declared class is changed from user to admin",
+      "when": "the service is rebuilt and the endpoint called with a non-admin user token",
+      "then": "the request is rejected per the new class, and the spec and enforcement agree",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2106-5",
+      "description": "Auth rejections use the declared error envelope with correct status semantics: 401 for missing or invalid credentials, 403 for valid credentials lacking the required class.",
+      "given": "requests with absent, invalid, and under-privileged credentials",
+      "when": "each is submitted to a protected endpoint",
+      "then": "responses are 401, 401, and 403 respectively, each with a problem-details body",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2106-6",
+      "description": "The four middleware classes are the only auth paths in the service; no endpoint implements bespoke auth logic outside its class middleware.",
+      "given": "the implementation's auth code paths",
+      "when": "auth logic outside the four class middlewares is searched for",
+      "then": "none exists; every endpoint's auth behaviour is fully attributable to its declared class",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-302-rest-auth-middleware",
+    "TAC-303-rest-contract-surface"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

@@ -1,0 +1,72 @@
+{
+  "usId": "rest-US-2109",
+  "prdId": "PRD-001",
+  "reqId": "rest-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Cursor pagination with a navigable envelope and enforced limits",
+  "asA": "API consumer walking large collections",
+  "iWant": "stable cursors, next and prev links, and predictable page sizes on every collection",
+  "soThat": "I can traverse any collection completely and efficiently without skipped or duplicated items",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2109-1",
+      "description": "Every collection endpoint accepts ?cursor= and ?limit= and responds with the declared pagination envelope carrying items, next, and prev.",
+      "given": "any collection endpoint",
+      "when": "a page is requested with cursor and limit",
+      "then": "the response conforms to the pagination envelope with items, next, and prev fields",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2109-2",
+      "description": "next is null on the last page and prev is null on the first; following next repeatedly from the first page visits every item exactly once.",
+      "given": "a collection with a known item set spanning multiple pages",
+      "when": "the collection is walked via next from the first page",
+      "then": "every item appears exactly once and the final page's next is null",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2109-3",
+      "description": "Cursors are opaque: they carry no client-decodable positional semantics the client is invited to construct, and a tampered cursor is rejected with 400 and a problem-details body.",
+      "given": "a syntactically altered cursor value",
+      "when": "it is submitted",
+      "then": "the service responds 400 with the declared error envelope rather than best-effort interpretation",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2109-4",
+      "description": "Pagination is write-stable: items present in the collection for the whole traversal are neither skipped nor duplicated when concurrent inserts and deletes occur mid-walk.",
+      "given": "a traversal in progress while other clients insert and delete items",
+      "when": "the walk completes",
+      "then": "every item that existed throughout appears exactly once",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2109-5",
+      "description": "The declared maximum limit is enforced: a request exceeding it receives 400 with a problem-details body naming the maximum, and a request without a limit receives the declared default page size.",
+      "given": "requests with an oversized limit and with no limit",
+      "when": "each is submitted",
+      "then": "the oversized request receives 400 naming the maximum; the limitless request returns the default page size",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2109-6",
+      "description": "Total counts are off by default and returned only when explicitly requested via the documented parameter, so the expensive count is never paid unknowingly.",
+      "given": "a collection request without the count parameter and one with it",
+      "when": "both responses are compared",
+      "then": "only the explicit request carries the total, per the envelope's documented count field",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-304-rest-resource-layer"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

@@ -1,0 +1,90 @@
+{
+  "usId": "rest-US-2108",
+  "prdId": "PRD-001",
+  "reqId": "rest-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Liveness, readiness, and startup probes that tell the orchestrator the truth",
+  "asA": "platform operator running the service under Kubernetes",
+  "iWant": "three probe endpoints that each answer their one question honestly and cheaply",
+  "soThat": "the orchestrator restarts, routes, and rolls out instances on real signals",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2108-1",
+      "description": "GET /healthz/live returns 200 with the specified response schema whenever the process can serve any request, and performs no dependency checks whatsoever.",
+      "given": "a running instance with a deliberately unreachable database",
+      "when": "/healthz/live is called",
+      "then": "it returns 200 against the specified schema, unaffected by the dependency outage",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2108-2",
+      "description": "GET /healthz/ready returns 200 only when every declared downstream dependency check (database, cache, queues) passes.",
+      "given": "an instance with all declared dependencies reachable",
+      "when": "/healthz/ready is called",
+      "then": "it returns 200 with the specified schema listing each check as passing",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2108-3",
+      "description": "GET /healthz/ready returns 503 with a body enumerating the failed checks by name when any declared dependency is unreachable.",
+      "given": "an instance with one declared dependency down",
+      "when": "/healthz/ready is called",
+      "then": "it returns 503 and the body names the failing check while still listing the passing ones",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2108-4",
+      "description": "GET /healthz/startup returns 200 only after initialisation (migrations applied, cache warmed, config loaded) completes, and a non-200 with the pending steps before that.",
+      "given": "an instance mid-initialisation and the same instance after initialisation",
+      "when": "/healthz/startup is called in each state",
+      "then": "the mid-initialisation call is non-200 naming pending steps; the post-initialisation call is 200",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2108-5",
+      "description": "All three probes sit outside the auth middleware and outside rate limiting: they succeed with no credentials and are never 401, 403, or 429.",
+      "given": "a running instance",
+      "when": "each probe is called with no credentials at sustained frequency",
+      "then": "every call is answered on probe semantics alone, never with an auth or rate-limit status",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2108-6",
+      "description": "Probe requests do not appear in info-level request logs and are excluded from RED endpoint metrics; probe outcomes are recorded under their own dedicated metric.",
+      "given": "a period of steady probe traffic",
+      "when": "info-level logs and endpoint metrics are inspected",
+      "then": "probe requests appear in neither, and the dedicated probe-outcome metric carries their results",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2108-7",
+      "description": "Each probe's response schema and failure mode are documented in the generated spec: what a failure body contains and what an operator should conclude from it.",
+      "given": "the generated OpenAPI document",
+      "when": "the three probe entries are read",
+      "then": "each declares its success and failure schemas and its documented failure mode",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2108-8",
+      "description": "Readiness reflects recovery: when a failed dependency becomes reachable again, /healthz/ready returns to 200 without a process restart.",
+      "given": "an instance whose dependency outage has been restored",
+      "when": "/healthz/ready is called after restoration",
+      "then": "it returns 200 without the process having restarted",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-306-rest-operability"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

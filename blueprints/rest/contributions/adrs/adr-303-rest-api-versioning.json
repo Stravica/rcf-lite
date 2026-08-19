@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-303-rest-api-versioning",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Major version in the URL path as the project's API versioning strategy",
+  "context": "Versioning strategy is a whole-project decision: clients, caches, gateways, documentation, and support all key on it, and two strategies on one surface is chaos. The candidates are path versioning, header versioning, media-type versioning, and no versioning with additive-only evolution.",
+  "decision": "The major version rides in the URL path (/v1/...). Breaking changes mint a new major version; within a version, evolution is strictly additive. Deprecated versions announce retirement with Deprecation and Sunset headers on every response, the drop policy (notice period, post-drop 410 with successor pointer) is documented contract, and probe and documentation endpoints live outside the version prefix because they describe the deployment, not the contract (rest-REQ-003, rest-US-2103).",
+  "consequences": "The version is visible in every log line, cache key, and copied URL, which makes support and traffic attribution trivial. Running two majors side by side is straightforward routing. The cost is URL churn at major bumps and the temptation to never bump; the sunset machinery exists precisely to make bumps survivable, and the additive-only rule keeps them rare.",
+  "alternativesConsidered": [
+    {
+      "name": "Header or media-type versioning",
+      "summary": "Negotiate the version via a custom header or vendored media type, keeping URLs stable.",
+      "reasonNotChosen": "Invisible in logs, cache keys, browser tooling, and shared links; every debugging session starts by asking which version the client actually requested."
+    },
+    {
+      "name": "No explicit version, additive-only forever",
+      "summary": "One unversioned surface that never breaks.",
+      "reasonNotChosen": "A credible discipline until the first genuinely breaking change, at which point there is no mechanism to ship it; the strategy has to exist before it is needed."
+    }
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}
