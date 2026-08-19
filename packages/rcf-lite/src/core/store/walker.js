@@ -16,30 +16,42 @@
 // `dependentsByFbsId`, `tsByAcId`, `tcsByAcId`, `usByTacId`.
 
 import { rcfError } from '../errors/index.js';
-import { normaliseId } from './ids.js';
+import { canonicaliseStem, normaliseId } from './ids.js';
 import { listSubdirJsonFiles, loadDocument, loadRootDocument, pathForId, subdirFor } from './loader.js';
 import { validateDocument } from './validator.js';
 
 /**
- * Derive an id from a filename stem, upper-casing the prefix segment only
- * and leaving any slug tail verbatim (0.8.0 slug-train; w-2026-07-28-012
- * landmine 1). Every id shape rcf-schemas 0.4.3 admits is
- * `<PREFIX>-<digits>[-<lower-kebab>]`, so the split is always on the
- * FIRST hyphen. Segments after the first hyphen are lower-case by
- * construction (schema pattern `[a-z0-9]+(?:-[a-z0-9]+)*`); we still
- * leave them verbatim rather than round-tripping through
- * .toLowerCase() so a slug that fails the pattern surfaces as-is at the
- * schema-validation step instead of being silently masked here.
+ * Derive an id from a filename stem. Delegates to the core grammar in
+ * `ids.js` (`canonicaliseStem`), which understands BOTH id families
+ * (rcf-schemas 0.4.4):
  *
- * @param {string} stem - filename stem, e.g. `fbs-004-user-login`.
- * @returns {string} canonical id, e.g. `FBS-004-user-login`.
+ *   - Prefix families (REQ / US / PRD / BS / TAD / TS) admit an optional
+ *     kebab-slug PREFIX -- `spa-req-001` -> `spa-REQ-001`.
+ *   - Suffix families (ADR / TAC / FBS / CN) admit an optional kebab-slug
+ *     SUFFIX -- `fbs-004-user-login` -> `FBS-004-user-login`,
+ *     `adr-005-spa` -> `ADR-005-spa`.
+ *
+ * Before this delegation the walker upper-cased only the FIRST dash
+ * segment, which was correct for suffix families but yielded
+ * `SPA-req-001` for a prefix-family stem `spa-req-001`. That id then
+ * failed `pathForId` at load time and every consuming verb refused with
+ * "Unrecognised document id" (w-2026-08-19-003).
+ *
+ * Defensive fallback: for stems that match no family pattern (a
+ * genuinely garbage filename), keep the old first-dash upper-case fold
+ * so the walker still records SOMETHING addressable and the subsequent
+ * load / validation step surfaces the real error. A crash here would
+ * hide the file's true problem.
+ *
+ * @param {string} stem - filename stem, e.g. `spa-req-001` or `fbs-004-user-login`.
+ * @returns {string} canonical id.
  */
 function idFromFilenameStem(stem) {
+  const canonical = canonicaliseStem(stem);
+  if (canonical) return canonical;
   const dash = stem.indexOf('-');
   if (dash === -1) return stem.toUpperCase();
-  const prefix = stem.slice(0, dash).toUpperCase();
-  const tail = stem.slice(dash);
-  return `${prefix}${tail}`;
+  return `${stem.slice(0, dash).toUpperCase()}${stem.slice(dash)}`;
 }
 
 /**

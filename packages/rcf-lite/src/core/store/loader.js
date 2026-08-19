@@ -9,6 +9,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { rcfError } from '../errors/index.js';
+import { familyLocation, parseIdParts } from './ids.js';
 import { validateDocument } from './validator.js';
 
 /**
@@ -41,25 +42,35 @@ const ROOT_FILENAMES = {
 };
 
 /**
- * Resolve an id like "REQ-002" to a path under rcf/.
+ * Resolve an id like "REQ-002" (or a blueprint-namespaced id like
+ * "spa-REQ-001" / "ADR-005-spa") to a path under rcf/.
  *
- * @param {string} id - canonical id, e.g. "REQ-002", "US-201", "FBS-003"
- * @returns {{ kind: string, relPath: string } | null} null if the id pattern is unknown
+ * The id grammar lives in `./ids.js` (`parseIdParts` / `familyLocation`);
+ * this function is the read-side application of it. Prefix-family ids
+ * (REQ / US / PRD / BS / TAD / TS) may carry a leading slug namespace;
+ * suffix-family ids (ADR / TAC / FBS / CN) may carry a trailing slug
+ * namespace. Either way the filename on disk is the lower-cased id
+ * (blueprint apply's `destPathFor` writes it that way; the CLI writer
+ * matches).
+ *
+ * Returns null when the id matches no known family pattern OR when the
+ * family has no top-level file (AC and TC live inline under their
+ * parent US / TS).
+ *
+ * @param {string} id - canonical id, e.g. "REQ-002", "spa-REQ-001", "ADR-005-spa"
+ * @returns {{ kind: string, relPath: string } | null}
  */
 export function pathForId(id) {
-  if (typeof id !== 'string') return null;
-  if (id.startsWith('REQ-')) return { kind: 'req', relPath: `requirements/${id.toLowerCase()}.json` };
-  if (id.startsWith('US-')) return { kind: 'userStory', relPath: `user-stories/${id.toLowerCase()}.json` };
-  if (id.startsWith('TAC-')) return { kind: 'tac', relPath: `tacs/${id.toLowerCase()}.json` };
-  if (id.startsWith('ADR-')) return { kind: 'adr', relPath: `adrs/${id.toLowerCase()}.json` };
-  if (id.startsWith('FBS-')) return { kind: 'fbs', relPath: `fbs/${id.toLowerCase()}.json` };
-  if (id.startsWith('TS-')) return { kind: 'testSuite', relPath: `test-suites/${id.toLowerCase()}.json` };
-  // Phase 10 (X2 CodeNode bridge): Code Node document type.
-  if (id.startsWith('CN-')) return { kind: 'codeNode', relPath: `code-nodes/${id.toLowerCase()}.json` };
-  if (id === 'PRD-001' || id.startsWith('PRD-')) return { kind: 'prd', relPath: 'prd.json' };
-  if (id === 'TAD-001' || id.startsWith('TAD-')) return { kind: 'tad', relPath: 'tad.json' };
-  if (id === 'BS-001' || id.startsWith('BS-')) return { kind: 'buildSequence', relPath: 'build-sequence.json' };
-  return null;
+  const parts = parseIdParts(id);
+  if (!parts) return null;
+  const loc = familyLocation(parts.family);
+  if (!loc) return null;
+  // Root families (PRD / TAD / BS) resolve to their single root file.
+  if (loc.rootFile) return { kind: loc.kind, relPath: loc.rootFile };
+  // Child families resolve to <subdir>/<lower(id)>.json. AC / TC have no
+  // subdir entry and fall through to null via `!loc` above.
+  if (!loc.subdir) return null;
+  return { kind: loc.kind, relPath: `${loc.subdir}/${id.toLowerCase()}.json` };
 }
 
 /**
