@@ -1,0 +1,90 @@
+{
+  "usId": "rest-US-2107",
+  "prdId": "PRD-001",
+  "reqId": "rest-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Per-class behaviour: the four auth classes each honour their declared contract",
+  "asA": "platform operator running the service for multiple caller populations",
+  "iWant": "public, user, admin, and service callers each handled by their class's declared rules",
+  "soThat": "anonymous traffic, users, administrators, and peer services each get exactly the access and accounting they should",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2107-1",
+      "description": "Public endpoints process no auth headers: a request with credentials attached succeeds identically to one without, and no identity is resolved or logged for either.",
+      "given": "a public endpoint",
+      "when": "requests with and without auth headers are submitted",
+      "then": "both succeed with identical behaviour and no resolved identity appears in logs or context",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2107-2",
+      "description": "Public endpoints are rate-limited under the public class limit even for callers who could authenticate.",
+      "given": "a burst of requests to a public endpoint exceeding the public limit",
+      "when": "the burst is submitted",
+      "then": "requests beyond the limit receive 429 per the rate-limiting contract",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2107-3",
+      "description": "User-class endpoints resolve the caller's identity from a session or bearer token and expose it to the handler; requests without a resolvable identity are rejected with 401.",
+      "given": "a user-class endpoint",
+      "when": "requests with a valid token, an expired token, and no token are submitted",
+      "then": "the valid token resolves an identity available to the handler; the other two receive 401 with the error envelope",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2107-4",
+      "description": "Admin-class endpoints require an authenticated identity holding the admin role; an authenticated non-admin receives 403.",
+      "given": "an admin-class endpoint",
+      "when": "an authenticated non-admin and an authenticated admin each call it",
+      "then": "the non-admin receives 403 with the error envelope; the admin succeeds",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2107-5",
+      "description": "Every admin-class request is audit-logged with the acting identity, the endpoint, the outcome, and the request id.",
+      "given": "an admin-class request, successful or rejected",
+      "when": "the audit log is read",
+      "then": "an entry records identity, endpoint, outcome, and request id",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2107-6",
+      "description": "Service-class endpoints authenticate the calling service via mTLS or request signature and resolve no user identity.",
+      "given": "a service-class endpoint",
+      "when": "a correctly signed or mTLS-authenticated peer calls it, and an unauthenticated caller attempts it",
+      "then": "the peer succeeds with a service principal and no user identity; the unauthenticated caller receives 401",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2107-7",
+      "description": "Every service-class request is audit-logged with the calling service principal, and service-class traffic is counted under its own rate limit separate from user traffic.",
+      "given": "service-class traffic at volume alongside user traffic",
+      "when": "audit logs and rate-limit counters are inspected",
+      "then": "service calls are attributed to the service principal and limited under the service-class limit, independent of user-class counters",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2107-8",
+      "description": "A user or admin token presented to a service-class endpoint is rejected: class boundaries do not substitute for each other.",
+      "given": "a valid admin bearer token",
+      "when": "it is presented to a service-class endpoint",
+      "then": "the request is rejected with 403 and the error envelope; the admin token grants nothing outside its classes",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-302-rest-auth-middleware"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

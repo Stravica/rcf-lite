@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-302-rest-auth-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Four declared auth classes enforced by middleware as the service's authentication model",
+  "context": "A project has one authentication model; endpoints, clients, and operators all reason against it. The server half of that model must make every endpoint's auth posture declared, enumerable, and enforced in one place. A client-tier blueprint applied to the same project contributes its own decision on this topic (how the client authenticates and holds session), and blueprint composition surfaces the pairing at add time for the operator to reconcile into one project-level model. That surfacing is intended.",
+  "decision": "Every endpoint belongs to exactly one of four auth classes: public (no auth processed, rate-limited), user (session or bearer token, identity resolved), admin (user plus admin role, elevated limits, audit-logged), and service (mTLS or signed request, service principal, separate limits, audit-logged). Class membership is declared in the OpenAPI x-auth-class extension, enforced by the class's middleware slot (TAC-302) before handler code runs, and an undeclared endpoint fails contract validation. User-facing credential transport defaults to bearer tokens over TLS, with cookie-based sessions an accepted variant where a browser client owns the session; the project-level reconciliation with the client tier picks one.",
+  "consequences": "The auth posture of the whole surface is auditable by reading the generated spec. Forgetting auth on an endpoint is a build failure, not a penetration-test finding. Rate limits and audit logging attach to classes for free. Composing with a client-tier blueprint deliberately conflicts on this topic; the expected resolution is one project-level ADR fixing the credential transport (bearer or cookie session) and mapping the client's session model onto these four classes.",
+  "alternativesConsidered": [
+    {
+      "name": "Per-endpoint auth annotations without classes",
+      "summary": "Each endpoint declares its own middleware stack of auth requirements.",
+      "reasonNotChosen": "Infinite postures means no enumerable audit story; every endpoint is a bespoke security review, and rate limiting and audit logging cannot attach to anything stable."
+    },
+    {
+      "name": "Gateway-terminated auth only",
+      "summary": "Trust an API gateway to authenticate and pass identity headers inward.",
+      "reasonNotChosen": "Leaves the service naked against direct traffic and misconfigured gateways; defence-in-depth requires the service to enforce its own classes even when a gateway also does."
+    }
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

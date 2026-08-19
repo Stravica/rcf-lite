@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-306-rest-operability",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Operability: probes, lifecycle, migrations, and the meta endpoint",
+  "purpose": "Owns what an orchestrator and an operator need from the outside: the three probe endpoints, the initialisation lifecycle they report on, the forward-only migration machinery, and the /v1/_meta version report.",
+  "responsibilities": [
+    "Serve /healthz/live, /healthz/ready, and /healthz/startup with their specified schemas, exclusions, and documented failure modes (rest-REQ-006).",
+    "Run the initialisation sequence (config load, migrations, cache warm) and expose its progress to the startup probe (AC-2108-4).",
+    "Register and execute declared readiness checks against downstream dependencies, reporting per-check results in the ready body (AC-2108-2, AC-2108-3).",
+    "Apply migrations strictly forward with named reverts and deterministic ordering (rest-REQ-014).",
+    "Serve /v1/_meta reporting the live schema version and application version, sourced from the migration record, under a declared auth class (rest-US-2118)."
+  ],
+  "internalStructure": "A lifecycle coordinator owning initialisation state, a check registry the readiness probe iterates, and the migration runner; probe handlers are thin reads over this state, never performing work themselves.",
+  "interfaces": [
+    {
+      "name": "readiness check registry",
+      "kind": "configuration",
+      "description": "Declared named checks (database, cache, queues) with their timeout budgets; the set the ready probe reports on."
+    },
+    {
+      "name": "probe endpoints",
+      "kind": "http",
+      "description": "The three /healthz/* endpoints and /v1/_meta, with their specced response schemas."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Request pipeline",
+      "kind": "tac",
+      "tacId": "TAC-301-rest-request-pipeline",
+      "description": "Probes ride the pipeline with declared exemptions from auth, rate limiting, and info-level logging."
+    },
+    {
+      "name": "Observability",
+      "kind": "tac",
+      "tacId": "TAC-305-rest-observability",
+      "description": "Probe outcomes land in the dedicated probe metric."
+    }
+  ],
+  "tradeoffs": "Probe handlers reading pre-computed state (rather than checking dependencies inline) keeps probes cheap and non-amplifying under orchestrator polling, at the cost of a bounded staleness window in readiness reporting; the check interval is the tuning knob and is declared configuration.",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

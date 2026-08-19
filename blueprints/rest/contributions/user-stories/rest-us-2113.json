@@ -1,0 +1,73 @@
+{
+  "usId": "rest-US-2113",
+  "prdId": "PRD-001",
+  "reqId": "rest-REQ-011",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Class-scoped rate limits with mechanical back-off signals",
+  "asA": "platform operator protecting the service from overload",
+  "iWant": "each auth class limited on its own budget with standards-shaped 429 responses",
+  "soThat": "abusive anonymous traffic cannot starve users, and well-behaved clients back off without custom logic",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2113-1",
+      "description": "Each of the four auth classes has a declared rate limit, and requests are counted against the limit of the endpoint's class.",
+      "given": "the declared per-class limits",
+      "when": "traffic flows to endpoints of each class",
+      "then": "each request decrements its class's budget and no other's",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2113-2",
+      "description": "A request over its limit receives 429 with a Retry-After header and a problem-details body naming the limit and window.",
+      "given": "a caller exceeding its class limit",
+      "when": "the next request arrives",
+      "then": "the response is 429 with Retry-After and the error envelope naming limit and window",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2113-3",
+      "description": "Limits are keyed per caller within the class (per identity for user and admin, per service principal for service, per client address for public), so one hot caller cannot exhaust the class for everyone.",
+      "given": "two callers of the same class, one at its limit",
+      "when": "the second caller sends a request",
+      "then": "the second caller is served while the first receives 429",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2113-4",
+      "description": "A per-endpoint override of the class default is supported, declared in the spec alongside the endpoint, and enforcement follows the override.",
+      "given": "an endpoint declaring a rate-limit override",
+      "when": "traffic exceeds the override but not the class default (or vice versa)",
+      "then": "enforcement follows the declared override exactly",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2113-5",
+      "description": "Waiting out Retry-After restores service: a request after the advertised delay succeeds, proving the advertised value is honest.",
+      "given": "a 429 with Retry-After",
+      "when": "the caller waits the advertised delay and retries",
+      "then": "the retry succeeds",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2113-6",
+      "description": "Rate-limit rejections are visible in observability: 429s are counted in the endpoint's RED metrics and per-class counters without emitting per-rejection error-level log noise.",
+      "given": "a burst producing 429s",
+      "when": "metrics and logs are inspected",
+      "then": "the 429s appear in RED and class counters, and no error-level log line per rejection exists",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-301-rest-request-pipeline",
+    "TAC-302-rest-auth-middleware"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

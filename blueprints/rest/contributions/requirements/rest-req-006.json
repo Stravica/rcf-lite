@@ -1,0 +1,18 @@
+{
+  "reqId": "rest-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Kubernetes probe endpoints: liveness, readiness, and startup with specified schemas and exclusions",
+  "description": "The service exposes three probe endpoints. GET /healthz/live returns 200 whenever the process can serve any request and performs no dependency checks. GET /healthz/ready returns 200 only when declared downstream dependencies (database, cache, queues) are reachable, and 503 with a body listing the failed checks otherwise. GET /healthz/startup returns 200 once initialisation (migrations, cache warm, config load) is complete. Each probe has a specified response schema, sits outside the auth middleware, is excluded from info-level metrics and log noise, and has a documented failure mode.",
+  "category": "functional",
+  "domain": "operability",
+  "priority": "must",
+  "rationale": "A service without honest probes either gets restarted when it is healthy or kept in rotation when it cannot serve. Separating liveness from readiness from startup is what lets an orchestrator make three different decisions correctly; specifying schemas and exclusions keeps the probes cheap, quiet, and impossible to break by tightening auth.",
+  "tags": [
+    "blueprint:rest",
+    "category:06-probe-endpoints"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

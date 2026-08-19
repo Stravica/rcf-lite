@@ -1,0 +1,18 @@
+{
+  "reqId": "rest-REQ-008",
+  "prdId": "PRD-001",
+  "title": "Filtering and sorting: documented parameters per resource, strict rejection of unknown parameters",
+  "description": "Every collection endpoint documents its filter parameter names per resource, sorting follows the ?sort=field,-field2 convention (leading minus for descending, comma-separated multi-key), and a request carrying an unknown query parameter is rejected with 400 and a problem-details response naming the offending parameter, never silently ignored.",
+  "category": "functional",
+  "domain": "querying",
+  "priority": "must",
+  "rationale": "Silently ignored parameters are the cruellest API defect: the client believes it filtered and acts on the unfiltered result. Strict rejection converts typos and stale client code into immediate, diagnosable 400s, and the single sort convention keeps every collection queryable the same way.",
+  "tags": [
+    "blueprint:rest",
+    "category:08-filtering-sorting"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

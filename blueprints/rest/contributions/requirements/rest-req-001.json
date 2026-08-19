@@ -1,0 +1,18 @@
+{
+  "reqId": "rest-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Resource modelling: noun-based plural collections with an explicit representation model",
+  "description": "The API models its surface as resources, not procedures: URLs name nouns in plural collection form, hierarchy appears only where a relationship is genuinely 1:N and always scoped by the parent, collection filters live on sub-resources or query parameters rather than verb-shaped paths, and every resource class has one explicit, documented representation model.",
+  "category": "functional",
+  "domain": "resources",
+  "priority": "must",
+  "rationale": "A verb-shaped or ad-hoc URL surface cannot be paginated, filtered, cached, or documented consistently. One declared resource model is the anchor every other requirement in this blueprint binds to: the OpenAPI contract enumerates it, pagination and filtering conventions apply per collection, and auth classes attach per endpoint.",
+  "tags": [
+    "blueprint:rest",
+    "category:01-resource-modelling"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

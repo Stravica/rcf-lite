@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-301-rest-error-envelope",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "RFC 7807 problem details as the error shape the service produces",
+  "context": "Every error the service emits is part of its wire contract, including the failures nobody plans: auth rejections, rate limits, malformed input, unhandled exceptions. The wire error shape is a whole-project decision with room for exactly one answer, shared with whatever consumes the API; this record is the producer half. A client-tier blueprint applied to the same project contributes its own decision on the same topic, and blueprint composition surfaces that pairing for the operator to reconcile at add time. That surfacing is intended.",
+  "decision": "The service emits RFC 7807 problem details (type, title, status, detail, instance, plus declared service extensions) as application/problem+json on every 4xx and 5xx, produced by the terminal error boundary in the request pipeline (TAC-301) so no failure path can bypass it. The instance field carries the request id. Extension fields are declared in the generated OpenAPI document; undeclared extensions are contract drift.",
+  "consequences": "Clients build error handling once against one shape. Error responses become verifiable contract surface: the conformance run (rest-REQ-015) asserts the envelope on every declared operation's failure paths. Composing with a client-tier blueprint raises a deliberate conflict on this topic; the expected resolution is one project-level ADR adopting RFC 7807 end to end, superseding both halves.",
+  "alternativesConsidered": [
+    {
+      "name": "Bespoke error schema",
+      "summary": "Design a service-specific error object with exactly the fields the project wants.",
+      "reasonNotChosen": "Re-derives RFC 7807 minus the standardisation: no off-the-shelf client handling, no problem-type registry discipline, one more thing to document from scratch."
+    },
+    {
+      "name": "Status code plus message string",
+      "summary": "Return { \"error\": \"...\" } with the HTTP status carrying the semantics.",
+      "reasonNotChosen": "Unstructured messages force clients to parse prose, cannot carry correlation or type information, and drift per endpoint the moment two handlers phrase the same failure differently."
+    }
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

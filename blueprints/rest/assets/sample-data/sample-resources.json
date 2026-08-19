@@ -1,0 +1,53 @@
+{
+  "description": "Neutral sample resources for contract examples, conformance fixtures, and documentation. Shapes follow the wire contract: camelCase properties, RFC-3339 UTC timestamps, opaque string ids.",
+  "widgets": [
+    {
+      "id": "wgt_01j5xq",
+      "name": "Alpha widget",
+      "status": "active",
+      "createdAt": "2026-08-19T09:14:07Z",
+      "updatedAt": "2026-08-19T09:14:07Z"
+    },
+    {
+      "id": "wgt_01j5xr",
+      "name": "Beta widget",
+      "status": "active",
+      "createdAt": "2026-08-18T16:02:33Z",
+      "updatedAt": "2026-08-19T08:41:12Z"
+    },
+    {
+      "id": "wgt_01j5xs",
+      "name": "Gamma widget",
+      "status": "archived",
+      "createdAt": "2026-07-30T11:55:20Z",
+      "updatedAt": "2026-08-02T14:08:59Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr_01h2ab",
+      "displayName": "Sample Admin",
+      "email": "admin@example.com",
+      "roles": ["admin"],
+      "createdAt": "2026-06-01T08:00:00Z",
+      "updatedAt": "2026-08-10T09:30:00Z"
+    },
+    {
+      "id": "usr_01h2ac",
+      "displayName": "Sample User",
+      "email": "user@example.com",
+      "roles": [],
+      "createdAt": "2026-06-15T10:12:00Z",
+      "updatedAt": "2026-06-15T10:12:00Z"
+    }
+  ],
+  "servicePrincipals": [
+    {
+      "id": "svc_scheduler",
+      "displayName": "Nightly scheduler",
+      "authMethod": "mtls",
+      "createdAt": "2026-06-01T08:00:00Z",
+      "updatedAt": "2026-06-01T08:00:00Z"
+    }
+  ]
+}

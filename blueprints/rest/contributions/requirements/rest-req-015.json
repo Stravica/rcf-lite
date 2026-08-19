@@ -1,0 +1,18 @@
+{
+  "reqId": "rest-REQ-015",
+  "prdId": "PRD-001",
+  "title": "Contract conformance: every OpenAPI-declared endpoint verified for request, response, error, and auth behaviour",
+  "description": "Every endpoint declared in the generated OpenAPI spec is verified on three axes: a schema-conforming request returns a schema-conforming response, an invalid request returns the declared error envelope, and the endpoint's declared auth class is enforced. The verification is derived from the spec so new endpoints are covered by construction, not by remembering.",
+  "category": "technical",
+  "domain": "contract-verification",
+  "priority": "must",
+  "rationale": "A contract nobody verifies is documentation, not a contract. Expressing conformance as acceptance criteria lets the implementing agent build the contract tests through the project's normal build cycle, and deriving coverage from the spec closes the gap where the newest endpoint is always the least tested.",
+  "tags": [
+    "blueprint:rest",
+    "category:15-contract-tests"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}
