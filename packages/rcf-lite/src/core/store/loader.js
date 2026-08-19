@@ -10,6 +10,23 @@ import { join } from 'node:path';
 
 import { rcfError } from '../errors/index.js';
 import { validateDocument } from './validator.js';
+import { parseIdParts } from '../../blueprint/namespace.js';
+
+// Map a parsed id family to the store kind. Prefix- and suffix-namespaced
+// ids both resolve through this single table so grammar knowledge lives in
+// namespace.js (see `pathForId`).
+const KIND_BY_FAMILY = {
+  REQ: 'req',
+  US: 'userStory',
+  TAC: 'tac',
+  ADR: 'adr',
+  FBS: 'fbs',
+  TS: 'testSuite',
+  CN: 'codeNode',
+  PRD: 'prd',
+  TAD: 'tad',
+  BS: 'buildSequence',
+};
 
 /**
  * Map a document kind to the subdirectory under rcf/ it lives in. The root
@@ -41,25 +58,35 @@ const ROOT_FILENAMES = {
 };
 
 /**
- * Resolve an id like "REQ-002" to a path under rcf/.
+ * Resolve an id like "REQ-002" (bare) or "spa-REQ-001" / "ADR-005-spa"
+ * (blueprint-namespaced, rcf-schemas 0.4.4 grammar) to a path under rcf/.
  *
- * @param {string} id - canonical id, e.g. "REQ-002", "US-201", "FBS-003"
+ * Family membership and the two namespacing styles (slug prefix for
+ * REQ/US/PRD/BS/TAD/TS, slug suffix for ADR/TAC/FBS/CN) come from the
+ * shared `parseIdParts` seat in `src/blueprint/namespace.js` so the loader
+ * and the walker read the same grammar and stay in lock-step when a new
+ * family lands.
+ *
+ * @param {string} id - canonical id, bare or namespaced.
  * @returns {{ kind: string, relPath: string } | null} null if the id pattern is unknown
  */
 export function pathForId(id) {
-  if (typeof id !== 'string') return null;
-  if (id.startsWith('REQ-')) return { kind: 'req', relPath: `requirements/${id.toLowerCase()}.json` };
-  if (id.startsWith('US-')) return { kind: 'userStory', relPath: `user-stories/${id.toLowerCase()}.json` };
-  if (id.startsWith('TAC-')) return { kind: 'tac', relPath: `tacs/${id.toLowerCase()}.json` };
-  if (id.startsWith('ADR-')) return { kind: 'adr', relPath: `adrs/${id.toLowerCase()}.json` };
-  if (id.startsWith('FBS-')) return { kind: 'fbs', relPath: `fbs/${id.toLowerCase()}.json` };
-  if (id.startsWith('TS-')) return { kind: 'testSuite', relPath: `test-suites/${id.toLowerCase()}.json` };
-  // Phase 10 (X2 CodeNode bridge): Code Node document type.
-  if (id.startsWith('CN-')) return { kind: 'codeNode', relPath: `code-nodes/${id.toLowerCase()}.json` };
-  if (id === 'PRD-001' || id.startsWith('PRD-')) return { kind: 'prd', relPath: 'prd.json' };
-  if (id === 'TAD-001' || id.startsWith('TAD-')) return { kind: 'tad', relPath: 'tad.json' };
-  if (id === 'BS-001' || id.startsWith('BS-')) return { kind: 'buildSequence', relPath: 'build-sequence.json' };
-  return null;
+  if (typeof id !== 'string' || id.length === 0) return null;
+  const parts = parseIdParts(id);
+  if (!parts) return null;
+  const kind = KIND_BY_FAMILY[parts.family];
+  if (!kind) return null;
+  // Root docs are singletons at the rcf root regardless of any slug
+  // prefix on the id. Everything else lives in its subdir under a
+  // filename that is the id lower-cased (slug segments are already
+  // lower-case kebab per the schema patterns; the family segment is the
+  // only casing shift and it lower-cases cleanly).
+  if (kind === 'prd') return { kind: 'prd', relPath: 'prd.json' };
+  if (kind === 'tad') return { kind: 'tad', relPath: 'tad.json' };
+  if (kind === 'buildSequence') return { kind: 'buildSequence', relPath: 'build-sequence.json' };
+  const sub = subdirFor(kind);
+  if (!sub) return null;
+  return { kind, relPath: `${sub}/${id.toLowerCase()}.json` };
 }
 
 /**
