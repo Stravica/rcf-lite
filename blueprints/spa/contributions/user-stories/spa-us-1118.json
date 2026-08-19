@@ -1,0 +1,54 @@
+{
+  "usId": "spa-US-1118",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-011",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Single icon set behind semantic aliases",
+  "asA": "user scanning the interface",
+  "iWant": "icons that look like one family and mean one thing each",
+  "soThat": "iconography aids recognition instead of adding noise",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1118-1",
+      "description": "All icons come from the single set selected under ADR-206; no second set or bespoke one-off glyphs appear.",
+      "given": "the shipped asset output",
+      "when": "icon provenance is audited",
+      "then": "every icon traces to the one declared set",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1118-2",
+      "description": "Icons are referenced through the semantic alias registry; components never import glyph files directly.",
+      "given": "component source",
+      "when": "icon references are audited",
+      "then": "every reference goes through an alias",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1118-3",
+      "description": "The same alias renders the same glyph everywhere; the same meaning never has two competing glyphs.",
+      "given": "each alias used in more than one place",
+      "when": "renderings are compared",
+      "then": "glyph use is consistent per meaning",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1118-4",
+      "description": "Decorative icons are hidden from assistive technology; icons carrying meaning have accessible names; icon-only buttons are labelled.",
+      "given": "decorative and meaningful icons",
+      "when": "the accessibility tree is inspected",
+      "then": "decorative ones are hidden and meaningful ones named",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-203-spa-component-library"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

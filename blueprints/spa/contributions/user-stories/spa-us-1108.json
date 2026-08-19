@@ -1,0 +1,90 @@
+{
+  "usId": "spa-US-1108",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Buttons and text inputs with full state and semantics contracts",
+  "asA": "user interacting with actions and text entry",
+  "iWant": "controls that respond visibly and predictably in every state",
+  "soThat": "I always know what is pressable, what is busy, and what went wrong",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1108-1",
+      "description": "Buttons render all applicable states from the token layer: default, hover, focus, active, and disabled, each visually distinct per assets/component-specs.",
+      "given": "a button in each variant",
+      "when": "each state is induced",
+      "then": "each state is visually distinct and token-driven in both themes",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1108-2",
+      "description": "A button driving an async action shows a busy state, suppresses duplicate submission while pending, and communicates the busy state to assistive technology.",
+      "given": "a button wired to an async action",
+      "when": "it is activated",
+      "then": "it enters busy state, ignores repeat activation, and exposes the state programmatically",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1108-3",
+      "description": "Destructive-variant buttons are visually distinct via the danger tokens and never the default focused action in confirmation dialogs.",
+      "given": "a destructive confirmation dialog",
+      "when": "it opens",
+      "then": "initial focus rests on the non-destructive action",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1108-4",
+      "description": "Text inputs and textareas render default, focus, disabled, error, and success states from the token layer with a visible focus indicator.",
+      "given": "an input in each state",
+      "when": "states are induced",
+      "then": "each state is distinct, and focus is visible per spa-REQ-019",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1108-5",
+      "description": "Inputs pair a programmatically associated visible label; placeholder text is never the only label.",
+      "given": "any input in the application",
+      "when": "its accessible name is computed",
+      "then": "the name comes from an associated label element or equivalent, not placeholder",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1108-6",
+      "description": "Error state on an input pairs the danger border and icon with error text tied via aria-describedby and aria-invalid.",
+      "given": "an input failing validation",
+      "when": "the error renders",
+      "then": "the message is programmatically associated and announced",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1108-7",
+      "description": "Textareas resize within declared bounds without breaking layout, and long input never overflows the control.",
+      "given": "a textarea with maximal content",
+      "when": "content is entered and the control resized",
+      "then": "layout holds and content scrolls within the control",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1108-8",
+      "description": "Disabled controls are excluded from Tab order, expose their disabled state programmatically, and still meet the 3:1 non-text contrast for their boundaries.",
+      "given": "a disabled button and input",
+      "when": "traversed and inspected",
+      "then": "they are skipped by Tab, announced as disabled, and remain perceivable",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-203-spa-component-library"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

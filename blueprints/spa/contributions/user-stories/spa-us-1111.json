@@ -1,0 +1,90 @@
+{
+  "usId": "spa-US-1111",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Data display: cards, tables, tabs, pagination",
+  "asA": "user reading and working through collections of content",
+  "iWant": "data surfaces that stay readable, navigable, and honest about their extent",
+  "soThat": "I can scan, sort, and move through content without friction",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1111-1",
+      "description": "Cards compose token-defined surface, radius, spacing, and elevation; a whole clickable card is a single link with one accessible name, without nested interactive-in-interactive defects.",
+      "given": "a clickable card containing secondary actions",
+      "when": "inspected and operated",
+      "then": "the card is one coherent target and secondary actions remain independently operable",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1111-2",
+      "description": "Tables render semantic table markup with column headers programmatically associated to cells.",
+      "given": "a data table",
+      "when": "the accessibility tree is inspected",
+      "then": "headers associate to their cells",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1111-3",
+      "description": "Sortable columns expose sort state visually and via aria-sort, and toggle through ascending and descending predictably.",
+      "given": "a sortable column",
+      "when": "its header is activated repeatedly",
+      "then": "sort order cycles and both exposures update",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1111-4",
+      "description": "Tables ship their own empty, loading (skeleton rows), and error states per spa-REQ-010 rather than collapsing to nothing.",
+      "given": "a table in each non-success data state",
+      "when": "rendered",
+      "then": "the designed state fills the table region",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1111-5",
+      "description": "Tabs implement the standard pattern: one Tab stop for the tablist, arrow keys move between tabs, selection follows the declared activation mode, and panels are labelled by their tabs.",
+      "given": "a tablist with several tabs",
+      "when": "operated by keyboard",
+      "then": "the pattern grammar works with correct ARIA wiring",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1111-6",
+      "description": "The active tab is preserved on re-entry where the journey spec declares persistence, via URL or stored state.",
+      "given": "a tabbed route with declared persistence",
+      "when": "the user leaves and returns",
+      "then": "the previously active tab is selected",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1111-7",
+      "description": "Pagination controls show current position and total extent where known, disable rather than hide impossible moves, and are fully keyboard operable.",
+      "given": "a paginated collection on its first page",
+      "when": "the controls render",
+      "then": "previous is disabled with state exposed, position is visible",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1111-8",
+      "description": "Page changes update the URL per the canonical shape so paginated positions are shareable and restorable.",
+      "given": "a paginated collection",
+      "when": "the user moves to page three and reloads",
+      "then": "page three renders from the URL",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-203-spa-component-library"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

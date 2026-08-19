@@ -1,0 +1,78 @@
+{
+  "usId": "spa-US-1126",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-019",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "WCAG 2.2 AA: contrast, focus visibility, target size, no traps",
+  "asA": "user with low vision or motor constraints",
+  "iWant": "the interface to be perceivable and operable as a matter of course",
+  "soThat": "accessibility is a property of the product, not a request I have to make",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1126-1",
+      "description": "Body text meets 4.5:1 contrast against its background in both themes on every route.",
+      "given": "every text element in both themes",
+      "when": "contrast is computed",
+      "then": "body text is at or above 4.5:1",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1126-2",
+      "description": "Large text, icons, and essential non-text UI (control boundaries, state indicators) meet 3:1 contrast in both themes.",
+      "given": "large text and essential non-text elements",
+      "when": "contrast is computed",
+      "then": "all are at or above 3:1",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1126-3",
+      "description": "Every interactive element shows a visible focus indicator meeting the 3:1 contrast bar; no interactive element relies on the browser default while suppressing it elsewhere.",
+      "given": "every interactive element",
+      "when": "focused via keyboard",
+      "then": "a visible, sufficiently contrasting indicator renders",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1126-4",
+      "description": "Every pointer target is at least 24x24 CSS pixels or has equivalent spacing per the WCAG 2.2 target-size criterion.",
+      "given": "every interactive target",
+      "when": "measured across breakpoints",
+      "then": "the criterion is met everywhere",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1126-5",
+      "description": "No keyboard trap exists in any component or overlay across the application, verified over the full component inventory.",
+      "given": "each component and overlay",
+      "when": "keyboard escape paths are exercised",
+      "then": "focus can always leave",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1126-6",
+      "description": "Information is never conveyed by colour alone: states pair colour with text, icon, or structure.",
+      "given": "every state indication",
+      "when": "reviewed with colour removed",
+      "then": "the state remains determinable",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1126-7",
+      "description": "An automated WCAG audit (axe-core rules or equivalent) reports zero violations at the AA level on every declared route in both themes.",
+      "given": "every route in both themes",
+      "when": "the automated audit runs",
+      "then": "zero AA violations are reported",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

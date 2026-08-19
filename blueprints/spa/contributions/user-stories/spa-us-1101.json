@@ -1,0 +1,72 @@
+{
+  "usId": "spa-US-1101",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Declared routes, canonical URLs, breadcrumbs, and not-found surfaces",
+  "asA": "user sharing and revisiting links",
+  "iWant": "every screen to have a stable, canonical URL that loads correctly on arrival",
+  "soThat": "I can bookmark, share, and return to anything I can see",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1101-1",
+      "description": "The project maintains a declared route inventory naming every route; no navigable surface exists outside it.",
+      "given": "the application source tree",
+      "when": "the route inventory is compared against reachable navigation targets",
+      "then": "every reachable target appears in the inventory and every inventory entry is reachable",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1101-2",
+      "description": "Each resource class uses one canonical URL shape; the same resource is never reachable under two shapes without a redirect to the canonical one.",
+      "given": "a resource with a canonical URL",
+      "when": "a non-canonical variant of that URL is visited",
+      "then": "the application redirects or rewrites to the canonical shape",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1101-3",
+      "description": "Breadcrumbs render on every route nested more than two levels deep, reflecting the canonical hierarchy, with each ancestor navigable.",
+      "given": "a route at nesting depth three or more",
+      "when": "the route renders",
+      "then": "a breadcrumb trail shows the ancestry and each crumb navigates to its level",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1101-4",
+      "description": "Visiting an unknown path renders the designed 404 surface inside the shell with navigation intact and a way back to a known route.",
+      "given": "a running application",
+      "when": "a path outside the route inventory is visited",
+      "then": "the 404 surface renders with shell navigation present, not a blank page or silent redirect",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1101-5",
+      "description": "Visiting a resource that previously existed and was removed renders the designed 410 surface distinguishing \"gone\" from \"never existed\".",
+      "given": "a resource known to be deleted",
+      "when": "its canonical URL is visited",
+      "then": "the 410 surface renders naming the resource as removed",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1101-6",
+      "description": "Every route in the inventory cold-loads from a direct URL entry, not only via in-app navigation.",
+      "given": "any route in the inventory",
+      "when": "the URL is opened in a fresh browser session",
+      "then": "the route renders its arrival state without client-side navigation first",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-201-spa-app-shell"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

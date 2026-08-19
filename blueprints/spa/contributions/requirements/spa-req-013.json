@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-013",
+  "prdId": "PRD-001",
+  "title": "State management: server state and UI state separated, stale-while-revalidate reads, explicit invalidation on writes",
+  "description": "Client state is split into a server-state cache and local UI state, managed separately. Reads default to stale-while-revalidate: cached data renders immediately while a background refresh runs. Writes explicitly invalidate the affected cache entries. Optimistic updates are applied only where the write is highly likely to succeed and are rolled back visibly on failure.",
+  "category": "technical",
+  "domain": "state",
+  "priority": "must",
+  "rationale": "Mixing server and UI state is the root of most SPA data bugs: stale lists after writes, flicker on navigation, and phantom optimistic state. The split plus explicit invalidation makes cache behaviour specifiable.",
+  "tags": [
+    "blueprint:spa",
+    "category:13-state-management"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

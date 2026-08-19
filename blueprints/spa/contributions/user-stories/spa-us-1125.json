@@ -1,0 +1,69 @@
+{
+  "usId": "spa-US-1125",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-018",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "CSP, sanitised dynamic HTML, hardened cookies, secret-free bundle",
+  "asA": "user trusting the application with my data",
+  "iWant": "the standard browser security floors actually in place",
+  "soThat": "using the product does not expose me to script injection or session theft",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1125-1",
+      "description": "A Content-Security-Policy is served on the application document with directives explicitly declared for at least default-src, script-src, style-src, img-src, connect-src, and frame-ancestors; no wildcard script-src.",
+      "given": "the deployed application document",
+      "when": "response headers are inspected",
+      "then": "the CSP is present with the named directives and no wildcard script source",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1125-2",
+      "description": "User-influenced data never renders through raw HTML injection without passing the declared sanitiser; sanitiser bypasses do not exist in the codebase.",
+      "given": "every render path for user-influenced content",
+      "when": "the paths are audited",
+      "then": "each either escapes by default or routes through the sanitiser",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1125-3",
+      "description": "Session cookies carry Secure, HttpOnly, and SameSite attributes.",
+      "given": "a signed-in session",
+      "when": "the session cookie is inspected",
+      "then": "all three attributes are present",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1125-4",
+      "description": "Form values containing markup round-trip as inert text: entered script fragments display as text and never execute.",
+      "given": "a form field",
+      "when": "a script fragment is entered, submitted, and re-rendered",
+      "then": "the fragment displays as text with no execution",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1125-5",
+      "description": "The shipped bundle contains no secrets: API keys, private endpoints, and credentials are absent from every emitted asset.",
+      "given": "the production bundle output",
+      "when": "assets are scanned for secret patterns and known project secrets",
+      "then": "zero findings",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1125-6",
+      "description": "Authenticated-only data never embeds in surfaces served to unauthenticated users, including prefetched state in the document.",
+      "given": "the unauthenticated document and its embedded state",
+      "when": "inspected",
+      "then": "no authenticated-scope data is present",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

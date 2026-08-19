@@ -1,0 +1,73 @@
+{
+  "usId": "spa-US-1115",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Landing, sign-in, sign-out, and first-run onboarding surfaces",
+  "asA": "visitor arriving for the first time or returning to sign in",
+  "iWant": "arrival and authentication screens that are designed, fast, and self-explanatory",
+  "soThat": "my first minutes with the product feel intentional",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1115-1",
+      "description": "The unauthenticated landing surface renders per its wireframe: product identity, a statement of value, and the sign-in entry point, at every baseline breakpoint in both themes.",
+      "given": "an unauthenticated first visit",
+      "when": "the landing renders at each breakpoint",
+      "then": "the designed surface renders with no auth-gated blank regions",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1115-2",
+      "description": "The sign-in surface follows the sign-in wireframe and the spa-REQ-007 form contract, including a designed failure state that names the problem without revealing which credential element was wrong.",
+      "given": "the sign-in form",
+      "when": "valid and invalid submissions are made",
+      "then": "success routes onward and failure renders safe, actionable copy",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1115-3",
+      "description": "Sign-in shows a pending state during verification and prevents duplicate submission.",
+      "given": "a submitted sign-in form",
+      "when": "verification is in flight",
+      "then": "the submit control is busy per spa-US-1108 and repeat submits are ignored",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1115-4",
+      "description": "Sign-out is available from the shell on every authenticated route, completes to the designed signed-out confirmation surface, and clears client caches per ADR-205.",
+      "given": "a signed-in user on any route",
+      "when": "sign-out is invoked",
+      "then": "the confirmation surface renders and cached user data is gone",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1115-5",
+      "description": "First-run onboarding renders for a first-signed-in user per its specification, is skippable, and never renders again once completed or skipped.",
+      "given": "a first sign-in and a later sign-in",
+      "when": "both arrivals are observed",
+      "then": "onboarding shows once, is skippable, and does not recur",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1115-6",
+      "description": "All arrival and auth surfaces meet spa-REQ-019 and spa-REQ-004 on the same terms as authenticated routes.",
+      "given": "each arrival and auth surface",
+      "when": "accessibility and responsive checks run",
+      "then": "the same bars pass; these surfaces are not exempt",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-201-spa-app-shell",
+    "TAC-205-spa-forms-engine"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

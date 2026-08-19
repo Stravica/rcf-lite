@@ -1,0 +1,63 @@
+{
+  "usId": "spa-US-1119",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-012",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Tokenised motion that respects reduced-motion preferences",
+  "asA": "user sensitive to motion",
+  "iWant": "animation that is subtle, consistent, and optional",
+  "soThat": "the interface feels alive without making anyone ill",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1119-1",
+      "description": "All transitions and animations use durations and easings from the motion tokens; unmanaged literal durations do not appear in component styles.",
+      "given": "the shipped stylesheet output",
+      "when": "animation declarations are audited",
+      "then": "every duration and easing resolves to a motion token",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1119-2",
+      "description": "Enter, exit, and state-change transitions sit within the 150-250ms token range with ease-out defaults per ADR-207.",
+      "given": "each animated component",
+      "when": "timings are measured",
+      "then": "they match the declared tokens",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1119-3",
+      "description": "With prefers-reduced-motion set, non-essential animation is disabled; content appears and disappears without translation or scaling effects.",
+      "given": "a reduced-motion user preference",
+      "when": "animated components render",
+      "then": "no non-essential motion plays and nothing breaks functionally",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1119-4",
+      "description": "No motion autoplays in critical flows: auth surfaces, forms mid-entry, and destructive confirmations are motion-quiet.",
+      "given": "each critical flow",
+      "when": "observed at rest",
+      "then": "nothing animates without user initiation",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1119-5",
+      "description": "Skeleton shimmer and progress animations also honour reduced motion, degrading to static placeholders.",
+      "given": "a reduced-motion preference with loading content",
+      "when": "skeletons render",
+      "then": "placeholders are static and still convey loading via their busy state",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-202-spa-theme-system"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

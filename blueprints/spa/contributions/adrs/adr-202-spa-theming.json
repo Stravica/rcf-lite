@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-202-spa-theming",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Semantic design tokens as CSS custom properties with a root-level theme switch",
+  "context": "Dark and light parity is a ratified requirement (spa-REQ-005). Parity is only checkable when every colour decision routes through a named token that exists in both palettes. How theming is realised is a whole-project decision: two theming mechanisms cannot coexist without drift.",
+  "decision": "The token layer in assets/tokens/design-tokens.json is the single source of colour, spacing, radius, typography, elevation, and motion values. Tokens are realised as CSS custom properties on the document root (assets/tokens/theme.css); the active theme is a data-theme attribute swap. Components consume semantic tokens only; raw palette values in component styles are a defect.",
+  "consequences": "Theme parity and contrast become data checks over one JSON file. Re-skinning is a token edit. The indirection cost is one layer of naming; the working agent extends tokens by adding pairs, never by inlining values.",
+  "alternativesConsidered": [
+    {
+      "name": "Per-component theme conditionals",
+      "summary": "Components branch on theme in code.",
+      "reasonNotChosen": "Parity becomes unverifiable and every component is a divergence point."
+    },
+    {
+      "name": "Two compiled stylesheets",
+      "summary": "Separate light and dark CSS builds.",
+      "reasonNotChosen": "Doubles the drift surface and breaks the instant toggle requirement."
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

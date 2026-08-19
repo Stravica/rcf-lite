@@ -1,0 +1,13 @@
+{
+  "adrId": "ADR-209-spa-telemetry-naming",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Typed journey-checkpoint events named domain.surface.action",
+  "context": "spa-REQ-016 requires named events. Free-text names drift with refactors and kill dashboard continuity; the scheme needs one recorded answer inside the SPA.",
+  "decision": "Telemetry events are declared in a typed registry and named domain.surface.action in lower camel segments (for example auth.signIn.succeeded, orders.list.filtered). Error-boundary reports and the two performance marks (firstPaint, timeToInteractive) use reserved names in the same registry. Emitting an unregistered event name is a build-time error.",
+  "consequences": "Dashboards and alerts survive refactors because names are contracts. New journeys pay one registry entry per checkpoint, which doubles as the checkpoint inventory spa-REQ-008 walks.",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-201-spa-routing",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Client-side routing over the History API with a declared route inventory",
+  "context": "A single-page application needs one answer to how URLs map to surfaces. Implicit or component-local routing makes deep links, canonical URLs, 404 handling, and telemetry unverifiable. The route model is a whole-project decision: two routing regimes in one deployable produce broken back-button behaviour and unshareable URLs.",
+  "decision": "Routing is client-side over the History API (clean paths, no hash routing) against a single declared route inventory. Every route is named, every resource class has one canonical URL shape, unknown paths render the 404 surface, and removed resources render 410. The server serves the application shell for any route path so deep links cold-load.",
+  "consequences": "Deep links, breadcrumbs, navigation rendering, and telemetry all derive from one inventory. The hosting layer must rewrite unknown paths to the shell (documented in the project deploy target). Hash-based routing is unavailable even where hosting rewrites are awkward; that constraint is accepted for canonical URLs.",
+  "alternativesConsidered": [
+    {
+      "name": "Hash routing",
+      "summary": "Fragment-based routes needing no server rewrites.",
+      "reasonNotChosen": "Non-canonical URLs, weaker analytics and SEO, and a legacy feel that fails the visual quality bar."
+    },
+    {
+      "name": "Server-driven navigation",
+      "summary": "Full page loads per navigation.",
+      "reasonNotChosen": "Out of scope for the SPA blueprint; that shape belongs to a different blueprint."
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

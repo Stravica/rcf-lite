@@ -1,0 +1,27 @@
+{
+  "tacId": "TAC-204-spa-client-data-layer",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Client data layer",
+  "purpose": "Owns server-state caching, request lifecycle, invalidation, optimistic updates, and offline queueing; the seam between the UI and the wire.",
+  "responsibilities": [
+    "Maintain the server-state cache with stale-while-revalidate reads and explicit invalidation on writes (spa-REQ-013).",
+    "Expose per-query status (loading, error, success, empty) that routes and components bind their state quartet to (spa-REQ-010).",
+    "Detect network loss, surface it to the shell banner, queue or refuse writes per policy, and replay on reconnect (spa-REQ-014).",
+    "Normalise wire errors into the problem-details envelope shape declared in ADR-204-spa-error-envelope before they reach UI code.",
+    "Attach session credentials and handle 401 responses by routing through the session-expiry flow (spa-REQ-009)."
+  ],
+  "internalStructure": "A query/mutation layer with a keyed cache; keys derive from the canonical URL shapes in spa-REQ-001 so invalidation maps one-to-one to resources.",
+  "dependencies": [
+    {
+      "name": "Error envelope decision",
+      "kind": "external",
+      "description": "ADR-204-spa-error-envelope; the REST blueprint contributes the server half of the same topic."
+    }
+  ],
+  "tradeoffs": "A dedicated data layer costs indirection on trivial fetches and buys one place to verify caching, invalidation, offline, and auth behaviour instead of per-screen re-implementations.",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

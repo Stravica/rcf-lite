@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-020",
+  "prdId": "PRD-001",
+  "title": "Typography: modular scale, minimum body sizes, declared line heights",
+  "description": "Type sizes derive from a modular scale (ratio 1.125 or 1.25) realised in the typography tokens. Body text is at least 14px below 768 viewport width and at least 16px at 768 and above, with fluid scaling between breakpoints. Line height is 1.5 for body text and 1.2 for headings.",
+  "category": "nonFunctional",
+  "domain": "typography",
+  "priority": "must",
+  "rationale": "Type is the largest visual surface in any application. A closed scale with minimums removes the most common squint-inducing defects at zero ongoing cost.",
+  "tags": [
+    "blueprint:spa",
+    "quality-bar:typography"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

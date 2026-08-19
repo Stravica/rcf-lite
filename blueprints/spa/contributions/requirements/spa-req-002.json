@@ -1,0 +1,18 @@
+{
+  "reqId": "spa-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Navigation: persistent shell with full keyboard operability and landmark roles",
+  "description": "The application shell provides top-level navigation (with optional side navigation for secondary structure), visible and programmatically exposed active states, a skip-link as the first focusable element, ARIA landmark roles on the shell regions, and complete keyboard operation: Tab and Shift-Tab traverse, arrow keys move within menus, Escape closes any open overlay.",
+  "category": "functional",
+  "domain": "navigation",
+  "priority": "must",
+  "rationale": "Navigation is the one surface every journey crosses. If it is not keyboard-complete and landmark-labelled, no journey in the application can meet the accessibility bar.",
+  "tags": [
+    "blueprint:spa",
+    "category:02-navigation"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}
