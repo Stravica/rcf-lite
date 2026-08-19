@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@stravica-ai/rcf-schemas': github:Stravica/rcf-schemas#feature/blueprint-additive-0.4.4
+  '@stravica-ai/rcf-schemas': github:Stravica/rcf-schemas#8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c
 
 importers:
 
@@ -14,7 +14,7 @@ importers:
   packages/rcf-lite:
     dependencies:
       '@stravica-ai/rcf-schemas':
-        specifier: github:Stravica/rcf-schemas#feature/blueprint-additive-0.4.4
+        specifier: github:Stravica/rcf-schemas#8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c
         version: https://codeload.github.com/Stravica/rcf-schemas/tar.gz/8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c
       ajv:
         specifier: ^8.20.0
@@ -82,7 +82,7 @@ packages:
         optional: true
 
   '@stravica-ai/rcf-schemas@https://codeload.github.com/Stravica/rcf-schemas/tar.gz/8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c':
-    resolution: {gitHosted: true, integrity: sha512-W8QtISmd+0EbsZgp+LlTdC1LyVbeV3Rb8J4PeiKzsM7cCQdtpavSWD0CiKA+6149z8ko3NKqvyJg3sgfABU9RQ==, tarball: https://codeload.github.com/Stravica/rcf-schemas/tar.gz/8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c}
+    resolution: {tarball: https://codeload.github.com/Stravica/rcf-schemas/tar.gz/8ad3655d1fb4c94eb8fe53600bfed094e97e6e2c}
     version: 0.4.4
     engines: {node: '>=24.0.0'}
 
@@ -554,8 +554,8 @@ packages:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
 
-  hono@4.13.2:
-    resolution: {integrity: sha512-JydRilDRkYBQMt9qR9U92mXxmbGqsqSn/IKOrh4e7/gEbn+0zSr8igTu0obwJoNGN4sez28DIql7FBHWydoJpA==}
+  hono@4.13.3:
+    resolution: {integrity: sha512-r8AO2mYHoLxSHkgafNeC/BXyb2vWRxD3jem4Ts+ptav8oTG5FIRifAjuJEmZI4bSvvc2ns0GxmIYiZnHqN3mMw==}
     engines: {node: '>=16.9.0'}
 
   http-errors@2.0.1:
@@ -898,9 +898,9 @@ snapshots:
 
   '@chevrotain/utils@11.0.3': {}
 
-  '@hono/node-server@2.1.1(hono@4.13.2)':
+  '@hono/node-server@2.1.1(hono@4.13.3)':
     dependencies:
-      hono: 4.13.2
+      hono: 4.13.3
 
   '@iconify/types@2.0.0': {}
 
@@ -923,7 +923,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.30.0(zod@4.4.3)':
     dependencies:
-      '@hono/node-server': 2.1.1(hono@4.13.2)
+      '@hono/node-server': 2.1.1(hono@4.13.3)
       ajv: 8.20.0
       ajv-formats: 3.0.1(ajv@8.20.0)
       content-type: 1.0.5
@@ -933,7 +933,7 @@ snapshots:
       eventsource-parser: 3.1.1
       express: 5.2.1
       express-rate-limit: 8.6.2(express@5.2.1)
-      hono: 4.13.2
+      hono: 4.13.3
       jose: 6.2.9
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -1484,7 +1484,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hono@4.13.2: {}
+  hono@4.13.3: {}
 
   http-errors@2.0.1:
     dependencies:
