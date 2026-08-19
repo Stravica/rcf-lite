@@ -24,6 +24,14 @@
 //   parent TS (ditto). The 0.4.4 schemas intentionally left AC/TC
 //   patterns unchanged.
 //
+// Ownership determination is NOT a grammar concern. String grammar is
+// only used here to STAMP a bare id at first apply; ownership of an
+// already-written contribution is answered by the manifest's
+// appliedBlueprintRecord.contributions[] list -- the authoritative
+// record of exactly which ids a given applied blueprint owns. See
+// `apply.js` (overwrite guard, cross-claim check) and `remove.js`
+// (referring-doc scan) for the record-consulting call-sites.
+//
 // This module is pure: no I/O, no wall clock.
 
 import {
@@ -54,12 +62,29 @@ export function namespaceStyleFor(id) {
 }
 
 /**
- * Stamp an id with a blueprint namespace. Idempotent: an id already
- * namespaced for the same slug is returned unchanged. Refuses to
- * re-stamp when the id already carries a different namespace slug.
+ * Stamp an id with a blueprint namespace at FIRST APPLY.
+ *
+ * Contract:
+ *   - Bare family+digits ids (`REQ-001`, `ADR-005`) get the slug written
+ *     as prefix (prefix families) or suffix (suffix families).
+ *   - Ids that already carry a slug segment are accepted VERBATIM: the
+ *     blueprint author's declared contribution list is the truth for
+ *     what that blueprint owns. String grammar does not veto (`stampId`
+ *     used to refuse `ADR-201-spa-theme` under slug `spa` on the basis
+ *     that `spa-theme` != `spa`, which broke every blueprint whose
+ *     suffix-family ids carried a semantic tail after the slug).
+ *   - AC and TC pass through unchanged (no namespacing family).
+ *   - An id that matches no family pattern, or a slug that is not a
+ *     valid kebab, is refused.
+ *
+ * Cross-blueprint claims (`spa-theme-REQ-001` declared under blueprint
+ * `spa` where `spa-theme` is also applied) are caught by the manifest-
+ * record consulted at write time (`apply.js` overwrite guard +
+ * cross-claim detector). String parsing here is deliberately not a
+ * trust surface.
  *
  * @param {string} id - canonical id (either bare `REQ-001` or already
- *                      namespaced `spa-REQ-001`)
+ *                      namespaced `spa-REQ-001` / `ADR-201-spa-theme`)
  * @param {string} slug - blueprint slug (must be well-formed kebab)
  * @returns {{ id: string } | { error: string }}
  */
@@ -73,34 +98,37 @@ export function stampId(id, slug) {
   if (style === 'none') return { id };
   if (style === 'prefix') {
     if (parts.prefixSlug === null) return { id: `${slug}-${parts.family}-${parts.digits}` };
-    if (parts.prefixSlug === slug) return { id };
-    return { error: `stampId: id '${id}' already carries prefix namespace '${parts.prefixSlug}'; cannot re-stamp as '${slug}'` };
+    // Already carries a prefix segment. Trust the declaration -- see
+    // module doc block. Any resulting cross-claim will surface at the
+    // manifest-record check in apply.js, not here.
+    return { id };
   }
-  // suffix. Exact-slug idempotency, symmetrical with isNamespacedFor:
-  // an id whose suffix is `spa-theme` is NOT blueprint `spa`'s to
-  // re-stamp, so stampId refuses. Loose `startsWith` here would let
-  // blueprint `spa` silently claim ownership of `ADR-005-spa-theme`.
+  // suffix
   if (parts.suffixSlug === null) return { id: `${parts.family}-${parts.digits}-${slug}` };
-  if (parts.suffixSlug === slug) return { id };
-  return { error: `stampId: id '${id}' already carries suffix namespace '${parts.suffixSlug}'; cannot re-stamp as '${slug}'` };
+  // Already carries a suffix segment. Trust the declaration (same
+  // reasoning as the prefix branch above).
+  return { id };
 }
 
 /**
- * True when the id is a blueprint-namespaced id for the given slug.
+ * GRAMMAR predicate: does the id's parsed slug segment equal `slug`?
+ *
+ * This is NOT an ownership check. Ownership of an applied contribution
+ * is answered by the manifest's appliedBlueprintRecord.contributions[]
+ * list (see `apply.js` overwrite guard and `remove.js` referring-doc
+ * scan). `isNamespacedFor` retains exact-slug grammar semantics for
+ * external consumers (docs generators, id-audit tooling) but must NOT
+ * be used to authorise a write or a delete -- for slug+tail ids like
+ * `ADR-201-spa-theme` the parsed suffix is `spa-theme`, which returns
+ * false for a legitimate `spa`-owned contribution whose author put a
+ * semantic tail after the slug. That misread is the exact reason the
+ * ownership call-sites were routed off this predicate.
  *
  * @param {string} id
  * @param {string} slug
  * @returns {boolean}
  */
 export function isNamespacedFor(id, slug) {
-  // Exact-slug match on BOTH sides. The prior implementation matched a
-  // suffix slug of the form `${slug}-...` too, which meant blueprint
-  // `spa` claimed `ADR-005-spa-theme` (the actual owner is blueprint
-  // `spa-theme`). Because apply.js consults this predicate to decide
-  // whether an overwrite is safe, the loose match let a same-file id
-  // originating from one blueprint be treated as another blueprint's
-  // own contribution. Prefix-side symmetry was already exact; suffix
-  // now matches.
   const parts = parseIdParts(id);
   if (!parts) return false;
   const style = namespaceStyleFor(id);
