@@ -53,6 +53,11 @@ test('the docs set exists: README.md plus the docs/ files', async () => {
   assert.deepEqual(names, [
     'README.md',
     'docs/README.md',
+    // Blueprint authoring standard, worked example, and ship gate
+    // (docs/blueprint-authoring PR).
+    'docs/blueprint-authoring-checklist.md',
+    'docs/blueprint-authoring-walkthrough.md',
+    'docs/blueprint-authoring.md',
     // Phase 10 (X2 CodeNode bridge, D19): in-repo docs for the CN layer.
     'docs/code-nodes.md',
     'docs/getting-started.md',
