@@ -36,11 +36,23 @@ test('rcf init --project-name X --non-interactive scaffolds a tree', async () =>
   assert.equal(manifest.projectName, 'TestProj');
 });
 
-test('rcf init without --project-name and no TTY fails with exit 2', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-noname-'));
-  const { code, stderr } = await runBinInit(tmp, ['--non-interactive']);
+test('rcf init without --project-name in non-interactive mode defaults to the cwd basename', async () => {
+  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-defaultname-'));
+  const { code, stdout } = await runBinInit(tmp, ['--non-interactive']);
+  assert.equal(code, 0);
+  assert.match(stdout, /RCF project created/);
+  const manifest = JSON.parse(await readFile(join(tmp, 'rcf', 'manifest.json'), 'utf8'));
+  const expected = tmp.split('/').pop();
+  assert.equal(manifest.projectName, expected,
+    `manifest.projectName should be cwd basename (got ${manifest.projectName}, expected ${expected})`);
+});
+
+test('rcf init non-interactive still refuses when the cwd basename is unusable', async () => {
+  // Filesystem root is the reliable unusable-basename case: basename('/') === ''.
+  const { code, stderr } = await runBinInit('/', ['--non-interactive']);
   assert.equal(code, 2);
   assert.match(stderr, /--project-name is required/);
+  assert.match(stderr, /unusable as a default/);
 });
 
 test('rcf init never overwrites an existing tree; re-run refreshes the wiring (Theme 1)', async () => {

@@ -122,7 +122,7 @@ function formatTraceTable(result) {
     lines.push(`${directionLabel}: (none)`);
   } else {
     for (const n of showList) {
-      rows.push([String(n.depth), n.id, n.kind, cellTitle(n.id)]);
+      rows.push([String(n.depth), n.id, n.kind, n.title ?? '']);
     }
     lines.push(renderTable(rows));
   }
@@ -139,7 +139,7 @@ function formatBothTraceTable(result) {
     lines.push('  (none)');
   } else {
     const rows = [['Depth', 'Id', 'Kind', 'Title']];
-    for (const n of ancestors) rows.push([String(n.depth), n.id, n.kind, '']);
+    for (const n of ancestors) rows.push([String(n.depth), n.id, n.kind, n.title ?? '']);
     lines.push(renderTable(rows));
   }
   lines.push('');
@@ -151,7 +151,7 @@ function formatBothTraceTable(result) {
     lines.push('  (none)');
   } else {
     const rows = [['Depth', 'Id', 'Kind', 'Title']];
-    for (const n of descendants) rows.push([String(n.depth), n.id, n.kind, '']);
+    for (const n of descendants) rows.push([String(n.depth), n.id, n.kind, n.title ?? '']);
     lines.push(renderTable(rows));
   }
   return `${lines.join('\n')}\n`;
@@ -194,10 +194,7 @@ function renderTable(rows) {
   return [out[0], sep, ...out.slice(1)].join('\n');
 }
 
-// Placeholder for future title lookup - the pure trace result does not
-// carry doc bodies, so title columns render blank unless the caller
-// passes a title source. Left here for the trace `Title` column so the
-// column stays if we ever wire in a title map without a schema change.
-function cellTitle(_id) {
-  return '';
-}
+// Trace nodes carry `title` as of the paper-cut batch (previously the
+// Title column was always empty). Doc-kind title source: PRD →
+// productName, REQ/US/TAC/ADR/TAD/TS/FBS/CN → title, inline AC/TC →
+// description. Nodes lacking a title render blank.

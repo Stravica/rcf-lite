@@ -1,31 +1,31 @@
 Trace pivot: REQ-002  direction: forward
 
 Depth  Id                                     Kind       Title
------  -------------------------------------  ---------  -----
-0      REQ-002                                req
-1      US-201                                 userStory
-1      US-202                                 userStory
-1      US-203                                 userStory
-2      TS-003                                 testSuite
-2      AC-201-1                               ac
-2      AC-201-2                               ac
-2      AC-201-3                               ac
-2      TS-004                                 testSuite
-2      AC-202-1                               ac
-2      AC-202-2                               ac
-2      AC-202-3                               ac
-2      TS-005                                 testSuite
-2      AC-203-1                               ac
-2      AC-203-2                               ac
-3      TC-003-diagram-emitted-as-source       tc
-3      TC-003-per-req-subdiagram-chain-edges  tc
-3      TC-003-one-subdiagram-per-req          tc
-3      TC-003-broken-node-marked-visibly      tc
-3      FBS-003                                fbs
-3      TC-004-curated-fields-not-raw-json     tc
-3      TC-004-doc-links-navigate-to-sections  tc
-3      TC-004-valid-html5-page                tc
-3      TC-004-served-live-no-files-written    tc
-3      FBS-004                                fbs
-3      TC-005-edit-present-after-regenerate   tc
-3      TC-005-no-cached-prior-state           tc
+-----  -------------------------------------  ---------  ------------------------------------------------------------
+0      REQ-002                                req        Visual review surface
+1      US-201                                 userStory  Render the tree as a diagram
+1      US-202                                 userStory  Browse the tree as a static page
+1      US-203                                 userStory  View reflects current on-disk state
+2      TS-003                                 testSuite  Mermaid diagram generation
+2      AC-201-1                               ac         The tree is rendered as per-requirement subdiagrams carry...
+2      AC-201-2                               ac         Broken references are marked visibly rather than omitted
+2      AC-201-3                               ac         The diagram is produced as source that renders without a ...
+2      TS-004                                 testSuite  Browsable page rendering
+2      AC-202-1                               ac         The view serves a live page from a local server process a...
+2      AC-202-2                               ac         Each document's key fields are rendered as readable text,...
+2      AC-202-3                               ac         Inter-document links navigate between sections
+2      TS-005                                 testSuite  View freshness
+2      AC-203-1                               ac         An edit on disk is present after the view is regenerated
+2      AC-203-2                               ac         The view is produced fresh from the on-disk tree and carr...
+3      TC-003-diagram-emitted-as-source       tc         the requirement subdiagram is emitted as mermaid flowchar...
+3      TC-003-per-req-subdiagram-chain-edges  tc         each REQ subdiagram carries chain edges REQ to US to AC p...
+3      TC-003-one-subdiagram-per-req          tc         every requirement is rendered as its own subdiagram (per-...
+3      TC-003-broken-node-marked-visibly      tc         a broken node still renders in the subdiagram and carries...
+3      FBS-003                                fbs        Diagram rendering
+3      TC-004-curated-fields-not-raw-json     tc         renderPage renders curated key fields as readable text ra...
+3      TC-004-doc-links-navigate-to-sections  tc         document links render as anchors targeting the raw doc id...
+3      TC-004-valid-html5-page                tc         the rendered page is a valid HTML5 document
+3      TC-004-served-live-no-files-written    tc         the view serves from a local server process and never wri...
+3      FBS-004                                fbs        HTML page rendering
+3      TC-005-edit-present-after-regenerate   tc         an on-disk edit is present in the regenerated view output
+3      TC-005-no-cached-prior-state           tc         regeneration re-walks the tree fresh and drops all prior-...

@@ -32,6 +32,7 @@
  * @property {string} id
  * @property {string} kind
  * @property {number} depth - 0 for pivot; positive for descendants; negative for ancestors
+ * @property {string} title - display title, or '' when the node has none
  */
 
 /**
@@ -69,6 +70,41 @@ export function kindOf(tree, id) {
   if (INLINE_AC_RE.test(id)) return tree.parentByChild.has(id) ? 'ac' : null;
   if (INLINE_TC_RE.test(id)) return tree.parentByChild.has(id) ? 'tc' : null;
   return null;
+}
+
+/**
+ * Return the display title for an id, or '' when the node carries none.
+ * Different doc kinds carry the title on different fields (PRD →
+ * productName; inline AC/TC → description; everything else → title). A
+ * standalone doc that lacks its title field renders blank rather than
+ * throwing; that keeps trace output readable on a partially-authored tree.
+ *
+ * Inline lookup: AC / TC nodes live inside their parent's inline array
+ * (userStory.acceptanceCriteria[] / testSuite.testCases[]), not as
+ * standalone entries in `tree.byId`. Resolve via parentByChild.
+ *
+ * @param {object} tree - walker TreeModel
+ * @param {string} id
+ * @param {string} kind - as returned by `kindOf`
+ * @returns {string}
+ */
+export function titleOf(tree, id, kind) {
+  if (kind === 'ac') {
+    const usId = tree.parentByChild.get(id);
+    const us = usId ? tree.byId.get(usId) : null;
+    const ac = us?.acceptanceCriteria?.find((a) => a?.id === id);
+    return ac?.description ?? '';
+  }
+  if (kind === 'tc') {
+    const tsId = tree.parentByChild.get(id);
+    const ts = tsId ? tree.byId.get(tsId) : null;
+    const tc = ts?.testCases?.find((t) => t?.id === id);
+    return tc?.description ?? '';
+  }
+  const doc = tree.byId.get(id);
+  if (!doc) return '';
+  if (kind === 'prd') return doc.productName ?? '';
+  return doc.title ?? '';
 }
 
 /**
@@ -134,7 +170,7 @@ export function computeTrace(tree, {
  */
 function walkForward(tree, pivot, pivotKind, includeCode = false, expandFbsDependents = false) {
   /** @type {TraceNode[]} */
-  const nodes = [{ id: pivot, kind: pivotKind, depth: 0 }];
+  const nodes = [{ id: pivot, kind: pivotKind, depth: 0, title: titleOf(tree, pivot, pivotKind) }];
   /** @type {TraceEdge[]} */
   const edges = [];
   const seen = new Set([pivot]);
@@ -158,7 +194,12 @@ function walkForward(tree, pivot, pivotKind, includeCode = false, expandFbsDepen
       if (!childKind) continue;
       const nextDepth = curDepth + 1;
       depthById.set(child.id, nextDepth);
-      nodes.push({ id: child.id, kind: childKind, depth: nextDepth });
+      nodes.push({
+        id: child.id,
+        kind: childKind,
+        depth: nextDepth,
+        title: titleOf(tree, child.id, childKind),
+      });
       queue.push(child.id);
     }
   }
@@ -178,7 +219,7 @@ function walkForward(tree, pivot, pivotKind, includeCode = false, expandFbsDepen
  */
 function walkBack(tree, pivot, pivotKind) {
   /** @type {TraceNode[]} */
-  const nodes = [{ id: pivot, kind: pivotKind, depth: 0 }];
+  const nodes = [{ id: pivot, kind: pivotKind, depth: 0, title: titleOf(tree, pivot, pivotKind) }];
   /** @type {TraceEdge[]} */
   const edges = [];
   const seen = new Set([pivot]);
@@ -188,7 +229,7 @@ function walkBack(tree, pivot, pivotKind) {
     const k = kindOf(tree, toId);
     if (!k) return;
     seen.add(toId);
-    nodes.push({ id: toId, kind: k, depth });
+    nodes.push({ id: toId, kind: k, depth, title: titleOf(tree, toId, k) });
     edges.push({ from: fromId, to: toId, kind: edgeKind });
   };
 

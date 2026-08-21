@@ -207,6 +207,15 @@ export async function main(argv, deps = {}) {
       stderr.write('[error] usage create cn: --path is required\n');
       return 2;
     }
+    // Pre-validate the #symbol portion so the refusal names the rule and
+    // the fix (paper-cut batch): the CN symbol regex admits identifier
+    // characters only, so a dotted symbol like `#Store.put` fails the
+    // schema pattern with an opaque message. Catch it here and teach.
+    const symbolCheck = checkCnSymbolPath(body.path);
+    if (!symbolCheck.ok) {
+      stderr.write(`[error] usage create cn: ${symbolCheck.message}\n`);
+      return 2;
+    }
     // Phase 10 D5: --derive-deps assist. Optional, dev-time only, never a
     // runtime dependency - errors helpfully (exit 2) when the tool cannot
     // be resolved rather than silently degrading or reaching for the
@@ -340,6 +349,42 @@ const ERROR_KINDS = new Set([
 function isRcfError(value) {
   return Boolean(value) && typeof value === 'object' && typeof value.kind === 'string'
     && ERROR_KINDS.has(value.kind) && typeof value.message === 'string';
+}
+
+/**
+ * Pre-flight the CN --path against the same identity rule the schema
+ * enforces (see cn.schema.json: `^[^#]+(#[A-Za-z_$][A-Za-z0-9_$]*)?$`).
+ * When the symbol part carries a dot (or any other non-identifier
+ * character), the schema-driven message reads as a bare pattern-mismatch
+ * and buries the fix. This surfaces it: name the rule, name the fix,
+ * point at the TC pointer as the right seat for method-level precision.
+ *
+ * @param {string} path - the --path argument
+ * @returns {{ ok: true } | { ok: false, message: string }}
+ */
+function checkCnSymbolPath(path) {
+  const hash = path.indexOf('#');
+  if (hash < 0) return { ok: true };
+  const symbol = path.slice(hash + 1);
+  if (symbol.length === 0) {
+    return {
+      ok: false,
+      message: `--path '${path}' has an empty #symbol suffix; drop the '#' to name the file only, or add an identifier after it (e.g. '#ClassName').`,
+    };
+  }
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(symbol)) return { ok: true };
+  // The pattern rejects anything that isn't a bare identifier. The dot
+  // case is by far the most common (people reach for `Class.method`), so
+  // call it out explicitly; other rejections fall through to the same
+  // teaching message.
+  const dotted = symbol.includes('.');
+  const hint = dotted
+    ? `dotted symbols (like '${symbol}') are not admitted: name the class or function alone (e.g. '#${symbol.split('.')[0]}') and record method-level precision on the TC test-pointer instead`
+    : `the symbol suffix admits identifier characters only (letters, digits, '_', '$'; a leading digit is not allowed)`;
+  return {
+    ok: false,
+    message: `--path '${path}' has an invalid #symbol '${symbol}': ${hint}.`,
+  };
 }
 
 function handleWriterError(err, stderr) {
