@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-505-auth-rate-limiting",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Per-endpoint rate limits with honest Retry-After on the sign-in mint and consume paths",
+  "context": "Two auth endpoints attract abuse. POST /login is a mint endpoint that an unbounded caller turns into an email-flooding pipeline aimed at the operator's own inbox. GET /login/verify is a consume endpoint that an unbounded caller turns into a brute-force pipeline against the token space. Both need ceilings low enough to make the abuse economically uninteresting without tripping on legitimate operator retry patterns.",
+  "decision": "POST /login is rate-limited to five requests per minute per client key by default. GET /login/verify is rate-limited to twenty requests per minute per client key by default. Both endpoints emit HTTP 429 on breach with a Retry-After header carrying a positive integer or a valid HTTP-date at or after the request time. 429 responses do not disclose registration state; the body is generic and identical across principals. Ceilings and windows are project-configurable options on the routes composition; overrides update the numbers stated in the project-level ADR that supersedes rate posture. The client key derivation defaults to the request's client IP (via the framework's rate-limit plugin); projects behind a trusted proxy configure the plugin to derive from a forwarded-for header instead.",
+  "consequences": "Legitimate operator sign-in retries stay well under the ceiling. A mint spray is stopped inside the first minute per client key; a token-guessing sweep is stopped inside the same window. Retry-After is honest, so well-behaved clients back off predictably; badly behaved clients are shed by the plugin without cost to the auth code. Projects with heavier legitimate load (shared IP behind NAT, corporate proxy) raise the ceilings and state the trade in a project-level ADR.",
+  "alternativesConsidered": [
+    {
+      "name": "Global rate limit only",
+      "summary": "One ceiling across the whole service.",
+      "reasonNotChosen": "A global limit trades a legitimate operator's sign-in against every other endpoint; the sign-in endpoints have their own abuse pattern and deserve their own ceiling."
+    },
+    {
+      "name": "No rate limit; rely on external WAF",
+      "summary": "Assume the deploy target puts a WAF in front of the service.",
+      "reasonNotChosen": "The blueprint targets small greenfield deployments where a WAF is not a given; making rate-limits the service's own responsibility means the floor holds without external infrastructure."
+    }
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

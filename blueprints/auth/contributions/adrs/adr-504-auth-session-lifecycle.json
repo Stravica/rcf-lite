@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-504-auth-session-lifecycle",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Sessions carry a sliding idle window, a fixed absolute lifetime, and server-side revocation as the only invalidation truth",
+  "context": "A session has three lifetime axes: how long it can be idle before it invalidates, how long it can live in absolute wall-clock terms regardless of activity, and how quickly a revoke can end it on demand. Every axis has to be a server-side decision because the client cannot be trusted to end its own session honestly; a session that only ends when the browser forgets its cookie is a session an attacker with the cookie can still ride.",
+  "decision": "Every session record carries a lastSeenAt timestamp and an absoluteExpiresAt timestamp. The sliding idle window is fifteen minutes by default (900000 ms); validateSession invalidates any record whose lastSeenAt is older than the idle window and refreshes lastSeenAt on every valid request. The absolute lifetime is thirty days by default (2592000000 ms); validateSession invalidates any record whose absoluteExpiresAt is in the past, regardless of activity. invalidateSession(handle) deletes the record; revokeAllForPrincipal(principalId) deletes every record for the principal in one call. Both defaults are constructor options; project overrides update the ADR's consequences in a project-level ADR.",
+  "consequences": "A stolen cookie has at most fifteen minutes of inactivity before it stops working; if the operator uses the session actively, the sliding window can extend to the absolute ceiling of thirty days. 'Sign me out everywhere' is one revokeAllForPrincipal call. Sessions survive process restart because the store is durable; the idle clock counts wall-clock elapsed during a restart against the window, so a long-stopped process does not falsely refresh sessions. Projects with tighter operator-lifetime needs (regulated environments, shared devices) supersede the defaults in a project-level ADR.",
+  "alternativesConsidered": [
+    {
+      "name": "Absolute expiry only, no sliding window",
+      "summary": "One expiry ceiling per session, no per-request refresh.",
+      "reasonNotChosen": "Every long-lived operator hits the ceiling mid-work and pays a forced sign-in. The sliding window keeps active operators signed in without extending the absolute ceiling."
+    },
+    {
+      "name": "Sliding window only, no absolute ceiling",
+      "summary": "Sessions live forever as long as the operator uses them.",
+      "reasonNotChosen": "Fails 'sessions rotate on a bounded schedule' expectations; an absolute ceiling caps blast-radius for a session record whose creation the operator no longer remembers."
+    },
+    {
+      "name": "Client-side expiry (the cookie's Max-Age carries the truth)",
+      "summary": "Rely on the browser to stop presenting an expired cookie.",
+      "reasonNotChosen": "The server has to enforce every session decision because the client cannot be trusted; a cookie's Max-Age helps browser hygiene but is never the invalidation surface."
+    }
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

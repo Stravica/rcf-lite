@@ -1,0 +1,54 @@
+{
+  "usId": "auth-US-3102",
+  "prdId": "PRD-001",
+  "reqId": "auth-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sign-in tokens consume exactly once, expire on a bounded clock, and are superseded on remint",
+  "asA": "operator whose emailed link might be intercepted, archived, or replayed",
+  "iWant": "each link to work exactly one time within a short window and to become useless the moment I ask for a fresh link",
+  "soThat": "a stolen or forwarded URL stops mattering as soon as I have moved past it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-3102-1",
+      "description": "A token consumed by GET /login/verify cannot be consumed a second time; a repeat call with the same token returns 401 without issuing a session.",
+      "given": "a token has been consumed once, issuing a session",
+      "when": "GET /login/verify is called again with the same token value",
+      "then": "the response status is 401 and no Set-Cookie header is emitted",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3102-2",
+      "description": "A token past its expiry cannot be consumed; GET /login/verify after the expiry window returns 401 without issuing a session.",
+      "given": "a valid unconsumed token whose expiresAt is now in the past",
+      "when": "GET /login/verify is called with that token",
+      "then": "the response status is 401 and no Set-Cookie header is emitted",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3102-3",
+      "description": "The default token expiry window is fifteen minutes; the window is a project-configurable option on the magic-link manager and its effective value is enumerable at runtime.",
+      "given": "a token is minted without a project override",
+      "when": "the manager records the expiry",
+      "then": "the recorded expiresAt is fifteen minutes after the mint clock; when a project supplies expiryMs the recorded expiry matches the override",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3102-4",
+      "description": "Minting a fresh token for a principal invalidates every prior unconsumed token for that principal; the previous URL cannot be exchanged after remint.",
+      "given": "a principal has an unconsumed token T1 and requests a fresh sign-in link, minting T2",
+      "when": "GET /login/verify is called with T1",
+      "then": "the response status is 401 and no Set-Cookie header is emitted",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-501-auth-magic-link-manager"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

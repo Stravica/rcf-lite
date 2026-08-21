@@ -1,0 +1,48 @@
+{
+  "usId": "auth-US-3109",
+  "prdId": "PRD-001",
+  "reqId": "auth-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Auth events are logged as structured entries and never quote secrets",
+  "asA": "operator investigating an auth incident from the log store",
+  "iWant": "every material auth event to emit one structured entry with fields I can query",
+  "soThat": "the incident is reconstructable from the log without the log itself becoming the leak",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-3109-1",
+      "description": "The blueprint's declared auth events (signInRequested, magicLinkMinted, magicLinkSent, magicLinkConsumed, sessionIssued, sessionRefreshed, sessionInvalidated, sessionRevoked, rateLimitTripped, adapterSendFailed) each emit exactly one structured entry per occurrence, carrying at minimum event name, UTC timestamp, outcome, principal id where applicable, and request id where applicable.",
+      "given": "each declared event class is exercised in turn",
+      "when": "the log stream is captured",
+      "then": "each event class emits exactly one entry per occurrence, with the named minimum fields present and typed as declared",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3109-2",
+      "description": "No emitted log entry contains a sign-in token secret, a session handle value, or an email-delivery-provider api key in any field.",
+      "given": "the full declared event set is exercised across successful and failing branches",
+      "when": "every emitted entry is scanned",
+      "then": "no field contains a substring matching any minted token, any issued session handle, or any configured adapter credential",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3109-3",
+      "description": "The magicLinkSent entry names the delivery adapter's returned providerMessageId when one is returned, and the string 'none' otherwise; the entry never carries the recipient's email in a field named otherwise, and the recipient email is always the principal id field's value.",
+      "given": "a magicLinkSent event is emitted after an adapter send",
+      "when": "the entry is inspected",
+      "then": "providerMessageId is present with a non-empty string or the literal 'none', and the recipient email appears only in the principalId field",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-501-auth-magic-link-manager",
+    "TAC-502-auth-session-manager",
+    "TAC-503-auth-login-routes",
+    "TAC-504-auth-email-delivery-adapter"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

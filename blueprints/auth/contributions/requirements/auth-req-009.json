@@ -1,0 +1,18 @@
+{
+  "reqId": "auth-REQ-009",
+  "prdId": "PRD-001",
+  "title": "Structured auth event log with zero secret leakage",
+  "description": "Every material auth event emits one structured log entry: sign-in requested, magic link minted, magic link sent, magic link consumed, session issued, session refreshed, session invalidated, session revoked, rate-limit tripped, adapter-send failed. Each entry carries at minimum an event name, a UTC timestamp, an outcome, and where applicable a principal id and a request id. Token secrets, session handles, and email-delivery-provider api keys never appear in any field of any log entry.",
+  "category": "security",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "An unlogged auth surface is a black box the first time it misfires; a logged auth surface that quotes tokens is the same black box plus a smoking gun in the log store. Naming the event set and forbidding secret quoting means the log is useful in an incident without becoming an incident itself.",
+  "tags": [
+    "blueprint:auth",
+    "category:09-observability"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}
