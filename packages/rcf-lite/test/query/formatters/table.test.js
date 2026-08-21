@@ -74,33 +74,50 @@ test('coverage table with --strict labels mode as strict', () => {
   assert.match(out, /Coverage mode: strict/);
 });
 
-test('trace forward table renders Depth / Id / Kind columns', () => {
+test('trace forward table renders Depth / Id / Kind / Title columns and populates Title from node.title', () => {
   const result = {
     pivot: 'REQ-002', direction: 'forward', found: true,
     nodes: [
-      { id: 'REQ-002', kind: 'req', depth: 0 },
-      { id: 'US-201', kind: 'userStory', depth: 1 },
+      { id: 'REQ-002', kind: 'req', depth: 0, title: 'Visual review surface' },
+      { id: 'US-201', kind: 'userStory', depth: 1, title: 'Render the tree as a diagram' },
     ],
     edges: [],
   };
   const out = formatTable(result, 'trace');
   assert.match(out, /Trace pivot: REQ-002/);
   assert.match(out, /direction: forward/);
-  assert.match(out, /Depth/);
+  assert.match(out, /Depth\s+Id\s+Kind\s+Title/);
+  assert.match(out, /REQ-002\s+req\s+Visual review surface/);
+  assert.match(out, /US-201\s+userStory\s+Render the tree as a diagram/);
+});
+
+test('trace forward table renders a blank Title cell when the node carries no title', () => {
+  const result = {
+    pivot: 'REQ-002', direction: 'forward', found: true,
+    nodes: [
+      { id: 'REQ-002', kind: 'req', depth: 0, title: '' },
+      { id: 'US-201', kind: 'userStory', depth: 1, title: '' },
+    ],
+    edges: [],
+  };
+  const out = formatTable(result, 'trace');
+  // No title still renders the row; the Title column is blank.
   assert.match(out, /REQ-002/);
   assert.match(out, /US-201/);
 });
 
-test('trace both table renders labelled Ancestors / Pivot / Descendants blocks', () => {
+test('trace both table populates Title in Ancestors and Descendants blocks', () => {
   const result = {
     pivot: 'US-201', direction: 'both', found: true,
-    ancestors: [{ id: 'REQ-002', kind: 'req', depth: -1 }],
-    descendants: [{ id: 'AC-201-1', kind: 'ac', depth: 1 }],
+    ancestors: [{ id: 'REQ-002', kind: 'req', depth: -1, title: 'Visual review surface' }],
+    descendants: [{ id: 'AC-201-1', kind: 'ac', depth: 1, title: 'The tree is rendered as per-requirement subdiagrams' }],
   };
   const out = formatTable(result, 'trace');
   assert.match(out, /Ancestors:/);
   assert.match(out, /Pivot: US-201/);
   assert.match(out, /Descendants:/);
+  assert.match(out, /REQ-002\s+req\s+Visual review surface/);
+  assert.match(out, /AC-201-1\s+ac\s+The tree is rendered as per-requirement subdiagrams/);
 });
 
 test('impact table renders Action needed column with per-node label', () => {

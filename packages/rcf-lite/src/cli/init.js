@@ -22,7 +22,7 @@ import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import {
@@ -61,7 +61,11 @@ to elicit. Re-running on an existing project leaves the tree alone and
 refreshes the wiring.
 
 Options:
-  --project-name <name>     Project name (required for --non-interactive)
+  --project-name <name>     Project name. In non-interactive mode this
+                            defaults to the working directory's basename
+                            (pass explicitly to override); an unusable
+                            basename (empty, '.', or '/') still requires
+                            the flag.
   --non-interactive         Skip prompts; use seed values (default when
                             not on a TTY or when piped)
   --no-agent-setup          Scaffold the tree only; print the manual
@@ -115,10 +119,21 @@ export async function main(argv, deps = {}) {
       rl.close();
     }
   } else {
+    // Non-interactive: --project-name defaults to the working
+    // directory's basename. An unusable basename (empty, '.', or '/')
+    // still requires the flag - no silent fallback to a generic name.
     if (!projectName) {
-      stderr.write('[error] usage --project-name is required in non-interactive mode\n');
-      stderr.write(HELP);
-      return 2;
+      const candidate = basename(cwd).trim();
+      if (candidate && candidate !== '.' && candidate !== '/') {
+        projectName = candidate;
+      } else {
+        stderr.write(
+          `[error] usage --project-name is required in non-interactive mode `
+          + `(cwd basename '${candidate}' is unusable as a default)\n`,
+        );
+        stderr.write(HELP);
+        return 2;
+      }
     }
   }
 

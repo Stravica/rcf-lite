@@ -64,6 +64,40 @@ test('rcf create cn without --path exits 2', async () => {
   assert.match(stderr, /--path is required/);
 });
 
+test('rcf create cn refuses a dotted #symbol with a message that names the rule and the fix', async () => {
+  // Paper-cut batch: the schema pattern rejects `#Class.method`, but
+  // the raw ajv message is opaque. The pre-flight message must teach
+  // the class-only convention and point at the TC pointer as the seat
+  // for method-level precision - a bare ajv line is a regression.
+  const tmp = await scaffold('create-dotted-symbol');
+  const { code, stderr } = await runBin(tmp, [
+    'create', 'cn', '--path', 'src/example.js#Store.put',
+  ]);
+  assert.equal(code, 2, stderr);
+  assert.match(stderr, /usage create cn/);
+  assert.match(stderr, /invalid #symbol 'Store\.put'/);
+  assert.match(stderr, /#Store/);
+  assert.match(stderr, /TC test-pointer/);
+  assert.doesNotMatch(stderr, /must match pattern/, 'bare ajv message is the regression');
+});
+
+test('rcf create cn refuses an empty #symbol suffix with a teaching message', async () => {
+  const tmp = await scaffold('create-empty-symbol');
+  const { code, stderr } = await runBin(tmp, ['create', 'cn', '--path', 'src/example.js#']);
+  assert.equal(code, 2, stderr);
+  assert.match(stderr, /empty #symbol suffix/);
+});
+
+test('rcf create cn refuses a leading-digit #symbol with a teaching message (identifier rule)', async () => {
+  const tmp = await scaffold('create-leading-digit');
+  const { code, stderr } = await runBin(tmp, [
+    'create', 'cn', '--path', 'src/example.js#9lives',
+  ]);
+  assert.equal(code, 2, stderr);
+  assert.match(stderr, /invalid #symbol '9lives'/);
+  assert.match(stderr, /identifier characters only/);
+});
+
 test('rcf create cn --deps wires a real CN-to-CN dependency edge', async () => {
   const tmp = await scaffold('create-deps');
   await runBin(tmp, ['create', 'cn', '--path', 'src/example.js#exampleFn']);

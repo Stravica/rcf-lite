@@ -6,137 +6,164 @@
     {
       "id": "REQ-002",
       "kind": "req",
-      "depth": 0
+      "depth": 0,
+      "title": "Visual review surface"
     },
     {
       "id": "US-201",
       "kind": "userStory",
-      "depth": 1
+      "depth": 1,
+      "title": "Render the tree as a diagram"
     },
     {
       "id": "US-202",
       "kind": "userStory",
-      "depth": 1
+      "depth": 1,
+      "title": "Browse the tree as a static page"
     },
     {
       "id": "US-203",
       "kind": "userStory",
-      "depth": 1
+      "depth": 1,
+      "title": "View reflects current on-disk state"
     },
     {
       "id": "TS-003",
       "kind": "testSuite",
-      "depth": 2
+      "depth": 2,
+      "title": "Mermaid diagram generation"
     },
     {
       "id": "AC-201-1",
       "kind": "ac",
-      "depth": 2
+      "depth": 2,
+      "title": "The tree is rendered as per-requirement subdiagrams carrying chain edges"
     },
     {
       "id": "AC-201-2",
       "kind": "ac",
-      "depth": 2
+      "depth": 2,
+      "title": "Broken references are marked visibly rather than omitted"
     },
     {
       "id": "AC-201-3",
       "kind": "ac",
-      "depth": 2
+      "depth": 2,
+      "title": "The diagram is produced as source that renders without a running server"
     },
     {
       "id": "TS-004",
       "kind": "testSuite",
-      "depth": 2
+      "depth": 2,
+      "title": "Browsable page rendering"
     },
     {
       "id": "AC-202-1",
       "kind": "ac",
-      "depth": 2
+      "depth": 2,
+      "title": "The view serves a live page from a local server process and writes no files"
     },
     {
       "id": "AC-202-2",
       "kind": "ac",
-      "depth": 2
+      "depth": 2,
+      "title": "Each document's key fields are rendered as readable text, not raw JSON"
     },
     {
       "id": "AC-202-3",
       "kind": "ac",
-      "depth": 2
+      "depth": 2,
+      "title": "Inter-document links navigate between sections"
     },
     {
       "id": "TS-005",
       "kind": "testSuite",
-      "depth": 2
+      "depth": 2,
+      "title": "View freshness"
     },
     {
       "id": "AC-203-1",
       "kind": "ac",
-      "depth": 2
+      "depth": 2,
+      "title": "An edit on disk is present after the view is regenerated"
     },
     {
       "id": "AC-203-2",
       "kind": "ac",
-      "depth": 2
+      "depth": 2,
+      "title": "The view is produced fresh from the on-disk tree and carries no cached prior state"
     },
     {
       "id": "TC-003-diagram-emitted-as-source",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "the requirement subdiagram is emitted as mermaid flowchart source"
     },
     {
       "id": "TC-003-per-req-subdiagram-chain-edges",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "each REQ subdiagram carries chain edges REQ to US to AC plus FBS delivery back-links, scoped to that requirement only"
     },
     {
       "id": "TC-003-one-subdiagram-per-req",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "every requirement is rendered as its own subdiagram (per-REQ design)"
     },
     {
       "id": "TC-003-broken-node-marked-visibly",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "a broken node still renders in the subdiagram and carries the broken class rather than being omitted"
     },
     {
       "id": "FBS-003",
       "kind": "fbs",
-      "depth": 3
+      "depth": 3,
+      "title": "Diagram rendering"
     },
     {
       "id": "TC-004-curated-fields-not-raw-json",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "renderPage renders curated key fields as readable text rather than raw JSON"
     },
     {
       "id": "TC-004-doc-links-navigate-to-sections",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "document links render as anchors targeting the raw doc id section"
     },
     {
       "id": "TC-004-valid-html5-page",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "the rendered page is a valid HTML5 document"
     },
     {
       "id": "TC-004-served-live-no-files-written",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "the view serves from a local server process and never writes files to disk"
     },
     {
       "id": "FBS-004",
       "kind": "fbs",
-      "depth": 3
+      "depth": 3,
+      "title": "HTML page rendering"
     },
     {
       "id": "TC-005-edit-present-after-regenerate",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "an on-disk edit is present in the regenerated view output"
     },
     {
       "id": "TC-005-no-cached-prior-state",
       "kind": "tc",
-      "depth": 3
+      "depth": 3,
+      "title": "regeneration re-walks the tree fresh and drops all prior-state content"
     }
   ],
   "edges": [
