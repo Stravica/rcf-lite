@@ -1,0 +1,45 @@
+{
+  "tacId": "TAC-501-auth-magic-link-manager",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Magic-link manager",
+  "purpose": "Owns the mint and consume semantics of the sign-in token: entropy source, expiry ceiling, single-use enforcement, invalidation of predecessors on remint, and event emission for the mint and consume moments. The token secret exists as plaintext only as the return value of mint and the argument to consume; nowhere else on the surface holds it.",
+  "responsibilities": [
+    "Mint a fresh token for a submitted principal with at least 24 bytes of cryptographic entropy, returning { token, expiresAt } (AC-3101-3, AC-3102-3).",
+    "Invalidate every prior unconsumed token for the principal at mint time so the newest token is the only one that can consume (AC-3102-4).",
+    "Consume a presented token exactly once, resolving to a principal id on success and to a failure without side effects on repeat, expiry, or unknown (AC-3102-1, AC-3102-2).",
+    "Never emit the token secret in any event field; emit magicLinkMinted with the principal id and expiresAt only (AC-3109-2, AC-3109-3).",
+    "Persist unconsumed tokens through the store interface so a process restart does not invalidate them (AC-3108-2)."
+  ],
+  "internalStructure": "One stateless manager class with an injected store; the store owns durability and the manager owns semantics. The token value is base64url of 32 random bytes generated via node:crypto.randomBytes; expiryMs defaults to 900000 (fifteen minutes) and is a constructor option.",
+  "interfaces": [
+    {
+      "name": "store",
+      "kind": "read-write-api",
+      "description": "Project-supplied durable store implementing invalidatePriorMagicLinkTokens(email), insertMagicLinkToken({ token, email, expiresAt }), and consumeMagicLinkToken(token) returning the record or null."
+    },
+    {
+      "name": "onEvent",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with { event, principalId, outcome, at, ... } for magicLinkMinted and magicLinkConsumed; never invoked with the token secret."
+    },
+    {
+      "name": "now",
+      "kind": "clock",
+      "description": "Injectable millisecond clock for expiry arithmetic (test surface)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Session manager",
+      "kind": "tac",
+      "tacId": "TAC-502-auth-session-manager",
+      "description": "Downstream consumer of a successful consume: converts the resolved principal id into an issued session record."
+    }
+  ],
+  "tradeoffs": "The manager holds no state of its own; every read and write goes through the store. That trade means every operation is a database round trip, which is honest for a persistence-first design and keeps restart continuity free. Projects that want in-memory token issuance for tests supply an in-memory store implementation of the same interface.",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

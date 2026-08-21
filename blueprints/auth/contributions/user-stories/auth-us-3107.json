@@ -1,0 +1,54 @@
+{
+  "usId": "auth-US-3107",
+  "prdId": "PRD-001",
+  "reqId": "auth-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sign-in endpoints are rate-limited with honest Retry-After",
+  "asA": "operator on a service that will get hit with mint floods and token-guessing sweeps",
+  "iWant": "POST /login and GET /login/verify both to reject beyond a configured ceiling with a 429 and a Retry-After the client can trust",
+  "soThat": "the endpoints stop misfiring on abuse traffic without any WAF in the path",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-3107-1",
+      "description": "POST /login rejects with 429 once its ceiling is crossed within the configured window; the response carries a Retry-After header whose value is a positive integer or an HTTP-date not earlier than the request time.",
+      "given": "POST /login is called from one client key beyond its ceiling within the window",
+      "when": "the ceiling-plus-one request lands",
+      "then": "the response status is 429 and Retry-After is present with a positive integer or a valid HTTP-date at or after request time",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3107-2",
+      "description": "GET /login/verify rejects with 429 once its ceiling is crossed within the configured window; the response carries a Retry-After header.",
+      "given": "GET /login/verify is called from one client key beyond its ceiling within the window",
+      "when": "the ceiling-plus-one request lands",
+      "then": "the response status is 429 and Retry-After is present",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3107-3",
+      "description": "A 429 response from either endpoint does not disclose registration state; the response body is generic and identical across principals.",
+      "given": "POST /login is rate-limited under registered and unregistered submissions in turn",
+      "when": "the 429 response bodies are captured",
+      "then": "every captured body is byte-identical",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3107-4",
+      "description": "The blueprint's default ceiling for POST /login is five requests per minute per client key; the ceiling is a project-configurable option.",
+      "given": "POST /login runs with no project override",
+      "when": "the effective ceiling is inspected",
+      "then": "the ceiling is five requests per minute per client key; when the project supplies rateLimit={ max, timeWindow } the effective ceiling matches the override",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-503-auth-login-routes"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

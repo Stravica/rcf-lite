@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-501-auth-magic-link-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Passwordless magic-link sign-in with server-issued opaque cookie sessions as the project's authentication model",
+  "context": "A project has one authentication model; the client tier, the server tier, and every operator surface must reason against it. The auth blueprint contributes the third half of the model: how an operator actually gets through the door, and what shape the session takes on the wire once they have. A client-tier blueprint (SPA) and a server-tier blueprint (REST) applied to the same project contribute their own decisions on this topic, and blueprint composition surfaces the pairing at add time for the operator to reconcile into one project-level model. That surfacing is intended.",
+  "decision": "Sign-in is passwordless: the operator submits their email to POST /login, the server mints a single-use time-limited token when the address is a registered principal, and the sign-in URL carrying the token is delivered by a pluggable email adapter. GET /login/verify consumes the token and issues a session. The session is a server-side record; the credential the operator's browser holds is an opaque base64url handle of at least 24 bytes of entropy, transported in a Secure HttpOnly SameSite=Lax cookie. No password field exists on any surface; no JWT-shaped self-describing token is issued on any code path.",
+  "consequences": "The project owns email delivery through the adapter interface and owns the principal registry through the isRegistered contract. Revocation is a server-side delete on the session record; 'sign me out everywhere' is one call. XSS cannot exfiltrate the credential because the handle is HttpOnly. CSRF has a SameSite=Lax floor and the project layers whatever extra token defence the SPA and REST halves agree on. Composing with a client-tier or server-tier blueprint deliberately conflicts on this topic; the expected resolution is one project-level ADR that fixes the credential shape (this ADR's opaque cookie session), maps it onto the server's auth classes (the REST blueprint's four classes if applied), and specifies how the client half handles session expiry (the SPA blueprint's cookie session and 401-redirect posture if applied).",
+  "alternativesConsidered": [
+    {
+      "name": "Password + hashed store",
+      "summary": "Operators register a password, the server stores a hash, the sign-in form takes email plus password.",
+      "reasonNotChosen": "The blueprint owns the sign-in flow; password handling brings hashing choice, rotation policy, breach-check integration, and reset flows every project has to build correctly to be safe. For the rcf-lite tier a passwordless flow removes the credential the operator must remember and keeps the secret material server-owned and short-lived."
+    },
+    {
+      "name": "Federated OIDC through an external identity provider",
+      "summary": "Delegate authentication to a Keycloak-local or hosted identity provider through the OIDC authorization-code flow.",
+      "reasonNotChosen": "Valid where an external IdP is a project requirement (multi-tenant identity, role management, group memberships). For a small greenfield rcf-lite project the container plus realm configuration cost outweighs the benefit; that model belongs in a future 'auth-oidc' blueprint aimed at bigger projects. See guide 'when it does not fit' for the promotion signal."
+    },
+    {
+      "name": "Signed JWT bearer tokens in a client-readable header or storage",
+      "summary": "Issue a self-describing bearer on sign-in that the client attaches to every request.",
+      "reasonNotChosen": "Script-readable credentials fail auth-REQ-004's transport floor; opaque handle plus server record is cheaper to revoke and safer under XSS. Projects that need bearer transport (native clients, service-to-service) layer a project-level ADR superseding the transport half."
+    }
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

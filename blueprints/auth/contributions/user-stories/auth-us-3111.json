@@ -1,0 +1,45 @@
+{
+  "usId": "auth-US-3111",
+  "prdId": "PRD-001",
+  "reqId": "auth-REQ-011",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Principal registry is pluggable and returns only a boolean",
+  "asA": "operator running anything from a solo-operator deployment to a multi-tenant tree",
+  "iWant": "the auth flow to ask exactly one question of my registry (is this address registered) and receive only a boolean",
+  "soThat": "principal shape (single email, allow-list, database query) is my decision and not the blueprint's",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-3111-1",
+      "description": "The magic-link routes call the principal-registry through a single isRegistered(email) method returning a Promise resolving to a boolean; no other registry method is called on the auth path.",
+      "given": "the auth code path is walked from POST /login through registration lookup",
+      "when": "the outgoing calls to the registry interface are enumerated",
+      "then": "only isRegistered is invoked, with only the submitted email string, and only the resolved boolean is consumed",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3111-2",
+      "description": "A registry that returns false for a submission produces an identical POST /login response to a registry that returns true; the registry answer is invisible in the response body, status, and Content-Type.",
+      "given": "the same email string is submitted twice, once against a registry that returns false and once against a registry that returns true",
+      "when": "the two responses are compared",
+      "then": "the response bodies are byte-identical, the statuses are equal, and the Content-Type headers are equal",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3111-3",
+      "description": "The blueprint ships a single-address registry implementation for solo-operator deployments; the implementation reads one email from configuration and returns true for that email and false for every other input.",
+      "given": "the single-address registry is instantiated with a configured email",
+      "when": "isRegistered is called with the configured email, a different email, an empty string, and a malformed value in turn",
+      "then": "the resolved boolean is true only for the configured email and false for every other case",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-505-auth-principal-registry"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

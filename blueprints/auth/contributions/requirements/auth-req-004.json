@@ -1,0 +1,18 @@
+{
+  "reqId": "auth-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Session handles are carried in a Secure, HttpOnly, SameSite cookie",
+  "description": "The session handle is transported to the browser as a cookie with Secure, HttpOnly, and SameSite=Lax set on every issue and every refresh. The cookie is never readable by client-side script. The cookie's Path defaults to '/', its Domain is unset so the browser scopes it to the origin, and its Max-Age reflects the session's absolute expiry. Non-browser clients that authenticate via bearer header are out of scope for this requirement; projects wanting a bearer transport in addition compose a project-level ADR that supersedes the transport half.",
+  "category": "security",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A script-readable session handle is an XSS-to-account-takeover pipeline; a permissive SameSite is a CSRF pipeline. Setting all three flags at the transport layer is the cheapest way to keep the credential out of the DOM and out of the cross-site request path.",
+  "tags": [
+    "blueprint:auth",
+    "category:04-session-transport"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

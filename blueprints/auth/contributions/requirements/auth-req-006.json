@@ -1,0 +1,18 @@
+{
+  "reqId": "auth-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Sign-in submission is anti-enumeration: identical body, status, and timing for every input",
+  "description": "The POST /login handler returns the same response body, the same HTTP status, and the same wall-clock latency floor regardless of whether the submitted email is a registered principal, an unregistered address, a malformed string, or an empty value. The response never confirms or denies registration. The timing floor is set by a per-handler anti-enumeration budget that dominates the slowest legitimate branch (mint plus adapter send). Registered-branch work runs behind the same delay ceiling as unregistered-branch work.",
+  "category": "security",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A login endpoint that differentiates its responses on the basis of principal registration is a free enumeration oracle; an attacker with a wordlist harvests the registered set without ever guessing a password. Uniform body, uniform status, and uniform timing collapse the oracle.",
+  "tags": [
+    "blueprint:auth",
+    "category:06-anti-enumeration"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

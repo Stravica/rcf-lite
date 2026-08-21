@@ -1,0 +1,18 @@
+{
+  "reqId": "auth-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Passwordless sign-in via emailed single-use magic link",
+  "description": "The application authenticates operators through a passwordless sign-in flow: the operator submits their email address to a POST /login endpoint; the server, when the address is a registered principal, mints a single-use token, composes a sign-in URL carrying that token, and sends the URL to the address via the configured email delivery adapter; the operator clicks the URL and lands on GET /login/verify, which consumes the token and issues a server-side session. No password field exists anywhere on the surface.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Passwords are a persistent liability: they leak, they get reused, they force the project into hashing, rotation, and reset flows that add surface without adding safety. A magic-link flow removes the credential the operator must remember, keeps the secret material server-owned and short-lived, and fits a single-deployable rcf-lite project without an external identity provider.",
+  "tags": [
+    "blueprint:auth",
+    "category:01-sign-in-flow"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}
