@@ -1,0 +1,45 @@
+{
+  "usId": "persistence-US-5105",
+  "prdId": "PRD-001",
+  "reqId": "persistence-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The store survives an ungraceful process kill without corruption",
+  "asA": "operator whose hosts die and whose containers get OOM-killed at unhelpful moments",
+  "iWant": "the store to open cleanly on the next boot after an ungraceful termination, with every committed write intact and every in-flight transaction rolled back",
+  "soThat": "a SIGKILL, a power loss, or an OOM event does not turn into a data-recovery incident",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5105-1",
+      "description": "A write committed before the process is SIGKILL'd is present when a fresh process opens the same store artifact afterward.",
+      "given": "a running process that commits a distinguishable write W through a facade verb and then receives SIGKILL",
+      "when": "a fresh process opens the same store artifact and reads through the facade",
+      "then": "the read returns W with the same values that were committed, and the store event log's opened event for the fresh process is present with no accompanying corruption error",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5105-2",
+      "description": "An in-flight transaction that had not committed at the moment of SIGKILL is not visible after the fresh open.",
+      "given": "a running process that opens a transaction, executes writes W_a, and receives SIGKILL before commit",
+      "when": "a fresh process opens the same store artifact and reads through the facade",
+      "then": "the reads for W_a's affected rows return the pre-transaction state and no post-transaction state, and no partial subset of W_a is visible",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5105-3",
+      "description": "The store's durability posture (write-ahead log and synchronous commit floor, or engine-native equivalent) is set at open time by the facade; no consumer configures it.",
+      "given": "the store has been opened by the facade",
+      "when": "the durability posture is inspected via an engine-native introspection query executed through the facade",
+      "then": "the returned posture matches the facade's declared crash-safety configuration, and a grep of consumer code finds no direct configuration of these pragmas or engine-native equivalents",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-601-persistence-store"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

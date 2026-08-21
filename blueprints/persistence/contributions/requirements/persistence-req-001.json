@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Every persistent entity lives in a single durable store opened via one boot-time entry point",
+  "description": "The application persists every stateful entity (session records, work items, audit trail, whatever the project's domain model requires) in a single durable store. The store is opened exactly once at process boot through a single entry point that other components import; nothing else in the process opens the underlying database file or connection. When the entry point returns, migrations have run and the store is ready to serve consumer calls.",
+  "category": "functional",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "Multiple entry points into the same durable substrate is the shape that produces stale caches, dueling migrations, and lock contention. One entry point at boot means one migration pass, one connection posture, one place to test and one place to fix. Consumers that need a persistence surface import the facade, not the engine.",
+  "tags": [
+    "blueprint:persistence",
+    "category:01-store-facade"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

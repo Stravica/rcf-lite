@@ -1,0 +1,45 @@
+{
+  "usId": "persistence-US-5107",
+  "prdId": "PRD-001",
+  "reqId": "persistence-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The store facade is the only module that talks to the underlying engine",
+  "asA": "developer who needs the engine to be swappable and the domain to be testable against a double",
+  "iWant": "one module to hold the engine binding and expose named verbs, with no consumer importing the engine directly",
+  "soThat": "the boundary between the domain and the engine is the only place that has to move when the engine changes and the only place tests have to mock",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5107-1",
+      "description": "Exactly one source-tree module imports the engine binding. Every other module that touches persistence imports the store facade.",
+      "given": "the running source tree after boot",
+      "when": "the import graph is inspected for uses of the engine binding module",
+      "then": "the engine binding is imported by exactly one file (the store facade) and no other file in the source tree imports it, verified by an import-graph query or a targeted grep",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5107-2",
+      "description": "The facade exposes named verbs for every persistence operation the domain requires; it does not expose a general-purpose query method that accepts raw engine-native queries from consumers.",
+      "given": "the store facade's public surface",
+      "when": "the surface is inspected",
+      "then": "every exported function has a domain-shaped name and typed parameters (not a raw query string parameter), and no exported function accepts an engine-native query object or raw SQL string as a call argument from consumer code",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5107-3",
+      "description": "Replacing the facade with an in-memory double that implements the same verb surface allows the domain code to run against it without importing the engine binding.",
+      "given": "a test double implementing the same named verbs as the facade with an in-memory backing store",
+      "when": "the domain code runs against the double in place of the facade",
+      "then": "the domain code executes to completion without importing the engine binding at any point in its call path and its behaviour is unchanged from a facade-backed run for the operations under test",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-601-persistence-store"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

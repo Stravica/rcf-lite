@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-REQ-009",
+  "prdId": "PRD-001",
+  "title": "A failed migration surfaces a specific error code and leaves the on-disk store unchanged",
+  "description": "When a migration statement or its version bookkeeping row fails, the migration runner rolls back the transaction, throws an error with a stable code and a message naming the failing version and the description of that migration, and does not attempt further migrations. The on-disk schema version reflects the last successfully committed migration, not the failed one. The store facade propagates the failure to the caller of the open entry point.",
+  "category": "technical",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "Silent partial migrations are the shape that produces the worst production incidents: the store is in a state no code knows how to interpret and the operator has no error to search on. A stable error code that names the failing version turns the diagnostic loop into a one-step operation (open the migration, read the statement, fix, redeploy).",
+  "tags": [
+    "blueprint:persistence",
+    "category:09-migration-failure"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

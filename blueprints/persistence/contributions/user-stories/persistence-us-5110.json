@@ -1,0 +1,37 @@
+{
+  "usId": "persistence-US-5110",
+  "prdId": "PRD-001",
+  "reqId": "persistence-REQ-010",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Store events carry no secret material",
+  "asA": "operator who ships store event logs to a third-party observability provider",
+  "iWant": "every field on every store event to be limited to store metadata; no domain data, no credential material, no secret values",
+  "soThat": "a log-store breach is not a domain-data breach and the ops team does not have to negotiate a redaction rule with the provider",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5110-1",
+      "description": "The fields on the opened, migrated, backupCheckpoint, and closed events are restricted to store metadata: event name, ISO-8601 timestamp, store identifier, schema version integers, migration version integers, migration description strings, and backup artifact paths. No event field carries a value read from a domain row.",
+      "given": "the store is taken through open, migrate, backup, and close",
+      "when": "every event record captured on the sink is inspected",
+      "then": "every field on every record matches one of the metadata field types listed above, and no field's value equals a value read from any domain table",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5110-2",
+      "description": "A grep of the store facade source for domain-table column names, secret-flagged column names, and the values of well-known secret columns (session handles, token secrets, private keys) finds them referenced only inside the narrow CRUD verbs that read or write those columns, never inside the event-emission call sites.",
+      "given": "the store facade source and the domain schema definition",
+      "when": "the grep is executed",
+      "then": "matches appear only inside CRUD verb bodies and never inside onEvent call arguments or event-record construction sites",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-601-persistence-store",
+    "TAC-604-persistence-backup-runner"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}
