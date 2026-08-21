@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-REQ-005",
+  "prdId": "PRD-001",
+  "title": "The store survives ungraceful process termination without corrupting on-disk state",
+  "description": "An abrupt SIGKILL, host power loss, or container OOM-kill of the running process leaves the on-disk store openable on the next boot with every committed write intact and every in-flight transaction rolled back. The store's durability posture (write-ahead log with a synchronous commit floor, or the engine-native equivalent) is set at open time and is not a caller concern.",
+  "category": "nonFunctional",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "A store that corrupts on an ungraceful shutdown is a store that will corrupt in production sooner or later: hosts die, containers get killed, the OOM killer picks the process at 03:00. Making crash safety a store-side default rather than a per-call ceremony means every consumer inherits it without having to remember.",
+  "tags": [
+    "blueprint:persistence",
+    "category:05-crash-safety"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

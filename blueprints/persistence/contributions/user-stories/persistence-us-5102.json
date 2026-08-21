@@ -1,0 +1,46 @@
+{
+  "usId": "persistence-US-5102",
+  "prdId": "PRD-001",
+  "reqId": "persistence-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Schema evolution is expressed as a numbered forward-only migration catalog committed in-tree",
+  "asA": "operator who needs deploys to be reproducible from a git ref",
+  "iWant": "every schema change to live in an ordered numbered migration catalog next to the store code",
+  "soThat": "the schema shape at any deployed version can be read directly from the committed catalog and no schema state exists outside version control",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5102-1",
+      "description": "The migration catalog exists as a source-tree artifact whose entries carry a monotonic version integer, a description string, and one or more statements. Loading the catalog yields entries in ascending version order with no gaps.",
+      "given": "the source tree at any commit that produces a running application",
+      "when": "the store facade imports the catalog at boot",
+      "then": "the loaded catalog is an ordered sequence whose version integers start at 1 and increase by exactly 1 per entry, and every entry carries a non-empty description and a non-empty statements list",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5102-2",
+      "description": "The store facade exposes a schemaVersion read operation whose return value equals the highest version present in the bookkeeping table after the last successful migration run.",
+      "given": "the store has been opened and any pending migrations have applied",
+      "when": "consumer code calls the schemaVersion read operation",
+      "then": "the returned integer equals the max value of the bookkeeping table's version column, and matches the max version integer in the loaded catalog",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5102-3",
+      "description": "The migration runner writes exactly one bookkeeping row per successfully applied migration, carrying the migration's version integer and an ISO-8601 appliedAt timestamp.",
+      "given": "the store opens against a file older than the build's max known version",
+      "when": "the migration runner completes",
+      "then": "the bookkeeping table holds one row per applied migration with the appliedAt timestamp set to a value not in the future and not preceding the store-opened event",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-602-persistence-migration-runner",
+    "TAC-603-persistence-migration-catalog"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

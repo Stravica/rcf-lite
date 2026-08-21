@@ -1,0 +1,37 @@
+{
+  "usId": "persistence-US-5103",
+  "prdId": "PRD-001",
+  "reqId": "persistence-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The store refuses to boot when it is newer than the build",
+  "asA": "operator whose deploy rollback must never corrupt production data",
+  "iWant": "the store to refuse to open when its on-disk schema version is newer than this build knows about",
+  "soThat": "an accidental rollback to an older build fails loudly at boot instead of silently reading and writing against unknown schema shapes",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5103-1",
+      "description": "Opening a store whose bookkeeping table records a schema version strictly greater than the build's max known migration version throws an error with a stable code and a message naming both versions; the process does not enter its request-serving state.",
+      "given": "a store artifact whose highest bookkeeping row records version N and a build whose max known migration version is M with M < N",
+      "when": "the boot sequence invokes the open entry point",
+      "then": "the entry point throws an error whose code is a stable identifier for the refuse-newer condition, whose message contains both the integer N and the integer M, and the process fails to reach its request-serving state",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5103-2",
+      "description": "The refuse-newer path performs no writes against the store; the bookkeeping table and every domain table are byte-identical before and after the failed open.",
+      "given": "a store artifact snapshot taken before the failed open attempt in AC-5103-1",
+      "when": "the failed open attempt returns control",
+      "then": "a fresh snapshot of the same store artifact is byte-identical to the pre-attempt snapshot, and no new bookkeeping row has been written",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-601-persistence-store",
+    "TAC-602-persistence-migration-runner"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

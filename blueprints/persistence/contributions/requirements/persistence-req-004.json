@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Migrations apply in order, each inside a single transaction; a mid-migration crash leaves the store on the previous version",
+  "description": "The migration runner iterates pending migrations in ascending version order. For each migration, the runner opens a transaction, executes every statement in the migration, writes the version row into the bookkeeping table, and commits. A failure at any step aborts the transaction and rolls back; the on-disk version reflects the last successfully committed migration. The runner surfaces the failure with a specific error code naming the version that failed.",
+  "category": "technical",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "Half-applied migrations are the shape that turns a schema evolution into a hand-recovery incident. Wrapping each migration in one transaction with its version bump means the store is always at a version the code knows how to interpret. Naming the failing version in the error means the operator can inspect the exact statement set that failed.",
+  "tags": [
+    "blueprint:persistence",
+    "category:04-atomic-migration"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}
