@@ -1,0 +1,54 @@
+{
+  "usId": "spa-US-1129",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Token adherence probe refuses ship on raw palette or missing parity",
+  "asA": "operator relying on the theme-system discipline",
+  "iWant": "a runtime check that fails the build when component styles slip a raw hex or when a theme is missing a token pair",
+  "soThat": "the semantic-token contract in ADR-202 is enforced at the ship gate, not just declared",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1129-1",
+      "description": "The token-adherence probe (TAC-207) scans the built component-scope stylesheets and exits non-zero when any file outside the token-realisation file contains a raw palette literal: hex, `rgb(`, `rgba(`, `hsl(`, `hsla(`, `oklch(`, `oklab(`, or a named CSS colour outside the pass-through allow list (`transparent`, `currentColor`, `inherit`, `initial`, `unset`).",
+      "given": "a project build that shipped a raw `#123456` in a component stylesheet outside `assets/tokens/theme.css`",
+      "when": "the token-adherence probe runs against the built stylesheet output",
+      "then": "the probe exits with a non-zero code and records the file path and line number of the violation in its report",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1129-2",
+      "description": "The token-adherence probe reads the design tokens JSON, extracts the light and dark key sets, and exits non-zero when any key present in one theme is missing from the other.",
+      "given": "a design tokens JSON in which the light theme declares `surface.raised` but the dark theme does not",
+      "when": "the token-adherence probe runs against the tokens file",
+      "then": "the probe exits with a non-zero code and records the missing key with the theme it is missing from in its report",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1129-3",
+      "description": "The token-adherence probe writes a JSON report at a stable relative path (`reports/token-adherence.json` under the configured report directory) naming every stylesheet scanned, every raw-literal violation with file path and line number, every missing-parity token key, and an `ok` or `fail` verdict.",
+      "given": "a completed probe run (pass or fail)",
+      "when": "the report file is inspected on disk",
+      "then": "the JSON at `reports/token-adherence.json` matches the shape declared by TAC-207 and its verdict field agrees with the process exit code",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1129-4",
+      "description": "When the token-adherence probe is wired as a gate in the ci-pipeline runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the ci-pipeline runner refuses ship with a non-zero exit.",
+      "given": "the ci-pipeline runner configured with the token-adherence probe as a required gate",
+      "when": "the probe reports `fail` on any run",
+      "then": "the aggregate report records the gate as failed and the runner exits non-zero",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-207-spa-token-adherence-probe"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}
