@@ -1,0 +1,60 @@
+# Illustrative GitHub Actions workflow for the ci-pipeline blueprint.
+# Copy this file into the host project as `.github/workflows/rcf-ci.yml`
+# and adjust the `node-version`, package-manager setup, and entry-point
+# path to match the project's realised gate runner (TAC-701).
+#
+# The workflow runs one CI-provider-neutral Node entry point that
+# invokes `rcf validate` and `rcf coverage --strict`, writes per-gate
+# and aggregate JSON reports under `.rcf/reports/ci/`, and uploads
+# the report directory as a workflow artefact for downstream readers.
+#
+# See `guide/ci-pipeline.md` (four-point mapping) for translating
+# this workflow to GitLab CI, CircleCI, Buildkite, or Jenkins.
+
+name: rcf-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  rcf-gates:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Single-line invocation of the project's realised gate runner.
+      # The runner spawns `rcf validate` then `rcf coverage --strict`,
+      # writes `.rcf/reports/ci/<gate>.json` per gate, and writes
+      # `.rcf/reports/ci/pipeline.json` as the aggregate. Its exit code
+      # is the pipeline's aggregate exit code.
+      - name: run rcf ci gates
+        run: node scripts/rcf-ci.js
+
+      - name: upload rcf ci reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rcf-ci-reports
+          path: .rcf/reports/ci/
+          if-no-files-found: warn
+          retention-days: 30

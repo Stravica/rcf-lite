@@ -1,0 +1,18 @@
+{
+  "reqId": "ci-pipeline-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Each gate writes a machine-readable JSON report file at a stable path on every invocation",
+  "description": "Every gate the suite invokes writes a JSON report file at a stable relative path under a project-configured report directory (default `.rcf/reports/ci/`). The per-gate report file is written whether the gate passed or failed. The report file carries the gate name, the underlying CLI invocation, the exit code, the start and end ISO-8601 timestamps, the duration in milliseconds, the tool version invoked, and the captured stdout and stderr strings. The report file's schema is stable within a blueprint major version.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A gate that only leaves human-readable text behind forces the reviewer to re-run it to answer any question the log did not surface. A stable JSON report at a stable path turns the gate's outcome into review-time data: what version of the tool ran, how long it took, what did it print. A downstream reader (a coverage-trend dashboard, an audit log) picks up the report by file path without needing to parse the CI provider's own artefact API.",
+  "tags": [
+    "blueprint:ci-pipeline",
+    "category:05-per-gate-report"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

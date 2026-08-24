@@ -1,0 +1,37 @@
+{
+  "usId": "ci-pipeline-US-6103",
+  "prdId": "PRD-001",
+  "reqId": "ci-pipeline-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The suite runs the validate gate and fails the pipeline on any non-zero exit",
+  "asA": "reviewer opening a pull request against the default branch",
+  "iWant": "the pipeline to have already run `rcf validate` against the head commit's tree and refused the run on any schema or reference issue",
+  "soThat": "I never review a change whose chain is structurally broken",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6103-1",
+      "description": "The suite invokes `rcf validate` before any other gate. The gate's exit code, captured stdout, and captured stderr are written to a per-gate report at the configured stable path.",
+      "given": "the pipeline has run against the head commit",
+      "when": "the reviewer opens the per-gate report file at `<reportDir>/validate.json`",
+      "then": "the file exists, its `gate` field is `validate`, its `command` field names the `rcf validate` invocation, its `exitCode` field records the underlying process exit code, and its `stdout` and `stderr` fields carry the captured streams",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6103-2",
+      "description": "A non-zero exit from `rcf validate` marks the aggregate verdict as failed and the aggregate exit code as non-zero. The pipeline does not proceed to declare the run passed on the basis of downstream gates alone.",
+      "given": "an invocation of the suite against a tree that fails `rcf validate` (a deliberately broken reference)",
+      "when": "the suite completes",
+      "then": "the aggregate report's `verdict` field is `failed`, its `gates[]` entry for `validate` records `outcome: failed`, and the Node entry point's process exit code is non-zero",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-ci-pipeline-gate-runner",
+    "TAC-702-ci-pipeline-gate-report"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}
