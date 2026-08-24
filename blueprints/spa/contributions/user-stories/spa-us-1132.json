@@ -1,0 +1,72 @@
+{
+  "usId": "spa-US-1132",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-018",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "External-service-dependency provisioning adherence probe refuses ship on placeholder credentials or unratified deferrals",
+  "asA": "operator responsible for the deployed application's dependence on external services",
+  "iWant": "a runtime check that fails the build when the application ships with a declared external-service dependency whose credentials are placeholder-shaped, or whose provisioning has been silently deferred without an operator-ratified deferral record",
+  "soThat": "an app is never signed off as deployed while an external service the runtime depends on is inert on a placeholder key or has been quietly parked as a documented quirk",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1132-1",
+      "description": "Every external-service dependency the application declares (email transports, payment providers, third-party API adapters, transactional-mail senders, SMS gateways, storage providers, and any other network dependency the runtime reaches for at request-time) is enumerated in a stable, discoverable manifest at ship-time. The manifest names, per dependency, the dependency id, the purpose, the credential field name, the intended provider, and a status of either 'verified' or 'deferred'. A dependency the app calls at runtime but does NOT declare in the manifest is a hard refusal.",
+      "given": "the application boot topology at ship",
+      "when": "the external-service-dependency manifest is inspected",
+      "then": "the manifest exists at the stable path the probe reads, enumerates every runtime-reached external service, and names a status per dependency; any runtime-reached external service missing from the manifest refuses ship",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1132-2",
+      "description": "Placeholder-shaped credential values are detected at gate time and refused. The placeholder-shape detector rejects: the empty string, the single characters '-' and '_', values matching /^(changeme|placeholder|example|test|dummy|fake|todo|tbd|xxx+|your[_-].+[_-]here)$/i, values matching /YOUR_.+_HERE/i, values equal to the literal strings 'null' or 'undefined' or 'None', and values that repeat a single character across their full length (e.g. 'xxxxxxxx'). A positive match against any credential field named on the manifest is a hard refusal, regardless of the declared status.",
+      "given": "the resolved value of every credential field named on the external-service-dependency manifest at ship",
+      "when": "the placeholder-shape detector is applied to each value",
+      "then": "no manifest-named credential field carries a placeholder-shape value; a positive match refuses ship",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1132-3",
+      "description": "A dependency at status 'verified' requires captured evidence of a real live handshake with the external service, gathered from the SHIPPED runtime (the same server construction the production entry point boots). Evidence is a provider-side acknowledgement of a probe request: a provider message id, a 2xx from the provider's own status endpoint, or an equivalent provider-attested receipt. A unit-test pass, a mocked adapter response, a synthetic 'ok', or an in-process stub does NOT satisfy the evidence requirement.",
+      "given": "a dependency declared with status 'verified' on the external-service-dependency manifest",
+      "when": "the probe replays the manifest-declared handshake against the shipped runtime",
+      "then": "the provider returns a live acknowledgement whose id or timestamp is captured on the probe report; the run refuses ship on any absent or synthesised evidence",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1132-4",
+      "description": "A dependency at status 'deferred' requires an operator-ratified deferral record persisted at a stable project-owned path. The record names the dependency id, the reason for deferral, the acknowledging operator identifier, the ISO-8601 acknowledgement timestamp, and the intended resolution route. A README note, a status.md 'quirk' or 'known-issue' line, a code comment, a commit message, or a work-item link on its own does NOT satisfy the deferral requirement. Absence of a ratified record for a 'deferred' dependency refuses ship.",
+      "given": "a dependency declared with status 'deferred' on the external-service-dependency manifest",
+      "when": "the probe checks for the deferral record at the manifest-named path",
+      "then": "the record exists at the stable path, carries the required fields, and is not stale beyond the ratified window; the run refuses ship on any missing, malformed, or expired record",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1132-5",
+      "description": "The external-service-dependency provisioning probe (TAC-210) writes a JSON report at a stable relative path ('reports/external-dependency-provisioning.json' under the configured report directory) naming every dependency declared, the credential-field placeholder-detector verdict per dependency, the captured handshake evidence per 'verified' dependency, the ratified deferral record reference per 'deferred' dependency, per-dependency verdict, and an aggregate verdict of 'ok' | 'deployed-with-defects'. The 'ok' verdict is reserved for runs in which every declared dependency resolves to 'verified' with live evidence OR 'deferred' with a valid ratified record; any placeholder-shape match, any missing handshake evidence for a 'verified' entry, or any missing ratified record for a 'deferred' entry lands the aggregate at 'deployed-with-defects'.",
+      "given": "a completed probe run (pass or fail)",
+      "when": "the report file is inspected on disk",
+      "then": "the JSON at 'reports/external-dependency-provisioning.json' matches the shape declared by TAC-210 and its aggregate 'verdict' field agrees with the process exit code (0 for 'ok', non-zero for 'deployed-with-defects')",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1132-6",
+      "description": "When the external-service-dependency provisioning probe is wired as a gate in the ci-pipeline runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the ci-pipeline runner refuses ship with a non-zero exit. The 'deployed-with-defects' probe verdict maps deterministically to a 'failed' entry in the TAC-703 aggregate; a run cannot land the pipeline aggregate at 'passed' while any external-service dependency carries placeholder credentials or an unratified deferral.",
+      "given": "the ci-pipeline runner configured with the external-service-dependency provisioning probe as a required gate",
+      "when": "the probe reports 'deployed-with-defects' on any run",
+      "then": "the aggregate report records the gate as failed and the runner exits non-zero",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-210-spa-external-dependency-provisioning-probe"
+  ],
+  "createdAt": "2026-08-24T13:00:00Z",
+  "updatedAt": "2026-08-24T13:00:00Z"
+}
