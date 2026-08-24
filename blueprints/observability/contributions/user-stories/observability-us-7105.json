@@ -1,0 +1,45 @@
+{
+  "usId": "observability-US-7105",
+  "prdId": "PRD-001",
+  "reqId": "observability-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "External reader sees an active incident notice on the status page during an outage",
+  "asA": "external reader visiting the status page during an active incident",
+  "iWant": "the page to surface active incident notices with a stable structure the operator has populated",
+  "soThat": "I see what the operator has said about the incident, when it started, and how bad it is, without hunting for a Twitter thread",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7105-1",
+      "description": "When one or more incident notices are active, the status page renders a notices region above the component list; each notice is a distinct element carrying title, body, severity, startedAt and (optionally) componentIds as machine-readable fields.",
+      "given": "the operator has posted two active incident notices, one with componentIds referencing two declared components and one without",
+      "when": "the status page is rendered and the notices region is queried",
+      "then": "the notices region contains exactly two notice elements, each with a title field, a body field, a severity field, and a startedAt field; the first notice element carries a componentIds field naming the two referenced components, the second notice element either omits the componentIds field or renders it as an empty list",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7105-2",
+      "description": "The severity field on each notice is one of a fixed enum (info, warning, critical); no other value is renderable.",
+      "given": "notices exist at each of the three severities",
+      "when": "the status page is rendered and every notice element's severity field is inspected",
+      "then": "every severity value is one of info, warning, or critical; no notice renders with any other severity value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7105-3",
+      "description": "When no notices are active, the notices region is either absent from the rendered document or clearly labelled as empty; no stale notice from a resolved incident appears.",
+      "given": "the operator has resolved every previously active incident and no notice is currently active",
+      "when": "the status page is rendered",
+      "then": "the rendered document either contains no notices region element or contains a notices region element carrying an emptyState marker; no notice element from any previously active incident is present",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-803-observability-status-page"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

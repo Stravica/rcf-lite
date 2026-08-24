@@ -1,0 +1,46 @@
+{
+  "usId": "observability-US-7110",
+  "prdId": "PRD-001",
+  "reqId": "observability-REQ-010",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Probes stay responsive under a downstream dependency outage",
+  "asA": "operator whose downstream dependency has gone slow or unresponsive",
+  "iWant": "the readiness probe to answer within its declared budget even when a declared dependency is hanging on network calls",
+  "soThat": "a downstream partial outage does not cause the load balancer to time out the probe and cascade the failure into every replica going unready simultaneously",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7110-1",
+      "description": "The readiness probe handler returns a response within the readiness evaluation budget declared in configuration (default 1 second) regardless of the responsiveness of any declared dependency; the handler reads a cached last-known state populated by a background evaluator, never issues a synchronous network round trip to a dep from inside the handler.",
+      "given": "a declared readiness dependency's real endpoint is configured to hang indefinitely (a network sink with no responder)",
+      "when": "a GET is issued against the readiness path and the response time is measured",
+      "then": "the response arrives within the declared readiness evaluation budget (default 1 second) and the response's checks entry for the hanging dependency shows state fail with a checkedAt that reflects the last background evaluation attempt, not the current probe-hit time",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7110-2",
+      "description": "The background dep-health evaluator runs on its own cadence, declared in configuration; every declared readiness dependency is evaluated at least once per cadence interval regardless of the state of any other dependency.",
+      "given": "the process is running with N declared dependencies including one that hangs and the background evaluator cadence declared as C seconds",
+      "when": "the process runs for at least 3 * C seconds and each dependency's checkedAt timestamp is sampled from the readiness body",
+      "then": "every non-hanging dependency's checkedAt advances at least twice within the window; the hanging dependency's checkedAt advances or its state transitions to fail with a checkedAt that reflects the evaluator's own attempt time, and no other dependency's evaluation is starved by the hanging one",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7110-3",
+      "description": "The liveness probe handler under the same hanging-dependency conditions still returns 200 within a bounded budget (default 250 milliseconds), demonstrating that liveness is decoupled from downstream dep health.",
+      "given": "a declared readiness dependency is hanging and the readiness probe is returning 503",
+      "when": "a GET is issued against the liveness path and the response time is measured",
+      "then": "the response status is 200, the response body's status field is pass, and the response arrives within 250 milliseconds",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-801-observability-liveness-probe",
+    "TAC-802-observability-readiness-probe"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

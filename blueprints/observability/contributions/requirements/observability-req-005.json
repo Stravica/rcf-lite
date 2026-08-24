@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-REQ-005",
+  "prdId": "PRD-001",
+  "title": "The status page surfaces active incident notices with a stable structure and stable field names",
+  "description": "When the operator has posted one or more active incident notices, the status page renders them above the component list. Each notice carries a title (short human string), a body (longer human string), a severity from a fixed enum (info, warning, critical), a startedAt ISO-8601 timestamp, and an optional componentIds array naming which declared components the notice relates to. When no notices are active, the notice region is either absent from the rendered page or clearly labelled as empty; no phantom notices, no stale notices carried over from a previous incident.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "A status page with no incident affordance forces the operator to communicate outages through side channels the external reader does not watch. A stable notice structure and stable field names is what lets a downstream RSS aggregator or partner-facing dashboard consume the surface without hand-parsing HTML.",
+  "tags": [
+    "blueprint:observability",
+    "category:05-incident-notices"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}
