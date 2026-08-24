@@ -1,0 +1,18 @@
+{
+  "status": "fail",
+  "checkedAt": "2026-08-24T12:34:56.789Z",
+  "checks": {
+    "primary-store": {
+      "state": "pass",
+      "checkedAt": "2026-08-24T12:34:55.501Z"
+    },
+    "payments-provider": {
+      "state": "fail",
+      "checkedAt": "2026-08-24T12:34:55.502Z"
+    },
+    "sms-gateway": {
+      "state": "pass",
+      "checkedAt": "2026-08-24T12:34:55.503Z"
+    }
+  }
+}

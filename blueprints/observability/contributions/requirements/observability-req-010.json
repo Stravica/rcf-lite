@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-REQ-010",
+  "prdId": "PRD-001",
+  "title": "Probe handlers evaluate in bounded time and never block on a network call to a downstream dependency",
+  "description": "The liveness probe handler completes its evaluation entirely in-process and returns without issuing any network call. The readiness probe handler completes within a bounded ceiling (the readiness evaluation budget, declared at boot with a documented default) and never blocks on a synchronous network round trip to a declared dependency: readiness checks read from a per-dependency last-known state that a background evaluator refreshes on its own cadence. A slow or hanging downstream dependency causes the last-known state for that dependency to age or fail, not the probe handler itself to hang.",
+  "category": "nonFunctional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "A probe handler that blocks on a downstream network call is a probe that turns a downstream partial outage into an orchestrator-visible full outage: replicas get pulled from rotation because their readiness probes timed out waiting on the same slow dep. The cached-last-known-state pattern is what breaks that coupling: the probe answers on cached state at endpoint response time, the dep-health worker refreshes on its own cadence with its own budget, and a hung dep hangs the worker not the probe.",
+  "tags": [
+    "blueprint:observability",
+    "category:10-probe-non-blocking"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

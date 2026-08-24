@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-REQ-002",
+  "prdId": "PRD-001",
+  "title": "The application exposes a readiness probe endpoint that answers whether the process can serve traffic",
+  "description": "The application serves a readiness probe at a stable HTTP path distinct from the liveness path. A 2xx response means the process is ready to accept request traffic; a 5xx response means the orchestrator should stop routing traffic to this replica while the process itself remains up. The readiness answer aggregates the health of the specific dependencies the process needs to serve requests correctly (declared as the readiness dependency set), evaluated on each probe hit through non-blocking cached checks that never hang the endpoint on a slow dep.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "Readiness is the load-balancer's routing signal. A ready replica should be able to serve; an unready replica should be pulled from rotation without a restart. The split from liveness matters: an outage of a downstream dependency that makes serving impossible is a readiness failure (route around me) not a liveness failure (restart me).",
+  "tags": [
+    "blueprint:observability",
+    "category:02-readiness-probe"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

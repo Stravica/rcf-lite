@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><title>Service status</title></head>
+<body>
+  <main>
+    <section class="notices" data-testid="notices-region">
+      <article class="notice" data-severity="warning" data-started-at="2026-08-24T11:02:00Z" data-component-ids="payments,notifications">
+        <h2 class="notice-title" data-testid="notice-title">Payments partner slowdown</h2>
+        <p class="notice-body" data-testid="notice-body">Our payments partner is responding slowly. Card payments may take up to 30 seconds to complete. We are monitoring.</p>
+      </article>
+    </section>
+    <section class="components" data-testid="components-region">
+      <article class="component" data-name="payments" data-state="degraded">
+        <h3 class="component-name">Payments</h3>
+      </article>
+      <article class="component" data-name="notifications" data-state="operational">
+        <h3 class="component-name">Notifications</h3>
+      </article>
+      <article class="component" data-name="data" data-state="operational">
+        <h3 class="component-name">Data</h3>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

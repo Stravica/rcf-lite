@@ -1,0 +1,46 @@
+{
+  "usId": "observability-US-7107",
+  "prdId": "PRD-001",
+  "reqId": "observability-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Monitoring integration consumes the probe JSON body without hand-parsing HTML",
+  "asA": "third-party monitoring integration or dashboard consuming the application's probe endpoints",
+  "iWant": "a stable JSON response shape from both probes with stable field names and an ISO-8601 timestamp on every response",
+  "soThat": "I wire the integration once and it does not break when a patch release ships",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7107-1",
+      "description": "Both probe responses declare Content-Type application/json; both bodies parse as JSON and contain a status field (pass or fail) and a checkedAt field with a parseable ISO-8601 timestamp.",
+      "given": "the process is running and both probes are reachable",
+      "when": "GETs are issued against each probe path and each response body is JSON-parsed",
+      "then": "each response has Content-Type application/json, each body parses without error, each parsed body has a status field valued pass or fail, and each body has a checkedAt field that parses as a valid ISO-8601 date-time",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7107-2",
+      "description": "The readiness body carries a checks object keyed by declared dependency name; the liveness body has no checks field.",
+      "given": "the process has declared a readiness dependency set and both probes are reachable",
+      "when": "the two probe response bodies are compared",
+      "then": "the readiness body contains a checks object with one entry per declared readiness dependency, and the liveness body contains no checks field",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7107-3",
+      "description": "Field names on both probe response bodies are stable across the blueprint's version series: a patch or minor release does not rename status, checkedAt, or checks.",
+      "given": "the blueprint at v1.0.0 declares its probe body field names",
+      "when": "a project inspects the field names on both probe bodies at v1.0.0 and again at any subsequent v1.x.y release",
+      "then": "the top-level field names status, checkedAt, and checks (readiness only) are present at both versions with the same casing and the same value shapes; a rename would require a major version bump per the blueprint's own versioning policy",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-801-observability-liveness-probe",
+    "TAC-802-observability-readiness-probe"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}
