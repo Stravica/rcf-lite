@@ -1,4 +1,4 @@
-# SPA blueprint (v1.1.0)
+# SPA blueprint (v1.2.0)
 
 The first content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified; Phase 2 of the blueprint programme). Scope: single-page applications with public and authenticated surfaces, session-based auth, single deployable, dark and light by default, fully responsive by default.
 
@@ -14,8 +14,8 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 
 | Piece | Where | What |
 |---|---|---|
-| Metadata | `blueprint.json` | Slug, version, and the 68 contributions with scope/topic on the five global ADRs |
-| Doc set | `contributions/` | 21 REQs, 30 USs (175 ACs), 8 TACs, 9 ADRs, all schema-valid against rcf-schemas 0.4.4 and namespaced (`spa-REQ-001` prefix family; `ADR-201-spa-routing` suffix family) |
+| Metadata | `blueprint.json` | Slug, version, and the 70 contributions with scope/topic on the five global ADRs |
+| Doc set | `contributions/` | 21 REQs, 31 USs (181 ACs), 9 TACs, 9 ADRs, all schema-valid against rcf-schemas 0.4.4 and namespaced (`spa-REQ-001` prefix family; `ADR-201-spa-routing` suffix family) |
 | Design tokens | `assets/tokens/design-tokens.json` | Colour (both themes, contrast-validated), spacing, radius, typography, elevation, motion, breakpoints |
 | Stylesheet | `assets/tokens/theme.css` | The tokens realised as CSS custom properties with the theme-switch, focus, and reduced-motion machinery |
 | Wireframes | `assets/wireframes/` | Nine canonical surfaces: dashboard, list, detail, form, empty, error, sign-in, sign-out, session-expired |

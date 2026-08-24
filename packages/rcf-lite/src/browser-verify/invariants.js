@@ -85,6 +85,12 @@ const V1_INVARIANTS = [
     perThemeOnly: false,
     run: checkSharedLayoutStructural,
   },
+  {
+    name: 'noInlineStyleBlocks',
+    severity: 'block',
+    perThemeOnly: false,
+    run: checkNoInlineStyleBlocks,
+  },
 ];
 
 /** Versioned constant, module-encoded per §12 O-6. */
@@ -253,13 +259,16 @@ function checkThemeDefaultsToLight(ctx) {
 }
 
 function checkFocusRingsVisible(ctx) {
-  // Cheap chain-shaped heuristic: the response HTML mentions a focus
-  // style (either an inline focus-ring rule or a class that reads as
-  // one). The real check happens agent-side against a tab-focused
-  // screenshot; v1 records `advisory` when the heuristic is
-  // inconclusive so operators know to eyeball. spec §8.3 severity `warn`.
+  // Cheap chain-shaped heuristic: the response HTML either mentions a
+  // focus style inline OR links a same-origin stylesheet where the
+  // rule can live (per the styled-under-shipped-CSP baseline: no
+  // inline <style>, ship rules via <link rel="stylesheet">). The real
+  // check happens agent-side against a tab-focused screenshot; v1
+  // records `warn` when the heuristic is inconclusive so operators
+  // know to eyeball. spec §8.3 severity `warn`.
   if (/focus-visible|focus-ring|outline\s*:/i.test(ctx.dom)) return { verdict: 'pass' };
-  return { verdict: 'warn', detail: 'no focus-ring style detected in the response HTML (visually confirm agent-side)' };
+  if (/<link\b[^>]*rel=["']?stylesheet\b/i.test(ctx.dom)) return { verdict: 'pass' };
+  return { verdict: 'warn', detail: 'no focus-ring style detected in the response HTML and no <link rel="stylesheet"> reference (visually confirm agent-side)' };
 }
 
 function checkSharedLayoutStructural(ctx) {
@@ -296,6 +305,24 @@ export function compareTopLevelStructure(captures, baseline) {
     verdict: 'fail',
     detail: `top-level DOM structure diverges between ${auth[0].routePath} and ${mismatched.join(', ')} (spec §8.3 structural check)`,
     severity,
+  };
+}
+
+/**
+ * The captured DOM MUST NOT carry an inline <style> block. A <style>
+ * block requires the shipping CSP to allow style-src 'unsafe-inline';
+ * a project that ships one either weakens the CSP baseline (a security
+ * regression) or renders unstyled at deploy (the watchpost run4 class
+ * defect this invariant refuses). Stylesheets must be served from
+ * same-origin routes and referenced via <link rel="stylesheet"> so
+ * style-src 'self' remains sufficient.
+ */
+function checkNoInlineStyleBlocks(ctx) {
+  const dom = typeof ctx.dom === 'string' ? ctx.dom : '';
+  if (!/<style\b/i.test(dom)) return { verdict: 'pass' };
+  return {
+    verdict: 'fail',
+    detail: 'inline <style> block present in the rendered HTML; ship style-src \'unsafe-inline\' would be required for it to render (watchpost run4 class defect, w-2026-08-24-003). Serve the stylesheet from a same-origin route and reference it via <link rel="stylesheet">.',
   };
 }
 

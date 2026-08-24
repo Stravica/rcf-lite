@@ -27,6 +27,9 @@ const uiBearingFbs = {
 
 const goodDom = `<!DOCTYPE html>
 <html data-theme="light">
+  <head>
+    <link rel="stylesheet" href="/assets/app.css">
+  </head>
   <body>
     <nav>
       <a href="/">Dashboard</a>
@@ -35,7 +38,6 @@ const goodDom = `<!DOCTYPE html>
       <span>Signed in as owner</span>
       <a href="/logout">Log out</a>
     </nav>
-    <style>:focus-visible { outline: 2px solid; }</style>
     <main>Content</main>
   </body>
 </html>`;
@@ -141,4 +143,22 @@ test('foldInvariantsForRecord aggregates worst verdict + most-severe severity ac
 test('compareTopLevelStructure returns pass on a single capture', () => {
   const r = compareTopLevelStructure([{ routePath: '/', dom: '<html><body><nav></nav><main></main></body></html>' }], null);
   assert.equal(r.verdict, 'pass');
+});
+
+test('noInlineStyleBlocks (block severity) passes on a DOM with only <link rel="stylesheet">', () => {
+  const dom = '<html><head><link rel="stylesheet" href="/assets/app.css"></head><body><main>ok</main></body></html>';
+  const results = runInvariantsForCapture({ routePath: '/', themeApplied: 'light', fbs: uiBearingFbs, dom });
+  const inv = results.find((r) => r.invariant === 'noInlineStyleBlocks');
+  assert.equal(inv.verdict, 'pass');
+  assert.equal(inv.severity, 'block');
+});
+
+test('noInlineStyleBlocks fails when the DOM carries an inline <style> block (w-2026-08-24-003 class defect refusal)', () => {
+  const dom = '<html><head><style>body { background: #fff; }</style></head><body><main>ok</main></body></html>';
+  const results = runInvariantsForCapture({ routePath: '/', themeApplied: 'light', fbs: uiBearingFbs, dom });
+  const inv = results.find((r) => r.invariant === 'noInlineStyleBlocks');
+  assert.equal(inv.verdict, 'fail');
+  assert.equal(inv.severity, 'block');
+  assert.match(inv.detail, /inline <style>/i);
+  assert.match(inv.detail, /w-2026-08-24-003/);
 });

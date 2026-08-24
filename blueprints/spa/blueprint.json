@@ -1,6 +1,6 @@
 {
   "slug": "spa",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "contributions": [
     {
       "id": "spa-REQ-001",
@@ -258,6 +258,11 @@
       "path": "user-stories/spa-us-1130.json"
     },
     {
+      "id": "spa-US-1131",
+      "kind": "us",
+      "path": "user-stories/spa-us-1131.json"
+    },
+    {
       "id": "TAC-201-spa-app-shell",
       "kind": "tac",
       "path": "tacs/tac-201-spa-app-shell.json"
@@ -296,6 +301,11 @@
       "id": "TAC-208-spa-icon-adherence-probe",
       "kind": "tac",
       "path": "tacs/tac-208-spa-icon-adherence-probe.json"
+    },
+    {
+      "id": "TAC-209-spa-csp-styled-adherence-probe",
+      "kind": "tac",
+      "path": "tacs/tac-209-spa-csp-styled-adherence-probe.json"
     },
     {
       "id": "ADR-201-spa-routing",
