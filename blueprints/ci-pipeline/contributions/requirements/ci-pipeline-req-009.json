@@ -1,0 +1,18 @@
+{
+  "reqId": "ci-pipeline-REQ-009",
+  "prdId": "PRD-001",
+  "title": "The blueprint documents one illustrative GitHub Actions workflow; alternate providers wire the same entry point per their own runner language",
+  "description": "The blueprint's package resources include one illustrative GitHub Actions workflow file (`assets/ci-provider-examples/github-actions.yml`) that names the required repository events (push to default branch, pull_request into default branch), sets up Node and the package manager, installs dependencies, invokes the Node gate entry point, and uploads the report directory as a workflow artefact. The blueprint's guide names GitLab CI, CircleCI, Buildkite, and Jenkins as equally supported providers, calls out the mapping (job trigger, Node setup, single-line entry-point invocation, artefact upload), and states that the blueprint does not ship provider-specific configuration for those runners.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "One worked example spelled in one runner language is more useful to the reader than a matrix of half-specified examples. GitHub Actions is the illustrative pick because it is the most widely deployed among rcf-lite candidate projects, not because it is privileged. The mapping to other providers is small enough that a paragraph of guide prose plus the one worked example is the right cost.",
+  "tags": [
+    "blueprint:ci-pipeline",
+    "category:09-provider-example"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

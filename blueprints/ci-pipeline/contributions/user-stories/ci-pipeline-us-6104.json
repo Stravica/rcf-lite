@@ -1,0 +1,37 @@
+{
+  "usId": "ci-pipeline-US-6104",
+  "prdId": "PRD-001",
+  "reqId": "ci-pipeline-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The suite runs per-AC strict coverage and fails the pipeline on any gap",
+  "asA": "reviewer accountable for the RCF chain on merge",
+  "iWant": "the pipeline to have already run `rcf coverage --strict` and refused on any AC without a resolving TC",
+  "soThat": "a merge that ships an AC unbound to a TC is impossible",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6104-1",
+      "description": "The suite invokes `rcf coverage --strict` as a required gate after `rcf validate`. The gate's exit code, captured stdout, and captured stderr are written to a per-gate report at the configured stable path.",
+      "given": "the pipeline has run against the head commit",
+      "when": "the reviewer opens the per-gate report file at `<reportDir>/coverage-strict.json`",
+      "then": "the file exists, its `gate` field is `coverage-strict`, its `command` field names the `rcf coverage --strict` invocation, its `exitCode` field records the underlying process exit code, and its `stdout` and `stderr` fields carry the captured streams",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6104-2",
+      "description": "A non-zero exit from `rcf coverage --strict` (exit 4 on gaps, per mechanism) marks the aggregate verdict as failed and the aggregate exit code as non-zero. The suite never substitutes shallow-any coverage for strict coverage.",
+      "given": "an invocation of the suite against a tree with a deliberately uncovered AC",
+      "when": "the suite completes",
+      "then": "the aggregate report's `verdict` field is `failed`, its `gates[]` entry for `coverage-strict` records `outcome: failed` with the underlying exit code preserved, and no gate report on disk records a shallow-any invocation for coverage",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-ci-pipeline-gate-runner",
+    "TAC-702-ci-pipeline-gate-report"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

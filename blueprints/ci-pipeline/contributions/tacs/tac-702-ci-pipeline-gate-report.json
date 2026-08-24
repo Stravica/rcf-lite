@@ -1,0 +1,32 @@
+{
+  "tacId": "TAC-702-ci-pipeline-gate-report",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Per-gate report writer",
+  "purpose": "The module that writes one JSON report per gate invocation to a stable relative path under the configured report directory. Owns the per-gate report schema (fixed key set, typed values) and the atomic write posture that makes a partially written report distinguishable from a missing one.",
+  "responsibilities": [
+    "Write a JSON file at `<reportDir>/<gate>.json` for every gate the runner invoked, whether the gate passed or failed (AC-6105-1).",
+    "Populate the fixed key set on every report: `gate`, `command`, `toolVersion`, `startedAt`, `endedAt`, `durationMs`, `exitCode`, `outcome`, `stdout`, `stderr`. Value types match the stable schema (ISO-8601 strings, integer durations, integer exit codes, `outcome` is one of `passed` or `failed`) (AC-6105-1).",
+    "Capture the underlying CLI's tool-version string (from `rcf --version`) at the time the gate runs; write it verbatim to the `toolVersion` field (AC-6105-2).",
+    "Ensure the file is created via an atomic write posture (write to a sibling temp file, then rename) so a killed writer leaves either the previous file or no file at all, not a truncated file the aggregate writer would misread as a valid report."
+  ],
+  "internalStructure": "One module that exports a `writeGateReport({ reportDir, gate, command, toolVersion, startedAt, endedAt, exitCode, stdout, stderr })` function returning the written file's absolute path. Serialises the fixed key set to JSON with 2-space indent (human-readable diffs); writes to `<reportDir>/<gate>.json.tmp`; renames to `<reportDir>/<gate>.json` on close. Truncates captured streams past a size cap (default 256KB per stream) with a trailing `[truncated]` marker so a runaway gate does not fill the disk.",
+  "interfaces": [
+    {
+      "name": "writeGateReport",
+      "kind": "write-api",
+      "description": "writeGateReport({ reportDir, gate, command, toolVersion, startedAt, endedAt, exitCode, stdout, stderr }) -> Promise<string>. Writes the per-gate JSON report atomically and resolves with the written file's absolute path."
+    },
+    {
+      "name": "gate-report-schema",
+      "kind": "schema",
+      "description": "Top-level keys exactly: `gate` (string), `command` (string[]), `toolVersion` (string), `startedAt` (ISO-8601 string), `endedAt` (ISO-8601 string), `durationMs` (integer), `exitCode` (integer), `outcome` (enum `passed` | `failed`), `stdout` (string), `stderr` (string). No other keys are written at v1.0.0."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The atomic rename posture costs one extra file-system syscall per report; that cost buys the aggregate writer being able to distinguish a valid report from a partial one. Truncating streams past 256KB costs the tail of a very verbose gate; that cost buys bounded disk usage on runaway gate loops. The report schema is fixed within a major version: adding a new key is a minor bump (additive), removing or renaming a key is a major bump.",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

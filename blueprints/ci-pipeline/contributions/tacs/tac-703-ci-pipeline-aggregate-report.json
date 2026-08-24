@@ -1,0 +1,41 @@
+{
+  "tacId": "TAC-703-ci-pipeline-aggregate-report",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Aggregate report writer",
+  "purpose": "The module that writes the single aggregate JSON report at `<reportDir>/pipeline.json` at the end of every suite invocation. Owns the aggregate report schema, the fixed-order gate array, the missing-report detection pass, and the verdict rule that maps per-gate outcomes to the aggregate verdict.",
+  "responsibilities": [
+    "Write a JSON file at `<reportDir>/pipeline.json` on every suite completion (AC-6106-1).",
+    "Populate the fixed key set: `verdict`, `trigger`, `startedAt`, `endedAt`, `durationMs`, `runner` (with nested `entryPoint`, optional `environment`), and `gates[]` (each entry naming `gate`, `outcome`, `durationMs`, `reportPath`, optional `reason` on missing) (AC-6106-1, AC-6102-1, AC-6110-2).",
+    "Order the `gates[]` array in the fixed configured order (the runner's gate set), not in completion order (AC-6108-1).",
+    "For each configured gate, check whether the corresponding per-gate report exists on disk; if not, record the entry as `outcome: missing` with a `reason` string derived from the runner's captured failure (killed child, uncaught exception, write failure, permission error) (AC-6108-1).",
+    "Set `verdict: passed` if and only if every gate entry's outcome is `passed`; otherwise set `verdict: failed`. A single `failed` or `missing` outcome flips the aggregate verdict (AC-6106-2, AC-6108-1, AC-6108-2).",
+    "Return the aggregate exit code to the runner: 0 on `passed`, non-zero on `failed`."
+  ],
+  "internalStructure": "One module that exports a `writeAggregateReport({ reportDir, trigger, startedAt, endedAt, runner, gates })` function returning `{ verdict, exitCode, aggregateReportPath }`. Walks the ordered `gates` input, checks each per-gate report file's existence, resolves each `reportPath` to a relative path from `reportDir`. Serialises the fixed key set to JSON with 2-space indent, writes atomically (temp + rename). Never writes `verdict: passed` while any gate outcome is other than `passed`.",
+  "interfaces": [
+    {
+      "name": "writeAggregateReport",
+      "kind": "write-api",
+      "description": "writeAggregateReport({ reportDir, trigger, startedAt, endedAt, runner, gates }) -> Promise<{ verdict, exitCode, aggregateReportPath }>. Writes the aggregate JSON report atomically and resolves with the verdict and the aggregate exit code."
+    },
+    {
+      "name": "aggregate-report-schema",
+      "kind": "schema",
+      "description": "Top-level keys exactly: `verdict` (enum `passed` | `failed`), `trigger` (string; the CI event kind or `local`), `startedAt` (ISO-8601), `endedAt` (ISO-8601), `durationMs` (integer), `runner` (object with `entryPoint` string and optional `environment` object), `gates[]` (array of `{ gate, outcome, durationMs, reportPath, reason? }` in configured order). No other keys at v1.0.0."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Per-gate report writer",
+      "kind": "tac",
+      "tacId": "TAC-702-ci-pipeline-gate-report",
+      "description": "The per-gate reports the aggregate writer reads back to confirm each report's existence and to record its relative path in the aggregate."
+    }
+  ],
+  "tradeoffs": "The verdict rule is deliberately strict: any non-`passed` outcome flips the aggregate. A more nuanced rule (advisory gates, warning outcomes) is a v1.1 minor-bump candidate; v1.0.0 does not ship it because the two required gates are both hard gates. The aggregate schema is fixed within a major version; additive fields are a minor bump.",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

@@ -1,0 +1,28 @@
+{
+  "verdict": "failed",
+  "trigger": "pull_request",
+  "startedAt": "2026-08-24T10:15:03.100Z",
+  "endedAt": "2026-08-24T10:15:12.045Z",
+  "durationMs": 8945,
+  "runner": {
+    "entryPoint": "scripts/rcf-ci.js",
+    "environment": {
+      "provider": "github-actions",
+      "runId": "8214332015"
+    }
+  },
+  "gates": [
+    {
+      "gate": "validate",
+      "outcome": "passed",
+      "durationMs": 1670,
+      "reportPath": "validate.json"
+    },
+    {
+      "gate": "coverage-strict",
+      "outcome": "failed",
+      "durationMs": 7220,
+      "reportPath": "coverage-strict.json"
+    }
+  ]
+}

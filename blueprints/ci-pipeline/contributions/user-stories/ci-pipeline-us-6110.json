@@ -1,0 +1,36 @@
+{
+  "usId": "ci-pipeline-US-6110",
+  "prdId": "PRD-001",
+  "reqId": "ci-pipeline-REQ-010",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The gate suite entry point runs the same code path locally as in CI",
+  "asA": "developer reproducing a CI failure on my own machine",
+  "iWant": "the exact command the CI job ran to run the same way on my checkout",
+  "soThat": "I reproduce the failure without guessing which flag or wrapper produced it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6110-1",
+      "description": "The CI provider's job step invokes the Node entry point with the same command a developer runs locally: the same file path, the same required arguments, the same environment variables the entry point reads (report directory path, tool-version pin). No CI-only wrapper script sits between the runner and the Node entry point.",
+      "given": "an rcf-lite project with this blueprint applied and a CI job wired per the illustrative example",
+      "when": "a developer runs the same command line the CI job's invocation step records against their local checkout at the same commit",
+      "then": "the aggregate report the local run writes at the configured report directory carries the same `runner.entryPoint`, the same `gates[]` ordering, and the same per-gate outcomes as the CI run's aggregate report for that commit, given the same rcf CLI version installed locally",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6110-2",
+      "description": "The gate entry point reads no CI-provider-specific environment variable to alter its behaviour. Every configuration input the entry point honours is documented and available to a developer running locally.",
+      "given": "the applied blueprint's source path and the project's realised gate entry point",
+      "when": "the reviewer greps the entry point's source and its dependency modules for reads against known CI-provider environment variables (`GITHUB_ACTIONS`, `GITLAB_CI`, `CIRCLECI`, `BUILDKITE`, `JENKINS_URL`)",
+      "then": "no read of any of those variables gates the entry point's control flow or its gate set; if any such variable is read it is only for reporting into the aggregate report's `runner.environment` metadata field",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-ci-pipeline-gate-runner"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}
