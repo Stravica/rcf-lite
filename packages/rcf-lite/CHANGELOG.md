@@ -4,7 +4,29 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
-## Unreleased
+## [0.9.0] - 2026-08-25
+
+The blueprint-mechanism release. Ships Phase 1 blueprint composition (standards + selective retrieval), Phase 3.5 conflict-resolution verbs, the 0.4.4 prefix-family id grammar seam, and the first content packages built on the mechanism: SPA (v1.0.0 through v1.3.0 including the styled-under-CSP and deployment-gate cures), auth (v1.0.0 magic-link + opaque cookie sessions), persistence (v1.0.0 SQLite-first store), ci-pipeline (v1.0.0), observability (v1.0.0), and REST (16 REQ / 20 US / 117 AC doc set). Consumes `@stravica-ai/rcf-schemas@0.4.5` (exact pin, additive-only from 0.4.3 through 0.4.5).
+
+### Added (release cycle roll-up)
+
+Detailed entries below cover the Phase 3.5 verbs (PR #90). The following merges since 0.8.0 also ship in this release and are not itemised further here; each landed with its own tests, docs, and (where applicable) fbs / us / adr chain:
+
+- **PR #83 Phase 1 blueprint mechanism.** Blueprint composition, standards ruleset wiring, selective retrieval. Foundation for every `blueprint/*-v1.0.0` PR that follows.
+- **PR #84 walker + loader for the 0.4.4 prefix-family id grammar (w-2026-08-19-001).** Teaches the store walker and loader the widened id shapes admitted by `@stravica-ai/rcf-schemas@0.4.4` so prefix-family ids (e.g. `FBS-004-user-login`, `US-1002`, four-digit TS / TC ids) round-trip through the graph without silent detachment.
+- **PR #86 SPA blueprint content package (w-2026-08-19-001).** First content package on the blueprint mechanism.
+- **PR #87 Phase 1 blueprint mechanism, eight post-review nits.**
+- **PR #88 blueprint ownership fix (w-2026-08-19-005).** Ownership checks consult the authoritative manifest record, not string grammar.
+- **PR #89 REST blueprint content package (w-2026-08-19-005, d-2026-08-19-007).** 16 REQ / 20 US (117 AC) / 6 TAC / 8 ADR doc set with OpenAPI skeleton, auth-class reference, samples, guide, topics vocabulary.
+- **PR #91 blueprint authoring documentation.** Standard, walkthrough, checklist, plus their registration in the links manifest.
+- **PR #92 pre-handover fix batch.** Three CLI paper-cuts, doc fixes, agent-block nudges.
+- **PR #93 auth blueprint v1.0.0.** Passwordless magic-link plus opaque cookie sessions.
+- **PR #94 persistence blueprint v1.0.0.** SQLite-first store with a forward-only migration runner.
+- **PR #95 ci-pipeline blueprint v1.0.0.**
+- **PR #96 observability blueprint v1.0.0.** Two-endpoint HTTP health probes, public status page, notification-outcome sink.
+- **PR #97 SPA blueprint v1.1.0.** Icon and token mechanism-reach cure.
+- **PR #98 SPA blueprint v1.2.0.** Styled-under-shipped-CSP mechanism-reach cure, plus the `noInlineStyleBlocks` invariant on the rcf-lite side.
+- **PR #99 SPA blueprint v1.3.0 (w-2026-08-24-006).** External-dep provisioning, core-flow E2E deployment-gate class cure, plus the rcf-lite placeholder-shape detector.
 
 ### Added (blueprint conflict-resolution verbs, w-2026-08-19-008)
 
