@@ -87,6 +87,10 @@ Then scaffold your own: [docs/getting-started.md](docs/getting-started.md).
 
 The chain does not stop at the tests. **Code Nodes** make source files first-class nodes in the same graph, so a dangling spec-to-code link fails `rcf validate` exactly the way a dangling spec-to-spec one does. `rcf trace` walks backward from a source file to the requirements it serves; `rcf impact` extends a change's blast radius into the code that implements it. Spec-only trees work unchanged; the code layer is additive. Full detail, deliberate limits and the roadmap beyond them: [docs/code-nodes.md](docs/code-nodes.md).
 
+## Known issues
+
+- **npm 11.6.x may install `rcf-lite` empty.** Running `npm install rcf-lite` on its own with npm 11.6.x reports `up to date, audited 1 package` and performs no file operations, leaving the package unusable. This is an upstream npm reify bug, not an rcf-lite defect. Workarounds: install rcf-lite alongside any other package in the same command, use npm 10, or use pnpm. The note will clear once npm ships the fix.
+
 ## Contributing
 
 Not accepting external code contributions at this stage of the project. Bug reports and feature discussion via [Issues](https://github.com/Stravica/rcf-lite/issues) are welcome. [CONTRIBUTING.md](./CONTRIBUTING.md) covers the development setup and house rules that will apply when that changes.
