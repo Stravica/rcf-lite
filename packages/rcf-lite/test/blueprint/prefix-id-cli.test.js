@@ -92,7 +92,7 @@ test('rcf blueprint add + validate + re-add + remove all exit 0 for prefix- and 
   const source = await writeMixedBlueprint(root);
 
   // 1. add -> exit 0, one applied line.
-  const add = await runBin(root, ['blueprint', 'add', source]);
+  const add = await runBin(root, ['define', 'blueprint', 'add', source]);
   assert.equal(add.code, 0, `add stderr: ${add.stderr}\nstdout: ${add.stdout}`);
   assert.match(add.stdout, /applied 'spa' at 1\.0\.0/);
 
@@ -100,7 +100,7 @@ test('rcf blueprint add + validate + re-add + remove all exit 0 for prefix- and 
   //    namespaced ids and reports "tree is clean" on stdout). This is
   //    the exact call that returned exit 3 with
   //    "Unrecognised document id: SPA-req-001" pre-fix.
-  const validate = await runBin(root, ['validate']);
+  const validate = await runBin(root, ['define', 'validate']);
   assert.equal(validate.code, 0, `validate stderr: ${validate.stderr}\nstdout: ${validate.stdout}`);
   assert.match(validate.stdout, /tree is clean/);
   assert.doesNotMatch(validate.stderr, /Unrecognised document id/);
@@ -108,19 +108,19 @@ test('rcf blueprint add + validate + re-add + remove all exit 0 for prefix- and 
   // 3. re-add -> exit 0 with alreadyApplied notice. Pre-fix this exited
   //    2 because the tree walk raised a usage error on the prefix-
   //    namespaced doc before applyBlueprint even ran.
-  const reAdd = await runBin(root, ['blueprint', 'add', source]);
+  const reAdd = await runBin(root, ['define', 'blueprint', 'add', source]);
   assert.equal(reAdd.code, 0, `re-add stderr: ${reAdd.stderr}\nstdout: ${reAdd.stdout}`);
   assert.match(reAdd.stdout, /'spa' already applied at 1\.0\.0/);
 
   // 4. remove -> exit 0 (again, pre-fix this was blocked by the same
   //    tree-walk usage error).
-  const remove = await runBin(root, ['blueprint', 'remove', 'spa']);
+  const remove = await runBin(root, ['define', 'blueprint', 'remove', 'spa']);
   assert.equal(remove.code, 0, `remove stderr: ${remove.stderr}\nstdout: ${remove.stdout}`);
   assert.match(remove.stdout, /removed 'spa' \(2 file\(s\) deleted\)/);
 
   // 5. validate after remove -> exit 0 (the tree is back to scaffold
   //    state; the prefix-namespaced doc is gone).
-  const validateAfter = await runBin(root, ['validate']);
+  const validateAfter = await runBin(root, ['define', 'validate']);
   assert.equal(validateAfter.code, 0, `validate-after stderr: ${validateAfter.stderr}\nstdout: ${validateAfter.stdout}`);
   assert.match(validateAfter.stdout, /tree is clean/);
 });

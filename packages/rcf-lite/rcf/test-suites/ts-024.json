@@ -37,7 +37,7 @@
     {
       "id": "TC-024-in-loop-not-the-gate",
       "acId": "AC-805-4",
-      "description": "the self-review is scoped as an in-loop check naming rcf finalise as the gate",
+      "description": "the self-review is scoped as an in-loop check naming rcf build finalise as the gate",
       "status": "pending",
       "testPointer": "test/guidance/tier1-hardening.test.js::AC-805-4: the self-review is honestly scoped as an in-loop check subordinate to the independent gate"
     }

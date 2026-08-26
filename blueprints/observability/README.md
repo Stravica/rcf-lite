@@ -5,10 +5,10 @@ The fifth content blueprint on the rcf-build-lite blueprint mechanism (design br
 ## Apply
 
 ```
-rcf blueprint add <path-to>/blueprints/observability
+rcf define blueprint add <path-to>/blueprints/observability
 ```
 
-Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf blueprint list` shows the applied entry; `rcf blueprint remove observability` cleanly removes an unreferenced application.
+Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf define blueprint list` shows the applied entry; `rcf define blueprint remove observability` cleanly removes an unreferenced application.
 
 ## Anatomy
 
@@ -23,7 +23,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Guide | `guide/observability.md` | Operator-facing: when to use it, when not, what stays your call, and the promotion signal for the future metrics and tracing variants |
 | Coordination vocabulary | `docs/topics.md` | The three global-topic strings this blueprint contributes, the shared id band registry (spa, rest, auth, hello-panel, persistence, ci-pipeline, observability) |
 
-The doc set is contributions (copied into the project tree by `rcf blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
+The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 
 ## What it contributes, and what it deliberately does not
 

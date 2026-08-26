@@ -1,12 +1,16 @@
 #!/usr/bin/env node
-// Unified `rcf` binary. Phase 4 §D1 / §D23: replaces the standalone
-// `bin/rcf-view.js` and adds init / validate / create / read / update /
-// delete / link / unlink / help subcommands. Zero external deps.
+// Unified `rcf` binary. 0.10.0 CLI reorganisation around the five RCF
+// tool groups (discover, define, build, verify, audit) plus a small
+// deliberately-named core set (init, doctor, guidance, mcp, help). The
+// old flat 32-verb surface is a clean break: no aliases, no shims, no
+// hidden legacy dispatch. Old flat forms exit 2 with a pointer at the
+// new grouped form.
 //
-// Argv layout: `rcf <subcommand> [args...]`. The first positional is
-// the subcommand; everything after is handed to that subcommand's
-// handler (`src/cli/<subcommand>.js`). Global `--version` and `--help`
-// short-circuit before dispatch.
+// Argv layout:
+//   `rcf <core-verb> [args...]`        for core verbs (init, doctor,
+//                                      guidance, mcp, help)
+//   `rcf <group> <verb> [args...]`     for grouped verbs
+// Global `--version` and `--help` short-circuit before dispatch.
 
 import { realpathSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
@@ -21,7 +25,7 @@ import { main as deleteMain } from '../src/cli/delete.js';
 import { main as doctorMain } from '../src/cli/doctor.js';
 import { main as finaliseMain } from '../src/cli/finalise.js';
 import { main as guidanceMain } from '../src/cli/guidance.js';
-import { main as helpMain, TOP_LEVEL_HELP } from '../src/cli/help.js';
+import { main as helpMain, TOP_LEVEL_HELP, GROUP_HELP, HELP_MAP } from '../src/cli/help.js';
 import { main as impactMain } from '../src/cli/impact.js';
 import { main as initMain } from '../src/cli/init.js';
 import { main as linkMain } from '../src/cli/link.js';
@@ -36,61 +40,115 @@ import { main as uiBaselineMain } from '../src/cli/ui-baseline.js';
 import { main as uiClassifyMain } from '../src/cli/ui-classify.js';
 import { main as designMain } from '../src/cli/design.js';
 import { main as browserVerifyMain } from '../src/cli/browser-verify.js';
-// Blueprint mechanism (Phase 1, w-2026-08-18-016).
 import { main as blueprintMain } from '../src/cli/blueprint.js';
 import { main as standardsMain } from '../src/cli/standards.js';
 import { main as updateMain } from '../src/cli/update.js';
 import { main as validateMain } from '../src/cli/validate.js';
 import { main as viewMain } from '../src/cli/view.js';
-// Track C+D (elicitation-and-playbook-hardening-0.7.0) verbs.
 import { main as reqClassifyMain } from '../src/cli/req-classify.js';
 import { main as reqBaselineMain } from '../src/cli/req-baseline.js';
 import { main as intakeMain } from '../src/cli/intake.js';
-// 0.7.1 packaging consolidation: `rcf verify <verb>` routes through the
-// same dispatcher the `rcf-verify` alias bin exposes. One place to wire
-// the verify subcommands; two entry points.
-import { main as verifyMain } from './rcf-verify.js';
+
+// Verify group members are handled by the verify-suite dispatch tree.
+import { main as verifyRunMain } from '../src/verify/cli/run.js';
+import { main as verifyReportMain } from '../src/verify/cli/report.js';
+import { main as verifyProvisionMain } from '../src/verify/cli/provision.js';
+import { main as verifyCleanupMain } from '../src/verify/cli/cleanup.js';
+import { main as verifyMcpMain } from '../src/verify/cli/mcp.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-export const SUBCOMMANDS = {
+// Core verbs dispatch at the top level. Deliberately named set (spec
+// §Core); NOT an "other" or "misc" bucket.
+export const CORE = {
   init: initMain,
-  view: viewMain,
-  validate: validateMain,
-  create: createMain,
-  read: readMain,
-  update: updateMain,
-  delete: deleteMain,
-  link: (argv, deps) => linkMain(argv, { ...deps, remove: false }),
-  unlink: (argv, deps) => linkMain(argv, { ...deps, remove: true }),
-  coverage: coverageMain,
-  trace: traceMain,
-  impact: impactMain,
-  build: buildMain,
-  finalise: finaliseMain,
   doctor: doctorMain,
   guidance: guidanceMain,
   mcp: mcpMain,
-  preflight: preflightMain,
-  review: reviewMain,
-  fbs: fbsMain,
-  'test-suite': testSuiteMain,
-  'ui-classify': uiClassifyMain,
-  'ui-baseline': uiBaselineMain,
-  design: designMain,
-  'browser-verify': browserVerifyMain,
-  // Blueprint mechanism (Phase 1, w-2026-08-18-016).
-  blueprint: blueprintMain,
-  standards: standardsMain,
-  // Track C+D (elicitation-and-playbook-hardening-0.7.0) verbs.
-  'req-classify': reqClassifyMain,
-  'req-baseline': reqBaselineMain,
-  intake: intakeMain,
-  // 0.7.1 packaging consolidation (R3, ratified 2026-08-06): the verify
-  // suite lives under `rcf verify <run|report|provision|cleanup|mcp>`.
-  // Dispatches to the same handlers as the `rcf-verify` alias bin.
-  verify: verifyMain,
-  help: helpMain,
+  // help handled inline below (needs group context)
+};
+
+// Grouped verbs: two-level map (group -> verb -> handler). Rendering
+// order in help output is fixed by the GROUP_ORDER export in help.js.
+export const GROUPS = {
+  discover: {
+    intake: intakeMain,
+    preflight: preflightMain,
+    'req-classify': reqClassifyMain,
+    'req-baseline': reqBaselineMain,
+    'ui-classify': uiClassifyMain,
+    'ui-baseline': uiBaselineMain,
+  },
+  define: {
+    create: createMain,
+    read: readMain,
+    update: updateMain,
+    delete: deleteMain,
+    link: (argv, deps) => linkMain(argv, { ...deps, remove: false }),
+    unlink: (argv, deps) => linkMain(argv, { ...deps, remove: true }),
+    validate: validateMain,
+    design: designMain,
+    blueprint: blueprintMain,
+    standards: standardsMain,
+  },
+  build: {
+    // build sub-verbs are dispatched by build.js internally (queue |
+    // bundle | mark). finalise, review, fbs, test-suite are their own
+    // handlers.
+    queue: (argv, deps) => buildMain(['queue', ...argv], deps),
+    bundle: (argv, deps) => buildMain(['bundle', ...argv], deps),
+    mark: (argv, deps) => buildMain(['mark', ...argv], deps),
+    finalise: finaliseMain,
+    review: reviewMain,
+    fbs: fbsMain,
+    'test-suite': testSuiteMain,
+  },
+  verify: {
+    run: verifyRunMain,
+    report: verifyReportMain,
+    provision: verifyProvisionMain,
+    cleanup: verifyCleanupMain,
+    mcp: verifyMcpMain,
+    browser: browserVerifyMain,
+  },
+  audit: {
+    view: viewMain,
+    coverage: coverageMain,
+    trace: traceMain,
+    impact: impactMain,
+  },
+};
+
+// Old flat verb surface -> new grouped form. Consulted only when a
+// bare unknown top-level token matches one of these keys, to emit a
+// helpful stderr hint before exiting 2. This is NOT a back-compat
+// fallback: the invocation still fails.
+const OLD_FLAT_MAP = {
+  intake: 'discover intake',
+  preflight: 'discover preflight',
+  'req-classify': 'discover req-classify',
+  'req-baseline': 'discover req-baseline',
+  'ui-classify': 'discover ui-classify',
+  'ui-baseline': 'discover ui-baseline',
+  create: 'define create',
+  read: 'define read',
+  update: 'define update',
+  delete: 'define delete',
+  link: 'define link',
+  unlink: 'define unlink',
+  validate: 'define validate',
+  design: 'define design',
+  blueprint: 'define blueprint',
+  standards: 'define standards',
+  finalise: 'build finalise',
+  review: 'build review',
+  fbs: 'build fbs',
+  'test-suite': 'build test-suite',
+  'browser-verify': 'verify browser',
+  view: 'audit view',
+  coverage: 'audit coverage',
+  trace: 'audit trace',
+  impact: 'audit impact',
 };
 
 /**
@@ -119,13 +177,45 @@ export async function main(argv, deps = {}) {
     stdout.write(TOP_LEVEL_HELP);
     return 0;
   }
-  const handler = SUBCOMMANDS[first];
-  if (!handler) {
-    stderr.write(`[error] usage unknown subcommand: ${first}\n`);
-    stderr.write(TOP_LEVEL_HELP);
+
+  // Core verbs dispatch directly.
+  if (first === 'help') {
+    return await helpMain(argv.slice(1), deps);
+  }
+  const coreHandler = CORE[first];
+  if (coreHandler) {
+    return await coreHandler(argv.slice(1), deps);
+  }
+
+  // Group dispatch.
+  const group = GROUPS[first];
+  if (group) {
+    const verb = argv[1];
+    if (!verb || verb === '--help' || verb === '-h') {
+      stdout.write(GROUP_HELP[first]);
+      return 0;
+    }
+    const verbHandler = group[verb];
+    if (!verbHandler) {
+      stderr.write(`[error] usage unknown verb '${verb}' in group '${first}'.\n`);
+      stderr.write(GROUP_HELP[first]);
+      return 2;
+    }
+    return await verbHandler(argv.slice(2), deps);
+  }
+
+  // Unknown top-level token. If it matches an old flat verb, name the
+  // new form in the error message; otherwise the generic usage error.
+  const oldForm = OLD_FLAT_MAP[first];
+  if (oldForm) {
+    stderr.write(
+      `[error] usage unknown top-level command '${first}'. `
+      + `Try 'rcf ${oldForm}' (see 'rcf help').\n`,
+    );
     return 2;
   }
-  return await handler(argv.slice(1), deps);
+  stderr.write(`[error] usage unknown command '${first}'. Try 'rcf help'.\n`);
+  return 2;
 }
 
 async function readPackageVersion() {
@@ -155,7 +245,7 @@ export function isSameEntryPoint(metaUrl, argvPath) {
     const metaPath = fileURLToPath(metaUrl);
     return realpathSync(metaPath) === realpathSync(argvPath);
   } catch {
-    // realpath failed on one side — fall back to the raw URL compare.
+    // realpath failed on one side - fall back to the raw URL compare.
     try {
       return metaUrl === pathToFileURL(argvPath).href;
     } catch {
@@ -164,7 +254,7 @@ export function isSameEntryPoint(metaUrl, argvPath) {
   }
 }
 
-// isMain gate — normalise both sides via realpath. Without this, macOS symlinks
+// isMain gate - normalise both sides via realpath. Without this, macOS symlinks
 // like `/tmp` -> `/private/tmp` and every `npm link` / `pnpm link` shim break
 // the compare and main() silently never runs. See BUG-001.
 const isMain = process.argv[1] && isSameEntryPoint(import.meta.url, process.argv[1]);
@@ -172,8 +262,6 @@ if (isMain) {
   main(process.argv.slice(2))
     .then((code) => process.exit(code))
     .catch((err) => {
-      // Exit 1 is the "unexpected" escape hatch (§D15). Stack is not
-      // suppressed even under --quiet - operator needs the raw failure.
       process.stderr.write(`[rcf] unexpected failure: ${err.message}\n${err.stack}\n`);
       process.exit(1);
     });

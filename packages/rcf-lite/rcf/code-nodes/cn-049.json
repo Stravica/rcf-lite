@@ -10,5 +10,5 @@
   "createdAt": "2026-07-20T18:03:32.280Z",
   "updatedAt": "2026-07-28T16:39:55.660Z",
   "title": "Self-review scoped as an in-loop check, not the gate",
-  "description": "Playbook s16 scopes the review as an in-loop check subordinate to the rcf finalise gate, guidance not a subsystem, not the independent gate (AC-805-4)."
+  "description": "Playbook s16 scopes the review as an in-loop check subordinate to the rcf build finalise gate, guidance not a subsystem, not the independent gate (AC-805-4)."
 }

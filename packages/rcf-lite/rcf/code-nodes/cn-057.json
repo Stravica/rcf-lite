@@ -1,14 +1,14 @@
 {
   "cnId": "CN-057",
-  "path": "bin/rcf-verify.js",
+  "path": "bin/rcf.js",
   "implementsAcIds": [
     "AC-901-3"
   ],
   "dependencies": [],
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "draft",
   "createdAt": "2026-08-11T00:00:00Z",
-  "updatedAt": "2026-08-11T00:00:00Z",
-  "title": "Alias bin: transition-grace deprecation notice",
-  "description": "Direct invocation of the `rcf-verify` alias bin emits a one-line stderr notice pointing at `rcf verify` as the preferred invocation. Guarded by RCF_QUIET for scripted callers who cannot tolerate stderr chatter."
+  "updatedAt": "2026-08-26T00:00:00Z",
+  "title": "Clean-break dispatcher: old-flat-form refusal with pointer at the new grouped form",
+  "description": "The 0.10.0 CLI reorganisation deletes the standalone `rcf-verify` bin outright. bin/rcf.js recognises the old flat verb tokens via OLD_FLAT_MAP and, on match, writes a one-line stderr hint naming the new grouped form ('Try rcf <group> <verb>...') before exiting 2. Not a back-compat fallback; the invocation still fails."
 }

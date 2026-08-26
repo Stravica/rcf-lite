@@ -63,7 +63,7 @@ test('AC-4.1: non-interactive preflight writes a valid preFlightConfig record wi
   };
   const inputPath = join(tmp, 'preflight-input.json');
   await writeFile(inputPath, JSON.stringify(input), 'utf8');
-  const { code, stdout, stderr } = await runBin(tmp, ['preflight', '--non-interactive', '--input', inputPath]);
+  const { code, stdout, stderr } = await runBin(tmp, ['discover', 'preflight', '--non-interactive', '--input', inputPath]);
   assert.equal(code, 0, `stderr=${stderr}`);
   assert.match(stdout, /wrote pfc-\d{4}-\d{2}-\d{2}-001/);
   const manifest = JSON.parse(await readFile(join(tmp, 'rcf/manifest.json'), 'utf8'));
@@ -92,7 +92,7 @@ test('AC-4.2: an operator-added candidate with zero sourceRefs is accepted (0.4.
   };
   const inputPath = join(tmp, 'preflight-op-add.json');
   await writeFile(inputPath, JSON.stringify(input), 'utf8');
-  const { code, stderr } = await runBin(tmp, ['preflight', '--non-interactive', '--input', inputPath]);
+  const { code, stderr } = await runBin(tmp, ['discover', 'preflight', '--non-interactive', '--input', inputPath]);
   assert.equal(code, 0, `stderr=${stderr}`);
   const manifest = JSON.parse(await readFile(join(tmp, 'rcf/manifest.json'), 'utf8'));
   assert.deepEqual(manifest.preFlightConfig[0].servicesInScope[0].sourceRefs, []);
@@ -113,7 +113,7 @@ test('AC-4.3: an apiOnly design-shape answer writes designShapeAnswers[] and bas
   };
   const inputPath = join(tmp, 'preflight-designshape.json');
   await writeFile(inputPath, JSON.stringify(input), 'utf8');
-  const { code, stderr } = await runBin(tmp, ['preflight', '--non-interactive', '--input', inputPath]);
+  const { code, stderr } = await runBin(tmp, ['discover', 'preflight', '--non-interactive', '--input', inputPath]);
   assert.equal(code, 0, `stderr=${stderr}`);
   const manifest = JSON.parse(await readFile(join(tmp, 'rcf/manifest.json'), 'utf8'));
   const pfc = manifest.preFlightConfig[0];
@@ -133,7 +133,7 @@ test('AC-4.5: --dry-run emits the composed record and does NOT write', async () 
   const input = { services: [{ id: 'x', displayName: 'X', sourceRefs: [], attestationMode: 'notShipped', credentialSupplied: false, sandboxProvisioned: false }] };
   const inputPath = join(tmp, 'preflight-dry.json');
   await writeFile(inputPath, JSON.stringify(input), 'utf8');
-  const { code, stdout } = await runBin(tmp, ['preflight', '--non-interactive', '--input', inputPath, '--dry-run', '--json']);
+  const { code, stdout } = await runBin(tmp, ['discover', 'preflight', '--non-interactive', '--input', inputPath, '--dry-run', '--json']);
   assert.equal(code, 0);
   const emitted = JSON.parse(stdout.split('\n[dry-run]')[0]);
   assert.equal(emitted.record.servicesInScope[0].id, 'x');
@@ -143,7 +143,7 @@ test('AC-4.5: --dry-run emits the composed record and does NOT write', async () 
 
 test('preflight refuses on --non-interactive without --input', async () => {
   const tmp = await scaffold('rcf-preflight-cli-noinput-');
-  const { code, stderr } = await runBin(tmp, ['preflight', '--non-interactive']);
+  const { code, stderr } = await runBin(tmp, ['discover', 'preflight', '--non-interactive']);
   assert.equal(code, 2);
   assert.match(stderr, /not on a TTY and no --input file given/);
 });

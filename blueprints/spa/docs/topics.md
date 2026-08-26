@@ -9,7 +9,7 @@ This file is the cross-blueprint contract. The Phase 1 conflict detector matches
 | `clientRouting` | ADR-201-spa-routing | How URLs map to client surfaces | Owned by the client tier; a second client-tier blueprint on one project conflicts here by design |
 | `theming` | ADR-202-spa-theming | The one theming mechanism for the project | Any blueprint contributing themable UI must join or supersede this decision. v1.1 strengthens the ADR in place with a runtime-observable probe (TAC-207); topic ownership is unchanged. |
 | `clientState` | ADR-203-spa-client-state | Client cache and state regime | Client-tier owned |
-| `errorEnvelope` | ADR-204-spa-error-envelope | The wire error shape | The REST blueprint contributes its own scope:global ADR on this exact topic; `rcf blueprint add rest` after spa (or vice versa) surfaces a DELIBERATE conflict for operator resolution. Expected resolution: one project-level ADR adopting RFC 7807 end to end, superseding both |
+| `errorEnvelope` | ADR-204-spa-error-envelope | The wire error shape | The REST blueprint contributes its own scope:global ADR on this exact topic; `rcf define blueprint add rest` after spa (or vice versa) surfaces a DELIBERATE conflict for operator resolution. Expected resolution: one project-level ADR adopting RFC 7807 end to end, superseding both |
 | `authModel` | ADR-205-spa-auth-model | The project authentication model | Same deliberate pairing with the REST blueprint's auth-classes decision; auth blueprint adds a third contributor. Resolve with one project-level ADR and `--resolve authModel=project:<id>` on subsequent adds |
 
 Rules for new topics: lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer.

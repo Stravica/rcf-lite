@@ -49,7 +49,7 @@ test('BUG-007: EACCES on create exits 1 with `[rcf] unexpected failure:` + stack
   const reqDir = join(tmp, 'rcf', 'requirements');
   await chmod(reqDir, 0o500);
   t.after(async () => { try { await chmod(reqDir, 0o755); } catch { /* ignore */ } });
-  const { code, stderr } = await runBin(tmp, ['create', 'req', '--parent', 'PRD-001', '--title', 'X']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'req', '--parent', 'PRD-001', '--title', 'X']);
   assert.equal(code, 1, `expected exit 1, got ${code}. stderr=${stderr}`);
   assert.match(
     stderr,
@@ -68,8 +68,8 @@ test('BUG-007: EACCES on create exits 1 with `[rcf] unexpected failure:` + stack
 test('BUG-008: exit 4 refusal (dependents) uses `[error] refused` prefix, not `[error] usage`', async () => {
   const tmp = await scaffold('bug008');
   // Add a US under REQ-001 so `delete REQ-001` (no --cascade) refuses with dependents.
-  await runBin(tmp, ['create', 'us', '--parent', 'REQ-001', '--title', 'Child']);
-  const { code, stderr } = await runBin(tmp, ['delete', 'REQ-001']);
+  await runBin(tmp, ['define', 'create', 'us', '--parent', 'REQ-001', '--title', 'Child']);
+  const { code, stderr } = await runBin(tmp, ['define', 'delete', 'REQ-001']);
   assert.equal(code, 4, `expected exit 4, got ${code}. stderr=${stderr}`);
   assert.match(stderr, /^\[error\] refused /m,
     `expected "[error] refused …", got: ${JSON.stringify(stderr)}`);
@@ -81,8 +81,8 @@ test('BUG-008: exit 4 refusal (cascade orphan-refuse) uses `[error] refused` pre
   const tmp = await scaffold('bug008b');
   // Scaffold already has AC-101-1 wired into FBS-001.acIds. Adding a US to REQ-001
   // then `delete REQ-001 --cascade` should trigger the orphan-refuse pre-plan check.
-  await runBin(tmp, ['create', 'us', '--parent', 'REQ-001', '--title', 'Downstream']);
-  const { code, stderr } = await runBin(tmp, ['delete', 'REQ-001', '--cascade']);
+  await runBin(tmp, ['define', 'create', 'us', '--parent', 'REQ-001', '--title', 'Downstream']);
+  const { code, stderr } = await runBin(tmp, ['define', 'delete', 'REQ-001', '--cascade']);
   assert.equal(code, 4);
   assert.match(stderr, /^\[error\] refused /m);
 });
@@ -93,14 +93,14 @@ test('BUG-008: exit 4 refusal (cascade orphan-refuse) uses `[error] refused` pre
 
 test('BUG-009: `rcf create` (no kind) reports "kind is required"', async () => {
   const tmp = await scaffold('bug009a');
-  const { code, stderr } = await runBin(tmp, ['create']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create']);
   assert.equal(code, 2);
   assert.match(stderr, /<kind> is required/, `got: ${JSON.stringify(stderr)}`);
 });
 
 test('BUG-009: `rcf create bogus` reports "unknown kind: bogus"', async () => {
   const tmp = await scaffold('bug009b');
-  const { code, stderr } = await runBin(tmp, ['create', 'bogus']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'bogus']);
   assert.equal(code, 2);
   assert.match(stderr, /unknown kind: bogus/, `got: ${JSON.stringify(stderr)}`);
 });
@@ -112,7 +112,7 @@ test('BUG-009: `rcf create bogus` reports "unknown kind: bogus"', async () => {
 for (const kind of ['prd', 'tad', 'bs', 'manifest']) {
   test(`BUG-010: \`rcf create ${kind}\` reports singleton hint`, async () => {
     const tmp = await scaffold(`bug010-${kind}`);
-    const { code, stderr } = await runBin(tmp, ['create', kind]);
+    const { code, stderr } = await runBin(tmp, ['define', 'create', kind]);
     assert.equal(code, 2);
     assert.match(
       stderr,
@@ -127,14 +127,14 @@ for (const kind of ['prd', 'tad', 'bs', 'manifest']) {
 // BUG-011 — `rcf help view` prints inline help, not a pointer
 // -----------------------------------------------------------------------
 
-test('BUG-011: `rcf help view` prints the inline view help block', async () => {
+test('BUG-011: `rcf help audit view` prints the inline view help block', async () => {
   const tmp = await scaffold('bug011');
-  const { code, stdout } = await runBin(tmp, ['help', 'view']);
+  const { code, stdout } = await runBin(tmp, ['help', 'audit', 'view']);
   assert.equal(code, 0);
-  assert.match(stdout, /Usage: rcf view/,
-    `expected inline "Usage: rcf view" block, got: ${JSON.stringify(stdout)}`);
-  // The pre-fix pointer read: `See 'rcf view --help' for view options.` — must be gone.
-  assert.doesNotMatch(stdout, /^See 'rcf view --help' for view options\.$/m);
+  assert.match(stdout, /Usage: rcf audit view/,
+    `expected inline "Usage: rcf audit view" block, got: ${JSON.stringify(stdout)}`);
+  // The pre-fix pointer read: `See 'rcf view --help' for view options.` - must be gone.
+  assert.doesNotMatch(stdout, /^See 'rcf audit view --help' for view options\.$/m);
   // Match the shape of the other subcommands: at least the Options: block.
   assert.match(stdout, /Options:/);
 });

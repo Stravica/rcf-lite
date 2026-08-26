@@ -55,36 +55,36 @@
     {
       "id": "TC-027-shipped-blueprints-option-3-executable",
       "acId": "AC-1002-5",
-      "description": "shipped SPA + REST option-3 verbatim-from-refused-state money probe: fresh scaffold; add spa; add rest (refused with the reshaped message); follow option 3 EXACTLY as printed (`rcf blueprint supersede errorEnvelope --incoming <rest>` and `rcf blueprint supersede authModel --incoming <rest>`) with ZERO prep; then re-run `rcf blueprint add <rest>` and verify co-residence + honour",
+      "description": "shipped SPA + REST option-3 verbatim-from-refused-state money probe: fresh scaffold; add spa; add rest (refused with the reshaped message); follow option 3 EXACTLY as printed (`rcf define blueprint supersede errorEnvelope --incoming <rest>` and `rcf define blueprint supersede authModel --incoming <rest>`) with ZERO prep; then re-run `rcf define blueprint add <rest>` and verify co-residence + honour",
       "testPointer": "test/blueprint/cli.test.js::shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, Baz ruling on the conflict-pair supersede precondition)",
       "status": "pending"
     },
     {
       "id": "TC-027-add-reason-persists",
       "acId": "AC-1002-6",
-      "description": "rcf blueprint add --reason attaches the ruling text to every resolutions[] record on that add",
-      "testPointer": "test/blueprint/cli.test.js::rcf blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)",
+      "description": "rcf define blueprint add --reason attaches the ruling text to every resolutions[] record on that add",
+      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)",
       "status": "pending"
     },
     {
       "id": "TC-027-add-reason-whitespace-refused",
       "acId": "AC-1002-6",
       "description": "whitespace-only --reason on add refused at the writer edge (exit 2, no record written)",
-      "testPointer": "test/blueprint/cli.test.js::rcf blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)",
+      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)",
       "status": "pending"
     },
     {
       "id": "TC-027-add-resolve-dedupes-with-warn",
       "acId": "AC-1002-7",
       "description": "duplicate --resolve for the same topic keeps the first declaration, drops the rest, and warns on stderr",
-      "testPointer": "test/blueprint/cli.test.js::rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)",
+      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)",
       "status": "pending"
     },
     {
       "id": "TC-027-add-resolve-error-no-double-prefix",
       "acId": "AC-1002-7",
       "description": "--resolve validation error carries the CLI's single '[error] blueprint add: ' prefix — the underlying rcfError message MUST NOT prepend its own 'blueprint add: '",
-      "testPointer": "test/blueprint/cli.test.js::rcf blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)",
+      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)",
       "status": "pending"
     },
     {
@@ -105,7 +105,7 @@
       "id": "TC-027-supersede-no-double-prefix",
       "acId": "AC-1002-10",
       "description": "every error path in supersede.js exits at the CLI with exactly one `[error] blueprint supersede: ` prefix; the doubled `blueprint supersede: blueprint supersede:` string never appears",
-      "testPointer": "test/blueprint/cli.test.js::rcf blueprint supersede: every rcfError message lands with exactly one `[error] blueprint supersede:` prefix (rev-3 mechanical P1)",
+      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint supersede: every rcfError message lands with exactly one `[error] blueprint supersede:` prefix (rev-3 mechanical P1)",
       "status": "pending"
     }
   ],

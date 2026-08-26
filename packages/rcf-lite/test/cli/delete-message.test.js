@@ -32,14 +32,14 @@ async function runBin(cwd, args = []) {
 async function scaffoldWithReq() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-delete-msg-'));
   await initProject({ projectRoot: tmp, projectName: 'DeleteMsg' });
-  const r = await runBin(tmp, ['create', 'req', '--parent', 'PRD-001', '--title', 'To Delete']);
+  const r = await runBin(tmp, ['define', 'create', 'req', '--parent', 'PRD-001', '--title', 'To Delete']);
   assert.equal(r.code, 0);
   return tmp;
 }
 
 test('BUG-005: rcf delete (no --dry-run) uses past-tense header', async () => {
   const tmp = await scaffoldWithReq();
-  const { code, stdout } = await runBin(tmp, ['delete', 'REQ-002']);
+  const { code, stdout } = await runBin(tmp, ['define', 'delete', 'REQ-002']);
   assert.equal(code, 0);
   assert.match(stdout, /^Deleted 1 file\(s\), mutated 0 doc\(s\)\./m,
     `expected past-tense "Deleted …", got: ${JSON.stringify(stdout)}`);
@@ -49,14 +49,14 @@ test('BUG-005: rcf delete (no --dry-run) uses past-tense header', async () => {
 
 test('BUG-005: rcf delete --dry-run uses future-tense header with (dry-run) marker', async () => {
   const tmp = await scaffoldWithReq();
-  const { code, stdout } = await runBin(tmp, ['delete', 'REQ-002', '--dry-run']);
+  const { code, stdout } = await runBin(tmp, ['define', 'delete', 'REQ-002', '--dry-run']);
   assert.equal(code, 0);
   assert.match(stdout, /^Would delete 1 file\(s\) and mutate 0 doc\(s\)\. \(dry-run\)/m);
 });
 
 test('BUG-006: rcf delete plan line resolves the real subdirectory (no `rcf/.../` placeholder)', async () => {
   const tmp = await scaffoldWithReq();
-  const { code, stdout } = await runBin(tmp, ['delete', 'REQ-002', '--dry-run']);
+  const { code, stdout } = await runBin(tmp, ['define', 'delete', 'REQ-002', '--dry-run']);
   assert.equal(code, 0);
   assert.doesNotMatch(stdout, /rcf\/\.\.\.\//,
     `plan line must not contain the "rcf/.../" placeholder, got: ${JSON.stringify(stdout)}`);
@@ -68,9 +68,9 @@ test('BUG-006: rcf delete US --cascade plan resolves REQ + US subdirectories', a
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-delete-msg-cascade-'));
   await initProject({ projectRoot: tmp, projectName: 'DeleteMsgCascade' });
   // Add a REQ and a child US so cascade prints multiple deleted paths.
-  await runBin(tmp, ['create', 'req', '--parent', 'PRD-001', '--title', 'R']);
-  await runBin(tmp, ['create', 'us', '--parent', 'REQ-002', '--title', 'U']);
-  const { code, stdout } = await runBin(tmp, ['delete', 'REQ-002', '--cascade', '--dry-run']);
+  await runBin(tmp, ['define', 'create', 'req', '--parent', 'PRD-001', '--title', 'R']);
+  await runBin(tmp, ['define', 'create', 'us', '--parent', 'REQ-002', '--title', 'U']);
+  const { code, stdout } = await runBin(tmp, ['define', 'delete', 'REQ-002', '--cascade', '--dry-run']);
   assert.equal(code, 0);
   assert.doesNotMatch(stdout, /rcf\/\.\.\.\//);
   assert.match(stdout, /delete rcf\/requirements\/req-002\.json/);

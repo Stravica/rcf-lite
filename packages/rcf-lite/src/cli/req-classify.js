@@ -21,7 +21,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf req-classify <req-id> [options]
+export const HELP = `Usage: rcf discover req-classify <req-id> [options]
        rcf req-classify --all [options]
 
 Rerun the REQ-shape classifier for one requirement (or every requirement

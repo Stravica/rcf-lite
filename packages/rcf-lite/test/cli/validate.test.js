@@ -34,7 +34,7 @@ async function scaffold() {
 
 test('rcf validate on a clean tree exits 0', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['validate']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 0);
   assert.match(stdout, /tree is clean/);
 });
@@ -43,7 +43,7 @@ test('rcf validate on a clean tree exits 0', async () => {
 
 test('rcf validate on a fresh scaffold exits 0 AND prints the TODO-placeholder notice (B4)', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['validate']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 0, 'the notice is informational - exit code unchanged');
   assert.match(stdout, /tree is clean/);
   assert.match(stdout, /notice: \d+ document\(s\) still carry scaffold TODO placeholder text/);
@@ -77,7 +77,7 @@ test('rcf validate prints no TODO notice once placeholder text is gone (B4)', as
     const doc = JSON.parse(await readFile(path, 'utf8'));
     await writeFile(path, `${JSON.stringify(scrub(doc), null, 2)}\n`, 'utf8');
   }
-  const { code, stdout } = await runBin(tmp, ['validate']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 0);
   assert.match(stdout, /tree is clean/);
   assert.doesNotMatch(stdout, /notice:/);
@@ -85,7 +85,7 @@ test('rcf validate prints no TODO notice once placeholder text is gone (B4)', as
 
 test('rcf validate --quiet suppresses the TODO notice (B4)', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['validate', '--quiet']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate', '--quiet']);
   assert.equal(code, 0);
   assert.doesNotMatch(stdout, /notice:/);
 });
@@ -96,14 +96,14 @@ test('rcf validate on a broken tree exits 3', async () => {
   const req = JSON.parse(await readFile(reqPath, 'utf8'));
   req.prdId = 'PRD-999';
   await writeFile(reqPath, JSON.stringify(req), 'utf8');
-  const { code, stderr } = await runBin(tmp, ['validate']);
+  const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 3);
   assert.match(stderr, /brokenReference/);
 });
 
 test('rcf validate --json emits a JSON envelope', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['validate', '--json']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate', '--json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.ok, true);
@@ -116,7 +116,7 @@ test('rcf validate --json on broken tree exits 3 with issues[]', async () => {
   const req = JSON.parse(await readFile(reqPath, 'utf8'));
   req.prdId = 'PRD-999';
   await writeFile(reqPath, JSON.stringify(req), 'utf8');
-  const { code, stdout } = await runBin(tmp, ['validate', '--json']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate', '--json']);
   assert.equal(code, 3);
   const body = JSON.parse(stdout);
   assert.equal(body.ok, false);
@@ -126,7 +126,7 @@ test('rcf validate --json on broken tree exits 3 with issues[]', async () => {
 
 test('rcf validate --quiet suppresses per-issue output on clean tree', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['validate', '--quiet']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate', '--quiet']);
   assert.equal(code, 0);
   // --quiet suppresses the "tree is clean" line but keeps the exit code.
   assert.equal(stdout, '');
@@ -134,14 +134,14 @@ test('rcf validate --quiet suppresses per-issue output on clean tree', async () 
 
 test('rcf validate --help prints help', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['validate', '--help']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate', '--help']);
   assert.equal(code, 0);
-  assert.match(stdout, /Usage: rcf validate/);
+  assert.match(stdout, /Usage: rcf define validate/);
 });
 
 test('rcf validate outside a project exits 2', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-validate-noproject-'));
-  const { code, stderr } = await runBin(tmp, ['validate']);
+  const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 2);
   assert.match(stderr, /no project root found/);
 });
@@ -161,7 +161,7 @@ test('rcf validate exits 3 on two ACs sharing an id inside one US, naming the id
   us.acceptanceCriteria = [first, { ...first, description: 'same id, second criterion' }];
   await writeFile(usPath, JSON.stringify(us, null, 2), 'utf8');
 
-  const { code, stderr } = await runBin(tmp, ['validate']);
+  const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 3, stderr);
   assert.match(stderr, /\[error\] duplicateId/);
   assert.match(stderr, /Duplicate id AC-101-1/);
@@ -180,7 +180,7 @@ test('rcf validate exits 3 on a leading-zero id pair and explains the normalisat
     'utf8',
   );
 
-  const { code, stderr } = await runBin(tmp, ['validate']);
+  const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 3, stderr);
   assert.match(stderr, /Duplicate id REQ-1/);
   assert.match(stderr, /differ only by leading zeros/);
@@ -196,7 +196,7 @@ test('rcf validate --json reports duplicateId with the globallyUniqueIds rule', 
   us.acceptanceCriteria = [first, { ...first, description: 'same id, second criterion' }];
   await writeFile(usPath, JSON.stringify(us, null, 2), 'utf8');
 
-  const { code, stdout } = await runBin(tmp, ['validate', '--json']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate', '--json']);
   assert.equal(code, 3);
   const body = JSON.parse(stdout);
   assert.equal(body.ok, false);

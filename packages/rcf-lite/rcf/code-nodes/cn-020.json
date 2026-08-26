@@ -1,7 +1,7 @@
 {
   "cnId": "CN-020",
   "path": "src/cli/create.js",
-  "title": "rcf create subcommand (file-level)",
+  "title": "rcf define create subcommand (file-level)",
   "description": "CLI parsing, per-kind mandatory-field checks and defaults for the create verb; delegates persistence to the writer.",
   "implementsAcIds": [
     "AC-302-1",

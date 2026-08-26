@@ -1,13 +1,15 @@
-// `rcf build` subcommand handler (Phase 6 §D1). One verb, four modes:
+// `rcf build` group handler. 0.10.0 splits the old flag-based mode
+// detection into three explicit sub-verbs; the internal semantics are
+// unchanged.
 //
-//   rcf build                          queue overview
-//   rcf build <fbs-id>                 spec bundle for one FBS item
-//   rcf build --next                   bundle for the next actionable item
-//   rcf build <fbs-id> --mark <status> record a lifecycle transition
+//   rcf build queue                      queue overview
+//   rcf build bundle <fbs-id>            spec bundle for one FBS item
+//   rcf build bundle --next              bundle for the next actionable item
+//   rcf build mark <fbs-id> <status>     record a lifecycle transition
 //
 // Positional is an FBS id ONLY: the FBS is the queue unit (one US's
 // ACs can span multiple FBS items, so US addressing is ambiguous by
-// construction). US ids exit 2 with a pointer at `rcf trace`.
+// construction). US ids exit 2 with a pointer at `rcf audit trace`.
 //
 // Deterministic-only boundary (§D13): this verb assembles what the
 // tree says. It does not score bundle quality, detect under-specified
@@ -60,65 +62,71 @@ const OPTION_SPEC = {
   reason: { type: 'string' },
 };
 
-export const HELP = `Usage: rcf build [fbs-id] [options]
+export const HELP = `Usage: rcf build <verb> [options]
 
 Assemble FBS spec bundles and drive the build queue (the SDD adapter).
-Four modes:
+Three sub-verbs:
 
-  rcf build                          Queue overview (the FBS queue as a table,
-                                     with parallel-safe tier groups)
-  rcf build <fbs-id>                 Spec bundle for one FBS item
-  rcf build --next                   Bundle for the next actionable item
-  rcf build <fbs-id> --mark <status> Record a lifecycle transition
+  rcf build queue                      Queue overview (the FBS queue as a
+                                       table, with parallel-safe tier groups)
+  rcf build bundle <fbs-id>            Spec bundle for one FBS item
+  rcf build bundle --next              Bundle for the next actionable item
+  rcf build mark <fbs-id> <status>     Record a lifecycle transition
 
 The positional is an FBS id only. For 'which FBS items implement this
-story', use: rcf trace <us-id> --forward --format json
+story', use: rcf audit trace <us-id> --forward --format json
 
 Lifecycle (forward-only): notStarted -> inProgress -> complete -> verified.
-The --mark ladder caps at 'complete': --mark verified is refused (exit 4)
-because 'verified' is written only by the finalise gate (rcf finalise) after
-an independent verify run. Backward transitions are also refused (exit 4);
-the deliberate-correction / manual-override escape hatch is:
-rcf update <fbs-id> --set executionStatus=<status>
+The mark ladder caps at 'complete': 'verified' is refused (exit 4)
+because it is written only by the finalise gate (rcf build finalise)
+after an independent verify run. Backward transitions are also refused
+(exit 4); the deliberate-correction / manual-override escape hatch is:
+rcf define update <fbs-id> --set executionStatus=<status>
 
 Bundle assembly is mechanical and deterministic: it projects what the
 tree says. It does NOT judge whether the FBS is well-specified or the
 bundle sufficient - that belongs to a later prompting + MCP phase.
 
-Options:
+Options (bundle):
   --next                    Select the next actionable FBS item (lowest
                             buildOrder, notStarted, all dependencies
                             satisfied) and emit its bundle
-  --mark <status>           Record a lifecycle transition (combines only
-                            with the positional and --quiet)
-  --format <format>         md (default) | json (queue + bundle modes)
-  --out <path>              Write the bundle to a file (bundle modes)
+  --format <format>         md (default) | json
+  --out <path>              Write the bundle to a file
   --strict                  Refuse (exit 4) a bundle for a blocked item;
                             no effect with --next (it never selects
                             blocked items)
-  --no-code-nodes           With --mark complete: declare this FBS as
+
+Options (queue):
+  --format <format>         md (default) | json
+
+Options (mark):
+  --no-code-nodes           With mark complete: declare this FBS as
                             genuinely producing no traceable code
                             (docs-only, config-only), recorded on the FBS
                             and exempting it from the mark-complete CN gate
-  --accept-block            With --mark complete on a uiBearing FBS: accept
-                            a browserVerification block (or a missing record)
-                            and ship the FBS at complete. Requires --reason
-                            "..." (>= 20 chars). Records the reason on the
+  --accept-block            With mark complete on a uiBearing FBS: accept
+                            a browserVerification block and ship the FBS
+                            at complete. Requires --reason "..." (>= 20
+                            chars). Records the reason on the
                             browserVerification.operatorShipDespiteBlockReason
                             field. Track B ship-without-verified (spec §8.6).
   --reason "..."            Reason string for --accept-block.
+
+Global:
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
-Mark-complete CN gate (D17): marking an FBS complete refuses (exit 3,
-missingCodeNodes) when any of its ACs carries no Code Node. Author CN
-coverage first, or pass --no-code-nodes for a genuinely no-code spec.
+Mark-complete CN gate (D17): 'build mark <fbs-id> complete' refuses
+(exit 3, missingCodeNodes) when any of its ACs carries no Code Node.
+Author CN coverage first, or pass --no-code-nodes for a genuinely
+no-code spec.
 `;
 
 const VALID_FORMATS = new Set(['md', 'json']);
 
 /**
- * @param {string[]} argv - argv slice after `build`
+ * @param {string[]} argv - argv slice after `build` (sub-verb-first).
  * @param {object} [deps]
  * @returns {Promise<number>}
  */
@@ -127,9 +135,71 @@ export async function main(argv, deps = {}) {
   const stderr = deps.stderr ?? process.stderr;
   const cwd = deps.cwd ?? process.cwd();
 
+  // Global --help before sub-verb dispatch.
+  if (argv[0] === '--help' || argv[0] === '-h') {
+    stdout.write(HELP);
+    return 0;
+  }
+  const subverb = argv[0];
+  if (!subverb) {
+    stdout.write(HELP);
+    return 0;
+  }
+  if (!['queue', 'bundle', 'mark'].includes(subverb)) {
+    stderr.write(`[error] usage build: unknown sub-verb '${subverb}' (expected queue | bundle | mark)\n`);
+    stderr.write(HELP);
+    return 2;
+  }
+
+  // Translate the sub-verb-first argv shape into the flag-based mode
+  // the internal implementation still consumes. The translation is
+  // one-way and only touches the argv layer; every internal check
+  // (positional discipline, flag-conflict rules, format validation)
+  // stays byte-identical.
+  //
+  //   queue <extra-flags>                 -> queue mode
+  //   bundle <fbs-id> <extra-flags>       -> bundle mode
+  //   bundle --next <extra-flags>         -> next mode (bundle sub-verb)
+  //   mark <fbs-id> <status> <extra>      -> mark mode
+  const rest = argv.slice(1);
+  // `rcf build <sub-verb> --help` short-circuits to the shared HELP
+  // block before any sub-verb-specific positional check refuses.
+  if (rest.includes('--help') || rest.includes('-h')) {
+    stdout.write(HELP);
+    return 0;
+  }
+  let translated;
+  if (subverb === 'queue') {
+    // Refuse a stray positional so `rcf build queue <fbs-id>` is not silently
+    // treated as a bundle request.
+    if (rest.length > 0 && !rest[0].startsWith('-')) {
+      stderr.write(`[error] usage build queue: unexpected positional '${rest[0]}' (queue takes no positional)\n`);
+      return 2;
+    }
+    translated = rest;
+  } else if (subverb === 'bundle') {
+    // Either --next as the first token, or a positional fbs-id.
+    translated = rest;
+  } else { // mark
+    if (rest.length < 2) {
+      stderr.write('[error] usage build mark: requires <fbs-id> <status>\n');
+      return 2;
+    }
+    const [fbsId, status, ...tail] = rest;
+    if (fbsId.startsWith('-')) {
+      stderr.write('[error] usage build mark: first positional must be an FBS id, not a flag\n');
+      return 2;
+    }
+    if (status.startsWith('-')) {
+      stderr.write('[error] usage build mark: second positional must be a status word, not a flag\n');
+      return 2;
+    }
+    translated = [fbsId, '--mark', status, ...tail];
+  }
+
   let parsed;
   try {
-    parsed = parseArgs({ args: argv, options: OPTION_SPEC, allowPositionals: true, strict: true });
+    parsed = parseArgs({ args: translated, options: OPTION_SPEC, allowPositionals: true, strict: true });
   } catch (err) {
     stderr.write(`[error] usage ${err.message}\n`);
     stderr.write(HELP);
@@ -150,43 +220,43 @@ export async function main(argv, deps = {}) {
     return 2;
   }
 
-  // Mode detection + flag-conflict rules (§D1 / §D9).
+  // Sub-verb / flag consistency. The internal mode name below stays the
+  // same for readability; the sub-verb selects it deterministically.
   const usage = (message) => {
     stderr.write(`[error] usage build: ${message}\n`);
     return 2;
   };
-  if (flags.next && positional) return usage('--next takes no positional');
-  if (flags.mark !== undefined) {
-    if (!positional) return usage('--mark requires an <fbs-id> positional');
-    if (flags.next) return usage('--mark cannot combine with --next');
-    if (flags.format !== undefined) return usage('--mark cannot combine with --format');
+  if (subverb === 'bundle') {
+    if (flags.mark !== undefined) return usage('bundle does not take --mark (use `rcf build mark`)');
+    if (flags.next && positional) return usage('bundle --next takes no positional');
+    if (!flags.next && !positional) return usage('bundle requires <fbs-id> or --next');
+  } else if (subverb === 'queue') {
+    if (flags.mark !== undefined) return usage('queue does not take --mark (use `rcf build mark`)');
+    if (flags.next) return usage('queue does not take --next (use `rcf build bundle --next`)');
+    if (positional) return usage('queue takes no positional');
+    if (flags.out !== undefined) return usage('--out is invalid in queue mode');
+    if (flags.strict) return usage('--strict applies to bundle modes only');
+  } else if (subverb === 'mark') {
+    if (!positional) return usage('mark requires an <fbs-id>');
+    if (flags.next) return usage('mark cannot combine with --next');
+    if (flags.format !== undefined) return usage('mark cannot combine with --format');
     if (flags.out !== undefined) return usage('--out is invalid in mark mode');
-    if (flags.strict) return usage('--mark cannot combine with --strict');
+    if (flags.strict) return usage('mark cannot combine with --strict');
   }
   // Phase 10 (X2 CodeNode bridge, D17): --no-code-nodes only makes sense
   // declaring a spec complete with no traceable code.
   if (flags['no-code-nodes'] && flags.mark !== 'complete') {
-    return usage('--no-code-nodes only combines with --mark complete');
+    return usage('--no-code-nodes only combines with `build mark <fbs-id> complete`');
   }
-  // Track B (§8.6): --accept-block only makes sense with --mark complete
+  // Track B (§8.6): --accept-block only makes sense with mark complete
   // and requires --reason "...".
   if (flags['accept-block'] && flags.mark !== 'complete') {
-    return usage('--accept-block only combines with --mark complete');
+    return usage('--accept-block only combines with `build mark <fbs-id> complete`');
   }
   if (flags['accept-block'] && (typeof flags.reason !== 'string' || flags.reason.length < 20)) {
     return usage('--accept-block requires --reason "..." with at least 20 characters');
   }
-  const mode = flags.mark !== undefined
-    ? 'mark'
-    : flags.next
-      ? 'next'
-      : positional
-        ? 'bundle'
-        : 'queue';
-  if (mode === 'queue') {
-    if (flags.out !== undefined) return usage('--out is invalid in queue mode');
-    if (flags.strict) return usage('--strict applies to bundle modes only');
-  }
+  const mode = subverb === 'mark' ? 'mark' : subverb === 'queue' ? 'queue' : flags.next ? 'next' : 'bundle';
   const format = flags.format ?? 'md';
   if (!VALID_FORMATS.has(format)) {
     return usage(`unknown --format ${format} (expected md | json)`);
@@ -308,7 +378,7 @@ async function emitNext({ tree, format, io }) {
     const unbacked = scanUnbackedServices(tree, next.fbsId);
     if (unbacked.length > 0) {
       const names = unbacked.map((u) => u.serviceId).join(', ');
-      io.stderr.write(`[warn] build --next: ${next.fbsId} touches services not covered by any preFlightConfig (${names}); run 'rcf preflight' before Stage 4.\n`);
+      io.stderr.write(`[warn] build bundle --next: ${next.fbsId} touches services not covered by any preFlightConfig (${names}); run 'rcf discover preflight' before Stage 4.\n`);
     }
     // Track B (spec §4.4): always print the classifier verdict + signals
     // for the selected FBS. Transparent-by-default so a `notUi` verdict
@@ -384,7 +454,7 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
   if (plan.to === 'inProgress') {
     const fbs = tree.byId.get(plan.fbsId);
     if (fbs?.uiBearing === true && !fbs?.designStage) {
-      io.stderr.write(`[warn] build --mark inProgress: ${plan.fbsId} is uiBearing but has no designStage yet. Consider running 'rcf design ${plan.fbsId}' before Stage 2 build begins. Not a refusal; the hard gate fires at --mark complete.\n`);
+      io.stderr.write(`[warn] build mark ${plan.fbsId} inProgress: uiBearing FBS with no designStage yet. Consider running 'rcf define design ${plan.fbsId}' before Stage 2 build begins. Not a refusal; the hard gate fires at 'build mark <fbs-id> complete'.\n`);
     }
   }
 
@@ -403,8 +473,8 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
     if (!designGate.ok) {
       io.stderr.write(`[error] refused build: ${plan.fbsId} is uiBearing but designStageComplete is not true on the FBS record.\n`
         + '  Complete the Design substage first:\n'
-        + `    rcf design ${plan.fbsId}              (dispatches the Design worker)\n`
-        + `    rcf design ${plan.fbsId} --mark-complete   (hand-authored equivalent, once all three artefacts are present)\n`);
+        + `    rcf define design ${plan.fbsId}                    (dispatches the Design worker)\n`
+        + `    rcf define design ${plan.fbsId} --mark-complete    (hand-authored equivalent, once all three artefacts are present)\n`);
       return 4;
     }
 
@@ -430,8 +500,8 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
         io.stderr.write(`[error] refused build: ${plan.fbsId} designStage.${disagreement.designStagePath} = ${JSON.stringify(disagreement.designValue)} conflicts with uiBaseline.defaults.${disagreement.path} = ${JSON.stringify(disagreement.baselineValue)} and there is no operatorOptOuts entry.\n`
           + '  Options:\n'
           + `    1) Change designStage.${disagreement.designStagePath} to match the baseline.\n`
-          + `    2) rcf ui-baseline opt-out --field ${disagreement.path} --reason "..." (project-wide override).\n`
-          + `    3) rcf update ${plan.fbsId} --set designStage.${disagreement.designStagePath}=... (per-FBS override; records ack).\n`);
+          + `    2) rcf discover ui-baseline opt-out --field ${disagreement.path} --reason "..." (project-wide override).\n`
+          + `    3) rcf define update ${plan.fbsId} --set designStage.${disagreement.designStagePath}=... (per-FBS override; records ack).\n`);
         return 4;
       }
     }
@@ -465,19 +535,19 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
         // ratify a real record. Two-command dance: acknowledged and
         // preferred.
         io.stderr.write(`[error] refused build: ${plan.fbsId} is uiBearing but no browserVerification record exists on the manifest.\n`
-          + `  Run: rcf browser-verify ${plan.fbsId}\n`
+          + `  Run: rcf verify browser ${plan.fbsId}\n`
           + `  Then, if the resulting record is block or warn and you have decided to ship anyway, rerun with --accept-block --reason "..." on that record.\n`
           + '  (--accept-block requires an existing browserVerification record; it acknowledges a real verdict rather than skipping the gate.)\n');
         return 4;
       } else if (bvRecord.verdict === 'block' && !acceptBlock) {
         io.stderr.write(`[error] refused build: ${plan.fbsId} browserVerification ${bvRecord.id} verdict is 'block'.\n`
-          + '  Re-run browser-verify after fixing the failures, or acknowledge with:\n'
-          + `    rcf build ${plan.fbsId} --mark complete --accept-block --reason "..."\n`);
+          + '  Re-run verify browser after fixing the failures, or acknowledge with:\n'
+          + `    rcf build mark ${plan.fbsId} complete --accept-block --reason "..."\n`);
         return 4;
       } else if (bvRecord.verdict === 'warn' && !bvRecord.operatorAckAt) {
         io.stderr.write(`[error] refused build: ${plan.fbsId} browserVerification ${bvRecord.id} verdict is 'warn' but operatorAckAt is not set.\n`
           + '  Ack the warn verdict with:\n'
-          + `    rcf browser-verify ${plan.fbsId} --ack\n`);
+          + `    rcf verify browser ${plan.fbsId} --ack\n`);
         return 4;
       }
       // Ship-without-verified: record the operator's reason on the bv
@@ -507,7 +577,7 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
       if (!gate.ok) {
         const err = rcfError({
           kind: 'missingCodeNodes',
-          message: `build --mark complete: refused - ${plan.fbsId} has AC(s) with no Code Node: ${gate.missingAcIds.join(', ')}. `
+          message: `build mark ${plan.fbsId} complete: refused - has AC(s) with no Code Node: ${gate.missingAcIds.join(', ')}. `
             + 'Author CN coverage for these ACs, or pass --no-code-nodes for a genuinely no-code (docs-only, config-only) spec.',
           documentId: plan.fbsId,
           field: 'acIds',
@@ -562,8 +632,8 @@ function emitClassifierSignal(io, tree, fbsId) {
       : ' [not yet ratified]';
   io.stderr.write(`[info] build: ui-classifier verdict=${block.verdict} reason=${block.reason} (${signalCount} signal(s))${suffix}\n`);
   if (block.verdict === 'ui' && fbs.uiBearing !== true) {
-    io.stderr.write(`       Classified as UI-bearing. Ratify with: rcf update ${fbsId} --set uiBearing=true\n`);
-    io.stderr.write(`       Override with: rcf update ${fbsId} --set uiBearing=false (if the classifier is wrong).\n`);
+    io.stderr.write(`       Classified as UI-bearing. Ratify with: rcf define update ${fbsId} --set uiBearing=true\n`);
+    io.stderr.write(`       Override with: rcf define update ${fbsId} --set uiBearing=false (if the classifier is wrong).\n`);
   }
 }
 

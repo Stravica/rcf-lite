@@ -18,10 +18,10 @@ Generation strategy: dependencyFirst
 | 12 | 4 | FBS-012 | MCP server over the full surface | complete | complete |  |
 | 13 | 0 | FBS-013 | Deploy-aware elicitation and hosting guidance | notStarted | actionable |  |
 | 14 | 0 | FBS-014 | Local-preview default, runtime-honest verification, interim self-review | notStarted | actionable |  |
-| 15 | 0 | FBS-015 | `rcf verify` subcommand routing (0.7.1 consolidation) | complete | complete |  |
+| 15 | 0 | FBS-015 | `rcf verify` group routing (0.10.0 CLI reorganisation) | complete | complete |  |
 | 16 | 0 | FBS-016 | Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes | notStarted | actionable |  |
 | 17 | 1 | FBS-017 | Namespaced blueprint ids and scope:global ADR conflict surfacing | notStarted | blocked | FBS-016 |
-| 18 | 0 | FBS-018 | Standards ingestion: rcf standards add + reference-by-default | notStarted | actionable |  |
+| 18 | 0 | FBS-018 | Standards ingestion: rcf define standards add + reference-by-default | notStarted | actionable |  |
 | 19 | 1 | FBS-019 | Selective retrieval at bundle assembly (contextRequirements.standardIds) | notStarted | blocked | FBS-018 |
 
 Totals: items 19 | notStarted 6 | inProgress 0 | complete 13 | verified 0 | actionable 4 | blocked 2

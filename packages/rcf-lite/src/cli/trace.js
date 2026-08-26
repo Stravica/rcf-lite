@@ -29,7 +29,7 @@ const OPTION_SPEC = {
   'to-code': { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf trace <id|path> [options]
+export const HELP = `Usage: rcf audit trace <id|path> [options]
 
 Walk the graph from <id> forward (descendants), backward (ancestors),
 or both. Default is --forward. When <id> is not a known document id, it

@@ -65,7 +65,7 @@ async function scaffoldChain({ tsStatus = 'draft', tcProvenance, fbsServices } =
 
 test('coverage --strict passes when no dependsOnServices are declared (baseline behaviour)', async () => {
   const tmp = await scaffoldChain({ tcProvenance: undefined, fbsServices: null });
-  const { code } = await runBin(tmp, ['coverage', '--strict']);
+  const { code } = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(code, 0);
 });
 
@@ -74,7 +74,7 @@ test('coverage --strict refuses when TC lacks provenance and AC binds a service'
     tcProvenance: undefined,
     fbsServices: [{ id: 'resend', displayName: 'Resend', purpose: 'email', attestationMode: 'live', acIds: ['AC-101-1'] }],
   });
-  const { code, stderr } = await runBin(tmp, ['coverage', '--strict']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(code, 4);
   assert.match(stderr, /Runtime provenance missing/);
   assert.match(stderr, /TS-001\/TC-001-happy/);
@@ -85,7 +85,7 @@ test('coverage --strict refuses attestation drift: live × mock', async () => {
     tcProvenance: { profile: 'mock' },
     fbsServices: [{ id: 'resend', displayName: 'Resend', purpose: 'email', attestationMode: 'live', acIds: ['AC-101-1'] }],
   });
-  const { code, stderr } = await runBin(tmp, ['coverage', '--strict']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(code, 4);
   assert.match(stderr, /Attestation drift/);
   assert.match(stderr, /AC attests live; TC provenance is `mock`/);
@@ -96,7 +96,7 @@ test('coverage --strict passes on live × live', async () => {
     tcProvenance: { profile: 'live', envVarsRequired: ['RESEND_API_KEY'], externalHostsReached: ['api.resend.com'] },
     fbsServices: [{ id: 'resend', displayName: 'Resend', purpose: 'email', attestationMode: 'live', acIds: ['AC-101-1'] }],
   });
-  const { code, stderr } = await runBin(tmp, ['coverage', '--strict']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(code, 0, `stderr=${stderr}`);
 });
 
@@ -105,7 +105,7 @@ test('coverage --strict passes on declaredMockOnly × mock', async () => {
     tcProvenance: { profile: 'mock' },
     fbsServices: [{ id: 'resend', displayName: 'Resend', purpose: 'email', attestationMode: 'declaredMockOnly', acIds: ['AC-101-1'] }],
   });
-  const { code, stderr } = await runBin(tmp, ['coverage', '--strict']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(code, 0, `stderr=${stderr}`);
 });
 
@@ -115,9 +115,9 @@ test('coverage --strict --require-approved refuses on a draft TS', async () => {
     tcProvenance: { profile: 'mock' },
     fbsServices: [{ id: 'resend', displayName: 'Resend', purpose: 'email', attestationMode: 'declaredMockOnly', acIds: ['AC-101-1'] }],
   });
-  const plain = await runBin(tmp, ['coverage', '--strict']);
+  const plain = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(plain.code, 0, `baseline --strict should pass first: ${plain.stderr}`);
-  const gated = await runBin(tmp, ['coverage', '--strict', '--require-approved']);
+  const gated = await runBin(tmp, ['audit', 'coverage', '--strict', '--require-approved']);
   assert.equal(gated.code, 4);
   assert.match(gated.stderr, /not approved: TS-001/);
 });
@@ -128,7 +128,7 @@ test('coverage --strict --require-approved passes when the TS is approved', asyn
     tcProvenance: { profile: 'mock' },
     fbsServices: [{ id: 'resend', displayName: 'Resend', purpose: 'email', attestationMode: 'declaredMockOnly', acIds: ['AC-101-1'] }],
   });
-  const { code, stderr } = await runBin(tmp, ['coverage', '--strict', '--require-approved']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--strict', '--require-approved']);
   assert.equal(code, 0, `stderr=${stderr}`);
 });
 
@@ -155,7 +155,7 @@ test('coverage --strict warns (but does not refuse) on a preFlightConfig service
     operatorAckAt: '2026-07-31T10:02:00Z',
   }];
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
-  const { code, stderr } = await runBin(tmp, ['coverage', '--strict']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(code, 0, `warn-only, should not exit 4: stderr=${stderr}`);
   assert.match(stderr, /preFlightConfig service 'orphanService'/);
   assert.match(stderr, /empty affectedFbsIds/);

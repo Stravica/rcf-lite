@@ -14,7 +14,7 @@ import { createToolRegistry } from '../mcp/tools.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-export const HELP = `Usage: rcf-verify mcp [options]
+export const HELP = `Usage: rcf verify mcp [options]
 
 Serve verify over the Model Context Protocol (local stdio). Exposes one tool,
 rcf_verify_run, over the same in-process engine the CLI uses. stdout carries

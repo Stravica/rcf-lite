@@ -1,4 +1,5 @@
-// `rcf help` + top-level help subcommand tests.
+// `rcf help` + top-level help tests. 0.10.0 CLI reorganisation: help
+// walks group -> verb; the top-level catalogue is grouped.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -24,14 +25,12 @@ test('rcf with no args prints top-level help (exit 0)', async () => {
   const { code, stdout } = await runBin([]);
   assert.equal(code, 0);
   assert.match(stdout, /Usage: rcf <command>/);
-  assert.match(stdout, /init/);
-  assert.match(stdout, /view/);
-  assert.match(stdout, /validate/);
-  assert.match(stdout, /create/);
-  assert.match(stdout, /read/);
-  assert.match(stdout, /update/);
-  assert.match(stdout, /delete/);
-  assert.match(stdout, /link/);
+  assert.match(stdout, /^core$/m);
+  assert.match(stdout, /^discover /m);
+  assert.match(stdout, /^define /m);
+  assert.match(stdout, /^build /m);
+  assert.match(stdout, /^verify /m);
+  assert.match(stdout, /^audit /m);
 });
 
 test('rcf --version prints "rcf <semver>"', async () => {
@@ -46,21 +45,49 @@ test('rcf --help prints the top-level help', async () => {
   assert.match(stdout, /Usage: rcf <command>/);
 });
 
-test('rcf help create prints the create-specific block', async () => {
-  const { code, stdout } = await runBin(['help', 'create']);
+test('rcf help define create prints the create-specific block', async () => {
+  const { code, stdout } = await runBin(['help', 'define', 'create']);
   assert.equal(code, 0);
   assert.match(stdout, /Kinds: req \| us \| ac/);
   assert.match(stdout, /--parent/);
 });
 
-test('rcf help unknown-topic exits 2', async () => {
+test('rcf help define prints the define group help', async () => {
+  const { code, stdout } = await runBin(['help', 'define']);
+  assert.equal(code, 0);
+  assert.match(stdout, /Usage: rcf define <verb>/);
+  assert.match(stdout, /create <kind>/);
+});
+
+test('rcf help init prints core-verb help (core dispatches at top level)', async () => {
+  const { code, stdout } = await runBin(['help', 'init']);
+  assert.equal(code, 0);
+  assert.match(stdout, /Usage: rcf init/);
+});
+
+test('rcf help unknown-group exits 2', async () => {
   const { code, stderr } = await runBin(['help', 'nope']);
   assert.equal(code, 2);
   assert.match(stderr, /no help topic/);
 });
 
-test('rcf bogus-subcommand exits 2 (usage)', async () => {
+test('rcf help <group> <bogus-verb> exits 2', async () => {
+  const { code, stderr } = await runBin(['help', 'define', 'nope']);
+  assert.equal(code, 2);
+  assert.match(stderr, /no help topic 'define nope'/);
+});
+
+test('rcf bogus-command exits 2 (usage)', async () => {
   const { code, stderr } = await runBin(['bogus']);
   assert.equal(code, 2);
-  assert.match(stderr, /unknown subcommand/);
+  assert.match(stderr, /unknown command/);
+});
+
+test('rcf <old-flat-verb> exits 2 with a pointer at the new grouped form', async () => {
+  // Built at runtime so the argv-xform sweep does not silently rewrite
+  // the legacy token to its grouped form.
+  const oldFlat = 'cover' + 'age';
+  const { code, stderr } = await runBin([oldFlat]);
+  assert.equal(code, 2);
+  assert.match(stderr, /Try 'rcf audit coverage'/);
 });

@@ -43,7 +43,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf browser-verify <fbs-id> [options]
+export const HELP = `Usage: rcf verify browser <fbs-id> [options]
 
 Stage 5 browser-verification gate for a UI-bearing FBS. Writes a
 browserVerification record on the manifest; the finalise gate reads it.

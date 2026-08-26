@@ -18,7 +18,7 @@ const OPTION_SPEC = {
   'no-code': { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf validate [options]
+export const HELP = `Usage: rcf define validate [options]
 
 Walk the rcf/ tree and report schema-validation and broken-reference
 issues. Exits 0 when clean, 3 on issues.

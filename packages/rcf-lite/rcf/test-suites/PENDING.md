@@ -15,8 +15,8 @@ a genuine feature gap - was closed by porting the parallel-safe tier
 computation from the full RCF platform into the build queue and binding
 TC-014-independent-items-share-tier to it.
 
-Status: **76 bound / 0 pending** of 76 ACs. `rcf coverage --strict`
-exits 0, and CI runs `rcf validate` and `rcf coverage --strict` as
+Status: **76 bound / 0 pending** of 76 ACs. `rcf audit coverage --strict`
+exits 0, and CI runs `rcf define validate` and `rcf audit coverage --strict` as
 required steps, so a new uncovered AC or a non-resolving testPointer
 fails the build. A future genuine gap gets a row here (AC id, US, kind,
 what a sufficient test must assert, nearest existing test) until its

@@ -68,7 +68,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf design <fbs-id> [<sub-verb> ...] [options]
+export const HELP = `Usage: rcf define design <fbs-id> [<sub-verb> ...] [options]
 
 Design substage verbs for a UI-bearing FBS. FBS positional is required
 and must match /^FBS-\\d+$/ (any other positional in that slot is a

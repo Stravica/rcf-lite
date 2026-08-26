@@ -40,8 +40,8 @@ async function scaffold(name) {
 
 test('rcf build --mark complete is refused (exit 3, missingCodeNodes) when the AC has no CN', async () => {
   const tmp = await scaffold('refused');
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
-  const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
+  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete']);
   assert.equal(code, 3);
   assert.match(stderr, /missingCodeNodes/);
   assert.match(stderr, /AC-101-1/);
@@ -49,48 +49,48 @@ test('rcf build --mark complete is refused (exit 3, missingCodeNodes) when the A
 
 test('rcf build --mark complete succeeds once the AC has a CN', async () => {
   const tmp = await scaffold('passes');
-  await runBin(tmp, ['create', 'cn', '--path', 'src/save.js#save', '--acs', 'AC-101-1']);
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
-  const { code, stdout } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete']);
+  await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/save.js#save', '--acs', 'AC-101-1']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
+  const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete']);
   assert.equal(code, 0, stdout);
   assert.match(stdout, /marked FBS-001 inProgress -> complete/);
 });
 
 test('rcf build --mark complete --no-code-nodes bypasses the gate and records the declaration', async () => {
   const tmp = await scaffold('declared');
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
-  const { code, stdout } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
+  const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
   assert.equal(code, 0, stdout);
-  const read = await runBin(tmp, ['read', 'FBS-001']);
+  const read = await runBin(tmp, ['define', 'read', 'FBS-001']);
   const body = JSON.parse(read.stdout);
   assert.equal(body.noCodeNodes, true);
 });
 
 test('the no-code-nodes declaration is sticky: a later re-mark does not re-trigger the gate', async () => {
   const tmp = await scaffold('sticky');
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
   // Deliberate correction back to inProgress, then complete again with no
   // --no-code-nodes flag on the second pass - the FBS already carries the
   // declaration, so the gate must not re-fire.
-  await runBin(tmp, ['update', 'FBS-001', '--set', 'executionStatus=inProgress']);
-  const { code, stdout } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete']);
+  await runBin(tmp, ['define', 'update', 'FBS-001', '--set', 'executionStatus=inProgress']);
+  const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete']);
   assert.equal(code, 0, stdout);
 });
 
-test('--no-code-nodes only combines with --mark complete (exit 2 otherwise)', async () => {
+test('--no-code-nodes only combines with .build mark (exit 2 otherwise)', async () => {
   const tmp = await scaffold('flag-conflict');
-  const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress', '--no-code-nodes']);
+  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress', '--no-code-nodes']);
   assert.equal(code, 2);
-  assert.match(stderr, /--no-code-nodes only combines with --mark complete/);
+  assert.match(stderr, /--no-code-nodes only combines with .build mark/);
 });
 
 test('rcf coverage --with-code reports the four classes and never blocks', async () => {
   const tmp = await scaffold('coverage');
-  await runBin(tmp, ['create', 'ac', '--parent', 'US-101', '--description', 'A second acceptance criterion']);
-  await runBin(tmp, ['create', 'cn', '--path', 'src/save.js#save', '--acs', 'AC-101-1']);
-  await runBin(tmp, ['create', 'cn', '--path', 'src/orphan.js']);
-  const { code, stdout } = await runBin(tmp, ['coverage', '--with-code', '--format', 'json']);
+  await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'A second acceptance criterion']);
+  await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/save.js#save', '--acs', 'AC-101-1']);
+  await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/orphan.js']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'coverage', '--with-code', '--format', 'json']);
   assert.equal(code, 0, stdout);
   const body = JSON.parse(stdout);
   assert.equal(body.withCode, true);

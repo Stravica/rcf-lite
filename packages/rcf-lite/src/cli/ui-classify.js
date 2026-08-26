@@ -19,7 +19,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf ui-classify <fbs-id> [options]
+export const HELP = `Usage: rcf discover ui-classify <fbs-id> [options]
 
 Run the UI-bearing classifier on one FBS and print the verdict. Does
 not write to the FBS document; ratify with:

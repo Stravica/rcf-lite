@@ -48,7 +48,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf ui-baseline <verb> [options]
+export const HELP = `Usage: rcf discover ui-baseline <verb> [options]
 
 Manage the project's ruled UI defaults (theme, layout, contrast,
 components, auth flow). Written once per project as a uiBaseline record

@@ -2,7 +2,7 @@
   "cnId": "CN-016",
   "path": "src/view/mermaid-diagram.js",
   "title": "Mermaid diagram emission (file-level)",
-  "description": "Builds the per-requirement mermaid subdiagrams (REQ -> US -> AC -> FBS, and Code Node cross-links) that rcf view renders.",
+  "description": "Builds the per-requirement mermaid subdiagrams (REQ -> US -> AC -> FBS, and Code Node cross-links) that rcf audit view renders.",
   "implementsAcIds": [
     "AC-201-1",
     "AC-201-2",

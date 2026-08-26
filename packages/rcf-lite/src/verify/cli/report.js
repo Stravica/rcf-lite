@@ -11,7 +11,7 @@ import { formatError, isRcfError } from '#core/errors';
 import { parseReport } from '../report/index.js';
 import { renderReport } from '../report/renderer.js';
 
-export const HELP = `Usage: rcf-verify report <report-path> [--json]
+export const HELP = `Usage: rcf verify report <report-path> [--json]
 
 Re-render a prior report artifact. Default output is the human-readable
 summary; --json re-emits the parsed artifact as JSON.

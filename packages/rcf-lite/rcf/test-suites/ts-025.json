@@ -2,7 +2,7 @@
   "id": "TS-025",
   "usId": "US-901",
   "title": "`rcf verify` subcommand routing (0.7.1 consolidation)",
-  "purpose": "Verify the umbrella CLI mounts `rcf verify` as a first-class subcommand that dispatches to the same handlers the transition-grace `rcf-verify` alias bin exposes, that the top-level help advertises it, and that the alias bin emits a one-line stderr deprecation notice (suppressible via RCF_QUIET) when run directly.",
+  "purpose": "Verify the umbrella CLI mounts `rcf verify` as a first-class subcommand that dispatches to the same handlers the transition-grace `rcf verify` alias bin exposes, that the top-level help advertises it, and that the alias bin emits a one-line stderr deprecation notice (suppressible via RCF_QUIET) when run directly.",
   "testLevel": "unit",
   "acIds": [
     "AC-901-1",
@@ -15,35 +15,35 @@
       "acId": "AC-901-1",
       "description": "the `verify` entry on the top-level SUBCOMMANDS map is the same `main` function the alias bin exports",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin's dispatcher"
+      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin's dispatcher"
     },
     {
       "id": "TC-025-verify-help-parity",
       "acId": "AC-901-1",
-      "description": "`rcf verify --help` and `rcf-verify --help` print byte-identical help",
+      "description": "`rcf verify --help` and `rcf verify --help` print byte-identical help",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-1 (routing surface): `rcf verify --help` dispatches to the same help block as `rcf-verify --help`"
+      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-1 (routing surface): `rcf verify --help` dispatches to the same help block as `rcf verify --help`"
     },
     {
       "id": "TC-025-top-level-help-lists-verify",
       "acId": "AC-901-2",
       "description": "the top-level rcf --help output lists `verify <verb>` alongside the other commands",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-2: `rcf --help` advertises the verify subcommand"
+      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-2: `rcf --help` advertises the verify subcommand"
     },
     {
       "id": "TC-025-alias-emits-deprecation-notice",
       "acId": "AC-901-3",
-      "description": "`rcf-verify` alias bin emits exactly one stderr line pointing at `rcf verify` when invoked directly",
+      "description": "`rcf verify` alias bin emits exactly one stderr line pointing at `rcf verify` when invoked directly",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-3: `rcf-verify` alias emits a one-line stderr deprecation notice on direct invocation"
+      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-3: `rcf verify` alias emits a one-line stderr deprecation notice on direct invocation"
     },
     {
       "id": "TC-025-alias-honours-quiet-env",
       "acId": "AC-901-3",
       "description": "RCF_QUIET=1 silences the deprecation notice for scripted callers",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-3 (silencing): `rcf-verify` with RCF_QUIET=1 does not emit the deprecation notice"
+      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-3 (silencing): `rcf verify` with RCF_QUIET=1 does not emit the deprecation notice"
     }
   ],
   "status": "draft",

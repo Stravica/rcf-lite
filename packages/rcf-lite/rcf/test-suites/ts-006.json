@@ -15,21 +15,21 @@
       "acId": "AC-301-2",
       "description": "reading an unknown id exits 2 with a structured not-found usage error",
       "status": "pending",
-      "testPointer": "test/cli/read.test.js::rcf read UNKNOWN-999 exits 2 (usage, unknown id)"
+      "testPointer": "test/cli/read.test.js::rcf define read UNKNOWN-999 exits 2 (usage, unknown id)"
     },
     {
       "id": "TC-006-read-reports-valid",
       "acId": "AC-301-1",
       "description": "read returns the body on stdout and reports the document valid against its schema on stderr",
       "status": "pending",
-      "testPointer": "test/cli/read.test.js::rcf read REQ-001 returns the body and reports it valid against its schema (AC-301-1)"
+      "testPointer": "test/cli/read.test.js::rcf define read REQ-001 returns the body and reports it valid against its schema (AC-301-1)"
     },
     {
       "id": "TC-006-read-invalid-content-plus-errors",
       "acId": "AC-301-3",
       "description": "read on an invalid-but-present document returns the content together with the validation errors",
       "status": "pending",
-      "testPointer": "test/cli/read.test.js::rcf read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)"
+      "testPointer": "test/cli/read.test.js::rcf define read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)"
     }
   ],
   "status": "draft"

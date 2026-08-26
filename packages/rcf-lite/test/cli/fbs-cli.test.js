@@ -50,7 +50,7 @@ async function scaffoldFbs() {
 test('fbs depends-on writes a dependsOnServices entry', async () => {
   const tmp = await scaffoldFbs();
   const { code, stderr } = await runBin(tmp, [
-    'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'live', '--acs', 'AC-101-1',
+    'build', 'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'live', '--acs', 'AC-101-1',
     '--display', 'Resend email API', '--purpose', 'transactional email',
   ]);
   assert.equal(code, 0, `stderr=${stderr}`);
@@ -63,8 +63,8 @@ test('fbs depends-on writes a dependsOnServices entry', async () => {
 
 test('fbs depends-on idempotent by service id: second call replaces the entry', async () => {
   const tmp = await scaffoldFbs();
-  await runBin(tmp, ['fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'mocked', '--acs', 'AC-101-1']);
-  await runBin(tmp, ['fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'live', '--acs', 'AC-101-1']);
+  await runBin(tmp, ['build', 'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'mocked', '--acs', 'AC-101-1']);
+  await runBin(tmp, ['build', 'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'live', '--acs', 'AC-101-1']);
   const fbs = JSON.parse(await readFile(join(tmp, 'rcf/fbs/fbs-001.json'), 'utf8'));
   assert.equal(fbs.dependsOnServices.length, 1);
   assert.equal(fbs.dependsOnServices[0].attestationMode, 'live');
@@ -73,7 +73,7 @@ test('fbs depends-on idempotent by service id: second call replaces the entry', 
 test('fbs depends-on refuses --acs referencing an AC not on the FBS', async () => {
   const tmp = await scaffoldFbs();
   const { code, stderr } = await runBin(tmp, [
-    'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'live', '--acs', 'AC-999-9',
+    'build', 'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'live', '--acs', 'AC-999-9',
   ]);
   assert.equal(code, 4);
   assert.match(stderr, /does not bind AC/);
@@ -82,7 +82,7 @@ test('fbs depends-on refuses --acs referencing an AC not on the FBS', async () =
 test('fbs depends-on refuses unknown --mode', async () => {
   const tmp = await scaffoldFbs();
   const { code, stderr } = await runBin(tmp, [
-    'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'whatever', '--acs', 'AC-101-1',
+    'build', 'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'whatever', '--acs', 'AC-101-1',
   ]);
   assert.equal(code, 2);
   assert.match(stderr, /unknown --mode/);
@@ -91,7 +91,7 @@ test('fbs depends-on refuses unknown --mode', async () => {
 test('fbs depends-on refuses non-camelCase --service id', async () => {
   const tmp = await scaffoldFbs();
   const { code, stderr } = await runBin(tmp, [
-    'fbs', 'FBS-001', 'depends-on', '--service', 'Resend-Email', '--mode', 'live', '--acs', 'AC-101-1',
+    'build', 'fbs', 'FBS-001', 'depends-on', '--service', 'Resend-Email', '--mode', 'live', '--acs', 'AC-101-1',
   ]);
   assert.equal(code, 2);
   assert.match(stderr, /must be camelCase/);
@@ -100,7 +100,7 @@ test('fbs depends-on refuses non-camelCase --service id', async () => {
 test('fbs depends-on --preflight expands a bare pfc id to the composite ref', async () => {
   const tmp = await scaffoldFbs();
   const { code } = await runBin(tmp, [
-    'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'live', '--acs', 'AC-101-1',
+    'build', 'fbs', 'FBS-001', 'depends-on', '--service', 'resend', '--mode', 'live', '--acs', 'AC-101-1',
     '--preflight', 'pfc-2026-07-30-001',
   ]);
   assert.equal(code, 0);

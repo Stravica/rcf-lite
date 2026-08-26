@@ -41,7 +41,7 @@ const OPTION_SPEC = {
   'require-approved': { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf coverage [scope-id] [options]
+export const HELP = `Usage: rcf audit coverage [scope-id] [options]
 
 Report structural coverage over the REQ chain (PRD -> REQ -> US -> AC
 -> TS -> TC). A TC counts as covering its AC only when its testPointer

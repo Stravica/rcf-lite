@@ -16,7 +16,7 @@
       "acId": "AC-303-1",
       "description": "a valid update persists the change and advances updatedAt on disk",
       "status": "pending",
-      "testPointer": "test/cli/update.test.js::rcf update REQ-001 --set title=X changes the title and bumps updatedAt"
+      "testPointer": "test/cli/update.test.js::rcf define update REQ-001 --set title=X changes the title and bumps updatedAt"
     },
     {
       "id": "TC-008-invalid-update-refused",
@@ -30,7 +30,7 @@
       "acId": "AC-303-3",
       "description": "update on a nonexistent id returns a structured not-found error naming the id and writes nothing",
       "status": "pending",
-      "testPointer": "test/cli/update.test.js::rcf update REQ-999 returns a structured not-found error and writes nothing (AC-303-3)"
+      "testPointer": "test/cli/update.test.js::rcf define update REQ-999 returns a structured not-found error and writes nothing (AC-303-3)"
     }
   ],
   "status": "draft"

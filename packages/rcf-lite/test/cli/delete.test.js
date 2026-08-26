@@ -35,14 +35,14 @@ async function scaffold() {
 
 test('rcf delete leaf ADR-001 removes the file (exit 0)', async () => {
   const tmp = await scaffold();
-  const { code } = await runBin(tmp, ['delete', 'ADR-001']);
+  const { code } = await runBin(tmp, ['define', 'delete', 'ADR-001']);
   assert.equal(code, 0);
   await assert.rejects(stat(join(tmp, 'rcf/adrs/adr-001.json')), { code: 'ENOENT' });
 });
 
 test('rcf delete REQ-001 without --cascade refuses with exit 4', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['delete', 'REQ-001']);
+  const { code, stderr } = await runBin(tmp, ['define', 'delete', 'REQ-001']);
   assert.equal(code, 4);
   assert.match(stderr, /has dependents/);
 });
@@ -51,7 +51,7 @@ test('rcf delete REQ-001 --cascade orphan-refuse fires with exit 4 (§D9 amendme
   const tmp = await scaffold();
   // Scaffold ships FBS-001 referencing AC-101-1 exclusively. Cascade
   // deleting REQ-001 would empty FBS-001.acIds -> refuse.
-  const { code, stderr } = await runBin(tmp, ['delete', 'REQ-001', '--cascade']);
+  const { code, stderr } = await runBin(tmp, ['define', 'delete', 'REQ-001', '--cascade']);
   assert.equal(code, 4);
   assert.match(stderr, /orphan/);
 });
@@ -59,8 +59,8 @@ test('rcf delete REQ-001 --cascade orphan-refuse fires with exit 4 (§D9 amendme
 test('rcf delete AC-101-1 without --cascade refuses (FBS depends) with exit 4', async () => {
   const tmp = await scaffold();
   // First add a second AC so US-101 isn't left empty.
-  await runBin(tmp, ['create', 'ac', '--parent', 'US-101', '--description', 'second']);
-  const { code, stderr } = await runBin(tmp, ['delete', 'AC-101-1']);
+  await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'second']);
+  const { code, stderr } = await runBin(tmp, ['define', 'delete', 'AC-101-1']);
   assert.equal(code, 4);
   assert.match(stderr, /has dependents/);
 });
@@ -68,17 +68,17 @@ test('rcf delete AC-101-1 without --cascade refuses (FBS depends) with exit 4', 
 test('rcf delete TS-XXX (no dependents) removes the file (exit 0)', async () => {
   const tmp = await scaffold();
   await runBin(tmp, [
-    'create', 'ts', '--parent', 'US-101',
+    'define', 'create', 'ts', '--parent', 'US-101',
     '--title', 'a', '--purpose', 'p', '--test-level', 'unit', '--acs', 'AC-101-1',
   ]);
-  const { code } = await runBin(tmp, ['delete', 'TS-001']);
+  const { code } = await runBin(tmp, ['define', 'delete', 'TS-001']);
   assert.equal(code, 0);
   await assert.rejects(stat(join(tmp, 'rcf/test-suites/ts-001.json')), { code: 'ENOENT' });
 });
 
 test('rcf delete PRD-001 refuses (root singleton, exit 2)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['delete', 'PRD-001']);
+  const { code, stderr } = await runBin(tmp, ['define', 'delete', 'PRD-001']);
   assert.equal(code, 2);
   assert.match(stderr, /root singleton/);
 });
@@ -86,7 +86,7 @@ test('rcf delete PRD-001 refuses (root singleton, exit 2)', async () => {
 test('rcf delete --dry-run does not touch disk', async () => {
   const tmp = await scaffold();
   const before = await stat(join(tmp, 'rcf/adrs/adr-001.json'));
-  const { code, stdout } = await runBin(tmp, ['delete', 'ADR-001', '--dry-run']);
+  const { code, stdout } = await runBin(tmp, ['define', 'delete', 'ADR-001', '--dry-run']);
   assert.equal(code, 0);
   assert.match(stdout, /\[dry-run\]/);
   const after = await stat(join(tmp, 'rcf/adrs/adr-001.json'));
@@ -97,13 +97,13 @@ test('rcf delete freed id: TS-004 is next after deleting TS-002 (§D10 amendment
   const tmp = await scaffold();
   for (let i = 0; i < 3; i += 1) {
     await runBin(tmp, [
-      'create', 'ts', '--parent', 'US-101',
+      'define', 'create', 'ts', '--parent', 'US-101',
       '--title', `s${i}`, '--purpose', 'p', '--test-level', 'unit', '--acs', 'AC-101-1',
     ]);
   }
-  await runBin(tmp, ['delete', 'TS-002']);
+  await runBin(tmp, ['define', 'delete', 'TS-002']);
   const { stdout } = await runBin(tmp, [
-    'create', 'ts', '--parent', 'US-101',
+    'define', 'create', 'ts', '--parent', 'US-101',
     '--title', 'reuse', '--purpose', 'p', '--test-level', 'unit', '--acs', 'AC-101-1',
   ]);
   assert.match(stdout, /TS-004 created/);
@@ -111,7 +111,7 @@ test('rcf delete freed id: TS-004 is next after deleting TS-002 (§D10 amendment
 
 test('rcf delete UNKNOWN-999 exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['delete', 'UNKNOWN-999']);
+  const { code, stderr } = await runBin(tmp, ['define', 'delete', 'UNKNOWN-999']);
   assert.equal(code, 2);
   assert.match(stderr, /unrecognised id|not found/);
 });

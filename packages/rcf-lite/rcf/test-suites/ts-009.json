@@ -17,7 +17,7 @@
       "acId": "AC-304-1",
       "description": "delete without cascade refuses with exit 4 naming dependents",
       "status": "pending",
-      "testPointer": "test/cli/delete.test.js::rcf delete REQ-001 without --cascade refuses with exit 4"
+      "testPointer": "test/cli/delete.test.js::rcf define delete REQ-001 without --cascade refuses with exit 4"
     },
     {
       "id": "TC-009-cascade-removes-subtree",
@@ -31,7 +31,7 @@
       "acId": "AC-304-3",
       "description": "deleting an unreferenced leaf removes the file with exit 0 on a still-valid tree",
       "status": "pending",
-      "testPointer": "test/cli/delete.test.js::rcf delete leaf ADR-001 removes the file (exit 0)"
+      "testPointer": "test/cli/delete.test.js::rcf define delete leaf ADR-001 removes the file (exit 0)"
     }
   ],
   "status": "draft"

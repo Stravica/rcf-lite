@@ -23,7 +23,7 @@ import {
 } from '../blueprint/index.js';
 import { conflictReportJson, renderConflictReport } from '../blueprint/conflicts.js';
 
-export const HELP = `Usage: rcf blueprint <verb> [options]
+export const HELP = `Usage: rcf define blueprint <verb> [options]
 
 Verbs:
   add <source>           Apply a blueprint from a source directory

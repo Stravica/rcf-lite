@@ -60,7 +60,7 @@ async function readFbs(tmp, id = 'fbs-001') {
 
 test('rcf build (queue overview) exits 0 and renders the table', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['build']);
+  const { code, stdout } = await runBin(tmp, ['build', 'queue']);
   assert.equal(code, 0);
   assert.match(stdout, /# Build queue: BS-001/);
   assert.match(stdout, /\| 1 \| 0 \| FBS-001 \|/);
@@ -69,7 +69,7 @@ test('rcf build (queue overview) exits 0 and renders the table', async () => {
 
 test('rcf build --format json emits the D14 queue envelope', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['build', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'queue', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.ok, true);
@@ -80,7 +80,7 @@ test('rcf build --format json emits the D14 queue envelope', async () => {
 
 test('rcf build FBS-001 (bundle) exits 0 with the seven-section document', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['build', 'FBS-001']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', 'FBS-001']);
   assert.equal(code, 0);
   assert.match(stdout, /# Spec bundle: FBS-001/);
   assert.match(stdout, /## 7\. Build-cycle runbook/);
@@ -88,14 +88,14 @@ test('rcf build FBS-001 (bundle) exits 0 with the seven-section document', async
 
 test('unknown id exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['build', 'FBS-999']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', 'FBS-999']);
   assert.equal(code, 2);
   assert.match(stderr, /id FBS-999 not found/);
 });
 
 test('US id exits 2 with the rcf trace pointer (D1)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['build', 'US-101']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', 'US-101']);
   assert.equal(code, 2);
   assert.match(stderr, /rcf trace US-101 --forward --format json/);
 });
@@ -103,7 +103,7 @@ test('US id exits 2 with the rcf trace pointer (D1)', async () => {
 test('--next selects the lowest-order actionable item and emits its bundle', async () => {
   const tmp = await scaffold();
   await addDependentFbs(tmp);
-  const { code, stdout } = await runBin(tmp, ['build', '--next', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.mode, 'next');
@@ -114,9 +114,9 @@ test('--next on an exhausted queue exits 0 with queueEmpty: true (OQ-P6-2)', asy
   const tmp = await scaffold();
   // Phase 10 D17: the mark-complete CN gate refuses without CN coverage
   // or a --no-code-nodes declaration - this fixture has no source tree.
-  const first = await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
+  const first = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
   assert.equal(first.code, 0);
-  const { code, stdout } = await runBin(tmp, ['build', '--next', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.queueEmpty, true);
@@ -125,9 +125,9 @@ test('--next on an exhausted queue exits 0 with queueEmpty: true (OQ-P6-2)', asy
 test('--next distinguishes stuck (blocked/inProgress) from done', async () => {
   const tmp = await scaffold();
   await addDependentFbs(tmp);
-  const mark = await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
+  const mark = await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
   assert.equal(mark.code, 0);
-  const { code, stdout } = await runBin(tmp, ['build', '--next', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.queueEmpty, false);
@@ -152,9 +152,9 @@ test('--next warns when the selected FBS names dependsOnServices with no preFlig
     acIds: ['AC-101-1'],
   }];
   await writeFile(fbsPath, `${JSON.stringify(fbs, null, 2)}\n`, 'utf8');
-  const { code, stderr } = await runBin(tmp, ['build', '--next']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', '--next']);
   assert.equal(code, 0, `warn only, should not fail: stderr=${stderr}`);
-  assert.match(stderr, /\[warn\] build --next: FBS-001 touches services not covered by any preFlightConfig \(resend\); run 'rcf preflight' before Stage 4\./);
+  assert.match(stderr, /\[warn\] build bundle --next: FBS-001 touches services not covered by any preFlightConfig \(resend\); run 'rcf discover preflight' before Stage 4\./);
 });
 
 test('--next stays silent when preFlightConfig covers every dependsOnServices entry (N-1 negative)', async () => {
@@ -180,7 +180,7 @@ test('--next stays silent when preFlightConfig covers every dependsOnServices en
     operatorAckAt: '2026-07-31T10:02:00Z',
   }];
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
-  const { code, stderr } = await runBin(tmp, ['build', '--next']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', '--next']);
   assert.equal(code, 0);
   assert.doesNotMatch(stderr, /touches services not covered/);
 });
@@ -204,7 +204,7 @@ test('--mark writes through updateDocument: status changed, updatedAt bumped', a
     return out;
   };
   const othersBefore = await otherDocs();
-  const { code, stdout } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
+  const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
   assert.equal(code, 0);
   assert.match(stdout, /marked FBS-001 notStarted -> inProgress/);
   const after = await readFbs(tmp);
@@ -227,8 +227,8 @@ test('--mark writes through updateDocument: status changed, updatedAt bumped', a
 
 test('same-status --mark is an idempotent no-op, exit 0', async () => {
   const tmp = await scaffold();
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
-  const { code, stdout } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'inProgress']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
+  const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
   assert.equal(code, 0);
   assert.match(stdout, /FBS-001 already inProgress/);
 });
@@ -236,8 +236,8 @@ test('same-status --mark is an idempotent no-op, exit 0', async () => {
 test('backward --mark exits 4 and names the rcf update escape hatch', async () => {
   const tmp = await scaffold();
   // Phase 10 D17: no CN coverage in this fixture - declare no-code-nodes.
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
-  const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'notStarted']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
+  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'notStarted']);
   assert.equal(code, 4);
   assert.match(stderr, /\[error\] refused/);
   assert.match(stderr, /rcf update FBS-001 --set executionStatus=notStarted/);
@@ -247,8 +247,8 @@ test('--mark verified is refused (exit 4), names rcf finalise, and writes nothin
   const tmp = await scaffold();
   // Take FBS-001 to complete first, so this is a "complete -> verified" attempt
   // (the exact sidestep the hardening closes), not a backward mark.
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
-  const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'verified']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
+  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'verified']);
   assert.equal(code, 4);
   assert.match(stderr, /\[error\] refused/);
   assert.match(stderr, /rcf finalise FBS-001/);
@@ -260,8 +260,8 @@ test('--mark verified is refused (exit 4), names rcf finalise, and writes nothin
 
 test('the sanctioned manual override still works: rcf update --set executionStatus=verified', async () => {
   const tmp = await scaffold();
-  await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete', '--no-code-nodes']);
-  const { code } = await runBin(tmp, ['update', 'FBS-001', '--set', 'executionStatus=verified']);
+  await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
+  const { code } = await runBin(tmp, ['define', 'update', 'FBS-001', '--set', 'executionStatus=verified']);
   assert.equal(code, 0);
   const fbs = await readFbs(tmp);
   assert.equal(fbs.executionStatus, 'verified', 'rcf update remains the explicit verified override');
@@ -269,7 +269,7 @@ test('the sanctioned manual override still works: rcf update --set executionStat
 
 test('bad --mark value exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'done']);
+  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'done']);
   assert.equal(code, 2);
   assert.match(stderr, /unknown --mark value 'done'/);
 });
@@ -280,7 +280,7 @@ test('--mark on a broken tree exits 3; no write lands (D6)', async () => {
   const req = JSON.parse(await readFile(reqPath, 'utf8'));
   req.prdId = 'PRD-999';
   await writeFile(reqPath, JSON.stringify(req), 'utf8');
-  const { code, stderr } = await runBin(tmp, ['build', 'FBS-001', '--mark', 'complete']);
+  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete']);
   assert.equal(code, 3);
   assert.match(stderr, /brokenReference/);
   const fbs = await readFbs(tmp);
@@ -290,10 +290,10 @@ test('--mark on a broken tree exits 3; no write lands (D6)', async () => {
 test('blocked bundle warns by default (exit 0), --strict refuses (exit 4) (D12)', async () => {
   const tmp = await scaffold();
   await addDependentFbs(tmp);
-  const warn = await runBin(tmp, ['build', 'FBS-002']);
+  const warn = await runBin(tmp, ['build', 'bundle', 'FBS-002']);
   assert.equal(warn.code, 0);
   assert.match(warn.stdout, /\*\*BLOCKED\*\*: unsatisfied dependencies - FBS-001 \(notStarted\)/);
-  const strict = await runBin(tmp, ['build', 'FBS-002', '--strict']);
+  const strict = await runBin(tmp, ['build', 'bundle', 'FBS-002', '--strict']);
   assert.equal(strict.code, 4);
   assert.match(strict.stderr, /\[error\] refused build: FBS-002 is blocked by FBS-001 \(notStarted\)/);
   assert.equal(strict.stdout, '');
@@ -302,14 +302,14 @@ test('blocked bundle warns by default (exit 0), --strict refuses (exit 4) (D12)'
 test('flag conflicts exit 2 (D1)', async () => {
   const tmp = await scaffold();
   const conflicts = [
-    ['build', 'FBS-001', '--next'],
-    ['build', 'FBS-001', '--mark', 'complete', '--format', 'json'],
-    ['build', 'FBS-001', '--mark', 'complete', '--out', 'x.md'],
-    ['build', 'FBS-001', '--mark', 'complete', '--strict'],
-    ['build', '--next', '--mark', 'complete'],
+    ['build', 'bundle', 'FBS-001', '--next'],
+    ['build', 'mark', 'FBS-001', 'complete', '--format', 'json'],
+    ['build', 'mark', 'FBS-001', 'complete', '--out', 'x.md'],
+    ['build', 'mark', 'FBS-001', 'complete', '--strict'],
+    ['build', 'mark', '--next', 'complete'],
     ['build', '--out', 'x.md'],
     ['build', '--strict'],
-    ['build', 'FBS-001', 'FBS-002'],
+    ['build', 'bundle', 'FBS-001', 'FBS-002'],
     ['build', 'FBS-*'],
   ];
   for (const args of conflicts) {
@@ -321,27 +321,27 @@ test('flag conflicts exit 2 (D1)', async () => {
 test('--out writes the bundle to a file; parent dir must exist (exit 1 when not)', async () => {
   const tmp = await scaffold();
   const outPath = join(tmp, 'bundle.md');
-  const ok = await runBin(tmp, ['build', 'FBS-001', '--out', outPath]);
+  const ok = await runBin(tmp, ['build', 'bundle', 'FBS-001', '--out', outPath]);
   assert.equal(ok.code, 0);
   assert.match(ok.stdout, /bundle written to /);
   const written = await readFile(outPath, 'utf8');
   assert.match(written, /# Spec bundle: FBS-001/);
-  const bad = await runBin(tmp, ['build', 'FBS-001', '--out', join(tmp, 'no-such-dir', 'bundle.md')]);
+  const bad = await runBin(tmp, ['build', 'bundle', 'FBS-001', '--out', join(tmp, 'no-such-dir', 'bundle.md')]);
   assert.equal(bad.code, 1);
   assert.match(bad.stderr, /\[rcf\] unexpected failure/);
 });
 
 test('bad --format exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['build', '--format', 'yaml']);
+  const { code, stderr } = await runBin(tmp, ['build', 'queue', '--format', 'yaml']);
   assert.equal(code, 2);
   assert.match(stderr, /unknown --format yaml/);
 });
 
 test('bundle output is byte-identical across consecutive invocations (D10)', async () => {
   const tmp = await scaffold();
-  const first = await runBin(tmp, ['build', 'FBS-001']);
-  const second = await runBin(tmp, ['build', 'FBS-001']);
+  const first = await runBin(tmp, ['build', 'bundle', 'FBS-001']);
+  const second = await runBin(tmp, ['build', 'bundle', 'FBS-001']);
   assert.equal(first.stdout, second.stdout);
 });
 
@@ -358,17 +358,17 @@ async function goldenTest(name, args, fixture) {
 }
 
 test('golden: rcf build (queue md) matches dogfood fixture', async () => {
-  await goldenTest('queue md', ['build'], 'queue.md');
+  await goldenTest('queue md', ['build', 'queue'], 'queue.md');
 });
 
 test('golden: rcf build --format json (queue) matches dogfood fixture', async () => {
-  await goldenTest('queue json', ['build', '--format', 'json'], 'queue.json');
+  await goldenTest('queue json', ['build', 'queue', '--format', 'json'], 'queue.json');
 });
 
 test('golden: rcf build FBS-001 (bundle md) matches dogfood fixture', async () => {
-  await goldenTest('bundle md', ['build', 'FBS-001'], 'bundle-fbs-001.md');
+  await goldenTest('bundle md', ['build', 'bundle', 'FBS-001'], 'bundle-fbs-001.md');
 });
 
 test('golden: rcf build FBS-001 --format json matches dogfood fixture', async () => {
-  await goldenTest('bundle json', ['build', 'FBS-001', '--format', 'json'], 'bundle-fbs-001.json');
+  await goldenTest('bundle json', ['build', 'bundle', 'FBS-001', '--format', 'json'], 'bundle-fbs-001.json');
 });

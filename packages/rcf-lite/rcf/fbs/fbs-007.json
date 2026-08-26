@@ -22,7 +22,7 @@
   "estimatedSize": "medium",
   "estimatedHours": 6,
   "deliverables": [
-    "rcf delete verb with reference-safe default",
+    "rcf define delete verb with reference-safe default",
     "Cascade flag with parent-reference cleanup"
   ],
   "riskLevel": "medium",

@@ -47,7 +47,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf preflight [options]
+export const HELP = `Usage: rcf discover preflight [options]
 
 Elicit the pre-flight configuration record: for every third-party
 service the PRD or TAD names, force one of the five attestation modes,

@@ -15,7 +15,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf link <us-id> --tac <tac-id> [options]
+export const HELP = `Usage: rcf define link <us-id> --tac <tac-id> [options]
 
 Options:
   --tac <tac-id>            TAC id to link (repeatable to link multiple
@@ -25,7 +25,7 @@ Options:
   --help                    Print this help
 `;
 
-export const UNLINK_HELP = `Usage: rcf unlink <us-id> --tac <tac-id> [options]
+export const UNLINK_HELP = `Usage: rcf define unlink <us-id> --tac <tac-id> [options]
 
 Options:
   --tac <tac-id>            TAC id to unlink (repeatable)

@@ -1,7 +1,7 @@
 {
   "cnId": "CN-019",
   "path": "src/cli/read.js",
-  "title": "rcf read subcommand (file-level)",
+  "title": "rcf define read subcommand (file-level)",
   "description": "Prints a document body or a single dot-path field by id, including inline AC / TC resolution.",
   "implementsAcIds": [
     "AC-301-1",

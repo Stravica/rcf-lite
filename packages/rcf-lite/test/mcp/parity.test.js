@@ -52,14 +52,14 @@ test('parity: rcf_impact TAC-001 structuredContent deep-equals the committed imp
   assert.deepEqual(result.structuredContent, await golden('impact.json'));
 });
 
-test('parity: rcf_validate structuredContent deep-equals live `rcf validate --json`', async () => {
-  const cli = JSON.parse(await runBin(['validate', '--json']));
+test('parity: rcf_validate structuredContent deep-equals live `rcf define validate --json`', async () => {
+  const cli = JSON.parse(await runBin(['define', 'validate', '--json']));
   const result = await registry.call('rcf_validate', {});
   assert.deepEqual(result.structuredContent, cli);
 });
 
-test('parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build FBS-001 --format json`', async () => {
-  const cli = JSON.parse(await runBin(['build', 'FBS-001', '--format', 'json']));
+test('parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build bundle FBS-001 --format json`', async () => {
+  const cli = JSON.parse(await runBin(['build', 'bundle', 'FBS-001', '--format', 'json']));
   const result = await registry.call('rcf_build', { fbsId: 'FBS-001' });
   assert.equal(result.isError, undefined);
   assert.deepEqual(result.structuredContent, cli);

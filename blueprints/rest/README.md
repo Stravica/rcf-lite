@@ -5,10 +5,10 @@ The second content blueprint on the rcf-build-lite blueprint mechanism (design b
 ## Apply
 
 ```
-rcf blueprint add <path-to>/blueprints/rest
+rcf define blueprint add <path-to>/blueprints/rest
 ```
 
-Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf blueprint list` shows the applied entry; `rcf blueprint remove rest` cleanly removes an unreferenced application.
+Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf define blueprint list` shows the applied entry; `rcf define blueprint remove rest` cleanly removes an unreferenced application.
 
 ## Anatomy
 
@@ -23,7 +23,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Guide | `guide/rest.md` | Operator-facing: when to use it, when not, what stays your call |
 | Coordination vocabulary | `docs/topics.md` | The global-topic strings this blueprint contributes, id number bands, and expectations for future composing blueprints |
 
-The doc set is contributions (copied into the project tree by `rcf blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
+The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 
 ## What it contributes, and what it deliberately does not
 

@@ -41,25 +41,25 @@ test('scripted journey: init -> create req -> validate -> create us -> ac -> ts 
   assert.deepEqual(tree.childrenByParent.get('BS-001'), ['FBS-001']);
 
   // 2. create a second REQ under PRD-001. PRD file must not change.
-  await runBin(tmp, ['create', 'req', '--parent', 'PRD-001', '--title', 'Second REQ']);
+  await runBin(tmp, ['define', 'create', 'req', '--parent', 'PRD-001', '--title', 'Second REQ']);
   tree = await reload(tmp);
   const reqChildren = tree.childrenByParent.get('PRD-001');
   assert.ok(reqChildren.includes('REQ-002'));
 
   // 3. create a US under REQ-002.
-  await runBin(tmp, ['create', 'us', '--parent', 'REQ-002', '--title', 'Second US']);
+  await runBin(tmp, ['define', 'create', 'us', '--parent', 'REQ-002', '--title', 'Second US']);
   tree = await reload(tmp);
   assert.deepEqual(tree.childrenByParent.get('REQ-002'), ['US-201']);
 
   // 4. create an AC on US-201.
-  await runBin(tmp, ['create', 'ac', '--parent', 'US-201', '--description', 'second criterion']);
+  await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-201', '--description', 'second criterion']);
   tree = await reload(tmp);
   const us201 = tree.byId.get('US-201');
   assert.equal(us201.acceptanceCriteria.length, 2);
 
   // 5. create a TS on US-201.
   await runBin(tmp, [
-    'create', 'ts', '--parent', 'US-201',
+    'define', 'create', 'ts', '--parent', 'US-201',
     '--title', 'S', '--purpose', 'p', '--test-level', 'unit',
     '--acs', 'AC-201-1',
   ]);
@@ -68,7 +68,7 @@ test('scripted journey: init -> create req -> validate -> create us -> ac -> ts 
 
   // 6. create a TC.
   await runBin(tmp, [
-    'create', 'tc', '--parent', 'TS-001',
+    'define', 'create', 'tc', '--parent', 'TS-001',
     '--ac', 'AC-201-1', '--description', 'happy path',
     '--test-pointer', 'test/happy.test.js::happy path',
   ]);
@@ -77,17 +77,17 @@ test('scripted journey: init -> create req -> validate -> create us -> ac -> ts 
   assert.equal(ts.testCases.length, 1);
 
   // 7. link US-201 to TAC-001.
-  await runBin(tmp, ['link', 'US-201', '--tac', 'TAC-001']);
+  await runBin(tmp, ['define', 'link', 'US-201', '--tac', 'TAC-001']);
   tree = await reload(tmp);
   assert.ok(tree.usByTacId.get('TAC-001').includes('US-201'));
 
   // 8. update REQ-002 title.
-  await runBin(tmp, ['update', 'REQ-002', '--set', 'title=Renamed']);
+  await runBin(tmp, ['define', 'update', 'REQ-002', '--set', 'title=Renamed']);
   tree = await reload(tmp);
   assert.equal(tree.byId.get('REQ-002').title, 'Renamed');
 
   // 9. cascade delete REQ-002.
-  await runBin(tmp, ['delete', 'REQ-002', '--cascade']);
+  await runBin(tmp, ['define', 'delete', 'REQ-002', '--cascade']);
   tree = await reload(tmp);
   assert.equal(tree.byId.get('REQ-002'), undefined);
   assert.equal(tree.byId.get('US-201'), undefined);
@@ -97,6 +97,6 @@ test('scripted journey: init -> create req -> validate -> create us -> ac -> ts 
   assert.ok(!finalPrdChildren.includes('REQ-002'));
 
   // 10. final validate.
-  const clean = await runBin(tmp, ['validate']);
+  const clean = await runBin(tmp, ['define', 'validate']);
   assert.match(clean.stdout, /tree is clean/);
 });

@@ -1,7 +1,7 @@
 {
   "cnId": "CN-021",
   "path": "src/cli/update.js",
-  "title": "rcf update subcommand (file-level)",
+  "title": "rcf define update subcommand (file-level)",
   "description": "Parses --set dot-path lists and --from-file patches into a writer update call; refuses to touch immutable fields.",
   "implementsAcIds": [
     "AC-303-1",

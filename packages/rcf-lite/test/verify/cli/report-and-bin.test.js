@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { main as reportMain } from '../../../src/verify/cli/report.js';
-import { main as binMain } from '../../../bin/rcf-verify.js';
+import { main as binMain } from '../../../bin/rcf.js';
 import { buildReport, serialiseReport } from '../../../src/verify/report/index.js';
 
 function capture() {
@@ -55,28 +55,28 @@ test('report: an unreadable path exits 3', async () => {
   assert.equal(code, 3);
 });
 
-test('bin: no args prints top-level help (exit 0)', async () => {
+test('bin: `rcf verify` (no sub-verb) prints the verify group help (exit 0)', async () => {
   const stdout = capture();
-  const code = await binMain([], { stdout: stdout.stream });
+  const code = await binMain(['verify'], { stdout: stdout.stream });
   assert.equal(code, 0);
-  assert.match(stdout.out.text, /Usage: rcf-verify <command>/);
+  assert.match(stdout.out.text, /Usage: rcf verify <verb>/);
 });
 
 test('bin: --version prints the package version', async () => {
   const stdout = capture();
   const code = await binMain(['--version'], { stdout: stdout.stream });
   assert.equal(code, 0);
-  assert.match(stdout.out.text, /rcf-verify \d+\.\d+\.\d+/);
+  assert.match(stdout.out.text, /rcf \d+\.\d+\.\d+/);
 });
 
-test('bin: unknown subcommand exits 2', async () => {
-  const code = await binMain(['frobnicate'], { stdout: capture().stream, stderr: capture().stream });
+test('bin: `rcf verify frobnicate` exits 2 (unknown sub-verb)', async () => {
+  const code = await binMain(['verify', 'frobnicate'], { stdout: capture().stream, stderr: capture().stream });
   assert.equal(code, 2);
 });
 
-test('bin: dispatches to a real subcommand (help report)', async () => {
+test('bin: dispatches to a real sub-verb via `help verify report`', async () => {
   const stdout = capture();
-  const code = await binMain(['help', 'report'], { stdout: stdout.stream });
+  const code = await binMain(['help', 'verify', 'report'], { stdout: stdout.stream });
   assert.equal(code, 0);
-  assert.match(stdout.out.text, /Usage: rcf-verify report/);
+  assert.match(stdout.out.text, /Usage: rcf verify report/);
 });

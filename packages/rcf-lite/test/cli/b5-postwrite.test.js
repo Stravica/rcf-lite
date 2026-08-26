@@ -57,33 +57,33 @@ async function scaffoldWedge() {
 
 test('rcf update repairs the malformed doc on a wedged tree (exit 0, warns about pre-existing issues)', async () => {
   const tmp = await scaffoldWedge();
-  const { code, stderr } = await runBin(tmp, ['update', 'TS-003', '--set', 'status=draft']);
+  const { code, stderr } = await runBin(tmp, ['define', 'update', 'TS-003', '--set', 'status=draft']);
   assert.equal(code, 0, stderr);
   assert.match(stderr, /\[warn\] tree has 1 pre-existing issue/);
   const repaired = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-003.json'), 'utf8'));
   assert.equal(repaired.status, 'draft');
-  const validate = await runBin(tmp, ['validate']);
+  const validate = await runBin(tmp, ['define', 'validate']);
   assert.equal(validate.code, 0, 'tree is healed after the repair');
 });
 
 test('rcf delete removes the malformed doc on a wedged tree (exit 0)', async () => {
   const tmp = await scaffoldWedge();
-  const { code, stdout, stderr } = await runBin(tmp, ['delete', 'TS-003']);
+  const { code, stdout, stderr } = await runBin(tmp, ['define', 'delete', 'TS-003']);
   assert.equal(code, 0, stderr);
   assert.match(stdout, /Deleted 1 file/);
-  const validate = await runBin(tmp, ['validate']);
+  const validate = await runBin(tmp, ['define', 'validate']);
   assert.equal(validate.code, 0, 'tree is healed after the delete');
 });
 
 test('unrelated create proceeds on a wedged tree (exit 0)', async () => {
   const tmp = await scaffoldWedge();
-  const { code, stderr } = await runBin(tmp, ['create', 'req', '--title', 'Written while wedged', '--parent', 'PRD-001']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'req', '--title', 'Written while wedged', '--parent', 'PRD-001']);
   assert.equal(code, 0, stderr);
 });
 
 test('net-new breakage on a wedged tree still exits 3', async () => {
   const tmp = await scaffoldWedge();
-  const { code, stderr } = await runBin(tmp, ['update', 'REQ-001', '--set', 'priority=irresistible']);
+  const { code, stderr } = await runBin(tmp, ['define', 'update', 'REQ-001', '--set', 'priority=irresistible']);
   assert.equal(code, 3);
   assert.match(stderr, /validation/);
 });
@@ -91,7 +91,7 @@ test('net-new breakage on a wedged tree still exits 3', async () => {
 test('normal-path refusal intact on a valid tree (exit 3, no warn)', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-b5-cli-valid-'));
   await initProject({ projectRoot: tmp, projectName: 'B5CliValidTest' });
-  const { code, stderr } = await runBin(tmp, ['update', 'REQ-001', '--set', 'priority=irresistible']);
+  const { code, stderr } = await runBin(tmp, ['define', 'update', 'REQ-001', '--set', 'priority=irresistible']);
   assert.equal(code, 3);
   assert.doesNotMatch(stderr, /\[warn\]/);
 });

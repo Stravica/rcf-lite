@@ -15,7 +15,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf delete <id> [options]
+export const HELP = `Usage: rcf define delete <id> [options]
 
 Options:
   --cascade                 Also delete dependents and drop backrefs

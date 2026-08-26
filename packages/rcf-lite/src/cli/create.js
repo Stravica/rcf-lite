@@ -39,7 +39,7 @@ const OPTION_SPEC = {
   'derive-deps': { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf create <kind> [options]
+export const HELP = `Usage: rcf define create <kind> [options]
 
 Kinds: req | us | ac | tac | adr | fbs | ts | tc | cn
 

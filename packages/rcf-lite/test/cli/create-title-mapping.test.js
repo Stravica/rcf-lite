@@ -44,7 +44,7 @@ async function scaffold() {
 test('BUG-002: rcf create tac --title X succeeds (exit 0) and writes name=X, no title field', async () => {
   const tmp = await scaffold();
   const { code, stdout, stderr } = await runBin(tmp, [
-    'create', 'tac', '--parent', 'TAD-001', '--title', 'Session Manager',
+    'define', 'create', 'tac', '--parent', 'TAD-001', '--title', 'Session Manager',
   ]);
   assert.equal(code, 0, `expected exit 0 (got ${code}), stderr=${stderr}`);
   assert.match(stdout, /TAC-002 created/);
@@ -62,7 +62,7 @@ test('BUG-002: rcf create tac --title X succeeds (exit 0) and writes name=X, no 
 
 test('BUG-003 (req): --title lands in title, does not bleed into description', async () => {
   const tmp = await scaffold();
-  const { code } = await runBin(tmp, ['create', 'req', '--parent', 'PRD-001', '--title', 'My REQ']);
+  const { code } = await runBin(tmp, ['define', 'create', 'req', '--parent', 'PRD-001', '--title', 'My REQ']);
   assert.equal(code, 0);
   const req = JSON.parse(await readFile(join(tmp, 'rcf/requirements/req-002.json'), 'utf8'));
   assert.equal(req.title, 'My REQ');
@@ -76,7 +76,7 @@ test('BUG-003 (req): --title lands in title, does not bleed into description', a
 
 test('BUG-003 (us): --title lands in title, does not bleed into other seed fields', async () => {
   const tmp = await scaffold();
-  const { code } = await runBin(tmp, ['create', 'us', '--parent', 'REQ-001', '--title', 'My US']);
+  const { code } = await runBin(tmp, ['define', 'create', 'us', '--parent', 'REQ-001', '--title', 'My US']);
   assert.equal(code, 0);
   // us-101 would collide with the scaffold; new US takes the next id under REQ-001.
   // We don't hard-code the path — walk the user-stories dir instead.
@@ -94,7 +94,7 @@ test('BUG-003 (us): --title lands in title, does not bleed into other seed field
 
 test('BUG-003 (adr): --title lands in title as a schema-required field', async () => {
   const tmp = await scaffold();
-  const { code } = await runBin(tmp, ['create', 'adr', '--parent', 'TAD-001', '--title', 'My ADR']);
+  const { code } = await runBin(tmp, ['define', 'create', 'adr', '--parent', 'TAD-001', '--title', 'My ADR']);
   assert.equal(code, 0);
   const adr = JSON.parse(await readFile(join(tmp, 'rcf/adrs/adr-002.json'), 'utf8'));
   assert.equal(adr.title, 'My ADR');
@@ -105,7 +105,7 @@ test('BUG-003 (adr): --title lands in title as a schema-required field', async (
 test('BUG-003 (fbs): --title lands in title, does not bleed into summary', async () => {
   const tmp = await scaffold();
   const { code, stderr } = await runBin(tmp, [
-    'create', 'fbs', '--parent', 'BS-001', '--title', 'My FBS', '--acs', 'AC-101-1',
+    'define', 'create', 'fbs', '--parent', 'BS-001', '--title', 'My FBS', '--acs', 'AC-101-1',
   ]);
   assert.equal(code, 0, `expected exit 0 (got ${code}), stderr=${stderr}`);
   const fbs = JSON.parse(await readFile(join(tmp, 'rcf/fbs/fbs-002.json'), 'utf8'));
@@ -120,7 +120,7 @@ test('BUG-003 (fbs): --title lands in title, does not bleed into summary', async
 test('BUG-003 (ts): --title lands in title, does not bleed into purpose', async () => {
   const tmp = await scaffold();
   const { code, stderr } = await runBin(tmp, [
-    'create', 'ts', '--parent', 'US-101', '--title', 'My TS',
+    'define', 'create', 'ts', '--parent', 'US-101', '--title', 'My TS',
     '--purpose', 'Some purpose', '--test-level', 'unit', '--acs', 'AC-101-1',
   ]);
   assert.equal(code, 0, `expected exit 0 (got ${code}), stderr=${stderr}`);

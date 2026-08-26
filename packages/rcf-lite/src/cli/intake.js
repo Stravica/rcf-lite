@@ -30,7 +30,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf intake [--artefact <path>[,path]] [--kind <kind>] [--dry-run]
+export const HELP = `Usage: rcf discover intake [--artefact <path>[,path]] [--kind <kind>] [--dry-run]
        rcf intake --input <config.json> [--dry-run]
 
 Variable-fidelity intake: read what the operator supplied, classify its

@@ -435,6 +435,25 @@ flowchart LR
   REQ-010 --> AC-1004-4
   TC-029-deterministic["TC-029-deterministic"]
   AC-1004-4 -.-> TC-029-deterministic
+  class TC-004-served-live-no-files-written broken;
+  class TC-006-read-reports-valid broken;
+  class TC-006-read-unknown-id-not-found broken;
+  class TC-006-read-invalid-content-plus-errors broken;
+  class TC-008-valid-update-persists-updatedat broken;
+  class TC-008-update-unknown-id-not-found broken;
+  class TC-009-delete-refused-with-dependents broken;
+  class TC-009-leaf-delete-removes-file broken;
+  class TC-017-mcp-build-returns-bundle broken;
+  class TC-025-verify-help-parity broken;
+  class TC-025-verify-routes-to-alias-dispatcher broken;
+  class TC-025-top-level-help-lists-verify broken;
+  class TC-025-alias-emits-deprecation-notice broken;
+  class TC-025-alias-honours-quiet-env broken;
+  class TC-027-add-reason-persists broken;
+  class TC-027-add-reason-whitespace-refused broken;
+  class TC-027-add-resolve-dedupes-with-warn broken;
+  class TC-027-add-resolve-error-no-double-prefix broken;
+  class TC-027-supersede-no-double-prefix broken;
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;

@@ -109,8 +109,7 @@ test('B-1: --mark complete --accept-block --reason with NO browserVerification r
   assert.equal(manifestBefore.browserVerification, undefined, 'precondition: no bvRecord');
 
   const { code, stderr } = await runBin(tmp, [
-    'build', 'FBS-001',
-    '--mark', 'complete',
+    'build', 'mark', 'FBS-001', 'complete',
     '--accept-block',
     '--reason', 'twenty-plus-character-reason-here-shipping-anyway',
   ]);
@@ -121,7 +120,7 @@ test('B-1: --mark complete --accept-block --reason with NO browserVerification r
   assert.match(stderr, /no browserVerification record exists/);
   // The message must name the two-command dance so the operator has a
   // clear path forward.
-  assert.match(stderr, /rcf browser-verify FBS-001/);
+  assert.match(stderr, /rcf verify browser FBS-001/);
   assert.match(stderr, /--accept-block/);
 
   // State-mutation guard (the manifest and FBS are byte-identical):
@@ -140,7 +139,7 @@ test('B-1: --mark complete --accept-block --reason with NO browserVerification r
 test('B-1 (context): --mark complete with NO browserVerification record and NO --accept-block also refuses cleanly (exit 4)', async () => {
   const tmp = await scaffoldUiBearingProject();
   const { code, stderr } = await runBin(tmp, [
-    'build', 'FBS-001', '--mark', 'complete',
+    'build', 'mark', 'FBS-001', 'complete',
   ]);
   assert.equal(code, 4, `expected exit 4, got ${code}. stderr:\n${stderr}`);
   assert.match(stderr, /no browserVerification record exists/);
@@ -171,8 +170,7 @@ test('B-1 (positive): --mark complete --accept-block --reason with an existing b
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
   const { code, stderr } = await runBin(tmp, [
-    'build', 'FBS-001',
-    '--mark', 'complete',
+    'build', 'mark', 'FBS-001', 'complete',
     '--accept-block',
     '--reason', 'twenty-plus-character-reason-here-shipping-anyway',
   ]);
@@ -217,7 +215,7 @@ test('B-1 (context): warn-verdict bvRecord cleared via --ack permits --mark comp
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
   const { code, stderr } = await runBin(tmp, [
-    'build', 'FBS-001', '--mark', 'complete',
+    'build', 'mark', 'FBS-001', 'complete',
   ]);
   assert.equal(code, 0, `expected exit 0 on ack'd warn, got ${code}. stderr:\n${stderr}`);
   const fbsAfter = await readFbs(tmp);

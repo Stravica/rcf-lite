@@ -2,7 +2,7 @@
   "id": "TS-026",
   "usId": "US-1001",
   "title": "Blueprint verb family",
-  "purpose": "Cover rcf blueprint add/list/remove verb family behaviour and the manifest.blueprints[] write path.",
+  "purpose": "Cover rcf define blueprint add/list/remove verb family behaviour and the manifest.blueprints[] write path.",
   "testLevel": "unit",
   "acIds": [
     "AC-1001-1",

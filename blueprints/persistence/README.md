@@ -5,10 +5,10 @@ The fourth content blueprint on the rcf-build-lite blueprint mechanism (design b
 ## Apply
 
 ```
-rcf blueprint add <path-to>/blueprints/persistence
+rcf define blueprint add <path-to>/blueprints/persistence
 ```
 
-Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf blueprint list` shows the applied entry; `rcf blueprint remove persistence` cleanly removes an unreferenced application.
+Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf define blueprint list` shows the applied entry; `rcf define blueprint remove persistence` cleanly removes an unreferenced application.
 
 ## Anatomy
 
@@ -23,7 +23,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Guide | `guide/persistence.md` | Operator-facing: when to use it, when not, what stays your call, and the promotion signal for the future Postgres variant |
 | Coordination vocabulary | `docs/topics.md` | The two global-topic strings this blueprint contributes, the shared id band registry (spa, rest, auth, hello-panel, persistence, ci-pipeline, observability) |
 
-The doc set is contributions (copied into the project tree by `rcf blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
+The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 
 ## What it contributes, and what it deliberately does not
 
@@ -47,4 +47,4 @@ Single durable store opened via one boot-time entry point that runs migrations b
 
 ## Known mechanism-reach gaps
 
-None at v1.0.0. Every AC on every story is bound to at least one TAC that the host project must realise, and every AC's `then` clause is runtime-observable in the deployed application (event-log record inspection, store-artifact snapshot comparison, engine-native introspection queries through the facade, source-tree import-graph queries for the boundary properties). The mechanism-reach principle from the authoring standard section 7 is satisfied at ship: a project that applies this blueprint and does not realise a TAC leaves an unresolved `tacIds` reference on the story that `rcf validate` and `rcf coverage` refuse. The one operational responsibility a project must own on its own is the engine choice itself, if it supersedes ADR-601 with a project-level ADR; that responsibility is stated as an ADR alternative (see ADR-601 and the guide 'when it does not fit'), not as a smuggled runtime probe.
+None at v1.0.0. Every AC on every story is bound to at least one TAC that the host project must realise, and every AC's `then` clause is runtime-observable in the deployed application (event-log record inspection, store-artifact snapshot comparison, engine-native introspection queries through the facade, source-tree import-graph queries for the boundary properties). The mechanism-reach principle from the authoring standard section 7 is satisfied at ship: a project that applies this blueprint and does not realise a TAC leaves an unresolved `tacIds` reference on the story that `rcf define validate` and `rcf audit coverage` refuse. The one operational responsibility a project must own on its own is the engine choice itself, if it supersedes ADR-601 with a project-level ADR; that responsibility is stated as an ADR alternative (see ADR-601 and the guide 'when it does not fit'), not as a smuggled runtime probe.

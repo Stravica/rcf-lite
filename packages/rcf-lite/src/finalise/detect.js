@@ -1,36 +1,35 @@
-// rcf-verify install detection (spec §8.3, amendment 5 - install-together
-// posture). The finalise gate MUST detect whether `rcf-verify` is resolvable
-// and, when it is absent, prompt to install it - NEVER silently skip the ship
-// gate (the one behaviour §8.3 explicitly forbids).
+// rcf verify install detection (spec §8.3, amendment 5 - install-together
+// posture). The finalise gate MUST detect whether the `rcf` bin (which
+// carries the `verify` group) is resolvable and, when it is absent,
+// prompt to install rcf-lite - NEVER silently skip the ship gate (the
+// one behaviour §8.3 explicitly forbids).
 //
-// Two detection routes, in order, matching how the CLI is actually installed:
-//   1. The `rcf-verify` bin on PATH - the umbrella install exposes both `rcf`
-//      and `rcf-verify` as global bins (`npm i -g rcf-lite`).
-//   2. Package resolution from the project dir - the local-project install
-//      (`npm i rcf-lite` in a repo's node_modules). Two package specifiers
-//      are tried in order: the current umbrella `rcf-lite`, then the legacy
-//      `@stravica-ai/rcf-verify-lite` name (deprecated at 0.7.1 but still
-//      resolvable in lockfiles that pinned it). Either resolves to the same
-//      `bin/rcf-verify.js` entry point.
-// Either route yields a concrete invocation the finalise spawn (spawn.js)
-// uses verbatim. A miss returns { installed:false } and the caller enters
-// the prompt-or-explicit-flag path.
+// The 0.10.0 CLI reorganisation folded the standalone `rcf-verify` bin
+// into the umbrella `rcf` CLI as the `verify` group. Detection now
+// resolves the `rcf` bin exclusively; there is no legacy fallback.
+//
+// Two detection routes, in order:
+//   1. The `rcf` bin on PATH - the umbrella install exposes `rcf` as a
+//      global bin (`npm i -g rcf-lite`).
+//   2. Package resolution from the project dir - the local-project
+//      install (`npm i rcf-lite` in a repo's node_modules) resolves the
+//      `rcf-lite` package and its `bin/rcf.js` entry point.
+// Either route yields a concrete invocation the finalise spawn
+// (spawn.js) uses verbatim. A miss returns { installed:false } and the
+// caller enters the prompt-or-explicit-flag path.
 
 import { access, constants } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { delimiter, dirname, join, resolve } from 'node:path';
 
-// VERIFY_PACKAGE is the current install target and the name shown to
-// operators in absent-verify messaging. VERIFY_PACKAGE_LEGACY is only used
-// as a resolution fallback for lockfiles still pinning the pre-0.7.1 scoped
-// name; it is never displayed as an install target.
+// VERIFY_PACKAGE is the install target and the name shown to operators
+// in absent-verify messaging.
 const VERIFY_PACKAGE = 'rcf-lite';
-const VERIFY_PACKAGE_LEGACY = '@stravica-ai/rcf-verify-lite';
-const VERIFY_PACKAGE_CANDIDATES = [VERIFY_PACKAGE, VERIFY_PACKAGE_LEGACY];
-const VERIFY_BIN = 'rcf-verify';
+const VERIFY_PACKAGE_CANDIDATES = [VERIFY_PACKAGE];
+const VERIFY_BIN = 'rcf';
 
 /**
- * The concrete way to launch rcf-verify as a fresh subprocess.
+ * The concrete way to launch the `rcf` bin as a fresh subprocess.
  *   - `{ command: '<abs-bin>', prefixArgs: [] }` for a PATH / shim bin
  *     (its own shebang runs it).
  *   - `{ command: process.execPath, prefixArgs: ['<abs-entry.js>'] }` for a
@@ -43,8 +42,8 @@ const VERIFY_BIN = 'rcf-verify';
  */
 
 /**
- * Scan PATH for an executable named `rcf-verify` (plus the Windows
- * `.cmd`/`.exe` shim variants). Returns the first absolute path that exists
+ * Scan PATH for an executable named `rcf` (plus the Windows `.cmd` /
+ * `.exe` shim variants). Returns the first absolute path that exists
  * and is executable, or null.
  *
  * @param {string} name
@@ -78,15 +77,10 @@ export async function findOnPath(name, { env = process.env } = {}) {
 }
 
 /**
- * Resolve the rcf-verify bin entry point from a starting directory, following
- * the normal node_modules resolution the caller's project sees. Returns the
- * absolute path to `bin/rcf-verify.js`, or null if no candidate package is
+ * Resolve the `rcf` bin entry point from a starting directory, following
+ * the normal node_modules resolution the caller's project sees. Returns
+ * the absolute path to `bin/rcf.js`, or null if the package is not
  * installed / resolvable from there.
- *
- * Candidates are tried in the order defined by VERIFY_PACKAGE_CANDIDATES: the
- * current umbrella (`rcf-lite`) first, then the deprecated scoped name
- * (`@stravica-ai/rcf-verify-lite`) as a fallback for lockfiles pinned to it.
- * The first candidate whose bin resolves and exists on disk wins.
  *
  * @param {string} fromDir - directory to resolve from (the project root / cwd)
  * @returns {Promise<string|null>}
@@ -119,9 +113,9 @@ export async function resolvePackageBin(fromDir) {
 }
 
 /**
- * Detect whether rcf-verify is resolvable and, if so, how to launch it.
- * Deps are injectable so the finalise gate can be exercised without a real
- * rcf-verify on the test machine.
+ * Detect whether the `rcf` bin (carrying the `verify` group) is
+ * resolvable and, if so, how to launch it. Deps are injectable so the
+ * finalise gate can be exercised without a real installed rcf-lite.
  *
  * @param {object} [deps]
  * @param {string} [deps.cwd] - project dir to resolve a local install from
@@ -148,4 +142,4 @@ export async function detectVerify(deps = {}) {
   return { installed: false, invocation: null };
 }
 
-export { VERIFY_PACKAGE, VERIFY_PACKAGE_LEGACY, VERIFY_PACKAGE_CANDIDATES, VERIFY_BIN };
+export { VERIFY_PACKAGE, VERIFY_PACKAGE_CANDIDATES, VERIFY_BIN };

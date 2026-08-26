@@ -54,7 +54,7 @@ async function scaffoldBroken(errorCount) {
 
 test('BUG-004: rcf validate --quiet reports the TOTAL count, not the shown count', async () => {
   const { tmp, errorCount } = await scaffoldBroken(5);
-  const { code, stderr } = await runBin(tmp, ['validate', '--quiet']);
+  const { code, stderr } = await runBin(tmp, ['define', 'validate', '--quiet']);
   assert.equal(code, 3, `expected exit 3, got ${code}. stderr=${stderr}`);
   // The summary line must state the true total (5), not the shown-count (3).
   assert.match(
@@ -73,7 +73,7 @@ test('BUG-004: rcf validate --quiet reports the TOTAL count, not the shown count
 
 test('BUG-004: non-quiet mode continues to report the true count', async () => {
   const { tmp, errorCount } = await scaffoldBroken(5);
-  const { code, stderr } = await runBin(tmp, ['validate']);
+  const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 3);
   assert.match(stderr, new RegExp(`${errorCount} errors found`));
 });

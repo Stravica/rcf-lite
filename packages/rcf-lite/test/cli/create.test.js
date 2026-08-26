@@ -35,7 +35,7 @@ async function scaffold() {
 
 test('rcf create req --parent PRD-001 --title X writes a schema-valid REQ', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['create', 'req', '--parent', 'PRD-001', '--title', 'My REQ']);
+  const { code, stdout } = await runBin(tmp, ['define', 'create', 'req', '--parent', 'PRD-001', '--title', 'My REQ']);
   assert.equal(code, 0);
   assert.match(stdout, /REQ-002 created/);
   const req = JSON.parse(await readFile(join(tmp, 'rcf/requirements/req-002.json'), 'utf8'));
@@ -44,28 +44,28 @@ test('rcf create req --parent PRD-001 --title X writes a schema-valid REQ', asyn
 
 test('rcf create req without --parent exits 2 (usage)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['create', 'req', '--title', 'T']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'req', '--title', 'T']);
   assert.equal(code, 2);
   assert.match(stderr, /--parent is required/);
 });
 
 test('rcf create with unknown kind exits 2 (BUG-009: distinct unknown-kind message)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['create', 'nope', '--parent', 'PRD-001', '--title', 'T']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'nope', '--parent', 'PRD-001', '--title', 'T']);
   assert.equal(code, 2);
   assert.match(stderr, /unknown kind: nope/);
 });
 
 test('rcf create us --parent REQ-999 exits 3 (brokenReference)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['create', 'us', '--parent', 'REQ-999', '--title', 'T']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'us', '--parent', 'REQ-999', '--title', 'T']);
   assert.equal(code, 3);
   assert.match(stderr, /brokenReference/);
 });
 
 test('rcf create ac --parent US-101 --description X mutates the parent US', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['create', 'ac', '--parent', 'US-101', '--description', 'Second criterion']);
+  const { code, stdout } = await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'Second criterion']);
   assert.equal(code, 0);
   assert.match(stdout, /AC-101-2 created/);
   const us = JSON.parse(await readFile(join(tmp, 'rcf/user-stories/us-101.json'), 'utf8'));
@@ -75,7 +75,7 @@ test('rcf create ac --parent US-101 --description X mutates the parent US', asyn
 test('rcf create fbs --build-order collision exits 2 (§D6 amendment)', async () => {
   const tmp = await scaffold();
   const { code, stderr } = await runBin(tmp, [
-    'create', 'fbs', '--parent', 'BS-001',
+    'define', 'create', 'fbs', '--parent', 'BS-001',
     '--title', 'clash', '--acs', 'AC-101-1', '--build-order', '1',
   ]);
   assert.equal(code, 2);
@@ -85,7 +85,7 @@ test('rcf create fbs --build-order collision exits 2 (§D6 amendment)', async ()
 test('rcf create ts --parent US-101 writes TS-001', async () => {
   const tmp = await scaffold();
   const { code, stdout } = await runBin(tmp, [
-    'create', 'ts', '--parent', 'US-101',
+    'define', 'create', 'ts', '--parent', 'US-101',
     '--title', 'Smoke', '--purpose', 'p',
     '--test-level', 'unit', '--acs', 'AC-101-1',
   ]);
@@ -99,12 +99,12 @@ test('rcf create ts --parent US-101 writes TS-001', async () => {
 test('rcf create tc mutates parent TS with derived slug', async () => {
   const tmp = await scaffold();
   await runBin(tmp, [
-    'create', 'ts', '--parent', 'US-101',
+    'define', 'create', 'ts', '--parent', 'US-101',
     '--title', 'S', '--purpose', 'p',
     '--test-level', 'unit', '--acs', 'AC-101-1',
   ]);
   const { code, stdout } = await runBin(tmp, [
-    'create', 'tc', '--parent', 'TS-001',
+    'define', 'create', 'tc', '--parent', 'TS-001',
     '--ac', 'AC-101-1', '--description', 'happy',
     '--test-pointer', 'test/happy.test.js::happy',
   ]);
@@ -116,12 +116,12 @@ test('rcf create tc mutates parent TS with derived slug', async () => {
 test('rcf create tc without --test-pointer exits 2 with the requirement named', async () => {
   const tmp = await scaffold();
   await runBin(tmp, [
-    'create', 'ts', '--parent', 'US-101',
+    'define', 'create', 'ts', '--parent', 'US-101',
     '--title', 'S', '--purpose', 'p',
     '--test-level', 'unit', '--acs', 'AC-101-1',
   ]);
   const { code, stderr } = await runBin(tmp, [
-    'create', 'tc', '--parent', 'TS-001',
+    'define', 'create', 'tc', '--parent', 'TS-001',
     '--ac', 'AC-101-1', '--description', 'happy',
   ]);
   assert.equal(code, 2);
@@ -131,7 +131,7 @@ test('rcf create tc without --test-pointer exits 2 with the requirement named', 
 test('rcf create --dry-run does not write the file', async () => {
   const tmp = await scaffold();
   const { code, stdout } = await runBin(tmp, [
-    'create', 'req', '--parent', 'PRD-001',
+    'define', 'create', 'req', '--parent', 'PRD-001',
     '--title', 'Dry', '--dry-run',
   ]);
   assert.equal(code, 0);
@@ -140,7 +140,7 @@ test('rcf create --dry-run does not write the file', async () => {
 
 test('rcf create --help prints the create help block', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['create', '--help']);
+  const { code, stdout } = await runBin(tmp, ['define', 'create', '--help']);
   assert.equal(code, 0);
   assert.match(stdout, /Kinds:/);
 });
@@ -152,7 +152,7 @@ test('rcf create --help prints the create help block', async () => {
 // a brokenReference with no hint at what the right parent would be.
 test('rcf create --help names the parent kind for every kind', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['create', '--help']);
+  const { code, stdout } = await runBin(tmp, ['define', 'create', '--help']);
   assert.equal(code, 0);
   assert.match(stdout, /req\s+-> PRD id/);
   assert.match(stdout, /us\s+-> REQ id/);

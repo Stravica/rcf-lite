@@ -1,7 +1,7 @@
 {
   "cnId": "CN-066",
   "path": "src/cli/standards.js#main",
-  "title": "rcf standards CLI dispatcher",
+  "title": "rcf define standards CLI dispatcher",
   "description": "Wires the standards verb family into the unified rcf bin; dispatches add|list.",
   "implementsAcIds": [
     "AC-1003-4"

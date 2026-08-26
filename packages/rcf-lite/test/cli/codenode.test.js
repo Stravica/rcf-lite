@@ -64,14 +64,14 @@ test('rcf validate is clean when a CN path resolves', async () => {
   await mkdir(join(tmp, 'src'), { recursive: true });
   await writeFile(join(tmp, 'src', 'example.js'), 'export function exampleFn() {}\n', 'utf8');
   await writeCn(tmp, cnDoc());
-  const { code, stdout } = await runBin(tmp, ['validate']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 0, stdout);
 });
 
 test('rcf validate exits 3 with staleCode when a CN file is missing', async () => {
   const tmp = await scaffold('stale-file');
   await writeCn(tmp, cnDoc({ path: 'src/does-not-exist.js' }));
-  const { code, stdout, stderr } = await runBin(tmp, ['validate', '--json']);
+  const { code, stdout, stderr } = await runBin(tmp, ['define', 'validate', '--json']);
   assert.equal(code, 3);
   const body = JSON.parse(stdout || stderr);
   assert.ok(body.issues.some((i) => i.kind === 'staleCode' && i.rule === 'fileResolves'));
@@ -80,7 +80,7 @@ test('rcf validate exits 3 with staleCode when a CN file is missing', async () =
 test('rcf validate --no-code skips the staleness pass entirely (D8)', async () => {
   const tmp = await scaffold('no-code');
   await writeCn(tmp, cnDoc({ path: 'src/does-not-exist.js' }));
-  const { code, stdout } = await runBin(tmp, ['validate', '--no-code']);
+  const { code, stdout } = await runBin(tmp, ['define', 'validate', '--no-code']);
   assert.equal(code, 0, stdout);
   assert.match(stdout, /tree is clean/);
 });
@@ -96,13 +96,13 @@ test('STALENESS_DEMO: file rename trips staleCode/fileResolves; a one-field repa
   await writeFile(join(tmp, 'src', 'map-errors.js'), 'export function formatErrors() {}\n', 'utf8');
   await writeCn(tmp, cnDoc({ cnId: 'CN-010', path: 'src/map-errors.js#formatErrors', implementsAcIds: ['AC-101-1'] }));
 
-  const before = await runBin(tmp, ['validate']);
+  const before = await runBin(tmp, ['define', 'validate']);
   assert.equal(before.code, 0, before.stdout);
 
   // Competent refactor: rename the file.
   await rename(join(tmp, 'src', 'map-errors.js'), join(tmp, 'src', 'error-mapping.js'));
 
-  const stale = await runBin(tmp, ['validate', '--json']);
+  const stale = await runBin(tmp, ['define', 'validate', '--json']);
   assert.equal(stale.code, 3);
   const staleBody = JSON.parse(stale.stdout || stale.stderr);
   const issue = staleBody.issues.find((i) => i.id === 'CN-010');
@@ -110,10 +110,10 @@ test('STALENESS_DEMO: file rename trips staleCode/fileResolves; a one-field repa
   assert.equal(issue.rule, 'fileResolves');
 
   // Repair: one field edit via `rcf update`.
-  const repair = await runBin(tmp, ['update', 'CN-010', '--set', 'path=src/error-mapping.js#formatErrors']);
+  const repair = await runBin(tmp, ['define', 'update', 'CN-010', '--set', 'path=src/error-mapping.js#formatErrors']);
   assert.equal(repair.code, 0, repair.stdout + repair.stderr);
 
-  const after = await runBin(tmp, ['validate']);
+  const after = await runBin(tmp, ['define', 'validate']);
   assert.equal(after.code, 0, after.stdout);
   assert.match(after.stdout, /tree is clean/);
 });
@@ -127,7 +127,7 @@ test('rcf trace <path> resolves a file-level path to its CN(s) and traces backwa
   await mkdir(join(tmp, 'src'), { recursive: true });
   await writeFile(join(tmp, 'src', 'example.js'), 'export function exampleFn() {}\n', 'utf8');
   await writeCn(tmp, cnDoc());
-  const { code, stdout } = await runBin(tmp, ['trace', 'src/example.js#exampleFn', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'trace', 'src/example.js#exampleFn', '--format', 'json']);
   assert.equal(code, 0, stdout);
   const body = JSON.parse(stdout);
   assert.equal(body.pivot, 'CN-001');
@@ -138,7 +138,7 @@ test('rcf trace <path> resolves a file-level path to its CN(s) and traces backwa
 
 test('rcf trace <path> on an unmatched path exits 2 (usage)', async () => {
   const tmp = await scaffold('trace-path-miss');
-  const { code, stderr } = await runBin(tmp, ['trace', 'src/nope.js']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'trace', 'src/nope.js']);
   assert.equal(code, 2);
   assert.match(stderr, /not found/);
 });
@@ -153,12 +153,12 @@ test('rcf trace AC-101-1 --forward --to-code reaches the implementing CN; omitte
   await writeFile(join(tmp, 'src', 'example.js'), 'export function exampleFn() {}\n', 'utf8');
   await writeCn(tmp, cnDoc());
 
-  const withCode = await runBin(tmp, ['trace', 'AC-101-1', '--forward', '--to-code', '--format', 'json']);
+  const withCode = await runBin(tmp, ['audit', 'trace', 'AC-101-1', '--forward', '--to-code', '--format', 'json']);
   assert.equal(withCode.code, 0, withCode.stdout);
   const withBody = JSON.parse(withCode.stdout);
   assert.ok(withBody.nodes.some((n) => n.id === 'CN-001'));
 
-  const without = await runBin(tmp, ['trace', 'AC-101-1', '--forward', '--format', 'json']);
+  const without = await runBin(tmp, ['audit', 'trace', 'AC-101-1', '--forward', '--format', 'json']);
   assert.equal(without.code, 0);
   const withoutBody = JSON.parse(without.stdout);
   assert.ok(!withoutBody.nodes.some((n) => n.id === 'CN-001'));
@@ -169,7 +169,7 @@ test('rcf impact AC-101-1 --to-code labels the CN descendant re-verify-code', as
   await mkdir(join(tmp, 'src'), { recursive: true });
   await writeFile(join(tmp, 'src', 'example.js'), 'export function exampleFn() {}\n', 'utf8');
   await writeCn(tmp, cnDoc());
-  const { code, stdout } = await runBin(tmp, ['impact', 'AC-101-1', '--to-code', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'impact', 'AC-101-1', '--to-code', '--format', 'json']);
   assert.equal(code, 0, stdout);
   const body = JSON.parse(stdout);
   const cnNode = body.nodes.find((n) => n.id === 'CN-001');
@@ -183,9 +183,9 @@ test('rcf impact AC-101-1 --to-code labels the CN descendant re-verify-code', as
 
 test('D1/D9: spec-only tree with no code-nodes/ dir validates and traces exactly as pre-Phase-10', async () => {
   const tmp = await scaffold('spec-only');
-  const validate = await runBin(tmp, ['validate']);
+  const validate = await runBin(tmp, ['define', 'validate']);
   assert.equal(validate.code, 0);
-  const trace = await runBin(tmp, ['trace', 'REQ-001', '--forward', '--format', 'json']);
+  const trace = await runBin(tmp, ['audit', 'trace', 'REQ-001', '--forward', '--format', 'json']);
   assert.equal(trace.code, 0);
   const body = JSON.parse(trace.stdout);
   assert.ok(!body.nodes.some((n) => n.kind === 'codeNode'));

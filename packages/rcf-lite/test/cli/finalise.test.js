@@ -276,7 +276,7 @@ test('finalise: refuses an FBS that is not yet complete', async () => {
   const code = await finalise(['FBS-001', '--url', 'https://app.example.com'], deps);
 
   assert.equal(code, 4, 'refuses to finalise a non-complete item');
-  assert.match(deps.stderr.data, /rcf build FBS-001 --mark complete/);
+  assert.match(deps.stderr.data, /rcf build mark FBS-001 complete/);
 });
 
 test('finalise: a non-FBS id is a usage error', async () => {

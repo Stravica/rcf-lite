@@ -166,7 +166,7 @@ test('AC-1.12: rcf validate is unchanged - no reads of CLAUDE.md/AGENTS.md, no n
   const tmp = await freshInit();
   const claude = await readFile(join(tmp, 'CLAUDE.md'), 'utf8');
   await writeFile(join(tmp, 'CLAUDE.md'), claude.replace('### RULE 1:', '### DRIFT:'), 'utf8');
-  const { code, stderr } = await runBin(tmp, ['validate']);
+  const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 0, `validate exited ${code}: ${stderr}`);
   assert.equal(stderr, '', `validate stderr should be empty on a clean tree`);
 });

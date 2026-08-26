@@ -7,7 +7,7 @@ import { walkTree } from '#core/store';
 import { findProjectRoot } from '../view/index.js';
 import { listStandards, registerStandardsPack } from '../blueprint/index.js';
 
-export const HELP = `Usage: rcf standards <verb> [options]
+export const HELP = `Usage: rcf define standards <verb> [options]
 
 Verbs:
   add <source>           Register a standards pack against the project.

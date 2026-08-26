@@ -29,7 +29,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf-verify run [options]
+export const HELP = `Usage: rcf verify run [options]
 
 Launch a fresh-context adversarial verifier against a running app and emit a
 structured verdict stamped with the runtime it ran against.

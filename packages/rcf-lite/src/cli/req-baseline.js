@@ -47,7 +47,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf req-baseline <verb> [options]
+export const HELP = `Usage: rcf discover req-baseline <verb> [options]
 
 Verbs:
   sweep [--req <id> | --all] [--status] [--dry-run] [--yes] [--json]

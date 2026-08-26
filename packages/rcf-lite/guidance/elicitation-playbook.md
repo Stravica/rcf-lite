@@ -4,7 +4,7 @@
 
 ## 1. Read this if
 
-You are the agent starting a project with a human. The end state is concrete: a validated RCF tree (PRD, requirements, stories with testable acceptance criteria, architecture captured as TAC / ADR) and an actionable FBS queue, reachable in one or two sittings. When you finish, `rcf validate` is clean and `rcf build --next` hands back a real work item.
+You are the agent starting a project with a human. The end state is concrete: a validated RCF tree (PRD, requirements, stories with testable acceptance criteria, architecture captured as TAC / ADR) and an actionable FBS queue, reachable in one or two sittings. When you finish, `rcf define validate` is clean and `rcf build --next` hands back a real work item.
 
 This is the lite tier of the elicitation method: one operator voice, one agent, blank directory to first build loop. Section 9 states plainly what sits above this tier; section 11 states the integrity rules that hold across the whole conversation - read it, the failures it forecloses are quiet ones. Section 12 sets the register you hold with the operator throughout: plain language, one decision per message, the method invisible.
 
@@ -24,7 +24,7 @@ as it emerges     -> TAC / ADR (architecture, captured or authored)
 then              -> BS / FBS (the ordered build queue)
 ```
 
-Write documents as you go with `rcf create` and `rcf update`; do not batch the tree up in your head for one big write at the end. Run `rcf validate` after every level. Start from the scaffold:
+Write documents as you go with `rcf define create` and `rcf define update`; do not batch the tree up in your head for one big write at the end. Run `rcf define validate` after every level. Start from the scaffold:
 
 ```
 $ rcf init --project-name "Field notes" --non-interactive
@@ -61,11 +61,11 @@ One testable capability per REQ. Capture `category` (functional or non-functiona
 Decomposition heuristics. Too big: the REQ needs "and" to state ("capture and search and tag notes" is three). Too vague: no observable behaviour survives questioning ("the product should be fast" becomes a non-functional REQ only once "fast at what, measured how" has an answer). A REQ that resists both splits and sharpening usually belongs in the PRD's out-of-scope list instead.
 
 ```
-$ rcf create req --parent PRD-001 --title "Capture a note from the command line"
+$ rcf define create req --parent PRD-001 --title "Capture a note from the command line"
 REQ-002 created at rcf/requirements/req-002.json
 ```
 
-The created document carries a TODO description and default category / priority values; replace the description and add the rationale with `rcf update` before moving on. TODOs left in place are honest, visible debt, but a REQ still wearing its defaults is not yet elicited.
+The created document carries a TODO description and default category / priority values; replace the description and add the rationale with `rcf define update` before moving on. TODOs left in place are honest, visible debt, but a REQ still wearing its defaults is not yet elicited.
 
 ## 5. Stories and acceptance criteria (US / AC)
 
@@ -77,7 +77,7 @@ Question frames per REQ:
 - Walk me through one concrete use, start to finish. The walk-through is where ACs come from.
 
 ```
-$ rcf create us --parent REQ-002 --title "Capture a note in one command" --from-file story.json
+$ rcf define create us --parent REQ-002 --title "Capture a note in one command" --from-file story.json
 US-201 created at rcf/user-stories/us-201.json
 ```
 
@@ -91,7 +91,7 @@ The testable-AC quality bar, applied to every AC before it lands:
 - **`testable: true` means a machine could check it.** Read the AC as a test skeleton; if you cannot see the assertion, rewrite the AC.
 
 ```
-$ rcf create ac --parent US-201 --description "Adding a note creates a note file and exits 0" --from-file ac.json
+$ rcf define create ac --parent US-201 --description "Adding a note creates a note file and exits 0" --from-file ac.json
 AC-201-2 created at rcf/user-stories/us-201.json
 ```
 
@@ -173,13 +173,13 @@ Silence is not agreement. When the sweep proposes a baseline AC, the operator ei
 
 ### 5.5.1 The five shapes
 
-`webUi` for HTML rendered for a person to look at. `httpApi` for programmatic HTTP endpoints for machine clients. `auth` for identity, sessions, credentials. `persistence` for durable storage the operator's data lives in across restarts. `notifications` for outbound delivery to a human channel. A REQ can carry more than one; a REQ that carries none records `shapes: [none]` (legitimate for pure business-rule REQs). Detection is deterministic keyword-scan over the REQ's `title`, `description` and `rationale` plus the parent PRD's `intent` and `problem` as fallback context; the classifier fires automatically on `rcf create req` and `rcf update req --description`, and `rcf req-classify <req-id>` re-runs it on demand.
+`webUi` for HTML rendered for a person to look at. `httpApi` for programmatic HTTP endpoints for machine clients. `auth` for identity, sessions, credentials. `persistence` for durable storage the operator's data lives in across restarts. `notifications` for outbound delivery to a human channel. A REQ can carry more than one; a REQ that carries none records `shapes: [none]` (legitimate for pure business-rule REQs). Detection is deterministic keyword-scan over the REQ's `title`, `description` and `rationale` plus the parent PRD's `intent` and `problem` as fallback context; the classifier fires automatically on `rcf define create req` and `rcf define update req --description`, and `rcf discover req-classify <req-id>` re-runs it on demand.
 
 ### 5.5.2 Baseline sweep and opt-out ledger
 
-`rcf req-baseline sweep --req <id>` walks every US under the target REQ and proposes any baseline AC not yet present. The operator accepts each candidate (which writes it as an AC with `provenance.authoredBy: baseline` and the `baselineKey` set) or opts out with a reason (which writes a `baselineAcOptOuts[]` entry so future USes under the same REQ inherit the ruling). The opt-out reason has a 20-character floor: a one-word "no" reads as silence, and silence is exactly what the ledger exists to prevent. The C+D-native `rcf req-baseline opt-out` verb is always available; Track A preflight's design-shape questions surface (`auth.htmlLoginPage` in v1) writes the same ledger for the preflight-driven case, so a preflight session and this playbook share one truth.
+`rcf discover req-baseline sweep --req <id>` walks every US under the target REQ and proposes any baseline AC not yet present. The operator accepts each candidate (which writes it as an AC with `provenance.authoredBy: baseline` and the `baselineKey` set) or opts out with a reason (which writes a `baselineAcOptOuts[]` entry so future USes under the same REQ inherit the ruling). The opt-out reason has a 20-character floor: a one-word "no" reads as silence, and silence is exactly what the ledger exists to prevent. The C+D-native `rcf discover req-baseline opt-out` verb is always available; Track A preflight's design-shape questions surface (`auth.htmlLoginPage` in v1) writes the same ledger for the preflight-driven case, so a preflight session and this playbook share one truth.
 
-Cross-references: the four-questions sweep of §5 still runs; baselines augment it, do not replace it. Track A preflight (see the build-cycle playbook §3 and `rcf preflight`) owns the design-shape questions that flip baselines before build. Track B's `uiBaseline.defaults` is the truth source for `webUi` baseline values (see `rcf ui-baseline`).
+Cross-references: the four-questions sweep of §5 still runs; baselines augment it, do not replace it. Track A preflight (see the build-cycle playbook §3 and `rcf discover preflight`) owns the design-shape questions that flip baselines before build. Track B's `uiBaseline.defaults` is the truth source for `webUi` baseline values (see `rcf discover ui-baseline`).
 
 ## 6. Capturing architecture as it emerges (TAC / ADR)
 
@@ -191,7 +191,7 @@ What is asked early is the question, not a provider. The owner is free to answer
 
 - **Ask it as its own item, early.** Put the deploy-target question in the conversation before the architecture takes any concrete shape. A one-line answer is enough to constrain everything downstream: "I've got Netlify", "it lives on my Cloudflare account", "it runs on my own machine". Those three are in alphabetical order, which is the only ordering rule this list has - it is not a ranking, and nothing in this playbook picks a provider for the owner.
 - **Constrain the stack to the answer.** Once the target is known, the stack you choose (section below) must be one that target can actually host. Do not commit a stack the host cannot run - a Node-and-native-module stack on a Cloudflare-only account is the exact dead-end this rule exists to foreclose. If the only good stack for the app is incompatible with the stated host, that is a tradeoff to surface (section 11), not a silent override.
-- **Capture it as an ADR on the project's own tree.** Record the deploy target and the stack constraint it implies as an ADR, so the decision is visible and revisable rather than buried in the agent's head. `rcf create adr --parent TAD-001 --title "Deploy target: <where> - stack constrained to <what it can host>"`.
+- **Capture it as an ADR on the project's own tree.** Record the deploy target and the stack constraint it implies as an ADR, so the decision is visible and revisable rather than buried in the agent's head. `rcf define create adr --parent TAD-001 --title "Deploy target: <where> - stack constrained to <what it can host>"`.
 - **Not choosing is also an answer.** "I do not know", "not yet", "I am not sure I want this built" and "this is not being deployed" are complete answers to the question, not failures to answer it. The two branches below take them, and neither ends with you naming a provider for the owner.
 
 ### When the owner does not know and wants to settle it: the hosting-choice walkthrough
@@ -213,7 +213,7 @@ Deferral does not mean the same thing for every capability, so branch on what th
 
 So the question per capability is "what would deferring this actually cost to keep open?", not "is this deferred?". Defer the decision that needs an account. Build the part that does not.
 
-**Record the deferral as the ADR.** A deferral is a decision and gets written down like one: `rcf create adr --parent TAD-001 --title "Deploy target: deferred - no target chosen"`, `status` left at `proposed`, context stating that the owner has not committed, consequences naming what stays open (the stack is unconstrained by a host; the done state is the local preview), alternatives being the options that were on the table and not taken. Leave it revisable - a deferral is a decision to decide later, and this ADR is what the later conversation reopens. An undecided deploy target recorded nowhere is indistinguishable from one nobody ever asked about.
+**Record the deferral as the ADR.** A deferral is a decision and gets written down like one: `rcf define create adr --parent TAD-001 --title "Deploy target: deferred - no target chosen"`, `status` left at `proposed`, context stating that the owner has not committed, consequences naming what stays open (the stack is unconstrained by a host; the done state is the local preview), alternatives being the options that were on the table and not taken. Leave it revisable - a deferral is a decision to decide later, and this ADR is what the later conversation reopens. An undecided deploy target recorded nowhere is indistinguishable from one nobody ever asked about.
 
 **Never let a deferral become a silent stub.** This is the one thing deferral must not do. When a capability is deferred outright, the acceptance criteria that require it are deferred with it, visibly - marked deferred, or lifted out of the queue and named as lifted - or scoped down to a stub the owner explicitly agreed to, in those words. An agent that quietly fakes the deferred thing (an auth path that waves everyone through, a store that forgets on restart, a send that goes nowhere) and then reports the build green has manufactured exactly the false green the verification side of this method exists to prevent. Deferring is honest; stubbing without saying so is not. The tree gives you nowhere to hide it either: an AC either holds or it is deferred, and both of those are things you say out loud.
 
@@ -224,9 +224,9 @@ Which document: a **TAC** is a lasting component - it has a purpose, responsibil
 Minimum capture: a TAC needs its purpose and responsibilities; an ADR needs context, decision and consequences, plus the alternatives considered and why each was not chosen. One honest sentence per field beats a page of hedged ones.
 
 ```
-$ rcf create tac --parent TAD-001 --title "Note store"
+$ rcf define create tac --parent TAD-001 --title "Note store"
 TAC-002 created at rcf/tacs/tac-002.json
-$ rcf create adr --parent TAD-001 --title "Notes are plain files on disk"
+$ rcf define create adr --parent TAD-001 --title "Notes are plain files on disk"
 ADR-002 created at rcf/adrs/adr-002.json
 ```
 
@@ -247,7 +247,7 @@ Group ACs into FBS items. One FBS is a coherent deliverable, buildable in one si
 - **Sizing bands.** `small` is roughly an hour to half a day (1-4h), `medium` half a day to a day (4-8h), `large` one to two days (8-16h). The schema caps `estimatedHours` at 16: an item that wants more is two items.
 
 ```
-$ rcf create fbs --parent BS-001 --title "Note capture command" --acs AC-201-2
+$ rcf define create fbs --parent BS-001 --title "Note capture command" --acs AC-201-2
 FBS-002 created at rcf/fbs/fbs-002.json
 ```
 
@@ -258,9 +258,9 @@ The done-bar, all five together:
 1. Every REQ has at least one US.
 2. Every US has at least one testable AC.
 3. The queue's head item is actionable: `rcf build` shows a `Next actionable` id.
-4. `rcf validate` is clean.
-5. `rcf coverage` has been run and its zero-covered baseline is understood.
-6. Every classified REQ has completed its baseline sweep (no open candidates). `rcf req-baseline sweep --all --status` prints the open-candidate queue; the Stage 1 gate refuses `rcf build --next` for any FBS binding an AC on a US that still has one.
+4. `rcf define validate` is clean.
+5. `rcf audit coverage` has been run and its zero-covered baseline is understood.
+6. Every classified REQ has completed its baseline sweep (no open candidates). `rcf discover req-baseline sweep --all --status` prints the open-candidate queue; the Stage 1 gate refuses `rcf build --next` for any FBS binding an AC on a US that still has one.
 
 Queue-head evidence from the scratch project:
 
@@ -288,7 +288,7 @@ Note the head item: it is the scaffold's placeholder FBS, still wearing its TODO
 And the coverage baseline:
 
 ```
-$ rcf coverage
+$ rcf audit coverage
 Coverage mode: shallow-any
 Requirements: 2  covered: 0  uncovered: 2
 
@@ -299,15 +299,15 @@ REQ-002      no       AC-201-1  no          -
                       AC-201-2  no          -
 ```
 
-Zero covered is the correct end state for elicitation. Tests come from the build cycle, stage by stage, not from this conversation. Stopping here is the discipline: the tree does not need to be complete, it needs to be valid, honest and actionable. New requirements will surface during the build; they enter through `rcf create`, not through reopening elicitation wholesale.
+Zero covered is the correct end state for elicitation. Tests come from the build cycle, stage by stage, not from this conversation. Stopping here is the discipline: the tree does not need to be complete, it needs to be valid, honest and actionable. New requirements will surface during the build; they enter through `rcf define create`, not through reopening elicitation wholesale.
 
 **Offer a review before the build starts.** The done-bar is met and the build loop is next, but the operator has not seen the tree you drafted from their answers. Do not roll straight into building. Offer the review, in plain words rather than document names: "The plan is drafted and everything checks out: what we're building, the requirements, and the build order. Want to look it over before I start building, or shall I go?" Then wait. A tree the operator never saw becomes a build they cannot course-correct, and the review is cheapest now, before any code hangs off the ACs. The build-cycle playbook (section 11) holds the same gate from the build side.
 
-**UI-baseline check when a Web UI REQ is present (Track B soft nudge).** After the tree is drafted and before Stage 1 of the first UI-bearing FBS begins, look at the requirements one more time: does any REQ shape as a Web UI (matched by the shared `matchReqShapeSignals` classifier's `webUi` shape, or by the operator naming pages / screens / dashboards in prose)? If so, prompt the operator to run `rcf ui-baseline init` before the build cycle picks up its first FBS. The baseline captures the ruled UI defaults once per project (theme mode, shared layout, contrast targets, component vocabulary, auth-flow expectations); every subsequent UI-bearing FBS inherits from it. This is a soft check, not a hard gate at elicitation time - the hard refusal fires later at `rcf design <fbs-id>` when the FBS is uiBearing and no baseline exists.
+**UI-baseline check when a Web UI REQ is present (Track B soft nudge).** After the tree is drafted and before Stage 1 of the first UI-bearing FBS begins, look at the requirements one more time: does any REQ shape as a Web UI (matched by the shared `matchReqShapeSignals` classifier's `webUi` shape, or by the operator naming pages / screens / dashboards in prose)? If so, prompt the operator to run `rcf discover ui-baseline init` before the build cycle picks up its first FBS. The baseline captures the ruled UI defaults once per project (theme mode, shared layout, contrast targets, component vocabulary, auth-flow expectations); every subsequent UI-bearing FBS inherits from it. This is a soft check, not a hard gate at elicitation time - the hard refusal fires later at `rcf define design <fbs-id>` when the FBS is uiBearing and no baseline exists.
 
 ## 8.5 Pre-flight config
 
-Between the tree being drafted (section 8) and the build cycle picking up its first FBS (build-cycle playbook, section 3), one more session runs: `rcf preflight`. The session is not part of elicitation but sits at the seam between it and the build. It exists because a mocked integration test looks identical to a live one, and the honest answer to "how are we verifying this" has to be captured while the operator is thinking about the product, not while a test suite is going green.
+Between the tree being drafted (section 8) and the build cycle picking up its first FBS (build-cycle playbook, section 3), one more session runs: `rcf discover preflight`. The session is not part of elicitation but sits at the seam between it and the build. It exists because a mocked integration test looks identical to a live one, and the honest answer to "how are we verifying this" has to be captured while the operator is thinking about the product, not while a test suite is going green.
 
 **What it is.** One pass over every third-party service the PRD (and optionally a TAD) names. The scanner surfaces candidates; the session forces one of five attestation modes per service, plus any applicable design-shape answers (v1 catalogue: `auth.htmlLoginPage`), and writes a `preFlightConfig` record on the manifest. No code changes at this stage.
 
@@ -327,7 +327,7 @@ Pick honestly. A `mocked` where the ship intent is `live` is the exact failure t
 
 **Credentials never enter the chain.** The session prompts for env-var NAMES only. Values are read from the shell at test / finalise time; the name-metadata lives in `.rcf/preflight-secrets.local.json`, which is gitignored via the managed block written by `rcf init`.
 
-**Hand-off to the build cycle.** Once the record is written, the build cycle picks up as normal. `rcf build --next` warns (not refuses) when an in-scope FBS touches an AC whose services are not covered by any `preFlightConfig` record; the operator re-runs `rcf preflight` and continues.
+**Hand-off to the build cycle.** Once the record is written, the build cycle picks up as normal. `rcf build --next` warns (not refuses) when an in-scope FBS touches an AC whose services are not covered by any `preFlightConfig` record; the operator re-runs `rcf discover preflight` and continues.
 
 ## 9. What this playbook deliberately does not do
 
@@ -368,18 +368,18 @@ Agent:    So: as a note keeper, you want to capture a note with one
 The commands behind that exchange, run as it happened:
 
 ```
-$ rcf create req --parent PRD-001 --title "Capture a note from the command line"
+$ rcf define create req --parent PRD-001 --title "Capture a note from the command line"
 REQ-002 created at rcf/requirements/req-002.json
-$ rcf create us --parent REQ-002 --title "Capture a note in one command" --from-file story.json
+$ rcf define create us --parent REQ-002 --title "Capture a note in one command" --from-file story.json
 US-201 created at rcf/user-stories/us-201.json
-$ rcf create ac --parent US-201 --description "Adding a note creates a note file and exits 0" --from-file ac.json
+$ rcf define create ac --parent US-201 --description "Adding a note creates a note file and exits 0" --from-file ac.json
 AC-201-2 created at rcf/user-stories/us-201.json
 ```
 
 And the captured document, read back:
 
 ```
-$ rcf read US-201
+$ rcf define read US-201
 {
   "createdAt": "2026-07-06T12:26:00.851Z",
   "updatedAt": "2026-07-06T12:26:00.931Z",
@@ -410,7 +410,7 @@ $ rcf read US-201
 }
 ```
 
-One piece of visible debt in that read-back: `AC-201-1` is the placeholder `rcf create us` seeds every new story with. Fill it from the next walk-through or delete it; do not leave TODO criteria in a tree you are about to call done.
+One piece of visible debt in that read-back: `AC-201-1` is the placeholder `rcf define create us` seeds every new story with. Fill it from the next walk-through or delete it; do not leave TODO criteria in a tree you are about to call done.
 
 Frame, answer, document, command. That rhythm, held level by level through sections 3 to 7, is the whole method.
 

@@ -231,7 +231,7 @@ test('AC-805-4: the self-review is honestly scoped as an in-loop check subordina
   assert.match(playbook, /an in-loop check, not the independent verification gate/i);
   assert.match(playbook, /not a new subsystem/i);
   // Subordinate to the gate, and the gate is named: `rcf finalise`.
-  assert.match(playbook, /the gate is `rcf finalise` \(section 7\)/);
+  assert.match(playbook, /the gate is `rcf build finalise` \(section 7\)/);
 });
 
 test('AC-805-4: no guidance claims the independent verification gate is still unbuilt', async () => {

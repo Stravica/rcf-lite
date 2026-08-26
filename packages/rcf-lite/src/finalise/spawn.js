@@ -1,9 +1,10 @@
-// Fresh-subprocess invocation of `rcf-verify run` (spec §8.2). This is the
-// load-bearing independence guarantee: build-lite's finalise step launches
-// verify as a SEPARATE OS PROCESS with the isolation env - it MUST NOT import
-// verify's engine in-process, because the verifier agent must start from a
-// cold session with zero build context (§9). The subprocess exit code is the
-// gate; findings flow back via the --out report file, never stdout scraping.
+// Fresh-subprocess invocation of `rcf verify run` (spec §8.2). This is
+// the load-bearing independence guarantee: build-lite's finalise step
+// launches verify as a SEPARATE OS PROCESS with the isolation env - it
+// MUST NOT import verify's engine in-process, because the verifier
+// agent must start from a cold session with zero build context (§9).
+// The subprocess exit code is the gate; findings flow back via the
+// --out report file, never stdout scraping.
 //
 // The isolation env (core's ISOLATION_RECIPE, §7.3) is layered onto the child
 // env here so the recipe travels with the process boundary exactly as §8.2
@@ -14,9 +15,11 @@ import { spawn } from 'node:child_process';
 import { isolationEnv } from '#core/isolation';
 
 /**
- * Assemble the `rcf-verify run` argument vector from finalise options.
- * Deterministic and pure so it is directly unit-testable; the exact shape is
- * the §8.2 invocation contract.
+ * Assemble the `rcf verify run` argument vector from finalise options.
+ * Deterministic and pure so it is directly unit-testable; the exact
+ * shape is the §8.2 invocation contract. The 0.10.0 CLI reorganisation
+ * prepends the `verify` group token; the run-verb arguments below are
+ * otherwise unchanged.
  *
  * @param {object} opts
  * @param {string} opts.repo - RCF chain source (the project root)
@@ -32,6 +35,7 @@ import { isolationEnv } from '#core/isolation';
  */
 export function buildVerifyArgs(opts) {
   const args = [
+    'verify',
     'run',
     '--repo', opts.repo,
     '--profile', opts.profile,
@@ -47,7 +51,7 @@ export function buildVerifyArgs(opts) {
 }
 
 /**
- * Spawn rcf-verify as a fresh subprocess and resolve with its exit code.
+ * Spawn `rcf verify run` as a fresh subprocess and resolve with its exit code.
  * stdio is inherited by default so the operator sees verify's live progress
  * and its verdict line; the report artifact is read separately by the caller.
  *

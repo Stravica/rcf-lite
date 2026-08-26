@@ -37,7 +37,7 @@ What you got, in five lines: `manifest.json` declares the tree's three roots. `p
 ## 3. See your tree
 
 ```sh
-rcf view
+rcf audit view
 ```
 
 This starts a local server (default `http://127.0.0.1:4373/`) and opens your browser on a rendered, tabbed review surface: overview, requirements, architecture, build sequence. Leave it running while you author - any change to a `*.json` file under `rcf/` streams to the open tab without a refresh. Ctrl-C shuts it down cleanly.
@@ -49,7 +49,7 @@ The server binds `127.0.0.1` only and has no auth; it is for you, on your machin
 Time to replace the placeholders with the actual product. First the PRD - the problem and the objective:
 
 ```sh
-rcf update PRD-001 --set problemStatement="Home cooks lose recipes across bookmarks, screenshots and notes apps." --set objectives.0="Keep every recipe in one place and find it again by ingredient."
+rcf define update PRD-001 --set problemStatement="Home cooks lose recipes across bookmarks, screenshots and notes apps." --set objectives.0="Keep every recipe in one place and find it again by ingredient."
 ```
 
 ```
@@ -59,8 +59,8 @@ PRD-001 updated at rcf/prd.json
 The scaffolded requirement and story become recipe capture:
 
 ```sh
-rcf update REQ-001 --set title="Recipe capture" --set description="Users can save a recipe with a title, an ingredient list and a method." --set domain=capture
-rcf update US-101 --set title="Save a recipe" --set asA="home cook" --set iWant="to save a recipe with its ingredients and method" --set soThat="I never lose it again" --set acceptanceCriteria.0.description="Saving a recipe with a title, at least one ingredient and a method succeeds"
+rcf define update REQ-001 --set title="Recipe capture" --set description="Users can save a recipe with a title, an ingredient list and a method." --set domain=capture
+rcf define update US-101 --set title="Save a recipe" --set asA="home cook" --set iWant="to save a recipe with its ingredients and method" --set soThat="I never lose it again" --set acceptanceCriteria.0.description="Saving a recipe with a title, at least one ingredient and a method succeeds"
 ```
 
 ```
@@ -71,10 +71,10 @@ US-101 updated at rcf/user-stories/us-101.json
 Grow the tree with a second requirement - search - and a story under it:
 
 ```sh
-rcf create req --parent PRD-001 --title "Recipe search"
-rcf update REQ-002 --set description="Users can find saved recipes by ingredient." --set domain=search
-rcf create us --parent REQ-002 --title "Find a recipe by ingredient"
-rcf update US-201 --set asA="home cook" --set iWant="to search my recipes by ingredient" --set soThat="I can cook with what I already have" --set acceptanceCriteria.0.description="Searching for an ingredient lists every recipe that uses it"
+rcf define create req --parent PRD-001 --title "Recipe search"
+rcf define update REQ-002 --set description="Users can find saved recipes by ingredient." --set domain=search
+rcf define create us --parent REQ-002 --title "Find a recipe by ingredient"
+rcf define update US-201 --set asA="home cook" --set iWant="to search my recipes by ingredient" --set soThat="I can cook with what I already have" --set acceptanceCriteria.0.description="Searching for an ingredient lists every recipe that uses it"
 ```
 
 ```
@@ -87,7 +87,7 @@ US-201 updated at rcf/user-stories/us-201.json
 Ids are assigned for you: requirements count up (`REQ-002`), stories are numbered by requirement (`US-201` = first story of the second requirement), and a new story is seeded with one placeholder acceptance criterion (`AC-201-1`). Add a second criterion for the edge case:
 
 ```sh
-rcf create ac --parent US-201 --description "Searching for an ingredient no recipe uses returns an empty list, not an error"
+rcf define create ac --parent US-201 --description "Searching for an ingredient no recipe uses returns an empty list, not an error"
 ```
 
 ```
@@ -97,7 +97,7 @@ AC-201-2 created at rcf/user-stories/us-201.json
 Inspect any document by id (acceptance criteria live inline in their story):
 
 ```sh
-rcf read US-201
+rcf define read US-201
 ```
 
 ```json
@@ -128,13 +128,13 @@ rcf read US-201
 }
 ```
 
-`rcf read <id> --field <dotPath>` prints a single field when that is all you need.
+`rcf define read <id> --field <dotPath>` prints a single field when that is all you need.
 
 The architecture side gets the same treatment. Name the scaffolded component and cross-link the search story to it, so the tree records which component realises which story:
 
 ```sh
-rcf update TAC-001 --set name="Search index" --set purpose="Maintain the ingredient-to-recipe index that search queries." --set responsibilities.0="Index recipes by ingredient on save."
-rcf link US-201 --tac TAC-001
+rcf define update TAC-001 --set name="Search index" --set purpose="Maintain the ingredient-to-recipe index that search queries." --set responsibilities.0="Index recipes by ingredient on save."
+rcf define link US-201 --tac TAC-001
 ```
 
 ```
@@ -142,11 +142,11 @@ TAC-001 updated at rcf/tacs/tac-001.json
 US-201 tacIds updated (1 entries).
 ```
 
-Changed your mind about a document? `rcf delete` removes it, and `--dry-run` shows the plan first. Recipe Box has no architecture decision recorded yet, so the placeholder ADR goes:
+Changed your mind about a document? `rcf define delete` removes it, and `--dry-run` shows the plan first. Recipe Box has no architecture decision recorded yet, so the placeholder ADR goes:
 
 ```sh
-rcf delete ADR-001 --dry-run
-rcf delete ADR-001
+rcf define delete ADR-001 --dry-run
+rcf define delete ADR-001
 ```
 
 ```
@@ -160,20 +160,20 @@ Deleting a document that others depend on is refused (exit 4) unless you pass `-
 
 ## 5. Validate
 
-Every `rcf` write is schema-validated on the way in, but you can also edit the JSON files by hand - the filesystem is the source of truth, not the tool. `rcf validate` walks the whole tree and reports schema violations and broken references:
+Every `rcf` write is schema-validated on the way in, but you can also edit the JSON files by hand - the filesystem is the source of truth, not the tool. `rcf define validate` walks the whole tree and reports schema violations and broken references:
 
 ```sh
-rcf validate
+rcf define validate
 ```
 
 ```
-rcf validate: tree is clean.
+rcf define validate: tree is clean.
 ```
 
 To see it catch something, hand-edit `rcf/user-stories/us-201.json` and change its `reqId` to `REQ-999`, then:
 
 ```sh
-rcf validate
+rcf define validate
 ```
 
 ```
@@ -181,7 +181,7 @@ rcf validate
 [error] 1 error found; output written with broken-section markers. Pass --strict to refuse the render.
 ```
 
-Exit code 3. Everywhere in the CLI, exit 3 means the tree itself is unsound. Change the `reqId` back and `rcf validate` is clean again.
+Exit code 3. Everywhere in the CLI, exit 3 means the tree itself is unsound. Change the `reqId` back and `rcf define validate` is clean again.
 
 ## 6. Ask the traceability questions
 
@@ -190,7 +190,7 @@ The point of keeping this structure is that mechanical questions get mechanical 
 **Which requirements are actually covered by tests?**
 
 ```sh
-rcf coverage
+rcf audit coverage
 ```
 
 ```
@@ -204,7 +204,7 @@ REQ-002      no       AC-201-1  no          -
                       AC-201-2  no          -
 ```
 
-Zero covered - true, because nothing specifies tests yet. Coverage is answered by the test layer of the chain: a test suite (TS) owns test cases (TC), each test case verifies one acceptance criterion, and each test case carries a `testPointer` (`filePath::testName`) naming the executable test behind it. The pointer is not decoration: `rcf coverage` counts a test case only when its pointer resolves to a real test in the tree. So write the tests first:
+Zero covered - true, because nothing specifies tests yet. Coverage is answered by the test layer of the chain: a test suite (TS) owns test cases (TC), each test case verifies one acceptance criterion, and each test case carries a `testPointer` (`filePath::testName`) naming the executable test behind it. The pointer is not decoration: `rcf audit coverage` counts a test case only when its pointer resolves to a real test in the tree. So write the tests first:
 
 ```js
 // test/search.test.js
@@ -224,9 +224,9 @@ test('unknown ingredient returns an empty list', () => {
 Then specify the search behaviour, pointing each test case at its test:
 
 ```sh
-rcf create ts --parent US-201 --title "Ingredient search behaviour" --purpose "Verify ingredient search returns complete and safe results." --test-level integration --acs AC-201-1,AC-201-2
-rcf create tc --parent TS-001 --ac AC-201-1 --slug flour-search --description "Searching for flour lists every recipe that uses flour" --test-pointer "test/search.test.js::flour search lists every matching recipe"
-rcf create tc --parent TS-001 --ac AC-201-2 --slug unknown-ingredient --description "Searching for dragon fruit returns an empty list" --test-pointer "test/search.test.js::unknown ingredient returns an empty list"
+rcf define create ts --parent US-201 --title "Ingredient search behaviour" --purpose "Verify ingredient search returns complete and safe results." --test-level integration --acs AC-201-1,AC-201-2
+rcf define create tc --parent TS-001 --ac AC-201-1 --slug flour-search --description "Searching for flour lists every recipe that uses flour" --test-pointer "test/search.test.js::flour search lists every matching recipe"
+rcf define create tc --parent TS-001 --ac AC-201-2 --slug unknown-ingredient --description "Searching for dragon fruit returns an empty list" --test-pointer "test/search.test.js::unknown ingredient returns an empty list"
 ```
 
 ```
@@ -236,7 +236,7 @@ TC-001-unknown-ingredient created at rcf/test-suites/ts-001.json
 ```
 
 ```sh
-rcf coverage
+rcf audit coverage
 ```
 
 ```
@@ -257,7 +257,7 @@ If a pointer stops resolving - the test file moves, or the test is renamed - the
 **What does this document connect to?**
 
 ```sh
-rcf trace US-201 --both
+rcf audit trace US-201 --both
 ```
 
 ```
@@ -284,7 +284,7 @@ Depth  Id                         Kind       Title
 `--forward` (the default) walks descendants, `--back` walks ancestry to the root - from a failing test case straight up to the product intent it protects:
 
 ```sh
-rcf trace TC-001-flour-search --back
+rcf audit trace TC-001-flour-search --back
 ```
 
 ```
@@ -303,7 +303,7 @@ Depth  Id                   Kind       Title
 **If this changes, what needs re-checking?**
 
 ```sh
-rcf impact TAC-001
+rcf audit impact TAC-001
 ```
 
 ```
@@ -326,7 +326,7 @@ One command, and "we are changing the search index" becomes a checklist.
 All three verbs take `--format table|json|mermaid`. JSON is for programs:
 
 ```sh
-rcf coverage --format json
+rcf audit coverage --format json
 ```
 
 ```json
@@ -381,16 +381,16 @@ rcf coverage --format json
 }
 ```
 
-Mermaid renders the same answer as a diagram (GitHub renders the fence natively; `rcf view` renders it live). [How it works](how-it-works.md#2-the-document-chain) shows one.
+Mermaid renders the same answer as a diagram (GitHub renders the fence natively; `rcf audit view` renders it live). [How it works](how-it-works.md#2-the-document-chain) shows one.
 
 ## 7. Drive the build loop
 
 The FBS documents under `rcf/fbs/` are the build queue: each Feature Build Spec carries a build order, a lifecycle status and dependency edges. Point the scaffolded first item at the capture story, and queue the search work behind it:
 
 ```sh
-rcf update FBS-001 --set title="Save a recipe end to end" --set summary="Implement recipe capture: the recipe model, storage and the save flow behind AC-101-1."
-rcf create fbs --parent BS-001 --title "Ingredient search" --acs AC-201-1,AC-201-2
-rcf update FBS-002 --set 'dependsOnFbsIds=["FBS-001"]' --json
+rcf define update FBS-001 --set title="Save a recipe end to end" --set summary="Implement recipe capture: the recipe model, storage and the save flow behind AC-101-1."
+rcf define create fbs --parent BS-001 --title "Ingredient search" --acs AC-201-1,AC-201-2
+rcf define update FBS-002 --set 'dependsOnFbsIds=["FBS-001"]' --json
 ```
 
 ```
@@ -453,7 +453,7 @@ head -12 fbs-001-bundle.md
 
 ```
 
-Whoever drives the loop records lifecycle transitions as the work moves. Marking a spec `complete` runs the Code Node gate: it refuses when any of the spec's acceptance criteria carries no Code Node (see [code-nodes.md](code-nodes.md)), because a spec-to-code chain with optional links is not a chain. This walkthrough has no real application code to point Code Nodes at, so it declares FBS-001 with `--no-code-nodes` - in a real codebase you would author the Code Nodes first (`rcf create cn --path ... --acs ...`) and drop the flag:
+Whoever drives the loop records lifecycle transitions as the work moves. Marking a spec `complete` runs the Code Node gate: it refuses when any of the spec's acceptance criteria carries no Code Node (see [code-nodes.md](code-nodes.md)), because a spec-to-code chain with optional links is not a chain. This walkthrough has no real application code to point Code Nodes at, so it declares FBS-001 with `--no-code-nodes` - in a real codebase you would author the Code Nodes first (`rcf define create cn --path ... --acs ...`) and drop the flag:
 
 ```sh
 rcf build FBS-001 --mark inProgress
@@ -490,17 +490,17 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 Next actionable: FBS-002
 ```
 
-The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`), and `--mark` tops out at `complete` - `verified` is written only by the finalise gate (`rcf finalise`), never by `--mark`. Marking backwards is refused:
+The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`), and `--mark` tops out at `complete` - `verified` is written only by the finalise gate (`rcf build finalise`), never by `--mark`. Marking backwards is refused:
 
 ```sh
 rcf build FBS-001 --mark inProgress
 ```
 
 ```
-[error] refused build: refusing backward transition complete -> inProgress on FBS-001; for a deliberate correction use: rcf update FBS-001 --set executionStatus=inProgress
+[error] refused build: refusing backward transition complete -> inProgress on FBS-001; for a deliberate correction use: rcf define update FBS-001 --set executionStatus=inProgress
 ```
 
-Exit code 4 - the "refused" code. The tool ships the marking primitive and the discipline: mark `complete` on merge; `verified` is not a `--mark` target - it is written only by the finalise gate (`rcf finalise`), which promotes `complete -> verified` when an independent post-merge verify run against the deploy passes with ship authority.
+Exit code 4 - the "refused" code. The tool ships the marking primitive and the discipline: mark `complete` on merge; `verified` is not a `--mark` target - it is written only by the finalise gate (`rcf build finalise`), which promotes `complete -> verified` when an independent post-merge verify run against the deploy passes with ship authority.
 
 ## 8. Do it from your agent
 

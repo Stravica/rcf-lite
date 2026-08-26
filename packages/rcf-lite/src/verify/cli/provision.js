@@ -11,7 +11,7 @@ import { formatError, isRcfError } from '#core/errors';
 import { readChain } from '../chain/index.js';
 import { runProvisioning } from '../provision/index.js';
 
-export const HELP = `Usage: rcf-verify provision --repo <path> --url <app-url> --provision <file>
+export const HELP = `Usage: rcf verify provision --repo <path> --url <app-url> --provision <file>
 
 Stand up prerequisite accounts / sandboxes / seed data for a later run.
 Credentials are written to the --provision FILE only, never echoed.

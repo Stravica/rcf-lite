@@ -2,7 +2,7 @@
   "id": "TS-028",
   "usId": "US-1003",
   "title": "Standards ingestion",
-  "purpose": "Cover rcf standards add reference-by-default and out-of-root copy paths.",
+  "purpose": "Cover rcf define standards add reference-by-default and out-of-root copy paths.",
   "testLevel": "unit",
   "acIds": [
     "AC-1003-1",

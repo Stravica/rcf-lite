@@ -2,39 +2,39 @@
   "usId": "US-901",
   "prdId": "PRD-001",
   "reqId": "REQ-009",
-  "title": "Route `rcf verify` through the same dispatcher as the alias bin",
-  "description": "A consumer running the unified `rcf` CLI can reach the adversarial ship-gate verifier as `rcf verify <verb>` and get identical behaviour to the legacy `rcf-verify <verb>` invocation. The legacy bin remains available and emits a one-line deprecation notice on stderr so scripts can be migrated at their own pace.",
+  "title": "Route the verify suite under the `rcf verify` group and delete the legacy alias bin",
+  "description": "A consumer running the unified `rcf` CLI reaches the adversarial ship-gate verifier as `rcf verify <verb>` (run | report | provision | cleanup | mcp | browser). The pre-0.10.0 standalone `rcf-verify` bin is deleted outright; the historical 0.7.1 transition-grace alias is gone. The old flat `rcf-verify <verb>` invocation form is not available at all; consumers scripting against it must move to `rcf verify <verb>`.",
   "asA": "consumer of the RCF Lite CLI",
   "iWant": "to invoke the verify suite as `rcf verify <verb>` inside the unified CLI",
   "soThat": "verify sits inside the same verb space as the rest of the RCF chain and I only have to install one package",
   "acceptanceCriteria": [
     {
       "id": "AC-901-1",
-      "description": "The `rcf` bin exposes `verify` as a top-level subcommand routed to the same dispatcher as the `rcf-verify` alias bin",
+      "description": "The `rcf` bin exposes `verify` as a top-level group whose sub-verbs run | report | provision | cleanup | mcp | browser dispatch to the verify-suite handlers",
       "given": "the unified `rcf` binary imported from bin/rcf.js",
-      "when": "`verify` is looked up on the top-level SUBCOMMANDS map",
-      "then": "the handler resolves to the same `main` function that bin/rcf-verify.js exports and dispatches over run/report/provision/cleanup/mcp/help",
+      "when": "`verify` is looked up on the top-level GROUPS map",
+      "then": "the sub-verb resolves to the corresponding main() from src/verify/cli/{run,report,provision,cleanup,mcp}.js or src/cli/browser-verify.js",
       "testable": true
     },
     {
       "id": "AC-901-2",
-      "description": "The top-level `rcf --help` output advertises `verify` as an available subcommand",
+      "description": "The top-level `rcf help` output advertises the `verify` group with its sub-verbs",
       "given": "the unified `rcf` binary",
       "when": "`--help` or `help` runs",
-      "then": "the printed usage lists `verify <verb>` alongside the other top-level commands",
+      "then": "the printed usage lists the verify group header with the sub-verb catalogue (run, report, provision, cleanup, mcp, browser)",
       "testable": true
     },
     {
       "id": "AC-901-3",
-      "description": "The `rcf-verify` alias bin emits a one-line stderr deprecation notice when invoked directly and stays fully functional",
-      "given": "the `rcf-verify` alias bin invoked as the entry point (isMain)",
-      "when": "the entry point runs without RCF_QUIET",
-      "then": "a single line describing the deprecation and the `rcf verify` replacement is written to stderr before dispatch, and the dispatch itself is unchanged",
+      "description": "The legacy standalone `rcf-verify` bin is deleted; invoking `rcf-verify <verb>` is not possible from an rcf-lite install, and calling any old flat top-level token via the umbrella `rcf` bin exits 2 with a stderr hint naming the new grouped form",
+      "given": "an installed rcf-lite@0.10.0",
+      "when": "the operator invokes `rcf <old-flat-verb>` where old-flat-verb is a pre-0.10.0 name (validate, coverage, browser-verify, ...)",
+      "then": "package.json:bin carries no `rcf-verify` entry, bin/rcf-verify.js does not exist in the package, and bin/rcf.js writes '[error] usage unknown top-level command <verb>. Try rcf <group> <verb>' to stderr and exits 2 (not a back-compat fallback)",
       "testable": true
     }
   ],
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "draft",
   "createdAt": "2026-08-11T00:00:00Z",
-  "updatedAt": "2026-08-11T00:00:00Z"
+  "updatedAt": "2026-08-26T00:00:00Z"
 }

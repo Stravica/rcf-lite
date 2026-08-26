@@ -25,9 +25,9 @@ The full per-type detail is in `rcf://docs/document-model`.
 
 Every RCF query is one of three questions:
 
-1. **Is it covered?** Does every acceptance criterion have a test case whose pointer resolves to a real test? (`rcf coverage`)
-2. **What does it trace to?** Which requirement asked for this; which stories, criteria and tests hang off it? (`rcf trace`)
-3. **What breaks if it changes?** Which documents and tests are invalidated by a change to this one? (`rcf impact`)
+1. **Is it covered?** Does every acceptance criterion have a test case whose pointer resolves to a real test? (`rcf audit coverage`)
+2. **What does it trace to?** Which requirement asked for this; which stories, criteria and tests hang off it? (`rcf audit trace`)
+3. **What breaks if it changes?** Which documents and tests are invalidated by a change to this one? (`rcf audit impact`)
 
 ## The build cycle in five lines
 
@@ -41,7 +41,7 @@ Every stage ends in a commit. The normative statement is `rcf://docs/build-cycle
 
 ## Mechanical, not semantic
 
-The tool referees structure, never adequacy. `rcf validate` proves every document matches its schema and every reference resolves; `rcf coverage` proves every acceptance criterion has a test case whose `testPointer` resolves to a real, named test in the tree - a test-case row with a dead or missing pointer is reported as `covered-unresolved`, never as coverage. Neither proves that the acceptance criteria capture the requirement's intent, or that a test asserts the right behaviour: a renamed test is caught, a gutted test that kept its name is not. That judgement belongs to the agent and the human operating the loop. The tool's contribution is to make the structural half of confidence mechanical, so judgement is spent only where judgement is needed.
+The tool referees structure, never adequacy. `rcf define validate` proves every document matches its schema and every reference resolves; `rcf audit coverage` proves every acceptance criterion has a test case whose `testPointer` resolves to a real, named test in the tree - a test-case row with a dead or missing pointer is reported as `covered-unresolved`, never as coverage. Neither proves that the acceptance criteria capture the requirement's intent, or that a test asserts the right behaviour: a renamed test is caught, a gutted test that kept its name is not. That judgement belongs to the agent and the human operating the loop. The tool's contribution is to make the structural half of confidence mechanical, so judgement is spent only where judgement is needed.
 
 ---
 

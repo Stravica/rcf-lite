@@ -64,7 +64,7 @@ async function addCoveringTs(tmp, { withRealTest }) {
 test('rcf coverage with a TS whose pointer resolves exits 0 and reports covered:1', async () => {
   const tmp = await scaffold();
   await addCoveringTs(tmp, { withRealTest: true });
-  const { code, stdout } = await runBin(tmp, ['coverage', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'coverage', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.ok, true);
@@ -75,7 +75,7 @@ test('rcf coverage with a TS whose pointer resolves exits 0 and reports covered:
 test('rcf coverage with a stub TC (pointer does not resolve) reports covered-unresolved, and --strict exits 4', async () => {
   const tmp = await scaffold();
   await addCoveringTs(tmp, { withRealTest: false });
-  const json = await runBin(tmp, ['coverage', '--format', 'json']);
+  const json = await runBin(tmp, ['audit', 'coverage', '--format', 'json']);
   assert.equal(json.code, 0);
   const body = JSON.parse(json.stdout);
   assert.equal(body.ok, false, 'a stub TC must not report ok');
@@ -89,19 +89,19 @@ test('rcf coverage with a stub TC (pointer does not resolve) reports covered-unr
     reason: 'file-missing',
   }]);
 
-  const table = await runBin(tmp, ['coverage']);
+  const table = await runBin(tmp, ['audit', 'coverage']);
   assert.match(table.stdout, /covered-unresolved: 1/);
   assert.match(table.stdout, /TC-001-happy-path\[unresolved\]/);
   assert.match(table.stdout, /Unresolved test pointers \(never counted as coverage\):/);
 
-  const strict = await runBin(tmp, ['coverage', '--strict']);
+  const strict = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(strict.code, 4, 'stub coverage must fail the strict gate');
 });
 
 test('rcf coverage --strict with a gap exits 4', async () => {
   const tmp = await scaffold();
   // No covering TS added - the scaffold has an AC-101-1 with no TC coverage.
-  const { code, stderr } = await runBin(tmp, ['coverage', '--strict']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--strict']);
   assert.equal(code, 4);
   // Nothing on stderr from the compute path; the table went to stdout.
   void stderr;
@@ -109,7 +109,7 @@ test('rcf coverage --strict with a gap exits 4', async () => {
 
 test('rcf coverage --format yaml exits 2 (bad format)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['coverage', '--format', 'yaml']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--format', 'yaml']);
   assert.equal(code, 2);
   assert.match(stderr, /unknown --format/);
 });
@@ -120,14 +120,14 @@ test('rcf coverage on a broken tree exits 3 (walker errors block)', async () => 
   const req = JSON.parse(await readFile(reqPath, 'utf8'));
   req.prdId = 'PRD-999';
   await writeFile(reqPath, JSON.stringify(req), 'utf8');
-  const { code, stderr } = await runBin(tmp, ['coverage']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage']);
   assert.equal(code, 3);
   assert.match(stderr, /brokenReference/);
 });
 
 test('rcf coverage REQ-001 scopes to a REQ (positional)', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['coverage', 'REQ-001', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'coverage', 'REQ-001', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.totals.requirements, 1);
@@ -136,14 +136,14 @@ test('rcf coverage REQ-001 scopes to a REQ (positional)', async () => {
 
 test('rcf coverage AC-101-1 (below-AC positional) exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['coverage', 'AC-101-1']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', 'AC-101-1']);
   assert.equal(code, 2);
   assert.match(stderr, /below the AC layer/);
 });
 
 test('rcf coverage TAC-001 (off-chain positional) exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['coverage', 'TAC-001']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', 'TAC-001']);
   assert.equal(code, 2);
   assert.match(stderr, /below the AC layer|off the REQ chain/);
 });

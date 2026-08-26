@@ -2,7 +2,7 @@
 
 ## 1. Read this if
 
-You are authoring an rcf-lite blueprint, or reviewing one. A blueprint is a shippable package of RCF documents that any project can pull in with `rcf blueprint add <source>`; this doc is the standard those packages must meet. The [walkthrough](blueprint-authoring-walkthrough.md) builds a minimal blueprint end to end; the [checklist](blueprint-authoring-checklist.md) is the gate a new blueprint must pass before it ships. Reference the SPA blueprint at [`blueprints/spa/`](../../../blueprints/spa) and the REST blueprint at [`blueprints/rest/`](../../../blueprints/rest) as the two shipped examples.
+You are authoring an rcf-lite blueprint, or reviewing one. A blueprint is a shippable package of RCF documents that any project can pull in with `rcf define blueprint add <source>`; this doc is the standard those packages must meet. The [walkthrough](blueprint-authoring-walkthrough.md) builds a minimal blueprint end to end; the [checklist](blueprint-authoring-checklist.md) is the gate a new blueprint must pass before it ships. Reference the SPA blueprint at [`blueprints/spa/`](../../../blueprints/spa) and the REST blueprint at [`blueprints/rest/`](../../../blueprints/rest) as the two shipped examples.
 
 Not a schema reference: field-level tables for the underlying document kinds (REQ, US, ADR, TAC) live at [rcf-schemas](https://github.com/Stravica/rcf-schemas/tree/main/docs). Not a mechanism internals doc: the walker, conflict detector and manifest writer live under [`packages/rcf-lite/src/blueprint/`](../src/blueprint) and speak for themselves.
 
@@ -58,7 +58,7 @@ Rules the loader enforces at load time (`packages/rcf-lite/src/blueprint/loader.
 - Contributable kinds: `req`, `us`, `tac`, `adr`, `ts`, `cn`. Excluded: `fbs`. Refused as singletons: `prd`, `tad`, `bs`.
 - `scope` is optional and, when set, must be `"global"`. `scope: "global"` is legal only on `adr` kind and REQUIRES a `topic` string.
 
-If any rule fails at load time, `rcf blueprint add` refuses before touching the tree.
+If any rule fails at load time, `rcf define blueprint add` refuses before touching the tree.
 
 ## 4. Namespacing
 
@@ -105,17 +105,17 @@ Only `adr` kind contributions can declare `scope: "global"`. A global ADR carrie
 - No version suffixes.
 - Do not mint variants of existing strings: `errorShape`, `auth`, `apiVersion`, `logShape` are all wrong when `errorEnvelope`, `authModel`, `apiVersioning`, `logging` already exist.
 
-**What happens on `rcf blueprint add`** (`packages/rcf-lite/src/blueprint/conflicts.js`):
+**What happens on `rcf define blueprint add`** (`packages/rcf-lite/src/blueprint/conflicts.js`):
 
 - Two applied blueprints both contributing a `scope: "global"` ADR on the same topic is a `globalAdrTopic` conflict. The add is refused with exit 3 and a report printing both sides' title + first-sentence decision, plus four resolution paths.
 - An incoming id already owned by a DIFFERENT applied blueprint is a `crossBlueprintOwnership` conflict, resolved only by fixing the author-side id.
 
 **The four resolution paths** for a `globalAdrTopic` conflict, exactly as the CLI prints them:
 
-1. Adopt the incoming blueprint: `rcf blueprint remove <existing>` then re-run the add.
+1. Adopt the incoming blueprint: `rcf define blueprint remove <existing>` then re-run the add.
 2. Keep the existing blueprint: do not add the incoming one on this project.
-3. Author a project-level ADR that supersedes both: `rcf blueprint supersede <topic> --incoming <source>`, then re-run the add. Both blueprint ADRs co-reside on disk as superseded history alongside the project-level ADR that supersedes them; `manifest.resolutions[]` records the pair.
-4. Declare the resolution on the add itself: `rcf blueprint add <source> --resolve <topic>=project:<ADR-id>`. Requires the project ADR to exist already; the add records the resolution and skips the remove/re-add ceremony.
+3. Author a project-level ADR that supersedes both: `rcf define blueprint supersede <topic> --incoming <source>`, then re-run the add. Both blueprint ADRs co-reside on disk as superseded history alongside the project-level ADR that supersedes them; `manifest.resolutions[]` records the pair.
+4. Declare the resolution on the add itself: `rcf define blueprint add <source> --resolve <topic>=project:<ADR-id>`. Requires the project ADR to exist already; the add records the resolution and skips the remove/re-add ceremony.
 
 **Deliberate conflicts are a feature.** The SPA and REST blueprints ship two `scope: "global"` ADRs on the same two topics (`errorEnvelope`, `authModel`) on purpose. Composing them on one project surfaces the pairing for operator resolution: the client half and the server half of the same wire contract need one project-level ruling. Author your blueprint's global topics knowing composing blueprints will collide with yours where the decision area is genuinely shared.
 
@@ -129,13 +129,13 @@ Only `adr` kind contributions can declare `scope: "global"`. A global ADR carrie
 
 Adherence to a blueprint is expressed as ACs; the blueprint ships no test files (design-brief decision 5). This is the mechanism's biggest teaching load: the AC binds a CLASS, but the mechanism does not itself compel a project's runtime surface to satisfy the class. Watchpost run4 caught two flagship classes failing exactly here.
 
-**The cautionary pattern (watchpost run4, categories 5, 6, 11).** The SPA blueprint's `spa-REQ-011` says "one icon set behind semantic aliases" and ships `ADR-206-spa-iconography` to record the decision. The blueprint was applied cleanly, the project chain composed against it, the build cycle ran green. The deployed app shipped zero icons across eight surfaces. `rcf coverage --strict` had already flagged `spa-REQ-*` categories 5, 6, and 11 as uncovered `spa-REQ-*` requirements (no test cases bound to those ACs); the build proceeded because the project's own build queue did not include an FBS realising the blueprint's icon and token surfaces. The AC bound the class. The mechanism did not compel the surface.
+**The cautionary pattern (watchpost run4, categories 5, 6, 11).** The SPA blueprint's `spa-REQ-011` says "one icon set behind semantic aliases" and ships `ADR-206-spa-iconography` to record the decision. The blueprint was applied cleanly, the project chain composed against it, the build cycle ran green. The deployed app shipped zero icons across eight surfaces. `rcf audit coverage --strict` had already flagged `spa-REQ-*` categories 5, 6, and 11 as uncovered `spa-REQ-*` requirements (no test cases bound to those ACs); the build proceeded because the project's own build queue did not include an FBS realising the blueprint's icon and token surfaces. The AC bound the class. The mechanism did not compel the surface.
 
 **The principle.** For any AC that constrains project-source realisation (product surface, wired renderer, injected middleware), pair the AC with a mechanism the host project's build cycle already gates on. Three shapes work today:
 
-- **Anchor the AC to a TAC the project must realise.** A TAC contribution names the responsibilities and dependencies of an architecture component; a TAC that the project does not realise leaves an unresolved `tacIds` reference on the story, and `rcf coverage`/`rcf validate` catch that. Blueprint category surfaces (icons, semantic tokens, forms engine) should ship a TAC, not just a REQ, and the REQ/US should cross-link the TAC.
-- **Require the AC be bound to a project-authored TC.** ACs are shipped without test files; the host project's build cycle is where TCs land. If your AC is truly runtime-observable, its rendered failure mode is what makes `rcf coverage --strict` refuse to declare the FBS done. Author the AC in a shape that a TC can bind exactly one runtime check to.
-- **Bind the AC to the runtime-verify layer.** `rcf browser-verify` and the `uiBaseline` pack inspect the deployed surface for smoke-level facts. A blueprint category that maps cleanly onto a browser-verify probe is one the ship gate compels; call it out in the AC so the host project wires the probe.
+- **Anchor the AC to a TAC the project must realise.** A TAC contribution names the responsibilities and dependencies of an architecture component; a TAC that the project does not realise leaves an unresolved `tacIds` reference on the story, and `rcf audit coverage`/`rcf define validate` catch that. Blueprint category surfaces (icons, semantic tokens, forms engine) should ship a TAC, not just a REQ, and the REQ/US should cross-link the TAC.
+- **Require the AC be bound to a project-authored TC.** ACs are shipped without test files; the host project's build cycle is where TCs land. If your AC is truly runtime-observable, its rendered failure mode is what makes `rcf audit coverage --strict` refuse to declare the FBS done. Author the AC in a shape that a TC can bind exactly one runtime check to.
+- **Bind the AC to the runtime-verify layer.** `rcf verify browser` and the `uiBaseline` pack inspect the deployed surface for smoke-level facts. A blueprint category that maps cleanly onto a browser-verify probe is one the ship gate compels; call it out in the AC so the host project wires the probe.
 
 **What NOT to do.** Do not author an adherence AC as a document-level assertion the project can satisfy by adding a document. "The project declares an iconography ADR" is not the AC you want; "The rendered application surfaces the icon set at named component slots X, Y, Z" is. The first is trivially satisfied by copying a stub file; the second is what mechanism reach means. If you can only phrase the AC as document-level, the blueprint category needs a TAC or a runtime-verify pack alongside it before it ships.
 
@@ -155,7 +155,7 @@ Version bumps that add or change contributions:
 - **Minor** for new contributions (new REQs, USs, TACs, ADRs) that do NOT add or change a `scope: "global"` topic.
 - **Major** for any change to the `scope: "global"` topic set (adding, renaming, removing a global ADR topic), any AC id band shift, any breaking removal of a contribution.
 
-Do not delete a contribution in a minor bump: a project that references the id in its own docs will break at `rcf validate` after re-apply. A removal is a major and the blueprint's changelog names the referring-doc migration path.
+Do not delete a contribution in a minor bump: a project that references the id in its own docs will break at `rcf define validate` after re-apply. A removal is a major and the blueprint's changelog names the referring-doc migration path.
 
 ## 9. What blueprints must not contribute
 

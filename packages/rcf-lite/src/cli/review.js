@@ -45,7 +45,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf review <fbs-id> [options]
+export const HELP = `Usage: rcf build review <fbs-id> [options]
 
 Run the REVIEW-stage audit (test-theatre + mutation-sampling) and write
 the reviewAudit record to the manifest. Exit 4 on any warn or block

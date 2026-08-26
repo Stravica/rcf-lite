@@ -5,10 +5,10 @@ The first content blueprint on the rcf-build-lite blueprint mechanism (design br
 ## Apply
 
 ```
-rcf blueprint add <path-to>/blueprints/spa
+rcf define blueprint add <path-to>/blueprints/spa
 ```
 
-Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf blueprint list` shows the applied entry; `rcf blueprint remove spa` cleanly removes an unreferenced application.
+Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf define blueprint list` shows the applied entry; `rcf define blueprint remove spa` cleanly removes an unreferenced application.
 
 ## Anatomy
 
@@ -25,7 +25,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Guide | `guide/spa.md` | Operator-facing: when to use it, when not, what stays your call |
 | Coordination vocabulary | `docs/topics.md` | Exact global-topic strings and id number bands for composing blueprints |
 
-The doc set is contributions (copied into the project tree by `rcf blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
+The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 
 ## What it contributes, and what it deliberately does not
 
@@ -83,8 +83,8 @@ Contributions:
 
 The blueprint declares a broader UI floor than v1.1-v1.3 cures. The following categories still declare their discipline through the AC layer but have no blueprint-side runtime-observable probe; a project inherits them as project-side ownership until a future minor bump adds probes.
 
-- **Component-library baseline (spa-REQ-006, US-1111 and peers).** The component-library discipline (cards, tables, tabs, pagination, forms) is declared through ACs anchored to TAC-203-spa-component-library. A project ships components without a blueprint-side probe checking that shipped components realise the discipline; project-side TCs bind the ACs to the runtime surface, and `rcf coverage --strict` refuses ship when a component AC is uncovered. Blueprint-side probe candidate for a future minor.
-- **Responsive baseline (spa-REQ-004, US-1105).** The 360/768/1024/1440 no-horizontal-overflow discipline is declared through ACs; there is no blueprint-side probe that renders every route at every baseline and reports overflow. `rcf browser-verify` covers a subset when the project wires the uiBaseline pack; the mechanism-reach question of which routes the pack visits is project-owned.
+- **Component-library baseline (spa-REQ-006, US-1111 and peers).** The component-library discipline (cards, tables, tabs, pagination, forms) is declared through ACs anchored to TAC-203-spa-component-library. A project ships components without a blueprint-side probe checking that shipped components realise the discipline; project-side TCs bind the ACs to the runtime surface, and `rcf audit coverage --strict` refuses ship when a component AC is uncovered. Blueprint-side probe candidate for a future minor.
+- **Responsive baseline (spa-REQ-004, US-1105).** The 360/768/1024/1440 no-horizontal-overflow discipline is declared through ACs; there is no blueprint-side probe that renders every route at every baseline and reports overflow. `rcf verify browser` covers a subset when the project wires the uiBaseline pack; the mechanism-reach question of which routes the pack visits is project-owned.
 - **Motion and reduced-motion (spa-REQ-012, US-1112).** Reduced-motion respect is declared through ACs; no blueprint-side probe inspects the built stylesheet output for animation declarations that ignore `prefers-reduced-motion`.
 
 These gaps are the honest residual. The icon, token, styled-under-CSP, external-dependency provisioning, and core-flow E2E cures demonstrate the shape a future sweep takes for the remaining categories: name the runtime-observable surface, ship a Node probe TAC, add a low-band US with runtime-observable ACs binding the TAC, amend the anchor ADR when the consequences narrative needs the probe named.

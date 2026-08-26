@@ -30,7 +30,7 @@ const DEPENDS_ON_OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf fbs <fbs-id> <verb> [options]
+export const HELP = `Usage: rcf build fbs <fbs-id> <verb> [options]
 
 Verbs:
   depends-on              Record a third-party service dependency on this FBS

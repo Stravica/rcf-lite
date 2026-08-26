@@ -43,25 +43,25 @@ test('rcf --help advertises `blueprint` and `standards` as top-level commands (A
   assert.match(stdout, /standards <verb>/);
 });
 
-test('rcf help blueprint prints the blueprint HELP block', async () => {
+test('rcf help define blueprint prints the blueprint HELP block', async () => {
   const root = await scaffold();
-  const { code, stdout } = await runBin(root, ['help', 'blueprint']);
+  const { code, stdout } = await runBin(root, ['help', 'define', 'blueprint']);
   assert.equal(code, 0);
-  assert.match(stdout, /Usage: rcf blueprint <verb>/);
+  assert.match(stdout, /Usage: rcf define blueprint <verb>/);
   assert.match(stdout, /add <source>/);
   assert.match(stdout, /remove <slug>/);
 });
 
 test('rcf blueprint list on a fresh project prints the no-blueprints notice and exits 0', async () => {
   const root = await scaffold();
-  const { code, stdout } = await runBin(root, ['blueprint', 'list']);
+  const { code, stdout } = await runBin(root, ['define', 'blueprint', 'list']);
   assert.equal(code, 0);
   assert.match(stdout, /no blueprints applied/);
 });
 
 test('rcf standards list on a fresh project prints the no-standards notice and exits 0', async () => {
   const root = await scaffold();
-  const { code, stdout } = await runBin(root, ['standards', 'list']);
+  const { code, stdout } = await runBin(root, ['define', 'standards', 'list']);
   assert.equal(code, 0);
   assert.match(stdout, /no standards packs registered/);
 });
@@ -80,10 +80,10 @@ test('rcf blueprint add + list end-to-end via the CLI', async () => {
     version: '0.1.0', status: 'draft',
     createdAt: '2026-08-19T00:00:00Z', updatedAt: '2026-08-19T00:00:00Z',
   }, null, 2), 'utf8');
-  const addResult = await runBin(root, ['blueprint', 'add', bpDir]);
+  const addResult = await runBin(root, ['define', 'blueprint', 'add', bpDir]);
   assert.equal(addResult.code, 0, `add stderr: ${addResult.stderr}`);
   assert.match(addResult.stdout, /applied 'alpha' at 1\.0\.0/);
-  const listResult = await runBin(root, ['blueprint', 'list']);
+  const listResult = await runBin(root, ['define', 'blueprint', 'list']);
   assert.equal(listResult.code, 0);
   assert.match(listResult.stdout, /^alpha\t1\.0\.0/m);
 });
@@ -147,14 +147,14 @@ test('rcf blueprint add + validate round-trip for a prefix-family (slug-prefixed
   }, null, 2), 'utf8');
 
   // First apply -- must succeed.
-  const first = await runBin(root, ['blueprint', 'add', bpDir]);
+  const first = await runBin(root, ['define', 'blueprint', 'add', bpDir]);
   assert.equal(first.code, 0, `first add stderr: ${first.stderr}\nstdout: ${first.stdout}`);
   assert.match(first.stdout, /applied 'spa' at 0\.1\.0/);
 
   // Pre-fix, `rcf validate` surfaced two `Unrecognised document id`
   // errors here (SPA-req-001, SPA-us-101) and exited non-zero. The fix
   // is proven by a clean exit + zero error output on the fresh tree.
-  const validateAfterAdd = await runBin(root, ['validate']);
+  const validateAfterAdd = await runBin(root, ['define', 'validate']);
   assert.equal(validateAfterAdd.code, 0,
     `validate after add should exit 0.\nstdout: ${validateAfterAdd.stdout}\nstderr: ${validateAfterAdd.stderr}`);
   assert.doesNotMatch(validateAfterAdd.stderr, /Unrecognised document id/,
@@ -162,18 +162,18 @@ test('rcf blueprint add + validate round-trip for a prefix-family (slug-prefixed
 
   // Idempotent re-apply of the same version is a no-op that MUST NOT
   // return a conflict or an error.
-  const second = await runBin(root, ['blueprint', 'add', bpDir]);
+  const second = await runBin(root, ['define', 'blueprint', 'add', bpDir]);
   assert.equal(second.code, 0, `re-add stderr: ${second.stderr}\nstdout: ${second.stdout}`);
 
   // Validate must stay clean after the idempotent re-apply.
-  const validateAfterReadd = await runBin(root, ['validate']);
+  const validateAfterReadd = await runBin(root, ['define', 'validate']);
   assert.equal(validateAfterReadd.code, 0,
     `validate after re-add should exit 0.\nstdout: ${validateAfterReadd.stdout}\nstderr: ${validateAfterReadd.stderr}`);
 
   // Remove leaves a clean tree.
-  const remove = await runBin(root, ['blueprint', 'remove', 'spa']);
+  const remove = await runBin(root, ['define', 'blueprint', 'remove', 'spa']);
   assert.equal(remove.code, 0, `remove stderr: ${remove.stderr}\nstdout: ${remove.stdout}`);
-  const validateAfterRemove = await runBin(root, ['validate']);
+  const validateAfterRemove = await runBin(root, ['define', 'validate']);
   assert.equal(validateAfterRemove.code, 0,
     `validate after remove should exit 0.\nstdout: ${validateAfterRemove.stdout}\nstderr: ${validateAfterRemove.stderr}`);
 });
@@ -202,18 +202,18 @@ test('rcf blueprint add --resolve records a resolution and unblocks a would-be c
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA auth',  decision: 'HttpOnly cookies.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST auth', decision: 'JWT bearer.' });
 
-  const addSpa = await runBin(root, ['blueprint', 'add', spa]);
+  const addSpa = await runBin(root, ['define', 'blueprint', 'add', spa]);
   assert.equal(addSpa.code, 0, `spa add stderr: ${addSpa.stderr}`);
 
   // Without --resolve: expect exit 3 (conflict) and the reshaped message.
-  const addRestConflict = await runBin(root, ['blueprint', 'add', rest]);
+  const addRestConflict = await runBin(root, ['define', 'blueprint', 'add', rest]);
   assert.equal(addRestConflict.code, 3, `expected conflict exit 3, got ${addRestConflict.code} stderr: ${addRestConflict.stderr}`);
   assert.match(addRestConflict.stderr, /conflict on topic \(auth\)/);
   assert.match(addRestConflict.stderr, /blueprint spa: SPA auth/);
   assert.match(addRestConflict.stderr, /rcf blueprint supersede auth/);
 
   // With --resolve: exit 0, apply succeeds, resolution recorded.
-  const addRestResolved = await runBin(root, ['blueprint', 'add', rest, '--resolve', 'auth=project:ADR-042']);
+  const addRestResolved = await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', 'auth=project:ADR-042']);
   assert.equal(addRestResolved.code, 0, `resolved add stderr: ${addRestResolved.stderr}\nstdout: ${addRestResolved.stdout}`);
   assert.match(addRestResolved.stdout, /applied 'rest'/);
   const manifest = JSON.parse(await (await import('node:fs/promises')).readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
@@ -226,9 +226,9 @@ test('rcf blueprint add --json emits a machine-readable conflict report on refus
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
-  await runBin(root, ['blueprint', 'add', spa]);
+  await runBin(root, ['define', 'blueprint', 'add', spa]);
 
-  const conflict = await runBin(root, ['blueprint', 'add', rest, '--json']);
+  const conflict = await runBin(root, ['define', 'blueprint', 'add', rest, '--json']);
   assert.equal(conflict.code, 3);
   const parsed = JSON.parse(conflict.stdout);
   assert.equal(parsed.refused, true);
@@ -239,7 +239,7 @@ test('rcf blueprint add --json emits a machine-readable conflict report on refus
   const ids = parsed.conflicts[0].resolutions.map((r) => r.id).sort();
   assert.deepEqual(ids, ['adoptIncoming', 'declareOnAdd', 'keepExisting', 'supersede']);
 
-  const ok = await runBin(root, ['blueprint', 'add', rest, '--resolve', 'auth=project:ADR-042', '--json']);
+  const ok = await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', 'auth=project:ADR-042', '--json']);
   assert.equal(ok.code, 0);
   const okParsed = JSON.parse(ok.stdout);
   assert.equal(okParsed.refused, false);
@@ -251,10 +251,10 @@ test('rcf blueprint supersede scaffolds a project ADR and prints the resolution 
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
-  await runBin(root, ['blueprint', 'add', spa]);
-  await runBin(root, ['blueprint', 'add', rest, '--resolve', 'auth=project:ADR-999']);
+  await runBin(root, ['define', 'blueprint', 'add', spa]);
+  await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', 'auth=project:ADR-999']);
 
-  const sup = await runBin(root, ['blueprint', 'supersede', 'auth']);
+  const sup = await runBin(root, ['define', 'blueprint', 'supersede', 'auth']);
   assert.equal(sup.code, 0, `supersede stderr: ${sup.stderr}\nstdout: ${sup.stdout}`);
   assert.match(sup.stdout, /superseded topic 'auth' via ADR-\d{3}-auth/);
   assert.match(sup.stdout, /resolution recorded as res-\d{4}-\d{2}-\d{2}-\d{3}/);
@@ -264,10 +264,10 @@ test('rcf blueprint diff auth prints one block per applied global ADR on the top
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA auth heading',  decision: 'HttpOnly cookies.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST auth heading', decision: 'JWT bearer.' });
-  await runBin(root, ['blueprint', 'add', spa]);
-  await runBin(root, ['blueprint', 'add', rest, '--resolve', 'auth=project:ADR-999']);
+  await runBin(root, ['define', 'blueprint', 'add', spa]);
+  await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', 'auth=project:ADR-999']);
 
-  const diff = await runBin(root, ['blueprint', 'diff', 'auth']);
+  const diff = await runBin(root, ['define', 'blueprint', 'diff', 'auth']);
   assert.equal(diff.code, 0);
   assert.match(diff.stdout, /blueprint diff on topic \(auth\): 2 scope:global ADR/);
   assert.match(diff.stdout, /\[1\] blueprint spa/);
@@ -279,11 +279,11 @@ test('rcf blueprint diff auth prints one block per applied global ADR on the top
 test('rcf blueprint add --resolve rejects a whitespace-only topic and a mis-shaped resolvedByAdrId', async () => {
   const root = await scaffold();
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'x', decision: 'y.' });
-  const bad1 = await runBin(root, ['blueprint', 'add', rest, '--resolve', '=project:ADR-042']);
+  const bad1 = await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', '=project:ADR-042']);
   assert.equal(bad1.code, 2);
   assert.match(bad1.stderr, /--resolve expects a topic before '='/);
 
-  const bad2 = await runBin(root, ['blueprint', 'add', rest, '--resolve', 'auth=project:notAnAdrId']);
+  const bad2 = await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', 'auth=project:notAnAdrId']);
   assert.equal(bad2.code, 2);
   assert.match(bad2.stderr, /resolvedByAdrId 'notAnAdrId' is not a well-formed ADR id/);
 });
@@ -323,11 +323,11 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   const root = await scaffold();
 
   // 1. add spa (verbatim off the shipped pack).
-  const addSpa = await runBin(root, ['blueprint', 'add', shippedSpa]);
+  const addSpa = await runBin(root, ['define', 'blueprint', 'add', shippedSpa]);
   assert.equal(addSpa.code, 0, `spa add: ${addSpa.stderr}`);
 
   // 2. add rest -> refused (two collisions, camelCase: authModel + errorEnvelope).
-  const conflict = await runBin(root, ['blueprint', 'add', shippedRest]);
+  const conflict = await runBin(root, ['define', 'blueprint', 'add', shippedRest]);
   assert.equal(conflict.code, 3);
   // Reshaped header prints the raw camelCase topic in parens.
   assert.match(conflict.stderr, /conflict on topic \(authModel\)/);
@@ -342,19 +342,19 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   // 3. Run option 3 EXACTLY as printed — no prep, no --resolve, no
   //    hand-edits — for BOTH conflicting topics. This was the money
   //    probe HQ round-3 targeted.
-  const supAuth = await runBin(root, ['blueprint', 'supersede', 'authModel', '--incoming', shippedRest]);
+  const supAuth = await runBin(root, ['define', 'blueprint', 'supersede', 'authModel', '--incoming', shippedRest]);
   assert.equal(supAuth.code, 0, `supersede authModel: ${supAuth.stderr}\n${supAuth.stdout}`);
   assert.match(supAuth.stdout, /via ADR-\d{3}-auth-model at rcf\/adrs\/adr-\d{3}-auth-model\.json/);
   assert.match(supAuth.stdout, /resolution recorded as res-\d{4}-\d{2}-\d{2}-\d{3}/);
 
-  const supErr = await runBin(root, ['blueprint', 'supersede', 'errorEnvelope', '--incoming', shippedRest]);
+  const supErr = await runBin(root, ['define', 'blueprint', 'supersede', 'errorEnvelope', '--incoming', shippedRest]);
   assert.equal(supErr.code, 0, `supersede errorEnvelope: ${supErr.stderr}\n${supErr.stdout}`);
   assert.match(supErr.stdout, /via ADR-\d{3}-error-envelope at rcf\/adrs\/adr-\d{3}-error-envelope\.json/);
 
   // 4. Re-run add rest — printed as the closing step of options 1 and
   //    3 in the message. Must succeed (detector honours both fresh
   //    resolutions), reaching co-residence.
-  const readd = await runBin(root, ['blueprint', 'add', shippedRest]);
+  const readd = await runBin(root, ['define', 'blueprint', 'add', shippedRest]);
   assert.equal(readd.code, 0, `re-add rest after supersede pair: ${readd.stderr}\n${readd.stdout}`);
   assert.match(readd.stdout, /applied 'rest' at 1\.0\.0/);
 
@@ -386,31 +386,31 @@ test('rcf blueprint supersede: every rcfError message lands with exactly one `[e
   const root = await scaffold();
 
   // (a) missing <topic> positional.
-  const missingTopic = await runBin(root, ['blueprint', 'supersede']);
+  const missingTopic = await runBin(root, ['define', 'blueprint', 'supersede']);
   assert.equal(missingTopic.code, 2);
   assert.match(missingTopic.stderr, /\[error\] blueprint supersede: missing <topic>/);
   assert.doesNotMatch(missingTopic.stderr, /blueprint supersede: blueprint supersede:/);
 
   // (b) whitespace-only topic.
-  const wsTopic = await runBin(root, ['blueprint', 'supersede', '   ']);
+  const wsTopic = await runBin(root, ['define', 'blueprint', 'supersede', '   ']);
   assert.equal(wsTopic.code, 2);
   assert.match(wsTopic.stderr, /^\[error\] blueprint supersede: topic is required/m);
   assert.doesNotMatch(wsTopic.stderr, /blueprint supersede: blueprint supersede:/);
 
   // (c) --reason whitespace-only, applied+incoming < 2 (any topic).
-  const wsReason = await runBin(root, ['blueprint', 'supersede', 'authModel', '--reason', '   ']);
+  const wsReason = await runBin(root, ['define', 'blueprint', 'supersede', 'authModel', '--reason', '   ']);
   assert.equal(wsReason.code, 2);
   assert.match(wsReason.stderr, /^\[error\] blueprint supersede: --reason must not be whitespace-only\./m);
   assert.doesNotMatch(wsReason.stderr, /blueprint supersede: blueprint supersede:/);
 
   // (d) topic has 0 applied ADRs, no --incoming.
-  const noSides = await runBin(root, ['blueprint', 'supersede', 'authModel']);
+  const noSides = await runBin(root, ['define', 'blueprint', 'supersede', 'authModel']);
   assert.equal(noSides.code, 2);
   assert.match(noSides.stderr, /^\[error\] blueprint supersede: topic 'authModel' has 0 scope:global ADR\(s\) across applied\+incoming/m);
   assert.doesNotMatch(noSides.stderr, /blueprint supersede: blueprint supersede:/);
 
   // (e) --incoming pointed at a non-existent path.
-  const badIncoming = await runBin(root, ['blueprint', 'supersede', 'authModel', '--incoming', '/no/such/blueprint/dir']);
+  const badIncoming = await runBin(root, ['define', 'blueprint', 'supersede', 'authModel', '--incoming', '/no/such/blueprint/dir']);
   assert.equal(badIncoming.code, 2);
   assert.match(badIncoming.stderr, /^\[error\] blueprint supersede: --incoming/m);
   assert.doesNotMatch(badIncoming.stderr, /blueprint supersede: blueprint supersede:/);
@@ -420,10 +420,10 @@ test('rcf blueprint add --reason: reason lands on every resolution record (rev-2
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
-  await runBin(root, ['blueprint', 'add', spa]);
+  await runBin(root, ['define', 'blueprint', 'add', spa]);
 
   const ok = await runBin(root, [
-    'blueprint', 'add', rest,
+    'define', 'blueprint', 'add', rest,
     '--resolve', 'auth=project:ADR-042',
     '--reason',  'Project auth ruling stands over both blueprint defaults.',
   ]);
@@ -441,10 +441,10 @@ test('rcf blueprint add --reason: whitespace-only reason is refused at the write
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
-  await runBin(root, ['blueprint', 'add', spa]);
+  await runBin(root, ['define', 'blueprint', 'add', spa]);
 
   const bad = await runBin(root, [
-    'blueprint', 'add', rest,
+    'define', 'blueprint', 'add', rest,
     '--resolve', 'auth=project:ADR-042',
     '--reason',  '   ',
   ]);
@@ -456,10 +456,10 @@ test('rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
-  await runBin(root, ['blueprint', 'add', spa]);
+  await runBin(root, ['define', 'blueprint', 'add', spa]);
 
   const dup = await runBin(root, [
-    'blueprint', 'add', rest,
+    'define', 'blueprint', 'add', rest,
     '--resolve', 'auth=project:ADR-042',
     '--resolve', 'auth=project:ADR-999',
   ]);
@@ -475,7 +475,7 @@ test('rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning
 test('rcf blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)', async () => {
   const root = await scaffold();
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'x', decision: 'y.' });
-  const bad = await runBin(root, ['blueprint', 'add', rest, '--resolve', 'auth=project:notAnAdrId']);
+  const bad = await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', 'auth=project:notAnAdrId']);
   assert.equal(bad.code, 2);
   // The CLI prefixes '[error] blueprint add: '; the rcfError message
   // MUST NOT prepend its own 'blueprint add: '.
@@ -487,9 +487,9 @@ test('conflict enrichment is symmetric: incoming side carries title + decision r
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA auth: cookies',      decision: 'Cookies for sessions.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST auth: bearer',      decision: 'JWT bearer for API.' });
-  await runBin(root, ['blueprint', 'add', spa]);
+  await runBin(root, ['define', 'blueprint', 'add', spa]);
 
-  const conflict = await runBin(root, ['blueprint', 'add', rest]);
+  const conflict = await runBin(root, ['define', 'blueprint', 'add', rest]);
   assert.equal(conflict.code, 3);
   // Both sides carry `blueprint <slug>: <title> — <decision>` on the
   // header, not `<id> at <path>`.
@@ -497,7 +497,7 @@ test('conflict enrichment is symmetric: incoming side carries title + decision r
   assert.match(conflict.stderr, /existing\s+blueprint spa: SPA auth: cookies — Cookies for sessions\./);
 
   // --json shape also carries title + decision on both sides.
-  const json = await runBin(root, ['blueprint', 'add', rest, '--json']);
+  const json = await runBin(root, ['define', 'blueprint', 'add', rest, '--json']);
   assert.equal(json.code, 3);
   const parsed = JSON.parse(json.stdout);
   const c = parsed.conflicts[0];
