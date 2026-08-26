@@ -38,9 +38,9 @@ function sampleBundle(overrides = {}) {
     },
     tests: [{ acId: 'AC-101-1', covered: false, suites: [], cases: [] }],
     completionContract: {
-      markInProgress: 'rcf build FBS-002 --mark inProgress',
-      markComplete: 'rcf build FBS-002 --mark complete',
-      finalise: 'rcf finalise FBS-002 --url <deploy-url>',
+      markInProgress: 'rcf build mark FBS-002 inProgress',
+      markComplete: 'rcf build mark FBS-002 complete',
+      finalise: 'rcf build finalise FBS-002 --url <deploy-url>',
     },
     ...overrides,
   };
@@ -88,11 +88,11 @@ test('runbook renders all five stages with referee commands and the mark loop', 
   for (const stage of ['Stage 1 - Define', 'Stage 2 - Build', 'Stage 3 - Review', 'Stage 4 - Test', 'Stage 5 - Finalise']) {
     assert.equal(md.includes(`### ${stage}`), true, stage);
   }
-  assert.equal(md.includes('rcf build FBS-002 --mark inProgress'), true);
-  assert.equal(md.includes('rcf validate'), true);
-  assert.equal(md.includes('rcf coverage --strict'), true);
-  assert.equal(md.includes('rcf build FBS-002 --mark complete'), true);
-  assert.equal(md.includes('rcf finalise FBS-002 --url <deploy-url>'), true);
+  assert.equal(md.includes('rcf build mark FBS-002 inProgress'), true);
+  assert.equal(md.includes('rcf define validate'), true);
+  assert.equal(md.includes('rcf audit coverage --strict'), true);
+  assert.equal(md.includes('rcf build mark FBS-002 complete'), true);
+  assert.equal(md.includes('rcf build finalise FBS-002 --url <deploy-url>'), true);
   // Each-stage-commits discipline is part of the printed contract (D3-A).
   assert.match(md, /Every stage ends in a commit/);
 });

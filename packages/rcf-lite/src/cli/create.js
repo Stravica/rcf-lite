@@ -158,7 +158,7 @@ export async function main(argv, deps = {}) {
   // repairing a broken tree is possible while net-new breakage is still
   // refused.
   if (walkResult.errors.length > 0) {
-    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf validate' for details)\n`);
+    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf define validate' for details)\n`);
   }
 
   let fileBody = null;
@@ -304,7 +304,7 @@ export async function main(argv, deps = {}) {
         if (open.length > 0 && !flags.quiet) {
           const keys = open.map((c) => c.baselineKey).join(', ');
           stdout.write(`${result.id} has ${open.length} open baseline candidate${open.length === 1 ? '' : 's'}: ${keys}\n`);
-          stdout.write(`  Resolve: rcf req-baseline sweep --req ${usDoc.reqId}\n`);
+          stdout.write(`  Resolve: rcf discover req-baseline sweep --req ${usDoc.reqId}\n`);
         }
       }
     } catch (err) {

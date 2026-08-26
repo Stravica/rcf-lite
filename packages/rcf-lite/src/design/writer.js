@@ -180,7 +180,7 @@ export async function writeMarkComplete({
     return rcfError({
       kind: 'usage',
       message: `design --mark-complete: refused - ${fbsId} designStage is missing: ${missing.join(', ')}. `
-        + 'Author the missing artefacts first via `rcf design ' + fbsId + ' journeys add ...`, `nav set ...`, or `theme-a11y set ...`.',
+        + 'Author the missing artefacts first via `rcf define design ' + fbsId + ' journeys add ...`, `nav set ...`, or `theme-a11y set ...`.',
       documentId: fbsId,
     });
   }
@@ -189,8 +189,8 @@ export async function writeMarkComplete({
     return rcfError({
       kind: 'usage',
       message: `design --mark-complete: refused - ${fbsId} designStage.${disagreement.designStagePath} = ${JSON.stringify(disagreement.designValue)} conflicts with uiBaseline.defaults.${disagreement.path} = ${JSON.stringify(disagreement.baselineValue)} and there is no operatorOptOuts entry. `
-        + 'Options: (1) change designStage to match, (2) rcf ui-baseline opt-out --field '
-        + disagreement.path + ' --reason "..." (project override), (3) rcf update '
+        + 'Options: (1) change designStage to match, (2) rcf discover ui-baseline opt-out --field '
+        + disagreement.path + ' --reason "..." (project override), (3) rcf define update '
         + fbsId + ' --set designStage.' + disagreement.designStagePath + '=... (per-FBS override).',
       documentId: fbsId,
     });

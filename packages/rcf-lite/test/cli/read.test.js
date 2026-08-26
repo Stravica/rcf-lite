@@ -40,7 +40,7 @@ test('rcf read REQ-001 prints pretty JSON by default', async () => {
   assert.equal(body.reqId, 'REQ-001');
 });
 
-test('rcf read REQ-001 returns the body and reports it valid against its schema (AC-301-1)', async () => {
+test('rcf define read REQ-001 returns the body and reports it valid against its schema (AC-301-1)', async () => {
   const tmp = await scaffold();
   const { code, stdout, stderr } = await runBin(tmp, ['define', 'read', 'REQ-001']);
   assert.equal(code, 0);
@@ -51,7 +51,7 @@ test('rcf read REQ-001 returns the body and reports it valid against its schema 
   assert.match(stderr, /\[ok\] read: REQ-001 is valid against its schema/);
 });
 
-test('rcf read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)', async () => {
+test('rcf define read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)', async () => {
   const tmp = await scaffold();
   // Wedge the document: strip the required `title` field so the file
   // exists on disk but fails schema validation at load time.
@@ -98,7 +98,7 @@ test('rcf read AC-101-1 reads the inline AC entry from parent US', async () => {
   assert.equal(body.id, 'AC-101-1');
 });
 
-test('rcf read UNKNOWN-999 exits 2 (usage, unknown id)', async () => {
+test('rcf define read UNKNOWN-999 exits 2 (usage, unknown id)', async () => {
   const tmp = await scaffold();
   const { code, stderr } = await runBin(tmp, ['define', 'read', 'UNKNOWN-999']);
   assert.equal(code, 2);

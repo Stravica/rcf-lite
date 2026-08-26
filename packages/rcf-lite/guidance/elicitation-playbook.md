@@ -4,7 +4,7 @@
 
 ## 1. Read this if
 
-You are the agent starting a project with a human. The end state is concrete: a validated RCF tree (PRD, requirements, stories with testable acceptance criteria, architecture captured as TAC / ADR) and an actionable FBS queue, reachable in one or two sittings. When you finish, `rcf define validate` is clean and `rcf build --next` hands back a real work item.
+You are the agent starting a project with a human. The end state is concrete: a validated RCF tree (PRD, requirements, stories with testable acceptance criteria, architecture captured as TAC / ADR) and an actionable FBS queue, reachable in one or two sittings. When you finish, `rcf define validate` is clean and `rcf build bundle --next` hands back a real work item.
 
 This is the lite tier of the elicitation method: one operator voice, one agent, blank directory to first build loop. Section 9 states plainly what sits above this tier; section 11 states the integrity rules that hold across the whole conversation - read it, the failures it forecloses are quiet ones. Section 12 sets the register you hold with the operator throughout: plain language, one decision per message, the method invisible.
 
@@ -169,7 +169,7 @@ Same story, one AC versus five. The extra four are not gold-plating - they are t
 
 Every REQ this playbook draws out has a shape (§5.5.1), and each shape carries a baseline set of acceptance criteria (§5.5.2) that must hold unless the operator explicitly rules otherwise. Baselines exist because a UI REQ without a shared-nav AC lets the build ship a UI without a shared nav, and a persistence REQ without a crash-safety AC lets the build ship a store that loses writes on kill. The four-questions sweep of §5 asks the operator what they want, which is the right question. It does not ask what any operator would want if they knew to ask. The baselines are that second question, mechanised.
 
-Silence is not agreement. When the sweep proposes a baseline AC, the operator either accepts it or opts out with a recorded reason. A "we can skip that for now" without a reason leaves the sweep open, and Stage 1 (Define) refuses `rcf build --next` for any FBS that binds ACs on a story with open sweeps. The refusal is the safeguard against the exact failure mode that produced four review-phase defects on the cold run.
+Silence is not agreement. When the sweep proposes a baseline AC, the operator either accepts it or opts out with a recorded reason. A "we can skip that for now" without a reason leaves the sweep open, and Stage 1 (Define) refuses `rcf build bundle --next` for any FBS that binds ACs on a story with open sweeps. The refusal is the safeguard against the exact failure mode that produced four review-phase defects on the cold run.
 
 ### 5.5.1 The five shapes
 
@@ -260,7 +260,7 @@ The done-bar, all five together:
 3. The queue's head item is actionable: `rcf build` shows a `Next actionable` id.
 4. `rcf define validate` is clean.
 5. `rcf audit coverage` has been run and its zero-covered baseline is understood.
-6. Every classified REQ has completed its baseline sweep (no open candidates). `rcf discover req-baseline sweep --all --status` prints the open-candidate queue; the Stage 1 gate refuses `rcf build --next` for any FBS binding an AC on a US that still has one.
+6. Every classified REQ has completed its baseline sweep (no open candidates). `rcf discover req-baseline sweep --all --status` prints the open-candidate queue; the Stage 1 gate refuses `rcf build bundle --next` for any FBS binding an AC on a US that still has one.
 
 Queue-head evidence from the scratch project:
 
@@ -283,7 +283,7 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 Next actionable: FBS-001
 ```
 
-Note the head item: it is the scaffold's placeholder FBS, still wearing its TODO title, and it will be the first thing `rcf build --next` hands the build loop. Rescope it to real work or delete it before you declare the queue done; a placeholder at the head of the queue fails the done-bar even though it is technically actionable.
+Note the head item: it is the scaffold's placeholder FBS, still wearing its TODO title, and it will be the first thing `rcf build bundle --next` hands the build loop. Rescope it to real work or delete it before you declare the queue done; a placeholder at the head of the queue fails the done-bar even though it is technically actionable.
 
 And the coverage baseline:
 
@@ -327,7 +327,7 @@ Pick honestly. A `mocked` where the ship intent is `live` is the exact failure t
 
 **Credentials never enter the chain.** The session prompts for env-var NAMES only. Values are read from the shell at test / finalise time; the name-metadata lives in `.rcf/preflight-secrets.local.json`, which is gitignored via the managed block written by `rcf init`.
 
-**Hand-off to the build cycle.** Once the record is written, the build cycle picks up as normal. `rcf build --next` warns (not refuses) when an in-scope FBS touches an AC whose services are not covered by any `preFlightConfig` record; the operator re-runs `rcf discover preflight` and continues.
+**Hand-off to the build cycle.** Once the record is written, the build cycle picks up as normal. `rcf build bundle --next` warns (not refuses) when an in-scope FBS touches an AC whose services are not covered by any `preFlightConfig` record; the operator re-runs `rcf discover preflight` and continues.
 
 ## 9. What this playbook deliberately does not do
 

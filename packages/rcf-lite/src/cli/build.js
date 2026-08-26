@@ -310,7 +310,7 @@ function classifyPositional(tree, id) {
     return rcfError({
       kind: 'usage',
       message: `build: ${id} is a user story, not an FBS id; the FBS is the queue unit. `
-        + `To list the FBS items linked to this story: rcf trace ${id} --forward --format json`,
+        + `To list the FBS items linked to this story: rcf audit trace ${id} --forward --format json`,
       documentId: id,
     });
   }

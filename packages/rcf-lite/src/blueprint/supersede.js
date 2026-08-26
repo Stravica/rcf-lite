@@ -1,4 +1,4 @@
-// `rcf blueprint supersede <topic> [--incoming <source>]` implementation.
+// `rcf define blueprint supersede <topic> [--incoming <source>]` implementation.
 //
 // Scaffolds a project-level ADR at `rcf/adrs/adr-NNN-<kebab-topic>.json`
 // that supersedes the CONFLICT PAIR on the topic (one currently-applied
@@ -6,14 +6,14 @@
 // blueprint's scope:global ADR — Baz ruling, w-2026-08-19-008 round 3),
 // and appends a matching `manifest.resolutions[]` record so the conflict
 // detector honours the resolution when the operator re-runs
-// `rcf blueprint add <incoming source>`.
+// `rcf define blueprint add <incoming source>`.
 //
 // The `incomingSource` argument (mapped to `--incoming <source>` on the
 // CLI) is REQUIRED when the applied-blueprints count on the topic is
 // < 2, and silently accepted (informational) when it is already >= 2.
 // This is what makes option 3 as printed by the reshaped conflict
 // message executable VERBATIM from the refused-add state: the operator
-// runs `rcf blueprint supersede <topic> --incoming <source>` immediately
+// runs `rcf define blueprint supersede <topic> --incoming <source>` immediately
 // after the refused add, with zero prep; the verb loads the incoming
 // blueprint from disk, finds its scope:global ADR on <topic>, stamps
 // the id into the incoming blueprint's namespace, and uses that
@@ -85,7 +85,7 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
   if (typeof topic !== 'string' || topic.trim().length === 0) {
     // Schema minLength:1 accepts whitespace-only; the writer refuses
     // it up-front so a whitespace-only topic never lands on disk.
-    return rcfError({ kind: 'usage', message: `topic is required (e.g. rcf blueprint supersede errorEnvelope --incoming ./blueprints/rest)` });
+    return rcfError({ kind: 'usage', message: `topic is required (e.g. rcf define blueprint supersede errorEnvelope --incoming ./blueprints/rest)` });
   }
   // Topic is a LOOKUP KEY into applied ADR topics, not a slug (ADR-010).
   // Schema is minLength:1 with no character constraint and the schema
@@ -161,7 +161,7 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
   if (supersedes.length < 2) {
     return rcfError({
       kind: 'usage',
-      message: `topic '${topic}' has ${supersedes.length} scope:global ADR(s) across applied+incoming; at least two are required for a supersession record. If the incoming blueprint has not been named, add \`--incoming <source>\` (the same source you passed to \`rcf blueprint add\`).`,
+      message: `topic '${topic}' has ${supersedes.length} scope:global ADR(s) across applied+incoming; at least two are required for a supersession record. If the incoming blueprint has not been named, add \`--incoming <source>\` (the same source you passed to \`rcf define blueprint add\`).`,
     });
   }
 
@@ -198,7 +198,7 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
     title: `Project ruling on ${topic} (supersedes ${supersedes.length} blueprint ADR${supersedes.length === 1 ? '' : 's'})`,
     context: `Two or more applied blueprints each contributed a scope:global ADR on the '${topic}' topic: ${superseededSlugs}. Composition of these blueprints on one project needs a single project-level decision on ${topic}; the blueprint ADRs are retained on disk as superseded history.`,
     decision: `Adopt a project-level ruling on ${topic}. This ADR is the live decision; the blueprint ADRs listed under relatedAdrs are superseded and their content stands as historical context only.`,
-    consequences: `The blueprint conflict on topic '${topic}' is honoured via manifest.resolutions[]. Any future blueprint added with a scope:global ADR on '${topic}' must be listed on the resolution (or a fresh resolution must be recorded) before rcf blueprint add proceeds.`,
+    consequences: `The blueprint conflict on topic '${topic}' is honoured via manifest.resolutions[]. Any future blueprint added with a scope:global ADR on '${topic}' must be listed on the resolution (or a fresh resolution must be recorded) before rcf define blueprint add proceeds.`,
     ...(relatedAdrs.length > 0 ? { relatedAdrs } : {}),
     createdAt: isoNow,
     updatedAt: isoNow,

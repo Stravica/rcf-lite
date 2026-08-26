@@ -25,7 +25,7 @@ test('rcf with no args prints top-level help (exit 0)', async () => {
   const { code, stdout } = await runBin([]);
   assert.equal(code, 0);
   assert.match(stdout, /Usage: rcf <command>/);
-  assert.match(stdout, /^core$/m);
+  assert.match(stdout, /^core\b/m);
   assert.match(stdout, /^discover /m);
   assert.match(stdout, /^define /m);
   assert.match(stdout, /^build /m);

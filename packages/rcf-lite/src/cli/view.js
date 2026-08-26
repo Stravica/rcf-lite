@@ -32,10 +32,10 @@ tree updates to the connected browser tab. No on-disk output; no static
 files are written.
 
 Subverbs (spec §9.2):
-  rcf view                  Foreground server (default; lifetime tied to
+  rcf audit view            Foreground server (default; lifetime tied to
                             the invoking session). Backward-compatible
                             with pre-0.7.0 callers.
-  rcf view start [--detach|--foreground] [--persist-until <duration|iso>]
+  rcf audit view start [--detach|--foreground] [--persist-until <duration|iso>]
                             Start the server. --detach forks a supervised
                             background process that persists across the
                             parent session's death; the manifest carries
@@ -50,12 +50,14 @@ Subverbs (spec §9.2):
                             --detach; non-interactive callers keep
                             --foreground so a script does not orphan a
                             process.
-  rcf view status [--json]  Print the supervisor state:
+  rcf audit view status [--json]
+                            Print the supervisor state:
                             running | stale | not-started.
-  rcf view stop             Send SIGTERM to the supervised process, wait
+  rcf audit view stop       Send SIGTERM to the supervised process, wait
                             for a clean shutdown, and clear the manifest
                             record.
-  rcf view logs [--tail <n>] Print the supervisor log tail (default 200).
+  rcf audit view logs [--tail <n>]
+                            Print the supervisor log tail (default 200).
 
 Options:
   --port <n>        Bind the HTTP server on the given port.
@@ -83,7 +85,7 @@ Security posture:
 Shutdown:
   Ctrl-C (SIGINT) or SIGTERM triggers a clean shutdown: watcher
   closed, SSE connections drained with a shutdown event, port
-  released, 2s force-exit budget. Detached: rcf view stop sends
+  released, 2s force-exit budget. Detached: rcf audit view stop sends
   SIGTERM to the supervisor and waits for a clean unwind.
 
 Exit codes:
@@ -213,7 +215,7 @@ export function maybeAutoOpen({ target, noOpen, stream, env, stderr, spawnFn = s
 }
 
 /**
- * Main entry for the `rcf view` subcommand. Mirrors the shape of the
+ * Main entry for the `rcf audit view` subcommand. Mirrors the shape of the
  * old bin/rcf-view.js main().
  *
  * @param {string[]} argv - the argv slice *after* the "view" positional
@@ -278,7 +280,7 @@ export async function main(argv, deps = {}) {
     });
   } catch (err) {
     if (/** @type {NodeJS.ErrnoException} */ (err).code === 'EADDRINUSE') {
-      stderr.write(`[error] usage port ${resolvedPort} is in use (another rcf view process, or a different service).\n`);
+      stderr.write(`[error] usage port ${resolvedPort} is in use (another rcf audit view process, or a different service).\n`);
       stderr.write('Pass --port <n> or set RCF_VIEW_PORT to pick a free port.\n');
       return 2;
     }
@@ -286,7 +288,7 @@ export async function main(argv, deps = {}) {
     return 1;
   }
 
-  stdout.write(`rcf view server listening at ${server.url}\n`);
+  stdout.write(`rcf audit view server listening at ${server.url}\n`);
   stdout.write('watching rcf/ - Ctrl-C to shut down\n');
 
   maybeAutoOpen({

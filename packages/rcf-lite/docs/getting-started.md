@@ -424,10 +424,10 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 Next actionable: FBS-001
 ```
 
-`rcf build --next` assembles the spec bundle for the next actionable item - the work, its acceptance criteria with full ancestry, the architectural context and a five-stage runbook - as a single markdown document. Print it, or sink it to a file to hand to an implementing agent:
+`rcf build bundle --next` assembles the spec bundle for the next actionable item - the work, its acceptance criteria with full ancestry, the architectural context and a five-stage runbook - as a single markdown document. Print it, or sink it to a file to hand to an implementing agent:
 
 ```sh
-rcf build --next --out fbs-001-bundle.md
+rcf build bundle --next --out fbs-001-bundle.md
 ```
 
 ```
@@ -456,8 +456,8 @@ head -12 fbs-001-bundle.md
 Whoever drives the loop records lifecycle transitions as the work moves. Marking a spec `complete` runs the Code Node gate: it refuses when any of the spec's acceptance criteria carries no Code Node (see [code-nodes.md](code-nodes.md)), because a spec-to-code chain with optional links is not a chain. This walkthrough has no real application code to point Code Nodes at, so it declares FBS-001 with `--no-code-nodes` - in a real codebase you would author the Code Nodes first (`rcf define create cn --path ... --acs ...`) and drop the flag:
 
 ```sh
-rcf build FBS-001 --mark inProgress
-rcf build FBS-001 --mark complete --no-code-nodes
+rcf build mark FBS-001 inProgress
+rcf build mark FBS-001 complete --no-code-nodes
 ```
 
 ```
@@ -493,7 +493,7 @@ Next actionable: FBS-002
 The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`), and `--mark` tops out at `complete` - `verified` is written only by the finalise gate (`rcf build finalise`), never by `--mark`. Marking backwards is refused:
 
 ```sh
-rcf build FBS-001 --mark inProgress
+rcf build mark FBS-001 inProgress
 ```
 
 ```

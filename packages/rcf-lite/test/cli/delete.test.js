@@ -33,14 +33,14 @@ async function scaffold() {
   return tmp;
 }
 
-test('rcf delete leaf ADR-001 removes the file (exit 0)', async () => {
+test('rcf define delete leaf ADR-001 removes the file (exit 0)', async () => {
   const tmp = await scaffold();
   const { code } = await runBin(tmp, ['define', 'delete', 'ADR-001']);
   assert.equal(code, 0);
   await assert.rejects(stat(join(tmp, 'rcf/adrs/adr-001.json')), { code: 'ENOENT' });
 });
 
-test('rcf delete REQ-001 without --cascade refuses with exit 4', async () => {
+test('rcf define delete REQ-001 without --cascade refuses with exit 4', async () => {
   const tmp = await scaffold();
   const { code, stderr } = await runBin(tmp, ['define', 'delete', 'REQ-001']);
   assert.equal(code, 4);

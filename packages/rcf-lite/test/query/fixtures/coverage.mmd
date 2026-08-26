@@ -322,20 +322,24 @@ flowchart LR
   REQ-009["REQ-009"]
   AC-901-1["AC-901-1"]
   REQ-009 --> AC-901-1
-  TC-025-verify-help-parity["TC-025-verify-help-parity"]
-  AC-901-1 -.-> TC-025-verify-help-parity
-  TC-025-verify-routes-to-alias-dispatcher["TC-025-verify-routes-to-alias-dispatcher"]
-  AC-901-1 -.-> TC-025-verify-routes-to-alias-dispatcher
+  TC-025-verify-group-routes-per-subverb["TC-025-verify-group-routes-per-subverb"]
+  AC-901-1 -.-> TC-025-verify-group-routes-per-subverb
+  TC-025-verify-help-routes-to-group-help["TC-025-verify-help-routes-to-group-help"]
+  AC-901-1 -.-> TC-025-verify-help-routes-to-group-help
   AC-901-2["AC-901-2"]
   REQ-009 --> AC-901-2
-  TC-025-top-level-help-lists-verify["TC-025-top-level-help-lists-verify"]
-  AC-901-2 -.-> TC-025-top-level-help-lists-verify
+  TC-025-top-level-help-lists-verify-group["TC-025-top-level-help-lists-verify-group"]
+  AC-901-2 -.-> TC-025-top-level-help-lists-verify-group
   AC-901-3["AC-901-3"]
   REQ-009 --> AC-901-3
-  TC-025-alias-emits-deprecation-notice["TC-025-alias-emits-deprecation-notice"]
-  AC-901-3 -.-> TC-025-alias-emits-deprecation-notice
-  TC-025-alias-honours-quiet-env["TC-025-alias-honours-quiet-env"]
-  AC-901-3 -.-> TC-025-alias-honours-quiet-env
+  TC-025-alias-bin-deleted-file["TC-025-alias-bin-deleted-file"]
+  AC-901-3 -.-> TC-025-alias-bin-deleted-file
+  TC-025-alias-bin-deleted-package-json["TC-025-alias-bin-deleted-package-json"]
+  AC-901-3 -.-> TC-025-alias-bin-deleted-package-json
+  TC-025-old-flat-browser-verify-refused["TC-025-old-flat-browser-verify-refused"]
+  AC-901-3 -.-> TC-025-old-flat-browser-verify-refused
+  TC-025-old-flat-validate-refused["TC-025-old-flat-validate-refused"]
+  AC-901-3 -.-> TC-025-old-flat-validate-refused
   REQ-010["REQ-010"]
   AC-1001-1["AC-1001-1"]
   REQ-010 --> AC-1001-1
@@ -435,20 +439,6 @@ flowchart LR
   REQ-010 --> AC-1004-4
   TC-029-deterministic["TC-029-deterministic"]
   AC-1004-4 -.-> TC-029-deterministic
-  class TC-004-served-live-no-files-written broken;
-  class TC-006-read-reports-valid broken;
-  class TC-006-read-unknown-id-not-found broken;
-  class TC-006-read-invalid-content-plus-errors broken;
-  class TC-008-valid-update-persists-updatedat broken;
-  class TC-008-update-unknown-id-not-found broken;
-  class TC-009-delete-refused-with-dependents broken;
-  class TC-009-leaf-delete-removes-file broken;
-  class TC-017-mcp-build-returns-bundle broken;
-  class TC-025-verify-help-parity broken;
-  class TC-025-verify-routes-to-alias-dispatcher broken;
-  class TC-025-top-level-help-lists-verify broken;
-  class TC-025-alias-emits-deprecation-notice broken;
-  class TC-025-alias-honours-quiet-env broken;
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -615,13 +605,15 @@ flowchart LR
   class TC-024-in-loop-not-the-gate tc;
   class REQ-009 req;
   class AC-901-1 ac;
-  class TC-025-verify-help-parity tc;
-  class TC-025-verify-routes-to-alias-dispatcher tc;
+  class TC-025-verify-group-routes-per-subverb tc;
+  class TC-025-verify-help-routes-to-group-help tc;
   class AC-901-2 ac;
-  class TC-025-top-level-help-lists-verify tc;
+  class TC-025-top-level-help-lists-verify-group tc;
   class AC-901-3 ac;
-  class TC-025-alias-emits-deprecation-notice tc;
-  class TC-025-alias-honours-quiet-env tc;
+  class TC-025-alias-bin-deleted-file tc;
+  class TC-025-alias-bin-deleted-package-json tc;
+  class TC-025-old-flat-browser-verify-refused tc;
+  class TC-025-old-flat-validate-refused tc;
   class REQ-010 req;
   class AC-1001-1 ac;
   class TC-026-add-writes-manifest tc;

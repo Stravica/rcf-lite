@@ -8,7 +8,7 @@
     {"slug": "persona-programme", "file": "persona-programme.md", "title": "Persona programme: tail-interview template"}
   ],
   "prompts": [
-    {"name": "rcf_execute_build_cycle", "file": "build-cycle-playbook.md", "description": "How to execute the RCF 5-stage build cycle well: per-stage guidance, referee commands, failure modes, escalation rules. Fetch once per session, then drive rcf build --next."},
+    {"name": "rcf_execute_build_cycle", "file": "build-cycle-playbook.md", "description": "How to execute the RCF 5-stage build cycle well: per-stage guidance, referee commands, failure modes, escalation rules. Fetch once per session, then drive rcf build bundle --next."},
     {"name": "rcf_elicit_requirements", "file": "elicitation-playbook.md", "description": "How to draw a valid RCF tree out of a conversation: question frames for PRD / REQ / US / AC, the testable-AC quality bar, TAC / ADR capture, FBS queue construction, and when to stop."}
   ],
   "platformInvariants": [

@@ -134,7 +134,7 @@ function findCycleMembers(fbsById) {
  * any item whose chain reaches one, gets tier null (no defined chain
  * length) - the walk short-circuits there, so a cyclic graph can never
  * loop it. A dependency id that resolves to no FBS contributes chain
- * length 0 (same as the platform port; `rcf validate` is the
+ * length 0 (same as the platform port; `rcf define validate` is the
  * broken-reference surface).
  *
  * @param {Map<string, object>} fbsById

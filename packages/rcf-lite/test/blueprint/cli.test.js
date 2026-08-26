@@ -210,7 +210,7 @@ test('rcf blueprint add --resolve records a resolution and unblocks a would-be c
   assert.equal(addRestConflict.code, 3, `expected conflict exit 3, got ${addRestConflict.code} stderr: ${addRestConflict.stderr}`);
   assert.match(addRestConflict.stderr, /conflict on topic \(auth\)/);
   assert.match(addRestConflict.stderr, /blueprint spa: SPA auth/);
-  assert.match(addRestConflict.stderr, /rcf blueprint supersede auth/);
+  assert.match(addRestConflict.stderr, /rcf define blueprint supersede auth/);
 
   // With --resolve: exit 0, apply succeeds, resolution recorded.
   const addRestResolved = await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', 'auth=project:ADR-042']);
@@ -336,8 +336,8 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   // <source> is the same source the operator just typed on the refused
   // add — so the printed command is copy-paste-runnable.
   const shippedRestRe = shippedRest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  assert.match(conflict.stderr, new RegExp(`rcf blueprint supersede authModel --incoming ${shippedRestRe}`));
-  assert.match(conflict.stderr, new RegExp(`rcf blueprint supersede errorEnvelope --incoming ${shippedRestRe}`));
+  assert.match(conflict.stderr, new RegExp(`rcf define blueprint supersede authModel --incoming ${shippedRestRe}`));
+  assert.match(conflict.stderr, new RegExp(`rcf define blueprint supersede errorEnvelope --incoming ${shippedRestRe}`));
 
   // 3. Run option 3 EXACTLY as printed — no prep, no --resolve, no
   //    hand-edits — for BOTH conflicting topics. This was the money

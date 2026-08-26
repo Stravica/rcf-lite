@@ -88,10 +88,10 @@ Symbol-level dependency auto-derivation is out of reach for `dependency-cruiser`
 
 ## 7. The mark-complete gate
 
-`rcf build --mark complete` refuses (**exit 3**, structured `missingCodeNodes` error) when any acceptance criterion delivered by the build spec carries no Code Node:
+`rcf build mark <fbs-id> complete` refuses (**exit 3**, structured `missingCodeNodes` error) when any acceptance criterion delivered by the build spec carries no Code Node:
 
 ```sh
-rcf build FBS-004 --mark complete
+rcf build mark FBS-004 complete
 # [error] missingCodeNodes build --mark complete: refused - FBS-004 has AC(s)
 # with no Code Node: AC-401-2, AC-401-3. Author CN coverage for these ACs, or
 # pass --no-code-nodes for a genuinely no-code (docs-only, config-only) spec.
@@ -102,7 +102,7 @@ This is deliberate, not an oversight: a reliability chain with optional links is
 A build spec that genuinely produces no traceable code (documentation, configuration, a housekeeping PR) declares the exemption once:
 
 ```sh
-rcf build FBS-009 --mark complete --no-code-nodes
+rcf build mark FBS-009 complete --no-code-nodes
 ```
 
 This records `noCodeNodes: true` on the FBS document itself (a dedicated schema field - not a free-form convention string, because an unvalidated magic value fails silently on a typo, which is exactly the failure mode this feature exists to make visible). The declaration is sticky: once set, later re-marks of that FBS do not re-trigger the gate.

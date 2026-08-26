@@ -73,7 +73,7 @@ export function formatStage1RefusalMessage({ fbsId, usId, reqId, openCandidates 
     const short = shortDescription(c.canonicalText);
     lines.push(`          ${c.baselineKey}: ${short}`);
   }
-  lines.push(`        Resolve: rcf req-baseline sweep --req ${reqId}`);
+  lines.push(`        Resolve: rcf discover req-baseline sweep --req ${reqId}`);
   return lines.join('\n');
 }
 

@@ -1,10 +1,10 @@
 {
-  "ok": false,
+  "ok": true,
   "strict": false,
   "totals": {
     "requirements": 10,
-    "covered": 9,
-    "coveredUnresolved": 1,
+    "covered": 10,
+    "coveredUnresolved": 0,
     "uncovered": 0
   },
   "requirements": [
@@ -100,9 +100,7 @@
             "TC-004-served-live-no-files-written",
             "TC-004-valid-html5-page"
           ],
-          "unresolvedTestCases": [
-            "TC-004-served-live-no-files-written"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-202-2",
@@ -145,33 +143,27 @@
       "acs": [
         {
           "id": "AC-301-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-006-read-reports-valid"
           ],
-          "unresolvedTestCases": [
-            "TC-006-read-reports-valid"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-301-2",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-006-read-unknown-id-not-found"
           ],
-          "unresolvedTestCases": [
-            "TC-006-read-unknown-id-not-found"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-301-3",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-006-read-invalid-content-plus-errors"
           ],
-          "unresolvedTestCases": [
-            "TC-006-read-invalid-content-plus-errors"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-302-1",
@@ -200,13 +192,11 @@
         },
         {
           "id": "AC-303-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-008-valid-update-persists-updatedat"
           ],
-          "unresolvedTestCases": [
-            "TC-008-valid-update-persists-updatedat"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-303-2",
@@ -218,23 +208,19 @@
         },
         {
           "id": "AC-303-3",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-008-update-unknown-id-not-found"
           ],
-          "unresolvedTestCases": [
-            "TC-008-update-unknown-id-not-found"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-304-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-009-delete-refused-with-dependents"
           ],
-          "unresolvedTestCases": [
-            "TC-009-delete-refused-with-dependents"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-304-2",
@@ -246,13 +232,11 @@
         },
         {
           "id": "AC-304-3",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-009-leaf-delete-removes-file"
           ],
-          "unresolvedTestCases": [
-            "TC-009-leaf-delete-removes-file"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -454,13 +438,11 @@
         },
         {
           "id": "AC-602-2",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-017-mcp-build-returns-bundle"
           ],
-          "unresolvedTestCases": [
-            "TC-017-mcp-build-returns-bundle"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-602-3",
@@ -696,42 +678,36 @@
     },
     {
       "id": "REQ-009",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-901-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
-            "TC-025-verify-help-parity",
-            "TC-025-verify-routes-to-alias-dispatcher"
+            "TC-025-verify-group-routes-per-subverb",
+            "TC-025-verify-help-routes-to-group-help"
           ],
-          "unresolvedTestCases": [
-            "TC-025-verify-help-parity",
-            "TC-025-verify-routes-to-alias-dispatcher"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-901-2",
-          "covered": false,
+          "covered": true,
           "testCases": [
-            "TC-025-top-level-help-lists-verify"
+            "TC-025-top-level-help-lists-verify-group"
           ],
-          "unresolvedTestCases": [
-            "TC-025-top-level-help-lists-verify"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-901-3",
-          "covered": false,
+          "covered": true,
           "testCases": [
-            "TC-025-alias-emits-deprecation-notice",
-            "TC-025-alias-honours-quiet-env"
+            "TC-025-alias-bin-deleted-file",
+            "TC-025-alias-bin-deleted-package-json",
+            "TC-025-old-flat-browser-verify-refused",
+            "TC-025-old-flat-validate-refused"
           ],
-          "unresolvedTestCases": [
-            "TC-025-alias-emits-deprecation-notice",
-            "TC-025-alias-honours-quiet-env"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -930,90 +906,5 @@
       ]
     }
   ],
-  "unresolvedTestPointers": [
-    {
-      "tsId": "TS-004",
-      "tcId": "TC-004-served-live-no-files-written",
-      "testPointer": "test/view/cli.test.js::rcf audit view never writes any files to disk (regression against static mode)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-006",
-      "tcId": "TC-006-read-invalid-content-plus-errors",
-      "testPointer": "test/cli/read.test.js::rcf define read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-006",
-      "tcId": "TC-006-read-reports-valid",
-      "testPointer": "test/cli/read.test.js::rcf define read REQ-001 returns the body and reports it valid against its schema (AC-301-1)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-006",
-      "tcId": "TC-006-read-unknown-id-not-found",
-      "testPointer": "test/cli/read.test.js::rcf define read UNKNOWN-999 exits 2 (usage, unknown id)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-008",
-      "tcId": "TC-008-update-unknown-id-not-found",
-      "testPointer": "test/cli/update.test.js::rcf define update REQ-999 returns a structured not-found error and writes nothing (AC-303-3)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-008",
-      "tcId": "TC-008-valid-update-persists-updatedat",
-      "testPointer": "test/cli/update.test.js::rcf define update REQ-001 --set title=X changes the title and bumps updatedAt",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-009",
-      "tcId": "TC-009-delete-refused-with-dependents",
-      "testPointer": "test/cli/delete.test.js::rcf define delete REQ-001 without --cascade refuses with exit 4",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-009",
-      "tcId": "TC-009-leaf-delete-removes-file",
-      "testPointer": "test/cli/delete.test.js::rcf define delete leaf ADR-001 removes the file (exit 0)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-017",
-      "tcId": "TC-017-mcp-build-returns-bundle",
-      "testPointer": "test/mcp/parity.test.js::parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build FBS-001 --format json`",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-025",
-      "tcId": "TC-025-alias-emits-deprecation-notice",
-      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-3: `rcf verify` alias emits a one-line stderr deprecation notice on direct invocation",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-025",
-      "tcId": "TC-025-alias-honours-quiet-env",
-      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-3 (silencing): `rcf verify` with RCF_QUIET=1 does not emit the deprecation notice",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-025",
-      "tcId": "TC-025-top-level-help-lists-verify",
-      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-2: `rcf --help` advertises the verify subcommand",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-025",
-      "tcId": "TC-025-verify-help-parity",
-      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-1 (routing surface): `rcf verify --help` dispatches to the same help block as `rcf verify --help`",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-025",
-      "tcId": "TC-025-verify-routes-to-alias-dispatcher",
-      "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin's dispatcher",
-      "reason": "file-missing"
-    }
-  ]
+  "unresolvedTestPointers": []
 }

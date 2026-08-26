@@ -162,7 +162,7 @@ Referenced material (pass-through, verbatim):
 
 ## 6. Existing test surface
 
-Presence reporting off the tree, not a coverage verdict (`rcf coverage` is the coverage surface).
+Presence reporting off the tree, not a coverage verdict (`rcf audit coverage` is the coverage surface).
 
 - AC-101-1: suites: TS-001
   - TC-001-init-clean-tree-roots (pending): initProject followed by walkTree yields a clean tree whose manifest declares the PRD, TAD and BS roots [test/core/store/init.test.js::initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)]
@@ -186,7 +186,7 @@ architectural context above ARE the definition. Confirm your plan against
 every in-scope acceptance criterion (AC-101-1, AC-101-2, AC-101-3) in section 4 before writing
 code, then mark pickup:
 
-    rcf build FBS-001 --mark inProgress
+    rcf build mark FBS-001 inProgress
 
 Commit any plan artefacts the driving workflow requires.
 
@@ -197,7 +197,7 @@ context in section 5. The bundle is the spec: deviation is escalation to
 the operator of the loop, not improvisation. As you implement, author or
 update Code Nodes for the source you write:
 
-    rcf create cn --path <file>[#symbol] --acs <ac-ids>
+    rcf define create cn --path <file>[#symbol] --acs <ac-ids>
 
 Do this now, not as an afterthought: comprehension of which symbols serve
 which acceptance criteria is cheapest to capture while you are writing the
@@ -207,7 +207,7 @@ code, and Stage 5 refuses completion without it. Commit at stage end.
 
 Mechanical referee pass:
 
-    rcf validate
+    rcf define validate
 
 must come back clean; then re-read the diff against every in-scope
 acceptance criterion and document any deviations. Commit.
@@ -218,7 +218,7 @@ Exercise every in-scope acceptance criterion: write or extend the TS / TC
 documents (section 6 lists the existing surface and the flagged gaps) and
 the tests they point to, until:
 
-    rcf coverage --strict
+    rcf audit coverage --strict
 
 covers the in-scope acceptance criteria. Commit.
 
@@ -227,15 +227,15 @@ covers the in-scope acceptance criteria. Commit.
 CI green; PR raised and merged per the driving workflow's convention.
 After the merge:
 
-    rcf build FBS-001 --mark complete
+    rcf build mark FBS-001 complete
 
 This refuses (exit 3, missingCodeNodes) if any in-scope acceptance
 criterion still carries no Code Node - go back to Stage 2 and author it,
 or, for a genuinely no-code spec (docs-only, config-only), declare:
 
-    rcf build FBS-001 --mark complete --no-code-nodes
+    rcf build mark FBS-001 complete --no-code-nodes
 
-Then ship-gate the deployed app - an independent rcf-verify run that
+Then ship-gate the deployed app - an independent verify run that
 passes with ship authority promotes complete -> verified:
 
-    rcf finalise FBS-001 --url <deploy-url>
+    rcf build finalise FBS-001 --url <deploy-url>

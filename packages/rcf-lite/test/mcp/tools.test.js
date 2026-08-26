@@ -382,7 +382,7 @@ test('rcf_build: FBS id returns the as-built D14 bundle envelope including bs / 
   assert.equal(envelope.acceptanceCriteria[0].id, 'AC-101-1');
   assert.equal(envelope.acceptanceCriteria[0].usId, 'US-101');
   assert.equal(envelope.acceptanceCriteria[0].reqId, 'REQ-001');
-  assert.equal(envelope.completionContract.markInProgress, 'rcf build FBS-001 --mark inProgress');
+  assert.equal(envelope.completionContract.markInProgress, 'rcf build mark FBS-001 inProgress');
 });
 
 test('rcf_build: a US id is a usage error pointing the agent at rcf_trace (carry 1)', async () => {

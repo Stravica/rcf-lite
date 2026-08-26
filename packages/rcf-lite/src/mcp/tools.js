@@ -69,7 +69,7 @@ const ISSUE_SCHEMA = {
 // success branch stays the verbatim envelope transcription (D8/D9).
 const ERROR_PAYLOAD_SCHEMA = {
   type: 'object',
-  description: 'Tool execution error payload (accompanies isError: true): the same issue shape rcf validate --json ships',
+  description: 'Tool execution error payload (accompanies isError: true): the same issue shape rcf define validate --json ships',
   properties: {
     ok: { const: false },
     errors: { type: 'array', items: ISSUE_SCHEMA },

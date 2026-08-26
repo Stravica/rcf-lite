@@ -210,14 +210,14 @@ export async function writeUiBaselineOptOut({
   if (!priorBaseline) {
     return rcfError({
       kind: 'usage',
-      message: 'ui-baseline opt-out: no uiBaseline record exists yet; run \'rcf ui-baseline init\' first.',
+      message: 'ui-baseline opt-out: no uiBaseline record exists yet; run \'rcf discover ui-baseline init\' first.',
     });
   }
   const normalisedField = String(field).startsWith('defaults.') ? String(field).slice('defaults.'.length) : String(field);
   if (typeof isKnownField === 'function' && !isKnownField(normalisedField)) {
     return rcfError({
       kind: 'usage',
-      message: `ui-baseline opt-out: unknown baseline field '${normalisedField}' (see 'rcf ui-baseline show' for the field list).`,
+      message: `ui-baseline opt-out: unknown baseline field '${normalisedField}' (see 'rcf discover ui-baseline show' for the field list).`,
     });
   }
   const isoNow = now.toISOString();

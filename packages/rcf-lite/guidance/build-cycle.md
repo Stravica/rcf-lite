@@ -1,11 +1,11 @@
 # The RCF 5-stage build cycle
 
-The normative statement of the cycle. Every FBS item is delivered by one pass of five stages, in this order, under these contracts. The spec bundle that `rcf build --next` emits carries the same cycle as its closing runbook, parameterised for the item in hand; if this page and a bundle ever disagree, the bundle is authoritative.
+The normative statement of the cycle. Every FBS item is delivered by one pass of five stages, in this order, under these contracts. The spec bundle that `rcf build bundle --next` emits carries the same cycle as its closing runbook, parameterised for the item in hand; if this page and a bundle ever disagree, the bundle is authoritative.
 
 ## The five stages
 
 **1. Define.**
-Entry: you hold the item's spec bundle. Exit: your plan is confirmed against every in-scope acceptance criterion in the bundle's section 4, and pickup is recorded with `rcf build <fbs-id> --mark inProgress`. Referee: the bundle itself, plus `rcf define validate` on a clean tree.
+Entry: you hold the item's spec bundle. Exit: your plan is confirmed against every in-scope acceptance criterion in the bundle's section 4, and pickup is recorded with `rcf build mark <fbs-id> inProgress`. Referee: the bundle itself, plus `rcf define validate` on a clean tree.
 
 **2. Build.**
 Entry: a confirmed plan. Exit: the acceptance criteria are implemented, using the bundle's architectural context, with nothing beyond them; deviation from the bundle is escalation, not improvisation. Author or update Code Nodes (`rcf define create cn --path <file>[#symbol] --acs <ac-ids>`) for the source as you write it - comprehension of which symbols serve which ACs is cheapest to capture now, and Stage 5 refuses completion without it. Referee: none at this stage beyond the bundle as the spec.
@@ -17,7 +17,7 @@ Entry: the implementation is complete. Exit: `rcf define validate` comes back cl
 Entry: a reviewed diff. Exit: TS / TC documents and the tests they point to exist for the in-scope acceptance criteria, and `rcf audit coverage --strict` covers them - the referee checks the pointer, not just the row: a test case counts only when its `testPointer` resolves to a real test in the tree, and one that does not is reported as `covered-unresolved`, which fails the strict gate. Every "verified" or "tested" claim made in this stage names the runtime it was checked against and never implies verification on a deployed runtime that was not exercised. Referee: `rcf audit coverage --strict`.
 
 **5. Finalise.**
-Entry: covered, reviewed work. Exit: CI green and the work merged per the driving workflow's convention, then `rcf build <fbs-id> --mark complete` after the merge, and `verified` written by the finalise gate (`rcf build finalise <fbs-id> --url <deploy-url>`) once an independent post-merge verify run passes with ship authority. `--mark` caps at `complete` - it cannot write `verified`. `--mark complete` refuses (exit 3, missingCodeNodes) if any in-scope acceptance criterion still carries no Code Node - go back to Stage 2, or declare `--no-code-nodes` for a genuinely no-code spec. The PR body's verification section carries a runtime label on every claim. Referee: CI, the finalise gate, plus the mark commands' own refusals.
+Entry: covered, reviewed work. Exit: CI green and the work merged per the driving workflow's convention, then `rcf build mark <fbs-id> complete` after the merge, and `verified` written by the finalise gate (`rcf build finalise <fbs-id> --url <deploy-url>`) once an independent post-merge verify run passes with ship authority. `--mark` caps at `complete` - it cannot write `verified`. `--mark complete` refuses (exit 3, missingCodeNodes) if any in-scope acceptance criterion still carries no Code Node - go back to Stage 2, or declare `--no-code-nodes` for a genuinely no-code spec. The PR body's verification section carries a runtime label on every claim. Referee: CI, the finalise gate, plus the mark commands' own refusals.
 
 ## Definition of done includes a working local preview
 

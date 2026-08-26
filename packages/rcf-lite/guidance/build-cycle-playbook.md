@@ -11,10 +11,10 @@ Every command output shown below is real, captured against this repository's own
 ## 2. The loop at a glance
 
 ```
-rcf build --next     -> spec bundle for the next actionable item
+rcf build bundle --next     -> spec bundle for the next actionable item
                         execute the five stages its runbook prints:
                         Define -> Build -> Review -> Test -> Finalise
-rcf build <fbs-id> --mark <status>
+rcf build mark <fbs-id> <status>
                      -> record each lifecycle transition, then repeat
 ```
 
@@ -43,12 +43,12 @@ Failure modes:
 rcf build fbs <fbs-id> depends-on --service <id> --mode <attestationMode> --acs <acIds> [--preflight <pfc-id>]
 ```
 
-This is not a build-time optimisation; it is the seam the whole verification-integrity surface hangs on. `coverage --strict` at Stage 4 refuses when a TC covers an AC whose FBS was named in a preflight `affectedFbsIds` list but has no matching entry here; verify's deployed-verdict gate reads the same binding to decide whether a live-attested AC needs a live probe or a `MOCK-ONLY-DECLARED` verdict is the honest answer. If the plan touches a service the pre-flight session did NOT record - a runtime dependency discovered mid-Build - `rcf build --next` will warn and point at `rcf discover preflight` for a re-run; add the entry to the preflight record, then to the FBS.
+This is not a build-time optimisation; it is the seam the whole verification-integrity surface hangs on. `coverage --strict` at Stage 4 refuses when a TC covers an AC whose FBS was named in a preflight `affectedFbsIds` list but has no matching entry here; verify's deployed-verdict gate reads the same binding to decide whether a live-attested AC needs a live probe or a `MOCK-ONLY-DECLARED` verdict is the honest answer. If the plan touches a service the pre-flight session did NOT record - a runtime dependency discovered mid-Build - `rcf build bundle --next` will warn and point at `rcf discover preflight` for a re-run; add the entry to the preflight record, then to the FBS.
 
 Stage end: mark pickup and commit any plan artefacts the driving workflow requires.
 
 ```
-$ rcf build FBS-012 --mark inProgress
+$ rcf build mark FBS-012 inProgress
 marked FBS-012 notStarted -> inProgress
 ```
 
@@ -72,9 +72,9 @@ What good looks like:
 - Author via the verbs, not by hand-editing: `rcf define design <fbs-id> journeys add --id <slug> --actor "..." --goal "..." --step "..." --step "..."`, `rcf define design <fbs-id> nav set --shape <shape> --route <path=label:authRequired> ...`, `rcf define design <fbs-id> theme-a11y set --mode <mode> --tokens <path> --contrast-test <path> --contrast-before-palette true|false`. When all three are in place, `rcf define design <fbs-id> --mark-complete` sets `designStageComplete: true` on the FBS record. Alternatively, dispatch the Design worker via `rcf define design <fbs-id>` (no sub-verb) and let the subagent author the three artefacts against the baseline plus a sibling-FBS `designStage` context, then mark complete.
 - The playbook mandate 5 vocabulary (`Button`, `Input`, `Card`, `Badge`, `Table`, `Notice`, single badge shape) is guidance-only in v1. For string-templated projects (server-rendered HTML by concatenation, no framework) the operator can hand-check the six-component vocabulary with a `grep -oE 'class="[^"]+"'` sweep of view files; the audit does not enforce it mechanically in v1.
 
-Warning at Stage 2 entry (`rcf build <fbs-id> --mark inProgress`): if the FBS is uiBearing and no `designStage` has been authored, one `[warn]` line points at `rcf define design <fbs-id>`. Not a refusal - pickup and planning can happen before design when the operator wants to think about the AC scope first. The hard refusal fires at Stage 5.
+Warning at Stage 2 entry (`rcf build mark <fbs-id> inProgress`): if the FBS is uiBearing and no `designStage` has been authored, one `[warn]` line points at `rcf define design <fbs-id>`. Not a refusal - pickup and planning can happen before design when the operator wants to think about the AC scope first. The hard refusal fires at Stage 5.
 
-Refusal at Stage 5 entry (`rcf build <fbs-id> --mark complete`) on a uiBearing FBS when any of: `designStageComplete` is not true; `designStage.themeAndA11y.contrastTestAuthoredBeforePalette` is false; the baseline disagrees with a `designStage` paired field and no `operatorOptOuts[]` entry excuses it; the browser-verification verdict is `block` or `warn` without operator ack (see section 7).
+Refusal at Stage 5 entry (`rcf build mark <fbs-id> complete`) on a uiBearing FBS when any of: `designStageComplete` is not true; `designStage.themeAndA11y.contrastTestAuthoredBeforePalette` is false; the baseline disagrees with a `designStage` paired field and no `operatorOptOuts[]` entry excuses it; the browser-verification verdict is `block` or `warn` without operator ack (see section 7).
 
 Escalation: when the operator disagrees with the classifier, ratify or override via `rcf define update <fbs-id> --set uiBearing=true|false`. The override records `verdict: operatorOverride` on `uiClassification`, keeping the classifier's evidence in `signals[]` for provenance. When the operator disagrees with a baseline default, record it as an explicit opt-out via `rcf discover ui-baseline opt-out --field <path> --reason "..." ` (at least twenty characters).
 
@@ -180,7 +180,7 @@ Stage end: commit.
 What good looks like:
 
 - CI green on the branch; PR raised and merged per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
-- `rcf build <fbs-id> --mark complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build <fbs-id> --mark complete --no-code-nodes` once.
+- `rcf build mark <fbs-id> complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build mark <fbs-id> complete --no-code-nodes` once.
 - `rcf build finalise <fbs-id> --url <deploy-url>` writes `verified` after post-merge verification: the merged artefact observed doing the right thing by an independent verify run, not just the pre-merge tests remembered fondly. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the verify run passes with ship authority.
 - A working, documented local preview is present as the default outcome (section 14), and every verification claim in the PR names the runtime it was checked against (section 15). These are part of done, not extras.
 
@@ -236,7 +236,7 @@ Note the fan-out: one broken document produced two broken references. Fix the na
 
 **`rcf audit coverage --strict`** - exit 0 when every AC in scope has a TC whose `testPointer` resolves to a real test; exit 4 on any gap, with the per-AC table shown in section 6 above. A TC whose pointer does not resolve counts as `covered-unresolved` - a gap, not coverage - and is listed under the table with the reason (file missing, test missing). The `Test cases` column is the evidence trail.
 
-**`rcf build <fbs-id> --strict`** - exit 4 instead of a bundle when the item is blocked. Captured in a scratch copy with a dependency reset to `notStarted`:
+**`rcf build bundle <fbs-id> --strict`** - exit 4 instead of a bundle when the item is blocked. Captured in a scratch copy with a dependency reset to `notStarted`:
 
 ```
 [error] refused build: FBS-012 is blocked by FBS-010 (notStarted)
@@ -244,7 +244,7 @@ Note the fan-out: one broken document produced two broken references. Fix the na
 
 Without `--strict` the bundle renders anyway, flagged as a read-ahead; `--next` never selects blocked items.
 
-**`rcf build <fbs-id> --mark <status>`** - exit 0 with a one-line confirmation (`marked FBS-012 notStarted -> inProgress`). The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`; forward jumps legal), but `--mark` caps at `complete`: `--mark verified` is refused with exit 4 and points to `rcf build finalise` (only the finalise gate writes `verified`). A backward mark is likewise refused with exit 4 and names the escape hatch:
+**`rcf build mark <fbs-id> <status>`** - exit 0 with a one-line confirmation (`marked FBS-012 notStarted -> inProgress`). The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`; forward jumps legal), but `--mark` caps at `complete`: `--mark verified` is refused with exit 4 and points to `rcf build finalise` (only the finalise gate writes `verified`). A backward mark is likewise refused with exit 4 and names the escape hatch:
 
 ```
 [error] refused build: refusing backward transition complete -> inProgress on FBS-005; for a deliberate correction use: rcf define update FBS-005 --set executionStatus=inProgress
@@ -297,7 +297,7 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 Next actionable: FBS-013
 ```
 
-Two actionable items, and the tier column says how they relate: FBS-013 and FBS-014 share tier 0, meaning no dependency path connects them - they are parallel-safe, so a harness with two write workers on separate clones could take one each. `rcf build --next` picks the lowest buildOrder and emits its bundle. The header orients you in one glance - what, where in the queue, how big, what it hangs off:
+Two actionable items, and the tier column says how they relate: FBS-013 and FBS-014 share tier 0, meaning no dependency path connects them - they are parallel-safe, so a harness with two write workers on separate clones could take one each. `rcf build bundle --next` picks the lowest buildOrder and emits its bundle. The header orients you in one glance - what, where in the queue, how big, what it hangs off:
 
 ```
 # Spec bundle: FBS-013 - Deploy-aware elicitation and hosting guidance
@@ -317,11 +317,11 @@ Two actionable items, and the tier column says how they relate: FBS-013 and FBS-
 Mark pickup, and the cycle is running:
 
 ```
-$ rcf build FBS-013 --mark inProgress
+$ rcf build mark FBS-013 inProgress
 marked FBS-013 notStarted -> inProgress
 ```
 
-From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf build finalise` to promote to `verified` after post-merge verification, and back to `rcf build --next`.
+From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf build finalise` to promote to `verified` after post-merge verification, and back to `rcf build bundle --next`.
 
 ## 11. Driving the whole queue
 
@@ -332,15 +332,15 @@ Sections 3 to 7 deliver one item. This section is the loop around them: how a si
 **The loop.**
 
 ```
-rcf build            -> queue state; a "Next actionable" id means there is work
-rcf build --next     -> bundle for that item
+rcf build queue      -> queue state; a "Next actionable" id means there is work
+rcf build bundle --next     -> bundle for that item
                         run its five stages (sections 3-7), commit per stage
-rcf build <fbs-id> --mark complete       (after merge)
+rcf build mark <fbs-id> complete       (after merge)
 rcf build finalise <fbs-id> --url <deploy-url>  (independent verify -> verified)
-                        then rcf build --next again
+                        then rcf build bundle --next again
 ```
 
-You are done when `rcf build --next` stops handing back bundles and prints instead:
+You are done when `rcf build bundle --next` stops handing back bundles and prints instead:
 
 ```
 # Build queue: nothing actionable
@@ -352,7 +352,7 @@ That line - not "I built the first one" - is the end of the loop. If it instead 
 
 **Keep the driving context thin (why one session is enough).** The reason a sixteen-item queue "won't fit in one session" is that the agent kept every item's bundle, diff and test detail in a single growing thread. It does not have to. If your harness can spawn sub-agents, run each FBS in its own worker:
 
-- The driver (you) holds only the queue, the trace and the running tally of what is done. You call `rcf build --next`, hand the bundle id to a worker, and wait for a short structured result.
+- The driver (you) holds only the queue, the trace and the running tally of what is done. You call `rcf build bundle --next`, hand the bundle id to a worker, and wait for a short structured result.
 - The worker holds one item's full working set - the bundle, the diff, the tests, the referee outputs - runs the five stages, opens its PR, and returns a few lines: item id, ACs satisfied, referee outputs, PR link, and any escalation. Then its context is discarded.
 - The driver's context stays flat across all sixteen items because it never holds more than a summary of any one. That is the mechanism that makes a small app's whole queue a single-session job.
 

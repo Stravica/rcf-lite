@@ -80,7 +80,7 @@ export async function main(argv, deps = {}) {
   // update is gated on the POST-write tree state inside the writer, so
   // repairing a broken doc is exactly what this verb is now for.
   if (walkResult.errors.length > 0) {
-    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf validate' for details)\n`);
+    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf define validate' for details)\n`);
   }
 
   const sets = [];

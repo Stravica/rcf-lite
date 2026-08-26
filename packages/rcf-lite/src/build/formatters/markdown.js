@@ -326,7 +326,7 @@ function pushArchitecturalContext(lines, bundle) {
 
 function pushTestSurface(lines, bundle) {
   lines.push(`## ${SECTION_NUMBERS.testSurface}. Existing test surface`, '');
-  lines.push('Presence reporting off the tree, not a coverage verdict (`rcf coverage` is the coverage surface).', '');
+  lines.push('Presence reporting off the tree, not a coverage verdict (`rcf audit coverage` is the coverage surface).', '');
   for (const entry of bundle.tests) {
     if (!entry.covered && entry.suites.length === 0) {
       lines.push(`- ${entry.acId}: no existing tests - test suite to be written for this AC`);
@@ -366,7 +366,7 @@ function pushRunbook(lines, bundle) {
   lines.push('architectural context above ARE the definition. Confirm your plan against');
   lines.push(`every in-scope acceptance criterion (${acIds}) in section 4 before writing`);
   lines.push('code, then mark pickup:', '');
-  lines.push(`    rcf build ${fbsId} --mark inProgress`, '');
+  lines.push(`    rcf build mark ${fbsId} inProgress`, '');
   lines.push('Commit any plan artefacts the driving workflow requires.', '');
 
   lines.push('### Stage 2 - Build', '');
@@ -374,14 +374,14 @@ function pushRunbook(lines, bundle) {
   lines.push('context in section 5. The bundle is the spec: deviation is escalation to');
   lines.push('the operator of the loop, not improvisation. As you implement, author or');
   lines.push('update Code Nodes for the source you write:', '');
-  lines.push('    rcf create cn --path <file>[#symbol] --acs <ac-ids>', '');
+  lines.push('    rcf define create cn --path <file>[#symbol] --acs <ac-ids>', '');
   lines.push('Do this now, not as an afterthought: comprehension of which symbols serve');
   lines.push('which acceptance criteria is cheapest to capture while you are writing the');
   lines.push('code, and Stage 5 refuses completion without it. Commit at stage end.', '');
 
   lines.push('### Stage 3 - Review', '');
   lines.push('Mechanical referee pass:', '');
-  lines.push('    rcf validate', '');
+  lines.push('    rcf define validate', '');
   lines.push('must come back clean; then re-read the diff against every in-scope');
   lines.push('acceptance criterion and document any deviations. Commit.', '');
 
@@ -389,18 +389,18 @@ function pushRunbook(lines, bundle) {
   lines.push('Exercise every in-scope acceptance criterion: write or extend the TS / TC');
   lines.push('documents (section 6 lists the existing surface and the flagged gaps) and');
   lines.push('the tests they point to, until:', '');
-  lines.push('    rcf coverage --strict', '');
+  lines.push('    rcf audit coverage --strict', '');
   lines.push('covers the in-scope acceptance criteria. Commit.', '');
 
   lines.push('### Stage 5 - Finalise', '');
   lines.push('CI green; PR raised and merged per the driving workflow\'s convention.');
   lines.push('After the merge:', '');
-  lines.push(`    rcf build ${fbsId} --mark complete`, '');
+  lines.push(`    rcf build mark ${fbsId} complete`, '');
   lines.push('This refuses (exit 3, missingCodeNodes) if any in-scope acceptance');
   lines.push('criterion still carries no Code Node - go back to Stage 2 and author it,');
   lines.push('or, for a genuinely no-code spec (docs-only, config-only), declare:', '');
-  lines.push(`    rcf build ${fbsId} --mark complete --no-code-nodes`, '');
-  lines.push('Then ship-gate the deployed app - an independent rcf-verify run that');
+  lines.push(`    rcf build mark ${fbsId} complete --no-code-nodes`, '');
+  lines.push('Then ship-gate the deployed app - an independent verify run that');
   lines.push('passes with ship authority promotes complete -> verified:', '');
-  lines.push(`    rcf finalise ${fbsId} --url <deploy-url>`);
+  lines.push(`    rcf build finalise ${fbsId} --url <deploy-url>`);
 }

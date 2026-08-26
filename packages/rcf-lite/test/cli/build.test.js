@@ -97,7 +97,7 @@ test('US id exits 2 with the rcf trace pointer (D1)', async () => {
   const tmp = await scaffold();
   const { code, stderr } = await runBin(tmp, ['build', 'bundle', 'US-101']);
   assert.equal(code, 2);
-  assert.match(stderr, /rcf trace US-101 --forward --format json/);
+  assert.match(stderr, /rcf audit trace US-101 --forward --format json/);
 });
 
 test('--next selects the lowest-order actionable item and emits its bundle', async () => {
@@ -240,7 +240,7 @@ test('backward --mark exits 4 and names the rcf update escape hatch', async () =
   const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'notStarted']);
   assert.equal(code, 4);
   assert.match(stderr, /\[error\] refused/);
-  assert.match(stderr, /rcf update FBS-001 --set executionStatus=notStarted/);
+  assert.match(stderr, /rcf define update FBS-001 --set executionStatus=notStarted/);
 });
 
 test('--mark verified is refused (exit 4), names rcf finalise, and writes nothing (mark ladder caps at complete)', async () => {
@@ -251,8 +251,8 @@ test('--mark verified is refused (exit 4), names rcf finalise, and writes nothin
   const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'verified']);
   assert.equal(code, 4);
   assert.match(stderr, /\[error\] refused/);
-  assert.match(stderr, /rcf finalise FBS-001/);
-  assert.match(stderr, /rcf update FBS-001 --set executionStatus=verified/);
+  assert.match(stderr, /rcf build finalise FBS-001/);
+  assert.match(stderr, /rcf define update FBS-001 --set executionStatus=verified/);
   // No write landed: the FBS is still complete, not verified.
   const fbs = await readFbs(tmp);
   assert.equal(fbs.executionStatus, 'complete');

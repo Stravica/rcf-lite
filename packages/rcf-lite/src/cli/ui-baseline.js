@@ -136,7 +136,7 @@ export async function main(argv, deps = {}) {
 function runShow({ tree, stdout, flags }) {
   const record = tree.manifest?.uiBaseline;
   if (!record) {
-    stdout.write('ui-baseline: no baseline recorded. Run \'rcf ui-baseline init\'.\n');
+    stdout.write('ui-baseline: no baseline recorded. Run \'rcf discover ui-baseline init\'.\n');
     return 0;
   }
   if (flags.json) {
@@ -171,7 +171,7 @@ async function runOptOut({ tree, projectRoot, stdout, stderr, flags, now }) {
   }
   const normalisedField = flags.field.startsWith('defaults.') ? flags.field.slice('defaults.'.length) : flags.field;
   if (!isKnownBaselinePath(normalisedField)) {
-    stderr.write(`[error] usage ui-baseline opt-out: unknown baseline field '${normalisedField}' (see 'rcf ui-baseline show' for the field list)\n`);
+    stderr.write(`[error] usage ui-baseline opt-out: unknown baseline field '${normalisedField}' (see 'rcf discover ui-baseline show' for the field list)\n`);
     return 2;
   }
   const result = await writeUiBaselineOptOut({

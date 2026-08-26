@@ -59,7 +59,7 @@ const TOP_LEVEL = `Usage: rcf <command> [options]
 The Requirements Confidence Framework CLI. Verbs are grouped by the
 five RCF stages, plus a small core set for platform plumbing.
 
-core
+core         Platform plumbing that predates any RCF stage.
   init                     Scaffold a new RCF project in this directory.
   doctor                   Diagnose and repair init-hygiene drift.
   guidance [topic]         Print a method document from the installed pack.

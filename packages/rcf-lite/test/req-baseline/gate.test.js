@@ -45,7 +45,7 @@ test('fbsRefusalForOpenSweep refuses an FBS whose US has open baseline candidate
   assert.ok(refusal.openCandidates.length >= 1);
   assert.match(refusal.message, /refused build: FBS-011 binds ACs on US-2011/);
   assert.match(refusal.message, /open baseline[\s\S]*candidate/);
-  assert.match(refusal.message, /Resolve: rcf req-baseline sweep --req REQ-201/);
+  assert.match(refusal.message, /Resolve: rcf discover req-baseline sweep --req REQ-201/);
 });
 
 test('fbsRefusalForOpenSweep returns null when every baseline is accepted or opted out', () => {
@@ -76,5 +76,5 @@ test('formatStage1RefusalMessage matches the spec §5.4 refusal shape', () => {
   assert.match(msg, /candidates awaiting a decision:/);
   assert.match(msg, /auth\.postLogout: given a signed-in session, when POST \/logout is invoked\.\.\./);
   assert.match(msg, /auth\.sessionCookieShape: given any signed-in response, when the auth cookie\.\.\./);
-  assert.match(msg, /Resolve: rcf req-baseline sweep --req REQ-012/);
+  assert.match(msg, /Resolve: rcf discover req-baseline sweep --req REQ-012/);
 });

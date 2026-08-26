@@ -170,7 +170,7 @@ profile of yours yet.
 ### Session start
 
 Run `rcf define validate`. A broken tree is fixed or reported before anything
-else. Run `rcf build` for queue state: what is done, in progress,
+else. Run `rcf build queue` for queue state: what is done, in progress,
 blocked. Run `rcf doctor` if the last upgrade of the package changed
 these rules. The block you are reading may be out of date; `rcf doctor
 --fix` rewrites it.
@@ -181,10 +181,10 @@ Docs-review gate: when the tree has just been elicited, offer the
 stakeholder a review of it before the first build. Do not roll from
 elicitation straight into building without the offer.
 
-Run `rcf build --next` to get the spec bundle for the next actionable
+Run `rcf build bundle --next` to get the spec bundle for the next actionable
 item, then execute the five-stage runbook it prints: Define, Build,
 Review, Test, Finalise. Every stage ends in a commit. Drive the whole
-queue, not one item. After each item's Finalise, loop `rcf build --next`
+queue, not one item. After each item's Finalise, loop `rcf build bundle --next`
 until it reports the queue complete. If your harness can spawn
 sub-agents, run each FBS in its own worker so the driving context stays
 clean across the queue: one write worker at a time.

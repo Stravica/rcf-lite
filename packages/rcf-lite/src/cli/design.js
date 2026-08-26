@@ -75,12 +75,12 @@ and must match /^FBS-\\d+$/ (any other positional in that slot is a
 usage error, not an FBS lookup miss).
 
 Verb shapes:
-  rcf design <fbs-id>                            Print the current design
+  rcf define design <fbs-id>                     Print the current design
                                                  state and next-move options.
-  rcf design <fbs-id> journeys add ...           Append a journey.
-  rcf design <fbs-id> nav set ...                Overwrite navModel.
-  rcf design <fbs-id> theme-a11y set ...         Overwrite themeAndA11y.
-  rcf design <fbs-id> --mark-complete            Set designStageComplete: true.
+  rcf define design <fbs-id> journeys add ...    Append a journey.
+  rcf define design <fbs-id> nav set ...         Overwrite navModel.
+  rcf define design <fbs-id> theme-a11y set ...  Overwrite themeAndA11y.
+  rcf define design <fbs-id> --mark-complete     Set designStageComplete: true.
 
 journeys add options:
   --id <slug>               Lowercase slug (a-z0-9-), unique within the FBS.
@@ -177,11 +177,11 @@ export async function main(argv, deps = {}) {
     return 2;
   }
   if (fbs.uiBearing !== true) {
-    stderr.write(`[warn] design: ${fbsId} is not uiBearing (fbs.uiBearing is ${JSON.stringify(fbs.uiBearing)}); the Design substage is a no-op for non-UI FBS. Set uiBearing=true first (see 'rcf ui-classify ${fbsId}').\n`);
+    stderr.write(`[warn] design: ${fbsId} is not uiBearing (fbs.uiBearing is ${JSON.stringify(fbs.uiBearing)}); the Design substage is a no-op for non-UI FBS. Set uiBearing=true first (see 'rcf discover ui-classify ${fbsId}').\n`);
   }
   // Refuse Design substage writes when the baseline is missing (§6.2).
   if (fbs.uiBearing === true && !tree.manifest?.uiBaseline && subs.length > 0) {
-    stderr.write(`[error] refused: ${fbsId} is uiBearing but no uiBaseline record exists on the manifest. Run: rcf ui-baseline init\n`);
+    stderr.write(`[error] refused: ${fbsId} is uiBearing but no uiBaseline record exists on the manifest. Run: rcf discover ui-baseline init\n`);
     return 4;
   }
 
@@ -229,11 +229,11 @@ function runShow({ tree, fbs, fbsId, stdout, flags }) {
   if (missing.length > 0) {
     stdout.write(`  next: author the missing artefact(s): ${missing.join(', ')}\n`);
   } else if (fbs.designStageComplete !== true) {
-    stdout.write('  next: rcf design ' + fbsId + ' --mark-complete\n');
+    stdout.write('  next: rcf define design ' + fbsId + ' --mark-complete\n');
   }
   const baseline = tree.manifest?.uiBaseline;
   if (fbs.uiBearing === true && !baseline) {
-    stdout.write('  refused (once you begin authoring): rcf ui-baseline init must run first.\n');
+    stdout.write('  refused (once you begin authoring): rcf discover ui-baseline init must run first.\n');
   }
   return 0;
 }

@@ -20,6 +20,6 @@ The playbooks are prompts (instructions to a model); the reference docs are reso
 
 1. Install the package so the `rcf` binary and this pack are on hand.
 2. Run `rcf init` in your project BEFORE starting the agent session - it scaffolds the tree, registers the MCP server in `.mcp.json` and writes the fragment from [harness-template.md](harness-template.md) into your project's CLAUDE.md and AGENTS.md (both, on a fresh project; an existing instructions file is refreshed in place). Manual paste of the fragment is the fallback for non-standard harnesses.
-3. Start your agent session and have the agent run `rcf build --next`, executing the runbook the bundle prints.
+3. Start your agent session and have the agent run `rcf build bundle --next`, executing the runbook the bundle prints.
 
 That is the whole loop. The playbooks add depth when the agent needs it; the bundle's built-in runbook is enough to start.

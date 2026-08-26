@@ -256,7 +256,7 @@ test('rcf view EADDRINUSE on the requested port exits 2 with a clear error', asy
   }
 });
 
-test('rcf view never writes any files to disk (regression against static mode)', async () => {
+test('rcf audit view never writes any files to disk (regression against static mode)', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-nofs-'));
   await initProject({ projectRoot: tmp });
   const port = await freePort();
