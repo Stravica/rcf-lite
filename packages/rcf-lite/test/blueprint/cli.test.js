@@ -378,7 +378,7 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   }
 });
 
-test('rcf blueprint supersede: every rcfError message lands with exactly one `[error] blueprint supersede:` prefix (rev-3 mechanical P1)', async () => {
+test('rcf define blueprint supersede: every rcfError message lands with exactly one `[error] blueprint supersede:` prefix (rev-3 mechanical P1)', async () => {
   // AC-1002-10: no rcfError message body carries a `blueprint
   // supersede: ` prefix (the CLI edge prepends `[error] blueprint
   // supersede: `). Round-3 caught the doubled string on the shipped
@@ -416,7 +416,7 @@ test('rcf blueprint supersede: every rcfError message lands with exactly one `[e
   assert.doesNotMatch(badIncoming.stderr, /blueprint supersede: blueprint supersede:/);
 });
 
-test('rcf blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)', async () => {
+test('rcf define blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)', async () => {
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
@@ -437,7 +437,7 @@ test('rcf blueprint add --reason: reason lands on every resolution record (rev-2
   );
 });
 
-test('rcf blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)', async () => {
+test('rcf define blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)', async () => {
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
@@ -452,7 +452,7 @@ test('rcf blueprint add --reason: whitespace-only reason is refused at the write
   assert.match(bad.stderr, /--resolve reason for topic 'auth' must not be whitespace-only/);
 });
 
-test('rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)', async () => {
+test('rcf define blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)', async () => {
   const root = await scaffold();
   const spa  = await writeGlobalAdrBlueprint(root, 'bp-spa',  { slug: 'spa',  adrId: 'ADR-005-spa',  title: 'SPA',  decision: 'A.' });
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'REST', decision: 'B.' });
@@ -472,7 +472,7 @@ test('rcf blueprint add --resolve: duplicate topic dedupes with a stderr warning
   assert.equal(authRes[0].resolvedByAdrId, 'ADR-042');
 });
 
-test('rcf blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)', async () => {
+test('rcf define blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)', async () => {
   const root = await scaffold();
   const rest = await writeGlobalAdrBlueprint(root, 'bp-rest', { slug: 'rest', adrId: 'ADR-003-rest', title: 'x', decision: 'y.' });
   const bad = await runBin(root, ['define', 'blueprint', 'add', rest, '--resolve', 'auth=project:notAnAdrId']);

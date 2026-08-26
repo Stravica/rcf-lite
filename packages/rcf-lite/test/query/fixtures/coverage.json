@@ -823,27 +823,21 @@
         },
         {
           "id": "AC-1002-6",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-027-add-reason-persists",
             "TC-027-add-reason-whitespace-refused"
           ],
-          "unresolvedTestCases": [
-            "TC-027-add-reason-persists",
-            "TC-027-add-reason-whitespace-refused"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-1002-7",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-027-add-resolve-dedupes-with-warn",
             "TC-027-add-resolve-error-no-double-prefix"
           ],
-          "unresolvedTestCases": [
-            "TC-027-add-resolve-dedupes-with-warn",
-            "TC-027-add-resolve-error-no-double-prefix"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-1002-8",
@@ -863,13 +857,11 @@
         },
         {
           "id": "AC-1002-10",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-027-supersede-no-double-prefix"
           ],
-          "unresolvedTestCases": [
-            "TC-027-supersede-no-double-prefix"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-1003-1",
@@ -1022,36 +1014,6 @@
       "tcId": "TC-025-verify-routes-to-alias-dispatcher",
       "testPointer": "test/cli/rcf verify-subcommand.test.js::AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin's dispatcher",
       "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-027",
-      "tcId": "TC-027-add-reason-persists",
-      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint add --reason: reason lands on every resolution record (rev-2 P1-2)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-027",
-      "tcId": "TC-027-add-reason-whitespace-refused",
-      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-027",
-      "tcId": "TC-027-add-resolve-dedupes-with-warn",
-      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-027",
-      "tcId": "TC-027-add-resolve-error-no-double-prefix",
-      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-027",
-      "tcId": "TC-027-supersede-no-double-prefix",
-      "testPointer": "test/blueprint/cli.test.js::rcf define blueprint supersede: every rcfError message lands with exactly one `[error] blueprint supersede:` prefix (rev-3 mechanical P1)",
-      "reason": "test-missing"
     }
   ]
 }

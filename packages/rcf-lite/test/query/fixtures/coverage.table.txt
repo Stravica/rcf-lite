@@ -92,11 +92,11 @@ REQ-010      yes         AC-1001-1   yes         TC-026-add-writes-manifest
                          AC-1002-3   yes         TC-027-conflict-report-shape
                          AC-1002-4   yes         TC-027-nonglobal-namespaced-no-conflict
                          AC-1002-5   yes         TC-027-shipped-blueprints-option-3-executable
-                         AC-1002-6   unresolved  TC-027-add-reason-persists[unresolved], TC-027-add-reason...
-                         AC-1002-7   unresolved  TC-027-add-resolve-dedupes-with-warn[unresolved], TC-027-...
+                         AC-1002-6   yes         TC-027-add-reason-persists, TC-027-add-reason-whitespace-...
+                         AC-1002-7   yes         TC-027-add-resolve-dedupes-with-warn, TC-027-add-resolve-...
                          AC-1002-8   yes         TC-027-conflict-enrichment-symmetric
                          AC-1002-9   yes         TC-027-topic-free-label-camelcase-verbatim
-                         AC-1002-10  unresolved  TC-027-supersede-no-double-prefix[unresolved]
+                         AC-1002-10  yes         TC-027-supersede-no-double-prefix
                          AC-1003-1   yes         TC-028-add-writes-manifest-entry
                          AC-1003-2   yes         TC-028-inrepo-referenced-in-place
                          AC-1003-3   yes         TC-028-outofroot-copied-in
@@ -121,8 +121,3 @@ Unresolved test pointers (never counted as coverage):
   TC-025-top-level-help-lists-verify (TS-025): test/cli/rcf verify-subcommand.test.js::AC-901-2: `rcf --help` advertises the verify subcommand - file-missing
   TC-025-verify-help-parity (TS-025): test/cli/rcf verify-subcommand.test.js::AC-901-1 (routing surface): `rcf verify --help` dispatches to the same help block as `rcf verify --help` - file-missing
   TC-025-verify-routes-to-alias-dispatcher (TS-025): test/cli/rcf verify-subcommand.test.js::AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin's dispatcher - file-missing
-  TC-027-add-reason-persists (TS-027): test/blueprint/cli.test.js::rcf define blueprint add --reason: reason lands on every resolution record (rev-2 P1-2) - test-missing
-  TC-027-add-reason-whitespace-refused (TS-027): test/blueprint/cli.test.js::rcf define blueprint add --reason: whitespace-only reason is refused at the writer edge (rev-2 P1-2) - test-missing
-  TC-027-add-resolve-dedupes-with-warn (TS-027): test/blueprint/cli.test.js::rcf define blueprint add --resolve: duplicate topic dedupes with a stderr warning; only one record persists (rev-2 P3-b) - test-missing
-  TC-027-add-resolve-error-no-double-prefix (TS-027): test/blueprint/cli.test.js::rcf define blueprint add --resolve: validation error carries no doubled prefix (rev-2 P3-a) - test-missing
-  TC-027-supersede-no-double-prefix (TS-027): test/blueprint/cli.test.js::rcf define blueprint supersede: every rcfError message lands with exactly one `[error] blueprint supersede:` prefix (rev-3 mechanical P1) - test-missing
