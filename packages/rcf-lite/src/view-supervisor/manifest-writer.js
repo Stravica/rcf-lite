@@ -19,13 +19,13 @@ export const DEFAULT_PID_PATH = '.rcf/view-server.pid';
  */
 export const viewServerGitignoreEntry = Object.freeze({
   path: '.rcf/view-server.pid',
-  owner: 'rcf view --detach (view-server pid file)',
+  owner: 'rcf audit view --detach (view-server pid file)',
   since: '0.7.0',
 });
 
 export const viewServerLogGitignoreEntry = Object.freeze({
   path: '.rcf/view-server.log',
-  owner: 'rcf view --detach (supervisor log)',
+  owner: 'rcf audit view --detach (supervisor log)',
   since: '0.7.0',
 });
 

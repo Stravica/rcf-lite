@@ -21,8 +21,8 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf req-classify <req-id> [options]
-       rcf req-classify --all [options]
+export const HELP = `Usage: rcf discover req-classify <req-id> [options]
+       rcf discover req-classify --all [options]
 
 Rerun the REQ-shape classifier for one requirement (or every requirement
 in the tree with --all) and write the resulting shapeClassification
@@ -86,7 +86,7 @@ export async function main(argv, deps = {}) {
 
   const walkResult = await walkTree({ projectRoot });
   if (walkResult.errors.length > 0) {
-    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf validate' for details)\n`);
+    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf define validate' for details)\n`);
   }
 
   const reqIds = [];

@@ -5,16 +5,16 @@
   "version": "0.1.0",
   "status": "draft",
   "title": "Standards ingestion: reference by default, copy only when out of root",
-  "description": "Standards packs are per operator or organisation and register at `rcf init` (or later via `rcf standards add`). Manifest registration is authoritative. In-repo sources are referenced in place. Out-of-root sources are copied into `rcf/standards/<slug>/` so the tree remains portable. Provenance (personal vs corporate) is recorded per pack.",
+  "description": "Standards packs are per operator or organisation and register at `rcf init` (or later via `rcf define standards add`). Manifest registration is authoritative. In-repo sources are referenced in place. Out-of-root sources are copied into `rcf/standards/<slug>/` so the tree remains portable. Provenance (personal vs corporate) is recorded per pack.",
   "asA": "operator on an RCF project",
   "iWant": "to register standards packs against my project tree, referencing in place when the source is already inside the repo and copying into `rcf/standards/<slug>/` only when the source lives outside the project root",
   "soThat": "duplication inside the repo is not accepted, portability across machines is preserved for external sources, and the manifest is the single source of truth for what standards apply",
   "acceptanceCriteria": [
     {
       "id": "AC-1003-1",
-      "description": "`rcf standards add <path>` writes a manifest entry with the pack's id, slug, sourcePath, tag vocabulary, testsProvidedBy and provenance",
+      "description": "`rcf define standards add <path>` writes a manifest entry with the pack's id, slug, sourcePath, tag vocabulary, testsProvidedBy and provenance",
       "given": "a project with no standards registered and a valid standards folder anywhere on disk",
-      "when": "`rcf standards add <path> --slug wsd-naming --tags naming,conventions --tests-provided-by agent --provenance corporate` runs",
+      "when": "`rcf define standards add <path> --slug wsd-naming --tags naming,conventions --tests-provided-by agent --provenance corporate` runs",
       "then": "the manifest gains one `standards[]` entry with all named fields populated and validates against the schema",
       "testable": true
     },
@@ -22,7 +22,7 @@
       "id": "AC-1003-2",
       "description": "In-repo sources are referenced in place; no copy is written",
       "given": "a standards folder path inside the project root (e.g. `docs/standards/wsd-naming`)",
-      "when": "`rcf standards add` runs against it",
+      "when": "`rcf define standards add` runs against it",
       "then": "the `sourcePath` records the in-repo path, `copyPath` is absent, and no file is written under `rcf/standards/`",
       "testable": true
     },
@@ -30,7 +30,7 @@
       "id": "AC-1003-3",
       "description": "Out-of-root sources are mirrored into `rcf/standards/<slug>/` and `copyPath` records the mirror",
       "given": "a standards folder path outside the project root (an absolute path pointing outside the repo)",
-      "when": "`rcf standards add` runs against it",
+      "when": "`rcf define standards add` runs against it",
       "then": "the source is copied into `rcf/standards/<slug>/`, the manifest entry records the original `sourcePath` and the in-tree `copyPath`, and re-running the verb is idempotent (no double copy)",
       "testable": true
     },
@@ -38,7 +38,7 @@
       "id": "AC-1003-4",
       "description": "The manifest.standards[] entry validates against the shipped schema (@stravica-ai/rcf-schemas standardsPackRecord)",
       "given": "a manifest with one or more standards[] entries",
-      "when": "`rcf validate` runs",
+      "when": "`rcf define validate` runs",
       "then": "the manifest validates without errors under the shipped schema",
       "testable": true
     }

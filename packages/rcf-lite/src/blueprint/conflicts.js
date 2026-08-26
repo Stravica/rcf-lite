@@ -45,8 +45,8 @@ import { matchingResolution } from './resolutions.js';
  * )} Conflict
  *
  * `incoming.source` on the globalAdrTopic shape is the CLI-supplied
- * source label the operator typed on `rcf blueprint add SRC`; the
- * renderer inlines it into option 3 (`rcf blueprint supersede <topic>
+ * source label the operator typed on `rcf define blueprint add SRC`; the
+ * renderer inlines it into option 3 (`rcf define blueprint supersede <topic>
  * --incoming <source>`) so the printed command is copy-paste-runnable
  * verbatim from the refused-add state. Absent when the caller did not
  * thread a source label (unit-test paths).
@@ -58,7 +58,7 @@ import { matchingResolution } from './resolutions.js';
  * Optional `manifest` argument: when supplied and the manifest carries a
  * matching entry in `manifest.resolutions[]`, the conflict is honoured
  * (dropped from the returned list). Callers that want the raw shape
- * (`rcf blueprint diff <topic>` needs to inspect both ADRs even when a
+ * (`rcf define blueprint diff <topic>` needs to inspect both ADRs even when a
  * resolution exists) can pass `manifest: null` to bypass the honour step.
  *
  * @param {Array<{
@@ -203,7 +203,7 @@ export function renderConflictReport(conflicts) {
       // Round-3 (Baz ruling): option 3 must be executable VERBATIM
       // from this refused-add state. supersede accepts `--incoming
       // <source>` and carries the SAME source path the operator just
-      // typed on `rcf blueprint add SRC`, so the printed command is
+      // typed on `rcf define blueprint add SRC`, so the printed command is
       // copy-paste-runnable. Fall back to `<source>` only when the
       // caller did not thread the source label onto the conflict
       // (unit-test paths that call renderConflictReport directly).
@@ -212,15 +212,15 @@ export function renderConflictReport(conflicts) {
         : '<source>';
       lines.push('  resolutions (pick one, honest options only):');
       lines.push(`    1. Adopt the incoming blueprint. Run:`);
-      lines.push(`         rcf blueprint remove ${c.existing.slug}`);
-      lines.push(`       then re-run \`rcf blueprint add ${sourceLabel}\`.`);
+      lines.push(`         rcf define blueprint remove ${c.existing.slug}`);
+      lines.push(`       then re-run \`rcf define blueprint add ${sourceLabel}\`.`);
       lines.push(`    2. Keep the existing blueprint. Do not add ${c.incoming.slug} on this project.`);
       lines.push(`    3. Author a project-level ADR that supersedes both. Run:`);
-      lines.push(`         rcf blueprint supersede ${c.topic} --incoming ${sourceLabel}`);
+      lines.push(`         rcf define blueprint supersede ${c.topic} --incoming ${sourceLabel}`);
       lines.push(`       which scaffolds the project ADR (both blueprint ADRs listed as superseded)`);
-      lines.push(`       and registers the resolution in the manifest, then re-run \`rcf blueprint add ${sourceLabel}\`.`);
+      lines.push(`       and registers the resolution in the manifest, then re-run \`rcf define blueprint add ${sourceLabel}\`.`);
       lines.push(`    4. Declare the resolution on the add itself:`);
-      lines.push(`         rcf blueprint add ${sourceLabel} --resolve ${c.topic}=project:<ADR-id>`);
+      lines.push(`         rcf define blueprint add ${sourceLabel} --resolve ${c.topic}=project:<ADR-id>`);
       lines.push(`       which records the resolution and skips the remove/re-add ceremony.`);
     } else if (c.kind === 'crossBlueprintOwnership') {
       lines.push(`conflict on id ${c.id}:`);
@@ -229,7 +229,7 @@ export function renderConflictReport(conflicts) {
       lines.push('');
       lines.push('  resolutions (pick one, honest options only):');
       lines.push(`    1. Adopt the incoming blueprint. Run:`);
-      lines.push(`         rcf blueprint remove ${c.existing.slug}`);
+      lines.push(`         rcf define blueprint remove ${c.existing.slug}`);
       lines.push(`       then re-run the incoming add.`);
       lines.push(`    2. Keep the existing blueprint. Do not add ${c.incoming.slug} on this project.`);
       lines.push(`    3. Fix the incoming blueprint's contribution ids (author-side change);`);
@@ -280,7 +280,7 @@ export function conflictReportJson(conflicts) {
             {
               id: 'adoptIncoming',
               description: `Adopt the incoming blueprint (${c.incoming.slug}); remove the existing (${c.existing.slug}).`,
-              commands: [`rcf blueprint remove ${c.existing.slug}`, `rcf blueprint add ${sourceLabel}`],
+              commands: [`rcf define blueprint remove ${c.existing.slug}`, `rcf define blueprint add ${sourceLabel}`],
             },
             {
               id: 'keepExisting',
@@ -290,12 +290,12 @@ export function conflictReportJson(conflicts) {
             {
               id: 'supersede',
               description: `Author a project-level ADR that supersedes both blueprint ADRs on topic '${c.topic}'.`,
-              commands: [`rcf blueprint supersede ${c.topic} --incoming ${sourceLabel}`, `rcf blueprint add ${sourceLabel}`],
+              commands: [`rcf define blueprint supersede ${c.topic} --incoming ${sourceLabel}`, `rcf define blueprint add ${sourceLabel}`],
             },
             {
               id: 'declareOnAdd',
               description: `Declare the resolution on the incoming add itself.`,
-              commands: [`rcf blueprint add ${sourceLabel} --resolve ${c.topic}=project:<ADR-id>`],
+              commands: [`rcf define blueprint add ${sourceLabel} --resolve ${c.topic}=project:<ADR-id>`],
             },
           ],
         };
@@ -310,7 +310,7 @@ export function conflictReportJson(conflicts) {
           {
             id: 'adoptIncoming',
             description: `Adopt the incoming blueprint (${c.incoming.slug}); remove the existing (${c.existing.slug}).`,
-            commands: [`rcf blueprint remove ${c.existing.slug}`],
+            commands: [`rcf define blueprint remove ${c.existing.slug}`],
           },
           {
             id: 'keepExisting',
@@ -343,7 +343,7 @@ function pruneAdrRef(side) {
   if (typeof side.title === 'string' && side.title.length > 0) out.title = side.title;
   if (typeof side.decision === 'string' && side.decision.length > 0) out.decision = side.decision;
   // Round-3: the incoming side may also carry `source` (the CLI arg
-  // to `rcf blueprint add SRC`); surface it on --json so agent-driven
+  // to `rcf define blueprint add SRC`); surface it on --json so agent-driven
   // composition has the same copy-paste-runnable command the terminal
   // renderer produces.
   if (typeof side.source === 'string' && side.source.length > 0) out.source = side.source;

@@ -92,7 +92,7 @@ leaving it out.
 
 ### RULE 3: The test layer is mandatory.
 
-Author TS and TC documents and run `rcf coverage --strict`. Do not
+Author TS and TC documents and run `rcf audit coverage --strict`. Do not
 declare the work done while coverage fails, unless the stakeholder has
 explicitly accepted the gap.
 
@@ -182,8 +182,8 @@ profile of yours yet.
 
 ### Session start
 
-Run `rcf validate`. A broken tree is fixed or reported before anything
-else. Run `rcf build` for queue state: what is done, in progress,
+Run `rcf define validate`. A broken tree is fixed or reported before anything
+else. Run `rcf build queue` for queue state: what is done, in progress,
 blocked. Run `rcf doctor` if the last upgrade of the package changed
 these rules. The block you are reading may be out of date; `rcf doctor
 --fix` rewrites it.
@@ -194,17 +194,17 @@ Docs-review gate: when the tree has just been elicited, offer the
 stakeholder a review of it before the first build. Do not roll from
 elicitation straight into building without the offer.
 
-Run `rcf build --next` to get the spec bundle for the next actionable
+Run `rcf build bundle --next` to get the spec bundle for the next actionable
 item, then execute the five-stage runbook it prints: Define, Build,
 Review, Test, Finalise. Every stage ends in a commit. Drive the whole
-queue, not one item. After each item's Finalise, loop `rcf build --next`
+queue, not one item. After each item's Finalise, loop `rcf build bundle --next`
 until it reports the queue complete. If your harness can spawn
 sub-agents, run each FBS in its own worker so the driving context stays
 clean across the queue: one write worker at a time.
 
 Record lifecycle transitions with the exact mark commands the bundle
-prints. Never mark backwards. Run `rcf validate` after any tree edit,
-and `rcf trace <id>` or `rcf impact <id>` before touching anything with
+prints. Never mark backwards. Run `rcf define validate` after any tree edit,
+and `rcf audit trace <id>` or `rcf audit impact <id>` before touching anything with
 dependents. PR bodies are evidence-first: lead with what was verified
 and how, traced to AC and FBS ids, not a diff walk.
 
@@ -212,7 +212,7 @@ Run the fresh-context self-review every few FBS builds and once at the
 end: a reviewer that drives the running app against its ACs, not one
 that reads the code. Method: `rcf guidance build-cycle-playbook`,
 section 16. It is the cheap in-loop check between builds, and it is not
-the independent verification gate. `rcf finalise` runs that, and only
+the independent verification gate. `rcf build finalise` runs that, and only
 that writes `verified`.
 
 If context gets unreliable on a large build, do not stall. Write a
@@ -224,7 +224,7 @@ without re-elicitation.
 ### Write discipline
 
 Prefer the `rcf` verbs (`create`, `update`, `delete`, `link`) for tree
-edits. After any hand edit to a file under `rcf/`, run `rcf validate`
+edits. After any hand edit to a file under `rcf/`, run `rcf define validate`
 before proceeding.
 
 ### Escalation
@@ -254,4 +254,4 @@ These rules only govern a session that loads this fragment. A project that was n
 
 ## Check it took
 
-Four checks. Ask the agent to state the loop; the answer should name the five stages and the mark commands. Ask what it does before authoring documents; the answer should name the elicitation playbook and stakeholder questions, not drafting. Watch its first `rcf build --next` cycle: the bundle's runbook should be followed stage by stage, with a commit at each stage end. And read its first message to the operator: it should be a few plain sentences ending in one clear question, with no rule numbers and no document-id inventory.
+Four checks. Ask the agent to state the loop; the answer should name the five stages and the mark commands. Ask what it does before authoring documents; the answer should name the elicitation playbook and stakeholder questions, not drafting. Watch its first `rcf build bundle --next` cycle: the bundle's runbook should be followed stage by stage, with a commit at each stage end. And read its first message to the operator: it should be a few plain sentences ending in one clear question, with no rule numbers and no document-id inventory.

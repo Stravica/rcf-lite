@@ -99,9 +99,9 @@ test('renderConflictReport: leads with per-side headers (topic in parens) and na
   // (no placeholder <slug> prose). The old resolution 1 ("run remove
   // on the incoming side" — a nonsensical instruction since the
   // incoming is not applied yet) is gone.
-  assert.match(report, /1\. Adopt the incoming blueprint. Run:[\s\S]*rcf blueprint remove alpha/);
+  assert.match(report, /1\. Adopt the incoming blueprint. Run:[\s\S]*rcf define blueprint remove alpha/);
   assert.match(report, /2\. Keep the existing blueprint. Do not add beta on this project\./);
-  assert.match(report, /3\. Author a project-level ADR that supersedes both. Run:[\s\S]*rcf blueprint supersede versioning/);
+  assert.match(report, /3\. Author a project-level ADR that supersedes both. Run:[\s\S]*rcf define blueprint supersede versioning/);
   assert.match(report, /4\. Declare the resolution on the add itself:[\s\S]*--resolve versioning=project:<ADR-id>/);
   // The unimplemented `--pick` guidance is still gone.
   assert.doesNotMatch(report, /`--pick/);
@@ -182,7 +182,7 @@ test('renderConflictReport: renders a crossBlueprintOwnership conflict with the 
   assert.match(report, /existing\s+blueprint spa already owns ADR-201-spa-routing/);
   // Cross-blueprint ownership resolutions are honest — no manifest
   // ruling can resolve a cross-claim; it is an author-side fix.
-  assert.match(report, /1\. Adopt the incoming blueprint. Run:[\s\S]*rcf blueprint remove spa/);
+  assert.match(report, /1\. Adopt the incoming blueprint. Run:[\s\S]*rcf define blueprint remove spa/);
   assert.match(report, /2\. Keep the existing blueprint. Do not add spa-theme on this project\./);
   assert.match(report, /3\. Fix the incoming blueprint's contribution ids/);
 });

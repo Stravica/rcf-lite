@@ -22,7 +22,7 @@
   "estimatedSize": "small",
   "estimatedHours": 3,
   "deliverables": [
-    "rcf read verb with structured outcome",
+    "rcf define read verb with structured outcome",
     "Combined content and validation rendering"
   ],
   "riskLevel": "low",

@@ -28,7 +28,7 @@ One line per document type, with the field-level reference linked (field tables 
 | BS | The build sequence (queue root) | [build-sequence](https://github.com/Stravica/rcf-schemas/blob/main/docs/build-sequence.md) |
 | FBS | One feature build spec (queue item) | [fbs](https://github.com/Stravica/rcf-schemas/blob/main/docs/fbs.md) |
 
-The product draws its own diagrams. This is the [getting started](getting-started.md) project's tree, exactly as `rcf trace PRD-001 --forward --format mermaid` emitted it - solid arrows are ownership, dotted arrows are cross-links:
+The product draws its own diagrams. This is the [getting started](getting-started.md) project's tree, exactly as `rcf audit trace PRD-001 --forward --format mermaid` emitted it - solid arrows are ownership, dotted arrows are cross-links:
 
 ```mermaid
 flowchart LR
@@ -100,10 +100,10 @@ Two practical consequences. First, the tree is git-native - documents diff, merg
 
 Two layers, both mechanical:
 
-1. **Schema validation** - every document validates against its [rcf-schemas](https://github.com/Stravica/rcf-schemas) contract. The CLI validates on every write, and `rcf validate` checks the whole tree, which covers hand edits too.
+1. **Schema validation** - every document validates against its [rcf-schemas](https://github.com/Stravica/rcf-schemas) contract. The CLI validates on every write, and `rcf define validate` checks the whole tree, which covers hand edits too.
 2. **Reference integrity** - the walk checks that every referenced id exists: a US naming an unknown REQ, an FBS naming a deleted AC, a TC pinned to a criterion that has gone.
 
-Anywhere in the CLI, exit 3 means one of those two layers failed: the tree itself is unsound. This is what makes the tree trustworthy as an input to automation - a clean `rcf validate` is a machine-checkable precondition, not a hope.
+Anywhere in the CLI, exit 3 means one of those two layers failed: the tree itself is unsound. This is what makes the tree trustworthy as an input to automation - a clean `rcf define validate` is a machine-checkable precondition, not a hope.
 
 ## 5. The verb map
 
@@ -123,9 +123,9 @@ Thirty subcommands under the single `rcf` bin, grouped by job:
 | Agent | `mcp`, `guidance` |
 | Help | `help` |
 
-Elicitation-side verbs (Track C+D of the 0.7.0 train) sit alongside the rest: `intake` classifies whatever the operator supplied at project start (napkin through PRD-plus-TAD), runs a validation pass over the artefact and records the result on the manifest before elicitation begins; `req-classify` runs the REQ-shape classifier on demand (the classifier also fires automatically on `rcf create req` and `rcf update req --description`) so downstream tooling has a fresh `shapeClassification` block; `req-baseline` runs the baseline-AC sweep (per REQ or across the whole tree) and manages the opt-out ledger. The Stage-1 (Define) build gate refuses `rcf build --next` for any FBS binding an AC on a US that still has open baseline candidates.
+Elicitation-side verbs (Track C+D of the 0.7.0 train) sit alongside the rest: `intake` classifies whatever the operator supplied at project start (napkin through PRD-plus-TAD), runs a validation pass over the artefact and records the result on the manifest before elicitation begins; `req-classify` runs the REQ-shape classifier on demand (the classifier also fires automatically on `rcf define create req` and `rcf define update req --description`) so downstream tooling has a fresh `shapeClassification` block; `req-baseline` runs the baseline-AC sweep (per REQ or across the whole tree) and manages the opt-out ledger. The Stage-1 (Define) build gate refuses `rcf build bundle --next` for any FBS binding an AC on a US that still has open baseline candidates.
 
-One line each: `init` scaffolds a new tree; `create`/`update`/`delete` write documents through schema validation; `link`/`unlink` manage the US-to-TAC cross-links; `fbs <fbs-id> depends-on` records a third-party service dependency on an FBS; `test-suite <ts-id> provenance` records how a test case verified its AC and `test-suite <ts-id> approve` promotes the suite's authoringStatus to `approved`; `read` prints a document, `view` serves the whole tree as a live local page; `validate` checks the tree, `coverage` reports the REQ-to-TC picture, `trace` walks the graph from an id, `impact` turns a change into a re-check list; `doctor` diagnoses init-hygiene drift (managed CLAUDE.md/AGENTS.md block, managed `.gitignore` block, seeded `rcf/knowledge/` and `rcf/.identity/`) and `doctor --fix` applies the safe minimal repair without touching operator content; `review <fbs-id>` runs the REVIEW-stage test-theatre audit and mutation-sampling pass, including the Track B `uiBaselineDrift` category for UI-bearing FBSes; `build` assembles FBS spec bundles and drives the queue; `preflight` elicits the pre-flight service-attestation record and any applicable design-shape answers; `finalise` is the ship gate - it runs the independent `rcf-verify` verifier against your deployed app as a fresh subprocess and promotes the FBS from `complete` to `verified` only when it passes; `ui-classify <fbs-id>` runs the UI-bearing classifier on demand; `ui-baseline` manages the project's ruled UI defaults (init, show, opt-out); `design <fbs-id>` writes the Design substage artefacts (journeys, nav model, theme and accessibility) and marks the design complete; `browser-verify <fbs-id>` runs the Stage 5 browser-verification gate against the local preview or a deployed URL; `verify <run|report|provision|cleanup|mcp>` is the adversarial ship-gate verifier (folded in under the unified CLI by the 0.7.1 packaging consolidation, with `rcf-verify` retained as a transition-grace alias); `mcp` serves everything to agents over stdio; `guidance` prints a method document out of the installed package, which is how a CLI-only agent reads the playbooks that MCP-wired harnesses get as `rcf://docs/<slug>` resources and `rcf_*` prompts.
+One line each. The **core** verbs (`init`, `doctor`, `guidance`, `mcp`, `help`) sit at the top level; every other verb hangs off one of five groups. **discover** (`intake`, `preflight`, `req-classify`, `req-baseline`, `ui-classify`, `ui-baseline`) learns what is already true for the project. **define** (`create`, `read`, `update`, `delete`, `link`, `unlink`, `validate`, `design`, `blueprint`, `standards`) authors the tree through schema validation. **build** (`queue`, `bundle`, `mark`, `finalise`, `review`, `fbs`, `test-suite`) drives the FBS queue and the five-stage build cycle; `rcf build queue` shows the queue, `rcf build bundle <fbs-id>` assembles a spec bundle (or `bundle --next`), `rcf build mark <fbs-id> <status>` records a lifecycle transition (notStarted -> inProgress -> complete), `rcf build finalise <fbs-id>` is the ship gate that runs `rcf verify run` as an independent fresh-subprocess verifier against the deployed app and promotes the FBS from `complete` to `verified` only when it passes, `rcf build review <fbs-id>` runs the REVIEW-stage test-theatre and mutation-sampling audit (with the Track B `uiBaselineDrift` category for UI-bearing FBSes), `rcf build fbs <fbs-id> depends-on` records a third-party service dependency, and `rcf build test-suite <ts-id> provenance | approve` records how a test case verified its AC and promotes the suite's authoringStatus to `approved`. **verify** (`run`, `report`, `provision`, `cleanup`, `mcp`, `browser`) is the adversarial ship-gate verifier; `rcf verify browser <fbs-id>` runs the Stage 5 browser-verification gate against the local preview or a deployed URL. **audit** (`view`, `coverage`, `trace`, `impact`) is read-only visibility over the tree: `rcf audit view` serves the whole tree as a live local page, `rcf audit coverage` reports the REQ-to-TC picture, `rcf audit trace` walks the graph from an id, `rcf audit impact` turns a change into a re-check list. Elicitation-side verbs (Track C+D of the 0.7.0 train) sit under discover: `intake` classifies whatever the operator supplied at project start; `req-classify` runs the REQ-shape classifier on demand (also fires automatically on `rcf define create req` and `rcf define update req --description`); `req-baseline` runs the baseline-AC sweep and manages the opt-out ledger; `ui-classify <fbs-id>` runs the UI-bearing classifier on demand; `ui-baseline` manages the project's ruled UI defaults (init, show, opt-out). Design authoring stays under define: `rcf define design <fbs-id>` writes the Design substage artefacts (journeys, nav model, theme and accessibility) and marks the design complete. `doctor` diagnoses init-hygiene drift (managed CLAUDE.md/AGENTS.md block, managed `.gitignore` block, seeded `rcf/knowledge/` and `rcf/.identity/`) and `doctor --fix` applies the safe minimal repair without touching operator content. `mcp` serves everything to agents over stdio; `guidance` prints a method document out of the installed package, which is how a CLI-only agent reads the playbooks that MCP-wired harnesses get as `rcf://docs/<slug>` resources and `rcf_*` prompts.
 
 Flags are deliberately not documented here: `rcf help <verb>` is the canonical, tested, ships-with-the-bin flag reference for every one of them.
 
@@ -143,9 +143,9 @@ The tool is built to be operated by agents, so its contracts are explicit:
 | 3 | Schema validation failed or references broken |
 | 4 | Refused (delete with dependents, backward lifecycle transition, strict-mode gap) |
 
-(`rcf view`, a long-running server, additionally exits 130 on Ctrl-C.)
+(`rcf audit view`, a long-running server, additionally exits 130 on Ctrl-C.)
 
-**Machine output.** The query verbs (`rcf coverage`, `rcf trace`, `rcf impact`) and `rcf build` take `--format json`; `rcf validate` takes `--json`; the write verbs (`rcf create`, `rcf update`, `rcf delete`, `rcf link`, `rcf unlink`) take `--dry-run` to print the intended writes without executing. JSON shapes are stable by convention: they change only deliberately and with notice in the changelog, not as a side effect.
+**Machine output.** The query verbs (`rcf audit coverage`, `rcf audit trace`, `rcf audit impact`) and `rcf build` take `--format json`; `rcf define validate` takes `--json`; the write verbs (`rcf define create`, `rcf define update`, `rcf define delete`, `rcf define link`, `rcf define unlink`) take `--dry-run` to print the intended writes without executing. JSON shapes are stable by convention: they change only deliberately and with notice in the changelog, not as a side effect.
 
 **MCP.** `rcf mcp` serves the same contract over the Model Context Protocol - local stdio only, project root fixed at startup, protocol revision `2025-11-25`. The server declares tools, resources and prompts:
 
@@ -160,7 +160,7 @@ Registration is one config entry: [install, section 7](install.md#7-wire-into-an
 Build Lite is built with RCF. The tree under [`rcf/`](../rcf) is not a demo fixture - it is the product's own PRD (PRD-001), eight requirements, twenty-four user stories, a TAD with eight components and nine decision records, and a fourteen-item build queue that drove the phases you are reading the output of. Every command on this page runs against this repository's own tree; clone it and run them yourself.
 
 ```sh
-rcf read REQ-004 --field title
+rcf define read REQ-004 --field title
 ```
 
 ```
@@ -168,7 +168,7 @@ rcf read REQ-004 --field title
 ```
 
 ```sh
-rcf trace US-201 --both
+rcf audit trace US-201 --both
 ```
 
 ```
@@ -192,7 +192,7 @@ Depth  Id        Kind  Title
 ```
 
 ```sh
-rcf impact TAC-001
+rcf audit impact TAC-001
 ```
 
 ```
@@ -221,7 +221,7 @@ FBS-011  fbs   descendant  re-execute
 Now the honest part:
 
 ```sh
-rcf coverage
+rcf audit coverage
 ```
 
 ```
@@ -240,11 +240,11 @@ REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
 
 (The remaining seven requirement blocks are elided here; run it from a clone for the full table.)
 
-Eight of eight - but shallow-any is the generous reading, and the strict one is the honest one. This tree's test-suite documents bind all 76 acceptance criteria to named tests in the repo's own suite, and every binding is load-bearing: each test case carries a `testPointer` that must resolve to a real, named test in the working tree, or it is reported as `covered-unresolved` rather than covered. `rcf coverage --strict` exits 0 against this tree - and it did not always: the audit that built this test axis found 14 acceptance criteria with no genuine outcome-asserting test, registered every one in `rcf/test-suites/PENDING.md` rather than stubbing test cases, and held strict mode at exit 4 until the last row closed. The last row was the referee catching a real defect: an AC the tree claimed was delivered (parallel-safe build groups) that the code never implemented - the feature was built and bound before the register could empty. CI now runs `rcf validate` and `rcf coverage --strict` on every push and pull request, so the strict verdict is a gate, not a report: a stub test case or a new uncovered AC fails the build. That is the behaviour you want from the referee.
+Eight of eight - but shallow-any is the generous reading, and the strict one is the honest one. This tree's test-suite documents bind all 76 acceptance criteria to named tests in the repo's own suite, and every binding is load-bearing: each test case carries a `testPointer` that must resolve to a real, named test in the working tree, or it is reported as `covered-unresolved` rather than covered. `rcf audit coverage --strict` exits 0 against this tree - and it did not always: the audit that built this test axis found 14 acceptance criteria with no genuine outcome-asserting test, registered every one in `rcf/test-suites/PENDING.md` rather than stubbing test cases, and held strict mode at exit 4 until the last row closed. The last row was the referee catching a real defect: an AC the tree claimed was delivered (parallel-safe build groups) that the code never implemented - the feature was built and bound before the register could empty. CI now runs `rcf define validate` and `rcf audit coverage --strict` on every push and pull request, so the strict verdict is a gate, not a report: a stub test case or a new uncovered AC fails the build. That is the behaviour you want from the referee.
 
 ## 8. Under the hood, briefly
 
-One walker underpins every verb: load all documents from the manifest's three roots, then invert the child-declared edges into the forward maps that queries need. Each CLI invocation performs exactly one walk; `rcf view` keeps a watcher on `rcf/` and re-walks on change, pushing the fresh tree to the browser over server-sent events. That is the whole engine. The deeper reference is the product's own TAD - `rcf/tad.json` in this repo, best read through `rcf view`.
+One walker underpins every verb: load all documents from the manifest's three roots, then invert the child-declared edges into the forward maps that queries need. Each CLI invocation performs exactly one walk; `rcf audit view` keeps a watcher on `rcf/` and re-walks on change, pushing the fresh tree to the browser over server-sent events. That is the whole engine. The deeper reference is the product's own TAD - `rcf/tad.json` in this repo, best read through `rcf audit view`.
 
 ## 9. What "Lite" means
 

@@ -52,7 +52,7 @@ async function scaffoldWithTs(tsStatus = 'draft') {
 test('test-suite provenance writes runtimeProvenance on a single TC via --tc', async () => {
   const tmp = await scaffoldWithTs();
   const { code, stderr } = await runBin(tmp, [
-    'test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'mock', '--notes', 'local fixture only',
+    'build', 'test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'mock', '--notes', 'local fixture only',
   ]);
   assert.equal(code, 0, `stderr=${stderr}`);
   const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-001.json'), 'utf8'));
@@ -65,16 +65,16 @@ test('test-suite provenance writes runtimeProvenance on a single TC via --tc', a
 
 test('test-suite provenance refuses to overwrite without --force', async () => {
   const tmp = await scaffoldWithTs();
-  await runBin(tmp, ['test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'mock']);
-  const { code, stderr } = await runBin(tmp, ['test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'live']);
+  await runBin(tmp, ['build', 'test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'mock']);
+  const { code, stderr } = await runBin(tmp, ['build', 'test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'live']);
   assert.equal(code, 4);
   assert.match(stderr, /already carries runtimeProvenance; re-run with --force/);
 });
 
 test('test-suite provenance --force overwrites', async () => {
   const tmp = await scaffoldWithTs();
-  await runBin(tmp, ['test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'mock']);
-  const { code } = await runBin(tmp, ['test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'live', '--force']);
+  await runBin(tmp, ['build', 'test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'mock']);
+  const { code } = await runBin(tmp, ['build', 'test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'live', '--force']);
   assert.equal(code, 0);
   const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-001.json'), 'utf8'));
   assert.equal(ts.testCases.find((t) => t.id === 'TC-001-happy').runtimeProvenance.profile, 'live');
@@ -82,7 +82,7 @@ test('test-suite provenance --force overwrites', async () => {
 
 test('test-suite provenance without --tc writes provenance on every TC lacking a block', async () => {
   const tmp = await scaffoldWithTs();
-  const { code } = await runBin(tmp, ['test-suite', 'TS-001', 'provenance', '--profile', 'mock']);
+  const { code } = await runBin(tmp, ['build', 'test-suite', 'TS-001', 'provenance', '--profile', 'mock']);
   assert.equal(code, 0);
   const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-001.json'), 'utf8'));
   for (const tc of ts.testCases) {
@@ -93,7 +93,7 @@ test('test-suite provenance without --tc writes provenance on every TC lacking a
 test('test-suite provenance refuses --notes that look like they carry a secret', async () => {
   const tmp = await scaffoldWithTs();
   const { code, stderr } = await runBin(tmp, [
-    'test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'live',
+    'build', 'test-suite', 'TS-001', 'provenance', '--tc', 'TC-001-happy', '--profile', 'live',
     '--notes', 'RESEND_API_KEY=sk_test_abcdefghijklmnopqrstuv',
   ]);
   assert.equal(code, 2);
@@ -102,14 +102,14 @@ test('test-suite provenance refuses --notes that look like they carry a secret',
 
 test('test-suite provenance refuses unknown --profile', async () => {
   const tmp = await scaffoldWithTs();
-  const { code, stderr } = await runBin(tmp, ['test-suite', 'TS-001', 'provenance', '--profile', 'whatever']);
+  const { code, stderr } = await runBin(tmp, ['build', 'test-suite', 'TS-001', 'provenance', '--profile', 'whatever']);
   assert.equal(code, 2);
   assert.match(stderr, /unknown --profile/);
 });
 
 test('test-suite approve promotes draft -> approved', async () => {
   const tmp = await scaffoldWithTs('draft');
-  const { code } = await runBin(tmp, ['test-suite', 'TS-001', 'approve']);
+  const { code } = await runBin(tmp, ['build', 'test-suite', 'TS-001', 'approve']);
   assert.equal(code, 0);
   const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-001.json'), 'utf8'));
   assert.equal(ts.status, 'approved');
@@ -117,14 +117,14 @@ test('test-suite approve promotes draft -> approved', async () => {
 
 test('test-suite approve refuses to promote a superseded TS without --force', async () => {
   const tmp = await scaffoldWithTs('superseded');
-  const { code, stderr } = await runBin(tmp, ['test-suite', 'TS-001', 'approve']);
+  const { code, stderr } = await runBin(tmp, ['build', 'test-suite', 'TS-001', 'approve']);
   assert.equal(code, 4);
   assert.match(stderr, /superseded; re-run with --force/);
 });
 
 test('test-suite approve --force promotes needsRevision -> approved', async () => {
   const tmp = await scaffoldWithTs('needsRevision');
-  const { code } = await runBin(tmp, ['test-suite', 'TS-001', 'approve', '--force']);
+  const { code } = await runBin(tmp, ['build', 'test-suite', 'TS-001', 'approve', '--force']);
   assert.equal(code, 0);
   const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-001.json'), 'utf8'));
   assert.equal(ts.status, 'approved');
@@ -132,7 +132,7 @@ test('test-suite approve --force promotes needsRevision -> approved', async () =
 
 test('test-suite approve is a no-op when already approved', async () => {
   const tmp = await scaffoldWithTs('approved');
-  const { code, stdout } = await runBin(tmp, ['test-suite', 'TS-001', 'approve']);
+  const { code, stdout } = await runBin(tmp, ['build', 'test-suite', 'TS-001', 'approve']);
   assert.equal(code, 0);
   assert.match(stdout, /already approved/);
 });
@@ -166,7 +166,7 @@ async function scaffoldWithFourDigitTs(tsStatus = 'draft') {
 test('rcf test-suite TS-1000 provenance accepts a four-digit TS id (0.8.0 landmine 3, consumer-path)', async () => {
   const tmp = await scaffoldWithFourDigitTs();
   const { code, stderr } = await runBin(tmp, [
-    'test-suite', 'TS-1000', 'provenance', '--tc', 'TC-1000-happy', '--profile', 'mock', '--notes', 'four-digit ok',
+    'build', 'test-suite', 'TS-1000', 'provenance', '--tc', 'TC-1000-happy', '--profile', 'mock', '--notes', 'four-digit ok',
   ]);
   assert.equal(code, 0, `stderr=${stderr}`);
   const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-1000.json'), 'utf8'));
@@ -176,7 +176,7 @@ test('rcf test-suite TS-1000 provenance accepts a four-digit TS id (0.8.0 landmi
 
 test('rcf test-suite TS-1000 approve accepts a four-digit TS id (0.8.0 landmine 3, consumer-path)', async () => {
   const tmp = await scaffoldWithFourDigitTs('draft');
-  const { code } = await runBin(tmp, ['test-suite', 'TS-1000', 'approve']);
+  const { code } = await runBin(tmp, ['build', 'test-suite', 'TS-1000', 'approve']);
   assert.equal(code, 0);
   const ts = JSON.parse(await readFile(join(tmp, 'rcf/test-suites/ts-1000.json'), 'utf8'));
   assert.equal(ts.status, 'approved');
@@ -184,7 +184,7 @@ test('rcf test-suite TS-1000 approve accepts a four-digit TS id (0.8.0 landmine 
 
 test('rcf test-suite refuses a non-TS positional and cites both three-digit and four-digit shapes (0.8.0 landmine 3, error-text update)', async () => {
   const tmp = await scaffoldWithTs();
-  const { code, stderr } = await runBin(tmp, ['test-suite', 'not-a-ts-id', 'approve']);
+  const { code, stderr } = await runBin(tmp, ['build', 'test-suite', 'not-a-ts-id', 'approve']);
   assert.equal(code, 2);
   assert.match(stderr, /expected a TS id/);
   assert.match(stderr, /TS-1000/, 'error text must cite the widened shape now that four-digit TS ids are admissible');

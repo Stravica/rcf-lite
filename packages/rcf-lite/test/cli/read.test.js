@@ -34,15 +34,15 @@ async function scaffold() {
 
 test('rcf read REQ-001 prints pretty JSON by default', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['read', 'REQ-001']);
+  const { code, stdout } = await runBin(tmp, ['define', 'read', 'REQ-001']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.reqId, 'REQ-001');
 });
 
-test('rcf read REQ-001 returns the body and reports it valid against its schema (AC-301-1)', async () => {
+test('rcf define read REQ-001 returns the body and reports it valid against its schema (AC-301-1)', async () => {
   const tmp = await scaffold();
-  const { code, stdout, stderr } = await runBin(tmp, ['read', 'REQ-001']);
+  const { code, stdout, stderr } = await runBin(tmp, ['define', 'read', 'REQ-001']);
   assert.equal(code, 0);
   // The document is returned...
   const body = JSON.parse(stdout);
@@ -51,7 +51,7 @@ test('rcf read REQ-001 returns the body and reports it valid against its schema 
   assert.match(stderr, /\[ok\] read: REQ-001 is valid against its schema/);
 });
 
-test('rcf read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)', async () => {
+test('rcf define read on an invalid-but-present document returns the content together with the validation errors (AC-301-3)', async () => {
   const tmp = await scaffold();
   // Wedge the document: strip the required `title` field so the file
   // exists on disk but fails schema validation at load time.
@@ -60,7 +60,7 @@ test('rcf read on an invalid-but-present document returns the content together w
   delete req.title;
   await writeFile(reqPath, `${JSON.stringify(req, null, 2)}\n`, 'utf8');
 
-  const { code, stdout, stderr } = await runBin(tmp, ['read', 'REQ-001']);
+  const { code, stdout, stderr } = await runBin(tmp, ['define', 'read', 'REQ-001']);
   // Read is a retrieval verb, not a gate: exit 0 with both surfaces.
   assert.equal(code, 0);
   // The content comes back on stdout...
@@ -75,7 +75,7 @@ test('rcf read on an invalid-but-present document returns the content together w
 
 test('rcf read REQ-001 --raw prints single-line JSON', async () => {
   const tmp = await scaffold();
-  const { stdout } = await runBin(tmp, ['read', 'REQ-001', '--raw']);
+  const { stdout } = await runBin(tmp, ['define', 'read', 'REQ-001', '--raw']);
   // Single-line JSON contains no newline before the closing brace.
   const trimmed = stdout.trim();
   assert.ok(!trimmed.includes('\n'));
@@ -85,31 +85,31 @@ test('rcf read REQ-001 --raw prints single-line JSON', async () => {
 
 test('rcf read REQ-001 --field title prints just the title', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['read', 'REQ-001', '--field', 'title']);
+  const { code, stdout } = await runBin(tmp, ['define', 'read', 'REQ-001', '--field', 'title']);
   assert.equal(code, 0);
   assert.match(stdout, /TODO: name this requirement/);
 });
 
 test('rcf read AC-101-1 reads the inline AC entry from parent US', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['read', 'AC-101-1']);
+  const { code, stdout } = await runBin(tmp, ['define', 'read', 'AC-101-1']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.id, 'AC-101-1');
 });
 
-test('rcf read UNKNOWN-999 exits 2 (usage, unknown id)', async () => {
+test('rcf define read UNKNOWN-999 exits 2 (usage, unknown id)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['read', 'UNKNOWN-999']);
+  const { code, stderr } = await runBin(tmp, ['define', 'read', 'UNKNOWN-999']);
   assert.equal(code, 2);
   assert.match(stderr, /not found/);
 });
 
 test('rcf read --help prints help', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['read', '--help']);
+  const { code, stdout } = await runBin(tmp, ['define', 'read', '--help']);
   assert.equal(code, 0);
-  assert.match(stdout, /Usage: rcf read/);
+  assert.match(stdout, /Usage: rcf define read/);
 });
 
 // ---------------------------------------------------------------------------
@@ -134,7 +134,7 @@ test('rcf read TC-1000-first-case resolves the inline TC on a widened (four-digi
     updatedAt: '2026-08-12T00:00:00Z',
   };
   await writeFile(join(tmp, 'rcf/test-suites/ts-1000.json'), `${JSON.stringify(ts, null, 2)}\n`, 'utf8');
-  const { code, stdout } = await runBin(tmp, ['read', 'TC-1000-first-case']);
+  const { code, stdout } = await runBin(tmp, ['define', 'read', 'TC-1000-first-case']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.id, 'TC-1000-first-case');

@@ -13,7 +13,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
-import { HELP_MAP } from '../../src/cli/help.js';
+import { CORE_HELP } from '../../src/cli/help.js';
 import { listTopics } from '../../src/cli/guidance.js';
 
 const exec = promisify(execFile);
@@ -121,14 +121,14 @@ test('the verb is wired into help: top-level listing and `rcf help guidance`', a
   assert.match(top.stdout, /^\s+guidance \[topic\]/m);
   const topic = await runBin(cwd, ['help', 'guidance']);
   assert.equal(topic.code, 0);
-  assert.equal(topic.stdout, HELP_MAP.guidance);
+  assert.equal(topic.stdout, CORE_HELP.guidance);
   const flag = await runBin(cwd, ['guidance', '--help']);
-  assert.equal(flag.stdout, HELP_MAP.guidance);
+  assert.equal(flag.stdout, CORE_HELP.guidance);
 });
 
 test('every topic named in the help block is a real topic', async () => {
   const slugs = new Set((await listTopics(guidanceDir)).map((t) => t.slug));
-  const body = HELP_MAP.guidance.split('Options:')[0];
+  const body = CORE_HELP.guidance.split('Options:')[0];
   for (const m of body.matchAll(/^ {2}([a-z][a-z-]+) {2,}/gm)) {
     assert.equal(slugs.has(m[1]), true, `help block names '${m[1]}', which is not a topic`);
   }

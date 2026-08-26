@@ -37,14 +37,14 @@ test('bundle envelope carries mode bundle and the completionContract strings', (
   const out = formatJson({
     fbs: { fbsId: 'FBS-005' },
     completionContract: {
-      markInProgress: 'rcf build FBS-005 --mark inProgress',
-      markComplete: 'rcf build FBS-005 --mark complete',
-      finalise: 'rcf finalise FBS-005 --url <deploy-url>',
+      markInProgress: 'rcf build mark FBS-005 inProgress',
+      markComplete: 'rcf build mark FBS-005 complete',
+      finalise: 'rcf build finalise FBS-005 --url <deploy-url>',
     },
   }, 'bundle');
   const body = JSON.parse(out);
   assert.equal(body.mode, 'bundle');
-  assert.equal(body.completionContract.markComplete, 'rcf build FBS-005 --mark complete');
+  assert.equal(body.completionContract.markComplete, 'rcf build mark FBS-005 complete');
 });
 
 test('next-mode empty envelope: queueEmpty / totals / blocked / inProgress', () => {

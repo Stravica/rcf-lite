@@ -86,7 +86,7 @@ test('AC-4.5: doctor --fix --check identity writes nothing (warn-only)', async (
 test('AC-4.6: rcf validate does not descend into rcf/.identity/', async () => {
   const tmp = await freshInit('rcf-doc-id-walker-');
   await writeFile(join(tmp, 'rcf', '.identity', 'junk.json'), '{not valid json', 'utf8');
-  const { code, stderr } = await runBin(tmp, ['validate']);
+  const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 0, `validate exited ${code}: ${stderr}`);
 });
 

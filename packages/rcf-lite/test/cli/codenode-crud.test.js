@@ -40,7 +40,7 @@ async function scaffold(name) {
 
 test('rcf create cn --path writes a file-level CN', async () => {
   const tmp = await scaffold('create');
-  const { code, stdout } = await runBin(tmp, ['create', 'cn', '--path', 'src/example.js']);
+  const { code, stdout } = await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/example.js']);
   assert.equal(code, 0, stdout);
   assert.match(stdout, /CN-001 created at rcf\/code-nodes\/cn-001\.json/);
 });
@@ -48,10 +48,10 @@ test('rcf create cn --path writes a file-level CN', async () => {
 test('rcf create cn --path <path>#symbol --acs wires a symbol-level CN to an AC', async () => {
   const tmp = await scaffold('create-symbol');
   const { code, stdout } = await runBin(tmp, [
-    'create', 'cn', '--path', 'src/example.js#exampleFn', '--acs', 'AC-101-1',
+    'define', 'create', 'cn', '--path', 'src/example.js#exampleFn', '--acs', 'AC-101-1',
   ]);
   assert.equal(code, 0, stdout);
-  const read = await runBin(tmp, ['read', 'CN-001']);
+  const read = await runBin(tmp, ['define', 'read', 'CN-001']);
   const body = JSON.parse(read.stdout);
   assert.equal(body.path, 'src/example.js#exampleFn');
   assert.deepEqual(body.implementsAcIds, ['AC-101-1']);
@@ -59,7 +59,7 @@ test('rcf create cn --path <path>#symbol --acs wires a symbol-level CN to an AC'
 
 test('rcf create cn without --path exits 2', async () => {
   const tmp = await scaffold('create-no-path');
-  const { code, stderr } = await runBin(tmp, ['create', 'cn']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'cn']);
   assert.equal(code, 2);
   assert.match(stderr, /--path is required/);
 });
@@ -71,7 +71,7 @@ test('rcf create cn refuses a dotted #symbol with a message that names the rule 
   // for method-level precision - a bare ajv line is a regression.
   const tmp = await scaffold('create-dotted-symbol');
   const { code, stderr } = await runBin(tmp, [
-    'create', 'cn', '--path', 'src/example.js#Store.put',
+    'define', 'create', 'cn', '--path', 'src/example.js#Store.put',
   ]);
   assert.equal(code, 2, stderr);
   assert.match(stderr, /usage create cn/);
@@ -83,7 +83,7 @@ test('rcf create cn refuses a dotted #symbol with a message that names the rule 
 
 test('rcf create cn refuses an empty #symbol suffix with a teaching message', async () => {
   const tmp = await scaffold('create-empty-symbol');
-  const { code, stderr } = await runBin(tmp, ['create', 'cn', '--path', 'src/example.js#']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/example.js#']);
   assert.equal(code, 2, stderr);
   assert.match(stderr, /empty #symbol suffix/);
 });
@@ -91,7 +91,7 @@ test('rcf create cn refuses an empty #symbol suffix with a teaching message', as
 test('rcf create cn refuses a leading-digit #symbol with a teaching message (identifier rule)', async () => {
   const tmp = await scaffold('create-leading-digit');
   const { code, stderr } = await runBin(tmp, [
-    'create', 'cn', '--path', 'src/example.js#9lives',
+    'define', 'create', 'cn', '--path', 'src/example.js#9lives',
   ]);
   assert.equal(code, 2, stderr);
   assert.match(stderr, /invalid #symbol '9lives'/);
@@ -100,23 +100,23 @@ test('rcf create cn refuses a leading-digit #symbol with a teaching message (ide
 
 test('rcf create cn --deps wires a real CN-to-CN dependency edge', async () => {
   const tmp = await scaffold('create-deps');
-  await runBin(tmp, ['create', 'cn', '--path', 'src/example.js#exampleFn']);
-  const second = await runBin(tmp, ['create', 'cn', '--path', 'src/example.js', '--deps', 'CN-001']);
+  await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/example.js#exampleFn']);
+  const second = await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/example.js', '--deps', 'CN-001']);
   assert.equal(second.code, 0, second.stdout);
-  const trace = await runBin(tmp, ['trace', 'CN-001', '--forward', '--to-code', '--format', 'json']);
+  const trace = await runBin(tmp, ['audit', 'trace', 'CN-001', '--forward', '--to-code', '--format', 'json']);
   const body = JSON.parse(trace.stdout);
   assert.ok(body.nodes.some((n) => n.id === 'CN-002'));
 });
 
 test('rcf delete cn is refused while depended-on, then succeeds with --cascade', async () => {
   const tmp = await scaffold('delete');
-  await runBin(tmp, ['create', 'cn', '--path', 'src/example.js#exampleFn']);
-  await runBin(tmp, ['create', 'cn', '--path', 'src/example.js', '--deps', 'CN-001']);
-  const refused = await runBin(tmp, ['delete', 'CN-001']);
+  await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/example.js#exampleFn']);
+  await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/example.js', '--deps', 'CN-001']);
+  const refused = await runBin(tmp, ['define', 'delete', 'CN-001']);
   assert.equal(refused.code, 4);
-  const cascaded = await runBin(tmp, ['delete', 'CN-001', '--cascade']);
+  const cascaded = await runBin(tmp, ['define', 'delete', 'CN-001', '--cascade']);
   assert.equal(cascaded.code, 0, cascaded.stdout);
-  const validate = await runBin(tmp, ['validate']);
+  const validate = await runBin(tmp, ['define', 'validate']);
   assert.equal(validate.code, 0, validate.stdout);
 });
 
@@ -127,22 +127,22 @@ test('rcf delete cn is refused while depended-on, then succeeds with --cascade',
 
 test('rcf create cn --derive-deps exits 2 with a helpful message when dependency-cruiser is not resolvable', async () => {
   const tmp = await scaffold('derive-deps-create');
-  const { code, stderr } = await runBin(tmp, ['create', 'cn', '--path', 'src/example.js', '--derive-deps']);
+  const { code, stderr } = await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/example.js', '--derive-deps']);
   assert.equal(code, 2);
   assert.match(stderr, /dependency-cruiser is not resolvable/);
 });
 
 test('rcf update cn --derive-deps exits 2 with a helpful message when dependency-cruiser is not resolvable', async () => {
   const tmp = await scaffold('derive-deps-update');
-  await runBin(tmp, ['create', 'cn', '--path', 'src/example.js']);
-  const { code, stderr } = await runBin(tmp, ['update', 'CN-001', '--derive-deps']);
+  await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/example.js']);
+  const { code, stderr } = await runBin(tmp, ['define', 'update', 'CN-001', '--derive-deps']);
   assert.equal(code, 2);
   assert.match(stderr, /dependency-cruiser is not resolvable/);
 });
 
 test('rcf update --derive-deps on a non-cn id is refused', async () => {
   const tmp = await scaffold('derive-deps-wrong-kind');
-  const { code, stderr } = await runBin(tmp, ['update', 'REQ-001', '--derive-deps']);
+  const { code, stderr } = await runBin(tmp, ['define', 'update', 'REQ-001', '--derive-deps']);
   assert.equal(code, 2);
   assert.match(stderr, /only applies to cn ids/);
 });

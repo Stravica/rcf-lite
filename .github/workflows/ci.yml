@@ -23,8 +23,8 @@ jobs:
       # then per-AC strict coverage (every AC bound to a TC whose
       # testPointer resolves to a real test). A stub TC or a new
       # uncovered AC fails the build here.
-      - run: node bin/rcf.js validate
+      - run: node bin/rcf.js define validate
         working-directory: packages/rcf-lite
-      - run: node bin/rcf.js coverage --strict
+      - run: node bin/rcf.js audit coverage --strict
         working-directory: packages/rcf-lite
       - run: pnpm -r test

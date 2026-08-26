@@ -26,7 +26,7 @@ One page per document type, the reference rule that keeps the tree drift-proof, 
 
 **TC (Test Case).** One test: which AC it verifies, where the executable test lives (its test pointer), and its status.
 
-**CN (Code Node).** The spec-to-code bridge: a working-tree source path, optionally `#symbol`-suffixed, that implements one or more acceptance criteria (`implementsAcIds`, which may be empty - an orphan CN is a legitimate state for utilities and glue code). `rcf validate` checks every CN's path/symbol against the working tree, so a rename or deletion that leaves the pointer dangling is caught the same way a broken spec-side reference is. Author CNs during Stage 2 of the build cycle (see below), not after: `rcf build --mark complete` refuses when an in-scope acceptance criterion has none. Full detail, including the honest limits, is `docs/code-nodes.md` in the rcf-build-lite repo.
+**CN (Code Node).** The spec-to-code bridge: a working-tree source path, optionally `#symbol`-suffixed, that implements one or more acceptance criteria (`implementsAcIds`, which may be empty - an orphan CN is a legitimate state for utilities and glue code). `rcf define validate` checks every CN's path/symbol against the working tree, so a rename or deletion that leaves the pointer dangling is caught the same way a broken spec-side reference is. Author CNs during Stage 2 of the build cycle (see below), not after: `rcf build mark <fbs-id> complete` refuses when an in-scope acceptance criterion has none. Full detail, including the honest limits, is `docs/code-nodes.md` in the rcf-build-lite repo.
 
 ## Edges live on the child
 

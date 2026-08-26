@@ -24,7 +24,7 @@
       "acId": "AC-602-2",
       "description": "rcf_build returns the assembled bundle deep-equal to the CLI output for the named FBS",
       "status": "pending",
-      "testPointer": "test/mcp/parity.test.js::parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build FBS-001 --format json`"
+      "testPointer": "test/mcp/parity.test.js::parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build bundle FBS-001 --format json`"
     },
     {
       "id": "TC-017-mcp-invalid-write-refused",

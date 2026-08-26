@@ -47,7 +47,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf preflight [options]
+export const HELP = `Usage: rcf discover preflight [options]
 
 Elicit the pre-flight configuration record: for every third-party
 service the PRD or TAD names, force one of the five attestation modes,
@@ -115,7 +115,7 @@ export async function main(argv, deps = {}) {
 
   const walkResult = await walkTree({ projectRoot });
   if (walkResult.errors.length > 0) {
-    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding — run 'rcf validate' for details\n`);
+    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - run 'rcf define validate' for details\n`);
   }
   const { tree } = walkResult;
 

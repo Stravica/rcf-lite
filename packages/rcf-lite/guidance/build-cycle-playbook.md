@@ -11,10 +11,10 @@ Every command output shown below is real, captured against this repository's own
 ## 2. The loop at a glance
 
 ```
-rcf build --next     -> spec bundle for the next actionable item
+rcf build bundle --next     -> spec bundle for the next actionable item
                         execute the five stages its runbook prints:
                         Define -> Build -> Review -> Test -> Finalise
-rcf build <fbs-id> --mark <status>
+rcf build mark <fbs-id> <status>
                      -> record each lifecycle transition, then repeat
 ```
 
@@ -30,7 +30,7 @@ What good looks like:
 - Your plan maps every in-scope AC id to intended work. An AC with no planned work, or planned work with no AC, is a plan defect.
 - Ambiguity is settled before code. If two readings of an AC survive the read-through, that is an escalation (section 8), not a coin flip.
 
-Referee: the bundle itself is the definition, and `rcf validate` confirms the tree you are building against is clean before you start.
+Referee: the bundle itself is the definition, and `rcf define validate` confirms the tree you are building against is clean before you start.
 
 Failure modes:
 
@@ -40,15 +40,15 @@ Failure modes:
 **Third-party service dependencies belong on the FBS at Define.** When the plan touches a service the pre-flight session recorded (`preFlightConfig` - see elicitation playbook §8.5), write the `dependsOnServices` binding on the FBS now, not later:
 
 ```
-rcf fbs <fbs-id> depends-on --service <id> --mode <attestationMode> --acs <acIds> [--preflight <pfc-id>]
+rcf build fbs <fbs-id> depends-on --service <id> --mode <attestationMode> --acs <acIds> [--preflight <pfc-id>]
 ```
 
-This is not a build-time optimisation; it is the seam the whole verification-integrity surface hangs on. `coverage --strict` at Stage 4 refuses when a TC covers an AC whose FBS was named in a preflight `affectedFbsIds` list but has no matching entry here; verify's deployed-verdict gate reads the same binding to decide whether a live-attested AC needs a live probe or a `MOCK-ONLY-DECLARED` verdict is the honest answer. If the plan touches a service the pre-flight session did NOT record - a runtime dependency discovered mid-Build - `rcf build --next` will warn and point at `rcf preflight` for a re-run; add the entry to the preflight record, then to the FBS.
+This is not a build-time optimisation; it is the seam the whole verification-integrity surface hangs on. `coverage --strict` at Stage 4 refuses when a TC covers an AC whose FBS was named in a preflight `affectedFbsIds` list but has no matching entry here; verify's deployed-verdict gate reads the same binding to decide whether a live-attested AC needs a live probe or a `MOCK-ONLY-DECLARED` verdict is the honest answer. If the plan touches a service the pre-flight session did NOT record - a runtime dependency discovered mid-Build - `rcf build bundle --next` will warn and point at `rcf discover preflight` for a re-run; add the entry to the preflight record, then to the FBS.
 
 Stage end: mark pickup and commit any plan artefacts the driving workflow requires.
 
 ```
-$ rcf build FBS-012 --mark inProgress
+$ rcf build mark FBS-012 inProgress
 marked FBS-012 notStarted -> inProgress
 ```
 
@@ -56,7 +56,7 @@ marked FBS-012 notStarted -> inProgress
 
 Worked micro-example. The FBS-005 bundle ("CLI read verbs") scopes three ACs: AC-301-1 (reading a valid document returns it and reports it as valid), AC-301-2 (reading an id with no file returns a structured not-found error naming the id), AC-301-3 (reading an invalid document returns both the content and the validation errors). Restated as a three-line plan:
 
-1. AC-301-1: wire `rcf read <id>` to the store load; render content plus a validity line; test the valid path.
+1. AC-301-1: wire `rcf define read <id>` to the store load; render content plus a validity line; test the valid path.
 2. AC-301-2: return the structured not-found error with the id in it; test against a missing id.
 3. AC-301-3: on schema failure, render content and errors together rather than either alone; test with a deliberately broken document.
 
@@ -66,21 +66,21 @@ Three ACs, three lines, nothing extra. That is the whole Define output for a sma
 
 What good looks like:
 
-- The FBS classifier fired at Define and printed a `[info] build: ui-classifier verdict=ui reason=keyword-scan (N signal(s))` line ahead of the bundle. That is the trigger to think about design, not to skip it: even for a `notUi` verdict, if the FBS visibly renders pixels the operator overrides via `rcf update <fbs-id> --set uiBearing=true` (spec section 4.4). A false positive costs the operator one override; a false negative ships another dated UI.
-- A `uiBaseline` record exists on the manifest. If it does not, run `rcf ui-baseline init` before opening any Design substage verb. The interactive session presents every ruled default on one summary screen; press ENTER to accept, type a field name to edit one, type `edit-all` to walk them sequentially, type `cancel` to leave without writing. Every opt-out lands with a plain-text reason of at least twenty characters. Silence is never an opt-out.
+- The FBS classifier fired at Define and printed a `[info] build: ui-classifier verdict=ui reason=keyword-scan (N signal(s))` line ahead of the bundle. That is the trigger to think about design, not to skip it: even for a `notUi` verdict, if the FBS visibly renders pixels the operator overrides via `rcf define update <fbs-id> --set uiBearing=true` (spec section 4.4). A false positive costs the operator one override; a false negative ships another dated UI.
+- A `uiBaseline` record exists on the manifest. If it does not, run `rcf discover ui-baseline init` before opening any Design substage verb. The interactive session presents every ruled default on one summary screen; press ENTER to accept, type a field name to edit one, type `edit-all` to walk them sequentially, type `cancel` to leave without writing. Every opt-out lands with a plain-text reason of at least twenty characters. Silence is never an opt-out.
 - Three artefacts land on the FBS's `designStage` block before the design is called complete: a `journeys[]` list (at least one walk-through of a real actor + goal + two to eight steps), a `navModel` (shape from `shared-persistent` | `shared-per-section` | `none-single-page` | `operator-declared-other`, at least one route with a path + label + authRequired boolean, and a `signedInAsAffordance` boolean), and a `themeAndA11y` block (theme mode from `light-default-with-toggle` | `dark-default-with-toggle` | `single-theme-declared`, the tokens-module path, the contrast-test path, and the `contrastTestAuthoredBeforePalette` boolean attestation).
-- Author via the verbs, not by hand-editing: `rcf design <fbs-id> journeys add --id <slug> --actor "..." --goal "..." --step "..." --step "..."`, `rcf design <fbs-id> nav set --shape <shape> --route <path=label:authRequired> ...`, `rcf design <fbs-id> theme-a11y set --mode <mode> --tokens <path> --contrast-test <path> --contrast-before-palette true|false`. When all three are in place, `rcf design <fbs-id> --mark-complete` sets `designStageComplete: true` on the FBS record. Alternatively, dispatch the Design worker via `rcf design <fbs-id>` (no sub-verb) and let the subagent author the three artefacts against the baseline plus a sibling-FBS `designStage` context, then mark complete.
+- Author via the verbs, not by hand-editing: `rcf define design <fbs-id> journeys add --id <slug> --actor "..." --goal "..." --step "..." --step "..."`, `rcf define design <fbs-id> nav set --shape <shape> --route <path=label:authRequired> ...`, `rcf define design <fbs-id> theme-a11y set --mode <mode> --tokens <path> --contrast-test <path> --contrast-before-palette true|false`. When all three are in place, `rcf define design <fbs-id> --mark-complete` sets `designStageComplete: true` on the FBS record. Alternatively, dispatch the Design worker via `rcf define design <fbs-id>` (no sub-verb) and let the subagent author the three artefacts against the baseline plus a sibling-FBS `designStage` context, then mark complete.
 - The playbook mandate 5 vocabulary (`Button`, `Input`, `Card`, `Badge`, `Table`, `Notice`, single badge shape) is guidance-only in v1. For string-templated projects (server-rendered HTML by concatenation, no framework) the operator can hand-check the six-component vocabulary with a `grep -oE 'class="[^"]+"'` sweep of view files; the audit does not enforce it mechanically in v1.
 
-Warning at Stage 2 entry (`rcf build <fbs-id> --mark inProgress`): if the FBS is uiBearing and no `designStage` has been authored, one `[warn]` line points at `rcf design <fbs-id>`. Not a refusal - pickup and planning can happen before design when the operator wants to think about the AC scope first. The hard refusal fires at Stage 5.
+Warning at Stage 2 entry (`rcf build mark <fbs-id> inProgress`): if the FBS is uiBearing and no `designStage` has been authored, one `[warn]` line points at `rcf define design <fbs-id>`. Not a refusal - pickup and planning can happen before design when the operator wants to think about the AC scope first. The hard refusal fires at Stage 5.
 
-Refusal at Stage 5 entry (`rcf build <fbs-id> --mark complete`) on a uiBearing FBS when any of: `designStageComplete` is not true; `designStage.themeAndA11y.contrastTestAuthoredBeforePalette` is false; the baseline disagrees with a `designStage` paired field and no `operatorOptOuts[]` entry excuses it; the browser-verification verdict is `block` or `warn` without operator ack (see section 7).
+Refusal at Stage 5 entry (`rcf build mark <fbs-id> complete`) on a uiBearing FBS when any of: `designStageComplete` is not true; `designStage.themeAndA11y.contrastTestAuthoredBeforePalette` is false; the baseline disagrees with a `designStage` paired field and no `operatorOptOuts[]` entry excuses it; the browser-verification verdict is `block` or `warn` without operator ack (see section 7).
 
-Escalation: when the operator disagrees with the classifier, ratify or override via `rcf update <fbs-id> --set uiBearing=true|false`. The override records `verdict: operatorOverride` on `uiClassification`, keeping the classifier's evidence in `signals[]` for provenance. When the operator disagrees with a baseline default, record it as an explicit opt-out via `rcf ui-baseline opt-out --field <path> --reason "..." ` (at least twenty characters).
+Escalation: when the operator disagrees with the classifier, ratify or override via `rcf define update <fbs-id> --set uiBearing=true|false`. The override records `verdict: operatorOverride` on `uiClassification`, keeping the classifier's evidence in `signals[]` for provenance. When the operator disagrees with a baseline default, record it as an explicit opt-out via `rcf discover ui-baseline opt-out --field <path> --reason "..." ` (at least twenty characters).
 
 Stage end: commit. The `designStage` and `designStageComplete` write are the artefacts of this stage.
 
-Worked micro-example. FBS-016 ("Web UI dashboard") classifies as UI-bearing on `dashboard` and `page` signals in the summary. `rcf ui-baseline init` runs once for the project, accepting the ruled defaults on ENTER. Three journeys sketched: signed-in-owner checks status; new-monitor add flow; unauthenticated visitor lands on login. `navModel` records the four authenticated routes (dashboard, monitors, monitor-detail, settings) as `shared-persistent` with `signedInAsAffordance: true`. `themeAndA11y` records `light-default-with-toggle`, tokens at `src/ui/tokens.ts`, contrast test at `test/ui-accessibility.test.ts`, `contrastTestAuthoredBeforePalette: true`. `rcf design FBS-016 --mark-complete` sets the boolean; Stage 2 opens.
+Worked micro-example. FBS-016 ("Web UI dashboard") classifies as UI-bearing on `dashboard` and `page` signals in the summary. `rcf discover ui-baseline init` runs once for the project, accepting the ruled defaults on ENTER. Three journeys sketched: signed-in-owner checks status; new-monitor add flow; unauthenticated visitor lands on login. `navModel` records the four authenticated routes (dashboard, monitors, monitor-detail, settings) as `shared-persistent` with `signedInAsAffordance: true`. `themeAndA11y` records `light-default-with-toggle`, tokens at `src/ui/tokens.ts`, contrast test at `test/ui-accessibility.test.ts`, `contrastTestAuthoredBeforePalette: true`. `rcf define design FBS-016 --mark-complete` sets the boolean; Stage 2 opens.
 
 ## 4. Stage 2 - Build
 
@@ -88,7 +88,7 @@ What good looks like:
 
 - Implement to the section-4 ACs using the section-5 context. The TACs name the components and boundaries you are expected to respect; the ADRs name decisions already taken, which you follow rather than relitigate.
 - The bundle is the spec. When the code teaches you the spec is wrong, stop and escalate; do not quietly ship your improved version.
-- As each AC lands, author or update its Code Node: `rcf create cn --path <file>[#symbol] --acs <ac-ids>`. Do this now - the mapping from symbol to AC is exactly what you are holding in your head mid-implementation, and Stage 5 refuses completion without it (section 9).
+- As each AC lands, author or update its Code Node: `rcf define create cn --path <file>[#symbol] --acs <ac-ids>`. Do this now - the mapping from symbol to AC is exactly what you are holding in your head mid-implementation, and Stage 5 refuses completion without it (section 9).
 - Small commits inside the stage are fine; the stage-end commit is mandatory.
 
 Referee: none new at this stage. The bundle stays open; you check yourself against it.
@@ -111,8 +111,8 @@ What good looks like:
 Referee:
 
 ```
-$ rcf validate
-rcf validate: tree is clean.
+$ rcf define validate
+rcf define validate: tree is clean.
 ```
 
 Exit 0 when clean; exit 3 with issue lines when not (section 9 shows the failure shape).
@@ -122,7 +122,7 @@ Failure modes:
 - **Rubber-stamp review.** Symptom: review completes in the time it takes to scroll. Correction: the per-AC question above, answered per AC, in writing if the workflow keeps review notes.
 - **Reviewing only what changed rather than what was promised.** Symptom: the review walks the diff top to bottom and never opens section 4. Correction: walk the AC list as the outer loop, the diff as the inner one. This is where AC-skipping is cheapest to catch.
 
-**Second gate on Stage 3: `rcf review <fbs-id>`.** After `rcf validate` clears the tree, run the test-theatre audit. The audit asks the meta-question the diff review does not: are the tests themselves honest? Five finding categories run deterministically over the FBS's in-scope ACs and their covering TSes:
+**Second gate on Stage 3: `rcf build review <fbs-id>`.** After `rcf define validate` clears the tree, run the test-theatre audit. The audit asks the meta-question the diff review does not: are the tests themselves honest? Five finding categories run deterministically over the FBS's in-scope ACs and their covering TSes:
 
 - `mockOnlyIntegrationClaim` - an integration-level TS whose every TC records `runtimeProvenance.profile` in `{mock, stub, fixture}` while at least one bound AC's aggregated attestation is `live` or `sandboxed`. This is the exact failure the whole 0.7.0 verification-integrity surface exists to catch (d-2026-07-30-142). Severity: block.
 - `testPointerBroken` - a TC's `testPointer` fails to resolve to a real test in the working tree. Severity: block.
@@ -146,7 +146,7 @@ What good looks like:
 Referee:
 
 ```
-$ rcf coverage --strict
+$ rcf audit coverage --strict
 Coverage mode: strict (per-AC)
 Requirements: 8  covered: 8  covered-unresolved: 0  uncovered: 0
 
@@ -155,7 +155,7 @@ Requirement  Covered  AC        AC covered  Test cases
 REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
 ```
 
-(Captured against this repo's tree, first rows shown; exit 0. This tree binds all 76 of its ACs to named existing tests via resolving `testPointer`s. It did not start there: the audit that built this test axis opened with 14 honestly-registered gaps in `rcf/test-suites/PENDING.md`, the referee exited 4 for as long as any row remained, and the register emptied only when every AC got a test that genuinely asserts its outcome - including one whole feature the tree claimed and the code lacked. CI now runs `rcf validate` and `rcf coverage --strict` as required steps, so this exit 0 is locked in: a stub TC or a new uncovered AC fails the build.) Strict mode is per-AC: every AC in scope needs a TC whose pointer resolves, and any gap exits 4. The `covered-unresolved` column is the third state: TC rows exist but at least one pointer does not resolve to a real test - a stub or a stale pointer - and it fails the gate exactly as uncovered does, with the offending pointers listed under the table. Read the table by AC id: this stage ends when your in-scope ACs show `AC covered: yes` with test cases listed. Gaps elsewhere in the tree may legitimately remain and will keep the tree-wide command at exit 4; narrow the verdict with a scope id (`rcf coverage <scope-id> --strict`, PRD / REQ / US ids accepted) to read the subtree you are working in.
+(Captured against this repo's tree, first rows shown; exit 0. This tree binds all 76 of its ACs to named existing tests via resolving `testPointer`s. It did not start there: the audit that built this test axis opened with 14 honestly-registered gaps in `rcf/test-suites/PENDING.md`, the referee exited 4 for as long as any row remained, and the register emptied only when every AC got a test that genuinely asserts its outcome - including one whole feature the tree claimed and the code lacked. CI now runs `rcf define validate` and `rcf audit coverage --strict` as required steps, so this exit 0 is locked in: a stub TC or a new uncovered AC fails the build.) Strict mode is per-AC: every AC in scope needs a TC whose pointer resolves, and any gap exits 4. The `covered-unresolved` column is the third state: TC rows exist but at least one pointer does not resolve to a real test - a stub or a stale pointer - and it fails the gate exactly as uncovered does, with the offending pointers listed under the table. Read the table by AC id: this stage ends when your in-scope ACs show `AC covered: yes` with test cases listed. Gaps elsewhere in the tree may legitimately remain and will keep the tree-wide command at exit 4; narrow the verdict with a scope id (`rcf audit coverage <scope-id> --strict`, PRD / REQ / US ids accepted) to read the subtree you are working in.
 
 Failure modes:
 
@@ -165,13 +165,13 @@ Failure modes:
 **Runtime provenance is authored, not remembered.** Every TC authored or updated in a build cycle carries `runtimeProvenance` on the same edit as `status`. The pattern:
 
 ```
-rcf test-suite <ts-id> provenance --tc <tc-id> --profile <mock|stub|fixture|live|mixed> \
+rcf build test-suite <ts-id> provenance --tc <tc-id> --profile <mock|stub|fixture|live|mixed> \
     [--env-var VAR ...] [--host host ...] [--notes "..."]
 ```
 
 `coverage --strict` refuses (exit 4) when a TC covers an AC that binds a `dependsOnServices` entry and lacks a provenance block, and enforces the section 3.5 attestation × profile matrix on every remaining TC. Belt and braces: the PR body still names the runtime it verified against (section 15), but the chain is now the source of truth and the PR is a rendering.
 
-**TS approval is a Stage 4 outcome, not an authoring guess.** Once `coverage --strict` exits 0 and the underlying test run exits 0, promote each touched TS with `rcf test-suite <ts-id> approve`. Stage 4 does this automatically at end-of-stage; the operator only needs the verb for manual override (a rare re-approval after `needsRevision` cycles, via `--force`). CI can add the opt-in `rcf coverage --strict --require-approved` gate to fail the build on any TS still `draft` after Stage 4.
+**TS approval is a Stage 4 outcome, not an authoring guess.** Once `coverage --strict` exits 0 and the underlying test run exits 0, promote each touched TS with `rcf build test-suite <ts-id> approve`. Stage 4 does this automatically at end-of-stage; the operator only needs the verb for manual override (a rare re-approval after `needsRevision` cycles, via `--force`). CI can add the opt-in `rcf audit coverage --strict --require-approved` gate to fail the build on any TS still `draft` after Stage 4.
 
 Stage end: commit.
 
@@ -180,8 +180,8 @@ Stage end: commit.
 What good looks like:
 
 - CI green on the branch; PR raised and merged per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
-- `rcf build <fbs-id> --mark complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build <fbs-id> --mark complete --no-code-nodes` once.
-- `rcf finalise <fbs-id> --url <deploy-url>` writes `verified` after post-merge verification: the merged artefact observed doing the right thing by an independent verify run, not just the pre-merge tests remembered fondly. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the verify run passes with ship authority.
+- `rcf build mark <fbs-id> complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build mark <fbs-id> complete --no-code-nodes` once.
+- `rcf build finalise <fbs-id> --url <deploy-url>` writes `verified` after post-merge verification: the merged artefact observed doing the right thing by an independent verify run, not just the pre-merge tests remembered fondly. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the verify run passes with ship authority.
 - A working, documented local preview is present as the default outcome (section 14), and every verification claim in the PR names the runtime it was checked against (section 15). These are part of done, not extras.
 
 Referee: CI, the finalise gate, plus the mark commands' own refusals (section 9).
@@ -194,7 +194,7 @@ Failure modes:
 
 **The finalise gate reads the attestation, not just the exit code.** A passing verify run whose report carries per-AC verdicts in `{MOCK-ONLY-DECLARED, BLOCKED-BY-DECLARATION}` will not promote to `verified`. The gate stays at `complete -> verified` promotion, but a mock-only-declared AC refuses the promotion unless the operator explicitly ships the FBS complete-without-verified via `--ship-without-verified`. The summary always discloses these verdicts (whether the FBS ships or not) so the honest picture reaches the reviewer. Older verify reports without the `perAcVerdicts` field are handled gracefully - verify's train car may land later; older reports flow through with the pre-0.7.0 gate behaviour.
 
-**Browser-verification gate (Track B, UI-bearing FBS only).** Before `--mark complete` on a uiBearing FBS, run `rcf browser-verify <fbs-id>` against the local preview or a deployed URL. The verb writes a `browserVerification[]` record on the manifest and aggregates a verdict (pass / warn / block). `--mark complete` refuses when the verdict is `block` (unless the operator uses `--accept-block --reason "..."` per the ship-without-verified escape hatch) or `warn` (unless `operatorAckAt` is populated via `rcf browser-verify <fbs-id> --ack`). The `agentScreenshotCritique` mode drives an injectable browser driver over every enumerated route x theme, records the DOM against the versioned `UI_INVARIANTS_V1` set (shared-nav presence, active-nav marker, signed-in-as affordance, theme toggle, default theme, focus rings, structural layout compare), and (when the FBS binds an auth REQ) runs the auth-REQ smoke pack (`GET /login`, `POST /logout`, `GET /login/verify?token=`). The `operatorSession` mode records the operator's ack alone; the ack is the evidence. Screenshots and DOM dumps land under `.rcf/artefacts/<bv-id>/`, gitignored via the 0.6.0 managed block.
+**Browser-verification gate (Track B, UI-bearing FBS only).** Before `--mark complete` on a uiBearing FBS, run `rcf verify browser <fbs-id>` against the local preview or a deployed URL. The verb writes a `browserVerification[]` record on the manifest and aggregates a verdict (pass / warn / block). `--mark complete` refuses when the verdict is `block` (unless the operator uses `--accept-block --reason "..."` per the ship-without-verified escape hatch) or `warn` (unless `operatorAckAt` is populated via `rcf verify browser <fbs-id> --ack`). The `agentScreenshotCritique` mode drives an injectable browser driver over every enumerated route x theme, records the DOM against the versioned `UI_INVARIANTS_V1` set (shared-nav presence, active-nav marker, signed-in-as affordance, theme toggle, default theme, focus rings, structural layout compare), and (when the FBS binds an auth REQ) runs the auth-REQ smoke pack (`GET /login`, `POST /logout`, `GET /login/verify?token=`). The `operatorSession` mode records the operator's ack alone; the ack is the evidence. Screenshots and DOM dumps land under `.rcf/artefacts/<bv-id>/`, gitignored via the 0.6.0 managed block.
 
 Stage end: the merge is the commit.
 
@@ -223,7 +223,7 @@ Render it in the operator's language (section 17): the item named by its title, 
 
 The commands and their output, read at a glance. Exit codes: 0 success, 1 unexpected runtime failure, 2 usage error, 3 validation or broken references, 4 refused.
 
-**`rcf validate`** - exit 0 and `rcf validate: tree is clean.` when clean. On issues, exit 3 with one line per issue naming the document and the rule, then a summary count. Captured in a scratch copy with a required field removed by hand:
+**`rcf define validate`** - exit 0 and `rcf define validate: tree is clean.` when clean. On issues, exit 3 with one line per issue naming the document and the rule, then a summary count. Captured in a scratch copy with a required field removed by hand:
 
 ```
 [error] validation REQ-001: / must have required property 'title'
@@ -234,9 +234,9 @@ The commands and their output, read at a glance. Exit codes: 0 success, 1 unexpe
 
 Note the fan-out: one broken document produced two broken references. Fix the named document first, then re-validate.
 
-**`rcf coverage --strict`** - exit 0 when every AC in scope has a TC whose `testPointer` resolves to a real test; exit 4 on any gap, with the per-AC table shown in section 6 above. A TC whose pointer does not resolve counts as `covered-unresolved` - a gap, not coverage - and is listed under the table with the reason (file missing, test missing). The `Test cases` column is the evidence trail.
+**`rcf audit coverage --strict`** - exit 0 when every AC in scope has a TC whose `testPointer` resolves to a real test; exit 4 on any gap, with the per-AC table shown in section 6 above. A TC whose pointer does not resolve counts as `covered-unresolved` - a gap, not coverage - and is listed under the table with the reason (file missing, test missing). The `Test cases` column is the evidence trail.
 
-**`rcf build <fbs-id> --strict`** - exit 4 instead of a bundle when the item is blocked. Captured in a scratch copy with a dependency reset to `notStarted`:
+**`rcf build bundle <fbs-id> --strict`** - exit 4 instead of a bundle when the item is blocked. Captured in a scratch copy with a dependency reset to `notStarted`:
 
 ```
 [error] refused build: FBS-012 is blocked by FBS-010 (notStarted)
@@ -244,10 +244,10 @@ Note the fan-out: one broken document produced two broken references. Fix the na
 
 Without `--strict` the bundle renders anyway, flagged as a read-ahead; `--next` never selects blocked items.
 
-**`rcf build <fbs-id> --mark <status>`** - exit 0 with a one-line confirmation (`marked FBS-012 notStarted -> inProgress`). The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`; forward jumps legal), but `--mark` caps at `complete`: `--mark verified` is refused with exit 4 and points to `rcf finalise` (only the finalise gate writes `verified`). A backward mark is likewise refused with exit 4 and names the escape hatch:
+**`rcf build mark <fbs-id> <status>`** - exit 0 with a one-line confirmation (`marked FBS-012 notStarted -> inProgress`). The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`; forward jumps legal), but `--mark` caps at `complete`: `--mark verified` is refused with exit 4 and points to `rcf build finalise` (only the finalise gate writes `verified`). A backward mark is likewise refused with exit 4 and names the escape hatch:
 
 ```
-[error] refused build: refusing backward transition complete -> inProgress on FBS-005; for a deliberate correction use: rcf update FBS-005 --set executionStatus=inProgress
+[error] refused build: refusing backward transition complete -> inProgress on FBS-005; for a deliberate correction use: rcf define update FBS-005 --set executionStatus=inProgress
 ```
 
 The escape hatch is for operator-sanctioned corrections. If you are reaching for it, you are in section 8's fourth case.
@@ -297,7 +297,7 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 Next actionable: FBS-013
 ```
 
-Two actionable items, and the tier column says how they relate: FBS-013 and FBS-014 share tier 0, meaning no dependency path connects them - they are parallel-safe, so a harness with two write workers on separate clones could take one each. `rcf build --next` picks the lowest buildOrder and emits its bundle. The header orients you in one glance - what, where in the queue, how big, what it hangs off:
+Two actionable items, and the tier column says how they relate: FBS-013 and FBS-014 share tier 0, meaning no dependency path connects them - they are parallel-safe, so a harness with two write workers on separate clones could take one each. `rcf build bundle --next` picks the lowest buildOrder and emits its bundle. The header orients you in one glance - what, where in the queue, how big, what it hangs off:
 
 ```
 # Spec bundle: FBS-013 - Deploy-aware elicitation and hosting guidance
@@ -317,11 +317,11 @@ Two actionable items, and the tier column says how they relate: FBS-013 and FBS-
 Mark pickup, and the cycle is running:
 
 ```
-$ rcf build FBS-013 --mark inProgress
+$ rcf build mark FBS-013 inProgress
 marked FBS-013 notStarted -> inProgress
 ```
 
-From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf finalise` to promote to `verified` after post-merge verification, and back to `rcf build --next`.
+From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf build finalise` to promote to `verified` after post-merge verification, and back to `rcf build bundle --next`.
 
 ## 11. Driving the whole queue
 
@@ -332,15 +332,15 @@ Sections 3 to 7 deliver one item. This section is the loop around them: how a si
 **The loop.**
 
 ```
-rcf build            -> queue state; a "Next actionable" id means there is work
-rcf build --next     -> bundle for that item
+rcf build queue      -> queue state; a "Next actionable" id means there is work
+rcf build bundle --next     -> bundle for that item
                         run its five stages (sections 3-7), commit per stage
-rcf build <fbs-id> --mark complete       (after merge)
-rcf finalise <fbs-id> --url <deploy-url>  (independent verify -> verified)
-                        then rcf build --next again
+rcf build mark <fbs-id> complete       (after merge)
+rcf build finalise <fbs-id> --url <deploy-url>  (independent verify -> verified)
+                        then rcf build bundle --next again
 ```
 
-You are done when `rcf build --next` stops handing back bundles and prints instead:
+You are done when `rcf build bundle --next` stops handing back bundles and prints instead:
 
 ```
 # Build queue: nothing actionable
@@ -352,7 +352,7 @@ That line - not "I built the first one" - is the end of the loop. If it instead 
 
 **Keep the driving context thin (why one session is enough).** The reason a sixteen-item queue "won't fit in one session" is that the agent kept every item's bundle, diff and test detail in a single growing thread. It does not have to. If your harness can spawn sub-agents, run each FBS in its own worker:
 
-- The driver (you) holds only the queue, the trace and the running tally of what is done. You call `rcf build --next`, hand the bundle id to a worker, and wait for a short structured result.
+- The driver (you) holds only the queue, the trace and the running tally of what is done. You call `rcf build bundle --next`, hand the bundle id to a worker, and wait for a short structured result.
 - The worker holds one item's full working set - the bundle, the diff, the tests, the referee outputs - runs the five stages, opens its PR, and returns a few lines: item id, ACs satisfied, referee outputs, PR link, and any escalation. Then its context is discarded.
 - The driver's context stays flat across all sixteen items because it never holds more than a summary of any one. That is the mechanism that makes a small app's whole queue a single-session job.
 
@@ -362,7 +362,7 @@ Brief each worker with the same four things the bundle names: the item id, the f
 
 **The handover protocol.** A handover is state capture, not a memory dump. A fresh session must be able to resume from it without re-eliciting anything or re-deriving the queue.
 
-1. Run `rcf build` and `rcf validate` first, so the handover records the tree's true state, not your remembered state.
+1. Run `rcf build` and `rcf define validate` first, so the handover records the tree's true state, not your remembered state.
 2. Write a next-session handover doc (e.g. `rcf/handover.md`, or wherever the harness keeps session notes). It captures: what is complete/verified, what is in progress and exactly where it stopped, the next actionable id, any open escalation awaiting a ruling, and any decision taken in conversation that is not yet written into the tree.
 3. Point the agent-instructions files at it. Add one line to `CLAUDE.md` and `AGENTS.md` telling the next session to read the handover before anything else. A handover doc nobody is instructed to open is not a handover.
 
@@ -381,8 +381,8 @@ When Finalise raises a PR, the body is for the reviewer - human or agent - and i
 **The body, in this order:**
 
 1. **What and why, traced.** What changed, mapped to the FBS and its in-scope ACs. The AC ids are the "why" - they are the spec this diff exists to satisfy, so a reviewer can check the diff against the promise, not against your description of it.
-2. **Verification actually performed.** Not "tests pass". State what you ran and what it reported: the test command and its result, `rcf coverage --with-code` (or a story-scoped `rcf coverage <us-id> --strict`) with the per-AC lines, `rcf validate` clean. Paste the outputs - they are the evidence, and pasted referee output is not something a reviewer has to take on trust. **Every claim in this section names the runtime it was checked against** (section 15): "verified against the local preview", "e2e against wrangler dev (localhost)", "smoke-tested against the deployed runtime". A verification line with no named runtime is incomplete, and a line that implies the deployed runtime when the check never touched it is a defect, not a wording nicety.
-3. **Per-AC evidence trail.** For each in-scope AC: where it is satisfied (file and symbol) and the test that proves it. This is what `rcf coverage --with-code` and `rcf trace` already give you; lift it in rather than reprose it.
+2. **Verification actually performed.** Not "tests pass". State what you ran and what it reported: the test command and its result, `rcf audit coverage --with-code` (or a story-scoped `rcf audit coverage <us-id> --strict`) with the per-AC lines, `rcf define validate` clean. Paste the outputs - they are the evidence, and pasted referee output is not something a reviewer has to take on trust. **Every claim in this section names the runtime it was checked against** (section 15): "verified against the local preview", "e2e against wrangler dev (localhost)", "smoke-tested against the deployed runtime". A verification line with no named runtime is incomplete, and a line that implies the deployed runtime when the check never touched it is a defect, not a wording nicety.
+3. **Per-AC evidence trail.** For each in-scope AC: where it is satisfied (file and symbol) and the test that proves it. This is what `rcf audit coverage --with-code` and `rcf audit trace` already give you; lift it in rather than reprose it.
 4. **Known limits and deviations, declared.** Anything you escalated and how it was ruled, any deliberate deviation from the bundle and its reason, any gap the operator accepted. A declared limit survives review; the same limit found later by the reviewer is a defect and a trust hit.
 
 **What not to do:** a file-by-file walk of the diff (the reviewer can read the diff), "all tests pass" with no command or output behind it, or any verification claim you did not actually run. Zero unverifiable claims - every line in the body is something the reviewer can independently check.
@@ -398,8 +398,8 @@ FBS-012 - MCP server over the full surface. Satisfies AC-301-1, AC-301-2, AC-301
 
 ## Verification performed
 - <test command>: <result, e.g. 807 passing> (full suite) - runtime: <e.g. Node 24 on CI (local-dev), NOT the deployed runtime>
-- rcf coverage --with-code: in-scope ACs covered, per-AC lines below
-- rcf validate: tree is clean
+- rcf audit coverage --with-code: in-scope ACs covered, per-AC lines below
+- rcf define validate: tree is clean
 - local preview: <how it was started and what was driven, e.g. `npm run dev`, seeded data, exercised path X>
 <paste the referee outputs here>
 
@@ -422,9 +422,9 @@ A bug that reached a build is a bug a test did not catch, which is a behaviour a
 
 **The order - do not jump to the code:**
 
-1. **Reproduce, then trace the bug to its governing AC.** Which AC should have made the correct behaviour required? Walk the tree with `rcf trace` from the story or the offending source path, and `rcf coverage --with-code` to see whether the behaviour was ever covered at all.
+1. **Reproduce, then trace the bug to its governing AC.** Which AC should have made the correct behaviour required? Walk the tree with `rcf audit trace` from the story or the offending source path, and `rcf audit coverage --with-code` to see whether the behaviour was ever covered at all.
 2. **Name the gap.** Either no AC covers this scenario - the common case, usually a missing edge or failure path - or an AC covers it but too weakly (a happy-path AC where the bug lives in the failure path). Both are elicitation-depth misses; the standard for an adequate AC set is section 5 of the elicitation playbook.
-3. **Fix the spec.** Add or strengthen the AC so the scenario is required (`rcf create ac` / `rcf update`), then add its TS/TC so the chain checks it. Now the tree would catch this class of bug on the next run.
+3. **Fix the spec.** Add or strengthen the AC so the scenario is required (`rcf define create ac` / `rcf define update`), then add its TS/TC so the chain checks it. Now the tree would catch this class of bug on the next run.
 4. **Fix the code against the corrected spec,** and prove it with the new test - the one that would have failed before your change and passes after it.
 
 **Escalation:** if strengthening the AC changes agreed behaviour rather than closing an obvious gap, that is a spec decision, not a silent redraw. Surface it (section 8) before you change it. Tightening "returns an empty list on no match" onto an existing search AC is closing a gap; changing what the feature is supposed to do is a decision for the operator.
@@ -469,16 +469,16 @@ Both name the runtime, both refuse to imply the deployed profile, and both say p
 
 ## 16. In-loop fresh-context self-review
 
-Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The independent verification gate is the durable answer to that, and it ships: `rcf finalise` runs the independent verifier against the deployed app and is the only thing that promotes an FBS from `complete` to `verified` (section 7). Nothing in this section changes that.
+Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The independent verification gate is the durable answer to that, and it ships: `rcf build finalise` runs the independent verifier against the deployed app and is the only thing that promotes an FBS from `complete` to `verified` (section 7). Nothing in this section changes that.
 
 What this section adds is the cheap check that runs **in the loop, between builds** - long before you reach the gate. Its value is finding the defect at FBS 6 instead of at the ship gate. It is subordinate to the gate, never a substitute for it, and it never writes `verified`.
 
 - **What it is: a fresh-context reviewer dispatch, periodic and at the end.** Run a manual-review subagent in a fresh context **every few FBS builds** and **once more at the end of the build**. Fresh context matters: a reviewer carrying the build's own assumptions re-confirms them; a reviewer starting cold does not.
 - **It drives the app, it does not read the code.** The reviewer starts the running application (the local preview is right there) and **drives it against the acceptance criteria** - exercises the real behaviour a user would - rather than reading the diff. Reading code re-checks intent; driving the app checks what was actually built.
 - **It targets the defect classes green suites miss.** Name them for the reviewer: **session-class bugs** (state that leaks or resets across requests/sessions), **false-promise UI** (buttons and screens that imply an action the code never performs), **runtime mismatch** (passes on localhost, fails on the deployed runtime), **dead auth paths** (login/signup flows that never actually work end to end), and **dead code** (paths shipped but never reachable). These are exactly the classes a passing unit suite reports nothing about.
-- **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **an in-loop check, not the independent verification gate** - the gate is `rcf finalise` (section 7) - and it is **guidance and prompt-level, not a new subsystem**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check: worth running before the gate, not worth overclaiming after it. Say both. A self-review pass is never evidence for a `verified` mark; only the finalise gate produces that.
-- **For UI-bearing FBSes, cross-reference to `rcf browser-verify`.** The in-loop reviewer's "drive the app against ACs" behaviour is a superset of what `rcf browser-verify <fbs-id>` does (open every enumerated route on every declared theme, record the DOM, run the versioned invariant set, run the auth smoke pack). Reach for `rcf browser-verify` first for uiBearing FBS: it writes a persisted `browserVerification[]` record on the manifest that the Stage 5 gate reads, and it names the exact invariants a passing browser check must satisfy. The self-review pass then adds the qualitative rubric on top (component consistency, typography, interaction affordances, modern-versus-dated feel) - the same rubric the browser-verify agent-mode critique carries on its record's `notes` field.
-- **Keep the review surface up across the pass.** `rcf view` gains `start | status | stop | logs` verbs and defaults to `--detach` on an interactive session (the pre-0.7.0 foreground default survives non-interactive callers, so CI scripts do not change behaviour). Start it once at the top of the loop; the supervisor persists across session death and the manifest carries `reviewSurface.viewServer` so a subsequent session can pick up where the last one left off. Explicit `rcf view stop` when the loop closes.
+- **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **an in-loop check, not the independent verification gate** - the gate is `rcf build finalise` (section 7) - and it is **guidance and prompt-level, not a new subsystem**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check: worth running before the gate, not worth overclaiming after it. Say both. A self-review pass is never evidence for a `verified` mark; only the finalise gate produces that.
+- **For UI-bearing FBSes, cross-reference to `rcf verify browser`.** The in-loop reviewer's "drive the app against ACs" behaviour is a superset of what `rcf verify browser <fbs-id>` does (open every enumerated route on every declared theme, record the DOM, run the versioned invariant set, run the auth smoke pack). Reach for `rcf verify browser` first for uiBearing FBS: it writes a persisted `browserVerification[]` record on the manifest that the Stage 5 gate reads, and it names the exact invariants a passing browser check must satisfy. The self-review pass then adds the qualitative rubric on top (component consistency, typography, interaction affordances, modern-versus-dated feel) - the same rubric the browser-verify agent-mode critique carries on its record's `notes` field.
+- **Keep the review surface up across the pass.** `rcf audit view` gains `start | status | stop | logs` verbs and defaults to `--detach` on an interactive session (the pre-0.7.0 foreground default survives non-interactive callers, so CI scripts do not change behaviour). Start it once at the top of the loop; the supervisor persists across session death and the manifest carries `reviewSurface.viewServer` so a subsequent session can pick up where the last one left off. Explicit `rcf audit view stop` when the loop closes.
 
 ## 17. Speaking to the operator
 

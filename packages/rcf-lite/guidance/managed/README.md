@@ -35,7 +35,7 @@ doctor writes into an installed project, see the files below.
   reports and exits 0 clean, 3 dirty. `rcf doctor --fix` is the only
   path that repairs.
 - **Never auto-repair.** No hook, no post-install script, no `rcf init`
-  or `rcf validate` sub-call invokes `--fix` implicitly. Init writes
+  or `rcf define validate` sub-call invokes `--fix` implicitly. Init writes
   the block on a fresh scaffold; doctor maintains an existing project.
   Both are operator-typed.
 

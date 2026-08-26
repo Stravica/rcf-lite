@@ -4,9 +4,10 @@
 # path to match the project's realised gate runner (TAC-701).
 #
 # The workflow runs one CI-provider-neutral Node entry point that
-# invokes `rcf validate` and `rcf coverage --strict`, writes per-gate
-# and aggregate JSON reports under `.rcf/reports/ci/`, and uploads
-# the report directory as a workflow artefact for downstream readers.
+# invokes `rcf define validate` and `rcf audit coverage --strict`,
+# writes per-gate and aggregate JSON reports under `.rcf/reports/ci/`,
+# and uploads the report directory as a workflow artefact for
+# downstream readers.
 #
 # See `guide/ci-pipeline.md` (four-point mapping) for translating
 # this workflow to GitLab CI, CircleCI, Buildkite, or Jenkins.
@@ -43,7 +44,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Single-line invocation of the project's realised gate runner.
-      # The runner spawns `rcf validate` then `rcf coverage --strict`,
+      # The runner spawns `rcf define validate` then `rcf audit coverage --strict`,
       # writes `.rcf/reports/ci/<gate>.json` per gate, and writes
       # `.rcf/reports/ci/pipeline.json` as the aggregate. Its exit code
       # is the pipeline's aggregate exit code.

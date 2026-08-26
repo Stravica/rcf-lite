@@ -18,7 +18,7 @@ const OPTION_SPEC = {
   'no-code': { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf validate [options]
+export const HELP = `Usage: rcf define validate [options]
 
 Walk the rcf/ tree and report schema-validation and broken-reference
 issues. Exits 0 when clean, 3 on issues.
@@ -140,7 +140,7 @@ export async function main(argv, deps = {}) {
   }
   if (errors.length === 0) {
     if (!flags.quiet) {
-      stdout.write('rcf validate: tree is clean.\n');
+      stdout.write('rcf define validate: tree is clean.\n');
       // B4 (E2E matrix 2026-07-06-003): scaffold TODO placeholders were
       // surviving to otherwise-valid trees unflagged. Non-blocking notice
       // only - the exit code is unchanged.

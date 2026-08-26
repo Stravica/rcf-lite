@@ -1,5 +1,6 @@
-// Absent-verify handling (spec §8.3, amendment 5). When `rcf-verify` is not
-// resolvable, the finalise gate MUST NOT silently skip - that recreates the
+// Absent-verify handling (spec §8.3, amendment 5). When the `rcf` bin
+// (which now carries the `verify` group post-0.10.0) is not resolvable,
+// the finalise gate MUST NOT silently skip - that recreates the
 // false-confidence failure the whole programme exists to prevent. The
 // sanctioned paths are exactly two, and nothing else:
 //   - interactive TTY  -> prompt the operator to install now (y/N);
@@ -35,8 +36,8 @@ export function promptYesNo(question, { input = process.stdin, output = process.
 }
 
 /**
- * Install rcf-verify globally (matches the install-together default of two
- * global bins). Streams npm's output to the operator. Returns the install
+ * Install rcf-lite globally so the `rcf verify` group becomes
+ * resolvable. Streams npm's output to the operator. Returns the install
  * process exit code.
  *
  * @param {object} [deps]
@@ -77,11 +78,11 @@ export async function resolveAbsentVerify({ installFlag, isTty }, io, deps = {})
   let wantsInstall = false;
   if (installFlag) {
     // Explicit flag: the sanctioned non-interactive install path.
-    io.stdout.write(`[finalise] rcf-verify not found; installing ${VERIFY_PACKAGE} (--install-verify)...\n`);
+    io.stdout.write(`[finalise] the rcf CLI (with verify) not found; installing ${VERIFY_PACKAGE} (--install-verify)...\n`);
     wantsInstall = true;
   } else if (isTty) {
     // Interactive: prompt. Declining aborts (never a silent skip).
-    io.stderr.write(`[finalise] rcf-verify is not installed. The ship gate cannot run without it.\n`);
+    io.stderr.write(`[finalise] rcf-lite is not installed. The ship gate cannot run without it.\n`);
     wantsInstall = await prompt(`Install ${VERIFY_PACKAGE} now? [y/N]`, {
       input: io.input, output: io.output,
     });
@@ -89,7 +90,7 @@ export async function resolveAbsentVerify({ installFlag, isTty }, io, deps = {})
       return {
         action: 'abort',
         code: 4,
-        reason: `finalise refused: rcf-verify is required and install was declined. `
+        reason: `finalise refused: rcf-lite is required and install was declined. `
           + `Install it (npm i -g ${VERIFY_PACKAGE}) or re-run with --install-verify. `
           + `The ship gate is never skipped.`,
       };
@@ -100,7 +101,7 @@ export async function resolveAbsentVerify({ installFlag, isTty }, io, deps = {})
     return {
       action: 'abort',
       code: 4,
-      reason: `finalise refused: rcf-verify is not installed and no TTY is available to prompt. `
+      reason: `finalise refused: rcf-lite is not installed and no TTY is available to prompt. `
         + `Install it (npm i -g ${VERIFY_PACKAGE}) or re-run with --install-verify. `
         + `The ship gate is never silently skipped.`,
     };

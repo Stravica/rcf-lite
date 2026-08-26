@@ -13,7 +13,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf read <id> [options]
+export const HELP = `Usage: rcf define read <id> [options]
 
 Prints the document body to stdout and a schema-validity report to
 stderr: a valid document is reported as valid; an invalid-but-present

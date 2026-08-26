@@ -9,7 +9,7 @@ import { formatError, isRcfError } from '#core/errors';
 
 import { readProvisionFile, cleanup } from '../provision/index.js';
 
-export const HELP = `Usage: rcf-verify cleanup --provision <file> [--url <app-url>]
+export const HELP = `Usage: rcf verify cleanup --provision <file> [--url <app-url>]
 
 Tear down artefacts recorded in the --provision file (all prefixed
 'zzverify-'). Reports what was removed and what could not be.

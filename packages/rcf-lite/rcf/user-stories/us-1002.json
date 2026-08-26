@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "status": "draft",
   "title": "Composition, namespaced ids and scope:global ADR conflict surfacing",
-  "description": "Multiple blueprints may be applied to a single project. Blueprint-contributed docs are namespaced by the blueprint's slug so ids cannot collide across blueprints. A blueprint's ADR contributions may be tagged `scope: global`; two applied blueprints each contributing a `scope: global` ADR are a genuine conflict and `rcf blueprint add` surfaces both entries and refuses to write. Conflict-presentation ergonomics are prototype-unknown #1 (design brief); this US covers the first pass.",
+  "description": "Multiple blueprints may be applied to a single project. Blueprint-contributed docs are namespaced by the blueprint's slug so ids cannot collide across blueprints. A blueprint's ADR contributions may be tagged `scope: global`; two applied blueprints each contributing a `scope: global` ADR are a genuine conflict and `rcf define blueprint add` surfaces both entries and refuses to write. Conflict-presentation ergonomics are prototype-unknown #1 (design brief); this US covers the first pass.",
   "asA": "operator on an RCF project",
   "iWant": "blueprint contributions to compose without id collisions, and for `scope: global` ADR conflicts to be surfaced with both sides visible before anything is written",
   "soThat": "composition never silently merges incompatible whole-project decisions",
@@ -14,15 +14,15 @@
       "id": "AC-1002-1",
       "description": "Blueprint-contributed doc ids are namespaced with the blueprint's slug so composition cannot collide on ids at the id layer",
       "given": "two blueprints `spa` and `rest` that both contribute a REQ, a US and an ADR",
-      "when": "both are applied to the same project via `rcf blueprint add`",
+      "when": "both are applied to the same project via `rcf define blueprint add`",
       "then": "every contributed id carries the blueprint slug as its prefix (REQ/US: `spa-REQ-001`, `rest-REQ-001`) or as its kebab-suffix (ADR: `ADR-004-spa-theme`, `ADR-005-rest-versioning`); no two contributed ids across the two blueprints match",
       "testable": true
     },
     {
       "id": "AC-1002-2",
-      "description": "`rcf blueprint add <slug>` refuses when the new blueprint contributes a `scope: global` ADR on a topic already contributed by an applied blueprint",
+      "description": "`rcf define blueprint add <slug>` refuses when the new blueprint contributes a `scope: global` ADR on a topic already contributed by an applied blueprint",
       "given": "a project with blueprint `alpha` already applied contributing an ADR tagged `scope: global` on topic `versioning`",
-      "when": "`rcf blueprint add beta` runs and blueprint `beta` also contributes a `scope: global` ADR on `versioning`",
+      "when": "`rcf define blueprint add beta` runs and blueprint `beta` also contributes a `scope: global` ADR on `versioning`",
       "then": "the verb exits non-zero, prints both ADR ids and their file paths, and the manifest is unchanged",
       "testable": true
     },
@@ -31,7 +31,7 @@
       "description": "Conflict output leads with per-side headers (ADR title + one-sentence decision) and names four honest resolution paths with actual blueprint slugs filled in (Phase 3.5 reshape)",
       "given": "the conflict case above",
       "when": "the verb prints the conflict",
-      "then": "the output opens with `conflict on topic (<topic>)` and one line per side carrying `blueprint <slug>: <title> — <decision>` (or `<id> at <path>` when the tree did not carry the ADR body), a `refs:` footer with both ids + paths, and four honest resolutions numbered 1-4: adopt-incoming (`rcf blueprint remove <existing-slug>`), keep-existing (do not add the incoming), supersede via a project-level ADR (`rcf blueprint supersede <topic>`), and declare-on-add (`rcf blueprint add <source> --resolve <topic>=project:<ADR-id>`) — all with the actual conflicting blueprint slugs already substituted, no `<slug>` placeholders",
+      "then": "the output opens with `conflict on topic (<topic>)` and one line per side carrying `blueprint <slug>: <title> — <decision>` (or `<id> at <path>` when the tree did not carry the ADR body), a `refs:` footer with both ids + paths, and four honest resolutions numbered 1-4: adopt-incoming (`rcf define blueprint remove <existing-slug>`), keep-existing (do not add the incoming), supersede via a project-level ADR (`rcf define blueprint supersede <topic>`), and declare-on-add (`rcf define blueprint add <source> --resolve <topic>=project:<ADR-id>`) — all with the actual conflicting blueprint slugs already substituted, no `<slug>` placeholders",
       "testable": true
     },
     {
@@ -44,15 +44,15 @@
     },
     {
       "id": "AC-1002-5",
-      "description": "The supersession record's two sides are the CONFLICT PAIR — one currently-applied blueprint's scope:global ADR on the topic PLUS one incoming (would-be-applied) blueprint's scope:global ADR on the same topic — and the `rcf blueprint supersede` verb accepts the incoming blueprint as the second side. Operator ruling (Baz, w-2026-08-19-008 round 3): option 3 as printed in the reshaped conflict message MUST be executable EXACTLY as printed from the refused-add state, with zero prep. Mechanism (builder judgement against the chain): the reshaped conflict message names option 3 as `rcf blueprint supersede <topic> --incoming <source>`, carrying the very same `<source>` argument the refused add was invoked with; `supersede` loads the incoming blueprint from `--incoming <source>`, finds its scope:global ADR on `<topic>`, stamps its id into the incoming blueprint's namespace, and uses `{slug, adrId}` for the incoming blueprint as the second side of `manifest.resolutions[].supersedes[]`. The scaffolded project ADR file lists both blueprint ADR ids (applied + incoming stamped) under `relatedAdrs[]`; after supersede returns, re-running `rcf blueprint add <source>` succeeds because the detector honours the freshly-recorded resolution. `--incoming <source>` is required when applied count on the topic is < 2 and is silently accepted (informational) when applied count is already >= 2.",
+      "description": "The supersession record's two sides are the CONFLICT PAIR — one currently-applied blueprint's scope:global ADR on the topic PLUS one incoming (would-be-applied) blueprint's scope:global ADR on the same topic — and the `rcf define blueprint supersede` verb accepts the incoming blueprint as the second side. Operator ruling (Baz, w-2026-08-19-008 round 3): option 3 as printed in the reshaped conflict message MUST be executable EXACTLY as printed from the refused-add state, with zero prep. Mechanism (builder judgement against the chain): the reshaped conflict message names option 3 as `rcf define blueprint supersede <topic> --incoming <source>`, carrying the very same `<source>` argument the refused add was invoked with; `supersede` loads the incoming blueprint from `--incoming <source>`, finds its scope:global ADR on `<topic>`, stamps its id into the incoming blueprint's namespace, and uses `{slug, adrId}` for the incoming blueprint as the second side of `manifest.resolutions[].supersedes[]`. The scaffolded project ADR file lists both blueprint ADR ids (applied + incoming stamped) under `relatedAdrs[]`; after supersede returns, re-running `rcf define blueprint add <source>` succeeds because the detector honours the freshly-recorded resolution. `--incoming <source>` is required when applied count on the topic is < 2 and is silently accepted (informational) when applied count is already >= 2.",
       "given": "a fresh project with ZERO applied blueprints and the shipped SPA + REST blueprints on disk (both carry scope:global ADRs on camelCase topics `errorEnvelope` and `authModel`)",
-      "when": "the operator runs the flow verbatim as printed: `rcf blueprint add <spa>`; `rcf blueprint add <rest>` (refused with the reshaped four-honest-paths message); then follows option 3 EXACTLY as printed: `rcf blueprint supersede errorEnvelope --incoming <rest>` and `rcf blueprint supersede authModel --incoming <rest>`; then re-runs `rcf blueprint add <rest>`",
-      "then": "each supersede exits 0, scaffolds a project ADR at `rcf/adrs/adr-NNN-<kebab-topic>.json` (topic string verbatim on `manifest.resolutions[].topic`; ADR id tail kebab-ified per ADR-010), and appends a `manifest.resolutions[]` record listing both blueprint ADR ids in `supersedes[]`; the subsequent `rcf blueprint add <rest>` exits 0 (detector honours the resolution) and both blueprint ADR files co-reside on disk with the project supersedes-ADR alongside them",
+      "when": "the operator runs the flow verbatim as printed: `rcf define blueprint add <spa>`; `rcf define blueprint add <rest>` (refused with the reshaped four-honest-paths message); then follows option 3 EXACTLY as printed: `rcf define blueprint supersede errorEnvelope --incoming <rest>` and `rcf define blueprint supersede authModel --incoming <rest>`; then re-runs `rcf define blueprint add <rest>`",
+      "then": "each supersede exits 0, scaffolds a project ADR at `rcf/adrs/adr-NNN-<kebab-topic>.json` (topic string verbatim on `manifest.resolutions[].topic`; ADR id tail kebab-ified per ADR-010), and appends a `manifest.resolutions[]` record listing both blueprint ADR ids in `supersedes[]`; the subsequent `rcf define blueprint add <rest>` exits 0 (detector honours the resolution) and both blueprint ADR files co-reside on disk with the project supersedes-ADR alongside them",
       "testable": true
     },
     {
       "id": "AC-1002-6",
-      "description": "`rcf blueprint add --reason <text>` attaches the operator's ruling text to every `manifest.resolutions[]` record minted on that add. Whitespace-only reasons are refused at the writer edge (schema does not enforce a minimum floor on the field itself; the writer's floor is emptiness, not length).",
+      "description": "`rcf define blueprint add --reason <text>` attaches the operator's ruling text to every `manifest.resolutions[]` record minted on that add. Whitespace-only reasons are refused at the writer edge (schema does not enforce a minimum floor on the field itself; the writer's floor is emptiness, not length).",
       "given": "an incoming blueprint whose apply would collide on one or more topics, resolved via one or more --resolve declarations",
       "when": "the operator adds `--reason \"...\"` alongside the --resolve flags",
       "then": "every newly-minted resolutions[] record carries the reason string verbatim; a whitespace-only --reason exits 2 with an error naming the topic and no record is written",
@@ -60,7 +60,7 @@
     },
     {
       "id": "AC-1002-7",
-      "description": "Duplicate `--resolve` declarations for the same topic within a single `rcf blueprint add` are deduped: the first declaration is kept, subsequent declarations on the same topic are dropped, and a `[warn]` line names each dropped topic on stderr. The add still exits 0 on success; the manifest carries exactly one resolutions[] record per topic.",
+      "description": "Duplicate `--resolve` declarations for the same topic within a single `rcf define blueprint add` are deduped: the first declaration is kept, subsequent declarations on the same topic are dropped, and a `[warn]` line names each dropped topic on stderr. The add still exits 0 on success; the manifest carries exactly one resolutions[] record per topic.",
       "given": "an incoming blueprint whose apply would collide on topic X",
       "when": "the operator passes `--resolve X=project:ADR-A --resolve X=project:ADR-B` on the same command",
       "then": "the manifest carries exactly one resolutions[] record on topic X with `resolvedByAdrId: ADR-A` (first-wins), and stderr carries a warn line naming X as a duplicate --resolve topic",
@@ -70,7 +70,7 @@
       "id": "AC-1002-8",
       "description": "Conflict enrichment is symmetric: the CLI's conflict report and `--json` output both carry `title` + one-sentence `decision` on BOTH sides of a globalAdrTopic conflict — the existing side read from the walker's tree, the incoming side read from the blueprint's ADR file on disk. Round-1 only enriched the existing side, which read asymmetrically against shipped blueprints.",
       "given": "an incoming blueprint that would collide with an applied blueprint on a scope:global ADR topic, both ADRs carrying a title and a decision",
-      "when": "`rcf blueprint add <source>` refuses with the reshaped message (with or without --json)",
+      "when": "`rcf define blueprint add <source>` refuses with the reshaped message (with or without --json)",
       "then": "both `incoming` and `existing` sides render `blueprint <slug>: <title> — <decision>` in the terminal output, and `conflicts[].incoming` and `conflicts[].existing` both carry `title` and `decision` in the --json output",
       "testable": true
     },
@@ -86,7 +86,7 @@
       "id": "AC-1002-10",
       "description": "Error-message prefix discipline on supersede: rcfError messages returned from `src/blueprint/supersede.js` MUST NOT prepend their own `blueprint supersede: ` prefix — the CLI edge already writes `[error] blueprint supersede: ` on every rcfError from the supersede verb. Round-2 caught the same bug on the `add` path; round-3 catches it on the supersede path (six sites: supersede.js:54, :70, :85, :107, :145, :160).",
       "given": "any error path in `src/blueprint/supersede.js` (missing topic, --reason whitespace-only, sub-2 applied ADRs, missing prd/tad, overwrite guard tripped, ADR write ioFailure)",
-      "when": "`rcf blueprint supersede ...` runs into that error path at the CLI",
+      "when": "`rcf define blueprint supersede ...` runs into that error path at the CLI",
       "then": "the printed stderr line matches `^\\[error\\] blueprint supersede: <message>$` with exactly one `blueprint supersede: ` prefix; the string `blueprint supersede: blueprint supersede:` does not appear anywhere in the output",
       "testable": true
     }

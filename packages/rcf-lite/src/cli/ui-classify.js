@@ -19,11 +19,11 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf ui-classify <fbs-id> [options]
+export const HELP = `Usage: rcf discover ui-classify <fbs-id> [options]
 
 Run the UI-bearing classifier on one FBS and print the verdict. Does
 not write to the FBS document; ratify with:
-  rcf update <fbs-id> --set uiBearing=true
+  rcf define update <fbs-id> --set uiBearing=true
 
 Options:
   --json                    Emit the uiClassification block as JSON.
@@ -98,9 +98,9 @@ export async function main(argv, deps = {}) {
     }
   }
   if (block.verdict === 'ui') {
-    stdout.write('  Ratify with: rcf update ' + fbsId + ' --set uiBearing=true\n');
+    stdout.write('  Ratify with: rcf define update ' + fbsId + ' --set uiBearing=true\n');
   } else if (block.verdict === 'notUi' && signals.length === 0) {
-    stdout.write('  No UI signals detected. Override with: rcf update ' + fbsId + ' --set uiBearing=true\n');
+    stdout.write('  No UI signals detected. Override with: rcf define update ' + fbsId + ' --set uiBearing=true\n');
   } else if (block.verdict === 'operatorOverride') {
     stdout.write('  Operator ruling recorded on FBS.uiBearing wins over the classifier.\n');
   }

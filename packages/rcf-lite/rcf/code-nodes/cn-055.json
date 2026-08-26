@@ -10,5 +10,5 @@
   "createdAt": "2026-08-11T00:00:00Z",
   "updatedAt": "2026-08-11T00:00:00Z",
   "title": "Unified `rcf` bin: verify subcommand dispatch",
-  "description": "The umbrella CLI entry point. Imports the alias bin's `main` and registers it as the `verify` entry on the top-level SUBCOMMANDS map so `rcf verify <verb>` dispatches through the same handlers as `rcf-verify <verb>`."
+  "description": "The umbrella CLI entry point. Imports the alias bin's `main` and registers it as the `verify` entry on the top-level SUBCOMMANDS map so `rcf verify <verb>` dispatches through the same handlers as `rcf verify <verb>`."
 }

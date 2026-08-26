@@ -1286,7 +1286,7 @@ export async function deleteDocument({ projectRoot, tree, id, options = {}, walk
   if (rootKinds.has(kind)) {
     return rcfError({
       kind: 'usage',
-      message: `delete: root singleton ${id} cannot be deleted via rcf delete`,
+      message: `delete: root singleton ${id} cannot be deleted via rcf define delete`,
       documentId: id,
     });
   }

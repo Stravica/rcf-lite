@@ -11,7 +11,6 @@ export {
   findOnPath,
   resolvePackageBin,
   VERIFY_PACKAGE,
-  VERIFY_PACKAGE_LEGACY,
   VERIFY_PACKAGE_CANDIDATES,
   VERIFY_BIN,
 } from './detect.js';

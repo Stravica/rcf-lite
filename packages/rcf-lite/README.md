@@ -9,7 +9,7 @@ Build software with an AI coding agent without losing the plot.
 
 Anyone who has shipped with a coding agent knows the failure mode: the code arrives fast, but what the product is supposed to do lives in prompt history, and prompt history is not a spec. Three weeks later nobody can say what is covered, what is tested, or what breaks when something changes.
 
-RCF Lite keeps those answers machine-checkable. It maintains a live chain from what you asked for, through requirements, user stories, acceptance criteria and tests, into the code itself, as plain JSON files in your own repository. Your agent works the chain instead of improvising; `rcf validate` catches drift the moment it happens; and when your app is deployed, `rcf verify` sends an independent verifier at it before anything gets called done.
+RCF Lite keeps those answers machine-checkable. It maintains a live chain from what you asked for, through requirements, user stories, acceptance criteria and tests, into the code itself, as plain JSON files in your own repository. Your agent works the chain instead of improvising; `rcf define validate` catches drift the moment it happens; and when your app is deployed, `rcf verify` sends an independent verifier at it before anything gets called done.
 
 It is the tooling for the [Requirements Confidence Framework (RCF)](https://stravica.ai/rcf-methodology): a method for keeping AI-built software honest.
 
@@ -50,7 +50,7 @@ If your project pinned one of the pre-consolidation packages, replace it with `r
 
 Invocation:
 
-- `rcf init` / `rcf validate` / `rcf build` / `rcf finalise` are unchanged.
+- `rcf init` / `rcf define validate` / `rcf build` / `rcf build finalise` are unchanged.
 - Prefer `rcf verify <run|report|provision|cleanup|mcp>` over the legacy `rcf-verify` bin. The alias still works (identical dispatch, one-line stderr deprecation notice on direct invocation; suppress with `RCF_QUIET=1`).
 
 The full migration story, the ratified ruling sheet and the registry runbook live at the repo root under [`docs/`](../../docs/).
@@ -65,7 +65,7 @@ See them the way you'd see your own project's:
 git clone https://github.com/Stravica/rcf-lite.git
 cd rcf-lite && pnpm install
 cd packages/rcf-lite
-pnpm rcf view     # the tree this tool was built from, rendered live in your browser
+pnpm rcf audit view     # the tree this tool was built from, rendered live in your browser
 ```
 
 Then scaffold your own: [docs/getting-started.md](docs/getting-started.md).
@@ -85,7 +85,7 @@ Then scaffold your own: [docs/getting-started.md](docs/getting-started.md).
 
 ## Under the hood
 
-The chain does not stop at the tests. **Code Nodes** make source files first-class nodes in the same graph, so a dangling spec-to-code link fails `rcf validate` exactly the way a dangling spec-to-spec one does. `rcf trace` walks backward from a source file to the requirements it serves; `rcf impact` extends a change's blast radius into the code that implements it. Spec-only trees work unchanged; the code layer is additive. Full detail, deliberate limits and the roadmap beyond them: [docs/code-nodes.md](docs/code-nodes.md).
+The chain does not stop at the tests. **Code Nodes** make source files first-class nodes in the same graph, so a dangling spec-to-code link fails `rcf define validate` exactly the way a dangling spec-to-spec one does. `rcf audit trace` walks backward from a source file to the requirements it serves; `rcf audit impact` extends a change's blast radius into the code that implements it. Spec-only trees work unchanged; the code layer is additive. Full detail, deliberate limits and the roadmap beyond them: [docs/code-nodes.md](docs/code-nodes.md).
 
 ## Known issues
 

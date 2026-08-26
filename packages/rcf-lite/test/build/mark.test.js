@@ -45,9 +45,9 @@ test('--mark verified is refused from any status; the message names rcf finalise
     const plan = planMark(treeWith(from), { fbsId: 'FBS-001', status: 'verified' });
     assert.equal(plan.refused, true, `${from} -> verified refuses`);
     assert.equal(plan.to, 'verified');
-    assert.match(plan.message, /rcf finalise FBS-001/, `${from} -> verified names finalise`);
+    assert.match(plan.message, /rcf build finalise FBS-001/, `${from} -> verified names finalise`);
     // and still names the sanctioned manual override.
-    assert.match(plan.message, /rcf update FBS-001 --set executionStatus=verified/, `${from} -> verified names rcf update`);
+    assert.match(plan.message, /rcf define update FBS-001 --set executionStatus=verified/, `${from} -> verified names rcf update`);
   }
 });
 
@@ -63,7 +63,7 @@ test('every backward transition is refused with the rcf update escape hatch name
   for (const [from, to] of backward) {
     const plan = planMark(treeWith(from), { fbsId: 'FBS-001', status: to });
     assert.equal(plan.refused, true, `${from} -> ${to}`);
-    assert.match(plan.message, /rcf update FBS-001 --set executionStatus=/, `${from} -> ${to}`);
+    assert.match(plan.message, /rcf define update FBS-001 --set executionStatus=/, `${from} -> ${to}`);
   }
 });
 

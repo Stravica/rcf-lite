@@ -30,8 +30,8 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf intake [--artefact <path>[,path]] [--kind <kind>] [--dry-run]
-       rcf intake --input <config.json> [--dry-run]
+export const HELP = `Usage: rcf discover intake [--artefact <path>[,path]] [--kind <kind>] [--dry-run]
+       rcf discover intake --input <config.json> [--dry-run]
 
 Variable-fidelity intake: read what the operator supplied, classify its
 fidelity, validate it against elicitation integrity, and record an
@@ -109,7 +109,7 @@ export async function main(argv, deps = {}) {
 
   const walkResult = await walkTree({ projectRoot });
   if (walkResult.errors.length > 0) {
-    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf validate' for details)\n`);
+    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf define validate' for details)\n`);
   }
 
   const outcome = await runIntakePhases({

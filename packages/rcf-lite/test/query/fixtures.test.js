@@ -37,37 +37,37 @@ async function goldenTest(name, args, fixture) {
 }
 
 test('golden: rcf coverage --format table matches dogfood fixture', async () => {
-  await goldenTest('coverage table', ['coverage', '--format', 'table'], 'coverage.table.txt');
+  await goldenTest('coverage table', ['audit', 'coverage', '--format', 'table'], 'coverage.table.txt');
 });
 
 test('golden: rcf coverage --format json matches dogfood fixture', async () => {
-  await goldenTest('coverage json', ['coverage', '--format', 'json'], 'coverage.json');
+  await goldenTest('coverage json', ['audit', 'coverage', '--format', 'json'], 'coverage.json');
 });
 
 test('golden: rcf coverage --format mermaid matches dogfood fixture', async () => {
-  await goldenTest('coverage mermaid', ['coverage', '--format', 'mermaid'], 'coverage.mmd');
+  await goldenTest('coverage mermaid', ['audit', 'coverage', '--format', 'mermaid'], 'coverage.mmd');
 });
 
 test('golden: rcf trace REQ-002 --forward --format table matches dogfood fixture', async () => {
-  await goldenTest('trace table', ['trace', 'REQ-002', '--forward', '--format', 'table'], 'trace.table.txt');
+  await goldenTest('trace table', ['audit', 'trace', 'REQ-002', '--forward', '--format', 'table'], 'trace.table.txt');
 });
 
 test('golden: rcf trace REQ-002 --forward --format json matches dogfood fixture', async () => {
-  await goldenTest('trace json', ['trace', 'REQ-002', '--forward', '--format', 'json'], 'trace.json');
+  await goldenTest('trace json', ['audit', 'trace', 'REQ-002', '--forward', '--format', 'json'], 'trace.json');
 });
 
 test('golden: rcf trace REQ-002 --forward --format mermaid matches dogfood fixture', async () => {
-  await goldenTest('trace mermaid', ['trace', 'REQ-002', '--forward', '--format', 'mermaid'], 'trace.mmd');
+  await goldenTest('trace mermaid', ['audit', 'trace', 'REQ-002', '--forward', '--format', 'mermaid'], 'trace.mmd');
 });
 
 test('golden: rcf impact TAC-001 --format table matches dogfood fixture', async () => {
-  await goldenTest('impact table', ['impact', 'TAC-001', '--format', 'table'], 'impact.table.txt');
+  await goldenTest('impact table', ['audit', 'impact', 'TAC-001', '--format', 'table'], 'impact.table.txt');
 });
 
 test('golden: rcf impact TAC-001 --format json matches dogfood fixture', async () => {
-  await goldenTest('impact json', ['impact', 'TAC-001', '--format', 'json'], 'impact.json');
+  await goldenTest('impact json', ['audit', 'impact', 'TAC-001', '--format', 'json'], 'impact.json');
 });
 
 test('golden: rcf impact TAC-001 --format mermaid matches dogfood fixture', async () => {
-  await goldenTest('impact mermaid', ['impact', 'TAC-001', '--format', 'mermaid'], 'impact.mmd');
+  await goldenTest('impact mermaid', ['audit', 'impact', 'TAC-001', '--format', 'mermaid'], 'impact.mmd');
 });

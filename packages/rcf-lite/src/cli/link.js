@@ -15,7 +15,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf link <us-id> --tac <tac-id> [options]
+export const HELP = `Usage: rcf define link <us-id> --tac <tac-id> [options]
 
 Options:
   --tac <tac-id>            TAC id to link (repeatable to link multiple
@@ -25,7 +25,7 @@ Options:
   --help                    Print this help
 `;
 
-export const UNLINK_HELP = `Usage: rcf unlink <us-id> --tac <tac-id> [options]
+export const UNLINK_HELP = `Usage: rcf define unlink <us-id> --tac <tac-id> [options]
 
 Options:
   --tac <tac-id>            TAC id to unlink (repeatable)
@@ -77,7 +77,7 @@ export async function main(argv, deps = {}) {
   // B5: pre-existing tree breakage no longer blocks write verbs - the
   // write is gated on the POST-write tree state inside the writer.
   if (walkResult.errors.length > 0) {
-    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf validate' for details)\n`);
+    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf define validate' for details)\n`);
   }
   const us = walkResult.tree.byId.get(usId);
   if (!us || walkResult.tree.kindById.get(usId) !== 'userStory') {

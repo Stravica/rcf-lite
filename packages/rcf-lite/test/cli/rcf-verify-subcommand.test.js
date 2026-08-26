@@ -1,65 +1,99 @@
-// AC coverage for REQ-009 / US-901 - the `rcf verify` subcommand added
-// by the 0.7.1 packaging consolidation. Verifies that:
-//   AC-901-1: `verify` on the top-level SUBCOMMANDS map resolves to the
-//             same dispatcher the `rcf-verify` alias bin exports.
-//   AC-901-2: the top-level `rcf --help` string lists `verify`.
-//   AC-901-3: the `rcf-verify` alias bin emits a one-line stderr
-//             deprecation notice on direct invocation and stays
-//             behaviourally unchanged.
+// AC coverage for REQ-009 / US-901 - the `rcf verify` group added by
+// the 0.10.0 CLI reorganisation (clean break from the 0.7.1 transition-
+// grace alias bin). Verifies that:
+//   AC-901-1: `verify` on the top-level GROUPS map dispatches every
+//             sub-verb to the corresponding verify-suite handler.
+//   AC-901-2: the top-level `rcf --help` string carries the verify
+//             group header and sub-verb catalogue.
+//   AC-901-3: the legacy standalone `rcf-verify` bin is deleted from
+//             the package (no bin/rcf-verify.js file, no bin field
+//             entry), and the umbrella `rcf` bin refuses old flat verb
+//             tokens with a stderr hint at the new grouped form.
 //
-// The tests exercise real modules, not a mock — the dispatch map is
-// the code the packaging PR wired, and the alias bin is executed as a
-// child process so the isMain gate actually fires.
+// The tests exercise real modules, not a mock - the dispatch map is
+// the code the 0.10.0 dispatcher wires, and the bin is executed as a
+// child process so the actual exit codes and stderr surface.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { readFile, access } from 'node:fs/promises';
+import { constants } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
-import { SUBCOMMANDS } from '../../bin/rcf.js';
-import { main as verifyBinMain } from '../../bin/rcf-verify.js';
+import { GROUPS } from '../../bin/rcf.js';
 import { TOP_LEVEL_HELP } from '../../src/cli/help.js';
+import { main as verifyRunMain } from '../../src/verify/cli/run.js';
+import { main as verifyReportMain } from '../../src/verify/cli/report.js';
+import { main as verifyProvisionMain } from '../../src/verify/cli/provision.js';
+import { main as verifyCleanupMain } from '../../src/verify/cli/cleanup.js';
+import { main as verifyMcpMain } from '../../src/verify/cli/mcp.js';
+import { main as browserVerifyMain } from '../../src/cli/browser-verify.js';
 
 const exec = promisify(execFile);
 const HERE = dirname(fileURLToPath(import.meta.url));
-const RCF_BIN = resolve(HERE, '..', '..', 'bin', 'rcf.js');
-const RCF_VERIFY_BIN = resolve(HERE, '..', '..', 'bin', 'rcf-verify.js');
+const PKG_ROOT = resolve(HERE, '..', '..');
+const RCF_BIN = resolve(PKG_ROOT, 'bin', 'rcf.js');
 
-test("AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin's dispatcher", () => {
-  assert.equal(
-    SUBCOMMANDS.verify,
-    verifyBinMain,
-    'the `rcf verify` route must be the same `main` function bin/rcf-verify.js exports; one dispatcher, two entry points',
-  );
+test('AC-901-1: `verify` group on GROUPS wires each sub-verb to the verify-suite handler', () => {
+  assert.equal(GROUPS.verify.run, verifyRunMain, 'run must resolve to verify/cli/run.js main');
+  assert.equal(GROUPS.verify.report, verifyReportMain, 'report must resolve to verify/cli/report.js main');
+  assert.equal(GROUPS.verify.provision, verifyProvisionMain, 'provision must resolve to verify/cli/provision.js main');
+  assert.equal(GROUPS.verify.cleanup, verifyCleanupMain, 'cleanup must resolve to verify/cli/cleanup.js main');
+  assert.equal(GROUPS.verify.mcp, verifyMcpMain, 'mcp must resolve to verify/cli/mcp.js main');
+  assert.equal(GROUPS.verify.browser, browserVerifyMain, 'browser must resolve to cli/browser-verify.js main');
 });
 
-test('AC-901-2: `rcf --help` advertises the verify subcommand', () => {
-  assert.match(TOP_LEVEL_HELP, /^\s+verify\s+</m, 'top-level help must list `verify <verb>` in the commands table');
+test('AC-901-2: `rcf --help` carries the verify group header and sub-verb catalogue', () => {
+  assert.match(TOP_LEVEL_HELP, /^verify\s+Run the independent/m, 'top-level help must announce the verify group with its one-line description');
+  for (const verb of ['run', 'report', 'provision', 'cleanup', 'mcp', 'browser']) {
+    assert.match(TOP_LEVEL_HELP, new RegExp(`^  ${verb}\\b`, 'm'), `top-level help must list the verify sub-verb '${verb}'`);
+  }
 });
 
-test('AC-901-3: `rcf-verify` alias emits a one-line stderr deprecation notice on direct invocation', async () => {
-  // --version short-circuits before any subcommand dispatch, so this
-  // exercises the deprecation guard cleanly.
-  const { stdout, stderr } = await exec(process.execPath, [RCF_VERIFY_BIN, '--version']);
-  assert.match(stdout, /^rcf-verify \d/, 'behaviour preserved: --version prints the version to stdout');
-  const deprecationLines = stderr.split('\n').filter((l) => l.includes('deprecation'));
-  assert.equal(deprecationLines.length, 1, 'exactly one stderr line must carry the deprecation notice');
-  assert.match(deprecationLines[0], /rcf verify/, 'the notice must point at `rcf verify` as the replacement');
+test('AC-901-3: bin/rcf-verify.js is deleted from the package', async () => {
+  const gone = resolve(PKG_ROOT, 'bin', 'rcf-verify.js');
+  await assert.rejects(access(gone, constants.F_OK), 'bin/rcf-verify.js must not exist in the package');
 });
 
-test('AC-901-3 (silencing): `rcf-verify` with RCF_QUIET=1 does not emit the deprecation notice', async () => {
-  const { stderr } = await exec(process.execPath, [RCF_VERIFY_BIN, '--version'], {
-    env: { ...process.env, RCF_QUIET: '1' },
-  });
-  assert.equal(stderr.includes('deprecation'), false, 'RCF_QUIET must silence the notice for scripted callers');
+test('AC-901-3: package.json:bin carries no `rcf-verify` entry', async () => {
+  const pkg = JSON.parse(await readFile(resolve(PKG_ROOT, 'package.json'), 'utf8'));
+  assert.deepEqual(Object.keys(pkg.bin), ['rcf'], 'the bin field must expose only `rcf`; `rcf-verify` is deleted at 0.10.0');
 });
 
-test('AC-901-1 (routing surface): `rcf verify --help` dispatches to the same help block as `rcf-verify --help`', async () => {
-  const [{ stdout: viaUnified }, { stdout: viaAlias }] = await Promise.all([
-    exec(process.execPath, [RCF_BIN, 'verify', '--help']),
-    exec(process.execPath, [RCF_VERIFY_BIN, '--help'], { env: { ...process.env, RCF_QUIET: '1' } }),
-  ]);
-  assert.equal(viaUnified, viaAlias, 'the two entry points must print byte-identical help');
+// Legacy tokens built at runtime so the argv-xform sweep does not
+// silently rewrite them to their grouped forms.
+const OLD_VALIDATE = 'val' + 'idate';
+const OLD_BROWSER_VERIFY = 'browser' + '-verify';
+
+test('AC-901-3: `rcf <old-flat-validate>` exits 2 with a stderr hint at `rcf define validate`', async () => {
+  const { code, stderr } = await runBin([OLD_VALIDATE]);
+  assert.equal(code, 2, 'old flat verbs must exit 2, not silently dispatch');
+  assert.match(stderr, /unknown top-level command 'validate'/, 'stderr must name the rejected token');
+  assert.match(stderr, /rcf define validate/, 'stderr must name the new grouped form as the remedy');
 });
+
+test('AC-901-3: `rcf <old-flat-browser-verify>` exits 2 with a hint at `rcf verify browser`', async () => {
+  const { code, stderr } = await runBin([OLD_BROWSER_VERIFY]);
+  assert.equal(code, 2);
+  assert.match(stderr, /rcf verify browser/, 'stderr must name `rcf verify browser` as the new form');
+});
+
+test('AC-901-1 (routing surface): `rcf verify --help` prints the verify group help', async () => {
+  const { code, stdout } = await runBin(['verify', '--help']);
+  assert.equal(code, 0);
+  assert.match(stdout, /Usage: rcf verify <verb>/);
+  assert.match(stdout, /browser <fbs-id>/);
+});
+
+async function runBin(args) {
+  try {
+    const { stdout, stderr } = await exec(process.execPath, [RCF_BIN, ...args], { encoding: 'utf8' });
+    return { code: 0, stdout, stderr };
+  } catch (err) {
+    return { code: err.code ?? 1, stdout: err.stdout ?? '', stderr: err.stderr ?? '' };
+  }
+}
+

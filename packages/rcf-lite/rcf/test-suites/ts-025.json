@@ -1,8 +1,8 @@
 {
   "id": "TS-025",
   "usId": "US-901",
-  "title": "`rcf verify` subcommand routing (0.7.1 consolidation)",
-  "purpose": "Verify the umbrella CLI mounts `rcf verify` as a first-class subcommand that dispatches to the same handlers the transition-grace `rcf-verify` alias bin exposes, that the top-level help advertises it, and that the alias bin emits a one-line stderr deprecation notice (suppressible via RCF_QUIET) when run directly.",
+  "title": "`rcf verify` group routing (0.10.0 CLI reorganisation)",
+  "purpose": "Verify the umbrella CLI mounts the `verify` group with the six sub-verbs (run, report, provision, cleanup, mcp, browser), that the top-level help advertises the group with its catalogue, and that the legacy standalone `rcf-verify` bin is deleted at 0.10.0 (with old flat verb tokens on the umbrella `rcf` bin refused with a stderr hint at the new grouped form).",
   "testLevel": "unit",
   "acIds": [
     "AC-901-1",
@@ -11,42 +11,56 @@
   ],
   "testCases": [
     {
-      "id": "TC-025-verify-routes-to-alias-dispatcher",
+      "id": "TC-025-verify-group-routes-per-subverb",
       "acId": "AC-901-1",
-      "description": "the `verify` entry on the top-level SUBCOMMANDS map is the same `main` function the alias bin exports",
+      "description": "`verify` on the top-level GROUPS map wires each sub-verb (run / report / provision / cleanup / mcp / browser) to its corresponding verify-suite main() (browser routes to src/cli/browser-verify.js main)",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-1: `verify` on the top-level SUBCOMMANDS map is the alias bin's dispatcher"
+      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-1: `verify` group on GROUPS wires each sub-verb to the verify-suite handler"
     },
     {
-      "id": "TC-025-verify-help-parity",
+      "id": "TC-025-verify-help-routes-to-group-help",
       "acId": "AC-901-1",
-      "description": "`rcf verify --help` and `rcf-verify --help` print byte-identical help",
+      "description": "`rcf verify --help` prints the verify group help (Usage: rcf verify <verb>) including the browser sub-verb",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-1 (routing surface): `rcf verify --help` dispatches to the same help block as `rcf-verify --help`"
+      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-1 (routing surface): `rcf verify --help` prints the verify group help"
     },
     {
-      "id": "TC-025-top-level-help-lists-verify",
+      "id": "TC-025-top-level-help-lists-verify-group",
       "acId": "AC-901-2",
-      "description": "the top-level rcf --help output lists `verify <verb>` alongside the other commands",
+      "description": "the top-level `rcf --help` output carries the verify group header with its sub-verb catalogue (run, report, provision, cleanup, mcp, browser)",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-2: `rcf --help` advertises the verify subcommand"
+      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-2: `rcf --help` carries the verify group header and sub-verb catalogue"
     },
     {
-      "id": "TC-025-alias-emits-deprecation-notice",
+      "id": "TC-025-alias-bin-deleted-file",
       "acId": "AC-901-3",
-      "description": "`rcf-verify` alias bin emits exactly one stderr line pointing at `rcf verify` when invoked directly",
+      "description": "the pre-0.10.0 alias bin file is deleted: bin/rcf-verify.js does not exist in the published package",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-3: `rcf-verify` alias emits a one-line stderr deprecation notice on direct invocation"
+      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-3: bin/rcf-verify.js is deleted from the package"
     },
     {
-      "id": "TC-025-alias-honours-quiet-env",
+      "id": "TC-025-alias-bin-deleted-package-json",
       "acId": "AC-901-3",
-      "description": "RCF_QUIET=1 silences the deprecation notice for scripted callers",
+      "description": "package.json bin field carries only `rcf`; the historical `rcf-verify` entry is gone",
       "status": "pending",
-      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-3 (silencing): `rcf-verify` with RCF_QUIET=1 does not emit the deprecation notice"
+      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-3: package.json:bin carries no `rcf-verify` entry"
+    },
+    {
+      "id": "TC-025-old-flat-validate-refused",
+      "acId": "AC-901-3",
+      "description": "calling `rcf <old-flat-validate>` via the umbrella bin exits 2 with a stderr hint at `rcf define validate` as the new grouped form",
+      "status": "pending",
+      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-3: `rcf <old-flat-validate>` exits 2 with a stderr hint at `rcf define validate`"
+    },
+    {
+      "id": "TC-025-old-flat-browser-verify-refused",
+      "acId": "AC-901-3",
+      "description": "calling `rcf <old-flat-browser-verify>` via the umbrella bin exits 2 with a stderr hint at `rcf verify browser` as the new grouped form",
+      "status": "pending",
+      "testPointer": "test/cli/rcf-verify-subcommand.test.js::AC-901-3: `rcf <old-flat-browser-verify>` exits 2 with a hint at `rcf verify browser`"
     }
   ],
   "status": "draft",
   "createdAt": "2026-08-11T00:00:00Z",
-  "updatedAt": "2026-08-11T00:00:00Z"
+  "updatedAt": "2026-08-26T00:00:00Z"
 }

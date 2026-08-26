@@ -4,8 +4,8 @@
   "bsId": "BS-001",
   "buildOrder": 18,
   "executionStatus": "notStarted",
-  "title": "Standards ingestion: rcf standards add + reference-by-default",
-  "summary": "Introduce a `rcf standards <verb>` verb family (`add`, `list`) that registers standards packs on the project manifest. Reference-by-default when the source lives inside the project root; copy into `rcf/standards/<slug>/` only when the source lives outside. Manifest registration is authoritative; every add writes a `manifest.standards[]` entry per the 0.4.4 `standardsPackRecord` schema.",
+  "title": "Standards ingestion: rcf define standards add + reference-by-default",
+  "summary": "Introduce a `rcf define standards <verb>` verb family (`add`, `list`) that registers standards packs on the project manifest. Reference-by-default when the source lives inside the project root; copy into `rcf/standards/<slug>/` only when the source lives outside. Manifest registration is authoritative; every add writes a `manifest.standards[]` entry per the 0.4.4 `standardsPackRecord` schema.",
   "approach": "One dispatcher, one applier. src/cli/standards.js parses `add|list`; src/blueprint/standards.js resolves whether the source is inside or outside the project root (via node:path.relative + startsWith), copies when needed, and writes the manifest entry. Copy path is fs.cp recursive with a per-run overwrite guard (idempotent re-adds refuse to re-copy unless `--refresh` is passed; Phase 1 keeps to add-only + idempotent read, `refresh` verb deferred to Phase 3).",
   "deliverables": [
     "src/cli/standards.js: parseArgs + HELP + main() for add/list",

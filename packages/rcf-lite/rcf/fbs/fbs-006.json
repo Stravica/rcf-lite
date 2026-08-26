@@ -31,8 +31,8 @@
   "estimatedSize": "medium",
   "estimatedHours": 8,
   "deliverables": [
-    "rcf create verb with parent linkage and conflict detection",
-    "rcf update verb with safe field updates",
+    "rcf define create verb with parent linkage and conflict detection",
+    "rcf define update verb with safe field updates",
     "Validation-error renderer covering both verbs"
   ],
   "riskLevel": "medium",

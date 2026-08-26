@@ -15,7 +15,7 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf delete <id> [options]
+export const HELP = `Usage: rcf define delete <id> [options]
 
 Options:
   --cascade                 Also delete dependents and drop backrefs
@@ -64,7 +64,7 @@ export async function main(argv, deps = {}) {
   // the canonical repair. The writer gates on the POST-write tree state;
   // only net-new breakage refuses.
   if (walkResult.errors.length > 0) {
-    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf validate' for details)\n`);
+    stderr.write(`[warn] tree has ${walkResult.errors.length} pre-existing issue(s); proceeding - writes are validated against the post-write state (run 'rcf define validate' for details)\n`);
   }
 
   const result = await deleteDocument({

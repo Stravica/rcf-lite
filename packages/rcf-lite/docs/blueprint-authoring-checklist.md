@@ -38,17 +38,17 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
 - [ ] No `scope: "global"` topic string mints a variant of an already-shipped topic (`errorShape` when `errorEnvelope` exists, `auth` when `authModel` exists).
 - [ ] Every `scope: "global"` topic your blueprint contributes appears in `docs/topics.md` with owning ADR id, meaning, and composition note.
 - [ ] Topics your blueprint deliberately does not claim (but that a future blueprint might reach for) appear in `docs/topics.md` as "unclaimed", so a composing author sees the reservation.
-- [ ] `rcf blueprint add <your-source>` applies cleanly on an empty project (exit 0, contribution count matches `blueprint.json`).
-- [ ] `rcf blueprint add <your-source>` applied alongside every currently shipped blueprint either applies cleanly (no shared global topic) or surfaces the pairing as an intentional conflict you documented in `docs/topics.md`.
-- [ ] `rcf blueprint remove <your-slug>` on the same project removes cleanly (no referring-doc refusal on a fresh apply).
-- [ ] `rcf blueprint add <your-source>` re-apply is a no-op at the same version, and returns `alreadyApplied: true`.
+- [ ] `rcf define blueprint add <your-source>` applies cleanly on an empty project (exit 0, contribution count matches `blueprint.json`).
+- [ ] `rcf define blueprint add <your-source>` applied alongside every currently shipped blueprint either applies cleanly (no shared global topic) or surfaces the pairing as an intentional conflict you documented in `docs/topics.md`.
+- [ ] `rcf define blueprint remove <your-slug>` on the same project removes cleanly (no referring-doc refusal on a fresh apply).
+- [ ] `rcf define blueprint add <your-source>` re-apply is a no-op at the same version, and returns `alreadyApplied: true`.
 
 ## 6. Adherence (author-owned; not mechanism-enforced)
 
 - [ ] Every AC's `then` clause is runtime-observable (specifies what an agent inspecting the deployed surface would see), not document-observable ("the project declares an ADR" is the anti-pattern).
 - [ ] Every AC that constrains project-source realisation cross-links to a TAC the project must realise, or names a runtime-verify probe the ship gate will exercise. Mechanism-reach principle from the standard, section 7.
 - [ ] Every REQ / US carries `blueprint:<slug>` in `tags` so a chain-authoring seat sees which blueprint minted the doc.
-- [ ] `rcf coverage --strict` on a scratch project that applied your blueprint reports every blueprint AC as `covered-unresolved` (uncovered by TC), NOT as passed. A blueprint AC that passes without a project TC binding it is a false-positive on shipped floors.
+- [ ] `rcf audit coverage --strict` on a scratch project that applied your blueprint reports every blueprint AC as `covered-unresolved` (uncovered by TC), NOT as passed. A blueprint AC that passes without a project TC binding it is a false-positive on shipped floors.
 - [ ] Every TAC the blueprint ships names its interfaces and its dependencies, and the responsibilities table cross-references the AC ids each responsibility satisfies.
 - [ ] Known mechanism-reach gaps (categories the AC binds but no project-side gate enforces) are listed in the blueprint's `README.md` under "Known mechanism-reach gaps". The watchpost run4 icon/token/component-library gap is the cautionary example.
 

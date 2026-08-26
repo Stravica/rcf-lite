@@ -195,9 +195,9 @@ export function assembleBundle(tree, { fbsId }) {
 
   // Section 7 - completion contract (static, parameterised by fbsId).
   const completionContract = {
-    markInProgress: `rcf build ${fbsId} --mark inProgress`,
-    markComplete: `rcf build ${fbsId} --mark complete`,
-    finalise: `rcf finalise ${fbsId} --url <deploy-url>`,
+    markInProgress: `rcf build mark ${fbsId} inProgress`,
+    markComplete: `rcf build mark ${fbsId} complete`,
+    finalise: `rcf build finalise ${fbsId} --url <deploy-url>`,
   };
 
   const result = {

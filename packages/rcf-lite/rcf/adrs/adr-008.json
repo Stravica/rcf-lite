@@ -8,7 +8,7 @@
     {
       "name": "Require verification against the deployed runtime",
       "summary": "Mandate that every verification run against the real deployed target, removing the provenance ambiguity by removing local verification.",
-      "reasonNotChosen": "Not always possible for the owner (no deploy yet, no account), and it belongs to the productised independent gate (rcf-verify-lite); the base offering's job is to label provenance honestly, not to force a deployed run."
+      "reasonNotChosen": "Not always possible for the owner (no deploy yet, no account), and it belongs to the productised independent gate (rcf verify-lite); the base offering's job is to label provenance honestly, not to force a deployed run."
     },
     {
       "name": "Trust green suites as verification",

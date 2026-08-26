@@ -253,8 +253,8 @@ test('test surface: covered flag, suites and case detail per AC; uncovered flagg
 test('completionContract carries the mark commands plus the finalise instruction for the item', () => {
   const bundle = assembleBundle(baseFixture(), { fbsId: 'FBS-002' });
   assert.deepEqual(bundle.completionContract, {
-    markInProgress: 'rcf build FBS-002 --mark inProgress',
-    markComplete: 'rcf build FBS-002 --mark complete',
-    finalise: 'rcf finalise FBS-002 --url <deploy-url>',
+    markInProgress: 'rcf build mark FBS-002 inProgress',
+    markComplete: 'rcf build mark FBS-002 complete',
+    finalise: 'rcf build finalise FBS-002 --url <deploy-url>',
   });
 });

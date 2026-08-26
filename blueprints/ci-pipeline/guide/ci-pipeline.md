@@ -2,7 +2,7 @@
 
 ## What it is
 
-A default CI floor for rcf-lite projects. The blueprint contributes the WHAT of a pipeline pattern: which gates run, in which order, what constitutes a passed run, what report files land on disk after every run, and how a failing run surfaces the failing gate in the operator's own log tail. The pipeline is a single Node entry-point script the CI job invokes with one line, and the gate set at v1.0.0 is exactly two required gates: `rcf validate` followed by `rcf coverage --strict`.
+A default CI floor for rcf-lite projects. The blueprint contributes the WHAT of a pipeline pattern: which gates run, in which order, what constitutes a passed run, what report files land on disk after every run, and how a failing run surfaces the failing gate in the operator's own log tail. The pipeline is a single Node entry-point script the CI job invokes with one line, and the gate set at v1.0.0 is exactly two required gates: `rcf define validate` followed by `rcf audit coverage --strict`.
 
 Concretely, the blueprint ships ten requirements, ten user stories (twenty acceptance criteria), three architecture components, and four architecture decision records. Two ADRs are `scope: global` on the topics `ciGates` (the fixed required-gate set) and `strictCoverageGate` (the per-AC strict coverage posture); the other two are scope-local (the Node-only runner shape and the JSON report shape) that a composing blueprint does not conflict with by default.
 
@@ -34,7 +34,7 @@ Reach for the ci-pipeline blueprint when:
 
 Do not reach for the ci-pipeline blueprint when:
 
-- The project does not use RCF (no `rcf/` tree, no `rcf validate` invocation makes sense). A project without an RCF chain does not need this blueprint; its pipeline is a different shape entirely.
+- The project does not use RCF (no `rcf/` tree, no `rcf define validate` invocation makes sense). A project without an RCF chain does not need this blueprint; its pipeline is a different shape entirely.
 - The project runs on a CI provider whose runners cannot execute Node 24 or later (a legacy internal Jenkins pool locked to Node 12, an embedded hardware CI). Upgrade the runner or supersede ADR-703 with a project-level ADR selecting a different runner shape.
 - The project's default branch model is trunk-based with no pull requests. The `push to default branch` half of the trigger still applies, but the pull-request half of AC-6101-1 does not; a project on trunk-based development authors a project-level ADR narrowing the trigger set.
 - The project wants a coverage-mode grace window on newly introduced ACs. Supersede ADR-702 with a project-level ADR stating the grace window and the reasoning.
@@ -45,8 +45,8 @@ Do not reach for the ci-pipeline blueprint when:
 A project applies the ci-pipeline blueprint on a fresh tree, realises the three TACs in project-authored FBSes, wires a CI job per the illustrative GitHub Actions workflow (or per the four-point mapping for its own provider), configures its branch protection to require the pipeline job as a merge-blocking check, and lands on a deployed pipeline where:
 
 - Every push to the default branch and every pull request into it fires the CI job automatically; the job's aggregate report at `.rcf/reports/ci/pipeline.json` records the trigger event, the timing, and the ordered gate outcomes.
-- A pull request whose head commit fails `rcf validate` sees `validate` outcome as `failed` in the aggregate, sees the specific schema or reference issue in the per-gate report, and cannot be merged through the platform's standard merge path.
-- A pull request whose head commit passes `rcf validate` but leaves an AC without a resolving TC sees `coverage-strict` outcome as `failed`, sees the specific `covered-unresolved` AC in the per-gate report, and cannot be merged.
+- A pull request whose head commit fails `rcf define validate` sees `validate` outcome as `failed` in the aggregate, sees the specific schema or reference issue in the per-gate report, and cannot be merged through the platform's standard merge path.
+- A pull request whose head commit passes `rcf define validate` but leaves an AC without a resolving TC sees `coverage-strict` outcome as `failed`, sees the specific `covered-unresolved` AC in the per-gate report, and cannot be merged.
 - A pull request whose head commit passes both gates sees `verdict: passed` in the aggregate, sees green on the platform's required-check surface, and can be merged.
 - A runner crash mid-suite (a killed Node child, a report write failure) produces an aggregate with `outcome: missing` for the affected gate and `verdict: failed`; the crash is not silently indistinguishable from a pass.
 - A developer reproducing a CI failure on their machine runs the same one-line invocation the CI job's step recorded and sees the same per-gate outcomes at the same report paths.

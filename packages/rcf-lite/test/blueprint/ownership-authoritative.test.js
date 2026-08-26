@@ -126,7 +126,7 @@ function tacBody(tacId) {
 // its id appears verbatim on the manifest entry after apply, and every
 // destination file is gone after remove.
 async function verbLoopClean(root, source, slug, expectedIds, expectedPaths) {
-  const first = await runBin(root, ['blueprint', 'add', source]);
+  const first = await runBin(root, ['define', 'blueprint', 'add', source]);
   assert.equal(first.code, 0, `first add stderr: ${first.stderr}\nstdout: ${first.stdout}`);
   assert.match(first.stdout, new RegExp(`applied '${slug}'`));
 
@@ -141,23 +141,23 @@ async function verbLoopClean(root, source, slug, expectedIds, expectedPaths) {
     await stat(join(root, relPath));
   }
 
-  const validateAfterAdd = await runBin(root, ['validate']);
+  const validateAfterAdd = await runBin(root, ['define', 'validate']);
   assert.equal(validateAfterAdd.code, 0,
     `validate after add exited ${validateAfterAdd.code}.\nstderr: ${validateAfterAdd.stderr}`);
   assert.doesNotMatch(validateAfterAdd.stderr, /Unrecognised document id/,
     `validate leaked an Unrecognised-id error: ${validateAfterAdd.stderr}`);
 
-  const second = await runBin(root, ['blueprint', 'add', source]);
+  const second = await runBin(root, ['define', 'blueprint', 'add', source]);
   assert.equal(second.code, 0, `re-add stderr: ${second.stderr}\nstdout: ${second.stdout}`);
 
-  const remove = await runBin(root, ['blueprint', 'remove', slug]);
+  const remove = await runBin(root, ['define', 'blueprint', 'remove', slug]);
   assert.equal(remove.code, 0, `remove stderr: ${remove.stderr}\nstdout: ${remove.stdout}`);
   for (const relPath of expectedPaths) {
     await assert.rejects(stat(join(root, relPath)),
       `remove left ${relPath} in the tree`);
   }
 
-  const validateAfterRemove = await runBin(root, ['validate']);
+  const validateAfterRemove = await runBin(root, ['define', 'validate']);
   assert.equal(validateAfterRemove.code, 0,
     `validate after remove exited ${validateAfterRemove.code}.\nstderr: ${validateAfterRemove.stderr}`);
 }
@@ -270,9 +270,9 @@ test('ownership: `spa` and `spa-theme` apply side-by-side without cross-claim; e
 
   // Apply spa first, then spa-theme. The spa-theme apply MUST NOT be
   // seen as re-stamping any of spa's contributions, and vice versa.
-  const applySpa = await runBin(root, ['blueprint', 'add', spaSrc]);
+  const applySpa = await runBin(root, ['define', 'blueprint', 'add', spaSrc]);
   assert.equal(applySpa.code, 0, `apply spa: ${applySpa.stderr}\n${applySpa.stdout}`);
-  const applyTheme = await runBin(root, ['blueprint', 'add', themeSrc]);
+  const applyTheme = await runBin(root, ['define', 'blueprint', 'add', themeSrc]);
   assert.equal(applyTheme.code, 0, `apply spa-theme: ${applyTheme.stderr}\n${applyTheme.stdout}`);
 
   const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
@@ -300,7 +300,7 @@ test('ownership: `spa` and `spa-theme` apply side-by-side without cross-claim; e
   }
 
   // Remove `spa` -- ONLY spa's files disappear; spa-theme stays intact.
-  const removeSpa = await runBin(root, ['blueprint', 'remove', 'spa']);
+  const removeSpa = await runBin(root, ['define', 'blueprint', 'remove', 'spa']);
   assert.equal(removeSpa.code, 0, `remove spa: ${removeSpa.stderr}\n${removeSpa.stdout}`);
   await assert.rejects(stat(join(root, 'rcf/adrs/adr-201-spa-routing.json')));
   await assert.rejects(stat(join(root, 'rcf/tacs/tac-201-spa-app-shell.json')));
@@ -312,7 +312,7 @@ test('ownership: `spa` and `spa-theme` apply side-by-side without cross-claim; e
   assert.equal(manifestAfter.blueprints[0].slug, 'spa-theme');
 
   // Remove `spa-theme` -- its files disappear, manifest is clean.
-  const removeTheme = await runBin(root, ['blueprint', 'remove', 'spa-theme']);
+  const removeTheme = await runBin(root, ['define', 'blueprint', 'remove', 'spa-theme']);
   assert.equal(removeTheme.code, 0, `remove spa-theme: ${removeTheme.stderr}\n${removeTheme.stdout}`);
   await assert.rejects(stat(join(root, 'rcf/adrs/adr-202-spa-theme.json')));
   await assert.rejects(stat(join(root, 'rcf/tacs/tac-202-spa-theme-tokens.json')));
@@ -345,10 +345,10 @@ test('ownership: cross-claim of `ADR-201-spa-routing` — a hypothetical `spa-th
     ],
   });
 
-  const applySpa = await runBin(root, ['blueprint', 'add', spaSrc]);
+  const applySpa = await runBin(root, ['define', 'blueprint', 'add', spaSrc]);
   assert.equal(applySpa.code, 0, `apply spa: ${applySpa.stderr}\n${applySpa.stdout}`);
 
-  const applyClaimant = await runBin(root, ['blueprint', 'add', claimantSrc]);
+  const applyClaimant = await runBin(root, ['define', 'blueprint', 'add', claimantSrc]);
   assert.notEqual(applyClaimant.code, 0, 'cross-claim MUST NOT be allowed to apply');
   const combined = `${applyClaimant.stderr}\n${applyClaimant.stdout}`;
   assert.match(combined, /ADR-201-spa-routing/, `error output should name the conflicting id.\n${combined}`);
@@ -375,9 +375,9 @@ test('ownership: cross-claim symmetric case — `spa` cannot re-declare an id `s
     ],
   });
 
-  const applyTheme = await runBin(root, ['blueprint', 'add', themeSrc]);
+  const applyTheme = await runBin(root, ['define', 'blueprint', 'add', themeSrc]);
   assert.equal(applyTheme.code, 0);
-  const applySpa = await runBin(root, ['blueprint', 'add', spaSrc]);
+  const applySpa = await runBin(root, ['define', 'blueprint', 'add', spaSrc]);
   assert.notEqual(applySpa.code, 0, 'symmetric cross-claim MUST NOT be allowed');
   const combined = `${applySpa.stderr}\n${applySpa.stdout}`;
   assert.match(combined, /ADR-202-spa-theme/);

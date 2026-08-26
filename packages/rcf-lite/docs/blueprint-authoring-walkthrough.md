@@ -74,7 +74,7 @@ Note the two namespacing families in action: REQ and US take the slug as PREFIX 
 }
 ```
 
-`prdId` names the project's PRD, not one this blueprint ships (blueprints never own a PRD). Every host project's PRD is `PRD-001` by init convention; if a project uses a different PRD id, the contribution's `prdId` reference will fail at `rcf validate` on that project. That is a known Phase 1 constraint of the mechanism.
+`prdId` names the project's PRD, not one this blueprint ships (blueprints never own a PRD). Every host project's PRD is `PRD-001` by init convention; if a project uses a different PRD id, the contribution's `prdId` reference will fail at `rcf define validate` on that project. That is a known Phase 1 constraint of the mechanism.
 
 ## 6. The US contribution with ACs
 
@@ -126,7 +126,7 @@ Note the two namespacing families in action: REQ and US take the slug as PREFIX 
 }
 ```
 
-`tacIds` cross-links the story to the component the blueprint ships. This is the mechanism-reach hook from the standard, section 7: the AC binds a class ("the panel renders"), the TAC names the component the project must realise, and `rcf validate`/`rcf coverage` refuse a project that leaves `TAC-401-hello-panel` unrealised.
+`tacIds` cross-links the story to the component the blueprint ships. This is the mechanism-reach hook from the standard, section 7: the AC binds a class ("the panel renders"), the TAC names the component the project must realise, and `rcf define validate`/`rcf audit coverage` refuse a project that leaves `TAC-401-hello-panel` unrealised.
 
 ## 7. The TAC contribution
 
@@ -212,7 +212,7 @@ From a scratch project directory:
 ```sh
 mkdir hello-app && cd hello-app
 rcf init
-rcf blueprint add /path/to/blueprints/hello-panel
+rcf define blueprint add /path/to/blueprints/hello-panel
 ```
 
 Expected output on a clean tree:
@@ -224,21 +224,21 @@ Expected output on a clean tree:
 Confirm:
 
 ```sh
-rcf blueprint list
+rcf define blueprint list
 ```
 
 ```
 hello-panel	1.0.0	2026-08-21T00:00:00.000Z	4 contribution(s)
 ```
 
-`rcf validate` should exit 0. `rcf coverage --strict` will report `hello-panel-REQ-001` as `covered-unresolved` until the project's build cycle binds a TC to each AC; that is the intended state after apply.
+`rcf define validate` should exit 0. `rcf audit coverage --strict` will report `hello-panel-REQ-001` as `covered-unresolved` until the project's build cycle binds a TC to each AC; that is the intended state after apply.
 
 ## 12. Compose with SPA
 
 Add the SPA blueprint alongside:
 
 ```sh
-rcf blueprint add /path/to/blueprints/spa
+rcf define blueprint add /path/to/blueprints/spa
 ```
 
 No conflict on any topic (`operatorPanel` is unclaimed by SPA), no id-band collision (SPA owns `1101-1899`, hello-panel owns `4101-4899`). Both blueprints co-reside; the project chain composes against both.
@@ -255,7 +255,7 @@ conflict on topic (theming):
   existing  blueprint spa: The one theming mechanism for the project ...
   ...
     3. Author a project-level ADR that supersedes both. Run:
-         rcf blueprint supersede theming --incoming /path/to/blueprints/hello-panel
+         rcf define blueprint supersede theming --incoming /path/to/blueprints/hello-panel
 ```
 
 That is the mechanism working. Roll the topic back to `operatorPanel` before shipping the blueprint; unrelated concepts sharing a topic string is the [Baz ruling](../../../docs/2026-08-06_packaging-consolidation-proposal.md)-adjacent authoring error the topic-name rules in the standard, section 6, exist to prevent.
@@ -263,7 +263,7 @@ That is the mechanism working. Roll the topic back to `operatorPanel` before shi
 ## 14. Remove and re-apply
 
 ```sh
-rcf blueprint remove hello-panel
+rcf define blueprint remove hello-panel
 ```
 
 Refused if any project-authored doc references `hello-panel-REQ-001`, `hello-panel-US-4101`, `TAC-401-hello-panel`, or `ADR-401-hello-panel-operator-panel`. Clean state:
@@ -282,4 +282,4 @@ Walk each AC on the story and check what refuses the project's FBS if the AC is 
 - **AC-4101-2** (30-second refresh cadence): a project TC that observes the reported values across two poll intervals.
 - **AC-4101-3** (anonymous surface omission): a project TC that walks anonymous routes and asserts absence.
 
-The blueprint does not ship these TCs (adherence expressed as ACs, decision 5); the project's build cycle authors them against the AC ids the blueprint contributed. `rcf coverage --strict` refuses to declare an FBS done while any AC on the bound US is `covered-unresolved`, so the mechanism-reach gap that bit categories 5, 6, and 11 of the SPA blueprint in watchpost run4 does not open here: the AC IS the gate, provided the host project's build cycle honours strict coverage.
+The blueprint does not ship these TCs (adherence expressed as ACs, decision 5); the project's build cycle authors them against the AC ids the blueprint contributed. `rcf audit coverage --strict` refuses to declare an FBS done while any AC on the bound US is `covered-unresolved`, so the mechanism-reach gap that bit categories 5, 6, and 11 of the SPA blueprint in watchpost run4 does not open here: the AC IS the gate, provided the host project's build cycle honours strict coverage.

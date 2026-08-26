@@ -5,40 +5,40 @@
   "version": "0.1.0",
   "status": "draft",
   "title": "Blueprint verb family: add, list, remove, upgrade",
-  "description": "A `rcf blueprint` verb family provides the primary operator seat for composing blueprints onto a project. Every verb runs against the current tree, is idempotent where the semantics allow, and writes to the manifest's `blueprints[]` registry so the applied set is greppable and mechanical.",
+  "description": "A `rcf define blueprint` verb family provides the primary operator seat for composing blueprints onto a project. Every verb runs against the current tree, is idempotent where the semantics allow, and writes to the manifest's `blueprints[]` registry so the applied set is greppable and mechanical.",
   "asA": "operator on an RCF project",
-  "iWant": "to add, list, remove and upgrade blueprints against my project tree from a single `rcf blueprint` verb family",
+  "iWant": "to add, list, remove and upgrade blueprints against my project tree from a single `rcf define blueprint` verb family",
   "soThat": "composition is a first-class action instead of a one-shot init flag, and I can layer several blueprints across the life of a project without hand-editing the manifest",
   "acceptanceCriteria": [
     {
       "id": "AC-1001-1",
-      "description": "`rcf blueprint add <slug>` on a project with no blueprints applied writes an entry into `manifest.blueprints[]` and prints the applied slug and version",
+      "description": "`rcf define blueprint add <slug>` on a project with no blueprints applied writes an entry into `manifest.blueprints[]` and prints the applied slug and version",
       "given": "a validated project tree with no existing `blueprints[]` entries and a resolvable blueprint slug",
-      "when": "`rcf blueprint add <slug>` runs",
+      "when": "`rcf define blueprint add <slug>` runs",
       "then": "the manifest gains one `blueprints[]` entry (slug, version, appliedAt, source, and any contributions[] the blueprint wrote), and stdout names the slug and applied version",
       "testable": true
     },
     {
       "id": "AC-1001-2",
-      "description": "`rcf blueprint list` prints every applied blueprint (slug, version, appliedAt) in apply order",
+      "description": "`rcf define blueprint list` prints every applied blueprint (slug, version, appliedAt) in apply order",
       "given": "a project with one or more blueprints already applied",
-      "when": "`rcf blueprint list` runs",
+      "when": "`rcf define blueprint list` runs",
       "then": "every applied blueprint prints, one per line, ordered by `appliedAt`, with slug, version and apply timestamp columns",
       "testable": true
     },
     {
       "id": "AC-1001-3",
-      "description": "`rcf blueprint remove <slug>` removes the manifest entry and refuses when any project-authored doc references a contributed id",
+      "description": "`rcf define blueprint remove <slug>` removes the manifest entry and refuses when any project-authored doc references a contributed id",
       "given": "a project with the blueprint applied and no project-authored doc referencing any of the contributions[] ids",
-      "when": "`rcf blueprint remove <slug>` runs",
+      "when": "`rcf define blueprint remove <slug>` runs",
       "then": "the `blueprints[]` entry is dropped from the manifest; when a project-authored doc DOES reference a contribution, the verb exits non-zero and prints the referencing id + path without mutating the manifest",
       "testable": true
     },
     {
       "id": "AC-1001-4",
-      "description": "`rcf blueprint add <slug>` is idempotent: repeating on an already-applied clean slug is a no-op with a friendly message",
+      "description": "`rcf define blueprint add <slug>` is idempotent: repeating on an already-applied clean slug is a no-op with a friendly message",
       "given": "a project with `<slug>` already in `blueprints[]`",
-      "when": "`rcf blueprint add <slug>` runs again with no conflicts to surface",
+      "when": "`rcf define blueprint add <slug>` runs again with no conflicts to surface",
       "then": "the manifest is not rewritten, exit code is 0, and stdout names the slug as already applied at the applied version",
       "testable": true
     },

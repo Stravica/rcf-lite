@@ -5,10 +5,10 @@ The third content blueprint on the rcf-build-lite blueprint mechanism (design br
 ## Apply
 
 ```
-rcf blueprint add <path-to>/blueprints/auth
+rcf define blueprint add <path-to>/blueprints/auth
 ```
 
-Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf blueprint list` shows the applied entry; `rcf blueprint remove auth` cleanly removes an unreferenced application.
+Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf define blueprint list` shows the applied entry; `rcf define blueprint remove auth` cleanly removes an unreferenced application.
 
 ## Anatomy
 
@@ -23,7 +23,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Guide | `guide/auth.md` | Operator-facing: when to use it, when not, what stays your call, and the promotion signal for the future auth-oidc blueprint |
 | Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes, the shared id band registry (spa, rest, auth, hello-panel, persistence, ci-pipeline, observability) |
 
-The doc set is contributions (copied into the project tree by `rcf blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
+The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 
 ## What it contributes, and what it deliberately does not
 
@@ -43,4 +43,4 @@ Passwordless sign-in via emailed one-shot URL; single-use time-limited tokens wi
 
 ## Known mechanism-reach gaps
 
-None at v1.0.0. Every AC on every story is bound to at least one TAC that the host project must realise, and every AC's `then` clause is runtime-observable in the deployed application (Set-Cookie inspection, response body byte-comparison, adapter-call enumeration, event-log field scanning). The mechanism-reach principle from the authoring standard section 7 is satisfied at ship: a project that applies this blueprint and does not realise a TAC leaves an unresolved `tacIds` reference on the story that `rcf validate` and `rcf coverage` refuse. The one operational surface a project must own on its own is the durable store implementation the two managers depend on (auth-REQ-008); that responsibility is stated as a TAC dependency, not as a smuggled runtime probe.
+None at v1.0.0. Every AC on every story is bound to at least one TAC that the host project must realise, and every AC's `then` clause is runtime-observable in the deployed application (Set-Cookie inspection, response body byte-comparison, adapter-call enumeration, event-log field scanning). The mechanism-reach principle from the authoring standard section 7 is satisfied at ship: a project that applies this blueprint and does not realise a TAC leaves an unresolved `tacIds` reference on the story that `rcf define validate` and `rcf audit coverage` refuse. The one operational surface a project must own on its own is the durable store implementation the two managers depend on (auth-REQ-008); that responsibility is stated as a TAC dependency, not as a smuggled runtime probe.

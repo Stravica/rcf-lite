@@ -685,8 +685,8 @@
           "id": "AC-901-1",
           "covered": true,
           "testCases": [
-            "TC-025-verify-help-parity",
-            "TC-025-verify-routes-to-alias-dispatcher"
+            "TC-025-verify-group-routes-per-subverb",
+            "TC-025-verify-help-routes-to-group-help"
           ],
           "unresolvedTestCases": []
         },
@@ -694,7 +694,7 @@
           "id": "AC-901-2",
           "covered": true,
           "testCases": [
-            "TC-025-top-level-help-lists-verify"
+            "TC-025-top-level-help-lists-verify-group"
           ],
           "unresolvedTestCases": []
         },
@@ -702,8 +702,10 @@
           "id": "AC-901-3",
           "covered": true,
           "testCases": [
-            "TC-025-alias-emits-deprecation-notice",
-            "TC-025-alias-honours-quiet-env"
+            "TC-025-alias-bin-deleted-file",
+            "TC-025-alias-bin-deleted-package-json",
+            "TC-025-old-flat-browser-verify-refused",
+            "TC-025-old-flat-validate-refused"
           ],
           "unresolvedTestCases": []
         }

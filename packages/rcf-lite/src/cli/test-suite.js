@@ -34,7 +34,7 @@ const APPROVE_OPTION_SPEC = {
 
 const VALID_PROFILES = new Set(['mock', 'stub', 'fixture', 'live', 'mixed']);
 
-export const HELP = `Usage: rcf test-suite <ts-id> <verb> [options]
+export const HELP = `Usage: rcf build test-suite <ts-id> <verb> [options]
 
 Verbs:
   provenance                Author runtimeProvenance on the TS or a specific TC

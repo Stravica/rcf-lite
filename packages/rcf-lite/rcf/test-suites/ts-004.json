@@ -37,7 +37,7 @@
       "acId": "AC-202-1",
       "description": "the view serves from a local server process and never writes files to disk",
       "status": "pending",
-      "testPointer": "test/view/cli.test.js::rcf view never writes any files to disk (regression against static mode)"
+      "testPointer": "test/view/cli.test.js::rcf audit view never writes any files to disk (regression against static mode)"
     }
   ],
   "status": "draft"

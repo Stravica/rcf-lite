@@ -23,7 +23,7 @@ import {
 } from '../blueprint/index.js';
 import { conflictReportJson, renderConflictReport } from '../blueprint/conflicts.js';
 
-export const HELP = `Usage: rcf blueprint <verb> [options]
+export const HELP = `Usage: rcf define blueprint <verb> [options]
 
 Verbs:
   add <source>           Apply a blueprint from a source directory
@@ -43,7 +43,7 @@ Verbs:
                          --incoming <source>), and record a
                          manifest.resolutions[] entry so the conflict
                          detector honours the resolution when the
-                         operator re-runs \`rcf blueprint add <source>\`.
+                         operator re-runs \`rcf define blueprint add <source>\`.
                          --incoming is required when the topic has fewer
                          than two applied scope:global ADRs (the
                          refused-add state) and is silently accepted
@@ -82,7 +82,7 @@ Composition and namespacing:
   REQ / US / PRD / BS / TAD / TS: slug PREFIX (spa-REQ-001).
   ADR / TAC / FBS / CN: slug SUFFIX (ADR-005-spa).
   Two blueprints both contributing a scope:global ADR on the same topic
-  is a genuine conflict: rcf blueprint add refuses and prints both
+  is a genuine conflict: rcf define blueprint add refuses and prints both
   sides, plus four resolution paths (adopt incoming, keep existing,
   supersede via project ADR, or declare on the add itself via
   --resolve).

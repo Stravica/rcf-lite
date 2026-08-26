@@ -28,7 +28,7 @@ const bin = resolve(repoRoot, 'bin', 'rcf.js');
 
 async function runBin(cwd, args = [], env = {}) {
   try {
-    const { stdout, stderr } = await exec(process.execPath, [bin, 'view', ...args], {
+    const { stdout, stderr } = await exec(process.execPath, [bin, 'audit', 'view', ...args], {
       cwd,
       encoding: 'utf8',
       env: { ...process.env, ...env, CI: '1' },
@@ -51,7 +51,7 @@ async function freePort() {
 }
 
 async function spawnServer(cwd, args = [], env = {}) {
-  const child = spawn(process.execPath, [bin, 'view', ...args], {
+  const child = spawn(process.execPath, [bin, 'audit', 'view', ...args], {
     cwd,
     env: { ...process.env, ...env, CI: '1' },
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -100,7 +100,7 @@ test('rcf view --help exits 0 in any directory', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-help-'));
   const { code, stdout } = await runBin(tmp, ['--help']);
   assert.equal(code, 0);
-  assert.match(stdout, /Usage: rcf view/);
+  assert.match(stdout, /Usage: rcf audit view/);
   assert.match(stdout, /--port/);
   assert.match(stdout, /--strict/);
   assert.match(stdout, /--no-open/);
@@ -256,7 +256,7 @@ test('rcf view EADDRINUSE on the requested port exits 2 with a clear error', asy
   }
 });
 
-test('rcf view never writes any files to disk (regression against static mode)', async () => {
+test('rcf audit view never writes any files to disk (regression against static mode)', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-nofs-'));
   await initProject({ projectRoot: tmp });
   const port = await freePort();

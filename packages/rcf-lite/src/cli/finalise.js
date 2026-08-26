@@ -78,21 +78,23 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf finalise <fbs-id> --url <deploy-url> [options]
+export const HELP = `Usage: rcf build finalise <fbs-id> --url <deploy-url> [options]
 
-The ship gate. Promotes an FBS at status complete to verified ONLY when an
-independent rcf-verify run passes AND carries ship authority.
+The ship gate. Promotes an FBS at status complete to verified ONLY when
+an independent 'rcf verify run' passes AND carries ship authority.
 
-rcf-verify is launched as a FRESH SUBPROCESS (never in-process) so the
-verifier agent starts cold, with zero build context - its only inputs are the
-RCF chain (the acceptance contract) and the live URL. The gate is the
-subprocess exit code AND the report's ship authority: a run must both pass and
-carry SHIP authority (a 'deployed'-profile run, or a 'ci'/'local-dev' run with
---parity-env) to promote. A correctness-only PASS holds without promoting.
-Findings flow back via the --out report file.
+The verify run is launched as a FRESH SUBPROCESS (never in-process) so
+the verifier agent starts cold, with zero build context - its only
+inputs are the RCF chain (the acceptance contract) and the live URL.
+The gate is the subprocess exit code AND the report's ship authority:
+a run must both pass and carry SHIP authority (a 'deployed'-profile
+run, or a 'ci'/'local-dev' run with --parity-env) to promote. A
+correctness-only PASS holds without promoting. Findings flow back via
+the --out report file.
 
-If rcf-verify is not installed, finalise PROMPTS to install it (install-together
-posture) - it never silently skips the gate. Off a TTY, pass --install-verify.
+If rcf-lite is not installed, finalise PROMPTS to install it (install-
+together posture) - it never silently skips the gate. Off a TTY, pass
+--install-verify.
 
 Required:
   <fbs-id>                  The FBS item to finalise (must be 'complete')
@@ -110,7 +112,7 @@ Options:
                             (default: ${DEFAULT_REPORT})
   --chain <PRD/ref>         Which PRD/chain to verify against (default: repo's)
   --persona <name>          Adversarial persona flavour
-  --install-verify          If rcf-verify is absent, install it without
+  --install-verify          If rcf-lite is absent, install it without
                             prompting (the sanctioned non-interactive path)
   --ship-without-verified   Acknowledge MOCK-ONLY-DECLARED /
                             BLOCKED-BY-DECLARATION per-AC verdicts on
@@ -130,7 +132,7 @@ Exit codes:
   2  usage error (bad flags, unknown / non-FBS id)
   3  schema validation or broken references (tree unreadable, or write refused)
   4  gate NOT passed - verify blocked ship, OR verify passed but the run lacks
-     ship authority (a correctness-only HOLD), OR rcf-verify absent and install
+     ship authority (a correctness-only HOLD), OR rcf-lite absent and install
      declined/unavailable - the FBS is left unchanged, findings surfaced
 `;
 
@@ -210,7 +212,7 @@ export async function main(argv, deps = {}) {
   const currentStatus = fbs.executionStatus;
   if (!FINALISABLE_STATUSES.has(currentStatus)) {
     stderr.write(`[error] refused finalise: ${fbsId} is '${currentStatus}'; the finalise gate promotes 'complete' -> 'verified'. `
-      + `Mark it complete first: rcf build ${fbsId} --mark complete\n`);
+      + `Mark it complete first: rcf build mark ${fbsId} complete\n`);
     return 4;
   }
 
@@ -237,7 +239,7 @@ export async function main(argv, deps = {}) {
       ? await deps.detectVerify({ cwd: projectRoot })
       : await detectVerify({ cwd: projectRoot });
     if (!detection.installed) {
-      stderr.write('[error] unexpected rcf-verify still not resolvable after install; install it manually and re-run.\n');
+      stderr.write('[error] unexpected the rcf bin still not resolvable after install; install it manually and re-run.\n');
       return 1;
     }
   }
@@ -257,7 +259,7 @@ export async function main(argv, deps = {}) {
   });
 
   if (!quiet) {
-    stdout.write(`[finalise] launching rcf-verify (fresh subprocess) against ${flags.url} [profile=${profile}]...\n`);
+    stdout.write(`[finalise] launching rcf verify run (fresh subprocess) against ${flags.url} [profile=${profile}]...\n`);
   }
 
   let spawnResult;
@@ -267,7 +269,7 @@ export async function main(argv, deps = {}) {
       : await spawnVerify({ invocation: detection.invocation, verifyArgs, cwd: projectRoot }, deps);
   } catch (err) {
     writeUnexpectedFailure(
-      rcfError({ kind: 'ioFailure', message: `finalise: could not launch rcf-verify: ${err.message}`, stack: err.stack }),
+      rcfError({ kind: 'ioFailure', message: `finalise: could not launch rcf verify: ${err.message}`, stack: err.stack }),
       stderr,
     );
     return 1;
@@ -293,7 +295,7 @@ export async function main(argv, deps = {}) {
     const passLoaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
     const authority = passLoaded.ok ? passLoaded.report.verdictAuthority : undefined;
     if (authority !== 'ship') {
-      stderr.write(`[finalise] HOLD: rcf-verify passed but this run carries '${authority ?? 'unknown'}' authority, `
+      stderr.write(`[finalise] HOLD: rcf verify passed but this run carries '${authority ?? 'unknown'}' authority, `
         + `not 'ship'; ${fbsId} left '${currentStatus}'.\n`);
       stderr.write('Only a \'deployed\'-profile run - or a \'ci\'/\'local-dev\' run with --parity-env asserting the '
         + 'runtime is edge-identical to prod - carries ship authority and can promote to verified. '
@@ -359,7 +361,7 @@ export async function main(argv, deps = {}) {
 
   // Gate NOT passed. The FBS stays put; surface the findings from the report
   // (the §5.4 verify -> fix -> re-verify seam), then fail non-zero.
-  stderr.write(`[finalise] gate NOT passed (rcf-verify exit ${spawnResult.code}); ${fbsId} left '${currentStatus}'.\n`);
+  stderr.write(`[finalise] gate NOT passed (rcf verify exit ${spawnResult.code}); ${fbsId} left '${currentStatus}'.\n`);
   const loaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
   if (loaded.ok) {
     stderr.write(summariseReport(loaded.report));

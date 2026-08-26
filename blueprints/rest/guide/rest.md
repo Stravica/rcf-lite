@@ -4,7 +4,7 @@ This guide is for the human running the project, not the coding agent. It explai
 
 ## What this blueprint is
 
-A specification package for a REST service: single deployable, versioned wire contract, no UI in scope. Applying it (`rcf blueprint add <path>`) merges 50 namespaced documents into your RCF tree: 16 requirements, 20 user stories carrying 117 acceptance criteria, 6 architectural components, and 8 decision records. It also ships reference assets: an OpenAPI 3.1 skeleton with the probe endpoints, error envelope, pagination envelope, and rate-limit shapes pre-populated; a middleware-slot reference for the four auth classes; sample request-response pairs per verb class; and neutral sample resources.
+A specification package for a REST service: single deployable, versioned wire contract, no UI in scope. Applying it (`rcf define blueprint add <path>`) merges 50 namespaced documents into your RCF tree: 16 requirements, 20 user stories carrying 117 acceptance criteria, 6 architectural components, and 8 decision records. It also ships reference assets: an OpenAPI 3.1 skeleton with the probe endpoints, error envelope, pagination envelope, and rate-limit shapes pre-populated; a middleware-slot reference for the four auth classes; sample request-response pairs per verb class; and neutral sample resources.
 
 The point, in one sentence: the operational and contractual floor of your API becomes part of the specification, so the same build cycle that verifies your features also verifies that the service is documented, observable, probeable, secured, and honest about errors.
 

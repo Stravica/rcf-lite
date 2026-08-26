@@ -27,7 +27,7 @@ test('run: --help exits 0 and prints usage', async () => {
   const stdout = capture();
   const code = await runMain(['--help'], { stdout: stdout.stream });
   assert.equal(code, 0);
-  assert.match(stdout.out.text, /Usage: rcf-verify run/);
+  assert.match(stdout.out.text, /Usage: rcf verify run/);
 });
 
 test('run: missing --out is a usage error (exit 2)', async () => {

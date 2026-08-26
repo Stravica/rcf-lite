@@ -34,7 +34,7 @@ async function scaffold() {
 
 test('rcf trace REQ-001 --forward walks REQ -> US -> AC', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['trace', 'REQ-001', '--forward', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'trace', 'REQ-001', '--forward', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   const ids = body.nodes.map((n) => n.id);
@@ -44,7 +44,7 @@ test('rcf trace REQ-001 --forward walks REQ -> US -> AC', async () => {
 
 test('rcf trace AC-101-1 --back walks AC -> US -> REQ -> PRD', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['trace', 'AC-101-1', '--back', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'trace', 'AC-101-1', '--back', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   const ids = body.nodes.map((n) => n.id);
@@ -53,7 +53,7 @@ test('rcf trace AC-101-1 --back walks AC -> US -> REQ -> PRD', async () => {
 
 test('rcf trace US-101 --both emits ancestors + descendants around the pivot', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['trace', 'US-101', '--both', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'trace', 'US-101', '--both', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.pivot, 'US-101');
@@ -66,21 +66,21 @@ test('rcf trace US-101 --both emits ancestors + descendants around the pivot', a
 
 test('rcf trace REQ-999 (unknown id) exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['trace', 'REQ-999']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'trace', 'REQ-999']);
   assert.equal(code, 2);
   assert.match(stderr, /not found/);
 });
 
 test('rcf trace REQ-001 --forward --back exits 2 (mutually exclusive)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['trace', 'REQ-001', '--forward', '--back']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'trace', 'REQ-001', '--forward', '--back']);
   assert.equal(code, 2);
   assert.match(stderr, /mutually exclusive/);
 });
 
 test('rcf trace with no positional exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['trace']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'trace']);
   assert.equal(code, 2);
   assert.match(stderr, /expected exactly one/);
 });

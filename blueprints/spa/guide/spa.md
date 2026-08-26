@@ -4,7 +4,7 @@ This guide is for the human running the project, not the coding agent. It explai
 
 ## What this blueprint is
 
-A specification package for single-page applications with public and authenticated surfaces, session-based auth, one deployable, dark and light by default, fully responsive by default. Applying it (`rcf blueprint add <path>`) merges 64 namespaced documents into your RCF tree: 21 requirements, 28 user stories carrying 167 acceptance criteria, 6 architectural components, and 9 decision records. It also ships a design system: contrast-validated design tokens for both themes, a realising stylesheet, wireframes for the nine canonical surfaces, per-component behaviour contracts, a viewport table, and sample data.
+A specification package for single-page applications with public and authenticated surfaces, session-based auth, one deployable, dark and light by default, fully responsive by default. Applying it (`rcf define blueprint add <path>`) merges 64 namespaced documents into your RCF tree: 21 requirements, 28 user stories carrying 167 acceptance criteria, 6 architectural components, and 9 decision records. It also ships a design system: contrast-validated design tokens for both themes, a realising stylesheet, wireframes for the nine canonical surfaces, per-component behaviour contracts, a viewport table, and sample data.
 
 The point, in one sentence: the visual and UX floor of your build becomes part of the specification, so the same build cycle that verifies your features also verifies that the product looks and behaves like someone cared.
 

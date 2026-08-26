@@ -34,7 +34,7 @@ async function scaffold() {
 
 test('rcf impact TAC-001 includes ancestor TAD-001 with review-arch label', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['impact', 'TAC-001', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'impact', 'TAC-001', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   const byId = Object.fromEntries(body.nodes.map((n) => [n.id, n]));
@@ -44,7 +44,7 @@ test('rcf impact TAC-001 includes ancestor TAD-001 with review-arch label', asyn
 
 test('rcf impact AC-101-1 includes FBS-001 (fbsByAcId cross-link) with re-execute label', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['impact', 'AC-101-1', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'impact', 'AC-101-1', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   const byId = Object.fromEntries(body.nodes.map((n) => [n.id, n]));
@@ -55,7 +55,7 @@ test('rcf impact AC-101-1 includes FBS-001 (fbsByAcId cross-link) with re-execut
 
 test('rcf impact renders the actionNeeded column in table format', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['impact', 'REQ-001']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'impact', 'REQ-001']);
   assert.equal(code, 0);
   assert.match(stdout, /Action needed/);
   assert.match(stdout, /review-scope|re-approve/);
@@ -63,7 +63,7 @@ test('rcf impact renders the actionNeeded column in table format', async () => {
 
 test('rcf impact JSON envelope shape matches D15', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['impact', 'AC-101-1', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['audit', 'impact', 'AC-101-1', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.pivot, 'AC-101-1');
@@ -75,14 +75,14 @@ test('rcf impact JSON envelope shape matches D15', async () => {
 
 test('rcf impact NOT-AN-ID exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['impact', 'NOT-AN-ID']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'impact', 'NOT-AN-ID']);
   assert.equal(code, 2);
   assert.match(stderr, /not found/);
 });
 
 test('rcf impact with no positional exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['impact']);
+  const { code, stderr } = await runBin(tmp, ['audit', 'impact']);
   assert.equal(code, 2);
   assert.match(stderr, /expected exactly one/);
 });

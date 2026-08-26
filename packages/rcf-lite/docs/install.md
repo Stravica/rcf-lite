@@ -9,7 +9,7 @@ You want this machine to run `rcf`. The steps are agent-executable; a human foll
 | Requirement | Check | Notes |
 |---|---|---|
 | Node.js >= 24 | `node --version` | Hard engines pin; older majors refuse to install. npm ships with it. |
-| A browser | - | Only if you will use `rcf view`. Everything else is terminal-only. |
+| A browser | - | Only if you will use `rcf audit view`. Everything else is terminal-only. |
 | git | `git --version` | Only for the source install ([section 4](#4-install-from-source)). |
 | pnpm | `pnpm --version` | Only for the source install; the repo is pnpm-managed (`pnpm-lock.yaml`). |
 
@@ -22,11 +22,11 @@ npm install -g rcf-lite
 That puts both binaries on your PATH:
 
 - `rcf` - the unified CLI. 30+ verbs covering define, build, verify and finalise (`init`, `view`, `validate`, `build`, `verify`, `finalise`, ...).
-- `rcf-verify` - a transition-grace alias for the adversarial ship-gate verifier. Prefer `rcf verify <run|report|provision|cleanup|mcp>` in new work; the alias prints a one-line deprecation notice on stderr and will be removed in a future major (silence in scripts with `RCF_QUIET=1`).
+- `rcf verify` - a transition-grace alias for the adversarial ship-gate verifier. Prefer `rcf verify <run|report|provision|cleanup|mcp>` in new work; the alias prints a one-line deprecation notice on stderr and will be removed in a future major (silence in scripts with `RCF_QUIET=1`).
 
 To try the CLI without installing anything, `npx rcf-lite <verb>` runs the same thing.
 
-**One package, one install.** Before 0.7.1 the suite shipped as three separately published packages (`@stravica-ai/rcf-build-lite`, `@stravica-ai/rcf-verify-lite`, `@stravica-ai/rcf-lite-core`). Those names are now deprecated on npm and resolve to `rcf-lite`. If your lockfile still pins one of them, migrate to `rcf-lite` on your next release; the runbook and the reasoning are linked from the [README](../../../README.md#where-this-came-from).
+**One package, one install.** Before 0.7.1 the suite shipped as three separately published packages (`@stravica-ai/rcf-build-lite`, `@stravica-ai/rcf verify-lite`, `@stravica-ai/rcf-lite-core`). Those names are now deprecated on npm and resolve to `rcf-lite`. If your lockfile still pins one of them, migrate to `rcf-lite` on your next release; the runbook and the reasoning are linked from the [README](../../../README.md#where-this-came-from).
 
 The only runtime dependency, `@stravica-ai/rcf-schemas` (the JSON Schema contract, deliberately kept as a separate public package), installs from the public npm registry; no registry auth is needed.
 
@@ -42,7 +42,7 @@ pnpm install
 
 You do not need a build step. The CLI runs straight from the clone via `bin/rcf.js` (`pnpm rcf <verb>`).
 
-One maintenance script to know about: `pnpm run vendor` copies the Mermaid bundle from `node_modules` into `src/view/vendored/` so the `rcf view` page renders diagrams with no network dependency. The vendored bundle is checked into the repo, so a fresh clone already has it; run the script only after bumping the `mermaid` devDependency.
+One maintenance script to know about: `pnpm run vendor` copies the Mermaid bundle from `node_modules` into `src/view/vendored/` so the `rcf audit view` page renders diagrams with no network dependency. The vendored bundle is checked into the repo, so a fresh clone already has it; run the script only after bumping the `mermaid` devDependency.
 
 ## 5. Registry access
 
@@ -178,8 +178,8 @@ What init gives a brownfield repo is an entry point, not a finished state: the m
 |---|---|---|
 | `npm install -g` or `pnpm install` fails on `engines` / `EBADENGINE` | Node older than 24 | Install Node 24+ (`node --version` to confirm), then reinstall. |
 | Install cannot resolve `rcf-lite` or `@stravica-ai/rcf-schemas` | Corporate proxy or a custom registry mirror that does not mirror the public npm registry | Point your package manager at the public registry: `npm config set registry https://registry.npmjs.org` for the unscoped umbrella, and `npm config set @stravica-ai:registry https://registry.npmjs.org` for the schemas dependency (or the `pnpm config` equivalents). No auth token is needed. |
-| `rcf view` page shows no diagrams | Vendored Mermaid bundle missing (`src/view/vendored/mermaid.min.js`) | Run `pnpm run vendor` from the clone root. |
-| `rcf view` exits 2 with `EADDRINUSE` | Port 4373 already bound | Pass `--port <n>` or stop the other process. `rcf help view` lists the precedence rules. |
+| `rcf audit view` page shows no diagrams | Vendored Mermaid bundle missing (`src/view/vendored/mermaid.min.js`) | Run `pnpm run vendor` from the clone root. |
+| `rcf audit view` exits 2 with `EADDRINUSE` | Port 4373 already bound | Pass `--port <n>` or stop the other process. `rcf help view` lists the precedence rules. |
 | `command not found: rcf` | No global install on this machine | `npm install -g rcf-lite`, or run without installing via `npx rcf-lite <verb>`. Inside a source clone, use `pnpm rcf <verb>` or the shell helper from [section 6](#6-verify-the-install). |
 | MCP client shows zero `rcf_*` tools; the server subprocess is dead | `rcf mcp` found no `rcf/manifest.json` in its working directory or any ancestor. It exits 2 with a `no project root found` line on stderr before any protocol traffic; most MCP clients hide that stderr, so the only visible symptom is an empty tool list. | Run `rcf init` in the project the server should serve (it wires the tree, `.mcp.json` and the agent instructions), then restart the agent session; or point the server at an initialised project with `--project-root <path>`. See [section 7](#7-wire-into-an-agent-harness). |
 | Every tool response ends with a "Setup incomplete" instruction | The server found a tree but no `<!-- rcf:managed:begin -->` block in the project-root `CLAUDE.md` / `AGENTS.md`; the session started without the init bootstrap. Legacy `<!-- rcf:begin -->` / `<!-- rcf:end -->` markers (pre-0.6.0) still count during the transition grace and do not trigger this notice; run `rcf doctor --fix` to migrate them. | Run `rcf init` in the project, then exit and restart the agent session. The notice disappears once the marker block exists. |

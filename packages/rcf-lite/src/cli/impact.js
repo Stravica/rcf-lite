@@ -26,7 +26,7 @@ const OPTION_SPEC = {
   'to-code': { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf impact <id> [options]
+export const HELP = `Usage: rcf audit impact <id> [options]
 
 Report the fan-out for 'if <id> changes'. Emits ancestors (up to the
 root PRD / TAD / BS) plus descendants (down to test-leaves) with a

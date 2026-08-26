@@ -4,19 +4,20 @@
   "bsId": "BS-001",
   "buildOrder": 15,
   "executionStatus": "complete",
-  "title": "`rcf verify` subcommand routing (0.7.1 consolidation)",
-  "summary": "Route the adversarial ship-gate verifier under the unified `rcf` CLI as `rcf verify <run|report|provision|cleanup|mcp>`. The pre-existing `rcf-verify` bin becomes a transition-grace alias that dispatches through the same handlers and emits a one-line stderr deprecation notice when invoked directly.",
-  "approach": "One dispatcher, two entry points. bin/rcf.js imports the `main` export from bin/rcf-verify.js and registers it as the `verify` entry on the top-level SUBCOMMANDS map, so `rcf verify --help` and `rcf-verify --help` share the same code path by construction. The alias bin gains a deprecation notice guarded by RCF_QUIET for scripted callers. The unified CLI's help output lists `verify <verb>` alongside the other top-level commands, sourced from the same verify TOP_LEVEL_HELP the alias bin uses (single-source rule).",
+  "title": "`rcf verify` group routing (0.10.0 CLI reorganisation)",
+  "summary": "Route the adversarial ship-gate verifier under the unified `rcf` CLI as `rcf verify <run|report|provision|cleanup|mcp|browser>`. The legacy standalone `rcf-verify` bin (0.7.1 transition-grace alias) is deleted outright; consumers move to `rcf verify <verb>` in one hop.",
+  "approach": "bin/rcf.js declares a `verify` entry in the top-level GROUPS map whose sub-verbs (run, report, provision, cleanup, mcp, browser) resolve to the corresponding main() exports from src/verify/cli/*.js and src/cli/browser-verify.js. The unified CLI's help output lists the verify group with its sub-verbs, sourced from the per-verb HELP exports via HELP_MAP.verify (single-source rule). The dispatcher additionally recognises pre-0.10.0 flat verb tokens through OLD_FLAT_MAP: on match it writes a one-line stderr hint naming the new grouped form before exiting 2. This is a usage-error affordance, not a fallback; the invocation fails.",
   "deliverables": [
-    "bin/rcf.js: `verify` on the top-level SUBCOMMANDS map, dispatching to the alias bin's exported main",
-    "bin/rcf-verify.js: one-line stderr deprecation notice on direct invocation, suppressible via RCF_QUIET",
-    "src/cli/help.js: `verify <verb>` listed in the top-level command table; `help verify` prints the alias bin's TOP_LEVEL_HELP block"
+    "bin/rcf.js: `verify` on the top-level GROUPS map, dispatching per sub-verb to the verify-suite handlers plus browser-verify",
+    "bin/rcf.js: OLD_FLAT_MAP recognises pre-0.10.0 flat verbs and emits a stderr hint at the new grouped form before exit 2",
+    "package.json: `bin` field carries only `rcf`; the historical `rcf-verify` entry and bin/rcf-verify.js file are deleted",
+    "src/cli/help.js: verify group header + sub-verb catalogue in TOP_LEVEL_HELP; `rcf help verify` prints the group help; `rcf help verify <verb>` prints per-verb help via HELP_MAP"
   ],
   "estimatedSize": "small",
   "estimatedHours": 1,
   "riskLevel": "low",
   "domain": "cli",
-  "notes": "Ratified in the 2026-08-06 packaging-consolidation proposal (R3). Pure repackage relative to 0.7.0 verify behaviour; the invocation form gains a canonical route, existing scripts keep working via the alias.",
+  "notes": "Ratified in the 2026-08-26 CLI group-design ruling (clean break: no aliases, no shims, no back-compat fallbacks). Supersedes the 0.7.1 alias-bin transition-grace posture; the alias bin is deleted.",
   "contextRequirements": {
     "tacIds": [],
     "adrIds": []
@@ -28,5 +29,5 @@
   ],
   "dependsOnFbsIds": [],
   "createdAt": "2026-08-11T00:00:00Z",
-  "updatedAt": "2026-08-11T00:00:00Z"
+  "updatedAt": "2026-08-26T00:00:00Z"
 }

@@ -85,8 +85,8 @@ export function planMark(tree, { fbsId, status }) {
       noOp: false,
       refused: true,
       message: `build: refusing --mark verified on ${fbsId}; 'verified' is written only by the `
-        + `independent verify gate, not by --mark. Promote it with: rcf finalise ${fbsId} --url <deploy-url>. `
-        + `For a deliberate manual override (no verify run) use: rcf update ${fbsId} --set executionStatus=verified`,
+        + `independent verify gate, not by --mark. Promote it with: rcf build finalise ${fbsId} --url <deploy-url>. `
+        + `For a deliberate manual override (no verify run) use: rcf define update ${fbsId} --set executionStatus=verified`,
     };
   }
   const fromIndex = LIFECYCLE.indexOf(from);
@@ -102,7 +102,7 @@ export function planMark(tree, { fbsId, status }) {
       noOp: false,
       refused: true,
       message: `build: refusing backward transition ${from} -> ${status} on ${fbsId}; `
-        + `for a deliberate correction use: rcf update ${fbsId} --set executionStatus=${status}`,
+        + `for a deliberate correction use: rcf define update ${fbsId} --set executionStatus=${status}`,
     };
   }
   return { fbsId, from, to: status, noOp: false };
