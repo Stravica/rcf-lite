@@ -490,3 +490,60 @@ The queue, the bundles, the referee outputs and this playbook are your working v
 - **Escalations lead with the decision.** Section 8's report shape is the content; deliver it in plain language, options short enough to choose between, one decision per message.
 - **Check before you ask, and remember what you were granted.** Git state, remotes, CI status: run the command rather than asking. Permissions already given (branching, pushing, raising PRs): act on them; re-asking reads as not listening.
 - **Confidence, honestly.** The operator steers; you drive the queue. Say what you are doing, not what the method requires of you, and say plainly when something is genuinely blocked - which is exactly when the operator must hear from you.
+
+## 18. The driving playbook: method is yours, not the operator's
+
+The three sections above (16 fresh-context self-review, 17 register) describe things the agent does. This section is why: the method's discipline runs on the driving side of the conversation, not the operator's. The operator states intent in plain words and expects to be guided; every method-shaped check, every chain-shaped finding, every named failure mode is the agent's job to carry out and translate. A build that only works because a non-technical operator noticed a missing acceptance criterion was, from the method's point of view, a broken build. Three behaviours make that concrete.
+
+### 18.1 Validate the chain before you act on it
+
+What good looks like:
+
+- Every session boot runs `rcf define validate` before the first substantive turn, without the operator asking. A broken tree is reported to the operator in plain intent (18.2) and cleared before anything else. This is the "Session start" line from the harness fragment, taken seriously as a reflex rather than a suggestion.
+- Every chain-touching operation runs the check that fits it, ahead of the operation, not after. Before `rcf build bundle --next`: `rcf define validate`. Before authoring or editing tree documents: `rcf define validate` on the current tree, so you start from a known-clean baseline. Before marking a stage complete: the referee output that gates that stage's exit. Before running a build spec you already hold: a fresh `rcf define validate` on the current state, because the tree may have moved since the bundle was fetched.
+- On a scope-limited operation, run the scope-limited check first. `rcf audit coverage <us-id> --strict` before touching a story's tests; `rcf audit trace <ac-id>` before editing an AC with dependents. The tree-wide command is the default; a scope id narrows the read without weakening the gate.
+
+Referee: the same referee the stage uses. The pre-action check does not replace the stage-end check; it moves the same check earlier, so drift is found before it costs a build.
+
+Failure modes:
+
+- **Reading the tree from memory.** Symptom: you plan against what the tree was two commits ago and the plan collides with the current state. Correction: never trust remembered tree state across a boundary (a new session, a returned dispatch, a merged PR); re-read via `rcf define validate` and the relevant `audit` verb.
+- **Waiting to be asked.** Symptom: the operator has to say "run validate" before you run it. Correction: the check runs unprompted. If the operator ever has to name the verb, that is a defect in your driving, not a preference of theirs.
+- **Skipping the check because "the bundle is fresh".** Symptom: you fetched the bundle five minutes ago and treat it as current truth after a merge, a tree edit, or a returned dispatch. Correction: freshness is measured in tree writes, not in wall-clock minutes.
+
+Escalation: if the pre-action check fails and the finding is not a clean local fix (a missing field on one document), stop and surface it (18.2). Do not carry a broken tree into a build stage on the assumption it will sort itself out.
+
+### 18.2 Surface findings in the operator's language
+
+What good looks like:
+
+- Every finding from a referee verb (`rcf define validate`, `rcf audit coverage`, `rcf audit trace`, `rcf audit impact`) is translated into the behaviour it is really about before it reaches the operator. The operator hears the missing check, not the missing row.
+- The translation names the feature, not the document. "The plan for search does not say what should happen when nothing matches, want me to add a check for that?" beats "AC-207 has no covering TS". "Sign-up does not describe what happens on a bad token" beats "US-104's AC set is missing the failure path". If the operator asks "which id?", you name it; otherwise the id stays on disk.
+- The plain-language surfacing is not a softening of the finding, it is a precise one. Method vocabulary compresses; plain language expands. If two chain findings translate to one plain-language ask, group them; if one chain finding translates to two distinct behaviour asks, split them. Faithful to the intent, not to the row count.
+- One question at a time, decision-shaped. "Want me to add a check for that?" is a decision; "There is drift across three ACs, should I audit them?" is a hedge. When the finding needs a fix, propose the fix; when it needs a decision, put the decision.
+
+Failure modes:
+
+- **Reciting the referee output.** Symptom: the operator receives a paste of `rcf audit coverage --strict` with the offending row highlighted. Correction: keep referee output in the PR body and on disk; in chat, name the behaviour and the ask.
+- **Method words leaking.** Symptom: "AC", "coverage", "traceability", "FBS", "chain", "strict" reach the operator on your side of the conversation. Correction: check the message before sending; those words belong in files. The exception is when the operator used them first.
+- **Translating away the substance.** Symptom: "there is a small gap in the plan" hides that a whole failure path is missing. Correction: plain language is not vague language; the ask is as specific as the finding.
+
+Escalation: if the finding is a spec-level ambiguity (two ACs cannot both hold, an AC has two readings that survive a careful read), section 8's escalation shape applies, still in plain language. Method terms do not become licit because the finding is complex.
+
+### 18.3 The method's failure modes are yours to catch
+
+What good looks like:
+
+- Every failure mode named in this playbook is a self-check you run before it can turn into a defect. The sections above list them per stage; this subsection is the load-bearing statement that catching them is your job, not the operator's. A defect the operator has to spot in your work is a self-check you did not run.
+- Before each stage-end commit, walk the stage's failure-mode list as a checklist. Stage 1: did the plan restate the FBS summary instead of the AC set; does any planned step trace to an AC id; did I keep the plan inside the bundle's scope. Stage 2: does every diff hunk map to an in-scope AC; did any new dependency arrive without an ADR; are Code Nodes authored as the code lands. Stage 3: did I walk the AC list as the outer loop, not the diff; is any deviation from the bundle documented, not smoothed over. Stage 4: did the referee actually run; does each test assert the AC's observable outcome and not the implementation's internals. Stage 5: is there any AC without a Code Node; am I marking complete before the merge, not after; does every verification claim name its runtime.
+- The five escalation cases in section 8 are self-triggered too. You do not wait for the operator to notice the plan is stuck on an ambiguous AC; you stop, report the ambiguity in plain language (18.2), and wait.
+- Test-honesty failure modes belong to you first. Editing a test to make it pass is the paradigm case: the referee has caught a real gap between code and spec, and rewriting the assertion hides the finding. When a test fails, the answer is to fix the code or fix the spec (RULE 4), never to fix the test into agreement with the wrong thing. Same for stubbing a broken pointer, deleting a failing assertion, or narrowing an AC to what the code happens to do.
+- Build-scope failure modes belong to you first. Gold-plating past the AC set, silent dependency additions, refactors the bundle did not ask for, docs beyond the spec: the check is "did the bundle ask for this?", answered before the diff lands, not after review flags it.
+
+Failure modes of the failure-mode discipline:
+
+- **Waiting for the operator to notice.** Symptom: a defect is caught in operator review that a stage-end self-check would have caught. Correction: run the self-check at every stage end, and treat the operator's find as a signal to sharpen the checklist for the next item.
+- **Self-check as narration.** Symptom: the report to the operator lists the checks you ran. Correction: the checks are silent; the report is the outcome. "Stage 4 done, coverage clean against the item's ACs" is the shape; the checklist itself stays on your side.
+- **Trusting the referee to catch judgement failures.** Symptom: you rely on `rcf define validate` and `rcf audit coverage` to catch a test that is asserting the wrong thing. Correction: the referee checks structure; the judgement half (does this AC capture the intent; does this test assert the outcome, not the implementation) is your check, not the tool's. Overview §5 (Mechanical, not semantic) names the split.
+
+Escalation: if the same failure mode recurs across items, that is a checklist gap or a bundle-shape gap; report it to the operator as a method-side finding (in plain language), not as a per-item slip.

@@ -180,6 +180,47 @@ things the operator does not want in the shared repo. The absence of
 the file is not an error; a fresh clone from another developer has no
 profile of yours yet.
 
+### RULE 11: Validate the chain before you act on it.
+
+Before you emit a build spec, execute one, edit the tree, or run any
+verb that reads the tree as truth, run `rcf define validate`. The
+operator does not have to ask, and the check does not wait for a stage
+that names it. A dirty tree is caught here rather than mid-Build, mid-
+Test, or at the ship gate. If validation fails or coverage is broken
+against the work in hand, stop and surface the finding to the operator
+(RULE 12) before touching code or authoring documents. Everything
+downstream assumes the tree you are reading is the tree the referee
+thinks it is; the pre-action check is what keeps that assumption true.
+
+### RULE 12: Surface method findings in the operator's language.
+
+When `rcf define validate`, `rcf audit coverage`, `rcf audit trace` or a
+spec inspection turns up a gap, translate it into plain intent before
+you raise it. The operator hears the behaviour that is missing, not the
+document id that is missing. "The plan for search does not say what
+should happen when nothing matches, want me to add a check for that?"
+beats "AC-207 has no covering TS". Method terms and document ids belong
+in files and command output; the conversation carries the intent behind
+them. An id appears only when you are pointing the operator at a
+specific file, or after the operator used it first. This is RULE 12
+applied to findings; the general register is set higher in this file.
+
+### RULE 13: The method's failure modes are yours to catch.
+
+The failure modes the method exists to guard against are agent-side
+self-checks, not defects for the operator to spot and name. Skipping a
+layer, gold-plating past the AC set, editing a test to pass instead of
+fixing the code, marking complete before the merge, drifting off the
+bundle, inventing a fact the stakeholder never gave you, treating a
+rubber-stamp read as review, marking a stage done without its referee
+output: you catch each one before the stage ends. Before you commit a
+stage, run the self-check: every in-scope AC maps to a diff location;
+every planned step traces to an AC id; the referee output actually ran
+and named the id you were working on; nothing landed the bundle did not
+ask for. A failure the operator has to point out is a failure you did
+not check for. The depth for each stage's self-check lives in the
+build-cycle playbook.
+
 ### Session start
 
 Run `rcf define validate`. A broken tree is fixed or reported before anything
