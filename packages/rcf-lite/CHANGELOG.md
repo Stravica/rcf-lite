@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
+## [0.11.0] - 2026-08-27
+
+Guidance-only release: the agent-side driving playbook. No CLI, schema, or runtime behaviour changes.
+
+### Added
+
+- Guidance pack: three new rules in the canonical agent-instructions block, mirrored into the harness template. RULE 11: validate the chain before you act on it (pre-action `rcf define validate` as an unprompted reflex). RULE 12: surface method findings in the operator's language (plain intent, no method vocabulary unless the operator uses it first). RULE 13: the method's failure modes are agent-side self-checks, not operator-side diagnostics.
+- Build-cycle playbook section 18 ("The driving playbook: method is yours, not the operator's") carrying the per-stage depth for the three rules.
+
 ## [0.10.0] - 2026-08-26
 
 The CLI is reorganised around the five RCF tool groups. Every previously-shipped verb keeps its handler; only the invocation shape changes. Clean break: no aliases, no deprecation shims, no back-compat fallbacks. The legacy standalone `rcf-verify` bin is deleted; the verify suite lives at `rcf verify <verb>` inside the umbrella `rcf` CLI.
