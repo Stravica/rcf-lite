@@ -202,8 +202,9 @@ should happen when nothing matches, want me to add a check for that?"
 beats "AC-207 has no covering TS". Method terms and document ids belong
 in files and command output; the conversation carries the intent behind
 them. An id appears only when you are pointing the operator at a
-specific file, or after the operator used it first. This is RULE 12
-applied to findings; the general register is set higher in this file.
+specific file, or after the operator used it first. The general
+register for talking to the operator is set higher in this file; this
+rule is that register applied to findings.
 
 ### RULE 13: The method's failure modes are yours to catch.
 
