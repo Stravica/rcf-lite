@@ -302,9 +302,12 @@ test('validateDocument accepts the new test-suite shape (id field, inline testCa
   assert.equal(validateDocument({ doc: ts, kind: 'testSuite' }), null);
 });
 
-// w-2026-07-28-005 strictness overlay: a TC without a testPointer is the
-// stub-coverage shape - the schema layer refuses it outright.
-test('validateDocument rejects a test case without testPointer (required by the local overlay)', () => {
+// rcf-schemas 0.5.0 conditional-required rule (w-2026-08-27-dave-001):
+// `testPointer` is REQUIRED when TC status is `passing` or `failing`, and
+// OPTIONAL when status is `pending` or `skipped`. Retires the local
+// strictness overlay (w-2026-07-28-005) that required a pointer on every
+// TC regardless of status.
+test('validateDocument rejects a passing test case without testPointer (0.5.0 conditional rule)', () => {
   const ts = {
     id: 'TS-001',
     usId: 'US-101',
@@ -313,7 +316,7 @@ test('validateDocument rejects a test case without testPointer (required by the 
     testLevel: 'unit',
     acIds: ['AC-101-1'],
     testCases: [
-      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'pending' },
+      { id: 'TC-001-happy-path', acId: 'AC-101-1', description: 'happy', status: 'passing' },
     ],
     status: 'draft',
     createdAt: '2026-01-01T00:00:00Z',
@@ -323,6 +326,64 @@ test('validateDocument rejects a test case without testPointer (required by the 
   assert.ok(err, 'expected a validation error');
   assert.equal(err.kind, 'validation');
   assert.match(err.message, /must have required property 'testPointer'/);
+});
+
+test('validateDocument rejects a failing test case without testPointer (0.5.0 conditional rule)', () => {
+  const ts = {
+    id: 'TS-001',
+    usId: 'US-101',
+    title: 'Loader smoke',
+    purpose: 'Cover AC-101-1',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [
+      { id: 'TC-001-broken', acId: 'AC-101-1', description: 'broken verdict, no pointer', status: 'failing' },
+    ],
+    status: 'draft',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  const err = validateDocument({ doc: ts, kind: 'testSuite' });
+  assert.ok(err, 'expected a validation error');
+  assert.match(err.message, /must have required property 'testPointer'/);
+});
+
+test('validateDocument accepts a pending test case without testPointer (0.5.0 conditional rule)', () => {
+  const ts = {
+    id: 'TS-001',
+    usId: 'US-101',
+    title: 'Loader smoke',
+    purpose: 'Cover AC-101-1',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [
+      { id: 'TC-001-not-landed', acId: 'AC-101-1', description: 'planned, not landed', status: 'pending' },
+    ],
+    status: 'draft',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  const err = validateDocument({ doc: ts, kind: 'testSuite' });
+  assert.equal(err, null, `pending TC without testPointer should validate; got ${err && err.message}`);
+});
+
+test('validateDocument accepts a skipped test case without testPointer (0.5.0 conditional rule)', () => {
+  const ts = {
+    id: 'TS-001',
+    usId: 'US-101',
+    title: 'Loader smoke',
+    purpose: 'Cover AC-101-1',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [
+      { id: 'TC-001-skipped', acId: 'AC-101-1', description: 'known-skipped', status: 'skipped' },
+    ],
+    status: 'draft',
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  const err = validateDocument({ doc: ts, kind: 'testSuite' });
+  assert.equal(err, null, `skipped TC without testPointer should validate; got ${err && err.message}`);
 });
 
 test('validateDocument rejects an empty-string testPointer', () => {

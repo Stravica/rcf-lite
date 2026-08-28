@@ -4,6 +4,25 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, breaking changes are signalled by a minor version bump.
 
+## [0.12.0] - 2026-08-28
+
+Adopts `@stravica-ai/rcf-schemas@0.5.0` and retires the local `testPointer` strictness overlay (`w-2026-07-28-005`). The `testPointer`-required rule now comes from the shared schema and is expressed conditionally by TC status: REQUIRED for `passing` and `failing`, OPTIONAL for `pending` and `skipped` (`w-2026-08-27-dave-001`, Baz ratified 2026-08-27). Pre-0.12 rcf-lite required a pointer on every TC regardless of status; 0.12 relaxes pending and skipped TCs to schema-legit-without-pointer, which is the honest shape ("no executable has landed yet"). Existing test-suite documents that already carried a pointer on every TC continue to validate unchanged.
+
+### Changed (BREAKING)
+
+- **`@stravica-ai/rcf-schemas` pin**: `0.4.5` → `0.5.0` (exact). The schema bump is a minor version because it tightens `testPointer` requiredness for `passing`/`failing` TCs and adds `minLength: 1` on the field when present. Docs that shipped `passing`/`failing` TCs without `testPointer` (dishonest coverage) stop validating; docs with only `pending`/`skipped` TCs without pointers remain valid, and are additionally now legitimate under the schema (they were rejected by the pre-0.12 overlay).
+- **`src/core/store/validator.js`**: the local strictness overlay is removed. The `testSuite` schema is registered from the raw import (`testSuiteSchema`), not a `structuredClone`d strict copy. Validation of TCs now inherits the schema's conditional-required rule unmodified.
+- **`src/ruleset/ruleset.json`**: `scopeTagVocabulary.schemaRef` URL bumped `v0.4.0` → `v0.5.0` in lock-step with the schemas release. Documentation reference only; no runtime behaviour change.
+
+### Added
+
+- **`packages/rcf-lite/test/core/store/validator.test.js`**: the pre-0.12 overlay-driven `rejects TC without testPointer` case is replaced by four cases covering every branch of the new rule (passing rejected, failing rejected, pending accepted, skipped accepted). The empty-string testPointer case is retained; the `minLength: 1` guard is preserved by the shared schema.
+
+### Migration
+
+- **rcf-lite consumers on 0.11**: no code change required. Existing chains with a `testPointer` on every TC keep validating. Chains that shipped pointer-less `pending` or `skipped` TCs (which the pre-0.12 overlay would have rejected on load) now validate on 0.12.
+- **Downstream chains with dishonest `passing`/`failing` TCs (no pointer)**: were rejected on load by the pre-0.12 overlay and continue to be rejected on 0.12 by the shared schema. The fix is unchanged: add the real pointer or downgrade the TC to `pending`/`skipped`.
+
 ## [0.11.0] - 2026-08-27
 
 Guidance-only release: the agent-side driving playbook. No CLI, schema, or runtime behaviour changes.

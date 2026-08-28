@@ -1,11 +1,14 @@
-// Schema validator. Registers the @stravica-ai/rcf-schemas@0.2.0 bundle once
-// at start-up and exposes a single `validateDocument` entry point. Returns
+// Schema validator. Registers the @stravica-ai/rcf-schemas bundle once at
+// start-up and exposes a single `validateDocument` entry point. Returns
 // `null` on success or a structured `validation` error on failure.
 //
 // Validation runs on load (FBS-001 / AC-701-3): the published bundle is the
-// contract, not a local copy - with ONE documented strictness overlay
-// (`testPointer` required on every Test Case; see the overlay block below).
-// Referential-integrity checking lives in the walker (D8); this module is
+// contract, no local overlays. The `testPointer` conditional-required rule
+// (required for TCs with status `passing` or `failing`, optional for
+// `pending` or `skipped`) landed in the shared schema at rcf-schemas 0.5.0
+// (w-2026-08-27-dave-001), replacing the pre-0.12 local strictness overlay
+// that required a pointer on every TC (w-2026-07-28-005). Referential
+// -integrity checking lives in the walker (D8); this module is
 // schema-shape-only.
 
 import Ajv2020 from 'ajv/dist/2020.js';
@@ -28,26 +31,12 @@ import cnSchema from '@stravica-ai/rcf-schemas/schemas/cn.schema.json' with { ty
 
 import { rcfError } from '../errors/index.js';
 
-// w-2026-07-28-005: strictness overlay - `testPointer` is REQUIRED on every
-// Test Case. The published bundle (0.3.1) still declares it optional; an
-// optional pointer is how 76 stub TC rows can claim coverage while pointing
-// at nothing, so Build Lite refuses the shape at the schema layer. This is
-// the ONLY local divergence from the published bundle, it is a pure
-// tightening (every document valid here is valid upstream), and it is
-// registered under the bundle's own $id so every validation path (walker
-// load, post-write gate, write verbs) inherits it. Durable home: making
-// testPointer required in @stravica-ai/rcf-schemas itself; drop this block
-// when that ships.
-const testSuiteSchemaStrict = structuredClone(testSuiteSchema);
-{
-  const testCase = testSuiteSchemaStrict.$defs.testCase;
-  testCase.required = [...testCase.required, 'testPointer'];
-  testCase.properties.testPointer = {
-    ...testCase.properties.testPointer,
-    minLength: 1,
-    description: 'Required pointer to the executable test, format: filePath::testName.',
-  };
-}
+// w-2026-07-28-005 strictness overlay retired at rcf-lite 0.12.0. The
+// durable landing (`testPointer` required on Test Cases with status
+// `passing` or `failing`, `minLength: 1` when present, and OPTIONAL for
+// `pending` or `skipped`) shipped in @stravica-ai/rcf-schemas 0.5.0
+// (w-2026-08-27-dave-001). rcf-lite now inherits the rule from the shared
+// schema, unmodified.
 
 /**
  * @typedef {('manifest'|'prd'|'req'|'userStory'|'tad'|'tac'|'adr'|'buildSequence'|'fbs'|'testSuite'|'codeNode')} DocKind
@@ -63,8 +52,7 @@ const SCHEMAS = {
   adr: adrSchema,
   buildSequence: buildSequenceSchema,
   fbs: fbsSchema,
-  // w-2026-07-28-005 overlay: the tightened copy, not the raw import.
-  testSuite: testSuiteSchemaStrict,
+  testSuite: testSuiteSchema,
   // Phase 10: Code Node.
   codeNode: cnSchema,
 };
