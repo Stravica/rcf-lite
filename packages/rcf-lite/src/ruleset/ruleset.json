@@ -82,7 +82,7 @@
   ],
   "scopeTagVocabulary": {
     "sourcePackage": "@stravica-ai/rcf-schemas",
-    "schemaRef": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/scopeTag",
+    "schemaRef": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/scopeTag",
     "values": [
       { "value": "library", "description": "Observable in an isolated library or fixture." },
       { "value": "runtime", "description": "Observable in the running product against local integration." },
