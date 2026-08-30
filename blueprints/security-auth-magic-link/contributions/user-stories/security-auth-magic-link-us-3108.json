@@ -1,0 +1,46 @@
+{
+  "usId": "security-auth-magic-link-US-3108",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-magic-link-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sessions and tokens survive a process restart",
+  "asA": "operator whose deploy should not sign every operator out",
+  "iWant": "outstanding sessions and unconsumed sign-in tokens to remain valid across a restart of the authenticating service",
+  "soThat": "a deploy is invisible to the signed-in operator and a magic link that was minted just before a restart still works",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-3108-1",
+      "description": "A session issued before a process restart continues to authenticate requests after the process starts back up, without a fresh sign-in and without a change of handle value.",
+      "given": "a session S is issued and then the authenticating process is stopped and started",
+      "when": "a subsequent authenticated request is made using S's handle after the restart",
+      "then": "the server authenticates the request, exposes the same principal id on the request context, and does not require a fresh sign-in",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3108-2",
+      "description": "An unconsumed sign-in token minted before a process restart can be consumed after the restart, within its original expiry window.",
+      "given": "a token T is minted and then the authenticating process is stopped and started, all within T's expiry window",
+      "when": "GET /login/verify is called with T after the restart",
+      "then": "the response is a 302 to the configured post-sign-in route and carries a Set-Cookie header issuing a fresh session handle",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3108-3",
+      "description": "The idle-expiry clock for a session survives a process restart; the wall-clock elapsed during the restart counts against the idle window.",
+      "given": "a session S with idle window I is issued, then the process is stopped for a duration D and restarted",
+      "when": "a subsequent request is made using S's handle after the restart",
+      "then": "the server applies the same idle-expiry rule it would have applied with no restart, using the last-seen timestamp recorded before the stop",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-501-security-auth-magic-link-magic-link-manager",
+    "TAC-502-security-auth-magic-link-session-manager"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

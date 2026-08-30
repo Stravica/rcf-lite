@@ -1,0 +1,60 @@
+{
+  "tacId": "TAC-209-application-spa-csp-styled-adherence-probe",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Styled-under-shipped-CSP adherence probe",
+  "purpose": "The runtime-observable enforcement handle for application-spa-REQ-018 (SPA security baselines: CSP, sanitised dynamic HTML, hardened cookies, secret-free bundle). Watchpost run4 demonstrated the mechanism-reach gap this probe cures: FBS-011 declared a strict CSP (style-src 'self', no unsafe-inline), FBS-013/015 rendered inline <style> blocks, every existing UI-bearing gate passed (28 styled screenshots, browser-verify green), and yet every production page rendered unstyled at deploy because the harness bypassed the production security-header path. This TAC is the project-realised probe that (a) refuses any inline <style> block in the rendered HTML surface, (b) refuses a CSP that relaxes style-src to unsafe-inline, and (c) drives a real browser at the same server instance that stamps the production headers to prove the shipped stylesheet actually reaches the runtime surface. Writes a stable JSON report the ci-pipeline aggregate report can name.",
+  "responsibilities": [
+    "Expose a Node entry point (a single `.js` or `.mjs` file) invocable as `node <path>` with no shell glue; the entry point path is stable and recorded on the aggregate report's `runner.entryPoint` field when this probe is wired as a ci-pipeline gate (AC-1131-5, AC-1131-6).",
+    "Accept configuration naming (i) how to boot the target server (a Node module or command that starts the same server instance the production entry point starts, with the same route registration), (ii) the enumerated set of UI-bearing routes to probe, and (iii) the stylesheet URL every rendered document is expected to link (AC-1131-3, AC-1131-4).",
+    "For every enumerated route: navigate a real headless browser to the served URL, capture the response `content-security-policy` header, capture the response body, run getComputedStyle on document.body, and record the results (AC-1131-1, AC-1131-2, AC-1131-3).",
+    "Refuse the run when any captured CSP declares 'unsafe-inline' or 'unsafe-eval' on style-src, when style-src is absent, or when style-src is served as a wildcard (AC-1131-1).",
+    "Refuse the run when any captured response body contains a `<style` substring (case-insensitive), including <style> injected by templating helpers (AC-1131-2).",
+    "Refuse the run when the computed body backgroundColor for any route is the browser default (`rgba(0, 0, 0, 0)` / `transparent`) or when the computed body fontFamily resolves to an empty value; both indicate the shipped stylesheet did NOT reach the runtime surface under the production headers (AC-1131-3).",
+    "Issue a same-origin GET against the linked stylesheet URL through the same server instance and refuse when the response is not 200 with content-type `text/css` (AC-1131-4).",
+    "Write a JSON report at a stable relative path (`reports/csp-styled-adherence.json` under the configured report directory, matching the ci-pipeline per-gate report shape of TAC-702) naming: every route probed, the CSP header captured, whether an inline <style> was detected, the computed background and fontFamily values, the stylesheet GET verdict, and an ok / fail verdict (AC-1131-5).",
+    "Exit with code 0 when every route passes; exit with code 1 (or the configured non-zero code) on any refusal, so a ci-pipeline runner (TAC-701) captures the failure through its ordinary gate-failure path (AC-1131-5, AC-1131-6).",
+    "Refuse to gate control flow on CI-provider-specific environment variables; the probe MUST run identically on a developer machine and inside CI (AC-1131-6)."
+  ],
+  "internalStructure": "One Node module that exports a `runCspStyledAdherenceProbe({ bootServer, routes, stylesheetUrl, reportDir })` function and a shebang entry point that reads its configuration and calls the exported function. Two independent scanners driven from one browser session: (1) an HTML + header scanner that reads the response body and the CSP header per route and applies the inline-style-block and style-src-relaxation refusal rules; (2) a computed-style scanner that runs a `page.evaluate(() => { const cs = getComputedStyle(document.body); return { background: cs.backgroundColor, fontFamily: cs.fontFamily }; })` and applies the browser-default refusal rules. A third check issues a same-origin GET for the linked stylesheet URL and captures status + content-type. Both scanners and the stylesheet check contribute to one accumulated report object; the writer serialises the report and the caller returns the exit code derived from the ok / fail verdict.",
+  "interfaces": [
+    {
+      "name": "runCspStyledAdherenceProbe",
+      "kind": "factory",
+      "description": "runCspStyledAdherenceProbe({ bootServer, routes, stylesheetUrl, reportDir }) -> Promise<{ verdict, reportPath, refusals }>; the sole callable the entry point invokes. `bootServer` is a factory returning `{ url, close }` for a server booted through the production entry-point path. `verdict` is `'ok' | 'fail'`; the entry point translates `fail` to a non-zero exit code."
+    },
+    {
+      "name": "entry-point CLI",
+      "kind": "cli",
+      "description": "`node <entryPointPath>` with optional flags `--boot <module>`, `--routes <comma-list>`, `--stylesheet <url>`, `--report-dir <path>` that override configuration defaults. Exit code is 0 on `ok`, non-zero on `fail`."
+    },
+    {
+      "name": "reports/csp-styled-adherence.json",
+      "kind": "artefact",
+      "description": "`reports/csp-styled-adherence.json` under the configured report directory. Shape: `{ verdict, stylesheetUrl, stylesheetResponse: { status, contentType }, routes: [{ route, csp, inlineStyleDetected, computed: { backgroundColor, fontFamily }, refusals }], generatedAt }`."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Production server construction",
+      "kind": "external",
+      "description": "The probe requires a factory that boots the target server through the same construction the production entry point uses (same route registration, same security-header middleware, same static / assets registration). A separate server instance or a static-file-only mount does not satisfy AC-1131-4."
+    },
+    {
+      "name": "Headless browser",
+      "kind": "external",
+      "description": "A real browser (Playwright chromium, Puppeteer chromium, or equivalent). The probe MUST drive a browser fetch through the shipped headers; an in-process fetch or app.inject() does not exercise the CSP path and cannot satisfy AC-1131-3."
+    },
+    {
+      "name": "ci-pipeline gate runner",
+      "kind": "tac",
+      "tacId": "TAC-701-ci-pipeline-gate-runner",
+      "description": "When this probe is wired as a ci-pipeline gate, the runner invokes it as a child process, captures the exit code, and delegates the per-gate report write to TAC-702 in the ordinary way. The probe writes its own detailed report; the gate report writer records the exit-code envelope."
+    }
+  ],
+  "tradeoffs": "The probe requires a real browser and a running server for every ci-pipeline invocation. That cost buys the runtime-observable enforcement the mechanism-reach gap at watchpost run4 proved was missing: build cycles ran green and shipped an unstyled surface because no gate exercised the production header path with a real browser. Driving the shipped construction (not a bespoke harness) is the load-bearing choice; refusing app.inject() satisfaction is deliberate. The requirement that verification runs THROUGH the shipped headers is what makes the AC bite; a probe that stamps its own headers would recreate the class defect it exists to refuse.",
+  "createdAt": "2026-08-24T10:30:00Z",
+  "updatedAt": "2026-08-24T10:30:00Z"
+}

@@ -16,7 +16,7 @@
 //    list is the authoritative ownership record; two blueprints cannot
 //    both claim the same id. This is the ambiguity-class check that
 //    used to live inside `isNamespacedFor` grammar (blueprint `spa`
-//    silently claiming `ADR-005-spa-theme` because the string
+//    silently claiming `ADR-005-application-spa-theme` because the string
 //    startsWith `spa-`). Grammar is no longer a trust surface here --
 //    the manifest is.
 //

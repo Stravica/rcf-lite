@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-307-application-api-rest-openapi-generation",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "OpenAPI generated from source at build time, defended by drift validation",
+  "context": "The contract document can be authored spec-first (hand-written spec, implementation follows) or generated from the implementation. Either can work; what cannot work is a hand-maintained spec beside a moving implementation with nothing enforcing agreement.",
+  "decision": "The OpenAPI 3.1 document is generated from route definitions and schema annotations at build time (TAC-303). The same endpoint metadata drives enforcement (auth classes, rate overrides, idempotency requirements), so declaration and behaviour share one source. Drift validation runs in the build on three axes: implemented-but-undeclared, declared-but-unimplemented, and type-level response mismatch; any of the three fails the build (application-api-rest-REQ-004, application-api-rest-US-2105).",
+  "consequences": "The served spec is always the running service's spec, and documentation freshness stops being a human virtue. The cost is that contract review happens through code review of routes and schemas rather than of a standalone spec file; the generated artefact should be diffed in review to keep contract changes visible, and the drift validator is the backstop when someone forgets.",
+  "alternativesConsidered": [
+    {
+      "name": "Spec-first authoring",
+      "summary": "Hand-write the OpenAPI document; generate or validate the implementation from it.",
+      "reasonNotChosen": "Strong for API-design-led teams but requires tooling to force the implementation into agreement anyway; with an agent implementing from acceptance criteria, the criteria are the design authority and the spec is better derived than duplicated."
+    },
+    {
+      "name": "Hand-written spec, no enforcement",
+      "summary": "Maintain the spec beside the code by discipline.",
+      "reasonNotChosen": "Drifts the first sprint someone is busy; this is the failure mode the requirement exists to eliminate."
+    }
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

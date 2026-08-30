@@ -10,7 +10,7 @@ Ask the operator:
 >
 > A. Integrate a Secrets page into an existing project admin UI. Choose this when the project already ships an admin surface (a dashboard, an operations console) and one more page fits.
 >
-> B. Adopt a separate admin-SPA blueprint that hosts the Secrets page as one of its screens. Choose this when the project does not yet have an admin surface and building a small one is the right move.
+> B. Adopt a separate admin-spa blueprint that hosts the Secrets page as one of its screens. Choose this when the project does not yet have an admin surface and building a small one is the right move.
 >
 > C. Decline a UI entirely; rely on the CLI plus the audit stream. Choose this when the project is small, the operator is the only human on the loop, and a page adds surface without adding value.
 
@@ -31,7 +31,7 @@ No cell renders a secret value. A "request rotation" action per row hands off to
 
 ## Outcome B: `admin-spa`
 
-The blueprint records the choice; the project applies the companion admin-SPA blueprint (unshipped at v1.0.0, promotion signal: the third project asks for this outcome) which hosts the Secrets page as one of its screens against the same field contract. Until the companion ships, this outcome is a placeholder: the operator's stated intent is that when the companion exists, that is where the page will live.
+The blueprint records the choice; the project applies the companion admin-spa blueprint (unshipped at v1.0.0, promotion signal: the third project asks for this outcome) which hosts the Secrets page as one of its screens against the same field contract. Until the companion ships, this outcome is a placeholder: the operator's stated intent is that when the companion exists, that is where the page will live.
 
 ## Outcome C: `none`
 

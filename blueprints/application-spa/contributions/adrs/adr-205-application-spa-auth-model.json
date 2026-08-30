@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-205-application-spa-auth-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Cookie-based session authentication with client-side expiry handling",
+  "context": "The blueprint scope is public plus authenticated surfaces with session-based auth. The authentication model is a whole-project decision: the client, the API, and the deploy target must hold the same answer. A application-api-rest blueprint contributes its own decision on this topic; composition surfaces the pairing for operator reconciliation, which is intended.",
+  "decision": "Authentication is a server-issued session carried in a Secure, HttpOnly, SameSite cookie; the bundle never stores tokens in script-readable storage. The client treats 401 as session expiry: the current route is remembered, the session-expired surface renders, and successful re-authentication returns the user to the remembered route (application-spa-REQ-009). Sign-out invalidates server-side and clears client caches.",
+  "consequences": "XSS cannot exfiltrate a bearer token because none is script-visible. CSRF posture must be handled with the API (SameSite plus the API blueprint auth classes). Session lifetime is server-owned; the client responds to expiry rather than predicting it.",
+  "alternativesConsidered": [
+    {
+      "name": "Bearer tokens in localStorage",
+      "summary": "JWT held by the client and attached per request.",
+      "reasonNotChosen": "Script-readable credentials fail the application-spa-REQ-018 floor."
+    },
+    {
+      "name": "OAuth authorization-code with PKCE per session",
+      "summary": "Delegated identity flow.",
+      "reasonNotChosen": "Valid where an external IdP is a project requirement; heavier than the blueprint default. Projects override by superseding this ADR."
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

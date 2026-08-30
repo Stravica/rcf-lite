@@ -85,12 +85,12 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
   if (typeof topic !== 'string' || topic.trim().length === 0) {
     // Schema minLength:1 accepts whitespace-only; the writer refuses
     // it up-front so a whitespace-only topic never lands on disk.
-    return rcfError({ kind: 'usage', message: `topic is required (e.g. rcf define blueprint supersede errorEnvelope --incoming ./blueprints/rest)` });
+    return rcfError({ kind: 'usage', message: `topic is required (e.g. rcf define blueprint supersede errorEnvelope --incoming ./blueprints/application-api-rest)` });
   }
   // Topic is a LOOKUP KEY into applied ADR topics, not a slug (ADR-010).
   // Schema is minLength:1 with no character constraint and the schema
   // docs explicitly cite camelCase examples ('errorEnvelope'). The
-  // shipped SPA + REST blueprints declare camelCase topics; we accept
+  // shipped application-spa + REST blueprints declare camelCase topics; we accept
   // any topic string that exact-matches an applied or incoming ADR
   // topic below, and kebab-ify only when projecting into the
   // scaffolded project-ADR id slug tail (adrId grammar requires

@@ -1,0 +1,45 @@
+{
+  "usId": "email-smtp-resend-US-4101",
+  "prdId": "PRD-001",
+  "reqId": "email-smtp-resend-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The magic-link route hands a composed sign-in URL to the adapter and the adapter dispatches one message",
+  "asA": "operator using a project that composed this blueprint alongside the magic-link blueprint",
+  "iWant": "the auth flow's mint step to call the adapter's send method and see a real message go out",
+  "soThat": "sign-in works on the deployed application without a project-authored provider shim",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4101-1",
+      "description": "The adapter exposes exactly the `send({ to, subject, textBody, htmlBody })` method the magic-link blueprint's TAC-504 names and no other auth-facing method.",
+      "given": "the adapter module imported into a running process",
+      "when": "the process enumerates the adapter's exported surface",
+      "then": "the enumeration returns `send` as the sole async method and no other public method matches the auth-facing shape",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4101-2",
+      "description": "A successful send resolves the fixed outcome shape `{ ok, providerStatus, providerMessageId, error }` with `ok: true`, `providerStatus` equal to the provider's own accepted-status code, `providerMessageId` equal to the provider's returned identifier, and `error` equal to null.",
+      "given": "a running project with valid configuration and a recipient the provider accepts",
+      "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
+      "then": "the returned object matches the shape with `ok === true`, `providerStatus` a positive integer, `providerMessageId` a non-empty string, and `error === null`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4101-3",
+      "description": "Exactly one SMTP submission is dispatched per adapter call on the successful path; the adapter does not fan out to duplicates.",
+      "given": "a running project instrumented to count SMTP submissions",
+      "when": "the magic-link route triggers one adapter send",
+      "then": "the submission counter increments by exactly one and no additional submission is observed within the retry window",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-401-email-smtp-resend-send-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

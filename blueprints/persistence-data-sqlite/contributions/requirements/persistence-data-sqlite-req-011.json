@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-sqlite-REQ-011",
+  "prdId": "PRD-001",
+  "title": "Opening a store already at the target schema version is a no-op that emits no migrated event",
+  "description": "When the on-disk schema version equals the build's max known migration version, the migration runner applies no migrations and returns a result whose applied-versions array is empty. The store facade emits the opened event as usual but does NOT emit a migrated event on this path. Consumers that key off the migrated event to fire post-migration bookkeeping do not fire spuriously on a routine boot.",
+  "category": "nonFunctional",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "A store that emits a migrated event on every boot destroys the signal that migration-adjacent bookkeeping (cache warmup, index rebuild, replica reseeding) needs to fire. Idempotent open is what makes routine boots cheap and rare boots observable; conflating them costs both signals.",
+  "tags": [
+    "blueprint:persistence-data-sqlite",
+    "category:11-idempotent-open"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

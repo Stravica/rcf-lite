@@ -1,0 +1,64 @@
+{
+  "usId": "application-api-rest-US-2117",
+  "prdId": "PRD-001",
+  "reqId": "application-api-rest-REQ-013",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "One request id from edge to every hop",
+  "asA": "support engineer holding a single id from a bug report",
+  "iWant": "that id assigned or accepted at the edge, echoed to the client, and threaded through every downstream call",
+  "soThat": "one identifier retrieves the complete story of one user action",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2117-1",
+      "description": "A request arriving with a valid X-Request-Id keeps it: the same value appears in the response header and in every request-scoped log line.",
+      "given": "a request carrying X-Request-Id",
+      "when": "the response and logs are inspected",
+      "then": "the inbound value is echoed in the response and present on every request-scoped log line",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2117-2",
+      "description": "A request arriving without X-Request-Id is assigned one at the edge before any other middleware runs, and the assigned value is echoed in the response.",
+      "given": "a request with no X-Request-Id",
+      "when": "the response is inspected",
+      "then": "a generated id in the documented format is present in the response header",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2117-3",
+      "description": "An inbound X-Request-Id failing the documented format or length constraints is replaced with a generated id rather than propagated, so hostile header values never flow into logs and downstream systems.",
+      "given": "a request with an oversized or malformed X-Request-Id",
+      "when": "the response and logs are inspected",
+      "then": "a fresh generated id is used and the malformed inbound value is not propagated",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2117-4",
+      "description": "Every downstream call made on behalf of a request carries the request id onward in its headers or protocol equivalent.",
+      "given": "a handler calling a downstream HTTP dependency",
+      "when": "the outbound request is captured",
+      "then": "it carries the same X-Request-Id value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2117-5",
+      "description": "Error responses carry the request id in both the response header and the problem-details instance field, so a failure report contains its own correlation handle.",
+      "given": "a request ending in an error",
+      "when": "the response is inspected",
+      "then": "the header and the envelope's instance field both carry the request id",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-301-application-api-rest-request-pipeline",
+    "TAC-305-application-api-rest-observability"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

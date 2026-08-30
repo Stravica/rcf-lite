@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-503-security-auth-magic-link-anti-enumeration-budget",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "POST /login enforces a uniform response body, status, and wall-clock timing floor against enumeration",
+  "context": "A sign-in submission handler that differentiates its behaviour on the basis of principal registration hands attackers a free enumeration oracle: an attacker with a wordlist harvests the registered set by watching for any observable difference between 'this address is registered' and 'this address is not'. The three surfaces that leak this signal are the response body, the response status, and the wall-clock latency; a defence has to close all three.",
+  "decision": "POST /login returns byte-identical response bodies and identical HTTP statuses (200) across registered, unregistered, malformed, and empty submissions that are not rate-limited. Rate-limited responses (429) are also identical across principals. A per-handler anti-enumeration budget enforces a wall-clock floor on the response: the handler never returns earlier than the budget, regardless of code path. The budget is a configurable millisecond value with a default of 800; the default is set to comfortably dominate the slowest legitimate branch (mint plus adapter send on a typical email provider). Adapter-send failures are caught inside the budget and surfaced only via the event log, never via the response.",
+  "consequences": "The endpoint is not an enumeration oracle: a submission for a random address looks exactly like a submission for the operator's actual address. Legitimate operator retries pay the budget as latency every time; the budget is deliberately noticeable to raise the cost of high-volume mint sprays. The event log is the only surface where the registered-versus-unregistered distinction is observable, and the log is a server-owned surface.",
+  "alternativesConsidered": [
+    {
+      "name": "Different bodies with the same status and timing",
+      "summary": "Return a body that names the failure reason for unregistered submissions but keeps the timing floor uniform.",
+      "reasonNotChosen": "The body is exactly the enumeration signal the design closes; keeping timing uniform while leaking the answer in the body defeats the point."
+    },
+    {
+      "name": "Rate-limit only, no timing floor",
+      "summary": "Rely on a tight rate limit to keep enumeration expensive without introducing latency for legitimate operators.",
+      "reasonNotChosen": "Rate limits per client key are worked around by attackers rotating client keys (residential proxies, botnets). The timing floor is uniform per request and does not depend on the attacker's shape."
+    }
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

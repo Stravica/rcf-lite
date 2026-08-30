@@ -14,7 +14,7 @@ Not an authorisation model. The blueprint governs READ of secret material and th
 
 Not a rotation orchestrator. The blueprint gates on rotation age at CI, it does not itself run the rotation. Running a rotation is a project-authored procedure the vendor's own tooling supports (SOPS re-encrypt, Vault's rotate endpoint, a cloud provider's rotation trigger); the blueprint's rotation gate then registers the fresh `lastRotatedAt` next time it runs.
 
-Not a UI framework. When `uiIntegration.mode` is `integrate`, the field contract for the Secrets page is fixed (TAC-905's structured output surface) but the page implementation lives in the host project's admin UI. A future admin-SPA blueprint (unshipped at v1.0.0, promotion signal: the third project asks for a self-contained admin surface that hosts this page alongside others) will cover the standalone case.
+Not a UI framework. When `uiIntegration.mode` is `integrate`, the field contract for the Secrets page is fixed (TAC-905's structured output surface) but the page implementation lives in the host project's admin UI. A future admin-spa blueprint (unshipped at v1.0.0, promotion signal: the third project asks for a self-contained admin surface that hosts this page alongside others) will cover the standalone case.
 
 Not a config manager. Non-secret configuration (feature flags, tunable thresholds, endpoint URLs that are not sensitive) sits outside this blueprint; the manifest is for secret material only. A project that wants a unified config surface authors that on top; it does not belong here.
 

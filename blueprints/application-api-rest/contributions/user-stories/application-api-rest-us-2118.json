@@ -1,0 +1,72 @@
+{
+  "usId": "application-api-rest-US-2118",
+  "prdId": "PRD-001",
+  "reqId": "application-api-rest-REQ-014",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Forward-only migrations with named reverts and a live schema-version report",
+  "asA": "platform operator deploying schema changes",
+  "iWant": "every migration to know how to undo itself and every instance to report what schema it runs",
+  "soThat": "deploys are ordered, reversible on purpose, and verifiable from the outside",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2118-1",
+      "description": "Migrations apply strictly forward in a deterministic order; the tool refuses to apply migrations out of order or to skip gaps.",
+      "given": "a migration set with an out-of-order or missing member",
+      "when": "migration is attempted",
+      "then": "the tool refuses with an error naming the ordering violation",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2118-2",
+      "description": "Every migration ships a named revert step, and the revert is exercised at least once in verification (apply then revert restores the prior schema).",
+      "given": "any migration in the set",
+      "when": "it is applied and its named revert executed",
+      "then": "the schema returns to its prior state",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2118-3",
+      "description": "The deploy order between migrations and application rollout is stated in the project documentation, including which schema versions each application version tolerates.",
+      "given": "the project's deploy documentation",
+      "when": "the migration-versus-rollout order is looked up",
+      "then": "the order and the tolerated schema-version window are stated",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2118-4",
+      "description": "GET /v1/_meta returns the current schema version and application version against a declared schema, under the same wire contract as every other endpoint.",
+      "given": "a running instance",
+      "when": "/v1/_meta is fetched",
+      "then": "the response conforms to the declared meta schema carrying schema version and application version",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2118-5",
+      "description": "The schema version reported by /v1/_meta equals the version recorded by the migration tool in the database, so the endpoint reports reality rather than a build-time constant.",
+      "given": "an instance after applying a new migration",
+      "when": "/v1/_meta and the migration tool's recorded version are compared",
+      "then": "they are equal, and change together when the next migration applies",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2118-6",
+      "description": "The /v1/_meta endpoint declares an auth class like any other endpoint (service or admin by default), and startup readiness (AC-2108-4) gates on migrations being current.",
+      "given": "the generated spec and a booting instance behind on migrations",
+      "when": "the _meta declaration and the startup probe are inspected",
+      "then": "_meta carries its declared auth class, and the startup probe withholds 200 until migrations are current",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-306-application-api-rest-operability"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

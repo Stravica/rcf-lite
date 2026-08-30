@@ -1,0 +1,53 @@
+{
+  "tacId": "TAC-401-email-smtp-resend-send-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Resend SMTP send adapter",
+  "purpose": "The one module in the project that submits outbound mail to Resend's SMTP endpoint. Satisfies the `send({ to, subject, textBody, htmlBody }) -> Promise<{ ok, providerStatus, providerMessageId, error }>` interface named by the magic-link blueprint's `TAC-504-security-auth-magic-link-email-delivery-adapter`. Normalises provider-specific status codes and error prose into the four declared fields, applies the bounded jittered retry posture named by ADR-402, and sources every credential and the from-address through configured references rather than embedded literals. Every module that hands mail to the provider imports this adapter; nothing else imports the SMTP client library or reaches around the interface.",
+  "responsibilities": [
+    "Expose `send({ to, subject, textBody, htmlBody })` as the sole auth-facing method and no other public method matching that shape (AC-4101-1).",
+    "Return `{ ok, providerStatus, providerMessageId, error }` on every call; on success `ok === true`, `providerStatus` the provider's accepted-status integer, `providerMessageId` the provider's returned identifier, `error === null` (AC-4101-2).",
+    "Dispatch exactly one SMTP submission per adapter call on the successful path (AC-4101-3).",
+    "Classify every non-success provider response into `RESEND_RATE_LIMITED`, `RESEND_SENDER_UNVERIFIED`, `RESEND_RECIPIENT_REJECTED`, or `RESEND_TRANSPORT_ERROR` and place the code at the start of the `error` string; carry the provider's own status code on `providerStatus` when the provider surfaced one (AC-4102-1, AC-4103-2).",
+    "Suppress recipient address, subject, and body from the `error` string, every log line the adapter writes for the call, and every exception the adapter throws for the call (AC-4102-2).",
+    "Retry on `RESEND_TRANSPORT_ERROR` and `RESEND_RATE_LIMITED` up to the configured budget (default 2) with exponential backoff and full jitter (base 250ms, cap 8000ms); stop on first success or on budget exhaustion (AC-4103-1, AC-4103-2).",
+    "Do not retry on `RESEND_SENDER_UNVERIFIED` or `RESEND_RECIPIENT_REJECTED`; return one result with the terminal-class code (AC-4103-3).",
+    "Be the sole importer of the SMTP client library across the deployed application's import graph (AC-4106-1).",
+    "Resolve `RESEND_SMTP_USER`, `RESEND_SMTP_PASSWORD`, and `RESEND_FROM_ADDRESS` at boot through the project's configured secret-reference resolver; carry no literal for any of the three values in adapter source (AC-4106-2)."
+  ],
+  "internalStructure": "One stateless class per process, constructed at boot with an injected SMTP client library reference, an injected secret-reference resolver (a Secrets Manager client instance, a project-authored resolver, or an environment shim satisfying the same read interface), and an injected clock and jitter source the retry loop consults. The retry loop is a private method inside the class; the public surface is one method. Provider-response classification is a private function that maps SMTP reply codes and known provider prose to the four class codes; the classification table lives in the adapter's own module and is unit-testable in isolation.",
+  "interfaces": [
+    {
+      "name": "send",
+      "kind": "async-method",
+      "description": "send({ to, subject, textBody, htmlBody }) -> Promise<{ ok, providerStatus, providerMessageId, error }>; the sole auth-facing surface, shape-compatible with TAC-504-security-auth-magic-link-email-delivery-adapter."
+    },
+    {
+      "name": "smtpClient",
+      "kind": "read-write-api",
+      "description": "Project-supplied SMTP client library binding the adapter dials the Resend SMTP endpoint through; injected at boot, imported by no other module of the application."
+    },
+    {
+      "name": "secretResolver",
+      "kind": "read-api",
+      "description": "Project-supplied resolver returning the value for a configured reference name; the adapter calls it at boot for `RESEND_SMTP_USER`, `RESEND_SMTP_PASSWORD`, and `RESEND_FROM_ADDRESS`."
+    },
+    {
+      "name": "retryClock",
+      "kind": "callback",
+      "description": "Project-supplied clock and jitter source the retry loop consults; a real clock in production, a test double in unit tests. Injected at boot; deterministic under test."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Configured secret-reference resolver",
+      "kind": "external",
+      "description": "The project's secret-reference resolver. May be a Secrets Manager client from the shipped `security-secrets-management` blueprint, a project-authored resolver, or an environment-variable shim. The adapter reads through it and does not care which."
+    }
+  ],
+  "tradeoffs": "The adapter holds the resolved SMTP credential and the resolved from-address in memory for the lifetime of the process; a heap dump of a compromised process exposes both. That trade means the credential is materialised once at boot and the hot path is a memory read plus an SMTP submission, which is what keeps the successful path affordable. A project that wants per-send credential rotation supplies a resolver whose read on every call is not free and accepts the vendor round trip on every send. The jitter cap of 8000ms bounds worst-case adapter latency at roughly 20 seconds across the default 2-retry budget; a project running under a tighter latency SLA lowers the cap through configuration rather than bypassing the retry loop.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

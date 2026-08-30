@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-801-observability-essentials-health-probes",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Two HTTP health probes served on the request-traffic listener: liveness on /healthz, readiness on /readyz, with a stable JSON body shape",
+  "context": "Every deployed application runs under an orchestrator that needs a restart signal and under a load balancer that needs a routing signal. The two signals answer different questions: 'is this process wedged, restart it' versus 'is this process able to serve, route around it if not'. A single probe folded across both questions produces the outage-amplifying failure mode where a downstream dependency blip triggers a restart storm that dwarfs the original blip. The probes have to be structurally separate at the endpoint and semantically separate at the answer.",
+  "decision": "The application serves two probe endpoints on the same HTTP listener that serves request traffic: a liveness probe at /healthz (or the configured override) and a readiness probe at /readyz (or the configured override). Both respond with Content-Type application/json and a stable body shape: { status: 'pass' | 'fail', checkedAt: <ISO-8601> } for liveness, plus a { checks: { <depName>: { state, checkedAt } } } object for readiness. Liveness returns 200 whenever the event loop is responsive and never depends on any external condition; readiness returns 200 when every declared dependency's cached state is pass and 503 otherwise. Both endpoints are auth-exempt (see ADR-804). The probes bind to the request-traffic listener rather than a separate operator port so the load balancer's probe observes the same reachability the traffic will observe.",
+  "consequences": "The orchestrator's restart action is coupled only to true process wedging: a downstream dependency outage never triggers a restart. The load balancer's rotation action is coupled to declared-dependency health only: an unready replica gets pulled from rotation without a restart the replica cannot recover from. The stable JSON shape lets third-party monitoring integrations wire once. A change to the probe path defaults or a rename of a top-level probe body field is a major version bump on this blueprint. Composing blueprints that hold a different opinion on the endpoint contract (a project that wants /health as a single endpoint answering both questions, a project that wants gRPC probes, a project that wants both probes on a separate admin port) conflict on the healthProbes topic; the expected resolution is one project-level ADR that fixes the endpoint contract.",
+  "alternativesConsidered": [
+    {
+      "name": "Single /health endpoint answering both liveness and readiness with one status code",
+      "summary": "One HTTP path, one 200/503 answer, one probe both orchestrator and load balancer consume.",
+      "reasonNotChosen": "Folds the two signals into one and creates the restart-storm failure mode. A downstream dep outage that fails the single endpoint gets read as 'restart me' by the orchestrator, which does, and the restarted process comes back to the same failing dep and fails again. The industry has settled on the /healthz + /readyz split (Kubernetes liveness/readiness probes are the reference); the pattern exists precisely because the fused shape has bitten enough deployments."
+    },
+    {
+      "name": "gRPC health protocol instead of HTTP JSON",
+      "summary": "The application exposes the standard gRPC health service instead of two HTTP endpoints.",
+      "reasonNotChosen": "The rcf-lite tier this blueprint targets is small greenfield HTTP-shaped applications; a gRPC probe surface requires a gRPC listener the tier does not otherwise need. A project that runs a gRPC application supersedes this ADR and contributes its own project-level ADR selecting the gRPC health protocol; the readiness dependency semantics (ADR-802) are engine-agnostic and carry over."
+    },
+    {
+      "name": "Probes on a separate admin port distinct from the request-traffic listener",
+      "summary": "The probes bind to a dedicated admin listener; only the operator/orchestrator can reach them.",
+      "reasonNotChosen": "A load balancer probing a separate admin port does not observe the same reachability path that request traffic takes; a firewall rule or listener config drift can make the admin port reachable while the traffic port is not. Binding the probes on the traffic listener makes 'the probe answers' equivalent to 'requests reach the listener', which is the property the load balancer needs."
+    }
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

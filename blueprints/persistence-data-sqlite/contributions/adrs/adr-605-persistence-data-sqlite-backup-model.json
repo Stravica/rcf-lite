@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-605-persistence-data-sqlite-backup-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Backup is a file-level snapshot of the store artifact taken without downtime",
+  "context": "A backup story has three axes: what the artifact is (a file, a logical dump, a stream), when it can run (with the application quiesced, with the application live), and how it recovers (point a build at the artifact, run a restore tool). For the rcf-lite tier with the SQLite default engine and the store-facade boundary, the file-level snapshot is the natural answer: the engine already writes the store as one file, the WAL posture already tolerates concurrent snapshot, and recovery is 'point a compatible build at the file'.",
+  "decision": "The backup runner (TAC-604) snapshots the store to a portable artifact while the application keeps serving reads and writes. Under the SQLite default engine, the runner uses the online-backup API or a WAL-checkpoint-then-file-copy; the writer connection stays available. The artifact is engine-native: a SQLite file, not a schema-agnostic dump. Recovery is opening the artifact through the same store facade against a compatible build. A backupCheckpoint event fires on completion carrying the artifact path and the ISO-8601 completion timestamp. Cross-engine migration (a SQLite backup restored into Postgres) is out of scope for this blueprint; projects that need it author a project-side logical-dump runner beside this one, and the file-level runner remains the primary recovery path.",
+  "consequences": "The backup story is cheap to run and cheap to test: a scheduler invokes store.backup(outputPath) on a cron, the operator inspects the backupCheckpoint event stream for freshness, and a recovery exercise is opening a copied file with the same build. No maintenance window is planned; no ops-side backup daemon is deployed. The cost is that the artifact is engine-native: switching engines is not restore-and-go, and a project that needs a portable dump does so on top of the file-level story. Projects that need cross-region replication supersede this ADR with an engine-native replication decision (SQLite Litestream, Postgres physical replication, or the engine promoted by ADR-601).",
+  "alternativesConsidered": [
+    {
+      "name": "Logical schema-aware dump as the primary backup",
+      "summary": "The backup runner produces a SQL script that recreates the schema and the rows; recovery replays the script.",
+      "reasonNotChosen": "Logical dumps are portable but slow on the write path (encoding every value as SQL) and slow on the recovery path (replaying every statement). For the rcf-lite tier the size and frequency of backups make the portability trade uneconomic. Projects that need portability author a logical dump runner beside the file-level one, kept in sync by the schema catalog."
+    },
+    {
+      "name": "Quiesce-and-copy (planned downtime for backup)",
+      "summary": "The application takes a maintenance window; the backup runner copies the file with no writers active.",
+      "reasonNotChosen": "Any backup story that requires downtime is a backup story the operator skips. The engine's online-backup posture makes the downtime unnecessary; the cost of the online path is a small pause on the writer during the final page copy, which is invisible at the request timescale."
+    }
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

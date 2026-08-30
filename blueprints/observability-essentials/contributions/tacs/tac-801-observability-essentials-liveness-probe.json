@@ -1,0 +1,32 @@
+{
+  "tacId": "TAC-801-observability-essentials-liveness-probe",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Liveness probe",
+  "purpose": "Owns the in-process HTTP handler that answers the liveness endpoint. The handler is coupled to nothing outside the process boundary: no downstream dependency, no I/O, no cache; its answer reflects strictly whether the event loop is responsive. The handler is the one place the liveness contract lives, and its registration on the HTTP router is the one place the liveness path binds.",
+  "responsibilities": [
+    "Register a GET handler on the configured liveness path (default /healthz) at the application's HTTP router, no earlier than the router is initialised and no later than the first request bind (AC-7101-1, AC-7108-2).",
+    "Return 200 with Content-Type application/json and a body of shape { status: 'pass', checkedAt: <ISO-8601> } whenever the handler is invoked while the process event loop is responsive (AC-7101-1, AC-7107-1).",
+    "Perform zero network egress from inside the handler; the handler's only work is filling in the response body and writing it to the response stream (AC-7101-2, AC-7110-3).",
+    "Answer independently of the readiness dependency state: the handler holds no reference to the readiness dependency registry and no readiness state changes affect the liveness answer (AC-7101-3)."
+  ],
+  "internalStructure": "One handler module that exports a factory: createLivenessHandler({ path, now }) -> { path, handler }. The factory closes over the configured path and a now() function (default () -> new Date()); handler is an async function (req, res) that writes the JSON body and returns. The registrar module wires the handler into the HTTP router at boot; the auth-exempt list registration is co-located with the router wiring so a single review reads both facts.",
+  "interfaces": [
+    {
+      "name": "createLivenessHandler",
+      "kind": "factory",
+      "description": "createLivenessHandler({ path, now }) -> { path, handler }. Returns the configured probe path and a stateless async handler for it. Called once at boot; the returned handler is bound at the HTTP router."
+    },
+    {
+      "name": "livenessPath",
+      "kind": "config",
+      "description": "Configured liveness HTTP path; defaults to /healthz if the configuration does not override it. Consumed by the registrar and by the auth-exempt list."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The handler owns its answer entirely on in-process state; that means it cannot report on any external condition, which is precisely the point. A project that wants a smarter liveness answer (e.g. 'restart me if my heap has been over 90 percent for 60 seconds') wires that logic as an additional heartbeat that faults the event loop when the class the project cares about occurs, rather than folding it into the handler. The default 200-pass shape is deliberately trivial to keep the coupling low.",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

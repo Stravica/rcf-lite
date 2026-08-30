@@ -1,0 +1,63 @@
+{
+  "usId": "application-api-rest-US-2105",
+  "prdId": "PRD-001",
+  "reqId": "application-api-rest-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Contract-drift detection: implementation and spec verified against each other",
+  "asA": "platform operator relying on the published contract",
+  "iWant": "any divergence between the implementation and the served spec to fail the build",
+  "soThat": "the spec clients integrate against is provably the service they call",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2105-1",
+      "description": "Every routable endpoint in the implementation has a corresponding entry in the generated spec; an implemented-but-undeclared endpoint fails contract validation.",
+      "given": "the implementation's route table and the generated spec",
+      "when": "the two inventories are compared",
+      "then": "every implemented route appears in the spec, and a deliberately added undeclared route makes the comparison fail",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2105-2",
+      "description": "Every entry in the generated spec has a live implementation; a declared-but-unimplemented operation fails contract validation.",
+      "given": "the generated spec and the running service",
+      "when": "each declared operation is exercised",
+      "then": "none returns a routing-level 404 or 501; a deliberately orphaned spec entry makes validation fail",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2105-3",
+      "description": "Observed response bodies match the spec's response schemas at the type level on every declared status code.",
+      "given": "a representative request per declared operation and status",
+      "when": "each observed response is validated against the spec schema",
+      "then": "every response validates; a type-level mismatch fails the check naming the operation, status, and path into the schema",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2105-4",
+      "description": "Contract validation runs in the build pipeline; drift on any of the three axes breaks the build rather than surfacing after deploy.",
+      "given": "the build pipeline with an injected drift (undeclared endpoint, orphaned entry, or schema mismatch)",
+      "when": "the pipeline runs",
+      "then": "the build fails at the contract-validation step with a message naming the drift",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2105-5",
+      "description": "The contract-validation report enumerates the checked operations so coverage is visible, not inferred.",
+      "given": "a passing contract-validation run",
+      "when": "its report is read",
+      "then": "every declared operation appears with its verification outcome",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-303-application-api-rest-contract-surface"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

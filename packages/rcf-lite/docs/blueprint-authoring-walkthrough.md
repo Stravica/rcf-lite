@@ -2,13 +2,13 @@
 
 ## 1. Read this if
 
-You have read the [authoring standard](blueprint-authoring.md) and want to see a minimal blueprint built end to end. The blueprint here is deliberately small: one REQ, one US with three ACs, one TAC, one `scope: "global"` ADR. It composes cleanly with the shipped SPA and REST blueprints because its global topic is unclaimed.
+You have read the [authoring standard](blueprint-authoring.md) and want to see a minimal blueprint built end to end. The blueprint here is deliberately small: one REQ, one US with three ACs, one TAC, one `scope: "global"` ADR. It composes cleanly with the shipped application-spa and REST blueprints because its global topic is unclaimed.
 
 Follow along by copying the files under `blueprints/hello-panel/` in your working tree and running the commands from a scratch project directory.
 
 ## 2. The example
 
-**Blueprint name:** `hello-panel`. **Purpose:** every project surfaces a persistent operator status panel that says whether background work is healthy. **Global topic contributed:** `operatorPanel` (unclaimed by SPA and REST). **AC id band:** `4101-4899` (next reservable band after REST at `2101-2899` and the placeholder `3101-3899`).
+**Blueprint name:** `hello-panel`. **Purpose:** every project surfaces a persistent operator status panel that says whether background work is healthy. **Global topic contributed:** `operatorPanel` (unclaimed by application-spa and REST). **AC id band:** `4101-4899` (next reservable band after REST at `2101-2899` and the placeholder `3101-3899`).
 
 ## 3. Directory layout
 
@@ -188,22 +188,22 @@ Note the two namespacing families in action: REQ and US take the slug as PREFIX 
 
 | Topic string | hello-panel contribution | Meaning | Composition note |
 |---|---|---|---|
-| operatorPanel | ADR-401-hello-panel-operator-panel | The project's primary operator drift-detection surface | Unclaimed by SPA and REST at v1.0.0. A composing blueprint that offers its own operator-visibility surface should reuse this exact string and let composition surface the pairing. |
+| operatorPanel | ADR-401-hello-panel-operator-panel | The project's primary operator drift-detection surface | Unclaimed by application-spa and REST at v1.0.0. A composing blueprint that offers its own operator-visibility surface should reuse this exact string and let composition surface the pairing. |
 
 ## Id number bands
 
 | Band | Owner |
 |---|---|
 | 001-999 | Project-authored docs |
-| 1101-1899 | SPA blueprint |
-| 2101-2899 | REST blueprint |
+| 1101-1899 | application-spa blueprint |
+| 2101-2899 | application-api-rest blueprint |
 | 3101-3899 | Reserved |
 | 4101-4899 | hello-panel blueprint (this package) |
 ```
 
 ## 10. `README.md`
 
-Short. One screen. See [`blueprints/spa/README.md`](../../../blueprints/spa/README.md) as the shape.
+Short. One screen. See [`blueprints/application-spa/README.md`](../../../blueprints/application-spa/README.md) as the shape.
 
 ## 11. Apply it
 
@@ -235,13 +235,13 @@ hello-panel	1.0.0	2026-08-21T00:00:00.000Z	4 contribution(s)
 
 ## 12. Compose with SPA
 
-Add the SPA blueprint alongside:
+Add the application-spa blueprint alongside:
 
 ```sh
-rcf define blueprint add /path/to/blueprints/spa
+rcf define blueprint add /path/to/blueprints/application-spa
 ```
 
-No conflict on any topic (`operatorPanel` is unclaimed by SPA), no id-band collision (SPA owns `1101-1899`, hello-panel owns `4101-4899`). Both blueprints co-reside; the project chain composes against both.
+No conflict on any topic (`operatorPanel` is unclaimed by application-spa), no id-band collision (application-spa owns `1101-1899`, hello-panel owns `4101-4899`). Both blueprints co-reside; the project chain composes against both.
 
 ## 13. Trigger a conflict on purpose
 
@@ -282,4 +282,4 @@ Walk each AC on the story and check what refuses the project's FBS if the AC is 
 - **AC-4101-2** (30-second refresh cadence): a project TC that observes the reported values across two poll intervals.
 - **AC-4101-3** (anonymous surface omission): a project TC that walks anonymous routes and asserts absence.
 
-The blueprint does not ship these TCs (adherence expressed as ACs, decision 5); the project's build cycle authors them against the AC ids the blueprint contributed. `rcf audit coverage --strict` refuses to declare an FBS done while any AC on the bound US is `covered-unresolved`, so the mechanism-reach gap that bit categories 5, 6, and 11 of the SPA blueprint in watchpost run4 does not open here: the AC IS the gate, provided the host project's build cycle honours strict coverage.
+The blueprint does not ship these TCs (adherence expressed as ACs, decision 5); the project's build cycle authors them against the AC ids the blueprint contributed. `rcf audit coverage --strict` refuses to declare an FBS done while any AC on the bound US is `covered-unresolved`, so the mechanism-reach gap that bit categories 5, 6, and 11 of the application-spa blueprint in watchpost run4 does not open here: the AC IS the gate, provided the host project's build cycle honours strict coverage.

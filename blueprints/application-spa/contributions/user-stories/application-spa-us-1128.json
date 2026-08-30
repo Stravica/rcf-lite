@@ -1,0 +1,51 @@
+{
+  "usId": "application-spa-US-1128",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-021",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Performance budget enforced on production builds",
+  "asA": "user on a mid-range phone and a slow connection",
+  "iWant": "the application usable within seconds of opening it",
+  "soThat": "performance is a shipped property, not a lab number",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1128-1",
+      "description": "First meaningful paint lands under 2 seconds on the 3G-fast reference profile against a production build of every declared key route.",
+      "given": "a production build under the 3G-fast profile",
+      "when": "each key route cold-loads",
+      "then": "first meaningful paint is under 2 seconds",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1128-2",
+      "description": "Lighthouse performance scores 90 or above on every declared key route against a production build.",
+      "given": "a production build",
+      "when": "Lighthouse runs per key route",
+      "then": "each scores at least 90",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1128-3",
+      "description": "Total main-thread work during initial load stays under 3 seconds per key route.",
+      "given": "a production build profiled on load",
+      "when": "main-thread work is measured",
+      "then": "the total is under 3 seconds per route",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1128-4",
+      "description": "Route-level code splitting keeps any single route's initial JavaScript payload within the budget declared in the project; no route loads the whole application to render itself.",
+      "given": "the production bundle map",
+      "when": "per-route payloads are measured",
+      "then": "each route loads only its declared chunks within budget",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

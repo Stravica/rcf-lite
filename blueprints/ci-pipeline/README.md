@@ -20,7 +20,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Alternate-provider notes | `assets/ci-provider-examples/notes.md` | The four-point mapping (job trigger event, Node setup, single-line entry-point invocation, artefact upload) for GitLab CI, CircleCI, Buildkite, and Jenkins |
 | Report-shape samples | `assets/report-samples/per-gate.json`, `assets/report-samples/pipeline.json` | Worked examples of a per-gate report and an aggregate report at the ratified schemas |
 | Guide | `guide/ci-pipeline.md` | Operator-facing: when to use it, when not, what stays your call, and how to extend the required gate set |
-| Coordination vocabulary | `docs/topics.md` | The two global-topic strings this blueprint contributes, the shared id band registry (spa, rest, auth, hello-panel, persistence, ci-pipeline, observability) |
+| Coordination vocabulary | `docs/topics.md` | The two global-topic strings this blueprint contributes, the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, hello-panel, persistence-data-sqlite, ci-pipeline, observability-essentials) |
 
 The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 
@@ -38,7 +38,7 @@ ADR-701-ci-pipeline-ci-gates ships `scope: global` on topic `ciGates`. This is t
 
 ADR-702-ci-pipeline-strict-coverage-gate ships `scope: global` on topic `strictCoverageGate`. This is the project's coverage-mode posture: per-AC strict, not shallow-any. A composing blueprint that holds a different coverage posture (a shallow-any-for-early-projects blueprint, a coverage-with-grace-window blueprint) conflicts here by design.
 
-See `docs/topics.md` for the exact strings, the expected resolutions, the delineation from the REST blueprint's `logging` topic (wire-log shape, not build-time report shape), and the AC id band allocation (ci-pipeline owns 6101-6899).
+See `docs/topics.md` for the exact strings, the expected resolutions, the delineation from the application-api-rest blueprint's `logging` topic (wire-log shape, not build-time report shape), and the AC id band allocation (ci-pipeline owns 6101-6899).
 
 ## Quality bar
 

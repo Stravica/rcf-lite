@@ -1,0 +1,42 @@
+{
+  "tacId": "TAC-804-observability-essentials-notification-outcome",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Notification outcome sink",
+  "purpose": "Owns the durable sink that records the outcome of every notification the application attempts to send. The sink is the operator's answer to 'did the customer get the email'. Every notification-attempting code path in the project routes through a project-supplied recordOutcome verb this component wires; queries by recipient and window are the operator's read surface.",
+  "responsibilities": [
+    "Expose a recordOutcome verb the project's notification-attempting code paths invoke exactly once per attempt, before the attempting call returns; the verb accepts { notificationId, channel, recipient, outcome, attemptedAt, errorCode? } and writes a durable record on the sink (AC-7106-1).",
+    "Refuse to accept a record whose outcome is not one of delivered, failed, pending, or suppressed, or whose channel is not a member of the declared channel enum; the refusal is a stable-coded error the caller must handle (AC-7106-2).",
+    "Expose a queryByRecipient(recipient, { from, to }) verb returning the outcome records that match, with an empty result set when no records match rather than an error (AC-7106-3).",
+    "Persist records to a durable substrate the project owns; the substrate implementation lives inside the project (SQLite table when composing with the persistence-data-sqlite blueprint, a project-owned table otherwise). This TAC owns the sink verbs and the record shape, not the substrate choice."
+  ],
+  "internalStructure": "One module exporting createOutcomeSink({ substrate, channelEnum, now }) -> { recordOutcome, queryByRecipient }. The substrate parameter is a project-supplied durable writer conforming to a narrow interface (append(record), queryByRecipient(recipient, window)); when composing with the persistence-data-sqlite blueprint, the substrate is a facade verb on that store. The channelEnum is loaded at boot from configuration; declaration-set validation runs against every incoming record.",
+  "interfaces": [
+    {
+      "name": "createOutcomeSink",
+      "kind": "factory",
+      "description": "createOutcomeSink({ substrate, channelEnum, now }) -> { recordOutcome, queryByRecipient }. Returns the sink's write and read verbs bound to the project-owned substrate."
+    },
+    {
+      "name": "recordOutcome",
+      "kind": "write-api",
+      "description": "recordOutcome({ notificationId, channel, recipient, outcome, attemptedAt, errorCode? }) -> Promise<void>; refuses on unknown channel or unknown outcome with a stable error code."
+    },
+    {
+      "name": "queryByRecipient",
+      "kind": "read-api",
+      "description": "queryByRecipient(recipient, { from, to }) -> Promise<OutcomeRecord[]>; returns matching records; empty array on no match."
+    },
+    {
+      "name": "substrate",
+      "kind": "callback",
+      "description": "Project-supplied durable writer: { append(record) -> Promise<void>, queryByRecipient(recipient, window) -> Promise<OutcomeRecord[]> }. When composing with the persistence-data-sqlite blueprint, this is a facade verb on that store."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The sink commits every project's notification code path to a single recordOutcome verb, which is a discipline: a code path that sends a notification without invoking the verb produces the silent-notification defect this blueprint exists to prevent. A grep-level gate ('every call to the notification transport is preceded by recordOutcome') is the practical enforcement; the blueprint states the invariant but does not ship the gate. Projects that want richer per-outcome metadata (correlation ids, retry counts) extend the record shape; the four required fields plus errorCode are the floor.",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}
