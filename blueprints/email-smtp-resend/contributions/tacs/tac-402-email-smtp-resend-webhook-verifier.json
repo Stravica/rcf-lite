@@ -1,0 +1,56 @@
+{
+  "tacId": "TAC-402-email-smtp-resend-webhook-verifier",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Resend delivery-webhook verifier",
+  "purpose": "The inbound trust boundary for Resend delivery events. Gates the downstream handler on a constant-time signature check against the configured signing secret, refuses stale timestamps against a bounded tolerance window, and refuses replayed delivery ids against a bounded event-id store. Every request the downstream handler sees has passed all three checks; nothing else in the project accepts delivery events.",
+  "responsibilities": [
+    "Read the signature header, the timestamp header, and the request body; compute the expected signature from the body, the timestamp, and the signing secret using the configured algorithm; compare in constant time (AC-4104-1, AC-4104-2).",
+    "On mismatch, respond HTTP 401 with an empty body, skip the downstream handler, and emit one `webhookVerificationFailed` audit event (AC-4104-2).",
+    "Suppress the signing secret from the response body, from every log line the verifier writes for the call, and from every exception the verifier throws for the call (AC-4104-3).",
+    "Refuse a webhook whose timestamp header is older than the configured tolerance window (default 300 seconds) with HTTP 401, empty body, no handler invocation, and one `webhookReplayStale` audit event (AC-4105-1).",
+    "On a signature-passing request, read the provider's delivery event id from the payload and consult the bounded event-id store; refuse a duplicate with HTTP 200, no handler invocation, and one `webhookReplayDuplicate` audit event; record a new id with an expiry equal to the tolerance window (AC-4105-2).",
+    "Resolve `RESEND_WEBHOOK_SIGNING_SECRET`, the signature header name, the timestamp header name, the signing algorithm identifier, and the tolerance window at boot through the project's configured resolver; carry no literal for the signing secret in verifier source (AC-4106-2)."
+  ],
+  "internalStructure": "One stateless verifier per process, constructed at boot with an injected signature-computation function (a project-selected HMAC implementation matching the configured algorithm identifier), an injected event-id store (an in-memory LRU sized to the tolerance window or a project-authored persistent store with a matching TTL, satisfying the same put-if-absent-with-expiry interface), an injected audit sink, and an injected clock the tolerance check consults. The route handler is a thin adapter over the verifier: the verifier is the thing under test, the route wiring is not.",
+  "interfaces": [
+    {
+      "name": "verify",
+      "kind": "async-method",
+      "description": "verify({ headers, rawBody }) -> Promise<{ ok, status, event, refusal }>; returns `ok: true` with the parsed event on a passing request, `ok: false` with the HTTP status and a refusal class on any refused request."
+    },
+    {
+      "name": "eventIdStore",
+      "kind": "read-write-api",
+      "description": "Project-supplied bounded store implementing `putIfAbsentWithExpiry(id, ttlSeconds) -> Promise<{ inserted }>`; returns `inserted: false` for a duplicate id inside the window and `inserted: true` for a fresh id."
+    },
+    {
+      "name": "auditSink",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with `{ event, at, principal }` for `webhookVerificationFailed`, `webhookReplayStale`, and `webhookReplayDuplicate`; never invoked with the signing secret."
+    },
+    {
+      "name": "verifierClock",
+      "kind": "read-api",
+      "description": "Project-supplied clock the tolerance check consults; a real clock in production, a test double in unit tests. Injected at boot; deterministic under test."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Configured secret-reference resolver",
+      "kind": "external",
+      "description": "The project's secret-reference resolver. May be a Secrets Manager client from the shipped `security-secrets-management` blueprint, a project-authored resolver, or an environment-variable shim. The verifier reads the signing secret and header-name references through it at boot."
+    },
+    {
+      "name": "Resend SMTP send adapter",
+      "kind": "tac",
+      "tacId": "TAC-401-email-smtp-resend-send-adapter",
+      "description": "Sibling adapter that dispatches outbound mail; the verifier and the adapter share the configured secret-reference resolver and belong to the same shelf-level blueprint."
+    }
+  ],
+  "tradeoffs": "The event-id store is a stateful component the project realises; an in-memory LRU sized to the tolerance window is cheap and defends the replay class the tolerance window bounds, but does not defend cross-process replay in a horizontally-scaled deployment. Projects running multiple webhook-consuming processes supply a shared store (a small Redis, a small database table) implementing the same put-if-absent-with-expiry interface. The constant-time comparison assumes a comparison function that itself runs in constant time over the byte length of the expected signature; a project that provides a naive comparison re-opens the timing side channel the verifier is closing.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

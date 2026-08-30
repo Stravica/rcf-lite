@@ -1,0 +1,23 @@
+{
+  "slug": "email-smtp-resend",
+  "version": "1.0.0",
+  "category": "email",
+  "contributions": [
+    { "id": "email-smtp-resend-REQ-001", "kind": "req", "path": "requirements/email-smtp-resend-req-001.json" },
+    { "id": "email-smtp-resend-REQ-002", "kind": "req", "path": "requirements/email-smtp-resend-req-002.json" },
+    { "id": "email-smtp-resend-REQ-003", "kind": "req", "path": "requirements/email-smtp-resend-req-003.json" },
+    { "id": "email-smtp-resend-REQ-004", "kind": "req", "path": "requirements/email-smtp-resend-req-004.json" },
+    { "id": "email-smtp-resend-REQ-005", "kind": "req", "path": "requirements/email-smtp-resend-req-005.json" },
+    { "id": "email-smtp-resend-REQ-006", "kind": "req", "path": "requirements/email-smtp-resend-req-006.json" },
+    { "id": "email-smtp-resend-US-4101", "kind": "us", "path": "user-stories/email-smtp-resend-us-4101.json" },
+    { "id": "email-smtp-resend-US-4102", "kind": "us", "path": "user-stories/email-smtp-resend-us-4102.json" },
+    { "id": "email-smtp-resend-US-4103", "kind": "us", "path": "user-stories/email-smtp-resend-us-4103.json" },
+    { "id": "email-smtp-resend-US-4104", "kind": "us", "path": "user-stories/email-smtp-resend-us-4104.json" },
+    { "id": "email-smtp-resend-US-4105", "kind": "us", "path": "user-stories/email-smtp-resend-us-4105.json" },
+    { "id": "email-smtp-resend-US-4106", "kind": "us", "path": "user-stories/email-smtp-resend-us-4106.json" },
+    { "id": "TAC-401-email-smtp-resend-send-adapter", "kind": "tac", "path": "tacs/tac-401-email-smtp-resend-send-adapter.json" },
+    { "id": "TAC-402-email-smtp-resend-webhook-verifier", "kind": "tac", "path": "tacs/tac-402-email-smtp-resend-webhook-verifier.json" },
+    { "id": "ADR-401-email-smtp-resend-transport-choice", "kind": "adr", "path": "adrs/adr-401-email-smtp-resend-transport-choice.json" },
+    { "id": "ADR-402-email-smtp-resend-retry-and-backoff-posture", "kind": "adr", "path": "adrs/adr-402-email-smtp-resend-retry-and-backoff-posture.json" }
+  ]
+}
