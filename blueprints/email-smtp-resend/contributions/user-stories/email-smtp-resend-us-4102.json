@@ -1,0 +1,36 @@
+{
+  "usId": "email-smtp-resend-US-4102",
+  "prdId": "PRD-001",
+  "reqId": "email-smtp-resend-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The provider's unverified-sender refusal maps to a stable error code and does not leak the recipient",
+  "asA": "operator running a deployed project where the sender domain has not yet been verified with the provider",
+  "iWant": "the adapter to surface the refusal as a stable error class rather than a raw provider string",
+  "soThat": "downstream code and log readers can act on the class without parsing provider prose",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4102-1",
+      "description": "When the provider refuses the submission because the sender domain or address is unverified, the adapter returns `{ ok: false, providerStatus, providerMessageId: null, error }` with `error` beginning with the code `RESEND_SENDER_UNVERIFIED` and `providerStatus` equal to the provider's own refusal status.",
+      "given": "a running project whose configured from-address is not verified with the provider",
+      "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
+      "then": "the returned object matches the shape with `ok === false`, `providerMessageId === null`, `providerStatus` a positive integer, and `error` starting with `RESEND_SENDER_UNVERIFIED`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4102-2",
+      "description": "On any adapter refusal, the recipient address, subject, and body do not appear on the returned `error` string, on the adapter's log stream during the call, or on any exception the adapter throws for the call.",
+      "given": "a running project whose configured from-address is not verified with the provider and a distinctive recipient address the test can byte-scan for",
+      "when": "the magic-link route calls `adapter.send({ to: distinctiveRecipient, subject: distinctiveSubject, textBody: distinctiveBody, htmlBody })` and the call resolves",
+      "then": "the returned `error` string, every line the adapter emitted during the call, and every exception message caught contain none of the distinctive recipient, subject, or body substrings",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-401-email-smtp-resend-send-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-401-email-smtp-resend-transport-choice",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The default Resend transport is the SMTP submission endpoint, not the Resend HTTP API",
+  "context": "Resend supports both an HTTP API and an SMTP submission endpoint. The blueprint's job is to fill the magic-link blueprint's `TAC-504-security-auth-magic-link-email-delivery-adapter` slot with a shipped default. A shipped default has to make a transport choice; both surfaces satisfy the mail-adapter contract. The choice is scope-local: a project that prefers the API path supersedes this decision with a project-level ADR and swaps the adapter's internal client without changing the interface the auth routes call.",
+  "decision": "The default transport is the Resend SMTP submission endpoint. The adapter uses a plain SMTP client library the project already carries or picks up, dialled at the endpoint host and port declared as configuration references. This keeps the adapter's shape close to a generic SMTP surface: a follow-up `email-smtp-<othervendor>` blueprint (a Postmark-SMTP, an SES-SMTP, a Mailgun-SMTP) can sibling with a minimal delta on the classification table and the endpoint references, sharing the retry loop, the credential resolution, and the boundary discipline. The SMTP path also keeps the adapter's runtime dependency footprint to one SMTP client library and Node built-ins, which is the rcf-lite tier's shape.",
+  "consequences": "The adapter is close to reusable across SMTP-speaking providers; a sibling blueprint is a delta, not a rewrite. The trade against the Resend HTTP API is that the API surfaces richer per-provider metadata (tag propagation, native idempotency keys, structured provider errors) the SMTP path does not carry; a project that needs that metadata supersedes this ADR and swaps in an API-based adapter that still satisfies the shared send contract. The SMTP path also inherits SMTP's operational quirks (SMTP-specific rate-limit signalling, provider-specific reply-code prose the classification table has to know about, connection reuse patterns the SMTP client library governs); the classification table lives in one place in the adapter for exactly this reason.",
+  "alternativesConsidered": [
+    {
+      "name": "Resend HTTP API as the default transport",
+      "summary": "Adapter posts to Resend's REST endpoint using an API key; retries and classification key off HTTP status codes and the provider's JSON error shape.",
+      "reasonNotChosen": "Reserved as the primary supersede path for projects that want the provider's richer per-send metadata (tags, custom headers, idempotency keys). The trade against SMTP is a heavier runtime binding (an HTTP client and a provider-specific JSON contract) and adapter shape that does not port cleanly to a non-Resend follow-up blueprint. A project-level ADR supersede plus an adapter swap is the intended path."
+    },
+    {
+      "name": "Provider-agnostic SMTP with no vendor commitment at v1",
+      "summary": "Ship a generic SMTP adapter and let the project point it at any SMTP-speaking provider.",
+      "reasonNotChosen": "The round-2 reference commits this blueprint to a vendor default; a shipped default lets the project apply and run rather than compose and configure. A generic SMTP shape re-appears as the shared substrate a sibling blueprint reuses, without abandoning the default here."
+    },
+    {
+      "name": "Provider-native SDK",
+      "summary": "Adapter uses Resend's own SDK.",
+      "reasonNotChosen": "Pulls a vendor SDK into the runtime footprint and pins the adapter to that SDK's release cadence. The SMTP client library shape is a smaller, more stable surface the project can pick from an existing dependency it likely already has."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
