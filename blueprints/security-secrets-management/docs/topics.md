@@ -6,11 +6,11 @@ This file is the security-secrets-management half of the cross-blueprint contrac
 
 | Topic string | security-secrets-management contribution | Origin | Composition note |
 |---|---|---|---|
-| `secretsSource` | ADR-901-security-secrets-management-secrets-source | Minted here; pre-cleared as unclaimed against SPA (`clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel`), REST (`errorEnvelope`, `authModel`, `apiVersioning`, `logging`), auth (`authModel`), persistence (`persistenceStore`, `migrationDiscipline`), ci-pipeline (`ciGates`, `strictCoverageGate`), observability (`healthProbes`, `readinessSemantics`, `statusPageContract`), and the hello-panel walkthrough exemplar (`operatorPanel`) | The one project-wide source of truth for secret material: a repo-root `secrets.yaml` manifest plus a vendor-agnostic Secrets Manager client. A composing blueprint that holds a different opinion on the secrets source (a vendor-committed opinionated blueprint, a config-server pattern, a plaintext-committed pattern for a public reference project) contributes its own scope:global ADR on this exact string and lets composition surface the pairing. Expected resolution: one project-level ADR that fixes the source shape and the vendor selection |
+| `secretsSource` | ADR-901-security-secrets-management-secrets-source | Minted here; pre-cleared as unclaimed against application-spa (`clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel`), application-api-rest (`errorEnvelope`, `authModel`, `apiVersioning`, `logging`), security-auth-magic-link (`authModel`), persistence-data-sqlite (`persistenceStore`, `migrationDiscipline`), ci-pipeline (`ciGates`, `strictCoverageGate`), observability-essentials (`healthProbes`, `readinessSemantics`, `statusPageContract`), and the hello-panel walkthrough exemplar (`operatorPanel`) | The one project-wide source of truth for secret material: a repo-root `secrets.yaml` manifest plus a vendor-agnostic Secrets Manager client. A composing blueprint that holds a different opinion on the secrets source (a vendor-committed opinionated blueprint, a config-server pattern, a plaintext-committed pattern for a public reference project) contributes its own scope:global ADR on this exact string and lets composition surface the pairing. Expected resolution: one project-level ADR that fixes the source shape and the vendor selection |
 
 The security-secrets-management blueprint claims one global topic. Every other contribution is scope-local (ADR-902 through ADR-905 name the default vendor, the agent access discipline, the `.env` reflection posture, and the rotation-and-audit posture without contributing global topics; a composing blueprint that holds a different opinion on any of them authors its own project-level ADR if it wants to override).
 
-Rules for new topics (inherited from the SPA, REST, auth, persistence, ci-pipeline, and observability vocabularies, restated as law): lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`secrets`, `secretsStore`, `vault`, `secretsVendor`, `credentialsSource` are all wrong when `secretsSource` already exists).
+Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, persistence-data-sqlite, ci-pipeline, and observability vocabularies, restated as law): lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`secrets`, `secretsStore`, `vault`, `secretsVendor`, `credentialsSource` are all wrong when `secretsSource` already exists).
 
 ## Id number bands (registry bootstrap)
 
@@ -18,13 +18,13 @@ AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by t
 
 | Blueprint | US band | ADR/TAC suffix block | Status | Global topics |
 |---|---|---|---|---|
-| spa | 1101-1899 | 2xx | shipped v1.0.0 | `clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel` |
-| rest | 2101-2899 | 3xx | shipped v1.0.0 | `errorEnvelope`, `authModel`, `apiVersioning`, `logging` |
-| auth | 3101-3899 | 5xx | shipped v1.0.0 | `authModel` |
+| application-spa | 1101-1899 | 2xx | shipped v1.0.0 | `clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel` |
+| application-api-rest | 2101-2899 | 3xx | shipped v1.0.0 | `errorEnvelope`, `authModel`, `apiVersioning`, `logging` |
+| security-auth-magic-link | 3101-3899 | 5xx | shipped v1.0.0 | `authModel` |
 | hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
-| persistence | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
-| observability | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
+| observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
 | security-secrets-management (this package) | 8101-8899 | 9xx | shipped v1.0.0 (US 8101-8110, ADR-901 to ADR-905, TAC-901 to TAC-905) | `secretsSource` |
 
 US 8101-8110 sit at the LOW end of the 8101-8899 band on purpose. A project-side story that mechanically derives from a security-secrets-management REQ id into the number `8110` would collide against security-secrets-management-US-8110 in this package; the band leaves headroom at the HIGH end (US 8181-8899) so a project's own stories anchored to security-secrets-management REQs can allocate without conflict. The watchpost run4 lesson applies here too.

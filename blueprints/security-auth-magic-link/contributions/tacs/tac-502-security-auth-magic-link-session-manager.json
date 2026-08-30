@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-502-security-auth-magic-link-session-manager",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Session manager",
+  "purpose": "Owns the shape and lifecycle of the server-side session record: opaque high-entropy handle generation, idle-sliding expiry, absolute expiry ceiling, per-request refresh, per-handle invalidation, and administrative revoke-by-principal. The handle is the credential; the record is the truth.",
+  "responsibilities": [
+    "Issue a session by inserting a record and returning { handle, expiresAt } where handle is base64url of at least 24 bytes of entropy (AC-3103-1, AC-3103-2).",
+    "Validate a presented handle by lookup, applying the sliding idle window and the fixed absolute expiry (AC-3105-2).",
+    "Refresh the idle-expiry clock on every validated request without changing the handle value.",
+    "Invalidate a session by handle in one call (invalidateSession) and every session for a principal in one call (revokeAllForPrincipal) (AC-3105-1, AC-3105-3).",
+    "Guarantee handles carry no encoded payload: no dot-separated segments, no principal id, no expiry, no scope in the string (AC-3103-2, AC-3103-3).",
+    "Emit sessionIssued, sessionRefreshed, sessionInvalidated, and sessionRevoked events without quoting the handle value (AC-3109-1, AC-3109-2)."
+  ],
+  "internalStructure": "One stateless manager class with an injected store; the store owns durability and the manager owns lifecycle rules. The default idle window is 900000 ms (fifteen minutes); the default absolute lifetime is 2592000000 ms (thirty days). Both are constructor options.",
+  "interfaces": [
+    {
+      "name": "store",
+      "kind": "read-write-api",
+      "description": "Project-supplied durable store implementing insertSession(record), findSession(handle), refreshSession(handle, lastSeenAt), deleteSession(handle), and deleteSessionsForPrincipal(principalId)."
+    },
+    {
+      "name": "onEvent",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with { event, principalId, outcome, at, ... } for the four session events; never invoked with the handle value."
+    },
+    {
+      "name": "now",
+      "kind": "clock",
+      "description": "Injectable millisecond clock for expiry arithmetic."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Login routes",
+      "kind": "tac",
+      "tacId": "TAC-503-security-auth-magic-link-login-routes",
+      "description": "The routes issue sessions on token consume and clear them on sign-out; the manager's methods are what the routes call."
+    }
+  ],
+  "tradeoffs": "The 900000 / 2592000000 default pair prioritises operator convenience over aggressive session rotation; projects with tighter idle needs or shorter absolute lifetimes override the constructor options and update the ADR's consequences to reflect the change. Sessions survive process restart because the store is durable; a project that supplies an in-memory store implementation trades restart continuity for test speed and states the trade in its own ADR.",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

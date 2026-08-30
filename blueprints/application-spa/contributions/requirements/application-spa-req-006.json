@@ -1,0 +1,18 @@
+{
+  "reqId": "application-spa-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Component library baseline: the named component set with tokens, semantics, keyboard behaviour, and states",
+  "description": "The application implements its UI from a component library covering: buttons, inputs, textareas, selects, checkboxes, radios, switches, comboboxes, cards, tables, tabs, modals, drawers, toasts, alerts, banners, tooltips, popovers, empty states, loading states, error states, skeleton loaders, and pagination. Each component consumes the semantic token layer, exposes correct accessibility semantics, implements its expected keyboard behaviour, and renders every applicable state: default, hover, focus, active, disabled, error, and success.",
+  "category": "functional",
+  "domain": "components",
+  "priority": "must",
+  "rationale": "A named component inventory converts \"professional visual baseline\" from taste into a checklist. Per-component contracts are specified in assets/component-specs and tested through the user stories under this requirement.",
+  "tags": [
+    "blueprint:application-spa",
+    "category:06-component-library"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

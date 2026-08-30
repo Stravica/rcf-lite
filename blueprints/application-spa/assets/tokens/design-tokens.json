@@ -1,0 +1,140 @@
+{
+  "meta": {
+    "name": "spa-blueprint-design-tokens",
+    "blueprint": "application-spa",
+    "version": "1.0.0",
+    "notes": "Canonical token values for application-spa-REQ-003, application-spa-REQ-005, application-spa-REQ-012, and application-spa-REQ-020. Colour pairings are contrast-validated: text tokens meet 4.5:1 and border/focus tokens meet 3:1 against every surface token in their theme. Parity rule: the light and dark colour key sets must remain identical; a key present in one theme and not the other is a defect (AC-1106-2)."
+  },
+  "color": {
+    "light": {
+      "surface": "#ffffff",
+      "surfaceRaised": "#f5f7fa",
+      "surfaceSunken": "#e9edf2",
+      "onSurface": "#1b2430",
+      "onSurfaceMuted": "#4a5568",
+      "primary": "#1d4ed8",
+      "onPrimary": "#ffffff",
+      "accent": "#0f6674",
+      "danger": "#b3261e",
+      "onDanger": "#ffffff",
+      "warning": "#8a4b0f",
+      "success": "#1a7431",
+      "muted": "#5b6572",
+      "border": "#697180",
+      "divider": "#d8dee6",
+      "focusRing": "#1d4ed8"
+    },
+    "dark": {
+      "surface": "#12161d",
+      "surfaceRaised": "#1a202a",
+      "surfaceSunken": "#0c0f15",
+      "onSurface": "#e8ecf2",
+      "onSurfaceMuted": "#a6b0bd",
+      "primary": "#8ab4ff",
+      "onPrimary": "#0e1a33",
+      "accent": "#5ad0e6",
+      "danger": "#ff8f88",
+      "onDanger": "#33100e",
+      "warning": "#f0b354",
+      "success": "#6dd58c",
+      "muted": "#98a2b0",
+      "border": "#8d97a5",
+      "divider": "#323a46",
+      "focusRing": "#8ab4ff"
+    },
+    "usage": {
+      "onSurface": "Body and heading text on any surface token.",
+      "onSurfaceMuted": "Secondary text; still passes 4.5:1 on every surface.",
+      "primary": "Primary actions and links; text-safe on surfaces; pair fills with onPrimary.",
+      "accent": "Highlights and selected states; text-safe on surfaces.",
+      "danger": "Destructive actions and error text; pair fills with onDanger.",
+      "warning": "Cautionary text and indicators; text-safe on surfaces.",
+      "success": "Positive confirmation text and indicators; text-safe on surfaces.",
+      "border": "Form-control and component boundaries (3:1 floor, WCAG 1.4.11).",
+      "divider": "Decorative separation only; never a control boundary.",
+      "focusRing": "Focus indicator colour (3:1 floor against surfaces)."
+    }
+  },
+  "spacing": {
+    "base": "4px",
+    "scale": {
+      "space-1": "0.25rem",
+      "space-2": "0.5rem",
+      "space-3": "0.75rem",
+      "space-4": "1rem",
+      "space-5": "1.25rem",
+      "space-6": "1.5rem",
+      "space-8": "2rem",
+      "space-10": "2.5rem",
+      "space-12": "3rem",
+      "space-16": "4rem",
+      "space-20": "5rem"
+    },
+    "notes": "All margins, paddings, and gaps resolve to this scale (AC-1104-1). Section spacing defaults: space-12 between page sections, space-6 within a section, space-2 between a label and its control."
+  },
+  "radius": {
+    "radius-sm": "4px",
+    "radius-md": "8px",
+    "radius-lg": "12px",
+    "radius-full": "9999px",
+    "notes": "radius-sm for inputs and small controls, radius-md for cards and overlays, radius-lg for prominent surfaces, radius-full for pills and avatars."
+  },
+  "typography": {
+    "scaleRatio": 1.25,
+    "fontFamily": {
+      "ui": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+      "mono": "ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, monospace"
+    },
+    "size": {
+      "text-xs": "clamp(0.75rem, 0.72rem + 0.15vw, 0.8rem)",
+      "text-sm": "clamp(0.875rem, 0.85rem + 0.2vw, 0.95rem)",
+      "text-body": "clamp(0.875rem, 0.8rem + 0.5vw, 1rem)",
+      "text-lg": "clamp(1.094rem, 1rem + 0.6vw, 1.25rem)",
+      "text-xl": "clamp(1.367rem, 1.25rem + 0.75vw, 1.563rem)",
+      "text-2xl": "clamp(1.709rem, 1.55rem + 0.95vw, 1.953rem)",
+      "text-3xl": "clamp(2.136rem, 1.9rem + 1.2vw, 2.441rem)"
+    },
+    "lineHeight": {
+      "body": 1.5,
+      "heading": 1.2
+    },
+    "notes": "text-body resolves to at least 14px below 768 viewport width and at least 16px at 768 and above (AC-1127-2); clamp() carries the fluid scaling (AC-1127-3). Sizes above body follow the 1.25 modular scale."
+  },
+  "elevation": {
+    "light": {
+      "elevation-1": "0 1px 2px rgba(27, 36, 48, 0.08), 0 1px 3px rgba(27, 36, 48, 0.06)",
+      "elevation-2": "0 2px 6px rgba(27, 36, 48, 0.10), 0 4px 12px rgba(27, 36, 48, 0.08)",
+      "elevation-3": "0 8px 24px rgba(27, 36, 48, 0.16), 0 2px 6px rgba(27, 36, 48, 0.10)"
+    },
+    "dark": {
+      "elevation-1": "0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(232, 236, 242, 0.05)",
+      "elevation-2": "0 2px 6px rgba(0, 0, 0, 0.50), 0 0 0 1px rgba(232, 236, 242, 0.07)",
+      "elevation-3": "0 8px 24px rgba(0, 0, 0, 0.60), 0 0 0 1px rgba(232, 236, 242, 0.09)",
+      "notes": "Dark elevation pairs shadow with a faint outline plus the raised surface tokens so hierarchy survives without light-theme shadow contrast (AC-1106-5)."
+    }
+  },
+  "motion": {
+    "duration": {
+      "motion-fast": "150ms",
+      "motion-base": "200ms",
+      "motion-slow": "250ms"
+    },
+    "easing": {
+      "ease-out": "cubic-bezier(0.2, 0, 0, 1)",
+      "ease-in": "cubic-bezier(0.4, 0, 1, 1)",
+      "ease-in-out": "cubic-bezier(0.4, 0, 0.2, 1)"
+    },
+    "notes": "Defaults per ADR-207: enter and state changes use ease-out at motion-base; exits use motion-fast. prefers-reduced-motion collapses all of these (see theme.css)."
+  },
+  "breakpoints": {
+    "bp-360": "360px",
+    "bp-768": "768px",
+    "bp-1024": "1024px",
+    "bp-1440": "1440px",
+    "notes": "The ratified baseline breakpoints (application-spa-REQ-004). Container widths per breakpoint live in assets/viewports.md."
+  },
+  "targetSize": {
+    "minimum": "24px",
+    "notes": "Minimum interactive target per WCAG 2.2 and AC-1126-4; controls may render visually smaller only when padding or spacing preserves the 24x24 target."
+  }
+}

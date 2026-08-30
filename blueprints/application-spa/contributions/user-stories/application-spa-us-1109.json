@@ -1,0 +1,90 @@
+{
+  "usId": "application-spa-US-1109",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Selection controls: select, checkbox, radio, switch, combobox",
+  "asA": "user making choices in forms and filters",
+  "iWant": "selection controls that work the way platform controls work",
+  "soThat": "nothing about choosing options needs learning or fighting",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1109-1",
+      "description": "Selects open with Enter, Space, or arrow keys, support arrow navigation and type-ahead within options, commit on Enter, and cancel on Escape restoring the prior value.",
+      "given": "a focused select",
+      "when": "operated by keyboard only",
+      "then": "the full open, navigate, commit, cancel grammar works",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1109-2",
+      "description": "Checkboxes support checked, unchecked, and where used indeterminate, toggle with Space, and expose state changes to assistive technology.",
+      "given": "a checkbox in each state",
+      "when": "toggled by pointer and keyboard",
+      "then": "state changes render and announce correctly",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1109-3",
+      "description": "Radio groups behave as one Tab stop with arrow keys moving selection within the group, and exactly one selected member.",
+      "given": "a focused radio group",
+      "when": "Tab and arrows are pressed",
+      "then": "Tab exits the group, arrows move the selection",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1109-4",
+      "description": "Switches expose switch semantics (role and checked state), toggle with Space and Enter, and apply their effect immediately without a separate submit.",
+      "given": "a switch control",
+      "when": "toggled",
+      "then": "semantics announce on and off and the effect applies immediately",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1109-5",
+      "description": "Comboboxes implement the filtering pattern: typing filters options, arrows traverse the filtered list, Enter commits, Escape closes without committing, and the expanded state plus active option are exposed programmatically.",
+      "given": "a combobox with options",
+      "when": "operated by keyboard only",
+      "then": "the full filter, traverse, commit, cancel grammar works with correct ARIA state",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1109-6",
+      "description": "A combobox with no matching options renders a designed empty message inside the listbox, never an empty popup.",
+      "given": "a combobox filtered to zero matches",
+      "when": "the listbox renders",
+      "then": "a designed no-matches message is shown",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1109-7",
+      "description": "All selection controls render default, hover, focus, disabled, and error states from the token layer in both themes.",
+      "given": "each selection control",
+      "when": "each state is induced in both themes",
+      "then": "states are distinct and token-driven",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1109-8",
+      "description": "Every selection control meets the 24x24 minimum target size including its label hit area.",
+      "given": "each selection control at 360 viewport",
+      "when": "target areas are measured",
+      "then": "each is at least 24x24 CSS pixels",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-203-application-spa-component-library"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

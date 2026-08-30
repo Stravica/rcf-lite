@@ -1,0 +1,46 @@
+{
+  "usId": "persistence-data-sqlite-US-5101",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-sqlite-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The store opens once at boot and is ready when the entry point returns",
+  "asA": "operator whose deploy needs a persistence surface ready before the first request is served",
+  "iWant": "the store to be opened exactly once at boot through a single entry point that runs migrations before returning",
+  "soThat": "the application starts in a known persistence state and no request runs against a half-initialised store",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5101-1",
+      "description": "The application exposes a single named function or module export that opens the store, and the process invokes it exactly once during boot before any request handler binds.",
+      "given": "the application is starting cold",
+      "when": "the boot sequence runs",
+      "then": "the store event log contains exactly one opened event whose timestamp precedes the timestamp of the first served request",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5101-2",
+      "description": "The store opens with a path or connection string sourced from application configuration; no consumer code hard-codes the store location.",
+      "given": "the application is configured with a store path or connection string",
+      "when": "the boot sequence runs the open entry point",
+      "then": "the store event log's opened event carries the same store identifier the configuration supplied, and a grep of the source tree finds the identifier resolved from configuration rather than hard-coded",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5101-3",
+      "description": "The open entry point returns only after migrations have run to the build's max known schema version; consumer code that runs after the entry point returns sees a schema at that version.",
+      "given": "the boot sequence has invoked the open entry point and control has returned",
+      "when": "consumer code queries the schema version via the store facade",
+      "then": "the reported version equals the build's max known migration version",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-601-persistence-data-sqlite-store",
+    "TAC-602-persistence-data-sqlite-migration-runner"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

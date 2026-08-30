@@ -1,0 +1,63 @@
+{
+  "usId": "application-spa-US-1127",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-020",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Modular type scale with size and line-height floors",
+  "asA": "user reading the interface for hours",
+  "iWant": "text sized and spaced for sustained reading",
+  "soThat": "nothing important is squint-small or cramped",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1127-1",
+      "description": "All font sizes resolve to the typography tokens, which realise a modular scale with ratio 1.125 or 1.25; off-scale literal sizes do not appear in component styles.",
+      "given": "the shipped stylesheet output",
+      "when": "font-size declarations are audited",
+      "then": "every size maps to a scale token",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1127-2",
+      "description": "Body text renders at 14px minimum below 768 and 16px minimum at 768 and above.",
+      "given": "body text at each baseline breakpoint",
+      "when": "computed sizes are measured",
+      "then": "the minimums hold",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1127-3",
+      "description": "Type scales fluidly between breakpoints rather than jumping only at breakpoint edges.",
+      "given": "a viewport resized between 360 and 1440",
+      "when": "body and heading sizes are sampled",
+      "then": "sizes interpolate smoothly within the declared bounds",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1127-4",
+      "description": "Line height is 1.5 for body text and 1.2 for headings across the application.",
+      "given": "body and heading elements",
+      "when": "computed line heights are measured",
+      "then": "the declared values hold",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1127-5",
+      "description": "Text containers tolerate 200% browser zoom without loss of content or functionality.",
+      "given": "any declared route",
+      "when": "rendered at 200% zoom",
+      "then": "all content remains readable and operable",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-202-application-spa-theme-system"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

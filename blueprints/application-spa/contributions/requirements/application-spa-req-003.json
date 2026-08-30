@@ -1,0 +1,18 @@
+{
+  "reqId": "application-spa-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Layout system: 4pt spacing scale, per-breakpoint container widths, safe-area handling",
+  "description": "All layout derives from a single grid and spacing system on a 4pt base scale. Container maximum widths are declared per breakpoint. Spacing values outside the scale do not appear in component styles. Notched and rounded viewports are handled via safe-area insets so no content or control sits under hardware cutouts.",
+  "category": "nonFunctional",
+  "domain": "layout",
+  "priority": "must",
+  "rationale": "Ad-hoc spacing is the visible signature of unspecified layout. A closed scale makes drift detectable and keeps composed screens coherent.",
+  "tags": [
+    "blueprint:application-spa",
+    "category:03-layout-system"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

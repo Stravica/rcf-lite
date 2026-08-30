@@ -1,0 +1,64 @@
+{
+  "usId": "security-auth-magic-link-US-3101",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-magic-link-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Operator signs in by receiving a one-shot magic link in their inbox",
+  "asA": "operator with a registered email address and no memorised password",
+  "iWant": "to submit my address to a sign-in form and receive a single URL that signs me in when I click it",
+  "soThat": "no password exists anywhere for me to lose, reuse, or leak",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-3101-1",
+      "description": "GET /login renders a form with a single email field and a submit control. No password field is present anywhere on the page.",
+      "given": "the operator navigates to /login",
+      "when": "the page renders",
+      "then": "the response body contains an input with type='email' and name='email', and no input with type='password' or autocomplete='current-password'",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3101-2",
+      "description": "POST /login accepts application/x-www-form-urlencoded with an email field and returns a 200 response confirming that if the address is registered a link has been sent.",
+      "given": "the operator submits the form with a valid email string",
+      "when": "the POST /login handler runs",
+      "then": "the response status is 200 and the body confirms that a link will arrive if the address is registered, without confirming or denying that this address is registered",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3101-3",
+      "description": "A submission for a registered address causes exactly one email to be dispatched via the configured adapter, carrying a URL that resolves to GET /login/verify on this deployment with the minted token as the sole query parameter.",
+      "given": "a registered principal submits the form",
+      "when": "the handler completes",
+      "then": "the email-delivery-adapter.send call fires exactly once with a body containing a URL whose path is /login/verify and whose only query parameter carries the token",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3101-4",
+      "description": "Following the emailed URL to GET /login/verify with a valid unconsumed unexpired token issues a session and redirects the operator to the configured post-sign-in landing route.",
+      "given": "the operator follows the emailed URL within the token's validity window",
+      "when": "GET /login/verify runs",
+      "then": "the response is a 302 to the configured post-sign-in route and carries a Set-Cookie header issuing a fresh session handle",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3101-5",
+      "description": "GET /login/verify with a missing, malformed, unknown, expired, or already-consumed token returns a 401 with a generic sign-in-failed response and no session issue.",
+      "given": "GET /login/verify is called with any token value that does not resolve to a valid unconsumed unexpired record",
+      "when": "the handler runs",
+      "then": "the response status is 401, no Set-Cookie is emitted, and the response body reveals nothing about which failure class the token fell into",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-501-security-auth-magic-link-magic-link-manager",
+    "TAC-503-security-auth-magic-link-login-routes"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

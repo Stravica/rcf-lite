@@ -353,12 +353,13 @@ test('rcf blueprint add --resolve rejects a whitespace-only topic and a mis-shap
 import { readFile as _readFile } from 'node:fs/promises';
 import { resolve as _resolveP } from 'node:path';
 
-// The shipped SPA + REST blueprints live in the repo root's blueprints/
-// tree (../../../blueprints/spa, ../../../blueprints/rest relative to
+// The shipped application-spa + application-api-rest blueprints live in
+// the repo root's blueprints/ tree (../../../blueprints/application-spa,
+// ../../../blueprints/application-api-rest relative to
 // packages/rcf-lite/test/blueprint/). Use them verbatim; this is the
 // probe HQ round-2 will re-run.
-const shippedSpa  = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'spa');
-const shippedRest = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'rest');
+const shippedSpa  = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'application-spa');
+const shippedRest = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'application-api-rest');
 
 test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, Baz ruling on the conflict-pair supersede precondition)', async () => {
   // AC-1002-5 + AC-1002-9 + AC-1002-10 as ratified in round 3: option
@@ -405,7 +406,7 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   //    resolutions), reaching co-residence.
   const readd = await runBin(root, ['define', 'blueprint', 'add', shippedRest]);
   assert.equal(readd.code, 0, `re-add rest after supersede pair: ${readd.stderr}\n${readd.stdout}`);
-  assert.match(readd.stdout, /applied 'rest' at 1\.0\.0/);
+  assert.match(readd.stdout, /applied 'application-api-rest' at 1\.0\.0/);
 
   // Co-residence proven: both blueprint entries in manifest.blueprints[],
   // and manifest.resolutions[] carries the topic strings VERBATIM
@@ -413,7 +414,7 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   // strings carry the kebab-ified slug tail.
   const manifest = JSON.parse(await _readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
   const bpSlugs = manifest.blueprints.map((b) => b.slug).sort();
-  assert.deepEqual(bpSlugs, ['rest', 'spa']);
+  assert.deepEqual(bpSlugs, ['application-api-rest', 'application-spa']);
   const authRec = manifest.resolutions.find((r) => r.topic === 'authModel');
   const errRec  = manifest.resolutions.find((r) => r.topic === 'errorEnvelope');
   assert.ok(authRec, `expected a resolution on topic 'authModel'; got ${JSON.stringify(manifest.resolutions.map(r => r.topic))}`);
@@ -423,7 +424,7 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   // Both blueprint sides listed in supersedes[] of each resolution.
   for (const rec of [authRec, errRec]) {
     const slugs = rec.supersedes.map((s) => s.slug).sort();
-    assert.deepEqual(slugs, ['rest', 'spa'], `resolution '${rec.topic}' should list both spa + rest in supersedes[]`);
+    assert.deepEqual(slugs, ['application-api-rest', 'application-spa'], `resolution '${rec.topic}' should list both application-spa + application-api-rest in supersedes[]`);
   }
 });
 

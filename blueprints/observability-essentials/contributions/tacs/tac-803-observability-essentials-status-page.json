@@ -1,0 +1,37 @@
+{
+  "tacId": "TAC-803-observability-essentials-status-page",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Public status page",
+  "purpose": "Owns the public status page: the HTTP handler that renders it, the declared component registry it renders from, and the active-notice reader it renders alongside. The public reader is the primary audience; the renderer commits to the declared component vocabulary and the declared notice fields and to nothing else.",
+  "responsibilities": [
+    "Register a GET handler on the configured status page path (default /status) at the application's HTTP router; respond with 200 and Content-Type text/html to unauthenticated requests (AC-7104-1, AC-7108-1, AC-7108-2).",
+    "Render exactly the declared component list in declared order, with each component's current state as a machine-readable attribute drawn from the operational/degraded/outage/maintenance enum; no phantom components, no missing components, no other state values (AC-7104-1, AC-7104-2, AC-7104-3).",
+    "Render active incident notices in a notices region above the component list; each notice element carries the title, body, severity, startedAt, and componentIds fields as machine-readable attributes with severity drawn from the info/warning/critical enum; when no notices are active, the notices region is either absent or carries an emptyState marker (AC-7105-1, AC-7105-2, AC-7105-3).",
+    "Refuse to render internal identifiers, raw metric values, or declared readiness dependency names on the page; the vocabulary is the declared component names and the declared notice fields, and nothing else (AC-7109-1, AC-7109-2, AC-7109-3)."
+  ],
+  "internalStructure": "One handler module exporting createStatusPageHandler({ path, componentRegistry, noticeReader, now }) -> { path, handler }. The componentRegistry is the declared component list (name, order) loaded at boot from configuration. The noticeReader is a project-supplied async () -> Notice[] the handler invokes per render (with the same non-blocking budget the readiness pattern uses if the notice store is remote). The renderer emits HTML with machine-readable data attributes on component and notice elements so downstream consumers can parse the page without regex over prose.",
+  "interfaces": [
+    {
+      "name": "createStatusPageHandler",
+      "kind": "factory",
+      "description": "createStatusPageHandler({ path, componentRegistry, noticeReader, now }) -> { path, handler }. Returns the configured status path and a handler that renders the declared components and the notices reader's current notices."
+    },
+    {
+      "name": "componentRegistry",
+      "kind": "config",
+      "description": "Declared component list loaded at boot: an ordered list of { name, currentState? } entries. currentState may be static (operator-updated via a project-authored side channel) or read via a per-component reader function the project supplies."
+    },
+    {
+      "name": "noticeReader",
+      "kind": "callback",
+      "description": "Project-supplied async () -> Notice[] returning the current active notice list. Each Notice has { title, body, severity, startedAt, componentIds? } fields."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The declared-component vocabulary is a public commitment the project owns; renaming a component is an operator-visible change to the public surface. That constraint is what keeps the page stable for external readers. Projects that want a richer public surface (component sub-states, historical uptime cells, per-region breakdowns) extend the declared component vocabulary rather than baking undocumented fields into the render. History over time (historical uptime chart, rolling reliability) is out of scope at v1.0.0; see the blueprint README's Known mechanism-reach gaps for the promotion signal.",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

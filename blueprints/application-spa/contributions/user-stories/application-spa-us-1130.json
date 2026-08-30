@@ -1,0 +1,54 @@
+{
+  "usId": "application-spa-US-1130",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-011",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Icon adherence probe refuses ship on inline SVG or unknown alias",
+  "asA": "operator relying on the iconography discipline",
+  "iWant": "a runtime check that fails the build when a component sidesteps the icon alias registry",
+  "soThat": "the one-icon-set-behind-semantic-aliases contract in ADR-206 is enforced at the ship gate, not just declared",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1130-1",
+      "description": "The icon-adherence probe (TAC-208) scans the shipped component source tree and exits non-zero when any file outside the icon registry allow list contains an inline `<svg>` opening tag.",
+      "given": "a project source tree in which a component ships an inline `<svg>` element outside the icon registry",
+      "when": "the icon-adherence probe runs against the component glob",
+      "then": "the probe exits with a non-zero code and records the file path and line number of the inline SVG in its report",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1130-2",
+      "description": "The icon-adherence probe reads the icon alias registry, enumerates the declared alias names, and exits non-zero when any component-source icon reference resolves to a name absent from the registry.",
+      "given": "a component that references `icon.close` while the alias registry declares only `icon.danger`, `icon.search`, and `icon.menu`",
+      "when": "the icon-adherence probe runs against the component glob",
+      "then": "the probe exits with a non-zero code and records the unknown alias name, file path, and line number in its report",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1130-3",
+      "description": "The icon-adherence probe writes a JSON report at a stable relative path (`reports/icon-adherence.json` under the configured report directory) naming every component file scanned, every inline-SVG violation, every unknown-alias violation, and an `ok` or `fail` verdict.",
+      "given": "a completed probe run (pass or fail)",
+      "when": "the report file is inspected on disk",
+      "then": "the JSON at `reports/icon-adherence.json` matches the shape declared by TAC-208 and its verdict field agrees with the process exit code",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1130-4",
+      "description": "When the icon-adherence probe is wired as a gate in the ci-pipeline runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the ci-pipeline runner refuses ship with a non-zero exit.",
+      "given": "the ci-pipeline runner configured with the icon-adherence probe as a required gate",
+      "when": "the probe reports `fail` on any run",
+      "then": "the aggregate report records the gate as failed and the runner exits non-zero",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-208-application-spa-icon-adherence-probe"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

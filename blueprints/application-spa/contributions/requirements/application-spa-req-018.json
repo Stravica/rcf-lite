@@ -1,0 +1,18 @@
+{
+  "reqId": "application-spa-REQ-018",
+  "prdId": "PRD-001",
+  "title": "SPA security baselines: CSP, sanitised dynamic HTML, hardened session cookies, no bundled secrets",
+  "description": "The application ships a named Content-Security-Policy, never renders user-influenced data through raw HTML injection without a sanitiser, sets session cookies with Secure, HttpOnly, and SameSite attributes, round-trips form values XSS-safely, and includes no secrets or privileged endpoints in the shipped bundle.",
+  "category": "security",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "These are the SPA-applicable floors. Anything below them is a vulnerability, not a style choice.",
+  "tags": [
+    "blueprint:application-spa",
+    "category:18-security"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

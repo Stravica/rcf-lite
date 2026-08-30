@@ -1,0 +1,32 @@
+{
+  "tacId": "TAC-203-application-spa-component-library",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Component library",
+  "purpose": "The single source of interactive and presentational primitives listed in application-spa-REQ-006; application screens compose these, they do not restyle them.",
+  "responsibilities": [
+    "Implement every component named in application-spa-REQ-006 with the states, semantics, and keyboard contracts specified in assets/component-specs.",
+    "Consume the semantic token layer exclusively; no hard-coded colours, spacing, or type sizes.",
+    "Expose accessibility semantics per component (roles, names, states) and keep them correct across states.",
+    "Render the state quartet primitives (empty, loading, error, skeleton) that routes compose per application-spa-REQ-010.",
+    "Keep every interactive target at or above the 24x24 CSS pixel minimum (application-spa-REQ-019)."
+  ],
+  "internalStructure": "One module per component family (actions, inputs, selection, overlays, data display, feedback), each pairing a spec document in assets/component-specs with an implementation the working agent writes.",
+  "dependencies": [
+    {
+      "name": "Theme system",
+      "kind": "tac",
+      "tacId": "TAC-202-application-spa-theme-system"
+    },
+    {
+      "name": "Icon set",
+      "kind": "external",
+      "description": "The single icon set selected under ADR-206-application-spa-iconography."
+    }
+  ],
+  "tradeoffs": "A closed library slows the first screen slightly and then accelerates every screen after it; ad-hoc one-off components are the defect nursery this component exists to close.",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

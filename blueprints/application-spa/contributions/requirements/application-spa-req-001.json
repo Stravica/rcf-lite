@@ -1,0 +1,18 @@
+{
+  "reqId": "application-spa-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Information architecture: named routes, canonical URLs, and not-found handling",
+  "description": "The application declares its route inventory explicitly: every surface has a named route, resource pages follow one canonical URL shape per resource class, breadcrumbs appear wherever nesting exceeds two levels, and unknown or gone resources render dedicated 404 and 410 pages rather than a blank shell or a redirect to home.",
+  "category": "functional",
+  "domain": "information-architecture",
+  "priority": "must",
+  "rationale": "Routes that exist only implicitly cannot be verified, deep-linked, or telemetered. A declared route inventory is the anchor for the responsive, journey, and verification requirements in this blueprint.",
+  "tags": [
+    "blueprint:application-spa",
+    "category:01-information-architecture"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

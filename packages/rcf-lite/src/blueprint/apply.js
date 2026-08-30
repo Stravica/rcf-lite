@@ -172,7 +172,7 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
         // first-apply into a tree that already has the file, or a new
         // contribution appearing in a re-applied version -- is treated
         // as foreign and refused. Grammar is deliberately not consulted
-        // here: `ADR-201-spa-theme` may be a legitimate `spa`-owned id
+        // here: `ADR-201-application-spa-theme` may be a legitimate `spa`-owned id
         // whose author put a semantic tail after the slug.
         if (!ownedIds.has(c.id)) {
           for (const w of stagedWrites) await unlink(w.tmpAbs).catch(() => {});
@@ -395,7 +395,7 @@ function composeDeclaredResolutions({ manifest, applied, incoming, declarations,
  * absent and the renderer falls back to id-at-path for that side.
  *
  * Round-2 review nit: the earlier version only enriched the existing
- * side, so a conflict report against shipped SPA + REST rendered
+ * side, so a conflict report against shipped application-spa + REST rendered
  * asymmetrically (spa gets 'SPA auth: cookie sessions — HttpOnly
  * cookies.' while rest gets 'ADR-003-rest at rcf/adrs/...'). Both
  * sides are readable — the existing side from tree, the incoming
