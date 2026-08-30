@@ -1,0 +1,50 @@
+# Persistence data D1 blueprint (v1.0.0)
+
+The ninth content blueprint on the rcf-build-lite blueprint mechanism. Scope: Cloudflare D1 as the project's primary durable store for Workers-deployed applications, accessed request-scoped through a Worker-side facade module that is the sole reader of the D1 binding, with numbered forward-only migrations owned by the wrangler CLI, a deploy pipeline gate ordering the migrations apply strictly before the Worker deploy, prepared-statement discipline that closes the SQL-injection surface by construction, batch atomicity for multi-statement writes, and a two-path recovery model (Time Travel plus a scheduled portable export). Targeted at small greenfield rcf-lite projects deployed on Workers; other engines behind the same facade contract on supersede.
+
+## Apply
+
+```
+rcf define blueprint add <path-to>/blueprints/persistence-data-d1
+```
+
+Phase 1 resolves local path sources only; registry and git-ref resolution is a mechanism follow-up. Apply is idempotent; `rcf define blueprint list` shows the applied entry grouped under the `persistence` category; `rcf define blueprint remove persistence-data-d1` cleanly removes an unreferenced application.
+
+## Anatomy
+
+| Piece | Where | What |
+|---|---|---|
+| Metadata | `blueprint.json` | Slug, version, category `persistence`, and the 23 contributions with scope/topic on the two global ADRs |
+| Doc set | `contributions/` | 7 REQs, 7 USs (20 ACs), 4 TACs, 5 ADRs, all schema-valid and namespaced (`persistence-data-d1-REQ-001` prefix family; `ADR-1401-persistence-data-d1-store-model` suffix family) |
+| Wrangler D1 binding sample | `assets/wrangler-config/d1-binding-shape.md` | The exact shape of a `d1_databases[]` entry with `binding`, `database_name`, `database_id`, `migrations_dir`, `migrations_table`, and `migrations_pattern`, worked as one committable example with placeholders only |
+| Migration file shape sample | `assets/migration-shape/migration-file-shape.md` | The exact shape of a numbered migration file under the wrangler-configured directory, with a worked four-migration example |
+| Facade module shape sample | `assets/facade-shape/facade-module-shape.md` | The exact shape of the D1 store facade module (`createStore({ env, bindingName, onEvent })` factory, named verbs, prepared-statement discipline, batch atomicity) with a worked domain example |
+| Batch usage sample | `assets/batch-usage/batch-atomicity-example.md` | The exact shape of a multi-statement atomic write through `db.batch([...])`, with the mid-batch-failure rollback semantics called out |
+| Guide | `guide/persistence-data-d1.md` | Operator-facing: when to use it, when not, what stays your call, and the promotion signals for the sibling single-file SQLite blueprint and future Postgres or replication blueprints |
+| Coordination vocabulary | `docs/topics.md` | The two global-topic strings this blueprint contributes and the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, email-smtp-resend, persistence-data-sqlite, ci-pipeline, observability-essentials, security-secrets-management, security-auth-clerk, persistence-data-d1) |
+
+The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
+
+## What it contributes, and what it deliberately does not
+
+Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (ratified decision 5) and no code.
+
+No FBS contributions, as a matter of principle (ratified policy 2026-08-19): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT (the store facade contract, the wrangler-owned migration discipline, the deploy-pipeline gate contract, the prepared-statement and batch atomicity boundaries, the two-path recovery model, the metadata-only event log discipline); the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing.
+
+Deliberately not contributed: the domain schema (the tables the project's own entities live in are project-authored, on top of the migration directory the project maintains; the blueprint governs the facade contract and the migration discipline, not the domain shape); an ORM or query builder above the D1 prepared-statement surface (the facade is a project-authored surface; how it internally implements its verbs above the vendor binding is not blueprint-owned, but the boundary discipline refuses raw-SQL passthrough on the public surface); a Worker deploy blueprint (a companion `deploy-cloudflare-workers` blueprint is the natural pair for the Worker deploy step the deploy-gate TAC assumes; until it ships, projects wire their own deploy step); a secrets management surface for the CI credential that runs `wrangler d1 migrations apply` and `wrangler deploy` (the credential storage and rotation posture are the concern of the `security-secrets-management` blueprint, not this one); a CI pipeline template (CI shape is the concern of the `ci-pipeline` blueprint, not this one; this blueprint contributes the requirement that the migrations-apply step orders strictly before the deploy step, not the file that implements it); a replication or failover surface (D1's read-replica surface is a read-scaling primitive, not a failover primitive; a project needing failover supersedes ADR-1401 with an alternate engine); a logical schema-agnostic dump beyond the vendor's `wrangler d1 export` (out of scope; see ADR-1405's alternatives).
+
+## The two global decisions
+
+ADR-1401-persistence-data-d1-store-model ships `scope: global` on topic `persistenceStore`. This is the project's primary durable store engine choice: one Cloudflare D1 database bound into the Worker under a named binding, one entry point through the facade. A composing blueprint that holds a different engine opinion (the single-file SQLite blueprint on the same topic, a future Postgres blueprint, a KV-store blueprint) conflicts here by design and expects a project-level ADR resolution.
+
+ADR-1402-persistence-data-d1-migration-discipline ships `scope: global` on topic `migrationDiscipline`. This is the project's schema-evolution posture: numbered forward-only `.sql` files under the wrangler-configured directory, applied by the vendor CLI, gated in the deploy pipeline. A composing blueprint that holds an opinion on migration discipline (the SQLite blueprint's boot-time runner-at-open discipline on the same topic, a future event-sourced projection blueprint) conflicts here by design.
+
+See `docs/topics.md` for the exact strings, the expected resolutions, the delineation from the application-api-rest blueprint's `logging` topic (which governs the wire-log shape, not the store-event log shape), the deliberate-conflict statement against the persistence-data-sqlite blueprint (both blueprints ship the same two global topics with different vendor answers on purpose, mirroring the application-spa plus application-api-rest pairing on `errorEnvelope` and `authModel`), and the AC id band allocation (persistence-data-d1 owns 13101-13899, ADR/TAC suffix block 1401-1499).
+
+## Quality bar
+
+Single D1 database bound into the Worker under one named binding read by exactly one facade module; every read and write through the facade issued as `db.prepare(<static SQL literal>).bind(...)` with no consumer-supplied SQL and no `db.exec(<consumer string>)` on any path; multi-statement writes requiring atomicity through `db.batch([...])` with no partial-batch results surfaced; numbered forward-only `.sql` migration files under the wrangler-configured directory with the vendor CLI as the sole applier and the vendor bookkeeping table as the sole applied-state ledger; deploy pipeline that orders `wrangler d1 migrations apply` strictly before `wrangler deploy` per environment and refuses the deploy on any apply failure; two-path recovery (Time Travel point-in-time restore within the plan window and a scheduled `wrangler d1 export` to a portable off-vendor artifact) exercisable from the ops or CI surface without a Worker code change; structured event log at five defined moments (facadeReady, migrationsApplied, backupExported, timeTravelRestored, queryFailed) with metadata-only fields carrying no domain-row values. Every bar is carried by ACs in the doc set, not by this README.
+
+## Known mechanism-reach gaps
+
+None at v1.0.0. Every AC on every story is bound to at least one TAC that the host project must realise, and every AC's `then` clause is runtime-observable in the deployed application (source-tree import-graph scans for the boundary properties, wrangler CLI exit-code checks for the migration and deploy-gate properties, D1 read round-trips for the row-preservation properties on export and restore, event-sink accumulation for the log-shape properties, targeted grep for the SQL-string discipline). The mechanism-reach principle from the authoring standard section 7 is satisfied at ship: a project that applies this blueprint and does not realise a TAC leaves an unresolved `tacIds` reference on the story that `rcf define validate` and `rcf audit coverage` refuse. The one operational surface a project must own on its own is the CI pipeline that wires the deploy gate (TAC-1403); that responsibility is stated as a TAC interface (`ciStep.migrationsApply`, `ciStep.deploy`) with an explicit ordering contract, not as a smuggled runtime probe. The recovery runner (TAC-1404) is similarly a project-owned ops surface; the blueprint contributes the shape and the event contract, not the ops file that invokes it.

@@ -1,0 +1,45 @@
+{
+  "usId": "persistence-data-d1-US-13104",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-d1-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every facade query is a parameterised prepared statement",
+  "asA": "developer who needs the persistence boundary to leave no SQL-injection surface for consumer arguments",
+  "iWant": "every facade query to be a static SQL literal issued via `db.prepare(...).bind(...)`, with no string-concatenated SQL and no `exec(<consumer string>)` on any path",
+  "soThat": "consumer arguments never traverse the SQL parser and the vendor's parameter-binding layer is the only place values reach the engine",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13104-1",
+      "description": "Every call site in the facade module that reaches the D1 binding is a `db.prepare(<static SQL literal>).bind(...)` chain terminating in `.first()`, `.all()`, `.run()`, or `.raw()`. No call site inside the facade calls `db.exec(...)` with any string other than a static SQL literal authored inside the facade module.",
+      "given": "the facade module source",
+      "when": "every call to the D1 binding is inspected for its SQL argument shape",
+      "then": "every `prepare` argument is a static string literal (not a template with an interpolation for a value, not a `+`-concatenation with any consumer argument, not a function-returned string) and no `exec` call takes a non-literal string; a targeted grep for `\\.exec(`, `\\.prepare(` template-literal interpolations, and `\\+` inside prepared-statement arguments returns only the known-safe literal-static occurrences the facade documents",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13104-2",
+      "description": "The facade does not export a general-purpose query method whose parameter is a SQL string supplied by a consumer.",
+      "given": "the facade module's exported surface",
+      "when": "the surface is inspected",
+      "then": "no exported function's typed parameter list includes a SQL-string parameter (a parameter named `sql`, `query`, `statement`, or typed as an arbitrary string that reaches `db.prepare` or `db.exec` inside the facade body); the boundary refuses raw-query passthrough by construction",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13104-3",
+      "description": "A facade verb invoked with a value containing SQL metacharacters (a semicolon, a comment marker, an OR-1=1 fragment, a quote) treats the value as a bound parameter, not as SQL syntax: the resulting query behaves as if the value were the literal string.",
+      "given": "a facade verb that accepts a string argument (a lookup by name, an insert of a title, an update by identifier) and a probe value containing the literal characters `'; DROP TABLE domainTable; --`",
+      "when": "the verb is invoked with the probe value against a local D1 database",
+      "then": "the invocation completes without side-effect against tables other than the one the verb legitimately touches, and a follow-up `SELECT COUNT(*) FROM domainTable` returns the same count as before the invocation (no DROP), and the probe value round-trips as an ordinary string wherever the verb persisted or returned it",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1401-persistence-data-d1-facade"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

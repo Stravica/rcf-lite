@@ -1,0 +1,42 @@
+{
+  "slug": "persistence-data-d1",
+  "version": "1.0.0",
+  "category": "persistence",
+  "contributions": [
+    { "id": "persistence-data-d1-REQ-001", "kind": "req", "path": "requirements/persistence-data-d1-req-001.json" },
+    { "id": "persistence-data-d1-REQ-002", "kind": "req", "path": "requirements/persistence-data-d1-req-002.json" },
+    { "id": "persistence-data-d1-REQ-003", "kind": "req", "path": "requirements/persistence-data-d1-req-003.json" },
+    { "id": "persistence-data-d1-REQ-004", "kind": "req", "path": "requirements/persistence-data-d1-req-004.json" },
+    { "id": "persistence-data-d1-REQ-005", "kind": "req", "path": "requirements/persistence-data-d1-req-005.json" },
+    { "id": "persistence-data-d1-REQ-006", "kind": "req", "path": "requirements/persistence-data-d1-req-006.json" },
+    { "id": "persistence-data-d1-REQ-007", "kind": "req", "path": "requirements/persistence-data-d1-req-007.json" },
+    { "id": "persistence-data-d1-US-13101", "kind": "us", "path": "user-stories/persistence-data-d1-us-13101.json" },
+    { "id": "persistence-data-d1-US-13102", "kind": "us", "path": "user-stories/persistence-data-d1-us-13102.json" },
+    { "id": "persistence-data-d1-US-13103", "kind": "us", "path": "user-stories/persistence-data-d1-us-13103.json" },
+    { "id": "persistence-data-d1-US-13104", "kind": "us", "path": "user-stories/persistence-data-d1-us-13104.json" },
+    { "id": "persistence-data-d1-US-13105", "kind": "us", "path": "user-stories/persistence-data-d1-us-13105.json" },
+    { "id": "persistence-data-d1-US-13106", "kind": "us", "path": "user-stories/persistence-data-d1-us-13106.json" },
+    { "id": "persistence-data-d1-US-13107", "kind": "us", "path": "user-stories/persistence-data-d1-us-13107.json" },
+    { "id": "TAC-1401-persistence-data-d1-facade", "kind": "tac", "path": "tacs/tac-1401-persistence-data-d1-facade.json" },
+    { "id": "TAC-1402-persistence-data-d1-migration-catalog", "kind": "tac", "path": "tacs/tac-1402-persistence-data-d1-migration-catalog.json" },
+    { "id": "TAC-1403-persistence-data-d1-deploy-gate", "kind": "tac", "path": "tacs/tac-1403-persistence-data-d1-deploy-gate.json" },
+    { "id": "TAC-1404-persistence-data-d1-recovery-runner", "kind": "tac", "path": "tacs/tac-1404-persistence-data-d1-recovery-runner.json" },
+    {
+      "id": "ADR-1401-persistence-data-d1-store-model",
+      "kind": "adr",
+      "path": "adrs/adr-1401-persistence-data-d1-store-model.json",
+      "scope": "global",
+      "topic": "persistenceStore"
+    },
+    {
+      "id": "ADR-1402-persistence-data-d1-migration-discipline",
+      "kind": "adr",
+      "path": "adrs/adr-1402-persistence-data-d1-migration-discipline.json",
+      "scope": "global",
+      "topic": "migrationDiscipline"
+    },
+    { "id": "ADR-1403-persistence-data-d1-event-secrecy", "kind": "adr", "path": "adrs/adr-1403-persistence-data-d1-event-secrecy.json" },
+    { "id": "ADR-1404-persistence-data-d1-store-boundary", "kind": "adr", "path": "adrs/adr-1404-persistence-data-d1-store-boundary.json" },
+    { "id": "ADR-1405-persistence-data-d1-recovery-model", "kind": "adr", "path": "adrs/adr-1405-persistence-data-d1-recovery-model.json" }
+  ]
+}

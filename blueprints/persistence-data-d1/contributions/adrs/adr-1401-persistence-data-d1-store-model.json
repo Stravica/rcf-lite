@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1401-persistence-data-d1-store-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Cloudflare D1 as the project's primary durable store, read through a Worker-side facade; other engines behind the same facade contract on supersede",
+  "context": "A project deployed on Cloudflare Workers has a natural persistence choice: D1, the vendor's managed serverless SQLite-semantics database, bound directly into the Worker's `env` and accessed request-scoped through a vendor-owned prepared-statement surface. The alternatives (a self-managed store fronted by a Worker adapter, an external Postgres reached from the Worker over HTTPS, an in-memory Workers KV substrate) each cost the project either an operator surface the Workers tier is supposed to eliminate or the relational semantics the domain expects. The rcf-lite Workers-tier target for this blueprint has one obvious answer.",
+  "decision": "The default primary durable store is one Cloudflare D1 database bound into the Worker under a named binding declared in `d1_databases[]`, accessed through the D1 store facade (TAC-1401) which is the only module that reads the binding. One binding per environment; the binding name and database identifier are project-configured; migrations are numbered forward-only `.sql` files under the wrangler-managed directory and applied by the vendor's own tooling (TAC-1402); the deploy pipeline is the gate that binds the applied set to the deployed Worker (TAC-1403); recovery is Time Travel plus a scheduled portable export (TAC-1404). Other engines behind the same store facade contract on supersede: a project that outgrows the D1 tier, or that has a workload D1 does not fit (relational semantics but scale beyond a single D1 database, non-Workers deploy target), supersedes this ADR with a project-level ADR selecting the alternate engine and replaces the facade's binding read with an engine-appropriate handle.",
+  "consequences": "The project inherits zero-infrastructure persistence at the Workers tier: no database server, no connection pool, no network round trip outside the vendor's own edge substrate. The binding is request-scoped inside the Worker; the facade is the one module the vendor surface lives in; migrations are a CI concern, not a boot-time runner; recovery is a wrangler command, not a hand-rolled backup daemon. The scale ceiling is the vendor's per-database size limit (a currently-published upper bound of 10 GB per D1 database on the Paid plan; 500 MB on the Free plan) plus the queries-per-Worker-invocation limit (currently 1000 on Paid, 50 on Free); a project whose steady-state working set outgrows either supersedes this ADR. Composing blueprints that hold an opinion on the store engine conflict on the `persistenceStore` topic; this blueprint's ADR is one of at least two shipped answers on the rcf-lite shelf (the other names a single-file local SQLite for non-Workers tiers), and the expected resolution is one project-level ADR that fixes the engine and states the tier reasoning.",
+  "alternativesConsidered": [
+    {
+      "name": "External Postgres reached from the Worker over HTTPS",
+      "summary": "Point the Worker at a hosted Postgres (Neon, Supabase, an operator-run cluster) reached via an HTTP-fronted client; the store facade wraps the HTTP client.",
+      "reasonNotChosen": "Wrong shape for the tier. A Workers-deployed application whose persistence is a network hop outside the vendor's edge substrate pays the round-trip on every request, gives up the vendor's built-in point-in-time recovery, and reintroduces the connection-pool sizing problem the Workers tier is supposed to remove. Projects whose scale genuinely needs Postgres supersede this ADR; the Workers tier is not where that supersede is default."
+    },
+    {
+      "name": "Cloudflare Workers KV as the substrate",
+      "summary": "Drop the relational shape and use KV as the persistence layer; the store facade wraps KV get/put.",
+      "reasonNotChosen": "The relational shape is what makes the query story sane for the domain the rcf-lite Workers-tier target typically ships. KV pushes the query problem into application code and gives up the constraint-checking safety net the SQL substrate provides for free. Projects whose domain is genuinely KV-shaped supersede this ADR and pick a KV blueprint when one ships."
+    },
+    {
+      "name": "Ship D1 and a second engine as co-contributed alternate TACs in one blueprint",
+      "summary": "Contribute D1 and Postgres store TACs side by side; the project picks one at apply time.",
+      "reasonNotChosen": "The rcf-lite blueprint mechanism (Phase 1) has no variant/profile selector. Two TACs contributed together are both applied, and both leave dangling tacIds references on their user stories if the project only realises one. The composable-vendor-siblings pattern (this blueprint plus the SQLite blueprint, each shipping its own opinion on `persistenceStore`, resolved at operator supersede time) is the shape the mechanism supports today; a mechanism-side variant concept is a future investment."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

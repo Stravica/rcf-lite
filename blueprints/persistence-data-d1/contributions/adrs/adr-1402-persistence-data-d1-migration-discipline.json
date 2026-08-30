@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1402-persistence-data-d1-migration-discipline",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Numbered forward-only migrations owned by the vendor CLI; deploy pipeline gates the target Worker on the apply succeeding first",
+  "context": "Schema evolution in a Workers-deployed application has three failure modes: silent drift (the deployed database does not match the code's assumptions), half-application (a migration ran partway and left the database in an undefined shape), and deploy-order hazard (the Worker deploys ahead of the migration and starts failing per request against a schema behind its expectations). The migration story has to close all three at the substrate level. D1's vendor tooling already owns numbered forward-only migrations and per-database bookkeeping; the discipline this ADR sets is where the vendor's tooling fits into the deploy pipeline, and where the gate that prevents the deploy-order hazard lives.",
+  "decision": "Schema evolution is a directory of numbered `.sql` migration files under the wrangler-configured `migrations_dir` (default `migrations/`), one file per shipped change, applied by `wrangler d1 migrations apply <database> --env <target>`. The vendor's bookkeeping table (`migrations_table`, default `d1_migrations`) is the applied-state ledger; no project-side runner duplicates it. Half-application is closed by the vendor's own transaction semantics: each migration file's statements are applied under the vendor's atomicity guarantee, and a mid-apply failure surfaces as a wrangler non-zero exit. Deploy-order hazard is closed by the deploy-pipeline gate (TAC-1403): the CI job orders `wrangler d1 migrations apply` strictly before `wrangler deploy` for the same environment, and refuses the deploy on any apply failure. Forward-only: there are no down migrations; a rollback to an older schema is a redeploy against the older Worker build (whose migration set is a prefix), and the newer database refuses no request in that case because the older Worker's SQL literals target the older schema shape.",
+  "consequences": "Deploys are reproducible from a git ref because the migration directory and the Worker code ship in one commit. Half-migrations are structurally impossible at the D1 side. The Worker-behind-the-schema case is closed at deploy time by the CI gate; the operator sees a failed CI job instead of a customer-visible 5xx. The cost is that a botched schema change is a code fix and a redeploy of the migration file, not a schema-side undo: projects that need to revert a migration in-place cannot, and ship a compensating forward migration under a new number. Composing blueprints that hold their own opinion on migration discipline conflict on the `migrationDiscipline` topic; this ADR's opinion (vendor-CLI-owned, deploy-pipeline-gated) is deliberately distinct from a project-side boot-time runner discipline (the shape shipped by the SQLite blueprint on the same topic), and the expected resolution is one project-level ADR that fixes the discipline for the project.",
+  "alternativesConsidered": [
+    {
+      "name": "Boot-time migration runner inside the Worker",
+      "summary": "The first Worker request per isolate checks the schema version against a code-side max and runs pending migrations before serving.",
+      "reasonNotChosen": "Wrong shape for D1. Workers are cold-started per isolate and per region; a boot-time runner introduces a request-tax spike on every cold start, competes with concurrent isolates trying to apply the same migration, and depends on transaction primitives the D1 Worker binding does not expose (no explicit BEGIN/COMMIT; only `batch()` for multi-statement atomicity). The vendor's out-of-band apply is the shape the substrate supports; the CI gate is the shape that keeps deploy-order safe."
+    },
+    {
+      "name": "External migration tool (Drizzle Kit, Prisma Migrate, hand-rolled) instead of wrangler",
+      "summary": "Use an ORM-provided migration surface that talks to D1 through the same API; skip `wrangler d1 migrations`.",
+      "reasonNotChosen": "The vendor's tooling is the one path the vendor supports and updates as D1 evolves; an external tool that owns the bookkeeping table means the project reconciles two applied-state sources on every apply. Projects that pin an ORM can align it with wrangler by pointing `migrations_pattern` at the ORM's filename shape; the applied-state ledger stays with wrangler."
+    },
+    {
+      "name": "Application-side polling to detect a schema behind the code, and fail hot on detection",
+      "summary": "The Worker reads the schema version on each request and returns 503 when it observes a schema behind the code's expectations.",
+      "reasonNotChosen": "Trades one problem for another. The customer sees the 503 instead of the CI job seeing the failure; the recovery loop is the operator noticing the alert and running the apply manually. Ordering the apply in the deploy pipeline itself closes the window entirely instead of catching it in production."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-d1-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Every persistent entity lives in one D1 database accessed through one facade module",
+  "description": "The application persists every stateful entity (session records, work items, audit trail, whatever the project's domain model requires) in a single D1 database bound into the Worker under a named binding. One facade module in the source tree is the sole reader of that binding; every other module that touches persistence imports the facade and calls its named domain verbs. The D1 binding is never destructured or re-exported outside the facade module.",
+  "category": "functional",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "D1 is only available inside the Worker request context; a single facade module is what turns that request-scoped binding into an application-side surface with domain-shaped verbs. Multiple call sites reaching into env for the binding produces a codebase where the shape of the store, the parameter binding discipline, and the event-emission discipline are all diffused across the tree. One facade means one place to test, one place to swap, and one place where the persistence code paths are discoverable.",
+  "tags": [
+    "blueprint:persistence-data-d1",
+    "category:01-store-facade"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

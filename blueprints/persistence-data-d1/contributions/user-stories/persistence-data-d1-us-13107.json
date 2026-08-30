@@ -1,0 +1,38 @@
+{
+  "usId": "persistence-data-d1-US-13107",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-d1-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Store events carry no secret material",
+  "asA": "operator who ships store event logs to a third-party observability provider",
+  "iWant": "every field on every store event to be limited to store metadata; no domain data, no credential material, no secret values",
+  "soThat": "a log-store breach is not a domain-data breach and the ops team does not have to negotiate a redaction rule with the provider",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13107-1",
+      "description": "The fields on the facadeReady, migrationsApplied, backupExported, timeTravelRestored, and queryFailed events are restricted to store metadata: event name, ISO-8601 timestamp, binding name, environment name, database identifier, migration version integers and filenames, artifact paths, Time Travel bookmarks or timestamps, D1 error codes, and the domain-verb name that surfaced a queryFailed event. No event field carries a value read from a domain row.",
+      "given": "the facade is exercised through open, one migrations-applied event on the ops surface, one export, one restore, and one deliberately failing query verb",
+      "when": "every event record captured on the sink is inspected",
+      "then": "every field on every record matches one of the metadata field types listed above, and no field's value equals a value read from any domain table",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13107-2",
+      "description": "A grep of the facade source, the recovery runner source, and the deploy-gate hook source for domain-table column names and the values of well-known secret columns (session handles, token secrets, private keys, credential material) finds them referenced only inside the narrow CRUD verbs that read or write those columns, never inside event-emission call sites.",
+      "given": "the facade source, the recovery runner source, and the deploy-gate hook source alongside the domain schema definition",
+      "when": "the grep is executed",
+      "then": "matches appear only inside CRUD verb bodies (facade) or inside statements the recovery runner or deploy gate does not read for event-record construction, and never inside onEvent call arguments or event-record construction sites",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1401-persistence-data-d1-facade",
+    "TAC-1404-persistence-data-d1-recovery-runner",
+    "TAC-1403-persistence-data-d1-deploy-gate"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

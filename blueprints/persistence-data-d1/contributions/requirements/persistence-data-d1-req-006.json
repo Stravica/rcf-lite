@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-d1-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Recovery is available through Time Travel point-in-time recovery and through a scheduled export to a portable artifact",
+  "description": "Recovery has two paths, both configured in the project. Path one: Time Travel, the vendor's built-in point-in-time recovery, invoked via `wrangler d1 time-travel restore <database> --timestamp=<unix-seconds>`; the recovery window is the vendor's supported window at the project's plan tier. Path two: a scheduled `wrangler d1 export <database> --output=<artifact> --remote` producing a portable `.sql` artifact written to a project-configured destination (a repository asset, an R2 bucket, an object store the project already runs); the schedule and destination are project-configured. Both paths preserve the schema and rows at the recovery moment; both are exercisable from the CI or ops surface without a Worker code change.",
+  "category": "nonFunctional",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "Time Travel is the natural first line of defence for D1: it is built in, requires no configuration, and covers the operator's likely restore window (accidental drop, bad deploy) inside a bounded lookback. It is not a substitute for a portable dump: the recovery window is finite, the restore is in-place and destructive, and an operator whose compliance model demands off-vendor retention needs the export as well. Naming both paths at the REQ level makes the two-part recovery posture a floor, not a project convention.",
+  "tags": [
+    "blueprint:persistence-data-d1",
+    "category:06-recovery"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
