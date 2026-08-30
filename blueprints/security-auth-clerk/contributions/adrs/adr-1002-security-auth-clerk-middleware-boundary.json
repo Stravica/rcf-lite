@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1002-security-auth-clerk-middleware-boundary",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The middleware boundary contract is framework-agnostic and single-shaped",
+  "context": "Every project that consumes this blueprint runs on some Node HTTP framework, and the field of realistic frameworks is not one: rcf-lite projects ship on Express, Fastify, plain Node HTTP, and Cloudflare Workers with roughly equal frequency. Fixing the framework at the blueprint layer would force the majority of consumers into a shim they did not want; leaving both the shape and the framework open would leave the blueprint unable to make any concrete claim about what an authenticated request looks like.",
+  "decision": "The middleware boundary contract is a single function shape, `verify(request) -> { authenticated, principal?, reason? }`, and one attachment convention, `request.auth`. Framework-specific adapters are project-authored thin shims that call the same `verify`. The blueprint ships adapter samples for two of the four common shapes (Express and Fastify are the two the guide's samples cover); the other two are one-file adaptations the project authors when it needs them.",
+  "consequences": "The middleware module has one testable surface (`verify`) that the shim wrappers do not distort. Framework variance is absorbed at the shim layer, where it should be; the blueprint's ACs bind to the shape the middleware produces, not to the shim's plumbing. A project that hosts multiple runtimes (an Express main app and a Workers edge function, say) reuses the same verifier and mapper through two shims and pays the shim cost twice.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship as an Express middleware",
+      "summary": "Fix the framework at Express; every consumer imports the middleware as Express-shaped and adapts on the way in.",
+      "reasonNotChosen": "Locks out Fastify, Workers, and plain Node HTTP consumers; Express is not the majority framework at the rcf-lite tier, and forcing a shim is the wrong default."
+    },
+    {
+      "name": "Ship as a Clerk-SDK-directly-consumed pattern with no boundary module",
+      "summary": "Every route imports Clerk's SDK directly and reads whichever claim shape it needs.",
+      "reasonNotChosen": "Breaks REQ-001's principal reduction and REQ-004's authorisation adapter; the vendor lock is total and the swap cost is a rewrite."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

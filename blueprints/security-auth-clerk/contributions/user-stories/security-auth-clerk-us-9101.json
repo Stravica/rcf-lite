@@ -1,0 +1,46 @@
+{
+  "usId": "security-auth-clerk-US-9101",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A Clerk sign-in round-trip issues a Secure HttpOnly session cookie the middleware verifies",
+  "asA": "operator signing in through the project's Clerk-hosted sign-in surface",
+  "iWant": "a completed sign-in to leave my browser holding a Clerk-issued session cookie that the project's middleware verifies on the next request",
+  "soThat": "the project reasons about my identity on every subsequent request without me presenting credentials again",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9101-1",
+      "description": "After a successful sign-in against the project's Clerk development instance, the response carrying the sign-in completion sets a session cookie named `__session` with Secure, HttpOnly, and SameSite=Lax attributes.",
+      "given": "an operator who has completed sign-in on the project's Clerk-configured sign-in surface backed by a real Clerk development instance",
+      "when": "the browser inspects the cookie jar for the project's top-level domain immediately after the sign-in redirect completes",
+      "then": "a cookie named `__session` is present with `HttpOnly`, `Secure`, and `SameSite=Lax` flags set; no other cookie carries the session credential",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9101-2",
+      "description": "A subsequent request carrying the `__session` cookie to a route wired through the project's middleware boundary is treated as authenticated and the request-object carries the resolved principal.",
+      "given": "the `__session` cookie from AC-9101-1 and a project route wired through the middleware from TAC-1001",
+      "when": "the request is dispatched to the route",
+      "then": "the middleware attaches a `request.auth` object carrying `principalId`, `roles`, and `organisationIds`; the route handler observes `request.auth.principalId` as a non-empty string that matches the Clerk-issued user id for the signed-in operator",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9101-3",
+      "description": "The middleware verifies the session cookie against Clerk's session-verification surface on every request; a tampered cookie is rejected without a cached hit.",
+      "given": "a request whose `__session` cookie value has been altered by a single byte from the value in AC-9101-1",
+      "when": "the request reaches the middleware",
+      "then": "the middleware treats the request as unauthenticated; no `request.auth` object is attached; the verifier's audit log records one verification-failure event carrying the failure class and no cookie value",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1001-security-auth-clerk-middleware",
+    "TAC-1003-security-auth-clerk-session-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

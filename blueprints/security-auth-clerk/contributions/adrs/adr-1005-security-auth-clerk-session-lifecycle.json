@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1005-security-auth-clerk-session-lifecycle",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Session verification honours Clerk revocation within a bounded freshness window",
+  "context": "Clerk owns session issuance and revocation; the project's verifier owns the read side. Verifying every request against Clerk's revocation-aware endpoint on every request is a per-request round trip whose latency the project pays for; caching the verification result for the session's declared expiry admits a window during which a revoked session continues to verify against a stale cache. The blueprint's decision on this trade must be explicit because REQ-006 makes revocation a hard requirement and the shape of 'hard' is bounded by whichever number the operator picks here.",
+  "decision": "The session verifier honours Clerk-side revocation within `revocationCheckIntervalMs` of the revocation event. The default value is 30000 (30 seconds) when the Clerk SDK version in use exposes a revocation-aware verify (in which case the verifier consults the SDK's revocation surface at or shorter than that interval); when the SDK version does not, the verifier falls back to a per-request revocation check on the same call path and the interval becomes de facto zero at the cost of one Clerk round trip per verification. Either way the number is documented at the project's config surface and every verification event's audit record carries a `revocationCheckMode` field naming which shape was used.",
+  "consequences": "Under the default, a revoked session may continue to verify for up to 30 seconds after revocation before the verifier's cache expires and the next verification observes the revocation. The trade is stated: 30 seconds is short enough that operator-visible sign-out is prompt and long enough that per-request Clerk round trips are avoided on the hot path. Projects with a stricter freshness requirement drop the interval or use the SDK's revocation-aware verify directly at the cost of that round trip; projects with a laxer requirement raise the interval but the ceiling is the session's own expiry (a longer cache than the session's lifetime is a bug the verifier refuses to boot with).",
+  "alternativesConsidered": [
+    {
+      "name": "Revocation-check on every request always",
+      "summary": "The verifier always consults Clerk's revocation surface on every verification; no local cache.",
+      "reasonNotChosen": "One Clerk round trip per request is a cost the rcf-lite tier's hot path does not want to eat by default; projects that need it enable it explicitly."
+    },
+    {
+      "name": "No revocation check until the session expires",
+      "summary": "The verifier caches until the session's declared expiry and never re-checks against Clerk before then.",
+      "reasonNotChosen": "Sign-out becomes eventual to a degree operator-visible sign-out cannot tolerate; the whole point of REQ-006 is that the cookie stops working when the operator signs out."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
