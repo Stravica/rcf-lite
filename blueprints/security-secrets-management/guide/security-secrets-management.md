@@ -37,7 +37,7 @@ Do not reach for the security-secrets-management blueprint when:
 - Compliance requires an audit stream shape different from the one ADR-905 fixes (a specific SIEM schema, a regulator-mandated field set). The blueprint fixes the SHAPE of the audit events; a project with a stricter schema supersedes ADR-905 with a project-level ADR that names the target schema and the mapping.
 - The deploy target has no persistent filesystem for the SOPS-with-age default to live on and no working alternative vendor. The default vendor assumes a stable path the encrypted files survive at; a project without that assumption picks a different vendor (a hosted service is the natural fit) and supersedes ADR-902 accordingly.
 
-The design brief `w-2026-08-30-dave-008` originally scoped a Vault-first blueprint (candidate name `secrets-vault`). The blueprint at v1.0.0 does not lead with Vault because the container-plus-server cost is disproportionate for the rcf-lite tier this blueprint targets. Vault remains the reference open-source promotion path for projects with dedicated ops capacity, and the blueprint's contract composes cleanly with a Vault vendor adapter; the promotion is a project-level ADR supersede on ADR-902 and an adapter swap.
+An earlier design pass scoped a Vault-first blueprint (candidate name `secrets-vault`). The blueprint at v1.0.0 does not lead with Vault because the container-plus-server cost is disproportionate for the rcf-lite tier this blueprint targets. Vault remains the reference open-source promotion path for projects with dedicated ops capacity, and the blueprint's contract composes cleanly with a Vault vendor adapter; the promotion is a project-level ADR supersede on ADR-902 and an adapter swap.
 
 ## What a good outcome looks like
 
