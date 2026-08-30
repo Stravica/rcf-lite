@@ -1,0 +1,18 @@
+{
+  "reqId": "application-api-rest-REQ-013",
+  "prdId": "PRD-001",
+  "title": "Request-id propagation: every request carries or is assigned an id that survives the whole call chain",
+  "description": "Every inbound request either carries an X-Request-Id header or is assigned one at the edge. The response echoes the id, every request-scoped log line includes it, and every downstream call the service makes on behalf of the request propagates it, so one id follows one user action across every hop.",
+  "category": "technical",
+  "domain": "correlation",
+  "priority": "must",
+  "rationale": "Correlation is the cheapest observability there is and the most painful to retrofit. One header, generated at the edge and threaded everywhere, is what turns a support ticket containing a single id into a complete cross-service timeline.",
+  "tags": [
+    "blueprint:application-api-rest",
+    "category:13-request-id"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

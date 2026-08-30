@@ -1,0 +1,43 @@
+{
+  "tacId": "TAC-802-observability-essentials-readiness-probe",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Readiness probe",
+  "purpose": "Owns the HTTP handler for the readiness endpoint and the background dep-health evaluator that feeds it. The handler answers from a per-dependency cache the evaluator maintains on its own cadence; the handler itself never blocks on a synchronous downstream call. The dependency registry is the operator's contract with the probe's answer.",
+  "responsibilities": [
+    "Register a GET handler on the configured readiness path (default /readyz) at the application's HTTP router, on the same listener that serves request traffic (AC-7102-1, AC-7102-2, AC-7108-2).",
+    "Read from a per-dependency last-known state cache populated by the background evaluator; return 200 with status pass when every declared dependency's cached state is pass, return 503 with status fail otherwise; response body includes the checks object with state and checkedAt per declared dependency (AC-7102-1, AC-7103-1, AC-7103-2, AC-7107-2, AC-7110-1).",
+    "Complete the handler evaluation within the readiness evaluation budget (default 1 second) regardless of any dependency's real-endpoint responsiveness; no synchronous network call is issued from inside the handler (AC-7110-1).",
+    "Run the background dep-health evaluator on its declared cadence, evaluating every declared dependency at least once per interval independently of any other dependency's state, so a hanging dep does not starve the others' evaluations (AC-7110-2).",
+    "Refuse boot with a stable error code if the readiness dependency declaration is missing or if any entry lacks a name; the exact declared set is the exact set of keys in the probe response's checks object (AC-7103-1, AC-7103-3)."
+  ],
+  "internalStructure": "Two modules: a handler module exporting createReadinessHandler({ path, registry, budgetMs, now }) -> { path, handler } and an evaluator module exporting createEvaluator({ registry, cadenceMs, checkFor, now }) -> { start, stop, snapshot } where snapshot() returns the current { depName -> { state, checkedAt } } map the handler reads. The registry is the declared dependency set loaded at boot from configuration and refused if malformed. The checkFor function is a project-supplied per-dependency probe implementation the evaluator invokes on its own cadence with its own per-dependency timeout budget.",
+  "interfaces": [
+    {
+      "name": "createReadinessHandler",
+      "kind": "factory",
+      "description": "createReadinessHandler({ path, registry, budgetMs, now }) -> { path, handler }. Returns the configured readiness path and a handler that reads only from the evaluator's snapshot(); never blocks on a network call."
+    },
+    {
+      "name": "createEvaluator",
+      "kind": "factory",
+      "description": "createEvaluator({ registry, cadenceMs, checkFor, now }) -> { start, stop, snapshot }. The background evaluator; start() and stop() control the loop, snapshot() exposes the last-known state to the handler."
+    },
+    {
+      "name": "dependencyRegistry",
+      "kind": "config",
+      "description": "Declared readiness dependency set loaded at boot: a list of { name, evaluateBudgetMs? } entries. The names are the probe response's checks-object keys."
+    },
+    {
+      "name": "checkFor",
+      "kind": "callback",
+      "description": "Project-supplied per-dependency probe: (name) -> Promise<{ state: 'pass' | 'fail', checkedAt: <ISO-8601> }>. Called by the evaluator, not by the handler."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The cached-state pattern means the probe response is at worst one cadence interval stale; a dep that fails mid-cycle takes up to the cadence to reflect on the probe. That staleness is the cost of never hanging the probe handler. Projects that want tighter freshness turn down the cadence at the cost of extra background work; projects that never want the probe to falsely fail on a transient dep blip turn up the cadence at the cost of slower fail-open detection.",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

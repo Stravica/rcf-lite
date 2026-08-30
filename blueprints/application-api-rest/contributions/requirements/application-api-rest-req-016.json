@@ -1,0 +1,18 @@
+{
+  "reqId": "application-api-rest-REQ-016",
+  "prdId": "PRD-001",
+  "title": "REST security baselines: clean logs, stated PII policy, TLS everywhere real, explicit CORS",
+  "description": "No secrets (tokens, keys, passwords, session identifiers) appear in logs at any level. The service states its PII-redaction policy and applies it to logs and error details. TLS is required in every non-development environment. The CORS policy is explicit and deny-by-default, with per-endpoint overrides declared rather than a wildcard.",
+  "category": "security",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "These four are the security defects that pass every functional test: the token in the debug log, the email address in the stack trace, the plaintext internal hop, the * CORS header that shipped as a temporary fix. Naming them as requirements with acceptance criteria puts them inside the build cycle's verification rather than outside it.",
+  "tags": [
+    "blueprint:application-api-rest",
+    "category:16-security-baselines"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

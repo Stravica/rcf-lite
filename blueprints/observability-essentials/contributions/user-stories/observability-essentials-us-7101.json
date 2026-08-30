@@ -1,0 +1,45 @@
+{
+  "usId": "observability-essentials-US-7101",
+  "prdId": "PRD-001",
+  "reqId": "observability-essentials-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Orchestrator restarts a stuck replica via the liveness probe without external dependency coupling",
+  "asA": "orchestrator running the deployed application under a supervising process (Kubernetes kubelet, systemd, or equivalent)",
+  "iWant": "a liveness endpoint that answers pass or fail strictly on whether the process is running its event loop",
+  "soThat": "I restart a wedged replica without letting a downstream dependency outage cascade into a restart storm across every replica",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7101-1",
+      "description": "The application serves the liveness endpoint at a stable HTTP path declared in configuration (default /healthz); a GET returns 200 when the process is running its event loop and returns application/json with a status field equal to pass.",
+      "given": "the process is running normally with its event loop responsive",
+      "when": "an unauthenticated GET is issued against the liveness path",
+      "then": "the response status code is 200, the Content-Type is application/json, and the JSON body's status field equals pass",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7101-2",
+      "description": "The liveness probe handler evaluates entirely in-process; a probe hit issues zero network calls to any declared dependency, verifiable by observing the network egress from the probe path.",
+      "given": "the process is running and a network-egress observer is attached to the probe path",
+      "when": "a GET is issued against the liveness path",
+      "then": "the observer records zero egress connections attributable to the probe handler between request receipt and response send",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7101-3",
+      "description": "The liveness probe answer is independent of the readiness dependency set: pulling a declared readiness dependency offline never turns the liveness probe fail on its own.",
+      "given": "the process is running and every declared readiness dependency is offline",
+      "when": "a GET is issued against the liveness path",
+      "then": "the response status code is 200 and the JSON body's status field equals pass",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-801-observability-essentials-liveness-probe"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

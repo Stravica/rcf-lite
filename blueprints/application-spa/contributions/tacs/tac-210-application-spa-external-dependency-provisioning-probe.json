@@ -1,0 +1,70 @@
+{
+  "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "External-service-dependency provisioning adherence probe",
+  "purpose": "The runtime-observable enforcement handle for the deployment-gate class defect the watchpost first-production review caught (w-2026-08-24-005, w-2026-08-24-006): the only login path (magic-link email) shipped inert because RESEND_API_KEY was a placeholder, the gap was filed as a 'quirk' in status.md rather than blocked at sign-off, and a real key existed in the estate all along. This TAC is the project-realised probe that (a) refuses any placeholder-shape value in a credential field named on the application's external-service-dependency manifest, (b) requires captured live-handshake evidence for every dependency at status 'verified', (c) requires an operator-ratified persistent deferral record for every dependency at status 'deferred' (a README note, a status.md quirk line, or a code comment does NOT satisfy), and (d) writes a stable JSON report the ci-pipeline aggregate report can name.",
+  "responsibilities": [
+    "Expose a Node entry point (a single '.js' or '.mjs' file) invocable as 'node <path>' with no shell glue; the entry point path is stable and recorded on the aggregate report's 'runner.entryPoint' field when this probe is wired as a ci-pipeline gate (AC-1132-5, AC-1132-6).",
+    "Accept configuration naming (i) the path of the application's external-service-dependency manifest, (ii) how to boot the target server for handshake evidence (a Node module or command that starts the same server instance the production entry point starts, with the same route registration and middleware stack), (iii) the path of the ratified-deferrals store the deferral records live in, and (iv) the report directory (AC-1132-1, AC-1132-3, AC-1132-4).",
+    "Read the external-service-dependency manifest, iterate every declared dependency, and refuse when any runtime-reached external service is missing from the manifest (the probe accepts a project-supplied enumerator that lists runtime-reached externals; a strict-mode config refuses when the enumerator finds a service not on the manifest) (AC-1132-1).",
+    "Resolve each manifest-named credential-field value from the shipped runtime environment (the boot-server factory hands the probe the environment the runtime observes, not the developer machine's environment). Apply the canonical placeholder-shape detector (rcf-lite exports detectPlaceholderCredentialShape) and refuse the run when any manifest-named credential field carries a placeholder-shape value (AC-1132-2).",
+    "For every dependency at status 'verified', replay the manifest-declared handshake against the shipped runtime, capture the provider-side acknowledgement (a provider message id, a provider status endpoint 2xx, or an equivalent provider-attested receipt), and record it on the probe report. A run refuses when a 'verified' entry has no captured provider-attested evidence, when the captured evidence is synthetic (in-process stub, mock adapter, unit-test double), or when the handshake failed at provider level (AC-1132-3).",
+    "For every dependency at status 'deferred', check the ratified-deferrals store for a record naming the dependency id, the reason for deferral, the acknowledging operator identifier, the ISO-8601 acknowledgement timestamp, and the intended resolution route. Refuse the run when the record is absent, malformed, refers to a dependency the manifest does not declare, or its acknowledgement timestamp is stale beyond the ratified window the store declares (AC-1132-4).",
+    "Write a JSON report at a stable relative path ('reports/external-dependency-provisioning.json' under the configured report directory, matching the ci-pipeline per-gate report shape of TAC-702) naming: every dependency declared, the credential-field placeholder-detector verdict per dependency, the captured handshake evidence per 'verified' dependency, the ratified deferral record reference per 'deferred' dependency, per-dependency verdict, and an aggregate verdict of 'ok' | 'deployed-with-defects' (AC-1132-5).",
+    "Exit with code 0 when the aggregate verdict is 'ok'; exit with code 1 (or the configured non-zero code) on 'deployed-with-defects', so a ci-pipeline runner (TAC-701) captures the failure through its ordinary gate-failure path (AC-1132-5, AC-1132-6).",
+    "Never treat the absence of a manifest, the absence of a deferrals store, or an unreadable credential resolution as an implicit pass; every such condition refuses ship (AC-1132-1, AC-1132-4).",
+    "Refuse to gate control flow on CI-provider-specific environment variables; the probe MUST run identically on a developer machine and inside CI (AC-1132-6)."
+  ],
+  "internalStructure": "One Node module that exports a 'runExternalDependencyProvisioningProbe({ manifestPath, bootServer, deferralsStorePath, reportDir })' function and a shebang entry point that reads its configuration and calls the exported function. Three independent scanners assemble one accumulated report object: (1) a manifest scanner that reads the enumerated set and refuses on missing entries when the project supplies a runtime-reached-externals enumerator, (2) a placeholder scanner that resolves every manifest-named credential value from the boot-server-handed environment and applies rcf-lite's detectPlaceholderCredentialShape, and (3) an evidence scanner that either replays a live handshake (for 'verified') or reads the ratified-deferrals store (for 'deferred'). The writer serialises the report and the caller returns the exit code derived from the aggregate verdict.",
+  "interfaces": [
+    {
+      "name": "runExternalDependencyProvisioningProbe",
+      "kind": "factory",
+      "description": "runExternalDependencyProvisioningProbe({ manifestPath, bootServer, deferralsStorePath, reportDir }) -> Promise<{ verdict, reportPath, refusals }>; the sole callable the entry point invokes. 'bootServer' is a factory returning '{ url, close, env }' for a server booted through the production entry-point path with the runtime environment the shipped instance observes. 'verdict' is 'ok' | 'deployed-with-defects'; the entry point translates 'deployed-with-defects' to a non-zero exit code."
+    },
+    {
+      "name": "entry-point CLI",
+      "kind": "cli",
+      "description": "'node <entryPointPath>' with optional flags '--manifest <path>', '--boot <module>', '--deferrals <path>', '--report-dir <path>' that override configuration defaults. Exit code is 0 on 'ok', non-zero on 'deployed-with-defects'."
+    },
+    {
+      "name": "reports/external-dependency-provisioning.json",
+      "kind": "artefact",
+      "description": "'reports/external-dependency-provisioning.json' under the configured report directory. Shape: '{ verdict, dependencies: [{ id, purpose, provider, credentialField, status, placeholderCheck: { verdict, matchedPattern? }, verifiedEvidence?: { providerMessageId?, providerStatus?, capturedAt }, deferralRecord?: { path, ackedBy, ackedAt, reason, resolutionRoute }, refusals: [...] }], generatedAt }'."
+    },
+    {
+      "name": "external-service-dependency manifest (project-owned)",
+      "kind": "artefact",
+      "description": "A project-owned JSON manifest the probe reads. Shape: '{ dependencies: [{ id, purpose, provider, credentialField, status: \"verified\" | \"deferred\" }] }'. Named at ship time; the probe refuses when the manifest is missing or malformed."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Production server construction",
+      "kind": "external",
+      "description": "The probe requires a factory that boots the target server through the same construction the production entry point uses (same route registration, same security-header middleware, same runtime environment resolution). Handshake evidence is captured through the shipped runtime, not through a bespoke harness or a test double."
+    },
+    {
+      "name": "Ratified-deferrals store",
+      "kind": "external",
+      "description": "A project-owned persistent artefact (a JSON file, a manifest field, or a store the operator explicitly writes into) that records every 'deferred' entry with the required fields. A README note, a status.md line, or a work-item link does NOT satisfy the requirement; the store is a durable, machine-readable record."
+    },
+    {
+      "name": "Canonical placeholder-shape detector",
+      "kind": "external",
+      "description": "rcf-lite exports 'detectPlaceholderCredentialShape(value)' from 'packages/rcf-lite/src/deployment/placeholder-detector.js' as the canonical detector this probe (and downstream projects) apply. Extending the detector's ruleset is a rcf-lite minor bump, not a per-project reinvention."
+    },
+    {
+      "name": "ci-pipeline gate runner",
+      "kind": "tac",
+      "tacId": "TAC-701-ci-pipeline-gate-runner",
+      "description": "When this probe is wired as a ci-pipeline gate, the runner invokes it as a child process, captures the exit code, and delegates the per-gate report write to TAC-702 in the ordinary way. The probe writes its own detailed report; the gate report writer records the exit-code envelope."
+    }
+  ],
+  "tradeoffs": "The probe requires a running server booted through the production construction and network reach to real external providers for every ci-pipeline invocation. That cost buys the runtime-observable enforcement the watchpost first-production defect proved was missing: the build cycle ran green, sign-off said DEPLOYED, and the only login path was inert on a placeholder credential. Requiring a manifest is a deliberate load-bearing choice: without the manifest, the enumeration set of runtime-reached externals is invisible to the gate. Requiring the ratified-deferrals store to be a persistent machine-readable artefact (not a README note) is the choice that refuses the 'quirk-in-status.md' pattern the class defect exposed. Extending the detector's ruleset in rcf-lite (rather than per-project) is deliberate: one authoritative catalogue of placeholder shapes serves every downstream project.",
+  "createdAt": "2026-08-24T13:00:00Z",
+  "updatedAt": "2026-08-24T13:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-magic-link-REQ-010",
+  "prdId": "PRD-001",
+  "title": "Email delivery is a pluggable adapter behind a fixed contract",
+  "description": "The blueprint owns a narrow email-delivery-adapter interface with a single send({ to, subject, textBody, htmlBody }) method returning a Promise resolving to a normalised outcome ({ ok, providerStatus, providerMessageId, error }). The project supplies the transport (SMTP, Resend, SES, a stub for tests). The magic-link routes call only the adapter interface; provider-specific fields, credentials, and rate-limit semantics never appear in the routes or the managers. Adapter-send failures are recorded on the event log and swallowed for the response body under the anti-enumeration budget.",
+  "category": "technical",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Hard-coding a delivery provider ties the blueprint to a business decision the project owns; hard-coding provider errors into the response body reintroduces the enumeration oracle the anti-enumeration requirement closes. A narrow contract lets the project swap providers without touching auth code.",
+  "tags": [
+    "blueprint:security-auth-magic-link",
+    "category:10-email-adapter"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

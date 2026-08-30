@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-essentials-REQ-009",
+  "prdId": "PRD-001",
+  "title": "The public status page never leaks internal identifiers, metric values, or dependency detail beyond the declared surface",
+  "description": "The public status page renders only the declared component list and their per-component states, plus the active incident notices. It never renders internal identifiers (host names, replica ids, database identifiers, queue names), never renders raw metric values (request counts, latency numbers, error rates), and never names the specific dependencies that failed a readiness check. The status enum values, the component names, and the incident notice fields are the public vocabulary; anything more granular is operator-only surface, exposed through the readiness probe body or an authenticated operator dashboard.",
+  "category": "security",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "A public surface with unrestricted readers cannot reveal internal topology or performance detail: those are reconnaissance material for a targeted attack, and they are inventory the project does not want to commit to as stable contract. The declared component list is the vocabulary the public reader gets; the operator gets the granular story through authenticated surfaces.",
+  "tags": [
+    "blueprint:observability-essentials",
+    "category:09-status-page-secrecy"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

@@ -1,0 +1,45 @@
+{
+  "usId": "observability-essentials-US-7106",
+  "prdId": "PRD-001",
+  "reqId": "observability-essentials-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Operator answers 'did the customer get the notification' from the outcome sink",
+  "asA": "operator investigating a customer report of a missing notification (email, SMS, push, webhook)",
+  "iWant": "every notification attempt to record an outcome on a durable sink queryable by recipient and time window",
+  "soThat": "I answer whether the outcome was delivered, failed, pending, or suppressed without hunting a provider dashboard",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7106-1",
+      "description": "Every notification attempt writes exactly one outcome record to the durable outcome sink before the attempting code returns; the record carries notificationId, channel, recipient, outcome, attemptedAt, and (when outcome is failed) errorCode fields.",
+      "given": "the process is instrumented to attempt one notification per invocation across each declared channel",
+      "when": "an attempt is invoked and returns, and the sink is queried for that notificationId",
+      "then": "the sink returns exactly one record for that notificationId with all required fields populated, and the record's attemptedAt is no later than the return time of the attempt call",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7106-2",
+      "description": "The outcome field is one of a fixed enum (delivered, failed, pending, suppressed); the channel field is one of a fixed enum declared in configuration (email, sms, push, webhook, or the project's declared channel set).",
+      "given": "the process attempts notifications across every declared channel including deliberately-failing and deliberately-suppressed cases",
+      "when": "the sink is queried for the attempt records",
+      "then": "every record's outcome field is one of delivered, failed, pending, or suppressed, and every record's channel field is a member of the declared channel enum",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7106-3",
+      "description": "The operator queries the sink by recipient identifier and time window and receives the outcome records that match; a recipient with no attempts in the window returns an empty result rather than an error.",
+      "given": "the sink holds outcome records across a mix of recipients and time windows",
+      "when": "the operator issues a query for a recipient identifier within a bounded time window",
+      "then": "the returned result set contains every outcome record whose recipient equals the queried recipient and whose attemptedAt is within the window, and a query for a recipient with zero matching records returns an empty result set",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-804-observability-essentials-notification-outcome"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

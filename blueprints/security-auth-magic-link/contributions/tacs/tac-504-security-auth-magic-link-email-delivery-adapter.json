@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-504-security-auth-magic-link-email-delivery-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Email delivery adapter",
+  "purpose": "Names the narrow interface the auth flow uses to hand a composed sign-in URL to an external email transport, and specifies the outcome shape returned. Provider selection, credential handling, and provider-specific error semantics live inside project-authored implementations of this interface; nothing on the auth routes or the managers reaches around the interface.",
+  "responsibilities": [
+    "Declare the send({ to, subject, textBody, htmlBody }) method as the sole auth-facing surface and { ok, providerStatus, providerMessageId, error } as the sole returned shape (AC-3110-1).",
+    "Ship one stub adapter implementation that resolves { ok: true, providerStatus: 200, providerMessageId: 'stub' } and records outgoing calls in memory, for tests and dry runs (AC-3110-3).",
+    "Route send failures to the auth event log via an adapterSendFailed entry without changing the POST /login response body or status (AC-3110-2, AC-3109-1)."
+  ],
+  "internalStructure": "One JSDoc-typed interface declaration in the contract file and one stub-implementation module; provider adapters (SMTP, Resend, SES) are project-authored modules that satisfy the interface. The routes hold an adapter reference passed at composition time and call adapter.send directly.",
+  "interfaces": [
+    {
+      "name": "send",
+      "kind": "async-method",
+      "description": "send({ to, subject, textBody, htmlBody }) -> Promise<{ ok, providerStatus, providerMessageId, error }>; the sole method the auth code calls on the adapter."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "Fixing the return shape means every provider adapter has to normalise its own vocabulary (provider status codes, provider message ids) into the four declared fields; that is the cost of keeping the auth code provider-neutral. Projects that need richer provider observability wire it on the provider side of the interface and mirror the salient fields onto the adapterSendFailed event outcome.",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

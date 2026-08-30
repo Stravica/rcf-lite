@@ -2,7 +2,7 @@
 
 ## 1. Read this if
 
-You are authoring an rcf-lite blueprint, or reviewing one. A blueprint is a shippable package of RCF documents that any project can pull in with `rcf define blueprint add <source>`; this doc is the standard those packages must meet. The [walkthrough](blueprint-authoring-walkthrough.md) builds a minimal blueprint end to end; the [checklist](blueprint-authoring-checklist.md) is the gate a new blueprint must pass before it ships. Reference the SPA blueprint at [`blueprints/spa/`](../../../blueprints/spa) and the REST blueprint at [`blueprints/rest/`](../../../blueprints/rest) as the two shipped examples.
+You are authoring an rcf-lite blueprint, or reviewing one. A blueprint is a shippable package of RCF documents that any project can pull in with `rcf define blueprint add <source>`; this doc is the standard those packages must meet. The [walkthrough](blueprint-authoring-walkthrough.md) builds a minimal blueprint end to end; the [checklist](blueprint-authoring-checklist.md) is the gate a new blueprint must pass before it ships. Reference the application-spa blueprint at [`blueprints/application-spa/`](../../../blueprints/application-spa) and the application-api-rest blueprint at [`blueprints/application-api-rest/`](../../../blueprints/application-api-rest) as the two shipped examples.
 
 Not a schema reference: field-level tables for the underlying document kinds (REQ, US, ADR, TAC) live at [rcf-schemas](https://github.com/Stravica/rcf-schemas/tree/main/docs). Not a mechanism internals doc: the walker, conflict detector and manifest writer live under [`packages/rcf-lite/src/blueprint/`](../src/blueprint) and speak for themselves.
 
@@ -37,15 +37,15 @@ blueprints/<slug>/
 
 ```json
 {
-  "slug": "spa",
+  "slug": "application-spa",
   "version": "1.0.0",
   "category": "application",
   "contributions": [
-    { "id": "spa-REQ-001", "kind": "req", "path": "requirements/spa-req-001.json" },
-    { "id": "spa-US-1101", "kind": "us",  "path": "user-stories/spa-us-1101.json" },
-    { "id": "TAC-201-spa-app-shell", "kind": "tac", "path": "tacs/tac-201-spa-app-shell.json" },
-    { "id": "ADR-204-spa-error-envelope", "kind": "adr",
-      "path": "adrs/adr-204-spa-error-envelope.json",
+    { "id": "application-spa-REQ-001", "kind": "req", "path": "requirements/application-spa-req-001.json" },
+    { "id": "application-spa-US-1101", "kind": "us",  "path": "user-stories/application-spa-us-1101.json" },
+    { "id": "TAC-201-application-spa-app-shell", "kind": "tac", "path": "tacs/tac-201-application-spa-app-shell.json" },
+    { "id": "ADR-204-application-spa-error-envelope", "kind": "adr",
+      "path": "adrs/adr-204-application-spa-error-envelope.json",
       "scope": "global", "topic": "errorEnvelope" }
   ]
 }
@@ -80,20 +80,20 @@ Starter vocabulary (ratified 2026-08-30 with round-2 chunk zero):
 
 New categories are minted by adding a row to this table in a chunk-zero-style pass, not by patching the loader: the loader validates SHAPE (kebab slug), so a blueprint may ship with a category the table does not yet name, and the shelf will render it verbatim. Prefer consolidation over near-duplicate categories; if two candidates read as the same shelf group to a first-time reader, pick one and note the reasoning here.
 
-Category is also a naming discipline. Auth-family blueprints minted from round 2 onwards carry the `security-` slug prefix (`security-auth-clerk`, `security-auth-keycloak`, `security-auth-oauth2`, `security-secrets-management`). The shipped generic `auth` blueprint keeps its slug for backward compatibility and carries `category: "security"`; a slug-rename with alias support is deferred to a follow-up mechanism pass and is out of scope for chunk zero.
+Category is also a naming discipline. Every shipped blueprint carries a category-qualified slug: application-spa (category `application`), application-api-rest (category `application`), security-auth-magic-link (category `security`), persistence-data-sqlite (category `persistence`), observability-essentials (category `observability`), ci-pipeline (category `delivery`), security-secrets-management (category `security`). Auth-family blueprints share the `security-` slug prefix; persistence-family blueprints share the `persistence-` prefix; and so on. New blueprints follow the same category-qualified slug convention.
 
 ## 4. Namespacing
 
 Contributed doc ids are namespaced by the blueprint's slug. There are two families, per the [rcf-schemas id-conventions](https://github.com/Stravica/rcf-schemas/blob/main/docs/id-conventions.md) 0.4.4 grammar:
 
-- **Prefix families** (REQ, US, PRD, BS, TAD, TS): slug PREFIX joined by `-`. `REQ-001` under slug `spa` becomes `spa-REQ-001`.
-- **Suffix families** (ADR, TAC, FBS, CN): slug SUFFIX joined by `-`. `ADR-005` under slug `spa` becomes `ADR-005-spa`. A longer semantic tail is fine: `ADR-005-spa-theme` is accepted verbatim as an `spa`-owned id if the author declared it that way.
+- **Prefix families** (REQ, US, PRD, BS, TAD, TS): slug PREFIX joined by `-`. `REQ-001` under slug `application-spa` becomes `application-spa-REQ-001`.
+- **Suffix families** (ADR, TAC, FBS, CN): slug SUFFIX joined by `-`. `ADR-005` under slug `application-spa` becomes `ADR-005-application-spa`. A longer semantic tail is fine: `ADR-005-application-spa-theme` is accepted verbatim as an `application-spa`-owned id if the author declared it that way.
 - **Unnamespaced**: AC and TC. AC ids are anchored to their parent US (whose id is prefix-namespaced) and TC ids to their parent TS. The band allocation below is the AC-collision enforcement mechanism, because AC ids are not namespaced by grammar.
 
 Two ways to author contribution ids in `blueprint.json`:
 
 - Bare (`REQ-001`, `ADR-005`): the mechanism stamps the slug at first apply.
-- Pre-stamped (`spa-REQ-001`, `ADR-005-spa-theme`): accepted as authoritative. Use pre-stamped ids when the semantic tail is not the bare slug.
+- Pre-stamped (`application-spa-REQ-001`, `ADR-005-application-spa-theme`): accepted as authoritative. Use pre-stamped ids when the semantic tail is not the bare slug.
 
 ## 5. AC id bands
 
@@ -102,8 +102,8 @@ AC ids are not namespaced by the schema grammar; the band allocation IS the coll
 | Band | Owner |
 |---|---|
 | 001-999 | Project-authored docs |
-| 1101-1899 | SPA blueprint |
-| 2101-2899 | REST blueprint |
+| 1101-1899 | application-spa blueprint |
+| 2101-2899 | application-api-rest blueprint |
 | 3101-3899 | Reserved for the next blueprint |
 | 4xxx and above | Reserve here as new blueprints ship |
 
@@ -111,7 +111,7 @@ A composing blueprint takes a fresh band rather than proposing namespaced AC ids
 
 Suffix-family ids (ADR, TAC) are string-distinct once slug-suffixed, but number them in the same block for legibility: SPA uses 2xx, REST uses 3xx, the next blueprint takes 4xx.
 
-**Collision warning that has actually bitten.** In run4 of the watchpost case study, a project-side `US-1101` derived mechanically from `REQ-011` (leading `11` + sequence `01`) collided with the SPA blueprint's `spa-us-1101` at the AC-id-scoping bucket. The seat allocated the project story as `US-1181` and moved on. Two lessons for authors:
+**Collision warning that has actually bitten.** In run4 of the watchpost case study, a project-side `US-1101` derived mechanically from `REQ-011` (leading `11` + sequence `01`) collided with the application-spa blueprint's `application-spa-us-1101` at the AC-id-scoping bucket. The seat allocated the project story as `US-1181` and moved on. Two lessons for authors:
 
 - If your blueprint's US numbering starts at `1101` and you own the band `1101-1899`, keep contributions on the LOW end of the band and leave headroom at the HIGH end for project-side stories that mechanically derive to your numbers.
 - Note the collision in your blueprint's `docs/topics.md` so a chain-authoring seat consulting the vocabulary sees the risk before it hits the tree.
@@ -120,7 +120,7 @@ Suffix-family ids (ADR, TAC) are string-distinct once slug-suffixed, but number 
 
 Only `adr` kind contributions can declare `scope: "global"`. A global ADR carries a `topic` string that names the decision AREA, not the answer. The composition mechanism turns `topic` into a strict-equality conflict key.
 
-**Topic string rules** (inherited from the SPA vocabulary, restated as law):
+**Topic string rules** (inherited from the application-spa vocabulary, restated as law):
 
 - Lower camelCase.
 - One concept per topic.
@@ -139,19 +139,19 @@ Only `adr` kind contributions can declare `scope: "global"`. A global ADR carrie
 3. Author a project-level ADR that supersedes both: `rcf define blueprint supersede <topic> --incoming <source>`, then re-run the add. Both blueprint ADRs co-reside on disk as superseded history alongside the project-level ADR that supersedes them; `manifest.resolutions[]` records the pair.
 4. Declare the resolution on the add itself: `rcf define blueprint add <source> --resolve <topic>=project:<ADR-id>`. Requires the project ADR to exist already; the add records the resolution and skips the remove/re-add ceremony.
 
-**Deliberate conflicts are a feature.** The SPA and REST blueprints ship two `scope: "global"` ADRs on the same two topics (`errorEnvelope`, `authModel`) on purpose. Composing them on one project surfaces the pairing for operator resolution: the client half and the server half of the same wire contract need one project-level ruling. Author your blueprint's global topics knowing composing blueprints will collide with yours where the decision area is genuinely shared.
+**Deliberate conflicts are a feature.** The application-spa and application-api-rest blueprints ship two `scope: "global"` ADRs on the same two topics (`errorEnvelope`, `authModel`) on purpose. Composing them on one project surfaces the pairing for operator resolution: the client half and the server half of the same wire contract need one project-level ruling. Author your blueprint's global topics knowing composing blueprints will collide with yours where the decision area is genuinely shared.
 
 **Coordination vocabulary** (`docs/topics.md` in your blueprint):
 
 - Table your blueprint's `scope: "global"` topic strings with owning ADR id, meaning, and composition note.
 - Table your blueprint's id band and any bands your composition is designed to reuse.
-- Name topics you deliberately did not claim so a future blueprint can pick them up cleanly. The REST blueprint's `docs/topics.md` names `messageSerialisation`, `deliverySemantics`, and `caching` as unclaimed for exactly this reason.
+- Name topics you deliberately did not claim so a future blueprint can pick them up cleanly. The application-api-rest blueprint's `docs/topics.md` names `messageSerialisation`, `deliverySemantics`, and `caching` as unclaimed for exactly this reason.
 
 ## 7. Adherence ACs and the mechanism-reach principle
 
 Adherence to a blueprint is expressed as ACs; the blueprint ships no test files (design-brief decision 5). This is the mechanism's biggest teaching load: the AC binds a CLASS, but the mechanism does not itself compel a project's runtime surface to satisfy the class. Watchpost run4 caught two flagship classes failing exactly here.
 
-**The cautionary pattern (watchpost run4, categories 5, 6, 11).** The SPA blueprint's `spa-REQ-011` says "one icon set behind semantic aliases" and ships `ADR-206-spa-iconography` to record the decision. The blueprint was applied cleanly, the project chain composed against it, the build cycle ran green. The deployed app shipped zero icons across eight surfaces. `rcf audit coverage --strict` had already flagged `spa-REQ-*` categories 5, 6, and 11 as uncovered `spa-REQ-*` requirements (no test cases bound to those ACs); the build proceeded because the project's own build queue did not include an FBS realising the blueprint's icon and token surfaces. The AC bound the class. The mechanism did not compel the surface.
+**The cautionary pattern (watchpost run4, categories 5, 6, 11).** The application-spa blueprint's `application-spa-REQ-011` says "one icon set behind semantic aliases" and ships `ADR-206-application-spa-iconography` to record the decision. The blueprint was applied cleanly, the project chain composed against it, the build cycle ran green. The deployed app shipped zero icons across eight surfaces. `rcf audit coverage --strict` had already flagged `application-spa-REQ-*` categories 5, 6, and 11 as uncovered `application-spa-REQ-*` requirements (no test cases bound to those ACs); the build proceeded because the project's own build queue did not include an FBS realising the blueprint's icon and token surfaces. The AC bound the class. The mechanism did not compel the surface.
 
 **The principle.** For any AC that constrains project-source realisation (product surface, wired renderer, injected middleware), pair the AC with a mechanism the host project's build cycle already gates on. Three shapes work today:
 
@@ -191,7 +191,7 @@ The loader refuses these at load time; do not attempt to author them.
 
 Every blueprint ships two operator-facing pieces:
 
-- `README.md` at the blueprint root: one screen, four sections. Apply command; anatomy table (`Piece | Where | What`); what it contributes and what it deliberately does not; quality bar in one paragraph. See [`blueprints/spa/README.md`](../../../blueprints/spa/README.md) and [`blueprints/rest/README.md`](../../../blueprints/rest/README.md).
+- `README.md` at the blueprint root: one screen, four sections. Apply command; anatomy table (`Piece | Where | What`); what it contributes and what it deliberately does not; quality bar in one paragraph. See [`blueprints/application-spa/README.md`](../../../blueprints/application-spa/README.md) and [`blueprints/application-api-rest/README.md`](../../../blueprints/application-api-rest/README.md).
 - `guide/<slug>.md`: the operator's guide, two-to-three screens. What it is; what it deliberately is not; when to reach for it; when it does not fit; what a good outcome looks like; the operator decisions that remain open after apply; a cost-honesty paragraph naming what shipping this doc set costs the project.
 
 Voice discipline for both:

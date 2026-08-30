@@ -1,0 +1,46 @@
+{
+  "usId": "persistence-data-sqlite-US-5106",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-sqlite-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Store lifecycle emits structured events on a single sink",
+  "asA": "operator who needs to answer 'when did the store come up, what version did it migrate through, when did the last snapshot land' from the log stream",
+  "iWant": "the store to emit structured events at open, at every migration run that applied work, at every backup checkpoint, and at close",
+  "soThat": "the store's lifecycle is a first-class observable and my dashboards do not have to shell into the database to answer basic questions",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5106-1",
+      "description": "The store facade accepts an onEvent sink function at open time and invokes it with a structured record on every lifecycle moment: opened at successful open, migrated when the runner applied at least one migration, backupCheckpoint when a snapshot completes, closed on graceful shutdown.",
+      "given": "the store is opened with an injected onEvent sink and taken through open, migrate, backup, and close",
+      "when": "the sink is inspected after each lifecycle moment",
+      "then": "the sink has received one record for each moment with the event name field set to opened, migrated, backupCheckpoint, and closed respectively, each carrying a valid ISO-8601 timestamp",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5106-2",
+      "description": "The migrated event carries the schema version transition and the list of migration versions applied during that run.",
+      "given": "the store opens against a file at version v_k with the build at max known version v_n where v_n > v_k",
+      "when": "the migrated event fires",
+      "then": "the event record contains a from field equal to v_k, a to field equal to v_n, and an applied field whose value is the array of integers v_k+1 through v_n in ascending order",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5106-3",
+      "description": "The opened event carries the store identifier the facade was opened against; the backupCheckpoint event carries the artifact path the backup runner wrote to.",
+      "given": "the store is opened against identifier I and a subsequent backup writes to artifact path B",
+      "when": "the opened and backupCheckpoint events fire",
+      "then": "the opened event's store identifier field equals I and the backupCheckpoint event's artifact path field equals B, both as strings the operator can pass back into their tooling verbatim",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-601-persistence-data-sqlite-store",
+    "TAC-604-persistence-data-sqlite-backup-runner"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

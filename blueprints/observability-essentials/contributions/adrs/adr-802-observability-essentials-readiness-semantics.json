@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-802-observability-essentials-readiness-semantics",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Readiness fails on any declared dependency's failure; the readiness dependency set is an explicit boot-time declaration",
+  "context": "Readiness aggregates the health of dependencies the process needs to serve traffic. The two questions the semantics have to answer are (1) which dependencies count and (2) what aggregation rule turns per-dependency states into the ready/not-ready answer. Answered implicitly, the first collapses to 'every dependency ever touched by the process' which produces false-negative readiness (pulling replicas out of rotation because a rarely-used dep is offline) and false-positive readiness (a critical dep the developer never registered). Answered wrongly, the second (e.g. quorum, majority) produces surprising behaviour under partial outage.",
+  "decision": "The readiness dependency set is an explicit boot-time declaration in application configuration, refused if malformed. Every declared dependency contributes to the aggregate readiness answer under a strict-any-fail rule: readiness is pass when every declared dependency's cached state is pass; readiness is fail when at least one declared dependency's cached state is fail. Dependencies not declared in the set do not appear in the probe response, do not contribute to readiness, and get surfaced through the status page or through the notification outcome record (or through project-authored authenticated dashboards) but never through the readiness probe. The evaluation is against per-dependency cached state maintained by a background evaluator on its own cadence (see ADR-801 and TAC-802); no synchronous downstream network call is made from the probe handler.",
+  "consequences": "The operator's contract with readiness is the declaration set and the strict-any-fail rule: one glance at the declaration answers 'what could make this replica unready'. False-negative readiness (a rarely-used dep failing) is prevented by keeping the declaration narrow: a dep whose failure does not mean 'do not send me traffic' does not belong in the readiness set. False-positive readiness (missing a critical dep) is prevented by boot-time refusal on a malformed declaration and by review discipline on the declaration itself. Composing blueprints that hold a different opinion on readiness semantics (a quorum-based aggregation, a write-path-only readiness, a graceful-degradation model where some dep failures mean serve-partial rather than not-ready) conflict on the readinessSemantics topic; the expected resolution is one project-level ADR that fixes the aggregation and the declaration scope for the project.",
+  "alternativesConsidered": [
+    {
+      "name": "Implicit readiness dependency set (every registered client or connection pool)",
+      "summary": "The readiness answer aggregates over every downstream client the process has registered, with no explicit declaration.",
+      "reasonNotChosen": "Produces both false-negative and false-positive readiness. A rarely-used analytics client failing shouldn't pull the replica; a mistakenly-unregistered payment client failing must. The declaration is the operator's chance to make the set explicit and reviewable."
+    },
+    {
+      "name": "Quorum or majority aggregation (readiness passes if K of N deps are healthy)",
+      "summary": "The aggregation is a threshold count over the per-dep states rather than strict-any-fail.",
+      "reasonNotChosen": "Turns readiness into a soft signal that lets partial outages go under-reported. The rcf-lite tier is small greenfield where dependencies are almost always all-required; if any one is optional, it does not belong in the readiness set. A project that genuinely runs a graceful-degradation model where some deps are optional supersedes this ADR."
+    },
+    {
+      "name": "Synchronous per-probe evaluation (each probe hit evaluates each dep with a real network call)",
+      "summary": "The probe handler queries every declared dep on the probe hit and aggregates the results synchronously.",
+      "reasonNotChosen": "Turns downstream latency into probe-response latency; a slow dep causes the load balancer to time out the probe and the replica goes unready for reasons unrelated to whether it could actually serve traffic. The cached-state pattern breaks that coupling; the per-cadence staleness is a lower cost than the cascading-timeout failure mode."
+    }
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

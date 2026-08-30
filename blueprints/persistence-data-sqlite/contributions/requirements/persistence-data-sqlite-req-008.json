@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-sqlite-REQ-008",
+  "prdId": "PRD-001",
+  "title": "A backup is a file-level snapshot of the store artifact taken without downtime",
+  "description": "The backup procedure produces a self-contained artifact (a copy of the SQLite file, an engine-native snapshot, or the equivalent) that, when opened by a compatible build, boots to the same schema version and holds the same committed rows as the source store at the snapshot moment. The procedure runs against a live store: no request quiescence, no consumer freeze, no application shutdown. The backup runner emits a backupCheckpoint event on the store's event log with the artifact path and the ISO-8601 completion timestamp.",
+  "category": "nonFunctional",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "A backup story that requires downtime is a backup story the operator will skip until it is too late. A file-level snapshot inherits the durability posture of the underlying engine (WAL checkpointing for SQLite, replication slots for Postgres) and turns 'do we have a recent backup' into a stat call on the artifact path. The event on completion is what makes 'when did the last snapshot land' answerable from the log without a filesystem walk.",
+  "tags": [
+    "blueprint:persistence-data-sqlite",
+    "category:08-backup"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

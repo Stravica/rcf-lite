@@ -1,0 +1,47 @@
+{
+  "usId": "observability-essentials-US-7108",
+  "prdId": "PRD-001",
+  "reqId": "observability-essentials-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Orchestrator and external reader reach probes and status page without credentials",
+  "asA": "orchestrator, load balancer, or external reader that has no service credentials",
+  "iWant": "the liveness path, readiness path, and status page path to be exempt from every authentication gate the application applies to other paths",
+  "soThat": "the probes are usable by the systems that operate the deployment and the status page is usable by the readers it is written for",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7108-1",
+      "description": "The liveness, readiness, and status page paths respond to a GET carrying no cookie, no Authorization header, and no session token, with a 2xx response (or a 5xx that reflects the probe answer, not an auth challenge); no path returns 401 or 403 to an unauthenticated request.",
+      "given": "the process is running with the application's normal authentication middleware active",
+      "when": "unauthenticated GETs are issued against each of the three paths in turn",
+      "then": "no response carries status code 401 or 403 and none carries a WWW-Authenticate response header; each response is either a 2xx probe pass, a 5xx probe fail, or a 2xx status page",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7108-2",
+      "description": "The three paths are declared at boot as auth-exempt in the application's authentication middleware; the exempt list is inspectable from the running process (through configuration read or a debug endpoint operators use in staging).",
+      "given": "the process is running with an auth-exempt path list declared in configuration",
+      "when": "the running process's exempt list is inspected",
+      "then": "the list contains the three configured paths (liveness, readiness, status page) and no others that were not deliberately declared",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7108-3",
+      "description": "A request that carries valid authentication credentials against one of the three exempt paths still receives the probe or status-page response; the exemption is one-directional (auth not required), not one that refuses authenticated callers.",
+      "given": "the process is running with valid credentials available to the caller",
+      "when": "an authenticated GET is issued against each of the three exempt paths",
+      "then": "each response is identical in shape and status code to the unauthenticated case; no path refuses the authenticated caller",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-801-observability-essentials-liveness-probe",
+    "TAC-802-observability-essentials-readiness-probe",
+    "TAC-803-observability-essentials-status-page"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

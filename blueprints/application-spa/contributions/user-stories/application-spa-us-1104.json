@@ -1,0 +1,63 @@
+{
+  "usId": "application-spa-US-1104",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Grid, spacing scale, container widths, and safe areas",
+  "asA": "user on any device",
+  "iWant": "screens that line up and breathe consistently",
+  "soThat": "the application reads as one designed product rather than assembled parts",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1104-1",
+      "description": "All spacing in component and layout styles resolves to the 4pt-scale spacing tokens; arbitrary pixel values outside the scale do not appear.",
+      "given": "the shipped stylesheet output",
+      "when": "spacing declarations are audited",
+      "then": "every margin, padding, and gap value maps to a spacing token",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1104-2",
+      "description": "Container maximum widths match the declared per-breakpoint values in the viewport table (assets/viewports.md).",
+      "given": "each baseline breakpoint",
+      "when": "the main container is measured",
+      "then": "its maximum width matches the declared value for that breakpoint",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1104-3",
+      "description": "Page-level layout uses the declared grid; sections align to it rather than to per-section improvised offsets.",
+      "given": "any declared route",
+      "when": "section edges are compared against the grid",
+      "then": "content aligns to grid columns and gutters",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1104-4",
+      "description": "On viewports with hardware cutouts, no content or interactive control renders under the cutout; safe-area insets are applied.",
+      "given": "a notched viewport profile",
+      "when": "shell and route content render",
+      "then": "all content and controls clear the unsafe regions",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1104-5",
+      "description": "Vertical rhythm between stacked sections uses the scale's section-spacing tokens consistently across routes.",
+      "given": "any two routes with stacked sections",
+      "when": "inter-section spacing is compared",
+      "then": "the same structural relationships use the same spacing tokens",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-202-application-spa-theme-system"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}
