@@ -4,7 +4,7 @@
 
 A Clerk-committed authentication floor for small greenfield rcf-lite projects. The blueprint contributes the WHAT of a hosted-identity pattern: how the project delegates identity to Clerk, how it verifies the resulting session cookie on the server, how it reduces the verified claims into a stable Principal shape, how the authorisation adapter maps Clerk roles and organisation memberships onto project-defined verbs, how sign-in strategy sits as a config surface rather than a hard-coded choice, how sign-out honours Clerk-side revocation within a bounded window, how rate-limiting and anti-enumeration are delegated to Clerk, how user and organisation provisioning stays read-only from the runtime's perspective, and how runtime-verify acceptance criteria acknowledge that Clerk-reachable behaviour cannot be faked.
 
-Concretely, the blueprint ships nine requirements, eleven user stories (twenty-six acceptance criteria), four architecture components, and five architecture decision records. One ADR is `scope: global` on the `authModel` topic; the other four are scope-local operational ADRs (middleware-boundary shape, authorisation-adapter contract, claims-mapping discipline, session-lifecycle posture) that a composing blueprint does not conflict with by default.
+Concretely, the blueprint ships nine requirements, eleven user stories (twenty-five acceptance criteria), four architecture components, and five architecture decision records. One ADR is `scope: global` on the `authModel` topic; the other four are scope-local operational ADRs (middleware-boundary shape, authorisation-adapter contract, claims-mapping discipline, session-lifecycle posture) that a composing blueprint does not conflict with by default.
 
 ## What it is not
 

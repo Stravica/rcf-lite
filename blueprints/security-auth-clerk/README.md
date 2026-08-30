@@ -17,7 +17,7 @@ Composing with `security-auth-magic-link` (or any other blueprint contributing `
 | Piece | Where | What |
 |---|---|---|
 | Metadata | `blueprint.json` | Slug, version, category `security`, and the 29 contributions with scope/topic on the one global ADR |
-| Doc set | `contributions/` | 9 REQs, 11 USs (26 ACs), 4 TACs, 5 ADRs, all schema-valid and namespaced (`security-auth-clerk-REQ-001` prefix family; `ADR-1001-security-auth-clerk-auth-model` suffix family) |
+| Doc set | `contributions/` | 9 REQs, 11 USs (25 ACs), 4 TACs, 5 ADRs, all schema-valid and namespaced (`security-auth-clerk-REQ-001` prefix family; `ADR-1001-security-auth-clerk-auth-model` suffix family) |
 | React-family sample | `assets/wiring/clerk-provider-react.md` | The shape of a `ClerkProvider` wiring in a React-family client tier: where the provider mounts, what the SPA blueprint's session-and-redirect posture composes with |
 | Vue-family sample | `assets/wiring/clerk-provider-vue.md` | The same shape rendered for a Vue-family client tier so the operator can pattern-match without a framework translation step |
 | Middleware sample | `assets/middleware/node-middleware-shape.md` | The framework-agnostic middleware boundary contract (`verify(request)`), with adapter samples for Express and Fastify |
