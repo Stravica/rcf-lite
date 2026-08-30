@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The repo-root wrangler manifest is the single declaration of the Worker's deploy shape",
+  "description": "A `wrangler.toml` (or the equivalent `wrangler.jsonc`) at the repo root is the sole declaration of the Worker's deploy shape. It carries the Worker `name`, the entrypoint `main`, a pinned `compatibility_date`, any `compatibility_flags`, and every binding the runtime needs: KV namespaces, D1 databases, R2 buckets, Durable Object namespaces, static-assets binding, environment variables (non-secret), and the named set of secret bindings the Worker reads through the secrets contract. Nothing outside the manifest may configure a binding at deploy time; a binding referenced from Worker code but absent from the manifest is a build refusal. Secret VALUES never appear in the manifest; only binding names.",
+  "category": "technical",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "A scattered deploy configuration is the failure mode this blueprint exists to end. If bindings are declared in ad-hoc scripts, CI environment blocks, or hand-edited before deploy, no one knows what the deployed Worker actually looks like. A single manifest at a known path makes the deploy shape legible to humans, to CI gates, to the vendor's deploy step, and to review of every change that touches a binding.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:01-manifest"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

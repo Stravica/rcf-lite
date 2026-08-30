@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-1303-deploy-cloudflare-workers-preview-url-resolver",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Preview URL Resolver",
+  "purpose": "The single project source of the string patterns for the two preview URL kinds (per-version-id URL, stable alias URL) and the mapping between an alias string and the version id it currently resolves to. Consulted by the Deploy Adapter's `uploadVersion` and `describeVersion` verbs and by every path that needs to reach the preview surface for review or verification.",
+  "responsibilities": [
+    "Assemble the per-version-id URL for a given version id and the currently-configured Worker name and vendor subdomain (AC-12103-1, AC-12103-2).",
+    "Assemble the stable preview alias URL for a given alias string and the currently-configured Worker name and vendor subdomain; ensure the alias is quoted verbatim in the host segment (AC-12102-2, AC-12103-1).",
+    "Given an alias string, query the vendor for the version id currently behind the alias and return it (`resolveNewestOfMain` on the Deploy Adapter delegates here) (AC-12108-2).",
+    "Refuse an alias string that would collide with the production route's host segment; return `DEPLOY_URL_COLLAPSED` (AC-12105-2).",
+    "Guarantee the preview URL host segment can never equal the production URL host segment; the invariant is a property test at build time (AC-12105-3).",
+    "Expose a `probeUrl(kind, id-or-alias)` verb that returns the URL to hit for a given probe target (`versionId`, `alias`, or `production`), so the Served-surface Verifier need not know URL assembly."
+  ],
+  "internalStructure": "Pure string-assembly module plus a thin query wrapper over the vendor's alias-lookup call. No cache: every alias query goes to the vendor because the alias is expected to change on every upload and the freshness cost of caching is not worth the complexity.",
+  "interfaces": [
+    {
+      "name": "workerIdentity",
+      "kind": "read-api",
+      "description": "Reads the Worker name from the wrangler manifest and the vendor account's subdomain from an unambiguous boot input; returns both as strings the URL-assembly functions consume."
+    },
+    {
+      "name": "aliasQuery",
+      "kind": "read-api",
+      "description": "Queries the vendor for the version id currently behind an alias; returns the id or a stable `DEPLOY_ALIAS_UNKNOWN` error when the alias has never been set."
+    },
+    {
+      "name": "probeUrl",
+      "kind": "read-api",
+      "description": "Named-verb URL accessor for downstream consumers. `probeUrl('versionId', 'v-123')` returns the per-version URL; `probeUrl('alias', 'main')` returns the alias URL; `probeUrl('production', null)` returns the production URL from the manifest."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Wrangler Manifest",
+      "kind": "tac",
+      "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+      "description": "Reads the Worker name and the production route stanza; the collapsed-URL invariant is checked against `productionUrl()`."
+    }
+  ],
+  "tradeoffs": "The resolver treats the vendor's URL-string patterns as stable within the blueprint's major version. When the vendor changes the pattern (a new subdomain scheme, a new alias-in-host format), a blueprint major bump is what tracks the change; a project that pinned an older pattern by hand-editing the resolver loses the invariant guard. The trade is a small coupling to the vendor's public URL contract in exchange for one place to change when it moves.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

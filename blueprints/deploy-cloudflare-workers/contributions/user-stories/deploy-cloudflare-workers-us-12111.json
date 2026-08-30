@@ -1,0 +1,45 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12111",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-011",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Local dev-mode is never authoritative for ship coverage",
+  "asA": "engineer authoring runtime-verify tests",
+  "iWant": "the ship gate to refuse a deployed-scope AC bound to a dev-mode probe",
+  "soThat": "no emulator drift can pass for a real runtime signal",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12111-1",
+      "description": "A test case whose runtime probe hits the local dev-mode URL (matching the pattern for the vendor's local emulator, for example `http://localhost:8787` or the `wrangler dev` bound port) is refused as coverage for any AC whose `scope` is `deployed`.",
+      "given": "an AC with `scope: 'deployed'` bound to a TC whose runtime target URL matches the dev-mode pattern",
+      "when": "the coverage gate walks the AC-to-TC bindings",
+      "then": "the gate reports the binding as `DEPLOY_DEV_MODE_INADMISSIBLE`, refuses to count it toward the AC's coverage, and lists the offending TC and its target URL",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12111-2",
+      "description": "A probe against a preview alias URL, a version-id URL, or the production URL is accepted as coverage for a deployed-scope AC.",
+      "given": "an AC with `scope: 'deployed'` bound to a TC whose runtime target URL matches the vendor's preview or production URL patterns",
+      "when": "the coverage gate walks the AC-to-TC bindings",
+      "then": "the gate accepts the binding as valid coverage; the coverage counter increments for the AC",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12111-3",
+      "description": "The project's runtime-verify catalogue documents the dev-mode drift classes (regular-expression engine differences, static-assets ordering differences, binding-emulation differences, timeout behaviour) so an engineer authoring a probe knows which behaviours cannot be trusted at the local surface.",
+      "given": "the project's runtime-verify catalogue file",
+      "when": "the file is read",
+      "then": "the file names at least four dev-mode drift classes with a one-line example of each and a pointer to the vendor's changelog or release notes where the class is described",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1305-deploy-cloudflare-workers-served-surface-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

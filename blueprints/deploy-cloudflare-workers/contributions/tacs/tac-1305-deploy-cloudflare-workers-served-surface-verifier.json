@@ -1,0 +1,51 @@
+{
+  "tacId": "TAC-1305-deploy-cloudflare-workers-served-surface-verifier",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Served-surface Verifier",
+  "purpose": "The post-promote probe layer. Hits the SERVED surface (production URL by default; the preview alias URL when the promote gate is running a preview-only verify) with a fixed set of probe paths, retries within a bounded window, and returns a structured pass or fail the promote gate honours. Never targets a dev-mode local URL; refuses to accept a probe URL matching the dev-mode pattern.",
+  "responsibilities": [
+    "Hit every declared probe path against the target URL after `promoteVersion` returns success; each probe retries up to six times over up to sixty seconds with per-request timeouts of at most five seconds (AC-12110-1).",
+    "Pass a probe when the response status is in the project-declared success set AND the response body carries the expected shape (for a health probe, `versionSha` equals the promoted version's build sha) (AC-12110-2, AC-12112-3).",
+    "Fail the verify when any probe exhausts its retries without passing; emit the failing probe path, the last response status seen, and the elapsed time; return `PROMOTE_VERIFY_FAILED` (AC-12110-3).",
+    "Refuse a target URL matching the dev-mode local pattern (`http://localhost:*`, `http://127.0.0.1:*`, or the vendor's local emulator loopback host); return `DEPLOY_DEV_MODE_INADMISSIBLE` (AC-12111-1).",
+    "Accept a target URL matching the vendor's preview or production URL patterns (per-version-id URL, alias URL, custom-domain URL, workers.dev production host) (AC-12111-2).",
+    "Emit structured probe records the deploy log can persist: `{ probePath, status, elapsedMs, outcome, versionShaSeen }` per probe attempt."
+  ],
+  "internalStructure": "One async probe-runner per probe path, each retrying against the same target URL. The runner is a small state machine: attempt, on-fail sleep, retry until budget exhausted, resolve pass or fail. A property test enforces the retry-count and window bounds at build time. The probe-path set and the success-status set are project-declared configuration.",
+  "interfaces": [
+    {
+      "name": "probeConfig",
+      "kind": "read-api",
+      "description": "Project-supplied probe declaration: an array of `{ path, method?: 'GET'|'HEAD', successStatus: number[], expectShape?: object }`. At least one probe must be declared; the health probe is the mandatory one."
+    },
+    {
+      "name": "urlTarget",
+      "kind": "read-api",
+      "description": "The URL the verifier hits. Sourced from the Preview URL Resolver's `probeUrl('production', null)` for a promote verify, or `probeUrl('alias', <alias>)` for a preview-only verify."
+    },
+    {
+      "name": "httpClient",
+      "kind": "read-api",
+      "description": "The HTTP client the verifier drives (Node.js `fetch` in the default form; project-supplied for a project running under a different runtime)."
+    },
+    {
+      "name": "resultSink",
+      "kind": "callback",
+      "description": "Structured-record sink invoked with each probe attempt's outcome `{ probePath, status, elapsedMs, outcome, versionShaSeen }`."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Preview URL Resolver",
+      "kind": "tac",
+      "tacId": "TAC-1303-deploy-cloudflare-workers-preview-url-resolver",
+      "description": "Source of the URL the verifier hits; the resolver's `probeUrl` verb keeps URL assembly out of the verifier."
+    }
+  ],
+  "tradeoffs": "The retry bounds are opinionated (six attempts over sixty seconds). A project whose vendor propagates faster shrinks the window; a project whose vendor propagates slower buys a bigger budget by superseding the AC's numeric bound with a project-level ADR. The trade is the default catches propagation lag without turning a stuck workflow into a silent one; the numeric floor is the shape a project changes deliberately, not by drift.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

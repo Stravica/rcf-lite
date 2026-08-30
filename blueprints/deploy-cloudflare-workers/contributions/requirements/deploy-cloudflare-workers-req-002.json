@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-002",
+  "prdId": "PRD-001",
+  "title": "One deploy adapter module is the sole caller of the deploy CLI",
+  "description": "The project exposes a single Deploy Adapter module that wraps the deploy CLI (the vendor's `wrangler` binary when the default vendor is in play). Every path that uploads a version, promotes a version, lists versions, or reads deploy state routes through this module. Nothing else in the project source tree spawns the CLI, imports the vendor SDK, or issues an HTTP call to the vendor's deploy API. The module exposes a fixed named-verb surface (`uploadVersion`, `promoteVersion`, `listVersions`, `resolveNewestOfMain`, `describeVersion`) that is stable across the blueprint's major version.",
+  "category": "technical",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "A vendor-neutral adapter port keeps the project free to change deploy vendors under the same interface. It also removes the class of bugs where two paths call the CLI with different flags and drift silently. One module, one boundary, one behaviour. The blueprint mandates the CONTRACT and defaults the VENDOR; a project that supersedes the default vendor swaps only the adapter's implementation.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:02-adapter-boundary"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Preview and production surfaces are addressable at distinct URLs both discoverable from the manifest",
+  "description": "The deployed application is reachable at two distinct kinds of URL: a PREVIEW surface (per-version alias URLs and per-version-id URLs, both provided by the vendor at upload time on the workers.dev subdomain) and a PRODUCTION surface (a route or custom domain declared in `wrangler.toml` under a `route`/`routes`/`workers_dev` block, or a mapped custom hostname). A `deploy status` verb on the Deploy Adapter surfaces both URL kinds for the current state without requiring an operator to consult the vendor dashboard. The preview alias URL and the production URL are never the same string; a project that would collapse them into one URL is a misconfiguration the adapter refuses.",
+  "category": "functional",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "Two URLs, two purposes. The preview URL is where a change lives before promote, where stakeholder review happens, where end-to-end probes hit the newest-of-main. The production URL is where users hit the promoted version. Collapsing them is the failure mode where reviewing a change means reviewing production; keeping them distinct is what makes the promote step meaningful.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:05-url-model"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

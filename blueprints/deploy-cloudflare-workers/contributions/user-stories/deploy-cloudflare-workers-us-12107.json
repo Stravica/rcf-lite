@@ -1,0 +1,46 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12107",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The build-and-upload workflow runs on every merge to main and records the version id",
+  "asA": "reviewer following a merged change",
+  "iWant": "the CI run for the merge to surface the uploaded version id and both preview URLs",
+  "soThat": "I can reach the preview surface and reference the version id without hunting",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12107-1",
+      "description": "The `build-and-upload` workflow triggers on `push` to the `main` branch (and on the project's chosen linear-history proxy for merges), and does not trigger on `pull_request` or any other event.",
+      "given": "the `build-and-upload` workflow file",
+      "when": "the trigger stanza is parsed",
+      "then": "the trigger set contains `push` scoped to the `main` branch (or the equivalent linear-history proxy); it contains no `pull_request` or `schedule` trigger",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12107-2",
+      "description": "A successful run writes the uploaded version id, the version-id URL, and the preview alias URL to a structured output the `promote` workflow's `resolveNewestOfMain` path can read.",
+      "given": "a successful `build-and-upload` run on a merge to main",
+      "when": "the run's outputs are inspected after completion",
+      "then": "a structured output object exists whose fields include `versionId`, `versionIdUrl`, and `previewAliasUrl`; every field is populated with a non-empty string; the `previewAliasUrl` host segment carries the operator-chosen alias string",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12107-3",
+      "description": "The workflow authenticates to the vendor through named CI secrets (a vendor API token and a vendor account id) scoped to the Worker's account; neither secret ever appears in any log line.",
+      "given": "a `build-and-upload` run that reads the vendor API token and account id from named CI secrets",
+      "when": "the run's captured logs are inspected byte-for-byte",
+      "then": "no log line contains the API token bytes; no log line contains the account id bytes; both are populated only into the vendor CLI's environment and redacted from any emitted line",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows",
+    "TAC-1301-deploy-cloudflare-workers-deploy-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

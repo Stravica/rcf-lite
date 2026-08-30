@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-012",
+  "prdId": "PRD-001",
+  "title": "Every uploaded version carries build-provenance attributes readable at runtime",
+  "description": "Every version uploaded by the `build-and-upload` workflow carries three provenance attributes accessible from within the Worker at runtime: the commit sha of the source tree the version was built from, the ISO 8601 timestamp of the build, and the URL of the CI run that produced the upload. The three values are injected into the Worker's build (as build-time constants baked into the bundle, as `vars` populated by the CI step, or as a runtime-readable metadata surface the Deploy Adapter's `describeVersion` verb returns; the project picks the mechanism). A health probe exposes them on a fixed path; the response body carries a stable JSON shape whose `versionSha`, `builtAt`, and `ciRunUrl` fields are the served-surface verifier's evidence that the promoted version is the version it thinks it promoted.",
+  "category": "technical",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "Without provenance the served-surface verifier cannot tell a successful promote from a stale response served by a routing layer that has not converged. Baking provenance into the version and surfacing it on a health probe is what makes the verifier's success signal load-bearing; it is also what makes incident triage answerable in one request.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:12-provenance"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

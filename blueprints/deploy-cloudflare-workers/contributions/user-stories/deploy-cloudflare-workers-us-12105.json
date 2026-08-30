@@ -1,0 +1,46 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12105",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Preview and production surfaces live at distinct URLs both discoverable from the manifest",
+  "asA": "operator investigating a change or an incident",
+  "iWant": "one command to print the preview URLs and the production URL for the Worker",
+  "soThat": "the dashboard is not a step on any triage path",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12105-1",
+      "description": "The Deploy Adapter's `deploy status` (or equivalent named verb on the adapter surface) returns a structured object naming the current production URL, the preview alias URL, and the currently-serving version id.",
+      "given": "an operator on a machine authenticated to the deploy vendor",
+      "when": "the operator invokes the adapter's `deploy status` verb",
+      "then": "the response is a structured object whose fields include `productionUrl`, `previewAliasUrl`, and `currentlyServingVersionId`; every field is populated",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12105-2",
+      "description": "The preview alias URL and the production URL are never equal; a manifest whose production route resolves to the same host as the preview alias URL is refused by the adapter with a stable-coded error.",
+      "given": "a `wrangler.toml` whose production route stanza names the same host as the preview alias URL",
+      "when": "the adapter loads the manifest",
+      "then": "the load throws a `DEPLOY_URL_COLLAPSED` error naming both URLs; no deploy verb accepts the manifest",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12105-3",
+      "description": "A request to the production URL and a request to the preview alias URL immediately after an upload but before a promote resolve to different version ids in their health-probe responses.",
+      "given": "production serving version P and an uploaded-not-promoted version W behind preview alias A",
+      "when": "a health probe hits the production URL and a second health probe hits A",
+      "then": "the production response body carries `versionSha` of P and the preview response body carries `versionSha` of W; the two values are not equal",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1303-deploy-cloudflare-workers-preview-url-resolver",
+    "TAC-1301-deploy-cloudflare-workers-deploy-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

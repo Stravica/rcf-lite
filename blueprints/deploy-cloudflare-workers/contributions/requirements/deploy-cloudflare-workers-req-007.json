@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-007",
+  "prdId": "PRD-001",
+  "title": "A build-and-upload CI workflow runs on every merge to the main branch and records the uploaded version id",
+  "description": "A CI workflow named `build-and-upload` (or the project's chosen equivalent) triggers on `push` to the main branch (and on any linear-history proxy the project uses). It checks the tree out, installs dependencies at the pinned versions, runs the project's build step, then invokes the Deploy Adapter's `uploadVersion` verb naming the operator-chosen preview alias string. On success it writes the uploaded version id, the version-id URL, and the preview alias URL to the CI run's job summary and to a structured output the promote workflow reads. The workflow authenticates to the vendor through named CI secrets (a vendor API token and a vendor account id); the token is scoped to the Worker's account and never appears in any log line.",
+  "category": "functional",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "The build-and-upload workflow is the mechanism half of REQ-003: every merge produces an uploaded, addressable version, without touching production. Making the version id and URLs discoverable in the CI run output is what makes the promote step's `newest-of-main` default computable and what makes the change reviewable at the preview URL by anyone with the CI run link.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:07-ci-build-upload"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
