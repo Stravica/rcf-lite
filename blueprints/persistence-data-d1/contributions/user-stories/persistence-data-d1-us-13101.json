@@ -1,0 +1,45 @@
+{
+  "usId": "persistence-data-d1-US-13101",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-d1-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "One facade module is the only place the D1 binding is read",
+  "asA": "developer who needs the domain code to stay swappable and testable across the persistence boundary",
+  "iWant": "one facade module to hold the D1 binding and expose named domain verbs, with no consumer reaching into env for the binding directly",
+  "soThat": "the boundary between the domain and the D1 vendor surface is the only place that has to move when the vendor changes and the only place tests have to double",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13101-1",
+      "description": "Exactly one source-tree module reads the D1 binding from the Worker `env`. Every other module that touches persistence imports the facade module and calls its named domain verbs.",
+      "given": "the running source tree after a Worker request is handled",
+      "when": "the import graph and source tree are inspected for the D1 binding reference (`env.<BINDING_NAME>` where BINDING_NAME is the value configured on `d1_databases[].binding` in the project's wrangler config)",
+      "then": "the reference appears in exactly one file (the facade module) and no other file in the source tree contains the reference, verified by an import-graph query or a targeted grep against the configured binding name",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13101-2",
+      "description": "The facade exposes named domain verbs for every persistence operation the domain requires; the facade module does not export the raw D1 binding or a general-purpose query method that accepts a raw SQL string from consumer code.",
+      "given": "the facade module's public surface",
+      "when": "the surface is inspected",
+      "then": "every exported symbol is either a named domain verb with typed parameters or an event-sink registration; no exported symbol is the D1 binding itself, and no exported function accepts a raw SQL string as a call argument from consumer code",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13101-3",
+      "description": "Replacing the facade module with an in-memory double that implements the same verb surface allows the domain code to run against it without any reference to the D1 binding.",
+      "given": "a test double implementing the same named verbs as the facade with an in-memory backing store",
+      "when": "the domain code runs against the double in place of the facade",
+      "then": "the domain code executes to completion with no reference to the D1 binding on its call path, and its behaviour is unchanged from a facade-backed run for the operations under test",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1401-persistence-data-d1-facade"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

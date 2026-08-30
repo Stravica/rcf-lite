@@ -1,0 +1,46 @@
+{
+  "usId": "persistence-data-d1-US-13103",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-d1-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Deploy is gated on migrations applying cleanly to the target environment first",
+  "asA": "operator whose Worker deploys must never reach production ahead of the schema they were built against",
+  "iWant": "the deploy pipeline to run `wrangler d1 migrations apply` before `wrangler deploy` for the same environment, and to abort the deploy on any apply failure",
+  "soThat": "a schema-behind-the-code state is impossible in production and a bad migration fails the CI job instead of the customer request",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13103-1",
+      "description": "The deploy pipeline definition for each environment contains a `wrangler d1 migrations apply <database> --env <target>` step ordered strictly before the `wrangler deploy --env <target>` step; the Worker deploy step declares the migrations-apply step as a prerequisite (job dependency, sequential step, or equivalent).",
+      "given": "the CI pipeline configuration for the project (GitHub Actions workflow, or the pipeline the project uses)",
+      "when": "the deploy job's step list is inspected for each environment",
+      "then": "the migrations-apply step appears before the deploy step in that job, and any parallelism configuration is such that the deploy cannot start until the apply has exited zero",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13103-2",
+      "description": "A pipeline run where `wrangler d1 migrations apply` exits non-zero fails the deploy job and does not run `wrangler deploy` against that environment.",
+      "given": "a branch on which the migrations set contains a statement that fails at apply (an ALTER against a missing table, a syntactically invalid statement) and the CI pipeline is triggered",
+      "when": "the pipeline runs",
+      "then": "the migrations-apply step exits non-zero, the deploy step does not execute, the deploy job is reported as failed, and no new Worker version has been published to the target environment",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13103-3",
+      "description": "The deploy pipeline emits a `migrationsApplied` structured event on the store event log per successful apply, carrying the environment name, the target database name or identifier, the applied migration filenames or version integers, and the ISO-8601 completion timestamp. No event field carries a domain-row value.",
+      "given": "a successful CI run whose migrations-apply step applied at least one migration",
+      "when": "the store event log for that CI run is inspected",
+      "then": "the log contains exactly one migrationsApplied event whose metadata fields match the run and whose payload contains no value read from a domain table",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1403-persistence-data-d1-deploy-gate",
+    "TAC-1402-persistence-data-d1-migration-catalog"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

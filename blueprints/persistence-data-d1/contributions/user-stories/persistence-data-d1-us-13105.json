@@ -1,0 +1,45 @@
+{
+  "usId": "persistence-data-d1-US-13105",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-d1-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Multi-statement atomicity is expressed through batch; no partial result is ever surfaced",
+  "asA": "developer whose domain operations require two or more statements to land as one unit or none",
+  "iWant": "the facade to issue such operations through `db.batch([...])` and to surface no partial-batch result on any failure path",
+  "soThat": "a consumer never has to reason about 'some statements landed, some did not' and mid-batch failures roll back cleanly",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13105-1",
+      "description": "Every facade verb whose implementation requires multi-statement atomicity issues its statements through a single `db.batch([...])` invocation; the facade does not synthesise atomicity by issuing sequential `db.prepare(...).run()` calls under an application-side try-catch.",
+      "given": "the facade module source",
+      "when": "every verb whose responsibility involves writing to two or more rows across two or more statements is inspected",
+      "then": "each such verb issues its statements as one `db.batch([...])` call whose array contains every statement the atomicity claim covers, and no such verb chains sequential independent facade calls to fake atomicity",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13105-2",
+      "description": "A facade verb whose batch fails mid-sequence (a UNIQUE constraint violation on the second statement of a two-statement batch) surfaces the failure to the caller without persisting the first statement.",
+      "given": "a facade verb that batches an insert into table A followed by a constraint-violating insert into table B, and a local D1 database primed to violate the constraint",
+      "when": "the verb is invoked and the batch fails",
+      "then": "the caller receives an error, and a follow-up read against table A shows no row corresponding to the first statement of the failed batch (D1 rolled the batch back)",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13105-3",
+      "description": "The facade does not export a public method whose contract implies atomicity across two separate facade calls; consumers do not chain facade calls under a transaction assumption because no facade surface offers one.",
+      "given": "the facade module's public surface and any documentation the facade emits",
+      "when": "the surface is inspected for begin/commit primitives, transaction-block wrappers, or documentation promising cross-call atomicity",
+      "then": "no such surface exists on the facade, and every atomicity claim in facade documentation is scoped to a single verb whose implementation uses `db.batch([...])`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1401-persistence-data-d1-facade"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

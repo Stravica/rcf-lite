@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1405-persistence-data-d1-recovery-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Recovery is Time Travel point-in-time restore plus a scheduled portable export; both paths carry the load, neither substitutes for the other",
+  "context": "A recovery model has three axes: what the artifact is (an in-vendor point-in-time snapshot, a portable dump, a stream), when it is available (bounded lookback, unbounded off-vendor retention), and how it recovers (rewind in place, replay against a fresh database, promote a replica). D1 has one built-in fast path (Time Travel point-in-time recovery, bounded by the plan's recovery window) and one vendor-provided portable path (`wrangler d1 export`, unbounded off-vendor retention when the operator holds the artifacts). Neither substitutes for the other; the two together cover the recovery cases a Workers-tier project actually faces.",
+  "decision": "The recovery model is two paths, both configured in the project and both exercisable from the ops or CI surface without a Worker code change (TAC-1404). Path one, Time Travel: `wrangler d1 time-travel restore <database> --timestamp=<unix-seconds>`; the target database rewinds in place to the recorded state at the named timestamp within the vendor's supported recovery window (currently 30 days on Paid, 7 days on Free). Path two, portable export: a scheduled `wrangler d1 export <database> --output <artifact-path> --remote`; the artifact is a `.sql` file the project stores off-vendor (a repository asset, an R2 bucket, an object store the project already runs); recovery is `wrangler d1 execute --file <artifact-path>` into a fresh database (with any BEGIN TRANSACTION / COMMIT statements stripped per the vendor's import guidance). Every invocation of either path emits a structured event on the store event log: `timeTravelRestored` or `backupExported`; event fields are metadata only per ADR-1403.",
+  "consequences": "The operator has a one-command answer to the accidental-drop and bad-migration cases inside the vendor recovery window (Time Travel), and a portable off-vendor artifact for the compliance-retention and vendor-outage cases (export). No Worker code change is required to exercise either path; the ops surface is where recovery lives. Time Travel is destructive in place (the vendor's contract), so an operator restoring under uncertainty pairs a pre-restore export with the restore. The export path is slow enough that the vendor's own guidance warns it blocks other database requests for the duration; schedule it in low-traffic windows. Composing blueprints that hold their own opinion on recovery (a replication-based failover blueprint, a logical-dump-only blueprint) supersede this ADR at the project level; the two-path posture is the shape D1's currently published tooling supports.",
+  "alternativesConsidered": [
+    {
+      "name": "Time Travel only, no scheduled export",
+      "summary": "Rely on Time Travel's bounded recovery window; skip the export step and the off-vendor artifact.",
+      "reasonNotChosen": "Loses the compliance-retention story and the vendor-outage story. An operator whose regulator asks 'produce the state as of six months ago' cannot answer from Time Travel alone once the plan window expires, and an operator locked out of the vendor console cannot restore without an off-vendor artifact. The export step is cheap enough to keep as the second path."
+    },
+    {
+      "name": "Scheduled export only, no Time Travel usage",
+      "summary": "Treat Time Travel as a vendor feature the project does not exercise; recover only from the exported artifact.",
+      "reasonNotChosen": "Loses the fast in-place restore path Time Travel gives for free. An accidental drop is a one-command Time Travel restore inside the window; forcing every recovery through export-and-reimport pays the export run time on every drill and gives up the vendor's in-place semantics. The two paths cost little to keep both."
+    },
+    {
+      "name": "Continuous replication to a second D1 database",
+      "summary": "Stand up a second database and stream writes; failover by pointing the binding at the replica.",
+      "reasonNotChosen": "D1's currently published replication surface (read replicas via `withSession`) targets read scaling, not failover. A project that genuinely needs failover semantics supersedes this ADR with a project-level ADR selecting an alternate engine that provides them; the Workers-tier target this blueprint targets is not where failover is default."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
