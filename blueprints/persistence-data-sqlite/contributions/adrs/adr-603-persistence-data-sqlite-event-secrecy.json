@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-603-persistence-data-sqlite-event-secrecy",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Store event fields are restricted to store metadata; no domain-row values reach the event sink",
+  "context": "The store's event log describes the store's own lifecycle (opened, migrated, backupCheckpoint, closed). The store also holds the domain's most sensitive material: session handles, token secrets, credential material, private keys, whatever the project stores. Conflating the two produces a log stream that a downstream observability provider cannot be trusted with, and that a log-store breach turns into a domain-data breach. The store's log shape is distinct from the application-api-rest tier's wire-log shape (topic 'logging', owned by the application-api-rest blueprint's ADR-304): this ADR governs the store event surface only.",
+  "decision": "Every field on every store event is restricted to store metadata: the event name string, an ISO-8601 timestamp, the store identifier (path or connection string), schema version integers, migration version integers, migration description strings, applied-version arrays, and backup artifact paths. No event field is populated with a value read from a domain row; no event field is populated with a value derived from a domain-row column marked as secret. The discipline is enforced at emit time inside the store facade (TAC-601) and the backup runner (TAC-604); the sink is treated as though it ships every field to a third-party observability provider by default. Downstream redaction is not relied on.",
+  "consequences": "The store's event log is safe to ship to any observability provider the operator picks; no per-provider redaction rule is negotiated. A log-store breach exposes lifecycle metadata (when did the store open, what version did it migrate through, when did the last snapshot land) but no domain data. Operators who need per-request correlation between the store's events and the domain surface derive a correlation id from something other than a row value (the request id is the intended surface). The REST tier's own log shape (ADR-304, wire logs) governs its own field set; the two logs may share a shipper but do not share this ADR's rules.",
+  "alternativesConsidered": [
+    {
+      "name": "Emit domain-row values inside store events under a downstream redaction rule",
+      "summary": "Ship rich events with domain context and rely on a log-shipper redactor to strip secret fields.",
+      "reasonNotChosen": "Redactors miss cases (new field, misspelled field, escaped value in a nested structure), and the log is already on disk on the emitting host by the time the redactor runs. Not-emitting-at-source is the only reliable posture."
+    },
+    {
+      "name": "Hashed domain values in event fields",
+      "summary": "Emit a stable hash of the value so investigations can correlate without exposing the plaintext.",
+      "reasonNotChosen": "A hashed handle still lets an attacker with log access confirm 'this handle is the handle for that principal', which is enough for correlation attacks. The request id already provides the correlation surface without leaking anything, and no store-lifecycle event has a use case for domain-row correlation."
+    }
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

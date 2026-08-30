@@ -1,0 +1,13 @@
+{
+  "adrId": "ADR-207-application-spa-motion",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Motion tokens with ease-out defaults and a reduced-motion kill switch",
+  "context": "application-spa-REQ-012 requires tokenised motion. The duration range, easing family, and the reduced-motion mechanism need one recorded answer inside the SPA.",
+  "decision": "Motion durations and easings come from the motion tokens (fast 150ms, base 200ms, slow 250ms; ease-out family) in the token file. prefers-reduced-motion collapses non-essential transitions to none via one root-level media rule, not per-component checks.",
+  "consequences": "Motion is consistent and disableable in one place. Choreographed long-form animation is out of the blueprint's scope and would need its own decision.",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

@@ -1,0 +1,45 @@
+{
+  "usId": "observability-essentials-US-7103",
+  "prdId": "PRD-001",
+  "reqId": "observability-essentials-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Operator sees which dependency turned the replica unready by reading the readiness probe body",
+  "asA": "operator debugging why a replica went unready under load-balancer rotation",
+  "iWant": "the readiness probe response body to name each declared dependency, its individual pass/fail state, and when that state was last evaluated",
+  "soThat": "I move from 'readiness is failing' to 'the payments-provider check has been failing since 14:02' in one step, without opening a shell on the replica",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7103-1",
+      "description": "The readiness dependency set is declared at boot from application configuration; the application refuses to boot with a stable error code if the declaration is missing or if any declared entry lacks a name, and the declaration set is inspectable from the running process through the probe response.",
+      "given": "the process is configured with a readiness dependency declaration that names each dependency",
+      "when": "the readiness probe is hit after successful boot",
+      "then": "the JSON body's checks object contains one entry per declared dependency, keyed by the dependency name from the declaration, with no additional keys and no missing keys",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7103-2",
+      "description": "Each entry in the checks object carries a state field (one of pass or fail) and a checkedAt ISO-8601 timestamp naming when the per-dependency state was last evaluated by the background evaluator.",
+      "given": "the readiness probe is hit against a running process with a mixed dependency state",
+      "when": "the response body is inspected",
+      "then": "every entry in the checks object has a state field valued pass or fail and a checkedAt field valued as a parseable ISO-8601 timestamp no older than the readiness evaluation budget declared in configuration",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-7103-3",
+      "description": "Dependencies not present in the readiness declaration never appear in the probe response and never affect the aggregate status.",
+      "given": "the process depends on several downstream services but declares only a strict subset as readiness dependencies",
+      "when": "the readiness probe is hit while an undeclared downstream service is offline",
+      "then": "the undeclared service name never appears as a key in the checks object, and the aggregate status field remains pass so long as every declared dependency is passing",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-802-observability-essentials-readiness-probe"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

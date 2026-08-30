@@ -1,0 +1,265 @@
+{
+  "slug": "application-api-rest",
+  "version": "1.0.0",
+  "category": "application",
+  "contributions": [
+    {
+      "id": "application-api-rest-REQ-001",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-001.json"
+    },
+    {
+      "id": "application-api-rest-REQ-002",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-002.json"
+    },
+    {
+      "id": "application-api-rest-REQ-003",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-003.json"
+    },
+    {
+      "id": "application-api-rest-REQ-004",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-004.json"
+    },
+    {
+      "id": "application-api-rest-REQ-005",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-005.json"
+    },
+    {
+      "id": "application-api-rest-REQ-006",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-006.json"
+    },
+    {
+      "id": "application-api-rest-REQ-007",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-007.json"
+    },
+    {
+      "id": "application-api-rest-REQ-008",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-008.json"
+    },
+    {
+      "id": "application-api-rest-REQ-009",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-009.json"
+    },
+    {
+      "id": "application-api-rest-REQ-010",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-010.json"
+    },
+    {
+      "id": "application-api-rest-REQ-011",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-011.json"
+    },
+    {
+      "id": "application-api-rest-REQ-012",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-012.json"
+    },
+    {
+      "id": "application-api-rest-REQ-013",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-013.json"
+    },
+    {
+      "id": "application-api-rest-REQ-014",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-014.json"
+    },
+    {
+      "id": "application-api-rest-REQ-015",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-015.json"
+    },
+    {
+      "id": "application-api-rest-REQ-016",
+      "kind": "req",
+      "path": "requirements/application-api-rest-req-016.json"
+    },
+    {
+      "id": "application-api-rest-US-2101",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2101.json"
+    },
+    {
+      "id": "application-api-rest-US-2102",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2102.json"
+    },
+    {
+      "id": "application-api-rest-US-2103",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2103.json"
+    },
+    {
+      "id": "application-api-rest-US-2104",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2104.json"
+    },
+    {
+      "id": "application-api-rest-US-2105",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2105.json"
+    },
+    {
+      "id": "application-api-rest-US-2106",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2106.json"
+    },
+    {
+      "id": "application-api-rest-US-2107",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2107.json"
+    },
+    {
+      "id": "application-api-rest-US-2108",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2108.json"
+    },
+    {
+      "id": "application-api-rest-US-2109",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2109.json"
+    },
+    {
+      "id": "application-api-rest-US-2110",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2110.json"
+    },
+    {
+      "id": "application-api-rest-US-2111",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2111.json"
+    },
+    {
+      "id": "application-api-rest-US-2112",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2112.json"
+    },
+    {
+      "id": "application-api-rest-US-2113",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2113.json"
+    },
+    {
+      "id": "application-api-rest-US-2114",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2114.json"
+    },
+    {
+      "id": "application-api-rest-US-2115",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2115.json"
+    },
+    {
+      "id": "application-api-rest-US-2116",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2116.json"
+    },
+    {
+      "id": "application-api-rest-US-2117",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2117.json"
+    },
+    {
+      "id": "application-api-rest-US-2118",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2118.json"
+    },
+    {
+      "id": "application-api-rest-US-2119",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2119.json"
+    },
+    {
+      "id": "application-api-rest-US-2120",
+      "kind": "us",
+      "path": "user-stories/application-api-rest-us-2120.json"
+    },
+    {
+      "id": "TAC-301-application-api-rest-request-pipeline",
+      "kind": "tac",
+      "path": "tacs/tac-301-application-api-rest-request-pipeline.json"
+    },
+    {
+      "id": "TAC-302-application-api-rest-auth-middleware",
+      "kind": "tac",
+      "path": "tacs/tac-302-application-api-rest-auth-middleware.json"
+    },
+    {
+      "id": "TAC-303-application-api-rest-contract-surface",
+      "kind": "tac",
+      "path": "tacs/tac-303-application-api-rest-contract-surface.json"
+    },
+    {
+      "id": "TAC-304-application-api-rest-resource-layer",
+      "kind": "tac",
+      "path": "tacs/tac-304-application-api-rest-resource-layer.json"
+    },
+    {
+      "id": "TAC-305-application-api-rest-observability",
+      "kind": "tac",
+      "path": "tacs/tac-305-application-api-rest-observability.json"
+    },
+    {
+      "id": "TAC-306-application-api-rest-operability",
+      "kind": "tac",
+      "path": "tacs/tac-306-application-api-rest-operability.json"
+    },
+    {
+      "id": "ADR-301-application-api-rest-error-envelope",
+      "kind": "adr",
+      "path": "adrs/adr-301-application-api-rest-error-envelope.json",
+      "scope": "global",
+      "topic": "errorEnvelope"
+    },
+    {
+      "id": "ADR-302-application-api-rest-auth-model",
+      "kind": "adr",
+      "path": "adrs/adr-302-application-api-rest-auth-model.json",
+      "scope": "global",
+      "topic": "authModel"
+    },
+    {
+      "id": "ADR-303-application-api-rest-api-versioning",
+      "kind": "adr",
+      "path": "adrs/adr-303-application-api-rest-api-versioning.json",
+      "scope": "global",
+      "topic": "apiVersioning"
+    },
+    {
+      "id": "ADR-304-application-api-rest-logging",
+      "kind": "adr",
+      "path": "adrs/adr-304-application-api-rest-logging.json",
+      "scope": "global",
+      "topic": "logging"
+    },
+    {
+      "id": "ADR-305-application-api-rest-pagination",
+      "kind": "adr",
+      "path": "adrs/adr-305-application-api-rest-pagination.json"
+    },
+    {
+      "id": "ADR-306-application-api-rest-idempotency",
+      "kind": "adr",
+      "path": "adrs/adr-306-application-api-rest-idempotency.json"
+    },
+    {
+      "id": "ADR-307-application-api-rest-openapi-generation",
+      "kind": "adr",
+      "path": "adrs/adr-307-application-api-rest-openapi-generation.json"
+    },
+    {
+      "id": "ADR-308-application-api-rest-rate-limiting",
+      "kind": "adr",
+      "path": "adrs/adr-308-application-api-rest-rate-limiting.json"
+    }
+  ]
+}

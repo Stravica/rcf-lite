@@ -1,0 +1,46 @@
+{
+  "usId": "persistence-data-sqlite-US-5108",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-sqlite-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Backup produces a self-contained artifact without downtime",
+  "asA": "operator who cannot take the application offline to take a backup",
+  "iWant": "a backup runner that snapshots the store to a portable artifact while the application keeps serving requests",
+  "soThat": "recovery is a matter of pointing a compatible build at the artifact, and the backup schedule is not blocked on planning a maintenance window",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5108-1",
+      "description": "The backup runner produces an artifact file at the requested output path while the application continues to serve reads and writes; requests served during the snapshot do not fail because of the snapshot.",
+      "given": "the store is open under normal load and the backup runner is invoked with an output path P",
+      "when": "the backup runner completes and the served-request log for the snapshot window is inspected",
+      "then": "an artifact file exists at P and every request served during the snapshot window reports its normal outcome, with no request marked failed on account of the backup operation",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5108-2",
+      "description": "A fresh process opening the snapshot artifact through the same facade boots to the same schema version as the source store held at snapshot completion, and reads the rows that were committed at or before the snapshot completion timestamp.",
+      "given": "a snapshot artifact at path P produced by AC-5108-1 and a fresh process invoking the open entry point against P",
+      "when": "the fresh process's boot sequence completes and consumer code reads through the facade",
+      "then": "the fresh process's opened event names P as its store identifier, the reported schema version equals the source store's schema version at snapshot completion, and reads of rows committed at or before the snapshot completion timestamp return the committed values",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5108-3",
+      "description": "The backup runner emits a backupCheckpoint event on the store's event log at snapshot completion, carrying the artifact path and the ISO-8601 completion timestamp.",
+      "given": "the backup runner completes an artifact at path P at time T",
+      "when": "the event log is inspected",
+      "then": "the log contains exactly one backupCheckpoint event whose artifact path field equals P and whose completion timestamp field equals T",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-604-persistence-data-sqlite-backup-runner",
+    "TAC-601-persistence-data-sqlite-store"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

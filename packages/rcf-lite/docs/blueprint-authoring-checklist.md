@@ -22,14 +22,14 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
 
 ## 3. Namespacing (grammar-enforced at stamp)
 
-- [ ] Prefix-family ids (REQ, US) either bare (`REQ-001`) or slug-prefixed (`spa-REQ-001`). No suffix-shaped forms.
-- [ ] Suffix-family ids (ADR, TAC) either bare (`ADR-005`) or slug-suffixed (`ADR-005-spa`, `ADR-005-spa-theme`). No prefix-shaped forms.
+- [ ] Prefix-family ids (REQ, US) either bare (`REQ-001`) or slug-prefixed (`application-spa-REQ-001`). No suffix-shaped forms.
+- [ ] Suffix-family ids (ADR, TAC) either bare (`ADR-005`) or slug-suffixed (`ADR-005-spa`, `ADR-005-application-spa-theme`). No prefix-shaped forms.
 - [ ] AC ids anchored to their parent US id (`AC-<us-numeric>-N`). AC ids are not namespaced by grammar; the band allocation is the collision-enforcement mechanism.
 
 ## 4. AC id band
 
 - [ ] Your blueprint owns exactly one contiguous AC id band recorded in `docs/topics.md`.
-- [ ] The band is unclaimed by every currently shipped blueprint (SPA owns 1101-1899, REST owns 2101-2899, next-blueprint placeholder holds 3101-3899).
+- [ ] The band is unclaimed by every currently shipped blueprint (application-spa owns 1101-1899, application-api-rest owns 2101-2899, next-blueprint placeholder holds 3101-3899).
 - [ ] Suffix-family ids (ADR, TAC) sit in a distinct number block per blueprint (SPA uses 2xx, REST uses 3xx, next takes 4xx).
 - [ ] US ids sit toward the LOW end of your band, leaving headroom at the HIGH end for project-side stories that mechanically derive from a REQ id into your band (watchpost run4 lesson).
 
@@ -76,7 +76,7 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
 ## 10. PR hygiene
 
 - [ ] Branch from `main`; PR title names the blueprint and the version (`ship hello-panel blueprint v1.0.0`).
-- [ ] PR description names any deliberate `scope: "global"` topic conflicts you are shipping (as with SPA + REST's `errorEnvelope` and `authModel`) so the reviewer knows the intent.
+- [ ] PR description names any deliberate `scope: "global"` topic conflicts you are shipping (as with application-spa + application-api-rest's `errorEnvelope` and `authModel`) so the reviewer knows the intent.
 - [ ] CI passes; `pnpm test` on the blueprint's directory passes locally.
 
 If every box on this checklist ticks, the blueprint is ready to ship.

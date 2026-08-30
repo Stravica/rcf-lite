@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-805-observability-essentials-notification-outcome-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Every notification attempt records a durable outcome record; suppressed is a first-class outcome; substrate is project-owned",
+  "context": "Notification channels drop messages silently at multiple layers: the transport rejects the send, the provider queues but never delivers, the recipient filters it, the operator suppresses it during an active incident. Without an outcome record per attempt, 'the customer says they never got the email' is unanswerable: was it never sent, sent but dropped, sent but filtered, or sent but suppressed. The record turns that question into a query.",
+  "decision": "Every notification-attempting code path in the project invokes the recordOutcome verb (TAC-804) exactly once before returning. The record shape is { notificationId, channel, recipient, outcome, attemptedAt, errorCode? }. The outcome enum is { delivered, failed, pending, suppressed }; suppressed is a first-class value covering the case where an active incident notice or a policy toggle suppressed the send. The channel enum is declared at boot from configuration. The substrate is project-owned: when composing with the persistence-data-sqlite blueprint, it is a facade verb on the persistence store; when standalone, it is a project-authored durable writer conforming to the substrate interface. The blueprint owns the record shape, the enums, the verb signatures, and the query semantics; it does not own the durable substrate.",
+  "consequences": "Operators can answer 'did the customer get the notification' by querying the sink by recipient and window. Suppressed sends are visible after the fact, which lets the operator audit whether the suppression policy did what the operator intended. A code path that sends a notification without invoking recordOutcome produces the silent-notification defect the blueprint exists to prevent; a project-side grep gate ('every call to the notification transport is preceded by recordOutcome for that notificationId') is the practical enforcement. A composing blueprint that wants richer outcome metadata (correlation ids, retry counts, provider ids) extends the record shape project-side; the four required fields plus errorCode are the floor. When composing with the persistence-data-sqlite blueprint, the sink is one of that blueprint's facade verbs; when composing with the security-auth-magic-link blueprint, notification attempts against security-auth-magic-link-adjacent flows (magic-link sends) route through the same recordOutcome verb.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship the durable substrate as part of this blueprint (a project-embedded SQLite table)",
+      "summary": "The blueprint contributes both the sink verbs and a concrete SQLite-backed substrate implementation.",
+      "reasonNotChosen": "Would create a store contribution the persistence-data-sqlite blueprint already owns. A project composing observability with persistence would end up with two store contracts fighting over the same substrate. Leaving the substrate to the project (with the persistence-data-sqlite blueprint as the natural compose partner) keeps the layering clean."
+    },
+    {
+      "name": "Fold suppressed into failed with an errorCode of 'suppressed'",
+      "summary": "The outcome enum has three values; suppression is a subtype of failure.",
+      "reasonNotChosen": "Suppression is not a failure: the operator's policy actively chose not to send. Conflating them makes an operator audit of 'how many notifications did the policy suppress this hour' harder to query. First-class suppressed keeps the record shape unambiguous."
+    }
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

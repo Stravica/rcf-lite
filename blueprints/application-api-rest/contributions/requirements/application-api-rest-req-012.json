@@ -1,0 +1,18 @@
+{
+  "reqId": "application-api-rest-REQ-012",
+  "prdId": "PRD-001",
+  "title": "Observability baseline: structured logs, RED metrics per endpoint, OpenTelemetry-compatible traces",
+  "description": "The service emits structured JSON logs with a request id on every request-scoped line, trace-id propagation, and a declared log level per auth class. Metrics cover RED (request rate, error rate, duration) per endpoint, counters per auth class, and probe outcomes. Traces are OpenTelemetry-compatible spans per request, with span attributes for auth class, resource id, and response status.",
+  "category": "technical",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "An unobservable service converts every incident into archaeology. Specifying the three signals as requirements, with the logging shape as a scope-global decision (ADR-304-application-api-rest-logging) because a project gets exactly one primary logging shape, means the first production incident is answerable with the telemetry the build already shipped.",
+  "tags": [
+    "blueprint:application-api-rest",
+    "category:12-observability"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

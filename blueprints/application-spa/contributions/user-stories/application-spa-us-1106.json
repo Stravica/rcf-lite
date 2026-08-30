@@ -1,0 +1,63 @@
+{
+  "usId": "application-spa-US-1106",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Semantic token layer with complete dark and light palettes",
+  "asA": "user who prefers a dark interface",
+  "iWant": "a dark theme that is as considered and complete as the light one",
+  "soThat": "choosing dark mode never costs me legibility or polish",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1106-1",
+      "description": "Every colour declaration in component styles resolves to a semantic token (surface, on-surface, primary, on-primary, accent, danger, warning, success, muted, or their declared derivatives); raw hex or rgb values do not appear in component styles.",
+      "given": "the shipped stylesheet output",
+      "when": "colour declarations are audited",
+      "then": "every colour routes through a semantic token",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1106-2",
+      "description": "Every semantic token declared for the light theme has a declared dark value; parity is verified over the token file, and a missing pair fails the build.",
+      "given": "assets/tokens/design-tokens.json as integrated into the project",
+      "when": "the token sets are diffed by key",
+      "then": "the light and dark key sets are identical",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1106-3",
+      "description": "Every token pairing used for text or essential UI meets the contrast thresholds in both themes: 4.5:1 body text, 3:1 large text and non-text UI.",
+      "given": "the declared token pairings",
+      "when": "contrast is computed for both themes",
+      "then": "every pairing meets its threshold in light and in dark",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1106-4",
+      "description": "First visit with no stored preference follows prefers-color-scheme.",
+      "given": "a fresh browser profile with a dark OS preference",
+      "when": "the application first loads",
+      "then": "the dark theme renders without a flash of the wrong theme",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1106-5",
+      "description": "Elevation, borders, and disabled states remain distinguishable in dark mode; dark is not a naive inversion that flattens hierarchy.",
+      "given": "components with elevation and disabled states",
+      "when": "rendered in dark theme",
+      "then": "surface levels and disabled affordances are visually distinct per the token definitions",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-202-application-spa-theme-system"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

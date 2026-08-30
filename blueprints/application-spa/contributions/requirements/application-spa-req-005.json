@@ -1,0 +1,18 @@
+{
+  "reqId": "application-spa-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Theme system: semantic token layer with dark and light parity",
+  "description": "All colour usage routes through a semantic token layer (surface, on-surface, primary, on-primary, accent, danger, warning, success, muted) with a complete palette declared for both light and dark themes. Every token declared for light is declared for dark. The application honours prefers-color-scheme on first visit and offers an explicit toggle whose choice persists for the session and for the signed-in user. Every token pairing used for text or essential UI passes the contrast thresholds in application-spa-REQ-019.",
+  "category": "functional",
+  "domain": "theming",
+  "priority": "must",
+  "rationale": "Theme parity declared as a token-layer invariant is checkable; theme parity declared as intent is not. The shipped token set in assets/tokens realises this requirement.",
+  "tags": [
+    "blueprint:application-spa",
+    "category:05-theme-system"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

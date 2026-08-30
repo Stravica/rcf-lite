@@ -1,0 +1,72 @@
+{
+  "usId": "application-spa-US-1103",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Keyboard navigation, skip-link, and landmark roles",
+  "asA": "keyboard-only user",
+  "iWant": "to reach and operate every part of the application without a pointer",
+  "soThat": "the application is fully usable with the keyboard alone",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1103-1",
+      "description": "A skip-link is the first focusable element on every route, visible on focus, and moves focus to the main content region.",
+      "given": "any declared route",
+      "when": "Tab is pressed once from page load",
+      "then": "the skip-link receives visible focus and activating it moves focus into main",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1103-2",
+      "description": "Tab and Shift-Tab traverse all interactive elements in a logical order matching the visual order.",
+      "given": "any declared route",
+      "when": "the page is traversed with Tab and Shift-Tab",
+      "then": "focus order matches visual order with no unreachable interactive element",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1103-3",
+      "description": "Arrow keys move between items inside menus and menu-like composites; Tab exits the composite rather than walking every item.",
+      "given": "an open navigation menu",
+      "when": "arrow keys and Tab are pressed",
+      "then": "arrows move within the menu and Tab moves focus out of it",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1103-4",
+      "description": "Escape closes the topmost open overlay (menu, modal, drawer, popover) and returns focus to the element that opened it.",
+      "given": "an open overlay",
+      "when": "Escape is pressed",
+      "then": "the overlay closes and focus returns to its trigger",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1103-5",
+      "description": "Shell regions expose landmark roles: banner, navigation, main, and contentinfo; exactly one main per route.",
+      "given": "any declared route",
+      "when": "the accessibility tree is inspected",
+      "then": "the four landmarks are present and main is unique",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1103-6",
+      "description": "No keyboard trap exists anywhere: from any focused element, the user can always move focus away using standard keys.",
+      "given": "any interactive element on any route",
+      "when": "standard focus-movement keys are used",
+      "then": "focus always has an exit path",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-201-application-spa-app-shell"
+  ],
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

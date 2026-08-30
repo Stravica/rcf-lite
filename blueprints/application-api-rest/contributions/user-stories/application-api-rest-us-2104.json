@@ -1,0 +1,72 @@
+{
+  "usId": "application-api-rest-US-2104",
+  "prdId": "PRD-001",
+  "reqId": "application-api-rest-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "OpenAPI 3.1 generated from source and served alongside interactive documentation",
+  "asA": "API consumer evaluating and integrating the service",
+  "iWant": "a machine-readable spec and browsable documentation generated from the code that is actually running",
+  "soThat": "what I read is what the service does, with no hand-maintained copy to drift",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2104-1",
+      "description": "The OpenAPI 3.1 document is produced from implementation source at build time; the repository contains no hand-written parallel spec that requires separate editing.",
+      "given": "the build pipeline",
+      "when": "the build runs",
+      "then": "the OpenAPI document is emitted as a build artefact derived from source annotations or route definitions, and no hand-maintained duplicate exists",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2104-2",
+      "description": "GET /openapi.json returns the generated spec as application/json and GET /openapi.yaml returns the same spec as YAML; the two are semantically identical.",
+      "given": "a running service",
+      "when": "both documentation URLs are fetched",
+      "then": "both return 200 with correct content types and parse to the same specification",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2104-3",
+      "description": "GET /docs serves interactive documentation rendered from the same generated spec, listing every endpoint with its schemas and auth class.",
+      "given": "a running service",
+      "when": "/docs is loaded",
+      "then": "the documentation UI renders from the served spec and every endpoint in the spec is browsable",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2104-4",
+      "description": "The generated document validates as OpenAPI 3.1: an off-the-shelf validator accepts it with zero errors.",
+      "given": "the generated OpenAPI document",
+      "when": "an OpenAPI 3.1 validator runs against it",
+      "then": "validation passes with zero errors",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2104-5",
+      "description": "Every operation in the generated spec carries an operationId, a summary, request and response schemas, and the x-auth-class extension; no operation ships undocumented.",
+      "given": "the generated OpenAPI document",
+      "when": "each operation is inspected",
+      "then": "operationId, summary, schemas, and x-auth-class are present on every operation",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2104-6",
+      "description": "The documentation endpoints (/openapi.json, /openapi.yaml, /docs) respond according to the project's declared exposure policy, and in non-production environments they are always available.",
+      "given": "the declared exposure policy and a non-production deployment",
+      "when": "the documentation URLs are fetched",
+      "then": "responses match the declared policy, and the non-production deployment serves all three",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-303-application-api-rest-contract-surface"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

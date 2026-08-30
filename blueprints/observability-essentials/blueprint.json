@@ -1,0 +1,54 @@
+{
+  "slug": "observability-essentials",
+  "version": "1.0.0",
+  "category": "observability",
+  "contributions": [
+    { "id": "observability-essentials-REQ-001", "kind": "req", "path": "requirements/observability-essentials-req-001.json" },
+    { "id": "observability-essentials-REQ-002", "kind": "req", "path": "requirements/observability-essentials-req-002.json" },
+    { "id": "observability-essentials-REQ-003", "kind": "req", "path": "requirements/observability-essentials-req-003.json" },
+    { "id": "observability-essentials-REQ-004", "kind": "req", "path": "requirements/observability-essentials-req-004.json" },
+    { "id": "observability-essentials-REQ-005", "kind": "req", "path": "requirements/observability-essentials-req-005.json" },
+    { "id": "observability-essentials-REQ-006", "kind": "req", "path": "requirements/observability-essentials-req-006.json" },
+    { "id": "observability-essentials-REQ-007", "kind": "req", "path": "requirements/observability-essentials-req-007.json" },
+    { "id": "observability-essentials-REQ-008", "kind": "req", "path": "requirements/observability-essentials-req-008.json" },
+    { "id": "observability-essentials-REQ-009", "kind": "req", "path": "requirements/observability-essentials-req-009.json" },
+    { "id": "observability-essentials-REQ-010", "kind": "req", "path": "requirements/observability-essentials-req-010.json" },
+    { "id": "observability-essentials-US-7101", "kind": "us", "path": "user-stories/observability-essentials-us-7101.json" },
+    { "id": "observability-essentials-US-7102", "kind": "us", "path": "user-stories/observability-essentials-us-7102.json" },
+    { "id": "observability-essentials-US-7103", "kind": "us", "path": "user-stories/observability-essentials-us-7103.json" },
+    { "id": "observability-essentials-US-7104", "kind": "us", "path": "user-stories/observability-essentials-us-7104.json" },
+    { "id": "observability-essentials-US-7105", "kind": "us", "path": "user-stories/observability-essentials-us-7105.json" },
+    { "id": "observability-essentials-US-7106", "kind": "us", "path": "user-stories/observability-essentials-us-7106.json" },
+    { "id": "observability-essentials-US-7107", "kind": "us", "path": "user-stories/observability-essentials-us-7107.json" },
+    { "id": "observability-essentials-US-7108", "kind": "us", "path": "user-stories/observability-essentials-us-7108.json" },
+    { "id": "observability-essentials-US-7109", "kind": "us", "path": "user-stories/observability-essentials-us-7109.json" },
+    { "id": "observability-essentials-US-7110", "kind": "us", "path": "user-stories/observability-essentials-us-7110.json" },
+    { "id": "TAC-801-observability-essentials-liveness-probe", "kind": "tac", "path": "tacs/tac-801-observability-essentials-liveness-probe.json" },
+    { "id": "TAC-802-observability-essentials-readiness-probe", "kind": "tac", "path": "tacs/tac-802-observability-essentials-readiness-probe.json" },
+    { "id": "TAC-803-observability-essentials-status-page", "kind": "tac", "path": "tacs/tac-803-observability-essentials-status-page.json" },
+    { "id": "TAC-804-observability-essentials-notification-outcome", "kind": "tac", "path": "tacs/tac-804-observability-essentials-notification-outcome.json" },
+    {
+      "id": "ADR-801-observability-essentials-health-probes",
+      "kind": "adr",
+      "path": "adrs/adr-801-observability-essentials-health-probes.json",
+      "scope": "global",
+      "topic": "healthProbes"
+    },
+    {
+      "id": "ADR-802-observability-essentials-readiness-semantics",
+      "kind": "adr",
+      "path": "adrs/adr-802-observability-essentials-readiness-semantics.json",
+      "scope": "global",
+      "topic": "readinessSemantics"
+    },
+    {
+      "id": "ADR-803-observability-essentials-status-page-contract",
+      "kind": "adr",
+      "path": "adrs/adr-803-observability-essentials-status-page-contract.json",
+      "scope": "global",
+      "topic": "statusPageContract"
+    },
+    { "id": "ADR-804-observability-essentials-probe-secrecy", "kind": "adr", "path": "adrs/adr-804-observability-essentials-probe-secrecy.json" },
+    { "id": "ADR-805-observability-essentials-notification-outcome-model", "kind": "adr", "path": "adrs/adr-805-observability-essentials-notification-outcome-model.json" }
+  ]
+}

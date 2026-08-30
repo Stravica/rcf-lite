@@ -1,0 +1,18 @@
+{
+  "reqId": "application-spa-REQ-011",
+  "prdId": "PRD-001",
+  "title": "Iconography: one icon set, consistent construction, semantic aliases",
+  "description": "The application uses a single icon set with consistent stroke width and grid size across every icon. Icons are referenced through semantic aliases (for example icon.danger, icon.close) rather than per-component bespoke artwork. Decorative icons are hidden from assistive technology; meaningful icons carry accessible names.",
+  "category": "nonFunctional",
+  "domain": "iconography",
+  "priority": "must",
+  "rationale": "Mixed icon sets read as unfinished even when every individual icon is fine. One set, aliased semantically, keeps replacement and theming mechanical.",
+  "tags": [
+    "blueprint:application-spa",
+    "category:11-iconography"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

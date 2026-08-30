@@ -1,0 +1,18 @@
+{
+  "reqId": "application-spa-REQ-019",
+  "prdId": "PRD-001",
+  "title": "Accessibility conformance: WCAG 2.2 AA minimum across every route and component",
+  "description": "The application meets WCAG 2.2 AA: contrast at least 4.5:1 for body text and 3:1 for large text and essential non-text UI, a visible focus indicator on every interactive element, pointer target size at least 24x24 CSS pixels, and no keyboard traps anywhere. Conformance applies in both themes and at every declared breakpoint.",
+  "category": "nonFunctional",
+  "domain": "accessibility",
+  "priority": "must",
+  "rationale": "AA is the ratified floor for the blueprint, not a stretch goal. Stating it as a requirement with mechanical ACs is what makes the floor real.",
+  "tags": [
+    "blueprint:application-spa",
+    "quality-bar:accessibility"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T09:00:00Z",
+  "updatedAt": "2026-08-19T09:00:00Z"
+}

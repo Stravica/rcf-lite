@@ -12,12 +12,12 @@
 //
 // - Prefix families (REQ, US, PRD, BS, TAD, TS): the blueprint slug is
 //   attached as a lowercase kebab-slug PREFIX joined by `-` to the
-//   family prefix. `REQ-001` under blueprint `spa` becomes `spa-REQ-001`.
+//   family prefix. `REQ-001` under blueprint `spa` becomes `application-spa-REQ-001`.
 //
 // - Suffix families (ADR, TAC, FBS, CN): the blueprint slug is attached
 //   as a lowercase kebab-slug SUFFIX joined by `-` to the numeric tail.
 //   `ADR-005` under blueprint `spa` becomes `ADR-005-spa`; a longer slug
-//   segment (`spa-theme`) becomes `ADR-005-spa-theme`.
+//   segment (`spa-theme`) becomes `ADR-005-application-spa-theme`.
 //
 // - AC and TC: not namespaced. AC ids are anchored to their parent US
 //   (whose id is prefix-namespaced) and TC ids are anchored to their
@@ -70,7 +70,7 @@ export function namespaceStyleFor(id) {
  *   - Ids that already carry a slug segment are accepted VERBATIM: the
  *     blueprint author's declared contribution list is the truth for
  *     what that blueprint owns. String grammar does not veto (`stampId`
- *     used to refuse `ADR-201-spa-theme` under slug `spa` on the basis
+ *     used to refuse `ADR-201-application-spa-theme` under slug `spa` on the basis
  *     that `spa-theme` != `spa`, which broke every blueprint whose
  *     suffix-family ids carried a semantic tail after the slug).
  *   - AC and TC pass through unchanged (no namespacing family).
@@ -84,7 +84,7 @@ export function namespaceStyleFor(id) {
  * trust surface.
  *
  * @param {string} id - canonical id (either bare `REQ-001` or already
- *                      namespaced `spa-REQ-001` / `ADR-201-spa-theme`)
+ *                      namespaced `application-spa-REQ-001` / `ADR-201-application-spa-theme`)
  * @param {string} slug - blueprint slug (must be well-formed kebab)
  * @returns {{ id: string } | { error: string }}
  */
@@ -119,7 +119,7 @@ export function stampId(id, slug) {
  * scan). `isNamespacedFor` retains exact-slug grammar semantics for
  * external consumers (docs generators, id-audit tooling) but must NOT
  * be used to authorise a write or a delete -- for slug+tail ids like
- * `ADR-201-spa-theme` the parsed suffix is `spa-theme`, which returns
+ * `ADR-201-application-spa-theme` the parsed suffix is `spa-theme`, which returns
  * false for a legitimate `spa`-owned contribution whose author put a
  * semantic tail after the slug. That misread is the exact reason the
  * ownership call-sites were routed off this predicate.

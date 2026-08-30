@@ -1,0 +1,45 @@
+{
+  "usId": "persistence-data-sqlite-US-5104",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-sqlite-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Migrations apply atomically; a crash mid-migration leaves the previous version intact",
+  "asA": "operator whose deploy must never leave the store in a half-migrated state",
+  "iWant": "each migration to run inside a single transaction with the version bookkeeping row committed alongside its statements",
+  "soThat": "an abrupt failure during migration N leaves the store on version N-1, not on some undefined mixture",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5104-1",
+      "description": "The migration runner applies pending migrations in ascending version order; for each migration, the version bookkeeping row and the migration's statements are committed in one transaction.",
+      "given": "a store opened against a file older than the build's max known version with pending migrations v_k+1 through v_n",
+      "when": "the migration runner completes successfully",
+      "then": "the bookkeeping table holds one row for each of v_k+1 through v_n in ascending order, and every domain table shape reflects the union of statements from those migrations",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5104-2",
+      "description": "A migration whose statements or version bookkeeping row fails is rolled back; the on-disk highest bookkeeping row after the failed run is the last successfully committed version.",
+      "given": "a store at version v_k and a pending migration v_k+1 whose statements will throw at execution time",
+      "when": "the migration runner attempts v_k+1 and its transaction fails",
+      "then": "the bookkeeping table's highest row remains v_k, no partial DDL from v_k+1 is present, and the migration runner throws an error naming version v_k+1 and the failing description",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5104-3",
+      "description": "The migration runner does not attempt migrations later than the first failing one; a failure at v_k+1 leaves v_k+2 and beyond unattempted.",
+      "given": "a store at version v_k and pending migrations v_k+1 (failing) and v_k+2 (would succeed)",
+      "when": "the migration runner runs and fails on v_k+1",
+      "then": "no domain-table statements from v_k+2 have been executed and the bookkeeping table holds no row for v_k+2",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-602-persistence-data-sqlite-migration-runner"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

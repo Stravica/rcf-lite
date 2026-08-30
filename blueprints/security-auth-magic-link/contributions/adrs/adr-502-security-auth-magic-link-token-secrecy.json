@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-502-security-auth-magic-link-token-secrecy",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Sign-in tokens and session handles are opaque secrets that never appear in logs or on client-readable surfaces",
+  "context": "Two credential-shaped values exist inside the auth flow: the sign-in token (short-lived, single-use) and the session handle (long-lived, revocable). Both are secrets. Either one leaking into a log line, a metric label, an error message, or a client-visible response body reintroduces the class of failures the flow's design forbids. The project's observability stack cannot be trusted to redact after the fact; the discipline has to be enforced at emit time.",
+  "decision": "Sign-in tokens and session handles are opaque strings the auth layer holds only long enough to complete their operation. The token secret exists as plaintext only as the return of magicLinkManager.mint and the argument to magicLinkManager.consume; the session handle exists as plaintext only inside the cookie value the response sets and the cookie header the next request presents. Neither value appears in any structured-log field, any metric label, any span attribute, any error message body, or any response body other than the Set-Cookie header for the session handle. The magic-link event log fields carry the principal id, the expiresAt timestamp, and the outcome; the session event log fields carry the principal id, the outcome, and where relevant the reason for invalidation. Nothing else.",
+  "consequences": "The events log is safe to ship to third-party observability providers because it holds no credential material; a log store breach is not a session-takeover breach. Providers that need per-session correlation for debugging must derive their correlation id from something other than the handle (a request id is the intended surface). Error messages surfaced to the operator confirm success or failure but never quote credential material back at them.",
+  "alternativesConsidered": [
+    {
+      "name": "Log token and handle values under a redaction rule at the log shipper",
+      "summary": "Emit secrets structured and rely on a downstream redactor.",
+      "reasonNotChosen": "Redactors miss cases (new field, misspelled field, escaped value), and the log is already on disk by the time the redactor runs. Not-emitting-in-the-first-place is the only reliable posture."
+    },
+    {
+      "name": "Emit hashed token and handle values",
+      "summary": "Log a stable hash so investigations can correlate without exposing the plaintext.",
+      "reasonNotChosen": "A hashed handle still lets an attacker with log access confirm 'this handle is the handle for that principal', which is enough for correlation attacks. The request id already provides the correlation surface without leaking anything."
+    }
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

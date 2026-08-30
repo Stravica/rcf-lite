@@ -1,0 +1,45 @@
+{
+  "usId": "security-auth-magic-link-US-3103",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-magic-link-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Session handles are opaque, high-entropy, and carry no client-readable claims",
+  "asA": "operator who does not want their session credential to double as a signed self-describing token",
+  "iWant": "the handle in my browser to be nothing more than a random opaque string that only the server can interpret",
+  "soThat": "revocation is a server delete and there is no signed payload for anyone to forge, decode, or replay past its expiry",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-3103-1",
+      "description": "Issued session handles are base64url of at least 24 bytes of entropy; every issue produces a distinct handle across a batch of one thousand.",
+      "given": "one thousand sessions are issued in a batch",
+      "when": "the handles are inspected",
+      "then": "every handle is a base64url string decoding to at least 24 bytes, and no two handles in the batch are equal",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3103-2",
+      "description": "Handles carry no encoded payload; a handle contains no principal id, no expiry, no scope, and no signed segment separable by dots or other JWT-shaped delimiters.",
+      "given": "any issued session handle",
+      "when": "the string is inspected",
+      "then": "it contains no dot-separated JWT segments, decodes to random bytes, and reveals no substring matching the principal id, expiry timestamp, or scope value stored in the session record",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-3103-3",
+      "description": "No authenticated response body or header on any code path emits a JWT-shaped token, a signed bearer, or any credential envelope beyond the opaque session cookie.",
+      "given": "any authenticated request-response pair on the surface",
+      "when": "response headers and body are scanned for JWT-shaped tokens (three dot-separated base64url segments) or Authorization headers with Bearer prefixes",
+      "then": "no such artefact is present outside of a Set-Cookie header carrying the opaque session handle",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-502-security-auth-magic-link-session-manager"
+  ],
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

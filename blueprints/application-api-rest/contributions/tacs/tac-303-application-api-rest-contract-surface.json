@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-303-application-api-rest-contract-surface",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Contract surface: OpenAPI generation, serving, and drift defence",
+  "purpose": "Owns the generated OpenAPI 3.1 document as a build artefact: generation from source, serving at /openapi.json, /openapi.yaml, and /docs, and the three-axis drift validation that keeps implementation and contract provably identical.",
+  "responsibilities": [
+    "Generate the OpenAPI 3.1 document from route definitions and schema annotations at build time; no hand-written parallel spec exists (application-api-rest-REQ-004).",
+    "Serve the generated document and the interactive documentation UI per the declared exposure policy (AC-2104-6).",
+    "Publish per-operation metadata: operationId, schemas, x-auth-class, rate-limit overrides, idempotency requirements.",
+    "Run contract validation in the build: implemented-but-undeclared, declared-but-unimplemented, and type-level schema mismatch each fail the build (application-api-rest-REQ-004, AC-2105-4).",
+    "Drive spec-derived conformance verification so every declared operation is exercised on the request, error, and auth axes (application-api-rest-REQ-015)."
+  ],
+  "internalStructure": "A generator over the same endpoint metadata the pipeline consumes (one source of truth), a validator comparing route table with generated document, and a conformance driver iterating the document at verification time.",
+  "interfaces": [
+    {
+      "name": "generated spec",
+      "kind": "artefact",
+      "description": "The OpenAPI 3.1 document, emitted at build time and served at runtime; the single contract clients and the conformance driver both consume."
+    },
+    {
+      "name": "documentation endpoints",
+      "kind": "http",
+      "description": "/openapi.json, /openapi.yaml, and /docs, exposure-policy controlled."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Resource layer",
+      "kind": "tac",
+      "tacId": "TAC-304-application-api-rest-resource-layer",
+      "description": "Route definitions and representation schemas are the generator's input."
+    },
+    {
+      "name": "Request pipeline",
+      "kind": "tac",
+      "tacId": "TAC-301-application-api-rest-request-pipeline",
+      "description": "Shares the endpoint metadata so declaration and enforcement cannot diverge."
+    }
+  ],
+  "tradeoffs": "Generation from source means the spec's quality ceiling is the annotation discipline in the code; the drift validator is what turns sloppy annotations into build failures instead of quiet documentation rot. The build-time cost of validation buys the absence of a whole defect class.",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

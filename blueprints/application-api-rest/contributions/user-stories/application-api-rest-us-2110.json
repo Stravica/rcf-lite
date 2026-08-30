@@ -1,0 +1,72 @@
+{
+  "usId": "application-api-rest-US-2110",
+  "prdId": "PRD-001",
+  "reqId": "application-api-rest-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Documented filters, one sort convention, and strict rejection of unknown parameters",
+  "asA": "API consumer querying collections",
+  "iWant": "declared filter names, a single sort syntax, and hard errors on anything the endpoint does not understand",
+  "soThat": "my queries do exactly what they say or fail loudly, never silently returning the wrong result set",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2110-1",
+      "description": "Every collection endpoint's filter parameters are declared in the generated spec with their types and accepted values; no undocumented filter is honoured.",
+      "given": "the generated spec entry for a collection endpoint",
+      "when": "its declared filters are compared with the parameters the implementation honours",
+      "then": "the sets are identical",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2110-2",
+      "description": "Sorting uses ?sort=field,-field2: comma-separated keys, leading minus for descending, applied in declared key order.",
+      "given": "a collection with sortable fields",
+      "when": "?sort=fieldA,-fieldB is requested",
+      "then": "results order by fieldA ascending then fieldB descending",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2110-3",
+      "description": "A request carrying an unknown query parameter is rejected with 400 and a problem-details body naming the unknown parameter, on every endpoint.",
+      "given": "any endpoint",
+      "when": "a request carries an undeclared query parameter",
+      "then": "the service responds 400 with the declared error envelope naming the parameter, and no handler logic runs",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2110-4",
+      "description": "A sort key that is not declared sortable for the resource is rejected with 400 and a problem-details body naming the key and the declared sortable set.",
+      "given": "a collection endpoint",
+      "when": "?sort= names an undeclared key",
+      "then": "the service responds 400 with the error envelope naming the key and the sortable fields",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2110-5",
+      "description": "A filter value violating the parameter's declared type or format is rejected with 400 and a problem-details body naming the parameter and expected type, never coerced silently.",
+      "given": "a declared filter of a specific type",
+      "when": "a value of the wrong type is submitted",
+      "then": "the service responds 400 with the error envelope naming parameter and expected type",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2110-6",
+      "description": "Filters, sorting, and pagination compose: a filtered, sorted collection paginates correctly with the filter and sort preserved across cursor navigation.",
+      "given": "a filtered and sorted multi-page query",
+      "when": "the next cursor is followed",
+      "then": "subsequent pages honour the same filter and sort without restating them incorrectly or losing them",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-304-application-api-rest-resource-layer"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

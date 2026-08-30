@@ -1,0 +1,18 @@
+{
+  "reqId": "application-api-rest-REQ-004",
+  "prdId": "PRD-001",
+  "title": "OpenAPI auto-generation: spec generated from source at build time, served with interactive documentation",
+  "description": "An OpenAPI 3.1 specification is generated from the implementation source at build time, never hand-written and maintained in parallel. The generated spec is served at /openapi.json and /openapi.yaml, and interactive documentation (Swagger UI or an equivalent renderer over the same spec) is served at /docs. The generated spec and the implementation cannot drift: every declared endpoint has an OpenAPI entry, every OpenAPI entry has an implementation, and response schemas match at the type level.",
+  "category": "technical",
+  "domain": "api-documentation",
+  "priority": "must",
+  "rationale": "A hand-written spec is a second implementation of the API that decays the moment someone forgets to edit it. Generating from source makes the spec a build artefact with the same freshness guarantee as the binary, and the drift criteria turn contract accuracy into something the build verifies rather than something a reviewer hopes for.",
+  "tags": [
+    "blueprint:application-api-rest",
+    "category:04-openapi-generation"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

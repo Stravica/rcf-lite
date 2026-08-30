@@ -1,0 +1,72 @@
+{
+  "usId": "application-api-rest-US-2111",
+  "prdId": "PRD-001",
+  "reqId": "application-api-rest-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Problem details everywhere: one error shape on every failure path",
+  "asA": "API consumer building error handling once",
+  "iWant": "every error response, planned or unplanned, to carry the same RFC 7807 envelope",
+  "soThat": "my client renders and reacts to any failure from structure, never from guessing at ad-hoc bodies",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2111-1",
+      "description": "Every 4xx and 5xx response body is an RFC 7807 problem-details object carrying type, title, status, detail, and instance, served as application/problem+json.",
+      "given": "any error response from any endpoint",
+      "when": "the body and content type are inspected",
+      "then": "the body carries the five base fields and the content type is application/problem+json",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2111-2",
+      "description": "Service-specific extension fields on the envelope are declared in the generated spec; no error response carries undeclared extensions.",
+      "given": "the generated spec's problem-details schema and observed error responses",
+      "when": "extension fields are compared against the declaration",
+      "then": "every observed extension is declared",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2111-3",
+      "description": "The status field inside the envelope always equals the HTTP status code of the response carrying it.",
+      "given": "any error response",
+      "when": "the body's status field and the HTTP status line are compared",
+      "then": "they are equal",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2111-4",
+      "description": "4xx responses carry actionable detail (what was wrong with the request and how to correct it); 5xx responses carry the instance id for support without leaking stack traces, queries, or internal paths.",
+      "given": "a 4xx and a 5xx response",
+      "when": "their detail fields are read",
+      "then": "the 4xx names the client-side correction; the 5xx exposes the correlation instance and no internals",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2111-5",
+      "description": "Unhandled exceptions are converted to a 500 problem-details response by a final error middleware; no path returns a framework default error page or bare stack output.",
+      "given": "a handler that throws an unexpected exception",
+      "when": "the request is submitted",
+      "then": "the response is a 500 with the declared envelope, not a framework default body",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2111-6",
+      "description": "Errors raised before routing completes (unknown path, method not allowed, oversized body, unparseable JSON) also carry the envelope, proving it holds outside handler code.",
+      "given": "requests triggering pre-routing failures: unknown path, wrong method, oversized body, malformed JSON",
+      "when": "each response is inspected",
+      "then": "each carries the declared problem-details envelope with the appropriate 4xx status",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-301-application-api-rest-request-pipeline"
+  ],
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

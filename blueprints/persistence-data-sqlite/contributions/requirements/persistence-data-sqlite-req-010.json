@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-sqlite-REQ-010",
+  "prdId": "PRD-001",
+  "title": "The store event log holds no secret material",
+  "description": "No field on any store event (opened, migrated, backupCheckpoint, closed) carries user data, credential material, session handles, token secrets, private keys, or the values of any column marked as secret in the domain schema. Event fields are limited to store metadata: the store path or identifier, ISO-8601 timestamps, schema version numbers, migration version numbers, migration descriptions, applied-version arrays, backup artifact paths.",
+  "category": "security",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "A store event log is safe to ship to a third-party observability provider only if it holds no secret material. Store events describe the store's own lifecycle, not the domain data it holds; conflating the two produces a log stream that becomes a session-takeover breach the moment it leaks. The discipline has to be enforced at emit time; downstream redaction misses cases.",
+  "tags": [
+    "blueprint:persistence-data-sqlite",
+    "category:10-log-secrecy"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-08-21T00:00:00Z"
+}

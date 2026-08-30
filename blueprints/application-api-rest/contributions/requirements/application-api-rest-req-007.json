@@ -1,0 +1,18 @@
+{
+  "reqId": "application-api-rest-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Pagination: cursor-based by default with a bounded page size and a navigable envelope",
+  "description": "Collection endpoints paginate with cursors by default (?cursor=...&limit=...). The response envelope carries next and prev cursors, the service enforces an explicit maximum limit, and total counts are optional and off by default because computing them is expensive. Cursors are opaque to clients and remain stable across concurrent writes to the collection.",
+  "category": "functional",
+  "domain": "pagination",
+  "priority": "must",
+  "rationale": "Offset pagination degrades quadratically on deep pages and skips or duplicates rows under concurrent writes. Cursor pagination as the declared default, with the envelope and limits specified up front, prevents each collection growing its own incompatible dialect.",
+  "tags": [
+    "blueprint:application-api-rest",
+    "category:07-pagination"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-19T10:00:00Z",
+  "updatedAt": "2026-08-19T10:00:00Z"
+}

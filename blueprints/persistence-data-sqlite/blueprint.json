@@ -1,0 +1,50 @@
+{
+  "slug": "persistence-data-sqlite",
+  "version": "1.0.0",
+  "category": "persistence",
+  "contributions": [
+    { "id": "persistence-data-sqlite-REQ-001", "kind": "req", "path": "requirements/persistence-data-sqlite-req-001.json" },
+    { "id": "persistence-data-sqlite-REQ-002", "kind": "req", "path": "requirements/persistence-data-sqlite-req-002.json" },
+    { "id": "persistence-data-sqlite-REQ-003", "kind": "req", "path": "requirements/persistence-data-sqlite-req-003.json" },
+    { "id": "persistence-data-sqlite-REQ-004", "kind": "req", "path": "requirements/persistence-data-sqlite-req-004.json" },
+    { "id": "persistence-data-sqlite-REQ-005", "kind": "req", "path": "requirements/persistence-data-sqlite-req-005.json" },
+    { "id": "persistence-data-sqlite-REQ-006", "kind": "req", "path": "requirements/persistence-data-sqlite-req-006.json" },
+    { "id": "persistence-data-sqlite-REQ-007", "kind": "req", "path": "requirements/persistence-data-sqlite-req-007.json" },
+    { "id": "persistence-data-sqlite-REQ-008", "kind": "req", "path": "requirements/persistence-data-sqlite-req-008.json" },
+    { "id": "persistence-data-sqlite-REQ-009", "kind": "req", "path": "requirements/persistence-data-sqlite-req-009.json" },
+    { "id": "persistence-data-sqlite-REQ-010", "kind": "req", "path": "requirements/persistence-data-sqlite-req-010.json" },
+    { "id": "persistence-data-sqlite-REQ-011", "kind": "req", "path": "requirements/persistence-data-sqlite-req-011.json" },
+    { "id": "persistence-data-sqlite-US-5101", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5101.json" },
+    { "id": "persistence-data-sqlite-US-5102", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5102.json" },
+    { "id": "persistence-data-sqlite-US-5103", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5103.json" },
+    { "id": "persistence-data-sqlite-US-5104", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5104.json" },
+    { "id": "persistence-data-sqlite-US-5105", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5105.json" },
+    { "id": "persistence-data-sqlite-US-5106", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5106.json" },
+    { "id": "persistence-data-sqlite-US-5107", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5107.json" },
+    { "id": "persistence-data-sqlite-US-5108", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5108.json" },
+    { "id": "persistence-data-sqlite-US-5109", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5109.json" },
+    { "id": "persistence-data-sqlite-US-5110", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5110.json" },
+    { "id": "persistence-data-sqlite-US-5111", "kind": "us", "path": "user-stories/persistence-data-sqlite-us-5111.json" },
+    { "id": "TAC-601-persistence-data-sqlite-store", "kind": "tac", "path": "tacs/tac-601-persistence-data-sqlite-store.json" },
+    { "id": "TAC-602-persistence-data-sqlite-migration-runner", "kind": "tac", "path": "tacs/tac-602-persistence-data-sqlite-migration-runner.json" },
+    { "id": "TAC-603-persistence-data-sqlite-migration-catalog", "kind": "tac", "path": "tacs/tac-603-persistence-data-sqlite-migration-catalog.json" },
+    { "id": "TAC-604-persistence-data-sqlite-backup-runner", "kind": "tac", "path": "tacs/tac-604-persistence-data-sqlite-backup-runner.json" },
+    {
+      "id": "ADR-601-persistence-data-sqlite-store-model",
+      "kind": "adr",
+      "path": "adrs/adr-601-persistence-data-sqlite-store-model.json",
+      "scope": "global",
+      "topic": "persistenceStore"
+    },
+    {
+      "id": "ADR-602-persistence-data-sqlite-migration-discipline",
+      "kind": "adr",
+      "path": "adrs/adr-602-persistence-data-sqlite-migration-discipline.json",
+      "scope": "global",
+      "topic": "migrationDiscipline"
+    },
+    { "id": "ADR-603-persistence-data-sqlite-event-secrecy", "kind": "adr", "path": "adrs/adr-603-persistence-data-sqlite-event-secrecy.json" },
+    { "id": "ADR-604-persistence-data-sqlite-store-boundary", "kind": "adr", "path": "adrs/adr-604-persistence-data-sqlite-store-boundary.json" },
+    { "id": "ADR-605-persistence-data-sqlite-backup-model", "kind": "adr", "path": "adrs/adr-605-persistence-data-sqlite-backup-model.json" }
+  ]
+}
