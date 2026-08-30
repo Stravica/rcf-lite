@@ -1,0 +1,51 @@
+{
+  "tacId": "TAC-1503-observability-probe-endpoints-listener-topology",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Probe listener topology",
+  "purpose": "Binds the profile's HTTP probe handlers to the correct listener. When `probeListener.separatePort` is unset, the handlers bind to the user-traffic listener alongside application routes (fused topology). When `probeListener.separatePort: <N>` is set, the handlers bind to a dedicated HTTP listener on port N that serves only the profile's probe path set (separate-port topology). The topology component also produces the exact-match auth-exempt list the project auth middleware installer consumes so the exemption stays scoped to the resolved probe path set on the listener the handlers actually bound to.",
+  "responsibilities": [
+    "Read the resolved profile's `probeListener.separatePort` value; when unset, register the handler-set handlers at their resolved paths on the user-traffic listener (AC-14104-3).",
+    "When `probeListener.separatePort: <N>` is set, open a dedicated HTTP listener on port N and register the handler-set handlers at their resolved paths on that listener; do not register the same handlers on the user-traffic listener (AC-14104-1).",
+    "On the separate-port listener, refuse any registration beyond the profile's resolved probe path set; every other request on that listener returns not-found (AC-14104-2).",
+    "Emit the auth-exempt list for the topology in effect: on fused topology, the resolved probe path set with exact-match rules on the user-traffic listener; on separate-port topology, the resolved probe path set with exact-match rules on the separate probe listener and the invariant that no auth middleware runs on the separate listener (AC-14107-1, AC-14107-2).",
+    "Refuse an exempt-list entry that contains a wildcard character or a trailing slash implying a prefix with `PROBE_EXEMPT_MATCHER_INVALID` (AC-14107-3)."
+  ],
+  "internalStructure": "One module exporting a `bindListenerTopology({ profile, handlerSet, userTrafficListener, listenerFactory, exemptListInstaller })` function. When `profile.probeListener.separatePort` is set, the function calls `listenerFactory(port)` to obtain a new listener and registers handler-set entries on it; otherwise the function registers on the injected `userTrafficListener`. The function then hands the resulting exempt-path set to `exemptListInstaller`, which the project auth middleware installer consumes. Returns a `{ bound: [{ listener, path, handler }], exemptSet }` record.",
+  "interfaces": [
+    {
+      "name": "bindListenerTopology",
+      "kind": "factory",
+      "description": "bindListenerTopology({ profile, handlerSet, userTrafficListener, listenerFactory, exemptListInstaller }) -> { bound, exemptSet }. Called once at boot after TAC-1502 has built the handler set. The `userTrafficListener` is the project's HTTP router or server object; `listenerFactory(port)` is a project-supplied constructor for a fresh listener on the given port; `exemptListInstaller` is the project's auth-middleware exempt-list installer."
+    },
+    {
+      "name": "listenerFactory",
+      "kind": "read-api",
+      "description": "Project-supplied `(port: number) -> Listener` factory. Called only when the separate-port topology is in effect. Returns a new HTTP listener bound to the given port with no middleware installed."
+    },
+    {
+      "name": "exemptListInstaller",
+      "kind": "write-api",
+      "description": "Project-supplied installer that receives a `{ listener, paths: string[], matcher: 'exact' }` record and registers the exempt set with the auth middleware on the named listener. Refuses on the topology component's side if the paths carry a wildcard or prefix marker."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "profile resolver",
+      "kind": "tac",
+      "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
+      "description": "Reads the frozen profile object for its resolved probe path set and separate-port declaration."
+    },
+    {
+      "name": "handler set",
+      "kind": "tac",
+      "tacId": "TAC-1502-observability-probe-endpoints-handler-set",
+      "description": "Binds the handlers this component built to the resolved listener."
+    }
+  ],
+  "tradeoffs": "The topology component holds no opinion on which listener library the project uses; it delegates listener construction to a project-supplied factory and delegates auth-middleware wiring to a project-supplied installer. That keeps the blueprint portable across Node HTTP servers, framework routers (Express, Hono, Fastify), and Worker-style edge platforms; it costs the project two small wiring functions per apply. The alternative (a blueprint-owned listener implementation) would double as a framework choice and takes on the maintenance load without the portability payoff.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

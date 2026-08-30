@@ -1,0 +1,46 @@
+{
+  "usId": "observability-probe-endpoints-US-14108",
+  "prdId": "PRD-001",
+  "reqId": "observability-probe-endpoints-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Switching the target integration is a configuration change that takes effect on next boot",
+  "asA": "operator moving a service from one supervising system to another",
+  "iWant": "the shift to be a change to the profile name and its options and nothing else",
+  "soThat": "the migration cost is bounded and the source tree stays free of per-supervisor conditionals",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14108-1",
+      "description": "A running service on the `kubernetes` profile, reconfigured to `probeInterface.profile: loadBalancer` and restarted, binds a single `/health` handler with the `singleHealthSignal` semantic model without changes to the source tree.",
+      "given": "a process booted on `kubernetes` default, and the same source tree with only `probeInterface.profile` changed to `loadBalancer` in configuration",
+      "when": "the process restarts on the new configuration and the topology binds",
+      "then": "a GET against `/health` returns 200 or 503; no probe handler is bound at `/live` or `/ready`; a source-tree diff between the two boots contains no non-configuration changes",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14108-2",
+      "description": "A profile switch that requires a new custom profile is authored against the profile contract and filed under `profiles/custom/<name>` in the project; the switch is then a configuration change to `probeInterface.profile: custom:<name>`.",
+      "given": "a project that authored a `custom:tcpOnly` profile against the profile contract at `profiles/custom/tcpOnly.js` (or equivalent)",
+      "when": "the operator sets `probeInterface.profile: custom:tcpOnly` in configuration and the process restarts",
+      "then": "the resolver loads the custom profile, the topology binds the profile's declared surface, and no additional source-tree change is required to move between the shipped set and the custom profile",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14108-3",
+      "description": "The profile-resolver call site is a single import point in the process boot path; the source-tree scan finds no per-profile conditional outside the profile modules and the resolver itself.",
+      "given": "the project's boot-path source tree",
+      "when": "a scan searches for `probeInterface.profile` usage and per-profile branching (e.g., `if (profile === 'kubernetes')`) outside the `profiles/` directory and the profile-resolver module",
+      "then": "the scan finds exactly one usage of `probeInterface.profile` (the resolver invocation) and zero per-profile conditionals in the rest of the boot path",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1501-observability-probe-endpoints-profile-resolver",
+    "TAC-1502-observability-probe-endpoints-handler-set"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

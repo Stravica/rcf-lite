@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-probe-endpoints-REQ-005",
+  "prdId": "PRD-001",
+  "title": "The response contract exposed to the external supervisor matches only what that supervisor consumes",
+  "description": "Every profile's response is exactly what the supervising system reads and nothing more. HTTP-transport profiles that consume status code only (load balancer, uptime monitor, reverse proxy) return an empty response body with the resolved status code. HTTP-transport profiles that consume a body (Kubernetes HTTPGet, where the kubelet ignores body but operators inspect it during triage) return a minimal JSON body of the shape `{ \"status\": \"pass\" }` or `{ \"status\": \"fail\" }` with no additional fields. TCP-transport profiles complete the SYN-ACK handshake on pass and refuse the connection on fail. Exec-transport profiles exit with code 0 on pass and a non-zero code on fail. Supervisor-notify profiles emit exactly the notify calls the supervisor expects (for systemd: `READY=1` at startup, `WATCHDOG=1` on the configured watchdog cadence).",
+  "category": "nonFunctional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "Exposing more than what the supervisor consumes leaks operational surface (dependency names, per-check timings, internal codes) to whichever party can reach the probe endpoint. Load balancers and uptime monitors reach the probe from the public network; a body they never read is a body only the wrong party reads. Kubernetes probes reach from the pod network but the answer is a supervision signal, not a debug surface; richer operator triage sits behind an authenticated dashboard or a separate profile, not on the probe.",
+  "tags": [
+    "blueprint:observability-probe-endpoints",
+    "category:05-response-minimalism"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

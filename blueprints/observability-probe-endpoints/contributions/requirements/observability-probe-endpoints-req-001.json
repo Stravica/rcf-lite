@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-probe-endpoints-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The health probe interface is derived from an operator-declared target integration",
+  "description": "The application exposes health probes shaped for the external system that will probe it. The operator declares a target integration by name (`kubernetes`, `loadBalancer`, `uptimeMonitor`, `systemd`, `dockerHealthcheck`, `reverseProxy`, or a project-authored `custom` profile). The profile fixes the probe transport (HTTP GET, TCP socket accept, exec command, or a supervisor notify call), the probe path or command surface, the response contract, and the port topology defaults. A probe surface not backed by a declared profile is refused at boot with a stable-coded error naming the missing declaration. Nothing in the process wires a probe on its own initiative; the profile drives every binding.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "External supervisors set the terms of the probe contract, not the service under supervision. A Kubernetes kubelet, an application load balancer, an uptime monitor, and a systemd unit each have their own conventions for what a probe looks like and what the answer means; a service that hard-codes one shape is either wrong for the rest or wraps every deployment in an adapter shim. The elicitation surface names the target integration once, and every wiring choice falls out of that one declaration.",
+  "tags": [
+    "blueprint:observability-probe-endpoints",
+    "category:01-elicitation"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
