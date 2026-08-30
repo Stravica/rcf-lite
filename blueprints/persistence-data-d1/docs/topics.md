@@ -32,7 +32,7 @@ AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by t
 | security-auth-clerk | 9101-9899 | 10xx (1001-1099) | shipped v1.0.0 | `authModel` |
 | security-auth-oauth2 | 10101-10899 | 11xx (1101-1199) | reserved, round-2 sibling | expected `authModel` |
 | security-auth-keycloak | 11101-11899 | 12xx (1201-1299) | reserved, round-2 sibling | expected `authModel` |
-| deploy-cloudflare-workers | 12101-12899 | 13xx (1301-1399) | reserved, round-2 sibling PR | expected `deployTarget` |
+| deploy-cloudflare-workers | 12101-12899 | 13xx (1301-1399) | reserved, round-2 sibling PR | expected `deploymentTarget` |
 | persistence-data-d1 (this package) | 13101-13899 | 14xx (1401-1499) | shipped v1.0.0 (US 13101-13107, ADR-1401 to ADR-1405, TAC-1401 to TAC-1404) | `persistenceStore`, `migrationDiscipline` |
 | observability-probe-endpoints | 14101-14899 | 15xx (1501-1599) | reserved, round-2 | tbd |
 
@@ -45,7 +45,7 @@ ADR and TAC suffixes for this blueprint use the 1401-1499 block, continuing the 
 - Reuse `persistenceStore` exactly as spelled here (matching persistence-data-sqlite's contribution on the same topic string) when your blueprint holds an opinion on the project's primary durable store engine; contribute your own scope:global ADR on that string and let composition surface the pairing. A vendor-committed persistence blueprint on a different engine (Postgres-hosted, KV-oriented, event-sourced) will conflict here by design; the operator resolves at apply.
 - Reuse `migrationDiscipline` exactly as spelled here (matching persistence-data-sqlite's contribution on the same topic string) when your blueprint holds an opinion on schema evolution. A blueprint that contributes a boot-time application-side runner discipline (persistence-data-sqlite), an out-of-band vendor-CLI discipline (this blueprint), or an event-sourced projection discipline (future) conflicts here by design.
 - Event-secrecy (ADR-1403), module boundary (ADR-1404), and recovery model (ADR-1405) are scope-local. A composing blueprint that holds an opinion on any of them authors its own project-level ADR; none of them are minted as globals because the space of legitimate variations is smaller than the space of legitimate `persistenceStore` or `migrationDiscipline` variations.
-- Global topics that plausibly belong to a future blueprint and are NOT claimed by any shipped blueprint: `messageSerialisation` and `deliverySemantics` (a message-consumer blueprint's natural globals), `caching` (unclaimed by every shipped blueprint), `metricsExport` and `tracingProtocol` (natural globals for a metrics or tracing blueprint), `deployTarget` (expected to land with the round-2 `deploy-cloudflare-workers` blueprint). Define any of these in your own package's topics doc, in this file's format, and consider whether the band-registry table above needs your slug added.
+- Global topics that plausibly belong to a future blueprint and are NOT claimed by any shipped blueprint: `messageSerialisation` and `deliverySemantics` (a message-consumer blueprint's natural globals), `caching` (unclaimed by every shipped blueprint), `metricsExport` and `tracingProtocol` (natural globals for a metrics or tracing blueprint), `deploymentTarget` (expected to land with the round-2 `deploy-cloudflare-workers` blueprint). Define any of these in your own package's topics doc, in this file's format, and consider whether the band-registry table above needs your slug added.
 
 ## Deliberate-conflict statement
 
