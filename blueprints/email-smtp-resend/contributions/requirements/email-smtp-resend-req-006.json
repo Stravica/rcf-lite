@@ -1,0 +1,18 @@
+{
+  "reqId": "email-smtp-resend-REQ-006",
+  "prdId": "PRD-001",
+  "title": "The webhook verifier refuses replayed events by rejecting stale timestamps and refusing already-seen delivery ids inside a bounded window",
+  "description": "The verifier reads the webhook timestamp header and refuses any request whose timestamp is older than the configured tolerance window (default 300 seconds, project-configurable via a numeric configuration reference); a refused request returns HTTP 401 with an empty body and emits a `webhookReplayStale` audit event. On a verification-passing request, the verifier extracts the provider's delivery event id from the payload and consults a bounded event-id store (a stateful component the project realises: an in-memory LRU sized to the tolerance window's expected event volume, or a persisted store with a matching TTL); an event id that already appears in the store is refused with HTTP 200 (idempotent replay acknowledged, no downstream side effect), and emits a `webhookReplayDuplicate` audit event. New event ids are recorded in the store with an expiry equal to the tolerance window.",
+  "category": "functional",
+  "domain": "email",
+  "priority": "must",
+  "rationale": "Signature verification alone does not defend against replay: a captured signed request can be replayed inside its signature's validity window. A timestamp-tolerance check bounds the window to what fresh delivery requires; a delivery-id memory refuses a replay inside that window. The 200-on-duplicate posture matches provider expectations that a webhook consumer be idempotent under retry; the audit event tells the operator the duplicate arrived and was handled.",
+  "tags": [
+    "blueprint:email-smtp-resend",
+    "category:06-replay-defence"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

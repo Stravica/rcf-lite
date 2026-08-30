@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-clerk-US-9111",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Clerk-reachable acceptance criteria are marked accountBound and skip with a stable-coded reason when Clerk is unreachable",
+  "asA": "operator running the project's runtime-verify suite in a CI environment without Clerk reachability",
+  "iWant": "the acceptance criteria that depend on a live Clerk development instance to skip with a documented reason rather than pass on a fake",
+  "soThat": "the ship gate does not falsely record identity behaviour as verified when the verification path never actually ran",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9111-1",
+      "description": "Every test case bound to an AC whose runtime observability requires a live Clerk session (AC-9101-1, AC-9101-2, AC-9101-3, AC-9103-1, AC-9103-2, AC-9103-3, AC-9107-1, AC-9107-2, AC-9109-2) carries an `accountBound` marker on the test harness.",
+      "given": "the project's runtime-verify test harness at manifest-generation time",
+      "when": "the harness enumerates test cases and their bound ACs",
+      "then": "every TC bound to one of the enumerated ACs above has the `accountBound` marker set; TCs bound to other ACs (source-tree scans, in-process principal-shape assertions, adapter unit-shaped checks) do not carry the marker",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9111-2",
+      "description": "A runtime-verify run against a target without Clerk reachability records the accountBound TCs as skipped with the stable-coded reason `AUTH_CLERK_UNREACHABLE`, not as passed.",
+      "given": "a runtime-verify run configured with no reachable Clerk publishable/secret keys or with Clerk's session-verification surface unreachable",
+      "when": "the run enumerates accountBound TCs",
+      "then": "every accountBound TC records outcome `skipped` with reason field equal to `AUTH_CLERK_UNREACHABLE`; the ship gate report flags the skipped set; the run's overall status reflects the skip rather than a pass",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1003-security-auth-clerk-session-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

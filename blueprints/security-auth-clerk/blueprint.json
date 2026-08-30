@@ -1,0 +1,42 @@
+{
+  "slug": "security-auth-clerk",
+  "version": "1.0.0",
+  "category": "security",
+  "contributions": [
+    { "id": "security-auth-clerk-REQ-001", "kind": "req", "path": "requirements/security-auth-clerk-req-001.json" },
+    { "id": "security-auth-clerk-REQ-002", "kind": "req", "path": "requirements/security-auth-clerk-req-002.json" },
+    { "id": "security-auth-clerk-REQ-003", "kind": "req", "path": "requirements/security-auth-clerk-req-003.json" },
+    { "id": "security-auth-clerk-REQ-004", "kind": "req", "path": "requirements/security-auth-clerk-req-004.json" },
+    { "id": "security-auth-clerk-REQ-005", "kind": "req", "path": "requirements/security-auth-clerk-req-005.json" },
+    { "id": "security-auth-clerk-REQ-006", "kind": "req", "path": "requirements/security-auth-clerk-req-006.json" },
+    { "id": "security-auth-clerk-REQ-007", "kind": "req", "path": "requirements/security-auth-clerk-req-007.json" },
+    { "id": "security-auth-clerk-REQ-008", "kind": "req", "path": "requirements/security-auth-clerk-req-008.json" },
+    { "id": "security-auth-clerk-REQ-009", "kind": "req", "path": "requirements/security-auth-clerk-req-009.json" },
+    { "id": "security-auth-clerk-US-9101", "kind": "us", "path": "user-stories/security-auth-clerk-us-9101.json" },
+    { "id": "security-auth-clerk-US-9102", "kind": "us", "path": "user-stories/security-auth-clerk-us-9102.json" },
+    { "id": "security-auth-clerk-US-9103", "kind": "us", "path": "user-stories/security-auth-clerk-us-9103.json" },
+    { "id": "security-auth-clerk-US-9104", "kind": "us", "path": "user-stories/security-auth-clerk-us-9104.json" },
+    { "id": "security-auth-clerk-US-9105", "kind": "us", "path": "user-stories/security-auth-clerk-us-9105.json" },
+    { "id": "security-auth-clerk-US-9106", "kind": "us", "path": "user-stories/security-auth-clerk-us-9106.json" },
+    { "id": "security-auth-clerk-US-9107", "kind": "us", "path": "user-stories/security-auth-clerk-us-9107.json" },
+    { "id": "security-auth-clerk-US-9108", "kind": "us", "path": "user-stories/security-auth-clerk-us-9108.json" },
+    { "id": "security-auth-clerk-US-9109", "kind": "us", "path": "user-stories/security-auth-clerk-us-9109.json" },
+    { "id": "security-auth-clerk-US-9110", "kind": "us", "path": "user-stories/security-auth-clerk-us-9110.json" },
+    { "id": "security-auth-clerk-US-9111", "kind": "us", "path": "user-stories/security-auth-clerk-us-9111.json" },
+    { "id": "TAC-1001-security-auth-clerk-middleware", "kind": "tac", "path": "tacs/tac-1001-security-auth-clerk-middleware.json" },
+    { "id": "TAC-1002-security-auth-clerk-authorisation-adapter", "kind": "tac", "path": "tacs/tac-1002-security-auth-clerk-authorisation-adapter.json" },
+    { "id": "TAC-1003-security-auth-clerk-session-verifier", "kind": "tac", "path": "tacs/tac-1003-security-auth-clerk-session-verifier.json" },
+    { "id": "TAC-1004-security-auth-clerk-claims-mapper", "kind": "tac", "path": "tacs/tac-1004-security-auth-clerk-claims-mapper.json" },
+    {
+      "id": "ADR-1001-security-auth-clerk-auth-model",
+      "kind": "adr",
+      "path": "adrs/adr-1001-security-auth-clerk-auth-model.json",
+      "scope": "global",
+      "topic": "authModel"
+    },
+    { "id": "ADR-1002-security-auth-clerk-middleware-boundary", "kind": "adr", "path": "adrs/adr-1002-security-auth-clerk-middleware-boundary.json" },
+    { "id": "ADR-1003-security-auth-clerk-authorisation-adapter-contract", "kind": "adr", "path": "adrs/adr-1003-security-auth-clerk-authorisation-adapter-contract.json" },
+    { "id": "ADR-1004-security-auth-clerk-claims-mapping-discipline", "kind": "adr", "path": "adrs/adr-1004-security-auth-clerk-claims-mapping-discipline.json" },
+    { "id": "ADR-1005-security-auth-clerk-session-lifecycle", "kind": "adr", "path": "adrs/adr-1005-security-auth-clerk-session-lifecycle.json" }
+  ]
+}

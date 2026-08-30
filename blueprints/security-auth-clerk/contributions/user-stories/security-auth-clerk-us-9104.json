@@ -1,0 +1,46 @@
+{
+  "usId": "security-auth-clerk-US-9104",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The authorisation adapter maps Clerk roles onto project verbs",
+  "asA": "handler that needs to know whether the caller is allowed to perform an operation",
+  "iWant": "to call `can(principal, verb)` and receive a boolean decision computed from a project-authored mapping table",
+  "soThat": "my handler's authorisation check is legible in project vocabulary and swap-safe if the identity vendor changes",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9104-1",
+      "description": "The authorisation adapter's `can(principal, verb)` returns `true` when the mapping table grants the verb to at least one role the principal holds, and `false` otherwise.",
+      "given": "a mapping table declaring that the verb `article.edit` is granted to roles `editor` and `admin`; a principal whose `roles` array is `['editor']`",
+      "when": "the handler calls `can(principal, 'article.edit')`",
+      "then": "the call returns `true`; a second call `can(principal, 'billing.invoice.void')` (a verb not granted to `editor`) returns `false`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9104-2",
+      "description": "The authorisation adapter's `assert(principal, verb)` returns silently on a granted verb and throws a stable-coded `AUTHZ_FORBIDDEN` error naming the verb on a refused one; the error carries no principal claim material.",
+      "given": "the same mapping table and principal as AC-9104-1",
+      "when": "the handler calls `assert(principal, 'article.edit')` and then `assert(principal, 'billing.invoice.void')`",
+      "then": "the first call returns without throwing; the second call throws an `AUTHZ_FORBIDDEN` error whose message contains the string `billing.invoice.void` and whose serialised form contains no role name, no organisation id, and no Clerk claim key or value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9104-3",
+      "description": "A source-tree scan finds no handler code that reads `principal.roles` or `principal.claims` directly; every authorisation check goes through `can` or `assert`.",
+      "given": "the project's source tree after the blueprint's TACs are realised",
+      "when": "a scan enumerates every reference to `.roles`, `.organisationIds`, or `.claims` on an object whose type resolves to the project's `Principal` shape",
+      "then": "every match sits inside the authorisation adapter module (TAC-1002) or the claims-mapper module (TAC-1004); no handler file reads a claim directly",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1002-security-auth-clerk-authorisation-adapter",
+    "TAC-1004-security-auth-clerk-claims-mapper"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

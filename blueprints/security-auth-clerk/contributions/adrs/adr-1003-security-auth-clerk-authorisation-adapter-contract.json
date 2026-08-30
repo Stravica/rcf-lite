@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1003-security-auth-clerk-authorisation-adapter-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Authorisation checks speak in project verbs through the adapter, never in Clerk claim vocabulary",
+  "context": "Downstream code that reads `principal.roles.includes('admin')` or `principal.claims['org:role'] === 'X'` ties the project to Clerk's claim vocabulary version and drifts silently when Clerk changes it. It also makes the vendor swap a codebase sweep rather than an adapter change. The blueprint ships an authorisation adapter (TAC-1002) that maps Clerk claims onto project-defined verbs; the discipline that keeps the adapter useful is that every downstream check goes through it.",
+  "decision": "Every authorisation check in the project goes through `can(principal, verb, subject?)` or `assert(principal, verb, subject?)` on the authorisation adapter. Verbs are project-defined strings owned by the project's mapping-table module. No handler, no middleware wrapper, no template, and no view helper reads `principal.roles`, `principal.organisationIds`, or `principal.claims` directly. The source-tree scan on AC-9104-3 is the enforcement mechanism.",
+  "consequences": "The vocabulary the project's code speaks in is project-owned; changing the Clerk vendor is a mapping-table rewrite plus an adapter swap on the middleware and verifier, not a codebase sweep. The trade is that adding a new authorisation check requires adding a verb to the mapping table before the handler can call `can` on it; the adapter refuses unknown verbs, which forces the discipline. A project that finds itself adding a new verb per change is signal that the mapping is too fine-grained; consolidate at the mapping level, not by bypassing the adapter.",
+  "alternativesConsidered": [
+    {
+      "name": "Handlers read `principal.roles` directly for simple cases",
+      "summary": "Allow direct role reads on the principal for the common case; use the adapter only for the complex cases.",
+      "reasonNotChosen": "The common case is the majority of the code; the discipline collapses if the adapter is optional. The scan-catches-everything discipline requires 'no direct reads anywhere'."
+    },
+    {
+      "name": "Skip verbs and speak in roles",
+      "summary": "The adapter exposes `hasRole(principal, roleName)` and downstream code checks for role membership rather than verb grants.",
+      "reasonNotChosen": "Same failure mode as reading `principal.roles` directly, one indirection deeper. Roles are Clerk's vocabulary; verbs are the project's, and the project's vocabulary is what the code should speak in."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

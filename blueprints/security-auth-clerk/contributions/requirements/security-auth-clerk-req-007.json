@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Rate-limiting and anti-enumeration are delegated to Clerk",
+  "description": "The project does not implement rate-limiting or anti-enumeration on the sign-in flow. Clerk applies its own throttling and account-enumeration defences at the identity surface; the project's job is to name the delegation and not to layer a second-rate rate limiter on top. If the project's request-shape floor requires a rate limiter for other routes (a public API, a webhook receiver), it authors that separately; the sign-in and sign-up surfaces are Clerk's.",
+  "category": "security",
+  "domain": "authentication",
+  "priority": "should",
+  "rationale": "A project-side rate limiter over the sign-in flow either duplicates what Clerk already does (dead code that drifts) or interferes with it (retries and back-off that Clerk's own surface handles differently, resulting in confusing user-facing errors). Naming the delegation explicitly is the acceptance bar; the runtime observability is that the sign-in surface's rate-limit behaviour matches Clerk's documented behaviour rather than a project-authored variant.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:07-rate-limiting-delegation"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

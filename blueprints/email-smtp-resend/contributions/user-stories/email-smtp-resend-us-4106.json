@@ -1,0 +1,37 @@
+{
+  "usId": "email-smtp-resend-US-4106",
+  "prdId": "PRD-001",
+  "reqId": "email-smtp-resend-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The adapter module is the sole importer of the SMTP client and every credential is sourced through the configured reference",
+  "asA": "operator scanning the deployed application for boundary hygiene",
+  "iWant": "the SMTP transport surface confined to the adapter module and every secret sourced from configuration",
+  "soThat": "a code-path leak of the SMTP credential cannot happen from outside the adapter and no secret material is embedded in the shipped code",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4106-1",
+      "description": "A source-tree import-graph scan of the deployed application finds the SMTP client library imported from exactly one module: the adapter module. No other module of the application imports the SMTP client library.",
+      "given": "a project that composed this blueprint and realised TAC-401 against an SMTP client library",
+      "when": "an import-graph scan enumerates every module of the application that imports the SMTP client library",
+      "then": "the scan returns exactly one module and that module is the adapter module",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4106-2",
+      "description": "The adapter resolves the SMTP username, the SMTP password, the from-address, and the webhook signing secret through the project's configured secret-reference resolver (a Secrets Manager client, a project-authored resolver, or an environment shim); no literal for any of the four values appears in the adapter's own source.",
+      "given": "the adapter module source and the four configuration references `RESEND_SMTP_USER`, `RESEND_SMTP_PASSWORD`, `RESEND_FROM_ADDRESS`, `RESEND_WEBHOOK_SIGNING_SECRET`",
+      "when": "the adapter source is scanned for literals and the reference names are cross-checked against the resolver invocation shape",
+      "then": "the source contains no literal for any of the four values, and each of the four reference names appears exactly at the resolver invocation site the adapter calls at boot",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-401-email-smtp-resend-send-adapter",
+    "TAC-402-email-smtp-resend-webhook-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

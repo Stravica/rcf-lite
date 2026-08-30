@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-008",
+  "prdId": "PRD-001",
+  "title": "Runtime acceptance rides a real Clerk development instance",
+  "description": "Clerk hosts the identity surface; there is no in-project emulator for the sign-in flow at the fidelity the acceptance criteria depend on. Runtime acceptance for the blueprint's ACs uses a real Clerk development instance (Clerk's documented development-tier deployment shape) with placeholder-configured publishable and secret keys held in the project's secrets manifest. The blueprint's `accountBound` posture is explicit: an environment without Clerk reachability cannot satisfy the runtime-verify class of ACs and the project's ship gate must acknowledge that.",
+  "category": "nonFunctional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Faking Clerk's session issuance in-process elides the parts of the flow the blueprint most needs verified (real signature check on real Clerk-issued cookies, real revocation-on-sign-out, real claim propagation). The rcf-lite ship gate accommodates `accountBound` tests already; the blueprint states the posture and the ACs bind to it rather than pretending an emulator will do.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:08-account-bound"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

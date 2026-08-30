@@ -1,0 +1,18 @@
+{
+  "reqId": "email-smtp-resend-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Delivery events posted by Resend's webhook are signature-verified and refused when verification fails",
+  "description": "The project exposes one HTTP route the Resend webhook posts delivery events to. The webhook verifier reads the incoming request's signature header (name declared as a configuration reference), reads the timestamp header (name declared as a configuration reference), and computes the expected signature using the webhook signing secret sourced from configuration (`RESEND_WEBHOOK_SIGNING_SECRET` placeholder reference). The verifier compares the computed signature against the header using a constant-time comparison. On mismatch the verifier returns HTTP 401 with an empty body and emits a structured `webhookVerificationFailed` audit event; the delivery event is not delivered to any downstream handler. The signing secret never appears on any log line, error string, or exception message. The header names, the signing algorithm identifier, and the timestamp-tolerance window are configuration references, not literals baked into the verifier.",
+  "category": "functional",
+  "domain": "email",
+  "priority": "must",
+  "rationale": "The webhook is an inbound trust boundary. Without signature verification any process on the network can post fabricated delivery events into the project's event stream and corrupt any downstream state that keys on them. Constant-time comparison closes the timing-side-channel that variable-time comparison opens. Sourcing the signing algorithm and header names from configuration rather than literals lets a project rotate the algorithm or track a provider header-name change without editing the adapter.",
+  "tags": [
+    "blueprint:email-smtp-resend",
+    "category:05-webhook-signature"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,42 @@
+{
+  "tacId": "TAC-1001-security-auth-clerk-middleware",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Clerk middleware boundary",
+  "purpose": "The framework-agnostic boundary the project's HTTP surface delegates to for every request that reaches an authenticated route. Owns the `verify(request) -> { authenticated, principal?, reason? }` contract and the attachment of `request.auth` for downstream handlers. Delegates the actual session-cookie verification to the session verifier (TAC-1003) and the claim-to-principal reduction to the claims mapper (TAC-1004). Framework-specific adapters (Express middleware, Fastify hook, Node HTTP wrapper, Workers fetch wrapper) are project-authored thin shims that delegate to this one module.",
+  "responsibilities": [
+    "Expose `verify(request)` returning `{ authenticated: boolean, principal?: Principal, reason?: string }` (AC-9101-2, AC-9101-3).",
+    "Attach `request.auth` on the request object when verification succeeds; do not attach it on failure (AC-9101-2, AC-9102-1).",
+    "Refuse requests on failed verification with a status appropriate to the route class (401 for API-shaped, redirect for page-shaped) as declared by the wiring shim; the handler must not be invoked (AC-9103-2, AC-9103-3, AC-9107-1).",
+    "Read the `__session` cookie by name from the request; do not accept credentials from any other transport under the blueprint's default (AC-9101-1, AC-9101-3).",
+    "Read the `signInStrategy` config record from the project's config module for any sign-in surface that requires it; hold no hard-coded strategy string (AC-9108-1, AC-9108-2).",
+    "Confine the import of Clerk's server SDK to this module and to the session verifier (TAC-1003); other project code imports the middleware, not the SDK (AC-9102-2)."
+  ],
+  "internalStructure": "One stateless factory function producing the `verify` closure over an injected session verifier and an injected claims mapper. Framework shims (an `expressMiddleware()` wrapper, a `fastifyPlugin()` wrapper, a `workersHandler()` wrapper) are one-file adapters colocated with this TAC's module directory; each delegates to the same `verify`. The wrapper for a given framework is enabled by the project's boot code choosing one; the blueprint does not mandate the choice.",
+  "interfaces": [
+    {
+      "name": "sessionVerifier",
+      "kind": "read-api",
+      "description": "The session verifier (TAC-1003) exposing `verifySessionCookie(cookieValue) -> { valid, claims?, revokedAt? }`. The middleware calls this on the `__session` cookie value and treats a non-valid return as unauthenticated."
+    },
+    {
+      "name": "claimsMapper",
+      "kind": "read-api",
+      "description": "The claims mapper (TAC-1004) exposing `reduceClaims(rawClaims) -> Principal`. The middleware calls this on a valid session's claims to produce the `Principal` it attaches to `request.auth`."
+    },
+    {
+      "name": "config",
+      "kind": "read-api",
+      "description": "The project's config module exposing `signInStrategy: { primary, alternates }`. The middleware reads it once at construction; a re-read is a boot-time concern."
+    }
+  ],
+  "dependencies": [
+    { "name": "Clerk session verifier", "kind": "tac", "tacId": "TAC-1003-security-auth-clerk-session-verifier", "description": "The session-verification surface the middleware delegates cookie verification to." },
+    { "name": "Clerk claims mapper", "kind": "tac", "tacId": "TAC-1004-security-auth-clerk-claims-mapper", "description": "The reduction from raw Clerk claims onto the project's Principal shape." }
+  ],
+  "tradeoffs": "Fixing the shape and the boundary while leaving the framework open costs the project one thin shim per HTTP framework it uses. Projects on a single framework carry one shim and pay nothing; projects that host multiple runtimes (an Express main app plus a Workers edge function) carry two shims but share the verifier and the mapper. That is intentional: the seam that absorbs framework variation is the shim, not the middleware.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

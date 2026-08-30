@@ -1,0 +1,37 @@
+{
+  "usId": "security-auth-clerk-US-9107",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sign-out invalidates the session on Clerk and the middleware refuses subsequent requests",
+  "asA": "operator who wants sign-out to actually mean the session is gone",
+  "iWant": "the Clerk-initiated sign-out to invalidate my session such that a subsequent request carrying the same cookie is refused",
+  "soThat": "a leaked cookie stops working the moment I have signed out",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9107-1",
+      "description": "After a Clerk-initiated sign-out (client-side call to Clerk's `signOut` or an equivalent server-invoked revocation), a request to a protected route carrying the pre-sign-out `__session` cookie is refused by the middleware.",
+      "given": "an operator who has signed in and holds a valid `__session` cookie, then invokes the project's sign-out surface which calls Clerk's `signOut`",
+      "when": "a subsequent request replays the same `__session` cookie against a protected route",
+      "then": "the middleware treats the request as unauthenticated; the response status is 401 (API) or a redirect (page); the handler is never invoked",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9107-2",
+      "description": "An administrative revoke performed on the Clerk dashboard has the same effect: a request replaying the revoked session's cookie is refused.",
+      "given": "a valid `__session` cookie for a signed-in operator whose session has just been revoked via the Clerk dashboard",
+      "when": "a request replays that cookie against a protected route",
+      "then": "the middleware refuses per AC-9107-1; no cache the middleware or session verifier holds keeps the revoked session alive beyond one revocation-propagation cycle (the verifier's `revocationCheckIntervalMs`, documented in ADR-1005; the value is bounded and stated)",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1001-security-auth-clerk-middleware",
+    "TAC-1003-security-auth-clerk-session-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

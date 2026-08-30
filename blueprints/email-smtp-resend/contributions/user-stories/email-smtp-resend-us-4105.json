@@ -1,0 +1,36 @@
+{
+  "usId": "email-smtp-resend-US-4105",
+  "prdId": "PRD-001",
+  "reqId": "email-smtp-resend-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A stale-timestamp webhook is refused; a replayed delivery id is acknowledged once and never delivered twice",
+  "asA": "operator whose project stores state keyed on delivery events",
+  "iWant": "the verifier to reject replays inside the tolerance window and acknowledge duplicates without re-invoking the handler",
+  "soThat": "a captured signed request cannot corrupt downstream state and the provider's retry-on-non-2xx behaviour stays idempotent-safe",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4105-1",
+      "description": "A webhook POST whose timestamp header is older than the configured tolerance window is refused with HTTP 401 and an empty body; the downstream handler is not invoked and a `webhookReplayStale` audit event is emitted.",
+      "given": "a running project with a configured tolerance window of 300 seconds and a POST whose timestamp header is set to a value 301 or more seconds in the past",
+      "when": "the POST is delivered to the webhook route",
+      "then": "the response status is 401, the response body is empty, the handler invocation counter is unchanged, and the audit sink observes exactly one `webhookReplayStale` event",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4105-2",
+      "description": "A signature-valid webhook POST whose delivery event id already appears in the bounded event-id store is acknowledged with HTTP 200 without invoking the downstream handler; a `webhookReplayDuplicate` audit event is emitted.",
+      "given": "a running project with a signature-valid POST that has already been processed once (event id recorded in the store) and a second POST carrying the same event id inside the tolerance window",
+      "when": "the second POST is delivered to the webhook route",
+      "then": "the response status is 200, the handler invocation counter is unchanged from before the second POST, and the audit sink observes exactly one `webhookReplayDuplicate` event on the second POST",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-402-email-smtp-resend-webhook-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

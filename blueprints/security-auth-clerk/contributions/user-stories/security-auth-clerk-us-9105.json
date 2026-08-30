@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-clerk-US-9105",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The authorisation adapter maps organisation membership onto scoped access",
+  "asA": "handler serving a resource that belongs to an organisation",
+  "iWant": "to call `can(principal, verb, subject)` where the subject carries an `organisationId` and receive a decision that considers organisation membership",
+  "soThat": "an operator who is admin in one organisation cannot read another organisation's resources by holding a global admin role in Clerk's dashboard",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9105-1",
+      "description": "The adapter's `can(principal, verb, subject)` returns `true` only when the mapping table grants the verb to a role the principal holds AND (when the subject carries an `organisationId`) the principal's `organisationIds` array includes that id.",
+      "given": "a principal whose `organisationIds` is `['org-A']` and whose `roles` is `['admin']`; a mapping table granting the verb `document.read` to `admin`",
+      "when": "the handler calls `can(principal, 'document.read', { organisationId: 'org-A' })` and then `can(principal, 'document.read', { organisationId: 'org-B' })`",
+      "then": "the first call returns `true`; the second call returns `false`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9105-2",
+      "description": "When the subject does not carry an `organisationId`, the adapter falls back to role-only evaluation; a role-granted verb succeeds regardless of the principal's organisation membership set.",
+      "given": "the same principal and mapping table as AC-9105-1",
+      "when": "the handler calls `can(principal, 'document.read', {})` and `can(principal, 'document.read')`",
+      "then": "both calls return `true`; no organisation membership check is performed",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1002-security-auth-clerk-authorisation-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

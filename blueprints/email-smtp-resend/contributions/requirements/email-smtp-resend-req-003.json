@@ -1,0 +1,18 @@
+{
+  "reqId": "email-smtp-resend-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Provider-side failure modes are enumerated and each maps to a stable-coded error the adapter returns without leaking recipient identity",
+  "description": "The adapter enumerates four provider-side failure classes and maps each to a stable error code on the `error` field of the send-contract return shape, with `ok: false` and the provider's own status code on `providerStatus` when the provider surfaced one. The classes are: rate-limit refusal (`RESEND_RATE_LIMITED`), unverified sender domain or address (`RESEND_SENDER_UNVERIFIED`), invalid or malformed recipient input the provider rejected before dispatch (`RESEND_RECIPIENT_REJECTED`), and generic transport error covering network faults and the provider's 5xx range (`RESEND_TRANSPORT_ERROR`). The error string carries the class code and a short structured reason; the recipient address, the message subject, and the message body never appear on the returned error string, on any log line the adapter writes, or on any exception the adapter throws.",
+  "category": "functional",
+  "domain": "email",
+  "priority": "must",
+  "rationale": "A single fuzzy `error` string forces every consumer to reverse-engineer the provider's vocabulary. Enumerated codes let the auth flow, the retry policy (REQ-004), and any project-side observability layer branch on class without matching provider prose that may change. Suppressing recipient identity on the error surface keeps the anti-enumeration posture the auth blueprint gates on intact: an operator reading the adapter's log stream cannot use it to confirm a recipient exists.",
+  "tags": [
+    "blueprint:email-smtp-resend",
+    "category:03-failure-modes"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

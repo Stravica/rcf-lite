@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Sign-in strategy is a fixed-shape config surface",
+  "description": "Clerk supports multiple sign-in strategies (email link, email code, password, phone code, OAuth via named providers, SAML). The project's Clerk instance is configured to enable one or more of them; the blueprint fixes the SHAPE of that configuration on the project side as a single `signInStrategy` config record (`{ primary: string, alternates: string[] }`) rather than fixing the CHOICE. The values in the record are Clerk's currently-documented strategy identifiers (as printed by the Clerk dashboard or the Clerk SDK's strategy enumeration at the project's build time). The project's sign-in surface reads the config record and does not hard-code any strategy string; changing the enabled strategy set is a config edit and a Clerk-dashboard change, not a codebase change.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "should",
+  "rationale": "Fixing the shape leaves the choice open to the operator without leaving the codebase full of hard-coded strategy strings that drift as Clerk's vocabulary drifts. A project that starts on email link and later adds SAML for enterprise is a config bump, not a fork of the sign-in surface. Fixing the choice at the blueprint layer would be premature at the rcf-lite tier where the operator's requirements around sign-in shape are project-specific.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:05-sign-in-strategy"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

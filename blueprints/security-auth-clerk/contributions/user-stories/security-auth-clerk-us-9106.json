@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-clerk-US-9106",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A role-gated UI slot renders per the authorisation adapter's decision",
+  "asA": "operator viewing a page that carries UI elements gated by verb",
+  "iWant": "elements I am allowed to see to render and elements I am not allowed to see to be absent from the DOM",
+  "soThat": "the UI does not mislead me about what I can do, and does not tempt exploit attempts by revealing forbidden verbs behind disabled buttons",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9106-1",
+      "description": "A UI slot wired to a project verb through the adapter's `can` decision is present in the rendered DOM when `can` returns `true` for the current principal and absent when `can` returns `false`.",
+      "given": "a page carrying a UI slot gated on the verb `article.delete`, and a principal for whom `can(principal, 'article.delete')` returns `true`",
+      "when": "a page-render probe fetches the page as the signed-in operator and inspects the rendered DOM",
+      "then": "the DOM contains the slot's rendered element; a subsequent render as a signed-in operator whose principal returns `false` for the same verb produces a DOM in which the slot is absent (no hidden node, no disabled control, no aria-hidden variant)",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9106-2",
+      "description": "The UI slot's absence is not the only defence; the corresponding server-side handler also refuses via `assert` on the same verb when the caller lacks it.",
+      "given": "the same page and verb from AC-9106-1, and a principal whose `can` returns `false`",
+      "when": "a request bypassing the UI (direct API call) attempts the verb's underlying action",
+      "then": "the server-side handler's `assert(principal, 'article.delete')` throws `AUTHZ_FORBIDDEN`; the response status is 403 and no state mutation occurs",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1002-security-auth-clerk-authorisation-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Clerk owns the identity surface; the project reads a resolved principal",
+  "description": "The project's authentication model delegates the identity surface (users, sessions, sign-in UX, credential storage, MFA, account recovery) to Clerk. The project does not own a user table, does not mint or store credentials, and does not implement the sign-in UI beyond mounting a Clerk-hosted component or route. What the project owns is the reduction of a verified Clerk session into a stable in-process principal shape (a `principalId` string, a `roles` string array, an `organisationIds` string array) that the rest of the project reasons against. Any code path that needs to know who the current caller is reads that resolved principal; no code path calls Clerk directly outside the middleware and session-verifier boundary.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Two failure modes justify the strict boundary. First, calls to Clerk scattered across the codebase make the vendor swap a rewrite rather than an adapter change; the blueprint's promise (Clerk is the default, another hosted identity vendor is a project-level ADR supersede) collapses. Second, code that reasons against raw Clerk claim shapes ties the project to Clerk's claim vocabulary version and drifts silently when Clerk changes it; a stable in-process principal shape is the seam that absorbs that drift.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:01-identity-boundary"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

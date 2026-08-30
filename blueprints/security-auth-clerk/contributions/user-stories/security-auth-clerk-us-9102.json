@@ -1,0 +1,38 @@
+{
+  "usId": "security-auth-clerk-US-9102",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The middleware reduces a verified Clerk session into a stable in-process principal shape",
+  "asA": "downstream request handler in the project",
+  "iWant": "to read a single stable principal shape from every authenticated request rather than a raw Clerk claim bag",
+  "soThat": "my handler's authorisation checks and audit logging speak one project vocabulary instead of Clerk's claim-key vocabulary",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9102-1",
+      "description": "For every authenticated request, `request.auth` is an object whose keys are exactly `{ principalId: string, roles: string[], organisationIds: string[], claims: object }`.",
+      "given": "an authenticated request that has passed the middleware",
+      "when": "a handler reads `request.auth`",
+      "then": "the observed object's own-property keys are the set `{principalId, roles, organisationIds, claims}` with no additional own properties; `principalId` is a non-empty string; `roles` and `organisationIds` are arrays of strings; `claims` is an object carrying the raw Clerk claim bag for the escape-hatch case",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9102-2",
+      "description": "A source-tree scan finds no import of Clerk's SDK outside the middleware module (TAC-1001) and the session verifier module (TAC-1003).",
+      "given": "the project's source tree after the blueprint's TACs are realised",
+      "when": "a scan enumerates every import of `@clerk/*` or the Clerk server SDK equivalent",
+      "then": "every match resolves to a file inside the middleware module directory or the session verifier module directory; no other project file imports Clerk directly",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1001-security-auth-clerk-middleware",
+    "TAC-1003-security-auth-clerk-session-verifier",
+    "TAC-1004-security-auth-clerk-claims-mapper"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
