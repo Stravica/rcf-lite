@@ -1,7 +1,7 @@
 // Public surface for the blueprint mechanism.
 
 export { applyBlueprint } from './apply.js';
-export { listBlueprints } from './list.js';
+export { listBlueprints, enrichRowsWithCategories, groupRowsByCategory } from './list.js';
 export { removeBlueprint } from './remove.js';
 export { loadBlueprint } from './loader.js';
 export { detectGlobalAdrConflicts, detectCrossBlueprintClaims, renderConflictReport, conflictReportJson } from './conflicts.js';

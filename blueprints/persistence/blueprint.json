@@ -1,6 +1,7 @@
 {
   "slug": "persistence",
   "version": "1.0.0",
+  "category": "persistence",
   "contributions": [
     { "id": "persistence-REQ-001", "kind": "req", "path": "requirements/persistence-req-001.json" },
     { "id": "persistence-REQ-002", "kind": "req", "path": "requirements/persistence-req-002.json" },

@@ -1,6 +1,7 @@
 {
   "slug": "ci-pipeline",
   "version": "1.0.0",
+  "category": "delivery",
   "contributions": [
     { "id": "ci-pipeline-REQ-001", "kind": "req", "path": "requirements/ci-pipeline-req-001.json" },
     { "id": "ci-pipeline-REQ-002", "kind": "req", "path": "requirements/ci-pipeline-req-002.json" },

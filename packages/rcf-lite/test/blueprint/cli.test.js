@@ -86,6 +86,55 @@ test('rcf blueprint add + list end-to-end via the CLI', async () => {
   const listResult = await runBin(root, ['define', 'blueprint', 'list']);
   assert.equal(listResult.code, 0);
   assert.match(listResult.stdout, /^alpha\t1\.0\.0/m);
+  // Category was not declared on this fixture's blueprint.json; the
+  // grouped list output places it under `uncategorised`.
+  assert.match(listResult.stdout, /^# uncategorised$/m);
+});
+
+test('rcf blueprint list groups by category header when the source declares one', async () => {
+  const root = await scaffold();
+  const secDir = join(root, 'blueprint-secfoo');
+  await mkdir(join(secDir, 'contributions'), { recursive: true });
+  await writeFile(join(secDir, 'blueprint.json'), JSON.stringify({
+    slug: 'secfoo', version: '1.0.0', category: 'security',
+    contributions: [{ kind: 'req', id: 'secfoo-REQ-001', path: 'secfoo-req-001.json' }],
+  }, null, 2), 'utf8');
+  await writeFile(join(secDir, 'contributions', 'secfoo-req-001.json'), JSON.stringify({
+    reqId: 'secfoo-REQ-001', prdId: 'PRD-001',
+    title: 'x', description: 'y', category: 'functional', priority: 'must', domain: 'ui',
+    version: '0.1.0', status: 'draft',
+    createdAt: '2026-08-30T00:00:00Z', updatedAt: '2026-08-30T00:00:00Z',
+  }, null, 2), 'utf8');
+  const persDir = join(root, 'blueprint-persfoo');
+  await mkdir(join(persDir, 'contributions'), { recursive: true });
+  await writeFile(join(persDir, 'blueprint.json'), JSON.stringify({
+    slug: 'persfoo', version: '1.0.0', category: 'persistence',
+    contributions: [{ kind: 'req', id: 'persfoo-REQ-001', path: 'persfoo-req-001.json' }],
+  }, null, 2), 'utf8');
+  await writeFile(join(persDir, 'contributions', 'persfoo-req-001.json'), JSON.stringify({
+    reqId: 'persfoo-REQ-001', prdId: 'PRD-001',
+    title: 'x', description: 'y', category: 'functional', priority: 'must', domain: 'ui',
+    version: '0.1.0', status: 'draft',
+    createdAt: '2026-08-30T00:00:00Z', updatedAt: '2026-08-30T00:00:00Z',
+  }, null, 2), 'utf8');
+  const addSec = await runBin(root, ['define', 'blueprint', 'add', secDir]);
+  assert.equal(addSec.code, 0, addSec.stderr);
+  const addPers = await runBin(root, ['define', 'blueprint', 'add', persDir]);
+  assert.equal(addPers.code, 0, addPers.stderr);
+  const listResult = await runBin(root, ['define', 'blueprint', 'list']);
+  assert.equal(listResult.code, 0, listResult.stderr);
+  // Both category headers render, and the alphabetical order (persistence
+  // then security) is honoured. The `uncategorised` group should not
+  // appear because both fixtures declared a category.
+  assert.match(listResult.stdout, /^# persistence$/m);
+  assert.match(listResult.stdout, /^# security$/m);
+  assert.doesNotMatch(listResult.stdout, /^# uncategorised$/m);
+  const persIdx = listResult.stdout.indexOf('# persistence');
+  const secIdx = listResult.stdout.indexOf('# security');
+  assert.ok(persIdx < secIdx, `persistence should render before security, got:\n${listResult.stdout}`);
+  // Each row still emits the same tab-separated slug/version/appliedAt/count shape.
+  assert.match(listResult.stdout, /^persfoo\t1\.0\.0/m);
+  assert.match(listResult.stdout, /^secfoo\t1\.0\.0/m);
 });
 
 // ---------------------------------------------------------------------------

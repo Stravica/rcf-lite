@@ -1,6 +1,7 @@
 {
   "slug": "spa",
   "version": "1.3.0",
+  "category": "application",
   "contributions": [
     {
       "id": "spa-REQ-001",

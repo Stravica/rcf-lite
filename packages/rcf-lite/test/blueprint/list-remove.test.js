@@ -11,7 +11,7 @@ import { join } from 'node:path';
 
 import { initProject, walkTree } from '#core/store';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
-import { listBlueprints } from '../../src/blueprint/list.js';
+import { enrichRowsWithCategories, groupRowsByCategory, listBlueprints } from '../../src/blueprint/list.js';
 import { removeBlueprint } from '../../src/blueprint/remove.js';
 
 async function scaffoldProject() {
@@ -39,6 +39,56 @@ function reqBody(reqId) {
     createdAt: '2026-08-19T00:00:00Z', updatedAt: '2026-08-19T00:00:00Z',
   };
 }
+
+test('enrichRowsWithCategories: reads category from each source blueprint.json', async () => {
+  const root = await scaffoldProject();
+  const alphaSrc = await writeBlueprintSource(root, 'alpha', {
+    slug: 'alpha', version: '1.0.0', category: 'security',
+    contributions: [{ kind: 'req', id: 'alpha-REQ-001', path: 'alpha-req-001.json', body: reqBody('alpha-REQ-001') }],
+  });
+  const betaSrc = await writeBlueprintSource(root, 'beta', {
+    slug: 'beta', version: '1.0.0', // no category declared
+    contributions: [{ kind: 'req', id: 'beta-REQ-001', path: 'beta-req-001.json', body: reqBody('beta-REQ-001') }],
+  });
+  await applyBlueprint({ projectRoot: root, tree: (await walkTree({ projectRoot: root })).tree, source: alphaSrc, now: new Date('2026-08-30T10:00:00Z') });
+  await applyBlueprint({ projectRoot: root, tree: (await walkTree({ projectRoot: root })).tree, source: betaSrc, now: new Date('2026-08-30T11:00:00Z') });
+  const { tree } = await walkTree({ projectRoot: root });
+  const enriched = await enrichRowsWithCategories(listBlueprints(tree));
+  const alpha = enriched.find((r) => r.slug === 'alpha');
+  const beta = enriched.find((r) => r.slug === 'beta');
+  assert.equal(alpha.category, 'security');
+  assert.equal(beta.category, null);
+});
+
+test('enrichRowsWithCategories: yields null when the source path no longer resolves', async () => {
+  const root = await scaffoldProject();
+  const src = await writeBlueprintSource(root, 'ghost', {
+    slug: 'ghost', version: '1.0.0', category: 'observability',
+    contributions: [{ kind: 'req', id: 'ghost-REQ-001', path: 'ghost-req-001.json', body: reqBody('ghost-REQ-001') }],
+  });
+  await applyBlueprint({ projectRoot: root, tree: (await walkTree({ projectRoot: root })).tree, source: src, now: new Date('2026-08-30T10:00:00Z') });
+  const { tree } = await walkTree({ projectRoot: root });
+  const rows = listBlueprints(tree);
+  // Mutate the source path so it no longer resolves.
+  rows[0].source = join(root, 'no-such-blueprint-dir');
+  const enriched = await enrichRowsWithCategories(rows);
+  assert.equal(enriched[0].category, null);
+});
+
+test('groupRowsByCategory: sorts named groups alphabetically and appends the null bucket', async () => {
+  const rows = [
+    { slug: 'a', category: 'security' },
+    { slug: 'b', category: null },
+    { slug: 'c', category: 'delivery' },
+    { slug: 'd', category: 'security' },
+    { slug: 'e', category: undefined },
+  ];
+  const groups = groupRowsByCategory(rows);
+  assert.deepEqual(groups.map((g) => g.category), ['delivery', 'security', null]);
+  assert.deepEqual(groups[0].rows.map((r) => r.slug), ['c']);
+  assert.deepEqual(groups[1].rows.map((r) => r.slug), ['a', 'd']);
+  assert.deepEqual(groups[2].rows.map((r) => r.slug), ['b', 'e']);
+});
 
 test('listBlueprints: two applied blueprints render in appliedAt order (AC-1001-2)', async () => {
   const root = await scaffoldProject();

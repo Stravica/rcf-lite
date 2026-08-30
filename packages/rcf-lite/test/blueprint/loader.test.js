@@ -145,3 +145,61 @@ test('loadBlueprint accepts nested-relative contribution paths (no traversal)', 
   const result = await loadBlueprint(dir);
   assert.equal(result.kind, undefined, `unexpected error: ${JSON.stringify(result)}`);
 });
+
+// ---------------------------------------------------------------------------
+// Category field. Optional lower-kebab tag that groups the shelf on
+// `rcf define blueprint list` and on the docs blueprint shelf. Shape
+// only; vocabulary lives in the authoring standard.
+// ---------------------------------------------------------------------------
+
+test('loadBlueprint returns category when the metadata declares it', async () => {
+  const dir = await writeBlueprintMeta({
+    slug: 'demo', version: '1.0.0', category: 'security',
+    contributions: [{ kind: 'req', id: 'demo-REQ-001', path: 'demo-req-001.json' }],
+  });
+  const result = await loadBlueprint(dir);
+  assert.equal(result.kind, undefined, `unexpected error: ${JSON.stringify(result)}`);
+  assert.equal(result.category, 'security');
+});
+
+test('loadBlueprint omits category when the metadata does not declare it', async () => {
+  const dir = await writeBlueprintMeta({
+    slug: 'demo', version: '1.0.0',
+    contributions: [{ kind: 'req', id: 'demo-REQ-001', path: 'demo-req-001.json' }],
+  });
+  const result = await loadBlueprint(dir);
+  assert.equal(result.kind, undefined, `unexpected error: ${JSON.stringify(result)}`);
+  assert.equal(result.category, undefined);
+});
+
+test('loadBlueprint accepts multi-segment kebab categories', async () => {
+  const dir = await writeBlueprintMeta({
+    slug: 'demo', version: '1.0.0', category: 'developer-experience',
+    contributions: [{ kind: 'req', id: 'demo-REQ-001', path: 'demo-req-001.json' }],
+  });
+  const result = await loadBlueprint(dir);
+  assert.equal(result.kind, undefined);
+  assert.equal(result.category, 'developer-experience');
+});
+
+for (const bad of ['Security', 'security!', '1security', 'security_group', '', ' ']) {
+  test(`loadBlueprint refuses category '${bad}' (not a kebab slug)`, async () => {
+    const dir = await writeBlueprintMeta({
+      slug: 'demo', version: '1.0.0', category: bad,
+      contributions: [{ kind: 'req', id: 'demo-REQ-001', path: 'demo-req-001.json' }],
+    });
+    const result = await loadBlueprint(dir);
+    assert.equal(result.kind, 'validation', `expected validation error, got ${JSON.stringify(result)}`);
+    assert.match(result.message, /is not a valid kebab slug/);
+  });
+}
+
+test('loadBlueprint refuses category typed as non-string', async () => {
+  const dir = await writeBlueprintMeta({
+    slug: 'demo', version: '1.0.0', category: 42,
+    contributions: [{ kind: 'req', id: 'demo-REQ-001', path: 'demo-req-001.json' }],
+  });
+  const result = await loadBlueprint(dir);
+  assert.equal(result.kind, 'validation');
+  assert.match(result.message, /is not a valid kebab slug/);
+});

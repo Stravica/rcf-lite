@@ -1,6 +1,7 @@
 {
   "slug": "auth",
   "version": "1.0.0",
+  "category": "security",
   "contributions": [
     { "id": "auth-REQ-001", "kind": "req", "path": "requirements/auth-req-001.json" },
     { "id": "auth-REQ-002", "kind": "req", "path": "requirements/auth-req-002.json" },
