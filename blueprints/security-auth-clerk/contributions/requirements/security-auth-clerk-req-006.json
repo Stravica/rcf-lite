@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Sign-out invalidates on Clerk's server; subsequent requests fail verification",
+  "description": "Sign-out is initiated by a client-side call to the Clerk sign-out surface (the `signOut` method on Clerk's client SDK or the equivalent server-invoked revocation). The blueprint requires that after sign-out the same session cookie no longer verifies: a subsequent request carrying the pre-sign-out `__session` cookie MUST be treated as unauthenticated by the middleware. Client-side cookie clearing alone is not the revocation mechanism; the revocation is a Clerk-side state change and the middleware's session verifier must observe it. An administrative revoke of a user or session on the Clerk dashboard has the same runtime effect as user-initiated sign-out.",
+  "category": "security",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "The same rule the magic-link blueprint restates about server-side revocation applies here for the same reason: a session that only ends when the browser forgets its cookie is a session an attacker with the cookie can still ride. Clerk owns the revocation surface; the blueprint's job is to require that the middleware's verifier honours it and does not cache past its useful life.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:06-sign-out-revocation"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

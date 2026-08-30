@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Authorisation adapter maps Clerk claims onto project verbs",
+  "description": "The project's authorisation layer does not consume Clerk claim shapes directly. A single Authorisation Adapter module owns the mapping from a verified principal (roles array, organisation ids array, arbitrary claim bag from the Clerk session) onto the set of project-defined verbs the caller is allowed to perform. The adapter's surface is `can(principal, verb, subject?) -> boolean` and `assert(principal, verb, subject?) -> void | throw`. Verbs are project-defined strings (`article.edit`, `admin.dashboard.view`, `billing.invoice.void`); the adapter's mapping table is project-authored and read from a single module the rest of the project imports. No downstream code path checks `principal.roles.includes('admin')` or `principal.organisationIds.includes('X')` directly; every check goes through `can` or `assert`.",
+  "category": "technical",
+  "domain": "authorisation",
+  "priority": "must",
+  "rationale": "Clerk's role and organisation vocabulary is Clerk's, not the project's; the same failure mode that motivates REQ-001's principal reduction motivates a further reduction from principal claims onto project verbs. Downstream code that speaks in verbs is legible (the site's `article.edit` is unambiguous), swap-safe (moving from Clerk to a different identity vendor is an adapter-mapping change, not a codebase rewrite), and testable (project verbs give the test surface a stable vocabulary).",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:04-authorisation-adapter"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

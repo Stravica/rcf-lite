@@ -1,0 +1,30 @@
+{
+  "tacId": "TAC-1002-security-auth-clerk-authorisation-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Authorisation adapter",
+  "purpose": "The one module in the project that reads a Principal's roles, organisation ids, and claim bag to answer authorisation questions. Owns the mapping table from project-defined verbs onto the role and organisation-membership predicates that grant them. Exposes `can(principal, verb, subject?) -> boolean` and `assert(principal, verb, subject?) -> void | throw`. Downstream handlers speak verbs; the adapter is the only code that reasons in role and organisation vocabulary.",
+  "responsibilities": [
+    "Load the project-authored verb-to-role mapping table once at construction; hold it as an in-memory map (AC-9104-1).",
+    "Evaluate `can(principal, verb)` as true when the intersection of the principal's roles and the mapping table's role set for the verb is non-empty (AC-9104-1).",
+    "Evaluate `can(principal, verb, subject)` with organisation scoping: when the subject carries `organisationId`, require that the principal's `organisationIds` array includes it (AC-9105-1, AC-9105-2).",
+    "Expose `assert(principal, verb, subject?)` that returns silently on grant and throws `AUTHZ_FORBIDDEN` naming the verb on refusal; the thrown error must not serialise principal claim material (AC-9104-2).",
+    "Confine the reading of `principal.roles`, `principal.organisationIds`, and `principal.claims` to this module and the claims mapper (TAC-1004); no handler reads those fields directly (AC-9104-3)."
+  ],
+  "internalStructure": "One stateless class over an injected mapping table. The mapping table is a project-authored module that exports `{ [verb: string]: { roles: string[] } }`. Extensions (custom predicates beyond role membership and organisation scoping) are project decisions that layer above the adapter's default reasoner; the blueprint does not name a predicate DSL.",
+  "interfaces": [
+    {
+      "name": "mappingTable",
+      "kind": "read-api",
+      "description": "Project-authored module exporting `{ [verb: string]: { roles: string[] } }`. A verb not present in the map evaluates to `false` on `can` and to throw on `assert`."
+    }
+  ],
+  "dependencies": [
+    { "name": "Clerk claims mapper", "kind": "tac", "tacId": "TAC-1004-security-auth-clerk-claims-mapper", "description": "The reduction from raw Clerk claims onto the Principal shape the adapter consumes." }
+  ],
+  "tradeoffs": "Fixing the adapter's decision shape (role-set intersection plus optional organisation scoping) leaves fine-grained resource-level authorisation (per-record ACLs, dynamic ownership predicates) as a project decision layered above it. The blueprint's floor is verb-plus-organisation because that is what Clerk's own claim vocabulary supports out of the box; a project that needs richer predicates authors them as a project-side extension that consumes this adapter's output rather than replaces it.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

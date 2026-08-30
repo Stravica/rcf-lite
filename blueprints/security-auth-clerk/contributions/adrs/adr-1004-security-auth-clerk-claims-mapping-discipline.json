@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1004-security-auth-clerk-claims-mapping-discipline",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Clerk claim keys live in one named constant record; the raw `claims` bag is an escape hatch",
+  "context": "Clerk's claim vocabulary is not stable across major SDK versions; a rename on the Clerk side (a claim key shifting from one string to another) is a real thing that happens between versions. The blueprint's ambition to keep the vendor swap cheap depends on the project not scattering literal Clerk claim keys through its handler code. At the same time, refusing to expose the raw claims at all forces the project to author every mapping up front, which fights the incremental-adoption posture the rcf-lite tier depends on.",
+  "decision": "The claims mapper (TAC-1004) exports one named constant record `CLERK_CLAIM_KEYS` that maps each project-facing name (`userId`, `roles`, `organisations`, ...) to the Clerk-side claim key string at the SDK version the project builds against. Every reduction step in the mapper reads through that record; no other module in the mapper hard-codes a Clerk claim key. The mapper's `reduceClaims` return value carries a `claims` field with the raw claim bag verbatim as an escape hatch; downstream reads on `.claims` are treated as a code-review-visible smell but not a mechanism refusal.",
+  "consequences": "A Clerk-side claim rename is a one-file change: update `CLERK_CLAIM_KEYS`. The escape hatch admits a small class of downstream code that reads a raw Clerk claim directly rather than through a reduction; the discipline states that if the same claim is read more than once it must move into the reduction. The scan on AC-9104-3 catches `.roles`, `.organisationIds`, and `.claims` reads outside the adapter and the mapper; a scan that catches `.claims[<key>]` in a handler is a code-review flag, not a mechanism refusal.",
+  "alternativesConsidered": [
+    {
+      "name": "Refuse to expose the raw claims bag at all",
+      "summary": "The mapper reduces to the fixed shape and drops everything else on the floor.",
+      "reasonNotChosen": "Forces the project to author every mapping up front. The escape hatch is what makes incremental adoption cheap; disciplining its use is a code-review concern, not a mechanism one."
+    },
+    {
+      "name": "Read the raw claim bag freely everywhere",
+      "summary": "Skip the reduction; downstream code reads `principal.claims[key]` directly.",
+      "reasonNotChosen": "Same failure mode as the discipline this whole blueprint exists to prevent; claim keys sprawl and the vendor swap becomes a rewrite."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

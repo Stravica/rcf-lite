@@ -1,0 +1,22 @@
+{
+  "tacId": "TAC-1004-security-auth-clerk-claims-mapper",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Clerk claims mapper",
+  "purpose": "The one module that reduces a raw Clerk claim bag (as returned by the session verifier on success) into the project's Principal shape. Owns the mapping between Clerk's role and organisation vocabulary and the project's `Principal.roles` and `Principal.organisationIds` arrays. Preserves the raw claims under `Principal.claims` as an escape hatch for the small number of cases where a downstream module genuinely needs a claim not covered by the reduction; that escape hatch is explicit and rare, not the default path.",
+  "responsibilities": [
+    "Expose `reduceClaims(rawClaims) -> Principal` where `Principal` is the shape `{ principalId, roles, organisationIds, claims }` (AC-9102-1).",
+    "Compute `principalId` from the Clerk user id claim (canonical name at the SDK version the project builds against); refuse a missing or empty user id with a stable-coded `PRINCIPAL_REDUCTION_FAILED` error (AC-9102-1).",
+    "Compute `roles` as the union of the principal's global-role claim and any organisation-role claims flattened to bare role strings; the ordering is not stable across versions but the set membership is (AC-9104-1).",
+    "Compute `organisationIds` as the array of Clerk organisation ids the principal is a member of at the time the session was issued (AC-9105-1).",
+    "Preserve `claims` as the raw claim bag verbatim; downstream modules that read `claims` do so through the authorisation adapter (TAC-1002) or the claims mapper module itself, not through direct field access in a handler (AC-9104-3)."
+  ],
+  "internalStructure": "One stateless pure function per named reduction step; the top-level `reduceClaims` composes them. The claim-key vocabulary Clerk uses is captured in one named constant record (`CLERK_CLAIM_KEYS`) at the top of the module, so a Clerk-side rename is a one-file change here rather than a codebase sweep.",
+  "interfaces": [],
+  "dependencies": [],
+  "tradeoffs": "Preserving `claims` as an escape hatch admits a class of downstream code that reads a raw Clerk claim rather than adding a mapping. The blueprint accepts that trade because the alternative (refusing every unmapped claim) forces the project to author every mapping up front, which fights the incremental-adoption posture the rcf-lite tier depends on. The discipline is that any downstream `.claims` read is a code-review-visible smell: if the same claim is read twice, add it to the reduction and stop reading through the escape hatch.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

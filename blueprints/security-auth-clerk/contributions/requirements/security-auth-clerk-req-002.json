@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Session-cookie transport under Clerk's session model",
+  "description": "The wire credential is a Clerk-issued session cookie named `__session` (Clerk's documented cookie name at Clerk's currently-supported major). The cookie is Secure, HttpOnly, and SameSite=Lax under a top-level domain; the project does not read the cookie value from JavaScript on the client. Every request that requires an authenticated caller carries the cookie; the server-side middleware verifies the cookie against Clerk's session-verification surface and lifts the resolved principal onto the request. Bearer-in-header transport is out of scope for the blueprint's default; a project that requires it authors a project-level ADR and layers the required transport alongside the cookie one without removing the cookie floor.",
+  "category": "security",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "The session-cookie model is what Clerk ships as the default browser flow and it composes with the SPA blueprint's XSS floor (HttpOnly means script exfiltration is not the failure mode) and with the REST blueprint's CSRF-shape choice (SameSite=Lax is the floor and a project can layer a double-submit token on top). Pinning the cookie name to Clerk's documented value is what lets the verifier and the middleware speak the same wire without a translation layer.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:02-session-transport"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
