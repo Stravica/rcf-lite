@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Secret bindings resolve through the project's secrets contract, never plaintext in the wrangler manifest",
+  "description": "Every secret the Worker reads at runtime is declared in `wrangler.toml` by NAME only (using the vendor's declaration primitive, for example a `secrets.required[]` list or the equivalent binding entry with an empty value) and populated on the deploy target through the vendor's own secret-set flow. The value is sourced from the project's secrets contract (as fixed by the `security-secrets-management` blueprint at slug `security-secrets-management` when applied, or by the equivalent project-authored contract). No secret VALUE ever lives in `wrangler.toml`, in a committed environment file, in a CI variable readable outside the promote job, or in the CI run's captured logs. A CI-side redactor scrubs any log line that would emit a resolved secret value.",
+  "category": "security",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "Secrets in deploy config is one of the two shapes of leak this blueprint refuses (the other is production auto-promote). Declaring bindings by name only forces the value to arrive through a controlled channel and keeps the manifest safe to review in a PR. The blueprint mandates the CONTRACT (values arrive through the secrets pipeline); the vendor default binds through `wrangler secret put`.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:06-secrets-boundary"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

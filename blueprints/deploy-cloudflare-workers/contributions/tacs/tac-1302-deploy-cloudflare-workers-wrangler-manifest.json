@@ -1,0 +1,45 @@
+{
+  "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Wrangler Manifest",
+  "purpose": "The repo-root deploy-configuration file (`wrangler.toml` or `wrangler.jsonc`) as loaded, validated, and exposed to the Deploy Adapter. Parses the manifest into an object the adapter and the CI gates consult, enforces the shape rules (required top-level keys, declared bindings, no inline secrets, no collapsed URLs), and refuses malformed or leaky manifests loudly.",
+  "responsibilities": [
+    "Parse `wrangler.toml` (or `wrangler.jsonc`) at the repo root; refuse absence with `WRANGLER_MANIFEST_MISSING` (AC-12101-1).",
+    "Validate the top-level keys `name`, `main`, `compatibility_date` are present and correctly typed; validate `main` resolves to an existing entry file; validate `compatibility_date` matches `\\d{4}-\\d{2}-\\d{2}` (AC-12101-1).",
+    "Cross-check every binding name referenced from the Worker source (via env-accessor scans keyed by binding name) against the manifest declarations; refuse a missing declaration with `WRANGLER_BINDING_UNDECLARED` naming the offending source path and the missing binding (AC-12101-2).",
+    "Refuse a manifest that carries any inline secret value; scan the parsed object for keys under the vendor's secret-declaration primitive whose value is not an empty declaration (AC-12101-3, AC-12106-1).",
+    "Refuse a manifest whose production route stanza resolves to the same host as the preview alias URL with `DEPLOY_URL_COLLAPSED` (AC-12105-2).",
+    "Expose a `bindings()` accessor listing every declared binding (kind, name) for downstream consumers.",
+    "Expose a `productionUrl()` accessor deriving the production URL from the `routes`/`route`/`workers_dev`/custom-domain declaration."
+  ],
+  "internalStructure": "One parser module per format (TOML and JSONC), one validator that walks the parsed object against the shape rules, one binding-usage scanner that walks the Worker source AST for env-accessor patterns, and one URL-derivation module that inspects the routes stanza. All pure functions; no I/O outside the initial file read.",
+  "interfaces": [
+    {
+      "name": "manifestFile",
+      "kind": "read-api",
+      "description": "Reads `wrangler.toml` or `wrangler.jsonc` at the repo root. The file's presence is required; the file's format is autodetected from the extension."
+    },
+    {
+      "name": "workerSourceScanner",
+      "kind": "read-api",
+      "description": "AST or regex scanner over the Worker source tree that emits every binding name referenced through env-accessor patterns (for the default JS/TS Worker, `env.<NAME>.<method>` and `process.env.<NAME>` are both matched)."
+    },
+    {
+      "name": "bindings",
+      "kind": "read-api",
+      "description": "Structured list of declared bindings emitted for downstream consumers. Each entry names the binding kind (KV, D1, R2, Durable Object, static assets, var, secret, service, queue) and the binding name."
+    },
+    {
+      "name": "productionUrl",
+      "kind": "read-api",
+      "description": "Returns the production URL derived from the manifest. When multiple routes are declared, returns the ordered list; when `workers_dev = true`, returns the workers.dev host."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The loader owns validation but does not own the vendor's own manifest-level validation (which happens later at the vendor CLI). Two-stage validation means a manifest that passes this loader can still fail the vendor's own load; the trade keeps the loader project-local and fast (no vendor round-trip on every CI step) while catching the classes this blueprint cares about (undeclared bindings, inline secrets, collapsed URLs) before the vendor call. A project can point the loader at a project-authored TOML dialect (a preprocessor step) by wrapping the manifestFile interface.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

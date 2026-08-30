@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Production only changes via an explicit promote step; no upload path auto-promotes",
+  "description": "Production traffic serving is a distinct action from uploading a version. No CI path may take an uploaded version and route production traffic to it as a side effect of the upload. Production only changes when a Promote step runs and names the version id to serve. The promote step is authored as a separate CI workflow triggered by explicit operator action (`workflow_dispatch` on GitHub Actions or the equivalent manual-trigger primitive on other CI platforms). The promote workflow accepts one input: `versionId` (empty defaults to the newest-of-main resolved from the preview alias); every promote emits a structured record naming the version id promoted, the operator principal that triggered the workflow, the previously-serving version id, and the timestamp.",
+  "category": "functional",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "The failure mode this ends: a merge lands, the CI pipeline deploys straight to production, and nobody notices the bad release until the phone rings. Decoupling upload from promote makes the ship-to-production act a first-class human decision. The default of newest-of-main keeps the promote fast for the common case; the explicit versionId keeps rollback and hotfix promotes on the same code path.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:04-explicit-promote"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,46 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12108",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The promote workflow is manually triggered and accepts an optional versionId input",
+  "asA": "operator shipping a change to production",
+  "iWant": "one promote workflow that ships the newest-of-main by default and accepts an explicit version id",
+  "soThat": "the common ship, a hotfix, and a rollback all travel the same path",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12108-1",
+      "description": "The `promote` workflow declares one input field `versionId` typed as an optional string.",
+      "given": "the `promote` workflow file",
+      "when": "the input stanza is parsed",
+      "then": "one input `versionId` exists and is not marked required; the workflow declares no other input fields",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12108-2",
+      "description": "A promote invocation with an empty `versionId` input resolves the newest-of-main by querying the Deploy Adapter's `resolveNewestOfMain` verb and then promotes THAT version.",
+      "given": "the preview alias `main` currently resolves to version W",
+      "when": "the `promote` workflow runs with `versionId=''`",
+      "then": "the workflow invokes `resolveNewestOfMain` returning W, calls `promoteVersion({ versionId: W })`, and the recorded promote record names W as `promotedVersionId`",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12108-3",
+      "description": "A promote invocation whose input `versionId` is not present in `listVersions()` fails before calling `promoteVersion` and records nothing to the deploy log.",
+      "given": "an id `not-a-version` absent from `listVersions()`",
+      "when": "the `promote` workflow runs with `versionId='not-a-version'`",
+      "then": "the run fails with the `DEPLOY_VERSION_NOT_FOUND` code from the adapter, no vendor promote call is issued, and no promote record is appended to the deploy log",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1304-deploy-cloudflare-workers-promote-gate",
+    "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

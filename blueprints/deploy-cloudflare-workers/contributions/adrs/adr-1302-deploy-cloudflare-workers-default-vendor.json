@@ -1,0 +1,35 @@
+{
+  "adrId": "ADR-1302-deploy-cloudflare-workers-default-vendor",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The default deployment vendor is Cloudflare Workers via the wrangler CLI",
+  "context": "ADR-1301 fixes the contract; a project applying this blueprint still needs a working default vendor on day one. The rcf-lite tier this blueprint targets is small greenfield projects: a single Worker or a small handful, one small team or one solo operator, no ops team standing by. A default vendor for that tier should ship with zero infrastructure to run, a small operational footprint, a runtime whose primitive shape (edge-runtime request handler, bound resources) fits the artefact-upload + promote model, and a CLI that surfaces the upload/promote/list primitives the adapter needs. Larger deployments will supersede this decision with a different vendor; the point of a default is that day one works.",
+  "decision": "The default deployment vendor is Cloudflare Workers accessed through the `wrangler` CLI. The Deploy Adapter's default backing binding shells to `wrangler versions upload --preview-alias <alias>` for `uploadVersion`, `wrangler versions deploy <versionId>` for `promoteVersion`, `wrangler versions list` for `listVersions`, and the vendor's alias-lookup verb for `resolveNewestOfMain`. The wrangler manifest at the repo root is `wrangler.toml` (or `wrangler.jsonc` at operator preference). The preview URL patterns are the vendor's public URL contracts (per-version-id hostnames and per-alias hostnames on the workers.dev subdomain, or their custom-hostname mapped equivalents). The default is chosen because the zero-infrastructure floor is real for the target tier: no cluster to run, no image registry to feed, per-request cold-start amortised by the vendor, and the primitives ship the artefact-upload + promote split as first-class CLI verbs. Projects that outgrow the default supersede this ADR with a project-level ADR selecting a different deploy vendor and swap the adapter's vendor binding.",
+  "consequences": "The project ships with a working deploy flow on day one and does not force an ops decision before the first commit. The Cloudflare account, an account id, and an API token become first-class pieces of operator state the project manages (the token scoped to the account with the minimum verbs the adapter uses; the token is a secret bound through the secrets contract, not committed anywhere). The Worker runtime shape (edge-runtime, request-scoped, no long-lived process) is now a constraint the Worker's own code respects; a project that outgrows that shape supersedes ADR-1302 with a different vendor and adapts the code to the new runtime. Composition with a vendor-specific superseding blueprint (a project-authored `deploy-fly-io` blueprint minted on demand, a future `deploy-vercel` or `deploy-k8s-service` blueprint) is a project-level ADR change and a vendor-binding swap; the ADR-1301 contract stays intact.",
+  "alternativesConsidered": [
+    {
+      "name": "Fly.io",
+      "summary": "Deploy a Docker image to a Fly.io app; the vendor binding shells to `flyctl deploy`.",
+      "reasonNotChosen": "A genuinely different vendor shape (persistent VMs, per-region deploy control, a Docker image as the artefact). A reasonable pair candidate when a project wants a general-purpose deploy target with more control over the runtime. Not the day-one default because the edge-runtime shape of Cloudflare Workers fits more of the estate's actual live projects; a future `deploy-fly-io` blueprint mints on demand and composes cleanly through the ADR-1301 contract with a project-level supersede on ADR-1302."
+    },
+    {
+      "name": "Vercel",
+      "summary": "Deploy through Vercel's preview + production deploy model; the vendor binding shells to `vercel deploy` and `vercel promote`.",
+      "reasonNotChosen": "Vercel's preview-vs-production shape maps well onto the ADR-1301 contract. Reserved as a natural future blueprint on demand for projects that want Vercel's Next.js-first surface. Not the day-one default because the estate's live footprint is on Cloudflare Workers; a project on Vercel supersedes ADR-1302 and adapts the binding."
+    },
+    {
+      "name": "AWS Lambda / Google Cloud Run / other cloud-native FaaS",
+      "summary": "Deploy a function image or bundle to a hyperscaler's FaaS surface; the vendor binding shells to the cloud SDK's deploy verb.",
+      "reasonNotChosen": "Ties the project to one cloud at the deploy layer; the doctrine of ADR-1301 keeps the contract vendor-agnostic on purpose. Excellent choice for a project already committed to one cloud and using its identity model for deploy authentication; a project-level ADR supersede is the intended path."
+    },
+    {
+      "name": "Self-hosted VPS + a Docker Compose stack",
+      "summary": "SSH to a VPS and run `docker compose pull && docker compose up -d`; no vendor account, no per-request billing.",
+      "reasonNotChosen": "The self-hosted shape does not fit the artefact-upload + promote model without additional plumbing (a bespoke version-store, a bespoke promote step, a bespoke rollback path). A legitimate ecosystem choice for a project that wants full self-hosted control; a future `deploy-docker-compose-vps` blueprint would live at a different altitude and would not need to be `accountBound` at all."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

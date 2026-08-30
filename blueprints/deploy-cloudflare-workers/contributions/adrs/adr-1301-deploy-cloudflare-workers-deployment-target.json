@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1301-deploy-cloudflare-workers-deployment-target",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The project's deployment target is an artefact-upload + explicit-promote model, versions addressable at stable preview URLs, one adapter as the sole vendor caller",
+  "context": "Every non-trivial project ships to a running target. The failure modes accumulate the same way secrets ones do: an ad-hoc deploy shell script on a laptop, a CI step that pushes to production on every merge, a rollback path nobody has tested since the last incident, a review URL that is production itself. A single-source-of-truth model addresses the root cause: one manifest, one adapter, one upload verb, one promote verb, one served-surface verifier. This topic is scoped as a project-level global because a composing blueprint that holds a different opinion on the deployment shape (a container-image-per-commit + rolling-deploy blueprint, a monolithic-deploy blueprint, a serverless-function-per-endpoint blueprint) needs to conflict here and be resolved by the operator.",
+  "decision": "The project's deployment target is an artefact-upload + explicit-promote model. The Deploy Adapter (TAC-1301) is the sole caller of the deploy vendor; the wrangler manifest (TAC-1302) is the sole declaration of the deploy shape. Every merge to the main branch uploads a version through the adapter's `uploadVersion` verb and produces two addressable URLs (a per-version-id URL and a stable preview alias URL). Production only changes when the operator runs the `promote` workflow, which invokes `promoteVersion` on the adapter with a resolved version id. Rollback is a promote of a prior version id. Every promote runs the Served-surface Verifier against the production URL and fails the release on any probe breach. The vendor is pluggable; the interface is not. The default vendor is named in ADR-1302; alternatives supersede this ADR at the project level.",
+  "consequences": "One place to change vendors, one place to audit the deploy trail, one place to enforce the promote-is-explicit invariant. The manifest becomes a piece of documentation the project maintains as part of its normal change flow, which is the intended cost. Preview URLs and production URLs are always distinct and both discoverable through the adapter's `deploy status` verb. Composition with a blueprint that would import a vendor deploy SDK directly or that would auto-promote on merge conflicts here by design; the operator supersedes with a project-level ADR that either accepts the composed blueprint's shape or restates this one's.",
+  "alternativesConsidered": [
+    {
+      "name": "Merge-to-production (coupled upload + promote)",
+      "summary": "Every merge to main deploys straight to production; no distinct promote step; the vendor CLI's coupled `deploy` verb is called from the merge workflow.",
+      "reasonNotChosen": "This is the default state most small projects drift into and the state this blueprint exists to end. Every merge is a production act; a bad merge is a bad release; rollback is a git revert followed by a second merge-to-production; the review URL is production itself. Fine for a solo project on a low-stakes surface; the wrong default for anything with users. A project that legitimately wants the coupled shape can still apply this blueprint, restate ADR-1301 with a project-level ADR that permits coupled deploy, and set the `promote` workflow to trigger on merge. The blueprint does not fight the operator; it makes the default a distinct step."
+    },
+    {
+      "name": "Per-commit container image + rolling deploy on a Kubernetes-shaped target",
+      "summary": "Every merge builds a container image tagged by commit; a controller rolls the image out to a fleet of replicas; canary and progressive delivery layer above.",
+      "reasonNotChosen": "A legitimate shape at a larger scale; wrong altitude for the rcf-lite tier this blueprint targets. The trade against the artefact-upload + promote model is running the controller and the fleet; the payoff is finer-grained rollout control. A project outgrowing the artefact-upload model authors a project-level ADR that adopts a container-oriented target and applies a different deploy blueprint (a future `deploy-k8s-service` blueprint would sit at that altitude)."
+    },
+    {
+      "name": "Vendor-committed opinionated blueprint (Cloudflare Workers only, at the contract layer)",
+      "summary": "Ship the blueprint tied to Cloudflare Workers at the contract layer; the manifest is `wrangler.toml`, the CLI is `wrangler`, the URLs are workers.dev, no adapter port.",
+      "reasonNotChosen": "Locks the project to a vendor at the blueprint layer, which the doctrine of round-2 refuses (vendor default belongs at ADR-1302, contract belongs here). A composing blueprint or a project that wants a different vendor can only escape by removing this blueprint. Splitting the contract from the default keeps both moves available; the adapter port shape (see TAC-1301) is what makes a vendor swap a project-side ADR change plus an adapter reimplementation, not a blueprint change."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

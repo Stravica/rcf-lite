@@ -1,0 +1,57 @@
+{
+  "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Promote Gate",
+  "purpose": "The project-side guard that enforces production only changes on an explicit operator promote. Wraps the `promote` workflow's input handling, its version-id resolution, its call into the Deploy Adapter, and its post-promote invocation of the Served-surface Verifier. Emits the structured deploy-log record every promote leaves behind.",
+  "responsibilities": [
+    "Accept the `versionId` input from the promote workflow trigger; when empty, invoke `deployAdapter.resolveNewestOfMain()` to fill it (AC-12108-1, AC-12108-2).",
+    "Refuse a `versionId` absent from `deployAdapter.listVersions()` before any vendor call is issued; return `DEPLOY_VERSION_NOT_FOUND` (AC-12108-3).",
+    "Invoke `deployAdapter.promoteVersion({ versionId })`; capture the returned `{ promotedVersionId, previousVersionId }` for the deploy-log record (AC-12104-3, AC-12109-1).",
+    "Immediately invoke the Served-surface Verifier against the production URL; on any verifier failure exit non-zero with `PROMOTE_VERIFY_FAILED` and refuse to mark the release successful (AC-12109-3, AC-12110-1, AC-12110-3).",
+    "Emit the deploy-log record with fields `promotedVersionId`, `promotedBy`, `previousVersionId`, `promotedAt`; every field is populated; no field carries a secret value (AC-12104-3).",
+    "Refuse to run when the invocation context is not the platform's explicit-manual-trigger primitive (a `workflow_dispatch` guard as the first step of the workflow) (AC-12104-1, AC-12104-2)."
+  ],
+  "internalStructure": "One workflow-orchestration function per CI platform (the default GitHub Actions form is shipped as an asset; other platforms adapt the same shape). The function is stateless; the workflow's own outputs are the durable state. The deploy-log record is written to a project-chosen sink (a JSONL file in a durable location, an audit event bus, a database table) through an injected `deployLog.append` callback.",
+  "interfaces": [
+    {
+      "name": "deployAdapter",
+      "kind": "read-write-api",
+      "description": "The Deploy Adapter port (TAC-1301). The promote gate calls `listVersions`, `resolveNewestOfMain`, and `promoteVersion` through this interface."
+    },
+    {
+      "name": "verifier",
+      "kind": "read-api",
+      "description": "The Served-surface Verifier callable that runs the post-promote probes and returns pass or a `PROMOTE_VERIFY_FAILED` failure description."
+    },
+    {
+      "name": "deployLog",
+      "kind": "callback",
+      "description": "Append callback invoked with the promote record `{ promotedVersionId, promotedBy, previousVersionId, promotedAt }` on every successful promote and on every verifier-failed promote."
+    },
+    {
+      "name": "triggerContext",
+      "kind": "read-api",
+      "description": "Returns the platform's trigger information (event name, actor login). The gate refuses to proceed when the event name is not the platform's explicit-manual-trigger name (`workflow_dispatch` on GitHub Actions)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Deploy Adapter",
+      "kind": "tac",
+      "tacId": "TAC-1301-deploy-cloudflare-workers-deploy-adapter",
+      "description": "Every version operation routes through the adapter; no direct vendor CLI call from the gate."
+    },
+    {
+      "name": "Served-surface Verifier",
+      "kind": "tac",
+      "tacId": "TAC-1305-deploy-cloudflare-workers-served-surface-verifier",
+      "description": "The post-promote probe layer; the gate invokes the verifier and honours its failure signal."
+    }
+  ],
+  "tradeoffs": "The gate is coupled to the workflow platform's explicit-trigger primitive. A project that runs on a CI platform without a distinct manual-trigger event needs a project-authored wrapper that supplies the equivalent (a manual-approval step; a webhook with an operator token check). The trade is the workflow platforms that ship this primitive natively (GitHub Actions, GitLab CI's manual jobs, Buildkite's block steps) all get the invariant enforced cheaply; the rest layer their own equivalent above.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

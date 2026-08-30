@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-010",
+  "prdId": "PRD-001",
+  "title": "Every promote runs bounded served-surface probes against the production URL and fails the release on breach",
+  "description": "Immediately after a successful `promoteVersion` call, the promote workflow (REQ-008) invokes the Served-surface Verifier (TAC-1305). The verifier hits a fixed set of probe paths on the PRODUCTION URL (not the preview URL) with bounded retry semantics: at least three probe paths chosen by the project, each requested at most six times over at most sixty seconds, with a per-request timeout at most five seconds. A probe passes when the response status is in the project-declared success set and the response body carries the expected shape (for a health probe, a body containing the version-id string that was just promoted; for a smoke path, a project-declared invariant string). If any probe path fails every retry the workflow exits non-zero with a stable code `PROMOTE_VERIFY_FAILED`, records the failed probe path, the response status seen, the elapsed time, and refuses to mark the release successful.",
+  "category": "nonFunctional",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "A promote that does not verify the served surface is a promote taken on trust of the vendor's own success signal. The vendor's success signal covers 'the version is now the serving version', which is not the same as 'the served surface answers correctly'. Bounded retries are the discipline that catches propagation-lag class failures without turning transient blips into a stuck workflow.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:10-verify-served"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

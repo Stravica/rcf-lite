@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1304-deploy-cloudflare-workers-rollback-is-promote",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Rollback is a promote of a prior version id; the promote workflow is the sole ship-to-production path",
+  "context": "Rollback is one of the two shapes a project reaches for at exactly the wrong time to discover drift. The failure mode: a project ships a rollback verb once during setup, does not exercise it under pressure until an incident lands, then discovers the rollback path diverged from the ship path (a different vendor call, a different auth path, a different secret binding, a stale probe set, no served-surface verify). Framing rollback as a promote of a known-good version id keeps the audit shape uniform, the auth path identical, the probe set the same, and the served-surface verifier applied unconditionally.",
+  "decision": "Rolling production back to a previous version is not a distinct code path in the project. It is the same `promote` workflow triggered with the prior version id supplied as the `versionId` input. `listVersions` on the Deploy Adapter exposes the history with the currently-serving id marked so the operator can pick a known-good id. The deploy-log record for a rollback carries the same fields as any promote (`promotedVersionId`, `promotedBy`, `previousVersionId`, `promotedAt`). The vendor's own convenience verbs (a `wrangler rollback` shortcut when the default vendor is in play) are optional operator documentation; at the blueprint's contract level any such shortcut is a promote of a prior version id and the audit trail is identical. A project-authored `rollback` script that bypasses the Promote Gate, the deploy log, or the Served-surface Verifier is not permitted.",
+  "consequences": "One ship path serves every ship-to-production act: the merge-to-main promote, the hotfix promote of an out-of-sequence upload, the rollback promote of a prior version id. The audit trail is uniform; a query for 'every production change in the last week' answers the same way for a forward promote and a rollback. The trade: an operator responding to an incident with `wrangler rollback` at the command line (rather than through the `promote` workflow) bypasses the deploy-log record and the served-surface verifier; the blueprint documents this in the guide as a break-glass path that is not the recorded ship path.",
+  "alternativesConsidered": [
+    {
+      "name": "Bespoke `rollback` workflow with its own trigger and its own vendor call",
+      "summary": "A `rollback` workflow file separate from `promote`; triggers on manual dispatch; calls `wrangler rollback` (or the vendor's rollback verb) directly.",
+      "reasonNotChosen": "Two ship paths is one too many. The bespoke workflow drifts from the promote path over time (different secret binding, different logging, different probe set) and the drift is invisible until an incident. Keeping rollback on the same path as promote closes the class."
+    },
+    {
+      "name": "Rollback as a git revert + normal promote of the reverted-merge upload",
+      "summary": "Rollback is not a distinct verb at all; the operator opens a revert PR, waits for the merge, waits for the `build-and-upload` run, then promotes the new upload.",
+      "reasonNotChosen": "The revert flow works for cases where the incident is not urgent and the correct answer is a proper revert. It fails the incident case where the fix is a known-good version id from thirty minutes ago that the operator wants serving now. The chosen model handles both cases on one path."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
