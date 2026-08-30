@@ -1,0 +1,43 @@
+{
+  "slug": "security-secrets-management",
+  "version": "1.0.0",
+  "category": "security",
+  "contributions": [
+    { "id": "security-secrets-management-REQ-001", "kind": "req", "path": "requirements/security-secrets-management-req-001.json" },
+    { "id": "security-secrets-management-REQ-002", "kind": "req", "path": "requirements/security-secrets-management-req-002.json" },
+    { "id": "security-secrets-management-REQ-003", "kind": "req", "path": "requirements/security-secrets-management-req-003.json" },
+    { "id": "security-secrets-management-REQ-004", "kind": "req", "path": "requirements/security-secrets-management-req-004.json" },
+    { "id": "security-secrets-management-REQ-005", "kind": "req", "path": "requirements/security-secrets-management-req-005.json" },
+    { "id": "security-secrets-management-REQ-006", "kind": "req", "path": "requirements/security-secrets-management-req-006.json" },
+    { "id": "security-secrets-management-REQ-007", "kind": "req", "path": "requirements/security-secrets-management-req-007.json" },
+    { "id": "security-secrets-management-REQ-008", "kind": "req", "path": "requirements/security-secrets-management-req-008.json" },
+    { "id": "security-secrets-management-REQ-009", "kind": "req", "path": "requirements/security-secrets-management-req-009.json" },
+    { "id": "security-secrets-management-REQ-010", "kind": "req", "path": "requirements/security-secrets-management-req-010.json" },
+    { "id": "security-secrets-management-US-8101", "kind": "us", "path": "user-stories/security-secrets-management-us-8101.json" },
+    { "id": "security-secrets-management-US-8102", "kind": "us", "path": "user-stories/security-secrets-management-us-8102.json" },
+    { "id": "security-secrets-management-US-8103", "kind": "us", "path": "user-stories/security-secrets-management-us-8103.json" },
+    { "id": "security-secrets-management-US-8104", "kind": "us", "path": "user-stories/security-secrets-management-us-8104.json" },
+    { "id": "security-secrets-management-US-8105", "kind": "us", "path": "user-stories/security-secrets-management-us-8105.json" },
+    { "id": "security-secrets-management-US-8106", "kind": "us", "path": "user-stories/security-secrets-management-us-8106.json" },
+    { "id": "security-secrets-management-US-8107", "kind": "us", "path": "user-stories/security-secrets-management-us-8107.json" },
+    { "id": "security-secrets-management-US-8108", "kind": "us", "path": "user-stories/security-secrets-management-us-8108.json" },
+    { "id": "security-secrets-management-US-8109", "kind": "us", "path": "user-stories/security-secrets-management-us-8109.json" },
+    { "id": "security-secrets-management-US-8110", "kind": "us", "path": "user-stories/security-secrets-management-us-8110.json" },
+    { "id": "TAC-901-security-secrets-management-manager-client", "kind": "tac", "path": "tacs/tac-901-security-secrets-management-manager-client.json" },
+    { "id": "TAC-902-security-secrets-management-manifest", "kind": "tac", "path": "tacs/tac-902-security-secrets-management-manifest.json" },
+    { "id": "TAC-903-security-secrets-management-env-reflector", "kind": "tac", "path": "tacs/tac-903-security-secrets-management-env-reflector.json" },
+    { "id": "TAC-904-security-secrets-management-rotation-gate", "kind": "tac", "path": "tacs/tac-904-security-secrets-management-rotation-gate.json" },
+    { "id": "TAC-905-security-secrets-management-agent-cli", "kind": "tac", "path": "tacs/tac-905-security-secrets-management-agent-cli.json" },
+    {
+      "id": "ADR-901-security-secrets-management-secrets-source",
+      "kind": "adr",
+      "path": "adrs/adr-901-security-secrets-management-secrets-source.json",
+      "scope": "global",
+      "topic": "secretsSource"
+    },
+    { "id": "ADR-902-security-secrets-management-default-vendor", "kind": "adr", "path": "adrs/adr-902-security-secrets-management-default-vendor.json" },
+    { "id": "ADR-903-security-secrets-management-agent-access-discipline", "kind": "adr", "path": "adrs/adr-903-security-secrets-management-agent-access-discipline.json" },
+    { "id": "ADR-904-security-secrets-management-dotenv-reflection", "kind": "adr", "path": "adrs/adr-904-security-secrets-management-dotenv-reflection.json" },
+    { "id": "ADR-905-security-secrets-management-rotation-and-audit", "kind": "adr", "path": "adrs/adr-905-security-secrets-management-rotation-and-audit.json" }
+  ]
+}
