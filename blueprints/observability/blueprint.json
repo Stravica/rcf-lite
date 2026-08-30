@@ -1,6 +1,7 @@
 {
   "slug": "observability",
   "version": "1.0.0",
+  "category": "observability",
   "contributions": [
     { "id": "observability-REQ-001", "kind": "req", "path": "requirements/observability-req-001.json" },
     { "id": "observability-REQ-002", "kind": "req", "path": "requirements/observability-req-002.json" },

@@ -40,6 +40,17 @@ const EXCLUDED_KINDS = new Set(['fbs']);
  * @property {string} slug
  * @property {string} version
  * @property {string} source        source directory (absolute)
+ * @property {string} [category]    optional shelf-grouping tag; kebab slug.
+ *                                  Read by `rcf define blueprint list` and by
+ *                                  the docs blueprint shelf to group entries.
+ *                                  The starter vocabulary (`application`,
+ *                                  `security`, `email`, `deploy`, `delivery`,
+ *                                  `persistence`, `observability`) lives in
+ *                                  the authoring standard; the loader
+ *                                  validates the shape (kebab slug), not the
+ *                                  vocabulary, so a new category can be
+ *                                  minted by adding it to the standard
+ *                                  without a code change.
  * @property {BlueprintContribution[]} contributions
  */
 
@@ -82,6 +93,7 @@ export async function loadBlueprint(source) {
     slug: doc.slug,
     version: doc.version,
     source: root,
+    ...(typeof doc.category === 'string' ? { category: doc.category } : {}),
     contributions: Array.isArray(doc.contributions) ? doc.contributions : [],
   };
 }
@@ -95,6 +107,19 @@ function validateMetadata(doc, metaPath) {
   }
   if (typeof doc.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(doc.version)) {
     return rcfError({ kind: 'validation', message: `blueprint.json: version '${doc.version}' is not semver`, filePath: metaPath });
+  }
+  if (doc.category !== undefined) {
+    // Category is optional; when present it must be a kebab slug (same
+    // shape as blueprint slug). The loader validates SHAPE only: the
+    // vocabulary (application, security, email, deploy, delivery,
+    // persistence, observability, and future additions) is documented
+    // in the authoring standard rather than pinned in code, so a new
+    // category minted at standard-review time does not need a loader
+    // change. The docs shelf and `rcf define blueprint list` render
+    // whatever category strings appear on the applied blueprints.
+    if (typeof doc.category !== 'string' || !/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(doc.category)) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: category '${doc.category}' is not a valid kebab slug`, filePath: metaPath });
+    }
   }
   if (doc.contributions !== undefined && !Array.isArray(doc.contributions)) {
     return rcfError({ kind: 'validation', message: 'blueprint.json: contributions must be an array', filePath: metaPath });

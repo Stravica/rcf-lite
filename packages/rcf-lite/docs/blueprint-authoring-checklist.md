@@ -11,6 +11,7 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
 - [ ] `blueprint.json` exists at the blueprint root and is valid JSON.
 - [ ] `slug` matches `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`.
 - [ ] `version` matches `\d+\.\d+\.\d+`.
+- [ ] `category`, when present, matches the same lower-kebab pattern as `slug` and appears in the vocabulary at [authoring standard, section 3a](blueprint-authoring.md#3a-category); a new category needs a row added there in the same PR.
 - [ ] Every `contributions[]` entry has `{ id, kind, path }`.
 - [ ] Every `path` is relative to `contributions/`, contains no absolute path, contains no `..` segment.
 - [ ] Every `kind` is one of `req`, `us`, `tac`, `adr`, `ts`, `cn`. No `fbs`. No `prd`, `tad`, `bs`.

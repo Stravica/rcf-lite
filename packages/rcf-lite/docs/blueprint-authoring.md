@@ -39,6 +39,7 @@ blueprints/<slug>/
 {
   "slug": "spa",
   "version": "1.0.0",
+  "category": "application",
   "contributions": [
     { "id": "spa-REQ-001", "kind": "req", "path": "requirements/spa-req-001.json" },
     { "id": "spa-US-1101", "kind": "us",  "path": "user-stories/spa-us-1101.json" },
@@ -54,11 +55,32 @@ Rules the loader enforces at load time (`packages/rcf-lite/src/blueprint/loader.
 
 - `slug` is lower-kebab (`^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`).
 - `version` is semver.
+- `category`, when present, is a lower-kebab slug on the same pattern as `slug`. The vocabulary lives in section 3a below.
 - Every contribution has `{ id, kind, path }` and `path` is relative to `contributions/`, no absolute path, no `..` segment.
 - Contributable kinds: `req`, `us`, `tac`, `adr`, `ts`, `cn`. Excluded: `fbs`. Refused as singletons: `prd`, `tad`, `bs`.
 - `scope` is optional and, when set, must be `"global"`. `scope: "global"` is legal only on `adr` kind and REQUIRES a `topic` string.
 
 If any rule fails at load time, `rcf define blueprint add` refuses before touching the tree.
+
+## 3a. Category
+
+`category` is an optional lower-kebab string on `blueprint.json` that names the shelf group the blueprint belongs to. `rcf define blueprint list` and the docs blueprint shelf both group by this field; a blueprint that omits it renders under `uncategorised`.
+
+Starter vocabulary (ratified 2026-08-30 with round-2 chunk zero):
+
+| Category | Covers |
+|---|---|
+| `application` | Whole-app shapes: the SPA client contract, the REST server contract, and future application-shell blueprints. |
+| `security` | Auth and secrets: magic-link auth, hosted identity providers (Clerk), OAuth2/OIDC, IdP-integration blueprints (Keycloak), secrets management. |
+| `email` | Transactional-email sending and delivery-webhook contracts. |
+| `deploy` | Shipping built bits to a running target: Workers, Kubernetes, Fly, Vercel, VPS. |
+| `delivery` | Gating changes on the way in: the CI-gate pipeline, and future CI-adjacent blueprints (release notes, artefact publish). Distinct from `deploy`, which ships bits OUT to a running target after merge. |
+| `persistence` | Data stores and migration discipline: SQLite, D1, Postgres, MongoDB. |
+| `observability` | Health, readiness, probes, status pages. |
+
+New categories are minted by adding a row to this table in a chunk-zero-style pass, not by patching the loader: the loader validates SHAPE (kebab slug), so a blueprint may ship with a category the table does not yet name, and the shelf will render it verbatim. Prefer consolidation over near-duplicate categories; if two candidates read as the same shelf group to a first-time reader, pick one and note the reasoning here.
+
+Category is also a naming discipline. Auth-family blueprints minted from round 2 onwards carry the `security-` slug prefix (`security-auth-clerk`, `security-auth-keycloak`, `security-auth-oauth2`, `security-secrets-management`). The shipped generic `auth` blueprint keeps its slug for backward compatibility and carries `category: "security"`; a slug-rename with alias support is deferred to a follow-up mechanism pass and is out of scope for chunk zero.
 
 ## 4. Namespacing
 

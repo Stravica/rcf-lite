@@ -16,6 +16,8 @@ import { findProjectRoot } from '../view/index.js';
 import {
   applyBlueprint,
   diffBlueprintTopic,
+  enrichRowsWithCategories,
+  groupRowsByCategory,
   listBlueprints,
   removeBlueprint,
   renderDiff,
@@ -32,7 +34,11 @@ Verbs:
                          to manifest.blueprints[] and copies namespaced
                          contributions into the tree.
   list                   List every applied blueprint (slug, version,
-                         appliedAt, contributionCount).
+                         appliedAt, contributionCount), grouped by the
+                         \`category\` declared on each blueprint's own
+                         \`blueprint.json\`. Blueprints whose source no
+                         longer resolves, or whose source declares no
+                         category, appear under \`uncategorised\`.
   remove <slug>          Remove an applied blueprint. Refuses when any
                          project-authored doc references a contribution
                          id; prints the referring docs and exits 3.
@@ -211,8 +217,23 @@ export async function main(argv, deps = {}) {
       if (!parsed.values.quiet) stdout.write('[blueprint] no blueprints applied on this project.\n');
       return 0;
     }
-    for (const row of rows) {
-      stdout.write(`${row.slug}\t${row.version}\t${row.appliedAt}\t${row.contributionCount} contribution(s)\n`);
+    // Enrich with category from each applied blueprint's source. The
+    // manifest schema does not carry category (additionalProperties:
+    // false on appliedBlueprintRecord), so the enricher re-loads each
+    // source's blueprint.json at list time; a source that no longer
+    // resolves surfaces under the `uncategorised` group rather than
+    // being dropped.
+    const enriched = await enrichRowsWithCategories(rows);
+    const groups = groupRowsByCategory(enriched);
+    let first = true;
+    for (const group of groups) {
+      const label = group.category ?? 'uncategorised';
+      if (!first) stdout.write('\n');
+      first = false;
+      stdout.write(`# ${label}\n`);
+      for (const row of group.rows) {
+        stdout.write(`${row.slug}\t${row.version}\t${row.appliedAt}\t${row.contributionCount} contribution(s)\n`);
+      }
     }
     return 0;
   }

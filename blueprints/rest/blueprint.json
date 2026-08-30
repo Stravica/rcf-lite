@@ -1,6 +1,7 @@
 {
   "slug": "rest",
   "version": "1.0.0",
+  "category": "application",
   "contributions": [
     {
       "id": "rest-REQ-001",
