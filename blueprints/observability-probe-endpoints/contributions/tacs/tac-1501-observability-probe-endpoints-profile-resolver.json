@@ -1,0 +1,39 @@
+{
+  "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Probe profile resolver",
+  "purpose": "Reads the operator-declared `probeInterface.profile` name and its per-profile options at process boot, loads the matching profile module (shipped or project-authored `custom:<name>`), validates the resolved profile against the profile contract, and hands the frozen profile object to the handler-set binder and the listener-topology binder. Nothing in the process reaches for a probe transport, path, or response contract except through the resolved profile object this component returns.",
+  "responsibilities": [
+    "Read `probeInterface.profile` from process configuration and refuse a missing or unrecognised value with a stable-coded error (AC-14101-2, AC-14101-3).",
+    "Load the matching profile module from the shipped set (`kubernetes`, `loadBalancer`, `uptimeMonitor`, `systemd`, `dockerHealthcheck`, `reverseProxy`) or from the project's `profiles/custom/<name>` slot when the name is `custom:<name>` (AC-14108-2).",
+    "Apply operator overrides from `probeInterface.options.<profile>` on top of the profile's declared defaults, then validate the merged object against the profile contract (transport, paths or transport-appropriate surface, responseContract, semanticModel, listener defaults) and refuse a partial profile with `PROBE_PROFILE_INCOMPLETE` (AC-14103-1, AC-14103-2).",
+    "Refuse a response-contract override that adds a field beyond the profile's enumerated response surface with `PROBE_RESPONSE_FIELD_REFUSED` (AC-14106-2).",
+    "Emit the exact-match auth-exempt path set for the resolved profile so the project's auth middleware installer can consume it and refuse a wildcard or prefix entry with a stable-coded error (AC-14107-3).",
+    "Return one frozen profile object per boot; expose no mutation surface after boot resolution."
+  ],
+  "internalStructure": "One module: a `resolveProbeProfile({ config, profileLoader, contractValidator })` function returning a frozen profile object plus a `getExemptPathSet()` accessor. The `profileLoader` is a small dispatcher that resolves the profile name to the shipped module or the `custom:<name>` project slot. The `contractValidator` is a schema-check function against the profile contract (transport enum, paths shape per transport, responseContract enum per transport, semanticModel enum). No I/O beyond the initial configuration read and the profile-module import; no cache invalidation because the resolved profile is treated as a boot-time constant.",
+  "interfaces": [
+    {
+      "name": "resolveProbeProfile",
+      "kind": "factory",
+      "description": "resolveProbeProfile({ config, profileLoader, contractValidator }) -> { profile, getExemptPathSet }. Called once at boot; the returned profile drives the handler-set binder (TAC-1502), the listener-topology binder (TAC-1503), and the non-HTTP adapter selector (TAC-1504)."
+    },
+    {
+      "name": "profileLoader",
+      "kind": "read-api",
+      "description": "Function that resolves a profile name to the profile module. Shipped profiles resolve to the blueprint's own modules; a `custom:<name>` value resolves to the project's `profiles/custom/<name>` slot. Injected so the project supplies its module discovery."
+    },
+    {
+      "name": "contractValidator",
+      "kind": "read-api",
+      "description": "Schema-check function against the profile contract. Returns a validated frozen profile object on success and a typed error naming the missing or extraneous field on refusal."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The resolver is boot-time-only; a profile change requires a process restart, matching AC-14108-1's expectation. That trade removes a class of live-swap bugs (mid-request rebinding of listeners, half-installed auth-exempt lists) and makes the profile object trivially safe to pass around by reference. A project that wants hot-reload wires a supervisor that restarts the process gracefully; the resolver stays boot-time.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

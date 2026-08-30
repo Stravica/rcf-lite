@@ -1,0 +1,45 @@
+{
+  "usId": "observability-probe-endpoints-US-14106",
+  "prdId": "PRD-001",
+  "reqId": "observability-probe-endpoints-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "External-visible probe responses expose no internal identifier or operational value",
+  "asA": "operator whose probe surface is reachable by anyone who resolves the traffic host",
+  "iWant": "the probe response to carry no dependency name, environment, hostname, replica id, build hash, or metric",
+  "soThat": "the surface never fingerprints the service to a reader who was not meant to inspect the internal shape",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14106-1",
+      "description": "The Kubernetes profile's `/live` and `/ready` responses contain no substring matching a declared dependency name, environment name, hostname, replica identifier, build hash, or commit sha.",
+      "given": "a process on the Kubernetes profile with declared dependencies `paymentsProvider` and `primaryStore`, environment `live`, hostname `svc-abc-123`, build hash `deadbeef`, commit sha `abcd1234abcd1234abcd1234abcd12341234abcd`",
+      "when": "an HTTP GET is issued against `/live` and against `/ready` and each response body is scanned for the tokens above",
+      "then": "no scan finds any of the tokens on either response body",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14106-2",
+      "description": "The profile validator refuses a profile override that adds a field beyond the enumerated response contract at boot.",
+      "given": "a profile configuration that adds a `dependencies` array to the Kubernetes profile's response body",
+      "when": "the profile validator runs at boot",
+      "then": "the process exits with a non-zero code and emits a `PROBE_RESPONSE_FIELD_REFUSED` error naming the offending field and the profile name",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14106-3",
+      "description": "The load-balancer and reverse-proxy profile responses contain content-length zero on every request.",
+      "given": "a process on the `loadBalancer` profile and a second process on the `reverseProxy` profile, both booted normally",
+      "when": "HTTP GET requests are issued against the resolved health path on each process for both pass and fail states",
+      "then": "every response carries `Content-Length: 0` and the response body is empty",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1502-observability-probe-endpoints-handler-set"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

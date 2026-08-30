@@ -1,0 +1,46 @@
+{
+  "usId": "observability-probe-endpoints-US-14103",
+  "prdId": "PRD-001",
+  "reqId": "observability-probe-endpoints-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every profile the blueprint ships names its transport, path, response contract, and semantic distinction; a partial profile is refused at boot",
+  "asA": "operator choosing between the shipped profiles for a deployment context",
+  "iWant": "each profile to declare its transport, path, response, and semantic model completely, and any partial profile to be refused before it wires anything",
+  "soThat": "a mis-authored profile does not silently bind an incomplete probe surface that answers wrongly for the supervisor at hand",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14103-1",
+      "description": "Each of the shipped profiles (`kubernetes`, `loadBalancer`, `uptimeMonitor`, `systemd`, `dockerHealthcheck`, `reverseProxy`) resolves to a config object whose `transport`, `paths` (or command/notify equivalent), `responseContract`, and `semanticModel` fields are all present and each carries a value from its enumerated set.",
+      "given": "a process configured with any one of the shipped profile names and no overrides",
+      "when": "the profile resolver runs at boot",
+      "then": "the resolved profile object has non-null `transport`, non-empty `paths` or its transport-appropriate equivalent, non-null `responseContract`, and non-null `semanticModel`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14103-2",
+      "description": "A profile whose configuration is missing any one of transport, path/command/notify surface, response contract, or semantic model is refused at boot with a stable-coded error naming the missing field.",
+      "given": "a process configured with a profile whose override removes the transport declaration",
+      "when": "the profile resolver runs at boot",
+      "then": "the process exits with a non-zero code and emits a `PROBE_PROFILE_INCOMPLETE` error naming the missing field and the profile name",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14103-3",
+      "description": "The `loadBalancer` profile resolves to a single-endpoint HTTP GET at `/health` (or the configured override) with a `semanticModel` value of `singleHealthSignal`; distinct liveness and readiness handlers are not bound.",
+      "given": "a process configured with `probeInterface.profile: loadBalancer`",
+      "when": "the profile resolver runs and the handler set binds",
+      "then": "exactly one HTTP GET handler is bound at the profile's resolved path (default `/health`), no handler is bound at `/live` or `/ready`, and the resolved profile's `semanticModel` equals `singleHealthSignal`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1501-observability-probe-endpoints-profile-resolver",
+    "TAC-1502-observability-probe-endpoints-handler-set"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

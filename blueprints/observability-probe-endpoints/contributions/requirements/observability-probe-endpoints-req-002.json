@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-probe-endpoints-REQ-002",
+  "prdId": "PRD-001",
+  "title": "A default Kubernetes profile ships with liveness /live and readiness /ready served over HTTP GET",
+  "description": "When the operator selects the `kubernetes` target integration (the shipped default), the profile wires two HTTP GET probe handlers: a liveness handler at path `/live` and a readiness handler at path `/ready`. Both handlers return HTTP 200 for pass and HTTP 503 for fail. The liveness handler answers strictly on in-process event-loop responsiveness and never depends on any external condition. The readiness handler answers on the operator-declared readiness predicate for the profile (default: strict-any-fail over the declared dependency set). Both paths and the port topology are overridable at boot; the defaults hold when the operator does not override.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "Kubernetes is the target integration the round-2 canon selected as the default because Kubernetes documents the richest probe contract in the public conventions the industry has settled on: separate liveness and readiness probes, four probe modes (HTTPGet, TCPSocket, Exec, gRPC), configurable path and port, and a well-known interpretation of the answer at the kubelet. Setting the default profile to Kubernetes lets a service stand up correctly under the most common conventions-heavy supervisor without operator configuration; overriding to a different profile is a one-line change.",
+  "tags": [
+    "blueprint:observability-probe-endpoints",
+    "category:02-kubernetes-default"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

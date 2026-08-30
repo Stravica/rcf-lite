@@ -1,0 +1,45 @@
+{
+  "usId": "observability-probe-endpoints-US-14104",
+  "prdId": "PRD-001",
+  "reqId": "observability-probe-endpoints-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The separate-port option binds probe handlers to a dedicated listener and keeps user traffic clean of them",
+  "asA": "operator running a Kubernetes deployment that publishes only the traffic port on the Service",
+  "iWant": "probe handlers bound to a container port distinct from the traffic port when I set `probeListener.separatePort`",
+  "soThat": "probes reach the pod on the kubelet-only port while the public Service never sees a probe path",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14104-1",
+      "description": "When `probeListener.separatePort: <N>` is set on the Kubernetes profile, probe handlers bind to port N and no probe handler is bound on the user-traffic listener.",
+      "given": "a process configured with `probeInterface.profile: kubernetes` and `probeListener.separatePort: 9091` with a distinct user-traffic port",
+      "when": "the process boots and the topology binds",
+      "then": "a GET against `/live` on port 9091 returns 200, a GET against `/live` on the user-traffic port returns 404 (or the project's default not-found response), and a GET against `/ready` on the user-traffic port returns 404",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14104-2",
+      "description": "The separate probe listener binds only the profile's resolved probe path set; any other path returns not-found on the probe listener.",
+      "given": "a process on the Kubernetes profile with `probeListener.separatePort: 9091` and a user-authored `/api/orders` route on the traffic listener",
+      "when": "a GET against `/api/orders` is issued against port 9091",
+      "then": "the response status is 404 (or the profile's declared not-found), and the request is not routed to the `/api/orders` handler",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14104-3",
+      "description": "The default topology remains fused (probes bind on the user-traffic listener) when `probeListener.separatePort` is unset.",
+      "given": "a process on the Kubernetes profile with no `probeListener.separatePort` override",
+      "when": "the process boots and the topology binds",
+      "then": "GET `/live` on the user-traffic listener returns 200 and no additional listener is opened",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1503-observability-probe-endpoints-listener-topology"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

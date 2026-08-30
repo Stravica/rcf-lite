@@ -1,0 +1,39 @@
+{
+  "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Non-HTTP probe adapters",
+  "purpose": "Owns the non-HTTP transports the shipped profile set names: `dockerHealthcheck` (exec-transport, an entry-point command whose exit code is the probe answer), `systemd` (supervisor-notify transport, an `sd_notify(READY=1)` at boot followed by periodic `WATCHDOG=1` calls at the operator-configured cadence), and TCP-socket transport (a listener that completes the TCP handshake on pass and refuses the connection on fail, used by the Kubernetes `TCPSocket` probe mode when the operator selects it). No HTTP listener is opened for a process running only a non-HTTP profile.",
+  "responsibilities": [
+    "For the `dockerHealthcheck` profile, expose an entry-point command whose invocation reads the readiness predicate and exits with code 0 on pass and a non-zero code on fail; the process itself opens no HTTP probe listener (AC-14105-3).",
+    "For the `systemd` profile with `Type=notify`, call `sd_notify(READY=1)` exactly once after the process reaches its ready state at boot; when a watchdog cadence is declared, call `sd_notify(WATCHDOG=1)` at that cadence for the process lifetime.",
+    "For a Kubernetes profile whose `transport` override is `tcpSocket`, open a TCP listener on the resolved probe port; on pass, accept the connection and close it cleanly; on fail, close the accept socket so the kubelet's connect attempt is refused.",
+    "Ensure a non-HTTP profile's adapter selection is exclusive: the process does not open a probe HTTP listener when the selected profile's transport is `exec`, `notify`, or `tcpSocket` (AC-14105-3)."
+  ],
+  "internalStructure": "Three sibling submodules gated by the profile's `transport` value: `execAdapter` exposes a `runHealthcheck({ readinessPredicate })` function suitable for a Dockerfile `HEALTHCHECK CMD`; `notifyAdapter` exposes `announceReady()` and `startWatchdog({ cadenceMs })` helpers wrapping the operator-supplied notify implementation; `tcpAdapter` exposes `openTcpProbeListener({ port, readinessPredicate })`. The profile resolver's `transport` value selects exactly one adapter per boot; the rest stay dormant.",
+  "interfaces": [
+    {
+      "name": "selectAdapter",
+      "kind": "factory",
+      "description": "selectAdapter({ profile, readinessPredicate, notifyImplementation, tcpFactory }) -> { adapter }. Returns the correct adapter object for the profile's transport. `notifyImplementation` is a project-supplied `(msg: string) -> void` wrapping the supervisor notify call for the runtime (systemd's `NOTIFY_SOCKET` on Linux, a stub in tests). `tcpFactory` is a project-supplied `(port) -> TcpListener`. Called once at boot when the profile transport is non-HTTP."
+    },
+    {
+      "name": "notifyImplementation",
+      "kind": "write-api",
+      "description": "Project-supplied notify writer accepting a supervisor-format message string. For systemd, this writes to the `NOTIFY_SOCKET` datagram address. For tests, a stub accumulator. Injected so the blueprint holds no operating-system-specific dependency."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "profile resolver",
+      "kind": "tac",
+      "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
+      "description": "Selects which non-HTTP adapter to instantiate from the frozen profile's transport value."
+    }
+  ],
+  "tradeoffs": "The non-HTTP transports the blueprint supports out of the box are the three that appear most on the supervisor conventions the shipped profile set targets. Other supervisor transports (gRPC health, a custom binary protocol) belong to a project-authored `custom:<name>` profile that supplies its own adapter through the same selection surface; the blueprint declines to ship every possible non-HTTP transport because the maintenance cost outstrips the value at the rcf-lite tier this blueprint targets. The alternative (a universal transport-abstraction interface) leaks its shape into every profile and every consumer without a real payoff for the three transports actually shipped.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

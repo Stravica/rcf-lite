@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1503-observability-probe-endpoints-kubernetes-default",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Kubernetes is the shipped default target integration profile; HTTPGet /live and /ready on the request-traffic listener are its defaults",
+  "context": "One of the shipped profiles has to be the default the process falls back on when the operator does not declare `probeInterface.profile` explicitly. The choice matters because the default is what a project on the shipped configuration exhibits before the operator has spent any time on the observability surface, and because the default shapes the reader's expectation of what the blueprint 'is about'. The round-2 canon selected Kubernetes as the default: `probe endpoints elicited per deployment type; k8s /live + /ready default; separate-port/separate-server option`.",
+  "decision": "The `kubernetes` profile is the shipped default. When the operator does not declare `probeInterface.profile`, the resolver falls back to `kubernetes` with the default paths `/live` (liveness) and `/ready` (readiness), the default `httpGet` transport, the response contract `{\"status\":\"pass\"|\"fail\"}`, the fused listener topology (probes on the user-traffic listener), and the `strict-any-fail-over-declared-deps` readiness aggregation. The paths and the readiness aggregation are overridable at boot via `probeInterface.options.kubernetes.paths` and `probeInterface.options.kubernetes.readinessRule`. The default hits without operator configuration; overriding is a small config change on the same shape.",
+  "consequences": "A project that applies this blueprint and nothing else immediately exhibits a Kubernetes-shaped probe surface at `/live` and `/ready`; the standard `livenessProbe` and `readinessProbe` of shape `httpGet: { path: /live, port: <containerPort> }` and `httpGet: { path: /ready, port: <containerPort> }` in a Kubernetes podspec work without further wiring. The default is scope-local because it is a preference not a contract: the ADR-1501 elicitation model is the global commitment and the Kubernetes profile is one instantiation of it. A project on Docker Compose or on a bare-metal load-balancer setup that runs the shipped default sees `/live` and `/ready` bound instead of `/health` and reads the disagreement as the signal to declare `probeInterface.profile: loadBalancer` at boot.",
+  "alternativesConsidered": [
+    {
+      "name": "Load-balancer profile as the default",
+      "summary": "Ship `loadBalancer` as the default so an unconfigured process answers a single `/health` HTTP GET with status code only.",
+      "reasonNotChosen": "The round-2 canon named Kubernetes as the default explicitly. Load-balancer profile is simpler on the wire (no JSON body, one path) but ships the wrong shape for the majority of the deployments the rcf-lite tier this blueprint targets tends to reach for; Kubernetes has become the default target integration in enough of the industry that shipping it as the default matches the reader's expectation."
+    },
+    {
+      "name": "No default; refuse boot without a declaration",
+      "summary": "The resolver never falls back; the operator must always declare `probeInterface.profile` explicitly.",
+      "reasonNotChosen": "Costs every project one line of configuration for zero value. The whole point of a default is the correct-out-of-the-box case; a project that reaches for the blueprint and does not declare a profile signals 'I want the reasonable default', not 'I want to be nagged for a declaration'. The refusal path stays for the case where the declaration IS present but unrecognised (see US-14101 AC-14101-3)."
+    },
+    {
+      "name": "Auto-detect the deployment context (heuristics on env, hostname, socket paths)",
+      "summary": "Sniff the environment for signals (KUBERNETES_SERVICE_HOST env, /run/systemd/notify socket, Docker cgroups) and pick the profile from what is found.",
+      "reasonNotChosen": "Turns a declaration into a heuristic; heuristics that are usually right are surprising when they are wrong, and the failure mode is a silent binding of the wrong probe shape. The declaration is one field; making the operator name their target integration is a small friction that pays for itself the first time a heuristic would have guessed wrong."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-probe-endpoints-REQ-004",
+  "prdId": "PRD-001",
+  "title": "A separate-port listener option is offered per HTTP profile for probe traffic isolation from user traffic",
+  "description": "Every HTTP-transport profile offers a `probeListener.separatePort` option: when unset, probe handlers bind to the same listener that serves user request traffic (the fused topology); when set to a port number, probe handlers bind to a dedicated HTTP listener on that port and the user-traffic listener does not serve probe paths. The separate-port listener binds the profile's probe path set only; no other route is served on that listener. The option is off by default and opt-in per environment.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "The Kubernetes convention allows probes on a dedicated container port that need not be published on the Service, which keeps probe traffic off the public interface and reachable only by the kubelet on the pod network. Load balancers and uptime monitors that probe the same URL humans browse never need the option. Offering it as an operator choice honours the Kubernetes convention where it applies and stays out of the way everywhere else. The default remains the fused topology because it is simpler, matches the load-balancer probe-the-traffic-port reachability property, and matches the default the observability-essentials sibling assumes.",
+  "tags": [
+    "blueprint:observability-probe-endpoints",
+    "category:04-separate-port"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

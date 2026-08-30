@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1502-observability-probe-endpoints-readiness-semantics",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Readiness semantics are declared per target integration profile; the aggregation rule and the meaning of 'not ready' belong to the operator's mapping onto the supervising system's interpretation",
+  "context": "Readiness answers a question the supervising system will act on. Kubernetes pulls a pod out of the Service endpoint list; a load balancer stops routing new requests to a target; an uptime monitor pages an operator; a Docker HEALTHCHECK failure marks the container unhealthy for other services to react to. What 'not ready' means, how per-dependency states aggregate into the answer, and how quickly the answer needs to flip are shaped by which supervisor is doing the interpretation. The observability-essentials sibling blueprint fixes one legitimate answer as the project-wide rule: strict-any-fail over an explicit boot-time-declared dependency set, evaluated against per-dependency cached state maintained by a background evaluator on its own cadence. That is a sensible default when the project owns readiness end-to-end and wants a single reviewable declaration. It is not the right default when the supervising system's interpretation drives the semantics: a load balancer that will pull the target aggressively wants a different aggregation from a kubelet that will only skip the pod for the next request-routing pass; an uptime monitor's threshold-based paging logic wants a different flip cadence from a synchronous supervisor's per-hit answer.",
+  "decision": "Readiness semantics are declared per target integration profile. The blueprint fixes the SHAPE of the readiness predicate contract (a synchronous function `() -> 'pass' | 'fail'` that reads state a project-supplied evaluator maintains on its own cadence and is called from the resolved probe handler) but each profile carries its own default for the aggregation rule and the evaluator cadence. Kubernetes profile default: strict-any-fail over the operator-declared dependency set, cached at the evaluator cadence (aligned with the Kubernetes community convention documented at kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes). Load balancer profile default: strict-any-fail with a tighter evaluator cadence so the LB observes the flip within its own health-check interval budget. Uptime monitor profile: the same predicate wired to a longer effective flip window because the monitor's threshold-based paging usually wants a stable answer rather than a per-hit flap. systemd profile: readiness is announced once via `sd_notify(READY=1)` and then the process holds ready state until watchdog cadence catches a wedge. Docker HEALTHCHECK: one exit-code answer per invocation, with the aggregation rule the profile default carries. Each profile documents its aggregation choice; a project supersedes at the profile-options layer without touching the readiness predicate contract.",
+  "consequences": "Composing this blueprint with observability-essentials on the same project fires a `readinessSemantics` global-topic conflict on purpose, because the two blueprints answer different questions. Essentials commits to strict-any-fail-over-declared-deps as the ONE project-wide semantics. This blueprint commits to per-profile semantics where the aggregation choice belongs to the operator's mapping onto the supervising system's interpretation. The expected resolution is one project-level ADR that either (a) commits to the fused observability-essentials rule when the project owns readiness end-to-end with a single supervisor, (b) commits to the elicit-per-profile rule when the readiness meaning is shaped by the specific supervising system, or (c) authors a project-specific hybrid where different surfaces answer to different semantics with explicit boundaries.",
+  "alternativesConsidered": [
+    {
+      "name": "Adopt the observability-essentials strict-any-fail rule wholesale",
+      "summary": "Fix the readiness aggregation across every profile to strict-any-fail over the declared dependency set, matching the essentials sibling.",
+      "reasonNotChosen": "Collapses the reason this blueprint exists. The point of the elicit-and-adapt identity is that different supervisors read readiness differently; forcing one aggregation across every profile hides that difference from the operator and re-invents the problem observability-essentials's fused rule was correctly optimising for a narrower case."
+    },
+    {
+      "name": "Leave readiness entirely to project code",
+      "summary": "Ship only the predicate-interface boundary and refuse to name defaults per profile.",
+      "reasonNotChosen": "Would produce a blueprint that specifies interfaces without helping operators reach a working state; the round-2 identity is 'a service correctly probeable by the external system that supervises it', not 'a service that documents its own interface and expects the operator to bring the semantics'. Naming per-profile defaults is where the blueprint earns its keep."
+    },
+    {
+      "name": "Synchronous per-probe evaluation with no cached-state pattern",
+      "summary": "Every probe hit evaluates every declared dependency with a real network call from inside the probe handler.",
+      "reasonNotChosen": "Turns downstream latency into probe latency; a slow dependency causes the supervisor to time out the probe for reasons unrelated to whether the service could actually serve traffic. The cached-state pattern (the predicate reads state a background evaluator maintains) is a fundamental of the profile contract for that reason; every profile ships with it."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

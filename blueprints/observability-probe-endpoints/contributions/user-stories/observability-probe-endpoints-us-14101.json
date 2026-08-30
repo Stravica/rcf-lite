@@ -1,0 +1,46 @@
+{
+  "usId": "observability-probe-endpoints-US-14101",
+  "prdId": "PRD-001",
+  "reqId": "observability-probe-endpoints-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Operator declares the target integration and the process materialises the profile at boot",
+  "asA": "operator deploying the service under an external supervising system",
+  "iWant": "the process to shape its probe surface from one profile declaration and refuse to start if that declaration is missing or invalid",
+  "soThat": "the probe wiring reflects the supervisor conventions the service actually runs under, and a mis-declared profile is caught at boot rather than on a silent probe miss in production",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14101-1",
+      "description": "A process configured with `probeInterface.profile: kubernetes` boots and binds probe handlers whose paths and port topology match the resolved Kubernetes profile.",
+      "given": "a process configuration whose profile declaration resolves to `kubernetes` with default paths and fused-listener topology",
+      "when": "the process boots and its probe-binding step completes",
+      "then": "the running listener answers GET on the profile-declared liveness path (default /live) with 200 and on the profile-declared readiness path (default /ready) with 200 or 503, and no probe handler is bound at any path outside the profile-declared set",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14101-2",
+      "description": "A process configured without a `probeInterface.profile` declaration and no shipped default refuses to boot with a stable-coded error naming the missing declaration.",
+      "given": "a process configuration whose profile declaration is absent and whose environment has removed the shipped default",
+      "when": "the process boots and its profile-resolution step runs",
+      "then": "the process exits with a non-zero code and emits a `PROBE_PROFILE_MISSING` error naming the declaration field the operator must set",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14101-3",
+      "description": "A process configured with an unknown profile name refuses to boot with a stable-coded error naming the unknown value and the valid profile set.",
+      "given": "a process configuration whose profile declaration is `some-unknown-profile`",
+      "when": "the process boots and its profile-resolution step runs",
+      "then": "the process exits with a non-zero code and emits a `PROBE_PROFILE_UNKNOWN` error whose message contains the offending value and the enumerated valid profile names",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1501-observability-probe-endpoints-profile-resolver",
+    "TAC-1502-observability-probe-endpoints-handler-set"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

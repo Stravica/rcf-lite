@@ -1,0 +1,46 @@
+{
+  "usId": "observability-probe-endpoints-US-14105",
+  "prdId": "PRD-001",
+  "reqId": "observability-probe-endpoints-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Each profile's response contract is exactly what its supervisor reads and nothing more",
+  "asA": "operator whose service is probed by a supervisor with a fixed idea of what a probe response looks like",
+  "iWant": "the response contract to match the supervisor's shape and stay minimal",
+  "soThat": "the supervisor's parsing never sees an unexpected field and the surface never carries operational detail the supervisor does not read",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14105-1",
+      "description": "The `loadBalancer` profile answers with an empty response body and the resolved status code (200 pass, 503 fail).",
+      "given": "a process on the `loadBalancer` profile whose readiness predicate is pass, then fail",
+      "when": "an HTTP GET is issued against the resolved health path in each state",
+      "then": "the pass response has status 200 with content-length 0 and no body; the fail response has status 503 with content-length 0 and no body",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14105-2",
+      "description": "The `kubernetes` profile answers with a JSON body of exactly `{\"status\":\"pass\"}` or `{\"status\":\"fail\"}` and no additional keys.",
+      "given": "a process on the `kubernetes` profile with liveness pass and readiness pass, then readiness fail",
+      "when": "an HTTP GET is issued against `/live` and `/ready` in each state and the parsed JSON body key set is inspected",
+      "then": "the parsed body is exactly a one-key object whose only key is `status` and whose value is `pass` or `fail` matching the resolved answer",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14105-3",
+      "description": "The `dockerHealthcheck` profile exits with code 0 on pass and a non-zero code on fail; the profile emits no HTTP surface.",
+      "given": "a process configured with `probeInterface.profile: dockerHealthcheck` and the profile's readiness predicate pass, then fail",
+      "when": "the profile's healthcheck command entry point is invoked in each state",
+      "then": "the pass invocation exits with code 0; the fail invocation exits with a non-zero code; the process opens no HTTP probe listener when this profile is selected",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1502-observability-probe-endpoints-handler-set",
+    "TAC-1504-observability-probe-endpoints-non-http-adapters"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1505-observability-probe-endpoints-external-response-secrecy",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Every profile's response contract is minimal by construction; internal identifiers never appear on external-visible probe responses",
+  "context": "The probe endpoint is a surface the external supervisor reaches, and on the fused topology it is a surface anyone who resolves the traffic host reaches too. A body that names dependencies, environment identifiers, hostnames, replica ids, build hashes, or commit shas hands a fingerprint to whichever reader arrives. observability-essentials's ADR-804 (probe secrecy) makes the same call in its context. The invariant is the same here; the mechanism is different: instead of author discipline against a stable JSON body shape that must not accumulate fields, this blueprint's response contract is generated per profile from an enumerated field set the profile validator refuses to extend.",
+  "decision": "Every profile's response contract enumerates the fields on the wire. The Kubernetes profile's HTTP JSON body is exactly a one-key object whose only key is `status` and whose value is `pass` or `fail`. The load-balancer, uptime-monitor, and reverse-proxy profile responses carry content-length zero. The systemd profile emits only the supervisor-notify calls its transport requires. The Docker HEALTHCHECK profile emits only an exit code. The profile validator refuses any operator override that adds a field beyond the enumerated set with `PROBE_RESPONSE_FIELD_REFUSED`. Adding a field to the Kubernetes profile's response is a MAJOR version bump on this blueprint; the enumerated set is the wire contract downstream tooling depends on. Operators who want a richer per-dependency triage surface for their own consumption reach for a different blueprint (observability-essentials's readiness probe body carries the per-dep `checks` object for its self-supervised audience) or an authenticated dashboard.",
+  "consequences": "External readers see only the pass or fail answer and the resolved status code; no reconnaissance path opens through the probe body. The invariant is enforced by the profile shape, not by author discipline; a code review does not need to re-check the field set on every touch. Composing this blueprint with a project that wants a richer body ends with a project-level ADR that either supersedes ADR-1505 (accepting the reconnaissance risk explicitly) or supersedes ADR-1501 (accepting observability-essentials's fused shape whose richer body is scoped to a self-supervised audience) rather than a quiet drift into a leaky response.",
+  "alternativesConsidered": [
+    {
+      "name": "Free-form JSON body with author-discipline against leakage",
+      "summary": "The profile's response contract names a starter field set; authors are trusted to keep the body minimal on every touch.",
+      "reasonNotChosen": "Depends on discipline every touch. The observability-essentials sibling records the discipline as an ADR and gets the reader most of the way there; this blueprint targets the case where the external supervisor's surface must not accumulate reconnaissance value, and the load-bearing invariant is 'the profile validator refuses' rather than 'the reviewer refuses'."
+    },
+    {
+      "name": "Cryptographically bound response body with a build-attested signature",
+      "summary": "Every probe response carries a signature the supervisor verifies; internal identifiers appear on the body but are wrapped in signed form.",
+      "reasonNotChosen": "Excess for the surface. Supervisors do not verify probe signatures in the conventions the profile set targets; the added surface increases the leakage class (a signed field is still a leaked field) without paying for itself with a real supervisor verification step. A project that genuinely needs signed probe responses supersedes ADR-1505 with its own signing model."
+    },
+    {
+      "name": "Verbose body under a debug flag",
+      "summary": "The response contract expands to include per-dependency state and hostnames when a `probeInterface.debug: true` boot flag is set.",
+      "reasonNotChosen": "Debug flags in production configurations drift over environment boundaries; a flag set on `dev` that leaks to `live` in a config-merge accident leaks the whole richer surface. The blueprint keeps the minimal-by-construction rule as the only wire contract and points operators at authenticated dashboards or the observability-essentials blueprint's richer self-supervised body for the triage case."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

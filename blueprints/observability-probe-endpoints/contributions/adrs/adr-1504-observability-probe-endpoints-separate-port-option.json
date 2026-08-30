@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1504-observability-probe-endpoints-separate-port-option",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The separate-port listener is an opt-in per-profile option; the fused topology is the default",
+  "context": "Kubernetes convention allows probe handlers to bind to a container port that is not published on the Service, which keeps probe traffic reachable only by the kubelet on the pod network and off the public interface. That property is useful in NAT-and-perimeter-controlled environments where the operator publishes only the request-traffic port outside the pod: an attacker who resolves the public host cannot reach the probe endpoint at all. Load balancers, uptime monitors, and reverse proxies probe the same URL humans browse, so the property does not apply to them. observability-essentials's ADR-801 fixes the fused topology as its answer (probes bind to the request-traffic listener) with a clear rationale: the load balancer probing the traffic port observes the same reachability the traffic will observe. This blueprint offers separate-port as an option instead of a mandate because both properties (reachability equivalence vs. probe-traffic isolation) are legitimate and belong to the operator's choice per environment.",
+  "decision": "Every HTTP-transport profile ships with a `probeListener.separatePort` option that defaults to unset. When unset, probe handlers bind to the user-traffic listener (fused topology, matches observability-essentials's default). When set to a port number, probe handlers bind to a dedicated HTTP listener on that port; the user-traffic listener does not serve probe paths and the separate probe listener serves only the profile's resolved probe path set. No other route on the process binds to the separate probe listener. The option is per-environment overridable; a project's `dev` environment may use fused topology while `live` uses separate-port.",
+  "consequences": "A project on Kubernetes that wants probe isolation from public traffic sets `probeListener.separatePort` and exposes only the traffic port on the Service; a project that wants the load-balancer reachability-equivalence property leaves it unset. Neither answer is the wrong answer; the choice is per environment. The separate-port topology opens a second HTTP listener, which costs a small amount of memory and one more port to think about; the fused topology avoids that at the cost of a second-in-line auth-exempt exception on the user-traffic listener that the project must maintain across every auth middleware refactor.",
+  "alternativesConsidered": [
+    {
+      "name": "Fused topology mandatory",
+      "summary": "Refuse a `probeListener.separatePort` value; probe handlers always bind to the user-traffic listener.",
+      "reasonNotChosen": "Refuses the Kubernetes NAT-and-perimeter-isolation case the operator may genuinely want. observability-essentials made that choice for its own scope (self-supervised project-wide observability); this blueprint's scope (external-integration probing) is exactly where the Kubernetes convention around a dedicated probe port matters most."
+    },
+    {
+      "name": "Separate-port mandatory",
+      "summary": "Refuse the fused topology; probe handlers always bind to a dedicated listener.",
+      "reasonNotChosen": "Loses the reachability-equivalence property (the load balancer probing the traffic port observes the same reachability the traffic will observe). Load-balancer and uptime-monitor profiles legitimately want fused topology; forcing separate-port on them costs a port publication without a benefit."
+    },
+    {
+      "name": "One separate probe listener with multiple auxiliary surfaces (metrics, admin, probes)",
+      "summary": "The separate listener also hosts a project's metrics endpoint and admin endpoints, not only probes.",
+      "reasonNotChosen": "Turns the topology component into a general-purpose admin-listener manager and blurs the scope. Metrics endpoints belong to a future `metrics-export` blueprint that composes alongside this one; admin surfaces belong to an authenticated admin blueprint. The topology component here keeps its scope to the probe path set exactly."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

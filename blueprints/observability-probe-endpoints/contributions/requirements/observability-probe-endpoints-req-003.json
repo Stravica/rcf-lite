@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-probe-endpoints-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Each supported target integration profile names its own probe path, response contract, transport, and semantic distinction",
+  "description": "Every profile the blueprint ships names four things: the probe path or command surface (an HTTP path for HTTP profiles, a TCP port for socket profiles, a shell command for exec profiles, a supervisor call for notify profiles); the response contract (HTTP status code range with an optional minimal JSON body for HTTP profiles, connect-and-close for TCP, exit-code zero for exec, one notify call for supervisor); the transport (HTTP GET, TCP SYN, spawned process, or unix socket for supervisor calls); and the semantic distinction between liveness and readiness (two endpoints for Kubernetes; one health signal for load balancers and uptime monitors that do not distinguish; a boot-time readiness notification followed by a periodic watchdog for systemd; a single command answer for Docker HEALTHCHECK). A profile that does not resolve all four is refused at boot with a stable-coded error naming the missing field.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "The five properties are the elicitation shape. Different external supervisors answer differently on each of them, and the differences are load-bearing: a load balancer that only reads HTTP status has no use for a JSON body; a Kubernetes TCPSocket probe never touches an HTTP path; a systemd unit under Type=notify blocks on a boot notification and then expects periodic watchdog pings, not a synchronous probe. Naming the four properties explicitly per profile is what the elicitation surface exists to do.",
+  "tags": [
+    "blueprint:observability-probe-endpoints",
+    "category:03-profile-shape"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
