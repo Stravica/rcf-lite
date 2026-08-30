@@ -1,0 +1,46 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12110",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-010",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every promote runs bounded served-surface probes and fails on breach",
+  "asA": "operator answering to a released change",
+  "iWant": "the promote workflow to fail loudly and record diagnostics when the promoted version does not serve correctly",
+  "soThat": "a bad promote never quietly stays in place while the pipeline reports green",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12110-1",
+      "description": "The Served-surface Verifier hits the fixed probe path set against the PRODUCTION URL immediately after `promoteVersion` returns success; every probe is retried up to six times over up to sixty seconds with per-request timeouts of at most five seconds.",
+      "given": "a promote of version W and a project-declared probe set including path `/healthz`",
+      "when": "the verifier runs",
+      "then": "at least one HTTP request to the production URL's `/healthz` completes within the sixty-second window; the request carries no `Authorization` header that would bypass a production auth layer; the retry count for any single probe does not exceed six",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12110-2",
+      "description": "A probe passes when the response status is in the project-declared success set AND the response body carries the expected shape (for a health probe, a body whose `versionSha` field equals the promoted version's build sha).",
+      "given": "a successful promote of W and a `/healthz` probe declared as `{ status: [200], expectShape: { versionSha: '<PROMOTED_SHA>' } }`",
+      "when": "the verifier receives the response",
+      "then": "the probe passes exactly when the status is 200 AND the JSON body's `versionSha` matches W's build provenance sha; a 200 response whose `versionSha` names a different sha fails the probe",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12110-3",
+      "description": "If any probe path exhausts its retries without passing, the workflow exits non-zero with the stable code `PROMOTE_VERIFY_FAILED` and records the failing probe path, the last response status seen, and the elapsed time to the deploy log.",
+      "given": "a promote of a version whose `/healthz` never returns 200 within the window",
+      "when": "the verifier completes",
+      "then": "the workflow exits non-zero; the exit records include the stable code `PROMOTE_VERIFY_FAILED`; the deploy log entry names the failing probe path, the last status observed, and the elapsed time; the release is not marked successful",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1305-deploy-cloudflare-workers-served-surface-verifier",
+    "TAC-1304-deploy-cloudflare-workers-promote-gate"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

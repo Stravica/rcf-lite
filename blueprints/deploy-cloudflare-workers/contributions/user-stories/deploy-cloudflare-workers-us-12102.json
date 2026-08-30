@@ -1,0 +1,45 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12102",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "One deploy adapter is the sole caller of the deploy CLI",
+  "asA": "engineer reading the project",
+  "iWant": "a single named module every path imports to talk to the deploy vendor",
+  "soThat": "changing vendors is a one-module change and duplicate CLI call paths cannot drift",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12102-1",
+      "description": "The project exposes one Deploy Adapter module whose public surface is `uploadVersion`, `promoteVersion`, `listVersions`, `resolveNewestOfMain`, and `describeVersion`; the module is the only source file that spawns the vendor CLI binary or imports the vendor's deploy SDK.",
+      "given": "a project that has applied the blueprint and realised TAC-1301",
+      "when": "the source tree is scanned for spawns of `wrangler` (or the vendor's CLI binary name) and for imports of the vendor's deploy SDK identifier",
+      "then": "the only source file that matches either scan is the Deploy Adapter module; no other module names an alternative deploy call path",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12102-2",
+      "description": "The adapter's `uploadVersion({ previewAlias })` verb returns `{ versionId, versionIdUrl, previewAliasUrl }` on success and refuses to complete when the alias argument is empty.",
+      "given": "a Deploy Adapter instance backed by the default vendor",
+      "when": "a caller invokes `deployAdapter.uploadVersion({ previewAlias: 'main' })`",
+      "then": "the call resolves with a `versionId` string matching the vendor's version-id format, a `versionIdUrl` naming the per-version URL, and a `previewAliasUrl` whose host segment carries the alias `main`; a call with `previewAlias: ''` throws a `DEPLOY_PREVIEW_ALIAS_REQUIRED` error",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12102-3",
+      "description": "The adapter's `promoteVersion({ versionId })` verb refuses when `versionId` is not present in `listVersions()`.",
+      "given": "an adapter whose `listVersions()` returns a set that does not include the id `bogus-v1`",
+      "when": "a caller invokes `deployAdapter.promoteVersion({ versionId: 'bogus-v1' })`",
+      "then": "the call throws a `DEPLOY_VERSION_NOT_FOUND` error naming `bogus-v1` and no vendor promote call is issued",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1301-deploy-cloudflare-workers-deploy-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

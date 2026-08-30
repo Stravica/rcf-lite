@@ -1,0 +1,46 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12104",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Production only changes via an explicit promote step",
+  "asA": "operator responsible for what production serves",
+  "iWant": "no code path that changes production as a side effect of a merge",
+  "soThat": "every ship is a deliberate act with a named principal on the record",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12104-1",
+      "description": "The project's CI workflow set contains no workflow that both triggers on `push` to main AND calls the Deploy Adapter's `promoteVersion` verb (or the vendor's coupled deploy verb `wrangler deploy`).",
+      "given": "the CI workflow set of a project that has applied the blueprint",
+      "when": "a lint scan walks every workflow file and inspects the trigger set of each and the deploy verb it invokes",
+      "then": "no workflow file both matches trigger `push` on branch `main` (or a linear-history proxy) AND invokes a promote verb; the scan reports zero offenders",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12104-2",
+      "description": "The `promote` workflow triggers only on explicit manual operator action, not on any push, pull-request, or schedule.",
+      "given": "the `promote` workflow file",
+      "when": "the trigger stanza is parsed",
+      "then": "the only trigger present is the platform's explicit-manual-trigger primitive (`workflow_dispatch` on GitHub Actions or the equivalent) and no `push`, `pull_request`, or `schedule` trigger appears",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12104-3",
+      "description": "Every successful promote leaves a structured record naming the version id promoted, the operator principal, the previously-serving version id, and the timestamp.",
+      "given": "a successful invocation of the `promote` workflow",
+      "when": "the deploy log store is inspected after the run",
+      "then": "a new record exists whose fields include `promotedVersionId`, `promotedBy`, `previousVersionId`, and `promotedAt`; every field is populated and no field carries a secret value",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1304-deploy-cloudflare-workers-promote-gate",
+    "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,46 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12106",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Secret bindings resolve through the secrets contract; no secret value ever lives in the manifest",
+  "asA": "reviewer of a change that touches deploy config",
+  "iWant": "certainty that a PR touching wrangler config cannot leak a secret",
+  "soThat": "review moves as fast as the config change and nothing else",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12106-1",
+      "description": "Every secret binding the Worker consumes at runtime is declared by NAME only in `wrangler.toml` (using the vendor's declaration primitive) and is populated on the deploy target through the vendor's own secret-set flow, sourced from the project's secrets contract.",
+      "given": "a project that has applied both this blueprint and the `security-secrets-management` blueprint (or an equivalent project-authored secrets contract)",
+      "when": "the wrangler manifest is parsed and every secret binding it declares is cross-checked against the secrets contract's declared names",
+      "then": "every secret binding named in the manifest maps to a name declared in the secrets contract; every name has a resolvable value in the active deploy environment; no binding declaration in the manifest carries an inline value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12106-2",
+      "description": "The CI workflows redact any log line that would emit a resolved secret value.",
+      "given": "a CI run whose steps read a resolved secret value into a shell step that would echo it",
+      "when": "the run's captured logs are inspected byte-for-byte after completion",
+      "then": "no log line contains any byte sequence in the resolved-values set; every substitution shows a fixed placeholder in the emitted line",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12106-3",
+      "description": "A committed file whose bytes match any resolved secret value is refused by the CI gate.",
+      "given": "a change that adds a file whose contents include a byte sequence equal to any resolved secret value",
+      "when": "the CI gate scans the change",
+      "then": "the run fails with a stable-coded `DEPLOY_SECRET_LEAKED_IN_FILE` error naming the offending path and the logical name of the matching secret",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+    "TAC-1301-deploy-cloudflare-workers-deploy-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

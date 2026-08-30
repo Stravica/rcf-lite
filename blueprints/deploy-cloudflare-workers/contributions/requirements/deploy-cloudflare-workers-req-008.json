@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-008",
+  "prdId": "PRD-001",
+  "title": "A promote CI workflow runs on explicit manual trigger and accepts an optional versionId input",
+  "description": "A CI workflow named `promote` (or the project's chosen equivalent) triggers only on manual operator action (`workflow_dispatch` on GitHub Actions or the equivalent explicit-trigger primitive on other CI platforms). It accepts one input field `versionId`: when supplied, the workflow promotes that exact version; when blank, the workflow calls the Deploy Adapter's `resolveNewestOfMain` verb to look up the current version id behind the preview alias and promotes THAT. It then invokes `promoteVersion` on the Deploy Adapter and, on success, invokes the served-surface verifier (REQ-010) before declaring the run successful. The workflow authenticates through the same named vendor CI secrets as `build-and-upload` and emits a structured record of the promote for the deploy log.",
+  "category": "functional",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "One workflow for both cases keeps the promote path narrow and reviewable. The empty-input default answers the common case (ship what merged); the explicit-id input answers hotfix promotes and rollbacks without a second code path. Every promote runs through the same served-surface verifier gate so no promote can quietly ship a broken version.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:08-ci-promote"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

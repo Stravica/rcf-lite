@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-011",
+  "prdId": "PRD-001",
+  "title": "Local dev-mode is an emulator; the ship gate never treats a dev-mode signal as authoritative",
+  "description": "The vendor's local development mode (`wrangler dev` on the default vendor) is an emulator, not the deployed runtime. It approximates the runtime shape but carries known behavioural differences (differing regular-expression engines, differing static-assets ordering, differing binding-emulation surface, differing timeout behaviour). The project may use dev-mode for developer-loop iteration. The ship gate does not: no test authored against `wrangler dev` counts as passing coverage for a deployed AC; the coverage tag `deployed` on any AC requires the served-surface probe hit an actual uploaded Worker (preview URL is fine; production URL is fine; dev-mode local URL is not). A project-side lint or CI check catches an AC-to-TC binding that attempts to substitute a dev-mode observation for a deployed one.",
+  "category": "technical",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "The reason a runtime-verify layer exists in RCF is that codebase-level tests cannot cover deployed behaviour. Letting an emulator stand in for the deployed runtime re-opens exactly the class of drift the deployed-scope tag exists to close. Naming the class of dev-mode-only tests inadmissible-as-deployed-coverage is the discipline.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:11-dev-mode-drift"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Every merge to the main branch uploads a Worker version addressable at a stable preview alias URL",
+  "description": "The CI pipeline runs a build+upload step on every merge to the main branch. The step produces an uploaded Worker version (the vendor's version primitive) with two addressable URLs recorded on the CI run: a permanent per-version-id URL, and a stable ALIAS URL fixed to the string `main` (or an equivalent operator-chosen alias) that always resolves to the newest-of-main upload. The alias URL never changes across re-uploads; the version-id URL is unique per upload and durable. The uploaded version does NOT serve production traffic; it exists only at the preview URLs until an explicit promote step runs. The version id and both URLs are surfaced in the CI run output.",
+  "category": "functional",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "Uploading a version on merge without promoting it separates two concerns most teams tangle at their cost: 'is the artefact built and cleanly uploaded' from 'is production serving it now'. The stable preview alias URL is the shape a stakeholder can bookmark and share; the version-id URL is the shape a change-review workflow references verbatim. Both matter and both come from the same upload step.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:03-preview-upload"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

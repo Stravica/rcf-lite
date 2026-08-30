@@ -1,0 +1,46 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12112",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-012",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every uploaded version carries build-provenance readable at runtime",
+  "asA": "operator triaging an incident",
+  "iWant": "one HTTP request to the running Worker to name the commit, the build time, and the CI run URL",
+  "soThat": "the served surface is self-identifying without any dashboard step",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12112-1",
+      "description": "The `build-and-upload` workflow injects the commit sha, the build ISO 8601 timestamp, and the CI run URL into the Worker's bundle (as build-time constants, as `vars`, or via the Deploy Adapter's `describeVersion` surface); the values are readable from within the Worker at request time.",
+      "given": "a `build-and-upload` run at commit C at time T triggered from CI run R",
+      "when": "the resulting Worker's runtime code reads the provenance surface",
+      "then": "the surface returns an object whose `versionSha` equals C's short sha, whose `builtAt` equals T formatted as ISO 8601, and whose `ciRunUrl` equals R",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12112-2",
+      "description": "A fixed health-probe path (project-declared, `/healthz` by common default) responds with a JSON body carrying stable field names `versionSha`, `builtAt`, and `ciRunUrl` on any deployed URL (preview alias, version id, production).",
+      "given": "a deployed Worker at any of the three URL kinds",
+      "when": "an HTTP GET hits the project's declared health-probe path",
+      "then": "the response body is JSON with fields `versionSha`, `builtAt`, `ciRunUrl`; all three fields are populated with non-empty strings; the response status is in the success set",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12112-3",
+      "description": "The Served-surface Verifier uses the `versionSha` field to confirm the promoted version is the version being served; a promote whose post-promote probe returns a `versionSha` that does not match the promoted id fails the release.",
+      "given": "a promote of version W with build sha `sha-W`",
+      "when": "the verifier's post-promote probe returns a body whose `versionSha` reads `sha-P` (a stale prior version)",
+      "then": "the verifier records the mismatch as `PROMOTE_VERIFY_FAILED` with the observed and expected shas; the release is not marked successful",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1305-deploy-cloudflare-workers-served-surface-verifier",
+    "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
