@@ -1,0 +1,46 @@
+{
+  "usId": "persistence-data-d1-US-13106",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-d1-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Recovery is available through Time Travel and through a scheduled export to a portable artifact",
+  "asA": "operator whose recovery model has to cover a fast in-place restore and an off-vendor durable copy",
+  "iWant": "Time Travel point-in-time recovery for the fast path and a scheduled `wrangler d1 export` for the durable path",
+  "soThat": "an accidental drop is a one-command restore inside the vendor window and a compliance-scale outage is recoverable from a portable artifact I hold",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13106-1",
+      "description": "The recovery runner supports `wrangler d1 time-travel restore <database> --timestamp=<unix-seconds>` as an operator-invocable command; a restore against a live database rewinds it to the recorded state at the named timestamp and the fresh Worker read reflects the restored state.",
+      "given": "a local or preview D1 database primed with a distinguishable pre-drop row set, a recorded Time Travel bookmark or timestamp before the drop, and a subsequent DROP TABLE or destructive write executed against the database",
+      "when": "the operator invokes `wrangler d1 time-travel restore <database> --timestamp=<pre-drop-timestamp>` and a fresh Worker request reads through the facade",
+      "then": "the facade reads return the pre-drop row set, the destructive write is not present, and the store event log records exactly one `timeTravelRestored` event whose fields carry the target database identifier, the restore timestamp or bookmark, and the ISO-8601 completion timestamp",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13106-2",
+      "description": "A scheduled invocation of `wrangler d1 export <database> --output <artifact-path> --remote` produces a portable `.sql` artifact at the requested path; a fresh D1 database primed by feeding that artifact back through `wrangler d1 execute --file <artifact-path>` boots to the same schema and row set as the source at export time.",
+      "given": "a D1 database with a distinguishable row set and a scheduled export step configured on the project's ops or CI surface",
+      "when": "the export step runs against the source database, and the artifact is loaded into a fresh D1 database via `wrangler d1 execute --file <artifact-path>` (with any BEGIN TRANSACTION or COMMIT statements stripped per the vendor's import guidance) and a fresh Worker request reads through the facade",
+      "then": "the artifact file exists at the requested path, the fresh database reports the same schema shape and row count for every domain table as the source at export completion, and the store event log records one `backupExported` event whose fields carry the source database identifier, the artifact path, and the ISO-8601 completion timestamp",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13106-3",
+      "description": "The recovery runner does not require a Worker code change to invoke either path; the operator invokes both commands from the project's ops or CI surface, and the store event log records the outcome.",
+      "given": "the project's ops or CI surface after either the Time Travel restore in AC-13106-1 or the export in AC-13106-2",
+      "when": "the source tree the Worker deploys from is inspected for diff against the deployed build",
+      "then": "no Worker source change is required to invoke either recovery path (the recovery runner is a project-side ops surface, not a facade verb), and both invocations produced their event log entry without a Worker redeploy",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1404-persistence-data-d1-recovery-runner",
+    "TAC-1401-persistence-data-d1-facade"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

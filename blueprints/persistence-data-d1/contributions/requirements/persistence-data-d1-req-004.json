@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-d1-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Every statement the facade issues against D1 is a parameterised prepared statement; no consumer-supplied SQL reaches the binding",
+  "description": "The facade module issues every read or write against D1 through the prepared-statement surface: `db.prepare(<static SQL literal>).bind(<parameters>).first()`, `.all()`, or `.run()`. The static SQL literal is authored inside the facade module and does not embed values from consumer arguments through string concatenation, template interpolation, or any other join that produces a call-site-specific SQL fragment. The facade does not export a general-purpose query method whose parameter is a SQL string supplied by a consumer, and it does not use `db.exec(<consumer string>)` on any path.",
+  "category": "security",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "D1's prepared-statement surface is the only path that binds parameters through the vendor's escaping layer; SQL concatenated at a call site is a SQL-injection surface exactly the way it is on any other engine, and D1's ergonomic prepare/bind chain removes the excuse to reach for concatenation. Restating the discipline as a REQ that binds runtime-observable ACs turns the vendor's ergonomic default into a shipped floor of the blueprint.",
+  "tags": [
+    "blueprint:persistence-data-d1",
+    "category:04-prepared-statements"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

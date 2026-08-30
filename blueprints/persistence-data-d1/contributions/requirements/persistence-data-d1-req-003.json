@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-d1-REQ-003",
+  "prdId": "PRD-001",
+  "title": "The Worker deploy pipeline refuses to deploy a build whose migrations set has not been applied to the target environment first",
+  "description": "The deploy pipeline runs `wrangler d1 migrations apply <database> --env <target>` as a step ordered strictly before `wrangler deploy` against the same environment. When the migrations apply step exits non-zero (a migration statement failed, the database is unreachable, the CI credential lacks apply permission), the deploy pipeline fails and no Worker deploy is attempted against that environment. When the migrations apply step exits zero, the deploy pipeline proceeds; the Worker deploying against the target reads a database at or ahead of the migration set the code was built against.",
+  "category": "technical",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "D1 is not opened at process boot; a Worker isolate that observes a schema behind the code's expectations fails per request, not at deploy, and the operator sees the failure as customer-visible 5xxs instead of a red CI job. Ordering the apply strictly before the deploy in the pipeline makes the schema-behind-the-code case impossible in production: the migration set either applies cleanly and the deploy proceeds, or the apply fails and the older Worker keeps serving on the older schema.",
+  "tags": [
+    "blueprint:persistence-data-d1",
+    "category:03-deploy-gate"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

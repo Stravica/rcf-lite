@@ -1,0 +1,31 @@
+{
+  "tacId": "TAC-1402-persistence-data-d1-migration-catalog",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Wrangler-managed migration catalog",
+  "purpose": "The in-tree source of schema truth. A directory of numbered `.sql` migration files, one per shipped schema change, under the path configured on the D1 binding's `migrations_dir` (default `migrations/`). Each filename carries a monotonic version integer; each file body is engine-native SQL. The wrangler CLI is the applier; the D1 side of the bookkeeping table (`migrations_table`, default `d1_migrations`) is the applied-state ledger. The catalog itself contributes no runtime code.",
+  "responsibilities": [
+    "Hold every schema change ever shipped in this project's history as one `.sql` file under the configured migrations directory. Each filename begins with a monotonic integer that is unique across the directory (AC-13102-1).",
+    "Match the wrangler configuration: `d1_databases[<index>].migrations_dir` names the directory; `migrations_table` names the bookkeeping table (default `d1_migrations`); `migrations_pattern` selects the file glob (default is the wrangler-generated numbered form). Any deviation from the defaults is explicit on the binding, not implicit in the tree layout (AC-13102-1, AC-13102-2).",
+    "Support the `wrangler d1 migrations list` / `apply` cycle against `--local` for development and `--remote` for the target environment; the applied-state ledger is the D1 database's own bookkeeping table (AC-13102-2, AC-13102-3)."
+  ],
+  "internalStructure": "One source-tree directory (the wrangler-configured migrations directory) containing one `.sql` file per shipped migration. Files are appended, never edited: a shipped migration is a fact of production, and any correction is a new migration that supersedes it. The statements are engine-native SQL. No Worker-side module imports the directory at runtime; the wrangler CLI is the sole reader, and the D1 bookkeeping table is the applied-state fact.",
+  "interfaces": [
+    {
+      "name": "migrations/",
+      "kind": "directory",
+      "description": "The source-tree directory named on `d1_databases[].migrations_dir`; holds one numbered `.sql` file per shipped migration."
+    },
+    {
+      "name": "d1_migrations",
+      "kind": "table",
+      "description": "The D1-side bookkeeping table named on `d1_databases[].migrations_table`; wrangler writes one row per applied migration. Read via `wrangler d1 execute <database> --command \"SELECT * FROM <table>\"` for verification."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "One numbered file per migration is trivial to reason about at small history and starts to lengthen the directory listing at large history (dozens of files); the tradeoff mirrors any file-per-migration migration tool. The vendor tooling picks the file naming for `wrangler d1 migrations create`; a project can override `migrations_pattern` for ORM compatibility (Drizzle, Prisma) at the cost of pinning that ORM into the pipeline. Statements-as-SQL keeps the catalog readable but couples it to D1's SQLite dialect; a project that intends to swap engines pays that translation cost at swap time, not now.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
