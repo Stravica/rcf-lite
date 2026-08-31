@@ -97,7 +97,8 @@ test('brownfield repo: authored tree untouched, foreign MCP config preserved, pr
   assert.equal(mcp.$schema, 'https://example.com/mcp.schema.json');
   assert.deepEqual(mcp.mcpServers.postgres, { command: 'npx', args: ['-y', '@company/mcp-postgres'] });
   assert.deepEqual(mcp.customTeamSetting, { reviewers: ['alice', 'bob'], enforce: true });
-  assert.equal(mcp.mcpServers.rcf.command, 'node');
+  assert.equal(mcp.mcpServers.rcf.command, 'npx');
+  assert.deepEqual(mcp.mcpServers.rcf.args, ['rcf-lite', 'mcp']);
 
   // 3. CLAUDE.md: prose outside the markers preserved verbatim, block appended.
   const claude = await readFile(join(tmp, 'CLAUDE.md'), 'utf8');

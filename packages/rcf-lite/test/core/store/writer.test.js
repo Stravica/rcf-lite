@@ -186,17 +186,59 @@ test('createDocument fbs acId not in tree -> brokenReference', async () => {
   assert.equal(res.kind, 'brokenReference');
 });
 
-test('createDocument ac mutates the parent US and adds inline entry', async () => {
+test('createDocument ac replaces the seeded phantom on first call, appends on the next', async () => {
   const { projectRoot, tree } = await scaffold();
+  // First call: US-101 has only the seeded placeholder AC, so the new AC
+  // REPLACES it in place at AC-101-1 (0.13.0 phantom-AC fix, G5).
   const res = await createDocument({
     projectRoot, tree, kind: 'ac',
+    body: { description: 'first real AC' },
+    options: { parentId: 'US-101' },
+  });
+  assert.equal(res.id, 'AC-101-1');
+  const us = JSON.parse(await readFile(join(projectRoot, 'rcf/user-stories/us-101.json'), 'utf8'));
+  assert.equal(us.acceptanceCriteria.length, 1);
+  assert.equal(us.acceptanceCriteria[0].id, 'AC-101-1');
+  assert.equal(us.acceptanceCriteria[0].description, 'first real AC');
+
+  // Reload and add a second AC: the seed is gone, so the append path runs
+  // and lands at AC-101-2.
+  const reloaded = await reload(projectRoot);
+  const res2 = await createDocument({
+    projectRoot, tree: reloaded.tree, kind: 'ac',
     body: { description: 'second AC' },
+    options: { parentId: 'US-101' },
+  });
+  assert.equal(res2.id, 'AC-101-2');
+  const us2 = JSON.parse(await readFile(join(projectRoot, 'rcf/user-stories/us-101.json'), 'utf8'));
+  assert.equal(us2.acceptanceCriteria.length, 2);
+  assert.equal(us2.acceptanceCriteria[1].id, 'AC-101-2');
+});
+
+test('createDocument ac appends (does not replace) when the parent US already carries an operator-edited AC', async () => {
+  // If the operator has edited the seed (custom given/when/then, changed
+  // the description, changed testable, etc.), the phantom detector no
+  // longer recognises it and the new AC appends normally at -2. Locks the
+  // strict-match rule so we never overwrite operator content.
+  const { projectRoot, tree } = await scaffold();
+  const parentUs = tree.byId.get('US-101');
+  parentUs.acceptanceCriteria = [{
+    id: 'AC-101-1',
+    description: 'Operator has written a real AC here already',
+    testable: true,
+  }];
+  const { writeFile: fsWrite } = await import('node:fs/promises');
+  await fsWrite(join(projectRoot, 'rcf/user-stories/us-101.json'), JSON.stringify(parentUs, null, 2), 'utf8');
+  const reloaded = await reload(projectRoot);
+  const res = await createDocument({
+    projectRoot, tree: reloaded.tree, kind: 'ac',
+    body: { description: 'a second AC on an operator-edited US' },
     options: { parentId: 'US-101' },
   });
   assert.equal(res.id, 'AC-101-2');
   const us = JSON.parse(await readFile(join(projectRoot, 'rcf/user-stories/us-101.json'), 'utf8'));
   assert.equal(us.acceptanceCriteria.length, 2);
-  assert.equal(us.acceptanceCriteria[1].id, 'AC-101-2');
+  assert.equal(us.acceptanceCriteria[0].description, 'Operator has written a real AC here already');
 });
 
 test('createDocument tc mutates the parent TS with derived slug', async () => {

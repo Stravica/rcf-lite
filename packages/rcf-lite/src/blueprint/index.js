@@ -10,3 +10,4 @@ export { registerStandardsPack, listStandards } from './standards.js';
 export { nextResolutionId, matchingResolution } from './resolutions.js';
 export { supersedeBlueprintTopic } from './supersede.js';
 export { diffBlueprintTopic, renderDiff } from './diff.js';
+export { resolveBlueprintSource, knownShelfSlugs, packagedShelfPath } from './shelf-resolver.js';

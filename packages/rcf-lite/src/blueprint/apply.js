@@ -34,7 +34,11 @@ import { nextResolutionId } from './resolutions.js';
  * @param {object} args
  * @param {string} args.projectRoot
  * @param {import('#core/store/walker.js').TreeModel} args.tree
- * @param {string} args.source - path to blueprint directory
+ * @param {string} args.source - path to blueprint directory (absolute after the CLI resolver)
+ * @param {string} [args.displaySource] - the source string as the operator typed it;
+ *        used only for the conflict renderer's supersede hint so it can print the exact
+ *        string the operator can copy back. Defaults to `source` when omitted (so
+ *        existing callers keep today's byte-for-byte behaviour).
  * @param {string} [args.namespaceOverride] - non-default namespace slug
  * @param {Array<{ topic: string, resolvedByAdrId: string }>} [args.resolveDeclarations]
  *        Operator-supplied conflict resolutions declared on the add
@@ -54,7 +58,8 @@ import { nextResolutionId } from './resolutions.js';
  *        prove the rollback runs. Never used in production.
  * @returns {Promise<ApplyResult | import('../core/errors/index.js').RcfError>}
  */
-export async function applyBlueprint({ projectRoot, tree, source, namespaceOverride, resolveDeclarations, now = new Date(), dryRun = false, _copyFileForTest }) {
+export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, resolveDeclarations, now = new Date(), dryRun = false, _copyFileForTest }) {
+  const hintSource = typeof displaySource === 'string' && displaySource.length > 0 ? displaySource : source;
   const blueprint = await loadBlueprint(source);
   if (blueprint.kind) return blueprint; // RcfError
   const namespace = namespaceOverride ?? blueprint.slug;
@@ -100,7 +105,7 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
     // exactly as printed - `rcf blueprint supersede <topic> --incoming
     // <source>` - with a real source path the operator can copy back
     // into a fresh shell.
-    ...await enrichAdrConflicts(rawGlobalConflicts, tree, blueprint, source),
+    ...await enrichAdrConflicts(rawGlobalConflicts, tree, blueprint, hintSource),
     ...detectCrossBlueprintClaims(applied, incomingForConflicts),
   ];
   if (conflicts.length > 0) {
