@@ -44,6 +44,12 @@ const LIBRARY_VERSION_KNOWN = 1;
  * @typedef {object} LibraryBlueprintEntry
  * @property {string} slug
  * @property {string} path
+ * @property {string[]} [globalTopics]  scope:global ADR topics this
+ *   blueprint contributes. Populated only when the loader ran with
+ *   `validateBlueprints: true` (the review-on-add path); resolver-time
+ *   loads that skip per-blueprint validation leave the field absent.
+ *   Callers use it to render the section 8.1 "Global topics these
+ *   blueprints claim" line during library-add review.
  */
 
 /**
@@ -266,6 +272,21 @@ async function validateDeclaredBlueprints(library) {
         filePath: bpRoot,
       });
     }
+    // Attach the scope:global ADR topics this blueprint claims so the
+    // review-on-add printer can render the spec §8.1 "Global topics
+    // these blueprints claim" line without re-walking every blueprint.
+    // Order is contribution-declaration order; duplicates within one
+    // blueprint (an author mistake caught by phase-1 conflict logic)
+    // are de-duplicated here to keep the render terse.
+    const seen = new Set();
+    const topics = [];
+    for (const c of loaded.contributions ?? []) {
+      if (c.scope === 'global' && typeof c.topic === 'string' && !seen.has(c.topic)) {
+        seen.add(c.topic);
+        topics.push(c.topic);
+      }
+    }
+    entry.globalTopics = topics;
   }
   return null;
 }

@@ -416,8 +416,23 @@ function printReview({ stdout, ref, library, libraryPrefix, coreReservations }) 
   for (const bp of library.blueprints) {
     stdout.write(`    ${libraryPrefix}:${bp.slug}\n`);
   }
+  // Spec §8.1: surface the scope:global ADR topics each blueprint
+  // claims so the operator sees, at the review moment, which cross-
+  // library / cross-core trust-boundary interactions this add commits
+  // them to. Suppressed only when no blueprint on the library claims
+  // any global topic (the render would otherwise be a lonely header).
+  const withTopics = library.blueprints.filter((bp) => Array.isArray(bp.globalTopics) && bp.globalTopics.length > 0);
+  if (withTopics.length > 0) {
+    const qualifiedWidth = Math.max(...withTopics.map((bp) => `${libraryPrefix}:${bp.slug}`.length));
+    stdout.write(`\n  Global topics these blueprints claim (may conflict with core or with other libraries):\n`);
+    for (const bp of withTopics) {
+      const qualified = `${libraryPrefix}:${bp.slug}`;
+      stdout.write(`    ${qualified.padEnd(qualifiedWidth)} -> ${bp.globalTopics.join(', ')}\n`);
+    }
+  }
   stdout.write(`\n  Provenance   : local (dev use)\n`);
   stdout.write(`  Band check   : cross-checked ${coreReservations.ac.length} core AC row(s), ${coreReservations.suffixBlocks.length} core suffix block(s); no overlap.\n`);
+  stdout.write(`  Prefix check : '${libraryPrefix}' does not collide with any core slug.\n`);
   stdout.write(`\n`);
 }
 

@@ -95,6 +95,36 @@ test('refuses a library with duplicate blueprint slugs', async () => {
   assert.match(lib.message, /declared more than once/);
 });
 
+test('attaches globalTopics per blueprint from scope:global ADR contributions', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  await scaffoldLibrary(root, validManifest({
+    blueprints: [{ slug: 'auth-oauth2', path: 'blueprints/auth-oauth2' }],
+  }), [{ slug: 'auth-oauth2', path: 'blueprints/auth-oauth2' }]);
+  // Overwrite the scaffolded blueprint.json with contributions that
+  // carry scope:global ADRs and a non-global REQ (ignored).
+  const bpDir = join(root, 'blueprints/auth-oauth2');
+  await writeFile(join(bpDir, 'blueprint.json'), JSON.stringify({
+    slug: 'auth-oauth2',
+    version: '1.0.0',
+    contributions: [
+      { id: 'ADR-5001', kind: 'adr', path: 'authModel.json', scope: 'global', topic: 'authModel' },
+      { id: 'ADR-5002', kind: 'adr', path: 'errorEnvelope.json', scope: 'global', topic: 'errorEnvelope' },
+      { id: 'REQ-50101', kind: 'req', path: 'req.json' },
+    ],
+  }, null, 2), 'utf8');
+  const lib = await loadLibrary(root);
+  assert.equal(isRcfError(lib), false, `loadLibrary failed: ${JSON.stringify(lib)}`);
+  assert.deepEqual(lib.blueprints[0].globalTopics, ['authModel', 'errorEnvelope']);
+});
+
+test('attaches an empty globalTopics list when no scope:global ADRs are contributed', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  await scaffoldLibrary(root, validManifest(), [{ slug: 'auth-oauth2', path: 'blueprints/auth-oauth2' }]);
+  const lib = await loadLibrary(root);
+  assert.equal(isRcfError(lib), false);
+  assert.deepEqual(lib.blueprints[0].globalTopics, []);
+});
+
 test('validateBlueprints:false skips the per-blueprint walk', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
   // Manifest names a blueprint whose directory does not exist. With
