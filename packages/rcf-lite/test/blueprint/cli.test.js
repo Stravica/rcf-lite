@@ -557,7 +557,24 @@ test('conflict enrichment is symmetric: incoming side carries title + decision r
   assert.equal(c.existing.decision, 'Cookies for sessions.');
 });
 
+// Ensure the packaged shelf is staged inside `packages/rcf-lite/blueprints/`
+// before running the bare-slug regression - CI checks out the shelf at the
+// repo root only; the packaged copy is produced by `scripts/stage-blueprint-shelf.mjs`
+// (also fired by `prepack`). Idempotent: staging a second time is a fast
+// wipe-and-recopy.
+async function ensurePackagedShelfStaged() {
+  const packageRoot = resolve(here, '..', '..');
+  const shelfDir = join(packageRoot, 'blueprints');
+  const stageScript = join(packageRoot, 'scripts', 'stage-blueprint-shelf.mjs');
+  const { readdir } = await import('node:fs/promises');
+  const entries = await readdir(shelfDir, { withFileTypes: true }).catch(() => []);
+  const populated = entries.filter((e) => e.isDirectory()).length > 0;
+  if (populated) return;
+  await exec(process.execPath, [stageScript], { cwd: packageRoot, encoding: 'utf8' });
+}
+
 test('rcf define blueprint add <bare-shelf-slug> records the RESOLVED ABSOLUTE PATH on the manifest source (F1 regression)', async () => {
+  await ensurePackagedShelfStaged();
   // Regression for integration review d-2026-08-31-046 F1. Pre-fix the
   // CLI forwarded `displaySource = resolved.original` for every resolver
   // kind; that flipped `manifest.blueprints[].source` to the operator's

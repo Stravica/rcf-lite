@@ -5,14 +5,34 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { mkdir, mkdtemp, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 import { initProject, walkTree } from '#core/store';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { enrichRowsWithCategories, groupRowsByCategory, listBlueprints } from '../../src/blueprint/list.js';
 import { removeBlueprint } from '../../src/blueprint/remove.js';
+
+const exec = promisify(execFile);
+const here = dirname(fileURLToPath(import.meta.url));
+
+// See cli.test.js's helper of the same name: the packaged shelf under
+// `packages/rcf-lite/blueprints/` is populated by prepack (or the
+// `stage:blueprints` script) from the repo-root shelf. CI checks out
+// the repo-root copy only.
+async function ensurePackagedShelfStaged() {
+  const packageRoot = resolve(here, '..', '..');
+  const shelfDir = join(packageRoot, 'blueprints');
+  const stageScript = join(packageRoot, 'scripts', 'stage-blueprint-shelf.mjs');
+  const entries = await readdir(shelfDir, { withFileTypes: true }).catch(() => []);
+  const populated = entries.filter((e) => e.isDirectory()).length > 0;
+  if (populated) return;
+  await exec(process.execPath, [stageScript], { cwd: packageRoot, encoding: 'utf8' });
+}
 
 async function scaffoldProject() {
   const root = await mkdtemp(join(tmpdir(), 'rcf-blueprint-lr-'));
@@ -61,6 +81,7 @@ test('enrichRowsWithCategories: reads category from each source blueprint.json',
 });
 
 test('enrichRowsWithCategories: bare shelf-slug source re-resolves through the packaged shelf (F1)', async () => {
+  await ensurePackagedShelfStaged();
   // Regression for integration review d-2026-08-31-046 F1: pre-fix, a
   // manifest carrying `source: 'application-spa'` (legacy sugar-recorded
   // row) fell through the loader's fs.readFile and every row rendered
