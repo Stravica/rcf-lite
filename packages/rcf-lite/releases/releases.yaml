@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.13.0"
+latest: "0.14.0"
 releases:
+  - version: "0.14.0"
+    date: "2026-08-31"
+    breaking: true
+    headlines:
+      - "The ci-pipeline blueprint is renamed to delivery-ci-workflows and gains a broader set of CI workflows and optional checks."
+      - "A new rcf version command reports the installed version, with --check comparing against the release feed."
+      - "Rerun rcf init to refresh the agent guidance block with the new session-start freshness check."
+    minAgentAction: "rerun-init"
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.13.0"
     date: "2026-08-31"
     breaking: false
