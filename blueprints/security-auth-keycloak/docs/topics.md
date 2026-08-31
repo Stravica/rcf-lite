@@ -6,7 +6,7 @@ This file is the security-auth-keycloak half of the cross-blueprint contract. Th
 
 | Topic string | security-auth-keycloak contribution | Composition intent |
 |---|---|---|
-| `authModel` | ADR-1201-security-auth-keycloak-auth-model | Deliberate conflict on the same string minted by `security-auth-magic-link` (ADR-501), `security-auth-clerk` (ADR-1001), `security-auth-oauth2` (ADR-1101), the client half of `application-spa` (ADR-205), and the server half of `application-api-rest` (ADR-304). This blueprint's shape is delegated identity to a Keycloak realm the operator runs, federated through OIDC authorisation-code + PKCE, with per-realm verification mode (JWKS or introspection). A composing blueprint that holds a different opinion on the authentication model contributes its own scope:global ADR on this exact string and lets composition surface the pairing. Expected resolution: one project-level ADR that fixes the project's authentication model for both the client tier and the server tier, with a resolution recorded on `manifest.resolutions[]` or via `--resolve authModel=project:<ADR-id>` on the add |
+| `authModel` | ADR-1201-security-auth-keycloak-auth-model | Deliberate conflict on the same string minted by `security-auth-magic-link` (ADR-501), `security-auth-clerk` (ADR-1001), `security-auth-oauth2` (ADR-1101), the client half of `application-spa` (ADR-205), and the server half of `application-api-rest` (ADR-302). This blueprint's shape is delegated identity to a Keycloak realm the operator runs, federated through OIDC authorisation-code + PKCE, with per-realm verification mode (JWKS or introspection). A composing blueprint that holds a different opinion on the authentication model contributes its own scope:global ADR on this exact string and lets composition surface the pairing. Expected resolution: one project-level ADR that fixes the project's authentication model for both the client tier and the server tier, with a resolution recorded on `manifest.resolutions[]` or via `--resolve authModel=project:<ADR-id>` on the add |
 
 The security-auth-keycloak blueprint claims one global topic. Every other contribution is scope-local (ADR-1202 through ADR-1206 name the verification-mode choice, the provider-routing seam, the session-vs-token contract, the JWKS rotation-cache lifetime, and the refresh-and-sign-out posture without contributing global topics; a composing blueprint that holds a different opinion on any of them authors its own project-level ADR if it wants to override).
 
@@ -38,7 +38,7 @@ AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by t
 | observability-essentials (was observability) | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
 | security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx (1001-1099) | shipped v1.0.0 | `authModel` |
-| security-auth-oauth2 | 10101-10899 | 11xx (1101-1199) | round-2 (sibling PR) | `authModel` |
+| security-auth-oauth2 | 10101-10899 | 11xx (1101-1199) | shipped v1.0.0 | `authModel` |
 | security-auth-keycloak (this package) | 11101-11899 | 12xx (1201-1299) | round-2 (this PR) | `authModel` |
 | deploy-cloudflare-workers | 12101-12899 | 13xx (1301-1399) | shipped v1.0.0 | (per that blueprint's topics) |
 | persistence-data-d1 | 13101-13899 | 14xx (1401-1499) | shipped v1.0.0 | `persistenceStore` |
