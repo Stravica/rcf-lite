@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.14.0"
+latest: "0.15.0"
 releases:
+  - version: "0.15.0"
+    date: "2026-08-31"
+    breaking: false
+    headlines:
+      - "Library-applied blueprints now carry a durable ownership stamp so re-registering a library under a different prefix no longer orphans records that came from it."
+      - "The review-on-add card gained a global-topics section and a prefix-check line so a library's cross-topic surface is visible before the operator commits."
+      - "The delivery-ci-workflows blueprint gained optional package-manager and branch-name shape fields, taught the coverage-strict bootstrap trap in the guide, and shipped a starting-point supersession ADR."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.14.0"
     date: "2026-08-31"
     breaking: true
