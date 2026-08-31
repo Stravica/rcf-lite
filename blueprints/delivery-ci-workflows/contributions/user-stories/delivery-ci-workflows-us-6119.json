@@ -1,0 +1,28 @@
+{
+  "usId": "delivery-ci-workflows-US-6119",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-019",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The unit-test check runs the project suite as a gate and fails non-zero on any failing test",
+  "asA": "operator whose project has a unit-test suite",
+  "iWant": "a unit-test gate whose exit-code and report shape are the same as every other elicited check",
+  "soThat": "the aggregate report treats unit tests as one gate among many with the same downstream contract",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6119-1",
+      "description": "When `checkSet.unitTest` is true, the gate-runner runs the project-realised unit-test runner. A non-zero exit code flips the gate outcome to `failed`. The per-gate report at `.rcf/reports/ci/test.json` carries `checkKind: \"unitTest\"`.",
+      "given": "a project with `checkSet.unitTest: true` and a realised unit-test runner",
+      "when": "a CI workflow invokes the gate-runner",
+      "then": "a report file at `.rcf/reports/ci/test.json` is written with `checkKind: \"unitTest\"`, and the gate outcome tracks the runner exit code",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner",
+    "TAC-702-delivery-ci-workflows-gate-report"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-010",
+  "prdId": "PRD-001",
+  "title": "The gate suite entry point is the same code path locally and in CI",
+  "description": "The Node entry point script is invocable on a developer's machine with the same command the CI provider invokes, against the same tree the developer has checked out, and produces the same per-gate reports and aggregate report at the same stable paths. A developer reproducing a CI failure runs the same one line the CI job ran; no CI-only wrapper or environment shim is on the CI code path but not the developer's.",
+  "category": "nonFunctional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A gate that only works inside the CI runner leaves the developer guessing which flag or setup step produced the failure. The Node entry point is the CI's code path and the developer's code path; a CI-only wrapper is the shape that produces 'green locally, red in CI' and slows every review. Same entry point, same reports, same failure mode.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:10-local-parity"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

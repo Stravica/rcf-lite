@@ -1,0 +1,37 @@
+{
+  "usId": "delivery-ci-workflows-US-6115",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-015",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The trunk shape materialises default-branch-checks and optionally pull-request-checks",
+  "asA": "operator on a trunk-based project with delivery-ci-workflows v2 applied",
+  "iWant": "the workflow-materialiser to produce `default-branch-checks` always, plus `pull-request-checks` when I opt into the sub-shape",
+  "soThat": "my trunk-based project gates every commit to trunk and only ships a PR workflow when I actually use PRs",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6115-1",
+      "description": "With `workflowShape.branchModel: trunk` and `trunkPullRequests` absent or `never`, the materialiser produces `default-branch-checks` only. The `pull-request-checks` workflow does not ship in this shape.",
+      "given": "a `workflowShape` with `branchModel: trunk` and no `trunkPullRequests` field",
+      "when": "the workflow-materialiser runs",
+      "then": "a `default-branch-checks` workflow file lands at the provider's workflow path, no `pull-request-checks` workflow file lands, and the merge-policy AC binds to the trunk-branch push-protection property",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6115-2",
+      "description": "With `branchModel: trunk` and `trunkPullRequests: sometimes`, the materialiser additionally produces `pull-request-checks` on the same required check set as `default-branch-checks`.",
+      "given": "a `workflowShape` with `branchModel: trunk` and `trunkPullRequests: sometimes`",
+      "when": "the workflow-materialiser runs",
+      "then": "both workflow files land at the provider's workflow path, and the merge-policy AC binds to the default-branch-protection property that admits only PRs whose `pull-request-checks` aggregate passed",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-704-delivery-ci-workflows-workflow-materialiser",
+    "TAC-701-delivery-ci-workflows-gate-runner"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

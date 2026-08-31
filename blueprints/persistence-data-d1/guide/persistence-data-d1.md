@@ -16,7 +16,7 @@ Not a Worker deploy blueprint. The deploy-gate TAC assumes a `wrangler deploy` s
 
 Not a secrets-management blueprint. The CI credential that runs `wrangler d1 migrations apply` and `wrangler deploy` (the `CLOUDFLARE_API_TOKEN`, or the OAuth-scoped credential the vendor issues) is a secret whose storage and rotation posture the `security-secrets-management` blueprint governs. This blueprint references the credential by role, not by name or storage path.
 
-Not a CI-pipeline blueprint. The deploy-gate TAC contributes the requirement that `wrangler d1 migrations apply` orders strictly before `wrangler deploy` and the deploy job refuses on apply failure; the CI file that implements that ordering is the concern of the `ci-pipeline` blueprint or the project's own CI-authoring practice.
+Not a CI-pipeline blueprint. The deploy-gate TAC contributes the requirement that `wrangler d1 migrations apply` orders strictly before `wrangler deploy` and the deploy job refuses on apply failure; the CI file that implements that ordering is the concern of the `delivery-ci-workflows` blueprint or the project's own CI-authoring practice.
 
 Not a logical-dump story beyond the vendor's export. Backups are `wrangler d1 export` artifacts; cross-engine migration and portable dumps beyond D1's own `.sql` export are out of scope. Projects that need a schema-agnostic dump layer a project-authored dump runner beside the file-level runner.
 

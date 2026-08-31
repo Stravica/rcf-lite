@@ -1,0 +1,28 @@
+{
+  "usId": "delivery-ci-workflows-US-6117",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-017",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The formatter check runs in check mode and fails non-zero on any unformatted file",
+  "asA": "operator whose project enables the elicited formatter check",
+  "iWant": "a formatter gate that CHECKS (not writes) and fails on any file the formatter would rewrite",
+  "soThat": "unformatted commits are caught in CI rather than masked by a rewrite step",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6117-1",
+      "description": "When `checkSet.formatter` is true, the gate-runner runs the project-realised formatter runner in check mode. A non-zero exit code from the runner (indicating one or more files would be rewritten) flips the gate outcome to `failed`. The per-gate report at `.rcf/reports/ci/format.json` carries `checkKind: \"formatter\"`.",
+      "given": "a project with `checkSet.formatter: true` and a realised formatter runner in check mode",
+      "when": "a CI workflow invokes the gate-runner",
+      "then": "a report file at `.rcf/reports/ci/format.json` is written with `checkKind: \"formatter\"`, and the gate outcome tracks the runner exit code",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner",
+    "TAC-702-delivery-ci-workflows-gate-report"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-009",
+  "prdId": "PRD-001",
+  "title": "The blueprint ships illustrative GitHub Actions workflow files for every workflow the matrix materialises; alternate providers wire the same entry points per the four-point mapping",
+  "description": "The blueprint's package resources include one illustrative GitHub Actions workflow file per workflow the v2 matrix materialises (`pull-request-checks.yml`, `default-branch-checks.yml`, `release.yml`, and `scheduled-audit.yml` under `assets/ci-provider-examples/github-actions/`). Each file names the required trigger set for its workflow, sets up Node and the package manager, installs dependencies, invokes the corresponding Node entry point (gate-runner for the check-set workflows, release orchestrator for the release workflow, scheduled-audit runner for the cron workflow), and uploads the report directory as a workflow artefact. The blueprint's guide names GitLab CI, CircleCI, Buildkite, and Jenkins as equally supported providers, calls out the four-point mapping (job trigger, Node setup, single-line entry-point invocation, artefact upload) applied to each workflow in the matrix, and states that the blueprint does not ship provider-specific configuration for those runners in v2.0.0; sibling asset packs (v2.1 candidate) can ship them without changing the AC contracts.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "One worked example per workflow spelled in one runner language is more useful to the reader than a matrix of half-specified examples across five providers. GitHub Actions is the illustrative pick because it is the most widely deployed among rcf-lite candidate projects, not because it is privileged. The four-point mapping applies uniformly across the workflow set; extending the mapping doc to cover three or four workflows instead of one is a linear amount of writing, not a combinatorial one.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:09-provider-examples"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

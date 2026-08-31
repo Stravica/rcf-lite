@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-701-delivery-ci-workflows-ci-gates",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "accepted",
+  "title": "The project's CI runs a fixed ordered required check set (mandatory tier plus the elicited subset from workflowShape.checkSet) whose completeness is the merge criterion",
+  "context": "Continuous integration surfaces are a matrix of trigger events, runner definitions, and gates. The interesting decision area is not the runner or the trigger (a small dial with obvious answers) but the check set: which checks run, in which order, and what does 'the pipeline passed' mean. A project that changes its check set silently loses the property that the pipeline meant the same thing across two runs. Naming the check set as a decision area (not a runtime knob) is what makes the pipeline a stable contract. v2 broadens the answer surface from the fixed v1.0.0 two-gate set to a two-tier catalogue: a mandatory tier (the two v1 gates, preserved verbatim) plus an elicited tier (linter, formatter, typecheck, unitTest, securityScan) the project turns on and off through `workflowShape.checkSet`.",
+  "decision": "The project's CI runs a fixed ordered required check set at every workflow that carries one. The mandatory tier runs first, in order, on every check-set workflow: `validate` (running `rcf define validate`) followed by `coverage-strict` (running `rcf audit coverage --strict`). The elicited tier runs after the mandatory tier: the checks the project turned on in `workflowShape.checkSet` (default: every catalogued check on) run in a stable but non-load-bearing order documented in the guide. The pipeline passes if and only if every required check's outcome is `passed`; a `failed` or `missing` outcome on any required check fails the pipeline. Adding a check kind the catalogue does not name (mutation-testing, contract-test, accessibility scan) is a project-level or blueprint-level ADR: a project that wants an extra required check supersedes this ADR with a project-level ADR listing the extended catalogue; a future blueprint that ships a new required check (a browser-verify pack, an observability probe pack) contributes its own scope:global ADR on the `ciGates` topic and lets composition surface the pairing.",
+  "consequences": "The pipeline's verdict is stable across runs of the same commit under the same rcf CLI version and the same `workflowShape`. Adding a check is a visible decision (either a `workflowShape.checkSet` flag flip or a project-level ADR); changing the check catalogue itself is a v2.x major bump. A project that wants a check the catalogue does not name owes a project-level ADR that supersedes this one and names the extended catalogue; the aggregate report's `gates[]` array then reflects the extended catalogue on every run. Composing blueprints that hold an opinion on the required-check set conflict on the `ciGates` topic: an observability-essentials blueprint that ships health-probe gates as required conflicts here by design and expects a project-level ADR to resolve the pairing (or the operator adopts one of the two blueprints).",
+  "alternativesConsidered": [
+    {
+      "name": "Ship the gate set as a runtime configuration knob rather than as an ADR",
+      "summary": "The runner reads the gate set from a config file or environment variable, and any project reconfigures without a decision record.",
+      "reasonNotChosen": "A gate set that can silently change is one whose meaning drifts. The value of the aggregate report as a stable contract collapses if two runs of the same commit can have different gate sets. Making the gate set an ADR forces the reasoning to be recorded and forces a composing blueprint to conflict explicitly."
+    },
+    {
+      "name": "Ship a maximal required-check set at v2.0.0 (mandatory tier plus every plausible elicited check plus adherence packs plus browser-verify)",
+      "summary": "The pipeline runs every check the mechanism offers as required by default, with no elicitation surface.",
+      "reasonNotChosen": "The mechanism-reach principle for blueprints (authoring standard, section 7) says a blueprint should not compel a check the project has no reasonable path to satisfy. Adherence packs and browser-verify probes belong in future blueprints that ship the surface they enforce; requiring them here would leave every fresh project failing its pipeline until it realises those surfaces. The mandatory tier plus the five elicited checks the project turns on and off is the right v2.0.0 floor."
+    },
+    {
+      "name": "Keep the v1.0.0 fixed two-gate set at v2",
+      "summary": "The check set stays at `validate` + `coverage-strict`; the elicited tier does not ship.",
+      "reasonNotChosen": "The strongly-recommended-before-handover list names lint/test/security in \"the CI blueprint\" as the biggest feature gap; leaving v2 at the v1 two-gate set does not close the gap the WSD readiness synthesis called out."
+    }
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

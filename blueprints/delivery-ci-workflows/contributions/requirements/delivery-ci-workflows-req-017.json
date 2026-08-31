@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-017",
+  "prdId": "PRD-001",
+  "title": "A formatter check the project realises produces a stable-shape formatter report and fails non-zero on any unformatted file",
+  "description": "The elicited `formatter` check, when the project enables it in `workflowShape.checkSet.formatter`, runs a formatter check gate (not a formatter write) that exits non-zero when any tracked file would be rewritten by the formatter. The gate writes its per-gate report to `.rcf/reports/ci/format.json` in the shared per-gate report shape (with `checkKind: \"formatter\"`). The blueprint does not pick the formatter; the project realises the runner and satisfies the runner-contract interface.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A formatter used as a WRITE step masks unformatted commits; a formatter used as a CHECK step fails the pipeline on any unformatted file. Binding the check-mode semantic and the report shape as an AC contract keeps the property stable while leaving the tool choice to the project.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:17-check-formatter"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

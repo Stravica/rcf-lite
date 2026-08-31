@@ -1,0 +1,36 @@
+{
+  "usId": "delivery-ci-workflows-US-6106",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The suite emits an aggregate pipeline report at a stable path",
+  "asA": "downstream reader who needs the single-record verdict of a pipeline run",
+  "iWant": "an aggregate report at a stable path summarising every gate's outcome and pointing at the per-gate reports",
+  "soThat": "the pipeline's answer is one JSON file whose shape I can rely on across blueprint minor versions",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6106-1",
+      "description": "The suite writes an aggregate report at `<reportDir>/pipeline.json` on every run. The aggregate carries `verdict`, `trigger`, `startedAt`, `endedAt`, `durationMs`, `runner.entryPoint`, and `gates[]` (each entry naming `gate`, `outcome`, `durationMs`, and `reportPath`).",
+      "given": "the suite has run against any tree",
+      "when": "the reviewer opens `<reportDir>/pipeline.json`",
+      "then": "the file exists, its top-level keys are exactly the fixed set above, `verdict` is one of `passed` or `failed`, `gates[]` is a non-empty array in fixed configured order, and every `reportPath` value resolves to an existing per-gate report file at that relative path",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6106-2",
+      "description": "The aggregate verdict is `passed` if and only if every gates[] entry's `outcome` is `passed` and no entry's outcome is `missing`.",
+      "given": "any suite run whose gates[] array contains at least one entry with outcome `failed` or `missing`",
+      "when": "the reviewer reads the aggregate report",
+      "then": "the aggregate report's `verdict` field is `failed`, and the aggregate does not record `passed` while any per-gate entry recorded a non-`passed` outcome",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-703-delivery-ci-workflows-aggregate-report"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

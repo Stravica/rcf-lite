@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Gate failures produce operator-readable output naming the failing gate and pointing to the per-gate report",
+  "description": "When any gate in the suite fails, the Node entry point writes an operator-readable failure summary to its own stderr and to the aggregate report's `failure` field. The summary names the failing gate, the failing invocation's exit code, the first few lines of the captured stderr, and the relative path to the per-gate report file the reviewer can open for the full detail. The suite continues past a failing gate to run the remaining required gates and record their outcomes; the aggregate exit is non-zero if any gate failed.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A failed CI job shows the reviewer the tail of the runner's own output. If the failing gate does not surface its name and its report path in that tail, the reviewer clicks around the provider's UI to find the artefact. Naming the gate and its report path in the surface the reviewer already sees is the fix. Continuing past a failing gate matters because a reviewer running two failing gates should see both, not just the first.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:07-failure-surfacing"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-003",
+  "prdId": "PRD-001",
+  "title": "The suite runs the schema-and-reference validation gate and refuses on non-zero exit",
+  "description": "The Node entry point invokes `rcf define validate` as a required gate. The gate runs with the project's tree at the pull request's head commit. A non-zero exit code from `rcf define validate` terminates the suite and marks the aggregate result as failed. The failing invocation's stdout and stderr are captured to the gate report file so the reviewer can read the specific schema or reference issue without re-running the gate.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "Schema and cross-reference integrity is the floor every other gate stands on: `rcf audit coverage --strict` cannot answer honestly against a tree with broken references. Running `rcf define validate` first, failing fast on non-zero exit, and preserving its output for the reviewer is the shape that makes the mechanism useful in review, not just at author time.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:03-validate-gate"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

@@ -1,0 +1,61 @@
+# Illustrative scheduled-audit workflow for the delivery-ci-workflows blueprint.
+# Copy this file into the host project as `.github/workflows/scheduled-audit.yml`
+# and adjust the `node-version`, package-manager setup, and scheduled runner
+# path to match the project's realised scheduled-audit runner (TAC-706).
+#
+# This file materialises when workflowShape.scheduledAudit is `true`. When
+# `false` or absent, the workflow does not ship at all.
+#
+# The workflow runs the same required check set as the commit-triggered
+# workflows and writes to a distinct aggregate report path
+# (.rcf/reports/ci/scheduled-audit.json) so scheduled-run outcomes never
+# overwrite the most recent commit-triggered outcome.
+#
+# See `guide/delivery-ci-workflows.md` for the cron cadence discussion and
+# AC-6123-1/AC-6123-2 for the report-path property.
+
+name: scheduled-audit
+
+on:
+  schedule:
+    # Every day at 06:00 UTC. Adjust to your project's cadence.
+    - cron: '0 6 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  scheduled-check-set:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The scheduled runner is a thin wrapper around the gate-runner
+      # (TAC-701) that overrides the aggregate report path to the
+      # scheduled-audit path and forwards the elicited check set.
+      - name: run scheduled audit
+        run: node scripts/rcf-scheduled-audit.js --report-path .rcf/reports/ci/scheduled-audit.json
+
+      - name: upload scheduled audit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scheduled-audit-reports
+          path: .rcf/reports/ci/
+          if-no-files-found: warn
+          retention-days: 30

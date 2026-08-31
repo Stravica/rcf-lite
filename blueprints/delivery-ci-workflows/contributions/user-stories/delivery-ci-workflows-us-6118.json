@@ -1,0 +1,37 @@
+{
+  "usId": "delivery-ci-workflows-US-6118",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-018",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The typecheck runs when the project has a typechecker configured and fails non-zero on any type error",
+  "asA": "operator whose project uses a typechecked language",
+  "iWant": "the typecheck gate to run when my project has a typechecker configured and be off when it does not",
+  "soThat": "the default aligns with project shape without me writing an explicit override",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6118-1",
+      "description": "When `checkSet.typecheck` is true (or the auto-detect finds a `tsconfig.json` or equivalent tool marker at the project root and the flag is unset), the gate-runner runs the project-realised typecheck runner. A non-zero exit flips the gate outcome to `failed`. The per-gate report at `.rcf/reports/ci/typecheck.json` carries `checkKind: \"typecheck\"`.",
+      "given": "a project with `checkSet.typecheck: true` and a realised typecheck runner",
+      "when": "a CI workflow invokes the gate-runner",
+      "then": "a report file at `.rcf/reports/ci/typecheck.json` is written with `checkKind: \"typecheck\"`, and the gate outcome tracks the runner exit code",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6118-2",
+      "description": "When `checkSet.typecheck` is unset and the project tree contains no `tsconfig.json` or equivalent tool marker, the auto-detect leaves the check off and no `typecheck.json` report file is written.",
+      "given": "a project with `checkSet.typecheck` unset and no typechecker marker at the project root",
+      "when": "a CI workflow invokes the gate-runner",
+      "then": "no `typecheck` gate is included in the aggregate report and no `.rcf/reports/ci/typecheck.json` file is written",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner",
+    "TAC-702-delivery-ci-workflows-gate-report"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

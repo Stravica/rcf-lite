@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-015",
+  "prdId": "PRD-001",
+  "title": "The trunk-based shape is a first-class option with a sub-shape for optional pull-request use",
+  "description": "When `workflowShape.branchModel` is `trunk`, the workflow-materialiser produces `default-branch-checks` as the always-on workflow firing on every push to the trunk branch. A nested `trunkPullRequests` field qualifies the shape: `never` (default) ships only `default-branch-checks`; `sometimes` additionally ships `pull-request-checks` against the same check set. The merge-policy AC states the property differently per sub-shape: without PRs, the trunk branch's push protection admits only commits whose `default-branch-checks` aggregate passed; with PRs, the trunk branch's protection admits only PRs whose `pull-request-checks` aggregate passed. Every other contract (check catalogue, report shape, ordering) is shared with the feature-branch shape.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "Trunk-based development is a first-class shape the operator ruling named, not an afterthought. The two sub-shapes (with and without PRs) cover the archetypal trunk-based posture and the common hybrid; the nested sub-field keeps the top-level enumeration at the two archetypes. Sharing the check catalogue and report shape across both branch models means a project that migrates between them changes trigger sets, not check contracts.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:15-branch-model-trunk"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

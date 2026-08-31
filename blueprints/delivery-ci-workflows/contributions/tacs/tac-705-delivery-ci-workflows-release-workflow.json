@@ -1,0 +1,51 @@
+{
+  "tacId": "TAC-705-delivery-ci-workflows-release-workflow",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "approved",
+  "name": "Release workflow (Node step orchestrator)",
+  "purpose": "The Node-side orchestrator the release workflow file invokes to run the release-flow steps per the elicited `releaseMode`. Owns the sequence: create release entity (all modes except `none`), run artefact-publish (from `tagPlusArtefact`), dispatch deploy promote workflow (`deployHandoff` only), aggregate the outcome into `.rcf/reports/ci/release.json`.",
+  "responsibilities": [
+    "Read the elicited `releaseMode` from the release workflow environment (the workflow file passes it in as an argument or an env var; the orchestrator does not read the config file at CI time).",
+    "When `releaseMode` is `tagOnly`, `tagPlusArtefact`, or `deployHandoff:<slug>`, create the release entity on the CI provider's release surface (AC-6121-2 the first sentence).",
+    "When `releaseMode` is `tagPlusArtefact` or `deployHandoff:<slug>`, invoke the project-realised artefact-publish step and capture the just-published version identifier (AC-6121-2 the second sentence).",
+    "When `releaseMode` is `deployHandoff:<slug>`, dispatch the named deploy blueprint's `promote` workflow via `workflow_dispatch`, passing the just-published version identifier as the `versionId` input; wait on the promote workflow's outcome (AC-6122-1).",
+    "Aggregate the outcome into `.rcf/reports/ci/release.json`: the release workflow's aggregate outcome is `passed` only when every step (tag creation, artefact publish where applicable, promote workflow outcome where applicable) is `passed` (AC-6122-2, AC-6121-3).",
+    "The release workflow does NOT invoke the gate-runner entry point; the check set already ran on the default-branch-checks workflow at the commit the release points at (AC-6121-3)."
+  ],
+  "internalStructure": "One Node module exporting `runRelease({ releaseMode, deployTarget, artefactStep })` and a shebang entry point invocable as `node <path>` with argv naming the release mode. The orchestrator sequences the steps as a fixed pipeline: `create-release-entity`, `publish-artefact` (conditional), `dispatch-promote` (conditional), `aggregate-report`. Each step writes its own per-step JSON record to `.rcf/reports/ci/release/<step>.json`; the aggregator gathers them into `.rcf/reports/ci/release.json`.",
+  "interfaces": [
+    {
+      "name": "runRelease",
+      "kind": "factory",
+      "description": "runRelease({ releaseMode, deployTarget, artefactStep }) -> Promise<{ verdict, versionId, releaseReportPath }>; the sole callable the release workflow file invokes."
+    },
+    {
+      "name": "release-mode",
+      "kind": "value",
+      "description": "One of `tagOnly`, `tagPlusArtefact`, `deployHandoff:<slug>`. The `none` mode never reaches the orchestrator because the release workflow itself is not materialised."
+    },
+    {
+      "name": "entry-point CLI",
+      "kind": "cli",
+      "description": "`node <entryPointPath> --mode <releaseMode>` with the release mode as required argv. Exit code is 0 on `verdict: passed` and non-zero on `verdict: failed`."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Deploy promote workflow",
+      "kind": "external",
+      "description": "For `deployHandoff:<slug>`, the deploy blueprint's `promote` workflow exposed via `workflow_dispatch` with a `versionId` input. The release orchestrator does not import the deploy blueprint; it dispatches the workflow through the CI provider's workflow-dispatch API."
+    },
+    {
+      "name": "Aggregate report writer",
+      "kind": "tac",
+      "tacId": "TAC-703-delivery-ci-workflows-aggregate-report",
+      "description": "The release workflow aggregate reuses the aggregate-report writer shape with the release-flow gate list in place of the check-set gate list."
+    }
+  ],
+  "tradeoffs": "Splitting the release workflow orchestrator from the commit-triggered gate-runner means two Node entry points, not one. The alternative (one runner that switches on trigger kind) conflates two distinct control flows: the commit-triggered gate set is a fixed check catalogue; the release-triggered flow is a variable pipeline whose step set depends on `releaseMode`. Keeping them separate makes each one's AC contract legible.",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-022",
+  "prdId": "PRD-001",
+  "title": "The deployHandoff release mode invokes the named deploy blueprint's promote workflow and refuses at boot when that blueprint is absent",
+  "description": "When `workflowShape.releaseMode` is `deployHandoff:<slug>`, the release workflow invokes the named deploy blueprint's `promote` workflow via that blueprint's declared invocation contract (a `workflow_dispatch` event carrying the just-published version identifier as the `versionId` input). The release workflow's aggregate outcome is `passed` only when the promote workflow's outcome is `passed`. The workflow-materialiser performs a boot-check that refuses the value when the named deploy blueprint is absent from `manifest.blueprints[]`; the error names the missing blueprint by slug and points at `rcf define blueprint add <deploy-slug>` as the resolution.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "Cross-blueprint composition works when the composing blueprint reaches for a stated invocation contract on the composed side, not when it duplicates the composed side's implementation. The `versionId`-optional-input contract on the deploy blueprint's promote workflow is already ratified; the release workflow calls it and inherits the promote workflow's outcome. The manifest boot-check catches the misconfiguration case (a project declaring a handoff to a target it has not applied) before the release workflow lands on disk.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:22-deploy-handoff"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

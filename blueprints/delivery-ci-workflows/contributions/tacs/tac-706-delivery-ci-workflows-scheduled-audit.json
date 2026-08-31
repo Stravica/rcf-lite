@@ -1,0 +1,38 @@
+{
+  "tacId": "TAC-706-delivery-ci-workflows-scheduled-audit",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "approved",
+  "name": "Scheduled audit runner (cron-triggered gate invocation)",
+  "purpose": "The Node-side entry point the scheduled-audit workflow file invokes on a cron schedule. Runs the same required check set the commit-triggered workflows run, writes the aggregate report to a distinct stable path (`.rcf/reports/ci/scheduled-audit.json`) so scheduled-run outcomes never overwrite commit-triggered outcomes.",
+  "responsibilities": [
+    "Invoke the gate-runner entry point (TAC-701) with the required check set the project has elicited in `workflowShape.checkSet`, plus the mandatory tier (AC-6123-1).",
+    "Override the aggregate report path so the aggregate lands at `.rcf/reports/ci/scheduled-audit.json`, distinct from the commit-triggered `.rcf/reports/ci/pipeline.json` (AC-6123-1).",
+    "Do not ship when `workflowShape.scheduledAudit` is `false` or absent (the workflow-materialiser refuses to write the workflow file; the runner is not invoked because the workflow does not exist) (AC-6123-2)."
+  ],
+  "internalStructure": "A thin Node wrapper around the gate-runner entry point that overrides the aggregate report path and forwards the elicited check set. The wrapper is a shebang entry point invocable as `node <path>` with no required argv; the workflow file passes `--report-path .rcf/reports/ci/scheduled-audit.json` as its optional argument.",
+  "interfaces": [
+    {
+      "name": "runScheduledAudit",
+      "kind": "factory",
+      "description": "runScheduledAudit({ checkSet, reportPath }) -> Promise<{ verdict, exitCode, aggregateReportPath }>; the sole callable the entry point invokes."
+    },
+    {
+      "name": "entry-point CLI",
+      "kind": "cli",
+      "description": "`node <entryPointPath> --check-set <checkSet> --report-path <path>` with the elicited check set as required argv and the report path as an optional override. Exit code is the aggregate exit code."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Gate runner",
+      "kind": "tac",
+      "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+      "description": "The scheduled runner invokes the gate-runner Node entry point with the required check set; the check-set contract and the report shape are shared."
+    }
+  ],
+  "tradeoffs": "A distinct report path for the scheduled-audit workflow costs one extra path in the downstream reader's ingest logic; that cost buys the property that a scheduled-run outcome never overwrites the record of the most recent commit-triggered outcome. The alternative (writing to the same path) would collapse two distinct concerns into one file whose meaning shifts based on which workflow wrote it last.",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

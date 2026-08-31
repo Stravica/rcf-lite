@@ -23,7 +23,7 @@ Composing with `security-auth-magic-link` (or any other blueprint contributing `
 | Middleware sample | `assets/middleware/node-middleware-shape.md` | The framework-agnostic middleware boundary contract (`verify(request)`), with adapter samples for Express and Fastify |
 | Role-claim mapping | `assets/authorisation/role-claim-mapping-sample.md` | A worked verb-to-role mapping-table example, with the reduction from Clerk's `org:role` claim shape into the project's `roles` array |
 | Guide | `guide/security-auth-clerk.md` | Operator-facing: when to use it, when not, the promotion signals for the OAuth2 and Keycloak siblings, the operator decisions that remain open, the cost-honesty paragraph |
-| Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes and the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, email-smtp-resend, persistence-data-sqlite, ci-pipeline, observability-essentials, security-secrets-management, security-auth-clerk) |
+| Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes and the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, email-smtp-resend, persistence-data-sqlite, delivery-ci-workflows, observability-essentials, security-secrets-management, security-auth-clerk) |
 
 The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 

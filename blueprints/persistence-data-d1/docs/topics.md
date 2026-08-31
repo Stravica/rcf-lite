@@ -13,7 +13,7 @@ The persistence-data-d1 blueprint claims two global topics. Every other contribu
 
 Note on the delineation from the application-api-rest blueprint's `logging` topic: `logging` (owned by application-api-rest ADR-304) governs the wire-log shape of the HTTP tier. This blueprint's ADR-1403 governs the STORE-EVENT log shape (facadeReady, migrationsApplied, backupExported, timeTravelRestored, queryFailed). The two log surfaces may share a shipper but do not share a topic. A blueprint that contributes a unified log discipline across all tiers would author its own scope:global ADR on `logging` and expect to conflict with the REST blueprint there, not here.
 
-Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, persistence-data-sqlite, ci-pipeline, observability-essentials, security-secrets-management, security-auth-clerk, and email-smtp-resend vocabularies, restated as law): lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`store`, `dataStore`, `db`, `dbEngine`, `d1Store`, `edgeStore` are all wrong when `persistenceStore` already exists; `schemaMigrations`, `dbMigrations`, `wranglerMigrations`, `migrations` are all wrong when `migrationDiscipline` already exists).
+Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, persistence-data-sqlite, delivery-ci-workflows, observability-essentials, security-secrets-management, security-auth-clerk, and email-smtp-resend vocabularies, restated as law): lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`store`, `dataStore`, `db`, `dbEngine`, `d1Store`, `edgeStore` are all wrong when `persistenceStore` already exists; `schemaMigrations`, `dbMigrations`, `wranglerMigrations`, `migrations` are all wrong when `migrationDiscipline` already exists).
 
 ## Id number bands (registry bootstrap)
 
@@ -29,7 +29,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
 | hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
-| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
 | observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
 | security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |

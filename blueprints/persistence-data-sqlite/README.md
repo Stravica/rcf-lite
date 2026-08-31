@@ -21,7 +21,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | SQLite backup procedure | `assets/backup-procedures/sqlite-file-copy.md` | The downtime-free file-copy procedure under WAL, with the online-backup and checkpoint-then-copy paths |
 | WAL checkpoint note | `assets/backup-procedures/hot-checkpoint-note.md` | Why a checkpoint before a bare cp works, and when the online-backup API is the safer path |
 | Guide | `guide/persistence-data-sqlite.md` | Operator-facing: when to use it, when not, what stays your call, and the promotion signal for the future Postgres variant |
-| Coordination vocabulary | `docs/topics.md` | The two global-topic strings this blueprint contributes, the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, hello-panel, persistence-data-sqlite, ci-pipeline, observability-essentials) |
+| Coordination vocabulary | `docs/topics.md` | The two global-topic strings this blueprint contributes, the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, hello-panel, persistence-data-sqlite, delivery-ci-workflows, observability-essentials) |
 
 The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 
