@@ -34,6 +34,7 @@
  * @property {object} [uiBaseline]               the manifest uiBaseline record (defaults + opt-outs)
  * @property {string} dom                        the response HTML for the route
  * @property {boolean} [authenticated]           whether the request carried the auth cookie
+ * @property {string} [landedPath]               the pathname the browser's final URL resolved to after any redirect chain; when the driver reports it, `authenticatedLandsOnRequestedPath` compares it against `routePath` (AC-1131-3 landed-path refusal)
  */
 
 const OPT_OUT_FIELDS = new Set([
@@ -90,6 +91,12 @@ const V1_INVARIANTS = [
     severity: 'block',
     perThemeOnly: false,
     run: checkNoInlineStyleBlocks,
+  },
+  {
+    name: 'authenticatedLandsOnRequestedPath',
+    severity: 'block',
+    perThemeOnly: false,
+    run: checkAuthenticatedLandsOnRequestedPath,
   },
 ];
 
@@ -323,6 +330,39 @@ function checkNoInlineStyleBlocks(ctx) {
   return {
     verdict: 'fail',
     detail: 'inline <style> block present in the rendered HTML; ship style-src \'unsafe-inline\' would be required for it to render (watchpost run4 class defect, w-2026-08-24-003). Serve the stylesheet from a same-origin route and reference it via <link rel="stylesheet">.',
+  };
+}
+
+/**
+ * AC-1131-3 landed-path refusal: when the driver reports the browser's
+ * final URL path after any redirect chain resolves, and the request was
+ * for an authenticated route, the landed path MUST equal the requested
+ * route path. Cures the class of harness where a broken session lane
+ * silently caused every authenticated-route assertion to run against a
+ * styled /login (Playwright's page.goto follows redirects by default,
+ * so the resolved response is 200 from the redirect target and the
+ * downstream styled/CSP assertions pass against the wrong surface).
+ * Watchpost partial-acceptance w-2026-08-24-003 / AC-1601-14; ported
+ * into the SPA blueprint TAC-209 v1.0.1.
+ *
+ * The invariant is opt-in: when the driver does NOT populate
+ * `ctx.landedPath` the invariant passes (older drivers keep working).
+ * Once the SPA-blueprint drivers report `landedPath` this becomes a
+ * hard block-severity refusal.
+ */
+function checkAuthenticatedLandsOnRequestedPath(ctx) {
+  if (typeof ctx.landedPath !== 'string' || ctx.landedPath.length === 0) return { verdict: 'pass' };
+  if (ctx.authenticated === false) return { verdict: 'pass' };
+  const routes = ctx.fbs?.designStage?.navModel?.routes ?? [];
+  const routeSpec = routes.find((r) => r.path === ctx.routePath);
+  // If the FBS enumerates the route and marks it authRequired=false, the
+  // landed-path refusal does not fire (a public route is allowed to
+  // redirect to any other public surface by design).
+  if (routeSpec && routeSpec.authRequired === false && ctx.authenticated !== true) return { verdict: 'pass' };
+  if (ctx.landedPath === ctx.routePath) return { verdict: 'pass' };
+  return {
+    verdict: 'fail',
+    detail: `authenticated navigation landed on '${ctx.landedPath}' (requested '${ctx.routePath}'); a silent redirect chain to another surface (e.g. a session-broken 302 to /login) validated the redirect target's styled state instead of the requested route (AC-1131-3 pathMismatch; watchpost AC-1601-14, w-2026-08-24-003).`,
   };
 }
 

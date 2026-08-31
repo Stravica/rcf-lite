@@ -162,3 +162,62 @@ test('noInlineStyleBlocks fails when the DOM carries an inline <style> block (w-
   assert.match(inv.detail, /inline <style>/i);
   assert.match(inv.detail, /w-2026-08-24-003/);
 });
+
+test('authenticatedLandsOnRequestedPath passes when the driver does not report a landedPath (opt-in / backward compatible)', () => {
+  const dom = '<html><body><nav></nav></body></html>';
+  const results = runInvariantsForCapture({
+    routePath: '/', themeApplied: 'light', fbs: uiBearingFbs, dom, authenticated: true,
+  });
+  const inv = results.find((r) => r.invariant === 'authenticatedLandsOnRequestedPath');
+  assert.equal(inv.verdict, 'pass');
+  assert.equal(inv.severity, 'block');
+});
+
+test('authenticatedLandsOnRequestedPath passes when the browser landed on the requested route', () => {
+  const dom = '<html><body><nav></nav></body></html>';
+  const results = runInvariantsForCapture({
+    routePath: '/monitors', themeApplied: 'light', fbs: uiBearingFbs, dom, authenticated: true, landedPath: '/monitors',
+  });
+  const inv = results.find((r) => r.invariant === 'authenticatedLandsOnRequestedPath');
+  assert.equal(inv.verdict, 'pass');
+});
+
+test('authenticatedLandsOnRequestedPath fails when a session-broken authenticated navigation silently followed a 302 to /login (AC-1131-3 pathMismatch; watchpost AC-1601-14 port, w-2026-08-24-003)', () => {
+  // Simulates the failure class the watchpost run4 partial acceptance
+  // exposed: every authenticated route silently 302'd to a styled
+  // /login, Playwright resolved the redirect, and the harness ran
+  // every downstream styled-body / CSP assertion against the login
+  // page (also styled under strict CSP) rather than the requested
+  // surface. The landed-path refusal fails loud, per-route.
+  const dom = '<html data-theme="light"><body><main>Login</main></body></html>';
+  const results = runInvariantsForCapture({
+    routePath: '/monitors', themeApplied: 'light', fbs: uiBearingFbs, dom, authenticated: true, landedPath: '/login',
+  });
+  const inv = results.find((r) => r.invariant === 'authenticatedLandsOnRequestedPath');
+  assert.equal(inv.verdict, 'fail');
+  assert.equal(inv.severity, 'block');
+  assert.match(inv.detail, /landed on '\/login'/);
+  assert.match(inv.detail, /requested '\/monitors'/);
+  assert.match(inv.detail, /AC-1131-3 pathMismatch/);
+  assert.match(inv.detail, /w-2026-08-24-003/);
+});
+
+test('authenticatedLandsOnRequestedPath does not fire when the request was unauthenticated and the route is public', () => {
+  const publicFbs = {
+    fbsId: 'FBS-016',
+    designStage: {
+      navModel: {
+        shape: 'shared-persistent',
+        routes: [{ path: '/login', label: 'Login', authRequired: false }],
+        signedInAsAffordance: false,
+      },
+      themeAndA11y: { themeMode: 'light-default-with-toggle' },
+    },
+  };
+  const dom = '<html><body></body></html>';
+  const results = runInvariantsForCapture({
+    routePath: '/login', themeApplied: 'light', fbs: publicFbs, dom, authenticated: false, landedPath: '/somewhere-else',
+  });
+  const inv = results.find((r) => r.invariant === 'authenticatedLandsOnRequestedPath');
+  assert.equal(inv.verdict, 'pass');
+});

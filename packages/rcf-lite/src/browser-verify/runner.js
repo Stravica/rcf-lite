@@ -28,6 +28,7 @@ import { composeBrowserVerificationRecord } from './manifest-writer.js';
  * @property {string} dom
  * @property {string} screenshotPath
  * @property {boolean} [authenticated]
+ * @property {string} [landedPath]  the pathname of the browser's final URL after any redirect chain resolved (`new URL(page.url()).pathname`); when the driver reports it, the `authenticatedLandsOnRequestedPath` invariant fires (AC-1131-3 landed-path refusal, watchpost AC-1601-14 port)
  */
 
 /**
@@ -78,6 +79,7 @@ export async function runAgentScreenshotCritique({
       uiBaseline: tree.manifest?.uiBaseline,
       dom: cap.dom,
       authenticated: cap.authenticated,
+      landedPath: cap.landedPath,
     });
     perCapture.push({ routePath: cap.routePath, themeApplied: cap.themeApplied, results });
     routesChecked.push({ path: cap.routePath, screenshotPath: cap.screenshotPath, themeApplied: cap.themeApplied });
