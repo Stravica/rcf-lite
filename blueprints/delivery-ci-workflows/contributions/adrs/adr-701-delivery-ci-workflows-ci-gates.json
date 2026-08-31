@@ -22,7 +22,7 @@
     {
       "name": "Keep the v1.0.0 fixed two-gate set at v2",
       "summary": "The check set stays at `validate` + `coverage-strict`; the elicited tier does not ship.",
-      "reasonNotChosen": "The strongly-recommended-before-handover list names lint/test/security in \"the CI blueprint\" as the biggest feature gap; leaving v2 at the v1 two-gate set does not close the gap the WSD readiness synthesis called out."
+      "reasonNotChosen": "Lint, formatter, typecheck, unit-test, and security-scan are checks a project engineer expects to find in a general-purpose CI floor; leaving v2 at the v1 two-gate set does not close that gap and leaves every consuming project reinventing the elicited tier as a project-level ADR."
     }
   ],
   "createdAt": "2026-08-24T00:00:00Z",

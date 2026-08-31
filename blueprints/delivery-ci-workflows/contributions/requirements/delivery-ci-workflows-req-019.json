@@ -6,7 +6,7 @@
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",
-  "rationale": "A unit-test gate is table stakes for any greenfield project; naming it in the elicited catalogue keeps the default set aligned with what a WSD engineer expects to find. Preserving the tool choice at the project layer is what keeps the blueprint neutral across test frameworks.",
+  "rationale": "A unit-test gate is table stakes for any greenfield project; naming it in the elicited catalogue keeps the default set aligned with what a project engineer expects to find in a CI floor. Preserving the tool choice at the project layer is what keeps the blueprint neutral across test frameworks.",
   "tags": [
     "blueprint:delivery-ci-workflows",
     "category:19-check-unit-test"
