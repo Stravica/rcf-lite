@@ -26,7 +26,7 @@
     {
       "name": "gate-descriptor",
       "kind": "value",
-      "description": "{ name: string, command: string[] } where `command[0]` is the executable (typically `rcf`) and the rest are argv. The set-of-two required for v1.0.0 is `[{ name: 'validate', command: ['rcf', 'validate'] }, { name: 'coverage-strict', command: ['rcf', 'coverage', '--strict'] }]`."
+      "description": "{ name: string, command: string[] } where `command[0]` is the executable (typically `rcf`) and the rest are argv. The rcf CLI groups verbs by RCF stage; the mandatory tier for v1.0.0 uses the grouped forms this TAC's responsibilities section names: `[{ name: 'validate', command: ['rcf', 'define', 'validate'] }, { name: 'coverage-strict', command: ['rcf', 'audit', 'coverage', '--strict'] }]`. A descriptor whose `command` array omits the group (`['rcf', 'validate']`, `['rcf', 'coverage', '--strict']`) does not resolve on any shipped rcf CLI and refuses at gate spawn; the gate-runner does not paper over the difference."
     },
     {
       "name": "entry-point CLI",
@@ -55,5 +55,5 @@
   ],
   "tradeoffs": "Running every gate as a separate child process costs Node startup for each; that cost buys a stable exit-code contract and a stable stream capture surface that a library-mode invocation would obscure. Continuing past a failing gate costs a slightly longer pipeline; that cost buys the reviewer seeing every failure on one run instead of chasing them one at a time. The runner does not run gates in parallel: gate ordering is a stable property the aggregate report depends on, and the small gate count at v1.0.0 does not motivate a parallel-and-serialise design.",
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-08-31T00:00:00Z"
 }
