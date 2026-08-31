@@ -33,6 +33,8 @@ Composing the two on one project fires two `globalAdrTopic` conflicts (on `healt
 
 Explicit hybrids exist (an internal essentials-shaped surface for one audience and a profile-shaped external surface for the supervising system) and are legitimate; the project-level ADR names both surfaces with explicit boundaries and both blueprints compose.
 
+Composing with the `deploy-cloudflare-workers` blueprint is a separate concern: that blueprint mandates its own build-provenance probe (`/healthz` by convention) whose response body carries `{ versionSha, builtAt, ciRunUrl }` for the deploy verifier's reconciliation, which is incompatible with every profile's minimal response contract; the two surfaces coexist on distinct paths (this blueprint's profile-owned path stays minimal, the deploy blueprint's provenance path lives on a separate string), and the boundary is documented on the deploy side in `assets/verification/served-surface-probes.md`.
+
 ## When to reach for it
 
 Reach for the observability-probe-endpoints blueprint when:

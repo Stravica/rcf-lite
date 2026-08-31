@@ -9,9 +9,9 @@
   "responsibilities": [
     "Accept the `versionId` input from the promote workflow trigger; when empty, invoke `deployAdapter.resolveNewestOfMain()` to fill it (AC-12108-1, AC-12108-2).",
     "Refuse a `versionId` absent from `deployAdapter.listVersions()` before any vendor call is issued; return `DEPLOY_VERSION_NOT_FOUND` (AC-12108-3).",
-    "Invoke `deployAdapter.promoteVersion({ versionId })`; capture the returned `{ promotedVersionId, previousVersionId }` for the deploy-log record (AC-12104-3, AC-12109-1).",
-    "Immediately invoke the Served-surface Verifier against the production URL; on any verifier failure exit non-zero with `PROMOTE_VERIFY_FAILED` and refuse to mark the release successful (AC-12109-3, AC-12110-1, AC-12110-3).",
-    "Emit the deploy-log record with fields `promotedVersionId`, `promotedBy`, `previousVersionId`, `promotedAt`; every field is populated; no field carries a secret value (AC-12104-3).",
+    "Invoke `deployAdapter.promoteVersion({ versionId })`; capture the returned `{ promotedVersionId, versionSha, previousVersionId }` for the deploy-log record. `promotedVersionId` is the vendor-assigned version UUID; `versionSha` is the git commit sha of the source tree the promoted version was built from, read from the version's provenance surface; both are required on the record and both feed the Served-surface Verifier (the verifier reconciles the served health-probe body's `versionSha` against the record's `versionSha`) (AC-12104-3, AC-12109-1).",
+    "Immediately invoke the Served-surface Verifier against the production URL, passing the promote record's `versionSha` as the substitution value for `expectShape.versionSha` in the health-probe declaration; on any verifier failure exit non-zero with `PROMOTE_VERIFY_FAILED` and refuse to mark the release successful (AC-12109-3, AC-12110-1, AC-12110-3).",
+    "Emit the deploy-log record with fields `promotedVersionId`, `versionSha`, `promotedBy`, `previousVersionId`, `promotedAt`; every field is populated; no field carries a secret value (AC-12104-3).",
     "Refuse to run when the invocation context is not the platform's explicit-manual-trigger primitive (a `workflow_dispatch` guard as the first step of the workflow) (AC-12104-1, AC-12104-2)."
   ],
   "internalStructure": "One workflow-orchestration function per CI platform (the default GitHub Actions form is shipped as an asset; other platforms adapt the same shape). The function is stateless; the workflow's own outputs are the durable state. The deploy-log record is written to a project-chosen sink (a JSONL file in a durable location, an audit event bus, a database table) through an injected `deployLog.append` callback.",
@@ -29,7 +29,7 @@
     {
       "name": "deployLog",
       "kind": "callback",
-      "description": "Append callback invoked with the promote record `{ promotedVersionId, promotedBy, previousVersionId, promotedAt }` on every successful promote and on every verifier-failed promote."
+      "description": "Append callback invoked with the promote record `{ promotedVersionId, versionSha, promotedBy, previousVersionId, promotedAt }` on every successful promote and on every verifier-failed promote."
     },
     {
       "name": "triggerContext",

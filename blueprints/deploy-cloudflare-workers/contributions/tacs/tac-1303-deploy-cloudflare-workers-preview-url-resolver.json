@@ -19,12 +19,12 @@
     {
       "name": "workerIdentity",
       "kind": "read-api",
-      "description": "Reads the Worker name from the wrangler manifest and the vendor account's subdomain from an unambiguous boot input; returns both as strings the URL-assembly functions consume."
+      "description": "Reads the Worker name from the wrangler manifest. Reads the vendor account's workers.dev subdomain from the Deploy Adapter's `resolveSubdomain()` verb (which honours a `WORKERS_DEV_SUBDOMAIN` env-var pin ahead of calling the vendor's `GET /accounts/<accountId>/workers/subdomain` REST endpoint, because no wrangler CLI verb returns the subdomain). Returns both as strings the URL-assembly functions consume."
     },
     {
       "name": "aliasQuery",
       "kind": "read-api",
-      "description": "Queries the vendor for the version id currently behind an alias; returns the id or a stable `DEPLOY_ALIAS_UNKNOWN` error when the alias has never been set."
+      "description": "Queries the vendor for the version id currently behind an alias by reading `wrangler versions list --json` and filtering on `annotations['workers/alias']`, returning the item with the greatest `metadata.created_on`; there is no direct CLI verb (`wrangler versions view` accepts a version UUID only). Returns the id or a stable `DEPLOY_ALIAS_UNKNOWN` error when no version carries the alias annotation."
     },
     {
       "name": "probeUrl",

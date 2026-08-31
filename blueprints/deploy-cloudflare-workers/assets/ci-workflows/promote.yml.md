@@ -51,9 +51,10 @@ jobs:
             echo "## Promote outcome"
             echo ""
             echo "- promotedVersionId: \`${{ steps.promote.outputs.promotedVersionId }}\`"
+            echo "- versionSha:        \`${{ steps.promote.outputs.versionSha }}\`"
             echo "- previousVersionId: \`${{ steps.promote.outputs.previousVersionId }}\`"
-            echo "- promotedBy: \`${{ github.actor }}\`"
-            echo "- outcome: \`${{ steps.promote.outcome }}\`"
+            echo "- promotedBy:        \`${{ github.actor }}\`"
+            echo "- outcome:           \`${{ steps.promote.outcome }}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 ```
 
@@ -89,7 +90,14 @@ try {
   });
   const out = process.env.GITHUB_OUTPUT;
   if (out) {
+    // promotedVersionId is the vendor-assigned version UUID (the string
+    // `wrangler versions deploy` takes). versionSha is the git commit sha
+    // of the source tree the promoted version was built from; the verifier
+    // substitutes this into the health probe's `expectShape.versionSha`
+    // slot to reconcile served against promoted. Both identifiers are
+    // required on the promote record; they are never equal.
     appendFileSync(out, `promotedVersionId=${record.promotedVersionId}\n`);
+    appendFileSync(out, `versionSha=${record.versionSha}\n`);
     appendFileSync(out, `previousVersionId=${record.previousVersionId}\n`);
   }
   process.exit(0);
@@ -101,6 +109,8 @@ try {
 
 ## Reader notes
 
+- The Worker being promoted must have been bootstrapped once with `wrangler deploy --secrets-file <path>` before the first `wrangler versions upload` from `build-and-upload` can succeed; see `assets/wrangler-samples/bootstrap-vs-steady-state.md`. Steady-state ship (this workflow's world) assumes bootstrap has already run.
+- The promote record carries two identifiers: `promotedVersionId` (vendor-assigned UUID, the value `wrangler versions deploy` took) and `versionSha` (git commit sha the promoted version was built from). The verifier reconciles the served health-probe body's `versionSha` against the promote record's `versionSha`, NOT against `promotedVersionId`; see `assets/verification/served-surface-probes.md` for the boundary.
 - Triggers ONLY on `workflow_dispatch`. No `push`, no `pull_request`, no `schedule`. AC-12104-2 refuses any other trigger; AC-12104-1 refuses any workflow that pushes-to-main AND promotes.
 - The `versionId` input is optional (`required: false`). Blank defaults to newest-of-main, resolved by the Promote Gate through the Deploy Adapter. AC-12108-1 requires exactly one optional input; AC-12108-2 requires the blank case to resolve through `resolveNewestOfMain`.
 - The Promote Gate refuses a `versionId` absent from `listVersions()` BEFORE any vendor promote call. AC-12108-3 requires the refusal to exit non-zero with `DEPLOY_VERSION_NOT_FOUND` and to leave no promote record.
