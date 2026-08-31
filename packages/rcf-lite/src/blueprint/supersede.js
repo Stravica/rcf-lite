@@ -90,7 +90,8 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
   // Topic is a LOOKUP KEY into applied ADR topics, not a slug (ADR-010).
   // Schema is minLength:1 with no character constraint and the schema
   // docs explicitly cite camelCase examples ('errorEnvelope'). The
-  // shipped application-spa + REST blueprints declare camelCase topics; we accept
+  // shipped application-spa + application-api-rest blueprints declare
+  // camelCase topics; we accept
   // any topic string that exact-matches an applied or incoming ADR
   // topic below, and kebab-ify only when projecting into the
   // scaffolded project-ADR id slug tail (adrId grammar requires

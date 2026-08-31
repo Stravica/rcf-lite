@@ -38,7 +38,7 @@
     }
   ],
   "tacIds": [
-    "TAC-501-security-auth-magic-link-magic-link-manager",
+    "TAC-501-security-auth-magic-link-manager",
     "TAC-502-security-auth-magic-link-session-manager",
     "TAC-503-security-auth-magic-link-login-routes",
     "TAC-504-security-auth-magic-link-email-delivery-adapter"

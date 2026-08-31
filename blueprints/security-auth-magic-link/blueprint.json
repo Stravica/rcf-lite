@@ -25,15 +25,15 @@
     { "id": "security-auth-magic-link-US-3109", "kind": "us", "path": "user-stories/security-auth-magic-link-us-3109.json" },
     { "id": "security-auth-magic-link-US-3110", "kind": "us", "path": "user-stories/security-auth-magic-link-us-3110.json" },
     { "id": "security-auth-magic-link-US-3111", "kind": "us", "path": "user-stories/security-auth-magic-link-us-3111.json" },
-    { "id": "TAC-501-security-auth-magic-link-magic-link-manager", "kind": "tac", "path": "tacs/tac-501-security-auth-magic-link-magic-link-manager.json" },
+    { "id": "TAC-501-security-auth-magic-link-manager", "kind": "tac", "path": "tacs/tac-501-security-auth-magic-link-manager.json" },
     { "id": "TAC-502-security-auth-magic-link-session-manager", "kind": "tac", "path": "tacs/tac-502-security-auth-magic-link-session-manager.json" },
     { "id": "TAC-503-security-auth-magic-link-login-routes", "kind": "tac", "path": "tacs/tac-503-security-auth-magic-link-login-routes.json" },
     { "id": "TAC-504-security-auth-magic-link-email-delivery-adapter", "kind": "tac", "path": "tacs/tac-504-security-auth-magic-link-email-delivery-adapter.json" },
     { "id": "TAC-505-security-auth-magic-link-principal-registry", "kind": "tac", "path": "tacs/tac-505-security-auth-magic-link-principal-registry.json" },
     {
-      "id": "ADR-501-security-auth-magic-link-magic-link-model",
+      "id": "ADR-501-security-auth-magic-link-model",
       "kind": "adr",
-      "path": "adrs/adr-501-security-auth-magic-link-magic-link-model.json",
+      "path": "adrs/adr-501-security-auth-magic-link-model.json",
       "scope": "global",
       "topic": "authModel"
     },

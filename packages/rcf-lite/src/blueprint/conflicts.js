@@ -15,10 +15,10 @@
 //    manifest record. The manifest's appliedBlueprintRecord.contributions[]
 //    list is the authoritative ownership record; two blueprints cannot
 //    both claim the same id. This is the ambiguity-class check that
-//    used to live inside `isNamespacedFor` grammar (blueprint `spa`
-//    silently claiming `ADR-005-application-spa-theme` because the string
-//    startsWith `spa-`). Grammar is no longer a trust surface here --
-//    the manifest is.
+//    used to live inside `isNamespacedFor` grammar (blueprint
+//    `application-spa` silently claiming `ADR-005-application-spa-theme`
+//    because the string startsWith `application-spa-`). Grammar is no
+//    longer a trust surface here -- the manifest is.
 //
 // Every other class the design brief names (non-global TACs/ADRs/REQs/USs
 // /FBSes, standards-value conflicts, manifest overlap) is either
@@ -111,10 +111,10 @@ export function detectGlobalAdrConflicts(appliedBlueprints, incoming, manifest =
 /**
  * Cross-blueprint ownership conflicts: an incoming contribution id is
  * already recorded as owned by a DIFFERENT applied blueprint. This
- * detector is what makes `spa` vs `spa-theme` cross-claim impossible
- * once one of the two has applied -- the second-mover's incoming id
- * hits the first-mover's manifest record and is refused, regardless
- * of how the id string parses.
+ * detector is what makes `application-spa` vs `application-spa-theme`
+ * cross-claim impossible once one of the two has applied -- the
+ * second-mover's incoming id hits the first-mover's manifest record
+ * and is refused, regardless of how the id string parses.
  *
  * Re-apply of the same slug (`applied.slug === incoming.slug`) is
  * skipped: same blueprint owning its own ids across re-apply is the

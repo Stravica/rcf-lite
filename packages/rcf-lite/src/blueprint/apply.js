@@ -172,8 +172,9 @@ export async function applyBlueprint({ projectRoot, tree, source, namespaceOverr
         // first-apply into a tree that already has the file, or a new
         // contribution appearing in a re-applied version -- is treated
         // as foreign and refused. Grammar is deliberately not consulted
-        // here: `ADR-201-application-spa-theme` may be a legitimate `spa`-owned id
-        // whose author put a semantic tail after the slug.
+        // here: `ADR-201-application-spa-theme` may be a legitimate
+        // `application-spa`-owned id whose author put a semantic tail
+        // after the slug.
         if (!ownedIds.has(c.id)) {
           for (const w of stagedWrites) await unlink(w.tmpAbs).catch(() => {});
           return rcfError({
