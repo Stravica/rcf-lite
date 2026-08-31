@@ -11,3 +11,15 @@ export { nextResolutionId, matchingResolution } from './resolutions.js';
 export { supersedeBlueprintTopic } from './supersede.js';
 export { diffBlueprintTopic, renderDiff } from './diff.js';
 export { resolveBlueprintSource, knownShelfSlugs, packagedShelfPath } from './shelf-resolver.js';
+export { loadLibrary } from './library-loader.js';
+export {
+  REGISTRY_PATH,
+  REGISTRY_VERSION,
+  readLibraryRegistry,
+  writeLibraryRegistry,
+  findLibrary,
+  loadCoreBandReservations,
+  detectBandOverlap,
+  detectContributionsOutOfBand,
+  detectPrefixCollision,
+} from './library-registry.js';
