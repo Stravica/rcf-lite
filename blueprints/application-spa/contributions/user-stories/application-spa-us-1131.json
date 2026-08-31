@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1131",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-018",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Styled-under-shipped-CSP adherence probe refuses ship on inline styles or unstyled runtime",
   "asA": "operator relying on the security baseline the application-spa blueprint declares",
@@ -29,10 +29,10 @@
     },
     {
       "id": "AC-1131-3",
-      "description": "Every UI-bearing route renders styled UNDER the shipped strict CSP. A browser-driven check drives the same server instance that stamps the production security headers, navigates each enumerated UI route, and asserts the computed body background is NOT the browser default (rgba(0,0,0,0) / transparent) and the computed body font-family resolves to a non-empty value. Verification runs through the production header path; a harness that strips the security headers, injects nonces the CSP does not declare, or invokes the app via app.inject() rather than a real browser fetch does NOT satisfy the AC.",
+      "description": "Every UI-bearing route renders styled UNDER the shipped strict CSP, AND the probe proves it exercised the requested surface (not a page a redirect would land on). A browser-driven check drives the same server instance that stamps the production security headers, navigates each enumerated UI route, and asserts (a) the browser's final URL path equals the requested route path; a silent redirect (for example an authenticated route 302'ing to /login when the harness session is broken) is a hard refusal because a headless browser follows redirects by default and would otherwise validate the redirect target's styled state seven times over, and (b) the computed body background is NOT the browser default (rgba(0,0,0,0) / transparent) and the computed body font-family resolves to a non-empty value. Verification runs through the production header path; a harness that strips the security headers, injects nonces the CSP does not declare, or invokes the app via app.inject() rather than a real browser fetch does NOT satisfy the AC. Cures the class of harness where a broken session lane silently causes every route assertion to run against /login (styled) and pass (watchpost run4 partial-acceptance gap, w-2026-08-24-003 / AC-1601-14).",
       "given": "a server booted through the project's production entry point with every UI-bearing route registered",
-      "when": "a real browser navigates each enumerated route and reads getComputedStyle(document.body)",
-      "then": "the computed background is not the browser default AND the computed font-family resolves; on any route the check fails, the run refuses ship",
+      "when": "a real browser navigates each enumerated route, its final URL is read, and getComputedStyle(document.body) is read",
+      "then": "the final URL path equals the requested route (no silent redirect chain to another surface) AND the computed background is not the browser default AND the computed font-family resolves; on any route the check fails, the run refuses ship with a per-route diagnostic naming the requested and landed paths",
       "testable": true,
       "scope": "deployed"
     },
@@ -47,7 +47,7 @@
     },
     {
       "id": "AC-1131-5",
-      "description": "The styled-under-shipped-CSP adherence probe (TAC-209) writes a JSON report at a stable relative path (`reports/csp-styled-adherence.json` under the configured report directory) naming every route probed, the CSP header captured for that route, whether an inline <style> was detected, the computed body background and font-family, and an ok / fail verdict.",
+      "description": "The styled-under-shipped-CSP adherence probe (TAC-209) writes a JSON report at a stable relative path (`reports/csp-styled-adherence.json` under the configured report directory) naming every route probed, the CSP header captured for that route, whether an inline <style> was detected, the computed body background and font-family, the landed URL path (the browser's final URL after any redirect chain resolved) so a pathMismatch refusal names both the requested and landed paths, and an ok / fail verdict.",
       "given": "a completed probe run (pass or fail)",
       "when": "the report file is inspected on disk",
       "then": "the JSON at `reports/csp-styled-adherence.json` matches the shape declared by TAC-209 and its verdict field agrees with the process exit code",
@@ -68,5 +68,5 @@
     "TAC-209-application-spa-csp-styled-adherence-probe"
   ],
   "createdAt": "2026-08-24T10:30:00Z",
-  "updatedAt": "2026-08-24T10:30:00Z"
+  "updatedAt": "2026-08-31T11:15:00Z"
 }
