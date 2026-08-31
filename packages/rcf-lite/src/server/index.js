@@ -16,6 +16,7 @@ import { join } from 'node:path';
 import { LIVE_CLIENT_PATH, STYLE_CSS_PATH, VENDORED_MERMAID_PATH, renderModelToPage } from '../view/index.js';
 import { watch as defaultWatch } from '../watch/index.js';
 import { createRouter } from './routes.js';
+import { createScopeHandler } from './scope-endpoint.js';
 import { createSseHub } from './sse.js';
 
 /**
@@ -96,12 +97,14 @@ export async function startServer(args) {
   // and the first SSE connect gets a real payload.
   await rewalk();
 
+  const scopeHandler = createScopeHandler({ projectRoot });
   const router = createRouter({
     currentState: () => state,
     sse,
     stylePath: STYLE_CSS_PATH,
     mermaidPath: VENDORED_MERMAID_PATH,
     liveClientPath: LIVE_CLIENT_PATH,
+    scope: scopeHandler,
   });
 
   const server = createServer(router);
