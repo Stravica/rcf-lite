@@ -1,0 +1,51 @@
+{
+  "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Keycloak realm discovery client",
+  "purpose": "The module that fetches, validates, and caches the OIDC discovery document for every configured realm record. Owns the boot-time discovery fetch, the fail-safe posture per REQ-011, the refresh cadence, and the endpoint-projection onto the realm record the other TACs read. Does NOT own token verification and does NOT own request routing; those are TAC-1202/TAC-1203 and TAC-1204 respectively.",
+  "responsibilities": [
+    "Fetch `<issuerBaseUrl>/realms/<realm>/.well-known/openid-configuration` at boot for every realm record; parse the response; populate the record's endpoint fields from the response (AC-11102-1, AC-11102-2).",
+    "Refuse boot under `bootPosture: strict` on any fetch failure with a stable-coded error naming the realm slug and the failure class (`KEYCLOAK_DISCOVERY_UNREACHABLE`, `KEYCLOAK_DISCOVERY_MALFORMED`, `KEYCLOAK_DISCOVERY_TIMEOUT`) (AC-11111-1).",
+    "Under `bootPosture: deferred`, mark the affected realm `unhealthy`, run an exponential-backoff refresh loop bounded by `deferredRetryCapSeconds`, and flip to `healthy` on the first success (AC-11111-2).",
+    "Under `bootPosture: standby`, mark the affected realm `unhealthy` and expose a `refresh(realmSlug)` method the project's admin surface calls (AC-11111-3).",
+    "Verify that the discovery response carries the endpoints the record's `verificationMode` depends on: `jwks_uri` when mode is `jwks`, `introspection_endpoint` when mode is `introspection`; refuse boot with `KEYCLOAK_DISCOVERY_MISSING_ENDPOINT` on absence (AC-11102-3).",
+    "Verify that a record whose `providerLogout` is `'redirect'` maps to a discovery response that carries `end_session_endpoint`; refuse boot with `KEYCLOAK_LOGOUT_NOT_DECLARED` on absence (AC-11110-2, related to REQ-010).",
+    "Refresh the discovery document at the realm record's `discoveryRefreshSeconds` cadence (default 3600) in a background loop; a refresh failure logs a warning event but does not flip a healthy realm to unhealthy - the failure is transient by policy (AC-11102-2).",
+    "Emit structured audit events `keycloak.realm_healthy`, `keycloak.realm_unhealthy`, `keycloak.discovery_refreshed`, `keycloak.discovery_refused` carrying the realm slug; no field carries a client secret."
+  ],
+  "internalStructure": "One factory function producing a discovery-client closure over an injected `realmConfig` module (a plain data-record set the project maintains), an injected `httpFetch` port (the process HTTP client), an injected `clock`, an injected `auditSink`, and an injected `retryScheduler` used by the deferred posture. The internal cache is a Map keyed by realmSlug whose value is `{ endpoints, fetchedAt, health }`; refresh replaces atomically.",
+  "interfaces": [
+    {
+      "name": "realmConfig",
+      "kind": "read-api",
+      "description": "The project-authored realm-config module exposing `list() -> record[]`. Each record is a plain object with `{ realmSlug, issuerBaseUrl, realmName, clientId, clientSecret, verificationMode, roleClaimShape, scopes, redirectUri, providerLogout, sessionMode, bearerSource?, jwksCacheTtlSeconds?, introspectionCacheTtlSeconds?, bootPosture, deferredRetryCapSeconds?, discoveryRefreshSeconds? }`."
+    },
+    {
+      "name": "httpFetch",
+      "kind": "read-api",
+      "description": "Process HTTP-fetch port used for discovery pulls; test harness substitutes an in-process mock or points at a local Keycloak container."
+    },
+    {
+      "name": "clock",
+      "kind": "read-api",
+      "description": "Injected time source for TTL and refresh-cadence bookkeeping."
+    },
+    {
+      "name": "retryScheduler",
+      "kind": "callback",
+      "description": "Exponential-backoff scheduler used under bootPosture: deferred; caps the retry envelope at deferredRetryCapSeconds and reports success or exhaustion."
+    },
+    {
+      "name": "auditSink",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with `{ event, realmSlug, class?, at }`; never invoked with a clientSecret or a token value."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "Fixing discovery at boot and refreshing on a fixed cadence trades a small piece of background work for the guarantee that the realm's URL layout can change under the process without a code edit. Three fail-safe postures let the operator pick their preferred crash-loop / self-heal / manual-control shape; the trade against a single hardcoded posture is one record field and a small policy branch. Emitting audit events on health transitions makes an unhealthy realm legible in the project's own log stream rather than only in the realm's operations surface.",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

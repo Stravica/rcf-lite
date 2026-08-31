@@ -1,0 +1,37 @@
+{
+  "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Provider router (issuer-selection seam)",
+  "purpose": "The named seam a project's own middleware invokes on every authenticated request to decide which realm record (or, at the operator's option, the sentinel `notThisIssuer` when the middleware layer above hands the decision off) is authoritative for the request. Does NOT own token verification and does NOT itself name any second issuer.",
+  "responsibilities": [
+    "Expose `route(request) -> { realmSlug, verificationMode } | notThisIssuer` as a pure function on the request shape; the function is injected by the project and the reference wiring provides a constant-realm implementation for the common single-realm deployment (AC-11106-1).",
+    "Refuse a routing decision that names a realmSlug not present in the realmConfig list with `KEYCLOAK_REALM_UNKNOWN`; the mechanism does not silently fall back to a default realm (AC-11106-2).",
+    "Honour the `notThisIssuer` sentinel by returning it verbatim to the caller (the project's own middleware chain); the mechanism does not decide what a caller does with the sentinel (AC-11106-3).",
+    "Emit one structured audit event per routing decision `keycloak.route_decided` carrying realmSlug (or the string `notThisIssuer`) and no request-content field."
+  ],
+  "internalStructure": "One factory function producing a router closure over an injected `routeFn` (the project-authored pure function) and an injected realmConfig list. The reference wiring is a constant-realm `routeFn` that returns the first configured realmSlug for every request; a multi-realm project supplies its own routeFn. The routeFn is the seam the ratified reshape ruling names in generic vocabulary; the blueprint refuses to inspect specific request features or to name any second issuer.",
+  "interfaces": [
+    {
+      "name": "routeFn",
+      "kind": "callback",
+      "description": "Pure function `(request) -> { realmSlug, verificationMode } | 'notThisIssuer'`. Project-authored; the blueprint's reference wiring provides a constant-realm default for single-realm projects."
+    },
+    {
+      "name": "realmConfig",
+      "kind": "read-api",
+      "description": "Same source TAC-1201 reads: the project-authored realm-config module."
+    },
+    {
+      "name": "auditSink",
+      "kind": "callback",
+      "description": "Structured-event sink; never carries request content."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The seam is one function call and one config-record lookup on every request; the cost is negligible and the observability payoff scales with deployment complexity. Refusing to name a second issuer keeps the blueprint faithful to the ratified reshape ruling; a project that has one names it on a project-level ADR whose scope names the second issuer explicitly. Refusing an unknown realmSlug rather than falling back to a default matches the sibling's multi-provider-routing posture: no silent defaults.",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

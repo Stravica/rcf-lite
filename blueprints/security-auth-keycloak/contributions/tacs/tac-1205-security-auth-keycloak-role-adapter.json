@@ -1,0 +1,32 @@
+{
+  "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Keycloak role adapter",
+  "purpose": "The module that lifts Keycloak's role claim shape into the reduced Principal's `roles[]` array. Owns the read from either `resource_access.<clientId>.roles` (per-client roles) or `realm_access.roles` (realm-wide roles) per the realm record's `roleClaimShape` field. Does NOT remap Keycloak role strings into project-defined vocabulary; that is a project-level concern.",
+  "responsibilities": [
+    "Read roles from the verified claim record at the path declared by `roleClaimShape`: `client-roles` reads from `resource_access.<clientId>.roles`; `realm-roles` reads from `realm_access.roles` (AC-11107-1).",
+    "Populate the reduced Principal's `roles[]` with the resulting string list, or an empty array when the path is absent (not a refusal - the project's authoriser above the Principal decides whether an empty roles set is acceptable) (AC-11107-2).",
+    "Refuse a claim record whose expected path is present but not an array of strings with `KEYCLOAK_ROLES_MALFORMED`; emit `keycloak.roles_refused` carrying realmSlug and reason class (AC-11107-3).",
+    "Never remap or transform Keycloak role strings; a project that maps them onto its own project-role vocabulary authors an `enrichPrincipal` hook the session-bridge invokes after the role adapter has populated the raw roles."
+  ],
+  "internalStructure": "One factory function producing an adapt closure over the realmConfig record (for the record's `roleClaimShape` and `clientId`). The read is a plain object-path lookup; the shape checks are structural.",
+  "interfaces": [
+    {
+      "name": "realmConfig",
+      "kind": "read-api",
+      "description": "Same source TAC-1201 reads: the realm-config module."
+    },
+    {
+      "name": "auditSink",
+      "kind": "callback",
+      "description": "Structured-event sink; carries realmSlug and reasonClass only."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "Fixing the two claim paths and refusing to invent a third keeps the adapter's surface small and reflects Keycloak's own vocabulary; a realm operator that chooses a non-standard claim path is a project-level ADR conversation, not a mechanism extension. Not remapping role strings inside the adapter keeps the mechanism generic across every Keycloak deployment; project-specific role vocabulary lives on the enrichPrincipal hook where it belongs.",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

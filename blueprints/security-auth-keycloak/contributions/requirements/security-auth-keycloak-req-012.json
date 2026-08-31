@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-012",
+  "prdId": "PRD-001",
+  "title": "Runtime verification binds against a local Keycloak container; cloud-tenant smokes are accountBound",
+  "description": "Runtime-verify ACs on this blueprint bind against a local Keycloak realm the project stands up per REQ-009 (or an equivalent locally-runnable realm the project already operates). The local realm is real Keycloak on the wire: discovery, JWKS, `token_endpoint`, `introspection_endpoint`, and `end_session_endpoint` all speak the standards-tracked shapes the verifier and the flow controller consume. ACs that require a smoke test against a project-owned cloud-hosted Keycloak deployment or a managed Keycloak service are `accountBound`: the runtime-verify runner marks them with an `accountBound` flag and a stable-coded skip reason (`KEYCLOAK_LIVE_REALM_UNREACHABLE`) when the project does not have live deployment credentials in the runtime environment; the CI pipeline does not fail on a skipped accountBound AC, and the ship gate reads the honest coverage. A project that has live credentials wires them and the accountBound smokes light up. The introspection-mode AC (US-11105) similarly binds against a local stub introspection responder shipped as a shape in `assets/mock-introspection/`; a project may substitute a second local Keycloak realm configured for opaque tokens or an equivalent implementation.",
+  "category": "functional",
+  "domain": "verification",
+  "priority": "must",
+  "rationale": "Keycloak is self-hostable; the local-container path is the honest runtime-verify surface and needs no external account. Cloud-hosted realm smokes are still valuable for a project that operates one but are not achievable in every CI environment, so the accountBound posture keeps CI honest without demanding a cloud realm every consumer maintains. The introspection stub covers the shape of the alternate verification mode without demanding a second Keycloak container per test suite (though a project may run one if it prefers a real endpoint).",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:12-verify-posture"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

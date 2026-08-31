@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-008",
+  "prdId": "PRD-001",
+  "title": "Session-vs-token separation: Keycloak owns tokens; the project may issue an app session on top",
+  "description": "Keycloak is the token authority: it mints the access token, the id_token, and the refresh token; the browser never holds a project-minted JWT and the browser never holds a Keycloak refresh token. The project MAY layer an application session on top of the verified token stream: the reference wiring issues an opaque-handle session cookie whose server-side record stores the Keycloak-minted tokens keyed by the handle (mirroring the vendor-neutral sibling's opaque-handle posture, and following the composition pattern where the session-record store injects). The alternate posture the operator MAY declare is `sessionMode: 'stateless'` on the realm record, in which case no server-side session record is kept and every request re-verifies the access token from a bearer header (or a cookie carrying the token verbatim, per the operator's declared bearer source). The two postures are not composable per realm record; the operator picks one. The reduced Principal (`principalId`, `provider`, `email?`, `roles[]`, `organisationIds[]`) is the only claim shape the project's own handlers ever see; provider tokens are inaccessible from `request.auth` in both modes.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Keycloak's authority over token issuance is a vendor commitment; the blueprint's authority is over what the project builds around that stream. Two postures serve two operator populations: a stateful session-record wiring (the reference default) matches small projects that want a single opaque cookie and cheap sign-out, and a stateless bearer posture matches deployments where the project can accept per-request verification cost and wants to avoid a session store. Both postures gate provider tokens behind the mechanism boundary so no handler code path reads a Keycloak-minted token directly.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:08-session-vs-token"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

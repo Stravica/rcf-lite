@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-keycloak-US-11113",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The local Keycloak container stands up under a project harness and the discovery client verifies against it",
+  "asA": "operator running the project's runtime-verify pass in CI without any cloud dependency",
+  "iWant": "the project harness to bring up a local Keycloak container against the vendor's official image and the discovery client to reach it within a bounded startup window",
+  "soThat": "runtime-verify against a real Keycloak realm is free of cloud cost and free of external-account dependency",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11113-1",
+      "description": "A project harness following the local-container asset stands up a Keycloak container against the vendor's official image with placeholder credentials from an operator-controlled environment source; the container is reachable on its published port within `containerStartupTimeoutSeconds` (default 120).",
+      "given": "a harness following `assets/local-container/keycloak-bootstrap.md` with the operator-pinned stable tag on `quay.io/keycloak/keycloak` and admin credentials from an operator-controlled environment file that is not committed to the repository",
+      "when": "the harness starts the container as part of a runtime-verify session",
+      "then": "the container is running within the timeout; a discovery HTTP GET on `<containerBase>/realms/example/.well-known/openid-configuration` returns 200 with a JSON body carrying the standard OIDC endpoints; the placeholder admin credentials never appear in a committed file or in an audit event; the harness's environment file is listed in the project's `.gitignore` shape and the test verifies the file is not tracked by git",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11113-2",
+      "description": "The seeded realm carries only placeholder shapes; no real client id, no real client secret, no real user data, and no realm name matching a project-owned deployment appears in the seed file the harness applies.",
+      "given": "the realm seed the harness applies (either via `kc.sh import` or via the admin REST API after startup)",
+      "when": "the seed file is inspected on disk before application",
+      "then": "the realm name equals the placeholder value declared in the asset (or a project-chosen renamed placeholder); the client id is the seed's placeholder value; the client secret is not present in the seed file (the harness sets it after client creation and stores it in the operator's environment file); user credentials are placeholders; every leakage grep the project runs (real domain names, real client secrets, real realm ids, real user emails) against the seed file returns zero",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1201-security-auth-keycloak-discovery-client"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

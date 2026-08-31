@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-keycloak-US-11103",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "JWT verification against JWKS survives a key rotation the realm publishes",
+  "asA": "operator whose realm rotates its signing keys on the realm's own cadence",
+  "iWant": "the JWT verifier to recognise a token signed with a new key without a process restart",
+  "soThat": "a key rotation is transparent to the running project",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11103-1",
+      "description": "A verified token whose signing kid is present in the cached JWKS passes verification without a fresh JWKS fetch.",
+      "given": "a warm JWKS cache populated by a prior verification against realmSlug='r1' and a new access token signed under the same kid",
+      "when": "the verifier is invoked",
+      "then": "the verifier consumes the token successfully; no fresh JWKS fetch is observed against the test-injected httpFetch for the duration of this verification; the audit log records no `keycloak.jwks_refreshed` event",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11103-2",
+      "description": "A token whose kid is not in the cached JWKS triggers exactly one JWKS refresh; verification succeeds when the refresh surfaces the kid and refuses with `KEYCLOAK_JWT_KID_UNKNOWN` when it does not.",
+      "given": "a warm JWKS cache populated by a prior verification and a new access token signed with a kid the realm has rotated to but the cache does not yet carry",
+      "when": "the verifier is invoked twice in the same test: once with the realm's fresh JWKS available on the injected httpFetch, once with the httpFetch instrumented to return a JWKS still missing the kid",
+      "then": "the first invocation triggers one JWKS refresh (observed on the injected httpFetch), succeeds verification, emits `keycloak.jwks_refreshed`; the second invocation triggers one JWKS refresh, refuses the token with `KEYCLOAK_JWT_KID_UNKNOWN`, emits one `keycloak.jwt_refused` event carrying realmSlug and reason class `kid-unknown`; a third invocation with the same second-token does NOT trigger a further JWKS refresh within the TTL window",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1202-security-auth-keycloak-jwt-verifier"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

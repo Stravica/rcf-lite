@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1206-security-auth-keycloak-refresh-and-sign-out-posture",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Refresh follows the realm's rotation model; sign-out clears the project session and offers realm-side end-session as a per-record option",
+  "context": "Two operational decisions sit adjacent to the identity flow: how refresh tokens rotate, and how sign-out relates to the realm session. Keycloak's admin surface already exposes controls for both (revoke-refresh-token, refresh-token-max-reuse, and the RP-initiated logout endpoint on the realm's discovery), so the blueprint's role is to honour the realm's declared behaviour rather than to layer a second policy.",
+  "decision": "Refresh: the flow controller presents the current stored refresh token on every refresh call; a 2xx response replaces the stored value with the new one; a 4xx `invalid_grant` on refresh is treated as a session-invalidation signal and the flow controller invalidates the session handle, clears the associated refresh-token chain, and emits `keycloak.refresh_invalidated`. The blueprint does NOT layer a reuse-detection policy above what the realm already does; the realm's `Revoke Refresh Token` and `Refresh Token Max Reuse` settings ARE the mechanism, and the blueprint's role is to fail cleanly when the realm signals invalidation. Sign-out: a POST to the project's sign-out route invalidates the project session handle (opaque-handle mode) or clears the bearer-source cookie (stateless mode); the response clears the session cookie in either case. When the realm record sets `providerLogout: 'redirect'` and the discovery record carries `end_session_endpoint`, the sign-out response is a 302 to that endpoint with `id_token_hint` carrying the raw id_token stored on the session (opaque-handle) or the last-verified id_token the operator's bearer source has cached (stateless). A record that sets `providerLogout: 'redirect'` on a realm whose discovery does not publish `end_session_endpoint` is refused at boot.",
+  "consequences": "Refresh behaviour is legible from the realm's admin console; a project that wants stricter reuse detection tightens the realm setting rather than editing project code. Sign-out is one delete on the session record (opaque-handle mode) or one cookie-clear (stateless mode); the realm-side end-session is opt-in and paper-trailed on the record. The trade against re-implementing rotation policy above the realm is that a realm configured to allow reuse permissively will not be tightened by the project's mechanism; that is intended - the operator authored the realm and the project honours it, not the other way around. A boot refusal on `providerLogout: 'redirect'` without `end_session_endpoint` catches the misconfiguration where a project believes it is doing realm-side sign-out and silently is not.",
+  "alternativesConsidered": [
+    {
+      "name": "Enforce reuse-detection in the blueprint regardless of realm setting",
+      "summary": "The flow controller tracks the previous refresh-token value; presenting it twice revokes the chain even when the realm would not.",
+      "reasonNotChosen": "Fights the realm's declared policy. A project whose operator has deliberately relaxed reuse behaviour for their environment should not be quietly tightened by the mechanism; the realm is the source of truth for that class of decision."
+    },
+    {
+      "name": "Mandate realm-side sign-out on every project sign-out",
+      "summary": "Every sign-out redirects to `end_session_endpoint` regardless of the record's `providerLogout` field.",
+      "reasonNotChosen": "Fights half the deployments. Some operators legitimately want the realm session to persist across a project sign-out (the operator's other applications on the same realm stay signed in); mandating realm-side sign-out here would drive that operator to disable the sign-out route entirely, which is worse than the per-record posture."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

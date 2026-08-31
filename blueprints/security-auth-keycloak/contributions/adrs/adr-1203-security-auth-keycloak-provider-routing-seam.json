@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1203-security-auth-keycloak-provider-routing-seam",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "A provider-routing seam is contributed at one named point in the request chain; the seam is described in generic OAuth2/OIDC vocabulary and does not commit to any second issuer",
+  "context": "A project may sit in a deployment where a receiving system's request stream carries tokens issued by more than one server. Two Keycloak realms is one shape; a Keycloak realm alongside a project-authored second-issuer path (a corporate OIDC provider the operator declares separately, a second Keycloak realm on a different hostname, an internal service-to-service issuer) is another. The blueprint stays vendor-committed to Keycloak; it does not know, and refuses to encode, what the second issuer is. What the blueprint does know is that a deployment with more than one issuer needs the routing decision made in exactly one legible place, not scattered across handlers where the ship gate cannot see it.",
+  "decision": "The blueprint contributes TAC-1204, the provider-router, as the seam a project's own middleware invokes on every authenticated request. The seam's contract is a pure function: `route(request) -> { realmSlug, verificationMode } | notThisIssuer`. A project with only Keycloak configured wires the seam to a constant realmSlug and the mechanism is single-branched. A project with two Keycloak realms wires the seam to inspect a request feature (a header the project's middleware layer already reads, a request-path prefix the project owns, a preflight claim the project extracts elsewhere) and picks the realmSlug. A project with Keycloak plus a non-Keycloak issuer wires the seam to return `notThisIssuer` when the routing decision hands off to a middleware layer above this blueprint's mechanism reach; the middleware layer above is the project's own concern, not the blueprint's. The blueprint refuses to name the header, the path, the claim, or the second issuer; the ratified reshape ruling forbids naming a specific dual-provider deployment shape, and the seam contract respects that.",
+  "consequences": "A project that has one Keycloak realm pays zero cost for the seam: the wiring is a constant. A project that has two Keycloak realms wires the routing once and every request passes through it observably. A project that has Keycloak alongside another issuer has one named point where the choice is made, which is a paper-trailed decision the ship gate can see. The trade against a hard-coded assumption (only Keycloak, only one realm, always JWKS mode) is one function call on the request path; that cost is trivial and the observability payoff scales with deployment complexity. The blueprint never names a second issuer; a project that has one owns that decision on a project-level ADR whose `related-reqs` cites this ADR.",
+  "alternativesConsidered": [
+    {
+      "name": "Refuse to contribute any routing seam; assume Keycloak is the only issuer forever",
+      "summary": "The mechanism reads every access token against the single configured realm; a request carrying a token from a different issuer refuses uniformly.",
+      "reasonNotChosen": "Bakes an assumption into the mechanism that the ratified reshape ruling names as the exact deployment shape the blueprint must be aware of. A project with a second issuer would either hand-wire the choice above the mechanism (invisible) or push it into every handler (unmaintainable). The seam is cheap and makes the decision legible."
+    },
+    {
+      "name": "Name a specific second-issuer integration in the mechanism (e.g., `providerLayer: 'keycloak' | 'other'`)",
+      "summary": "Ship an ADR (and the router TAC) that names the second issuer's shape.",
+      "reasonNotChosen": "Fights the ratified reshape ruling. The candidate that minted this blueprint originally proposed naming a specific dual-provider deployment, and the ruling stripped that; the seam stays in vendor-neutral OAuth2/OIDC vocabulary. A project that has a second issuer names it on its own ADR, not on the blueprint's."
+    },
+    {
+      "name": "Publish the seam as a per-issuer array and let the project fill it with N records",
+      "summary": "The blueprint declares a `configuredIssuers: []` array; each record is a full realm-record (or a similar shape); the router iterates.",
+      "reasonNotChosen": "Turns the seam from a decision point into a data structure; the mechanism ends up owning the routing algorithm as well as the data, which is exactly the responsibility the ADR is trying to keep on the project side. The pure-function contract keeps the algorithm the project's concern."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

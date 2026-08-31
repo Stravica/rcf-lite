@@ -1,0 +1,46 @@
+{
+  "usId": "security-auth-keycloak-US-11106",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The provider-router seam decides realm per request; unknown realms refuse; the notThisIssuer sentinel hands off",
+  "asA": "operator whose deployment routes requests to more than one realm (or hands some requests off to a middleware layer above the mechanism)",
+  "iWant": "the provider-router to make the routing decision once, in a legible place, on a pure function I supply",
+  "soThat": "the routing is observable at one named seam rather than scattered across handlers",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11106-1",
+      "description": "A routeFn that returns `{ realmSlug: 'r2', verificationMode: 'jwks' }` for a request marker causes the mechanism to verify against realm `r2` rather than the default realm.",
+      "given": "two realm records `r1` and `r2` and a project-authored routeFn that returns `{ realmSlug: 'r2', verificationMode: 'jwks' }` when the request carries a marker the routeFn is coded to inspect (the marker is the project's own concern; the blueprint does not name it)",
+      "when": "a request carrying the marker is dispatched through the mechanism",
+      "then": "the verifier resolves against `r2`'s JWKS, not `r1`'s; the reduced Principal's `provider` field equals `'r2'`; the audit log records one `keycloak.route_decided` event carrying `realmSlug='r2'`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11106-2",
+      "description": "A routeFn returning a realmSlug not present in the realm-config list refuses the request with `KEYCLOAK_REALM_UNKNOWN`.",
+      "given": "the two-realm configuration from AC-11106-1 and a routeFn that returns `{ realmSlug: 'r99', verificationMode: 'jwks' }`",
+      "when": "a request is dispatched",
+      "then": "the response is a 4xx with body error code `KEYCLOAK_REALM_UNKNOWN`; no verifier is invoked against any realm; the audit log records one `keycloak.route_decided` event followed by one `keycloak.jwt_refused` (or equivalent) event with reason class `unknown-realm`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11106-3",
+      "description": "A routeFn returning the sentinel `notThisIssuer` returns that sentinel to the caller and does not attempt any verification.",
+      "given": "the two-realm configuration and a routeFn that returns the string `'notThisIssuer'`",
+      "when": "a request is dispatched through the mechanism",
+      "then": "the mechanism returns the sentinel `notThisIssuer` to its caller (the project's own middleware chain); no JWKS fetch, no introspection call, and no session verification is observed; the audit log records one `keycloak.route_decided` event carrying `realmSlug='notThisIssuer'`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1204-security-auth-keycloak-provider-router",
+    "TAC-1202-security-auth-keycloak-jwt-verifier"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

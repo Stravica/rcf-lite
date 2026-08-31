@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-001",
+  "prdId": "PRD-001",
+  "title": "A Keycloak realm is the identity source; the project federates through OIDC authorisation-code with PKCE",
+  "description": "The project's authentication model is delegated identity to a Keycloak realm the operator runs (locally at development time, in a project-owned deployment at operate time). Identity is proven by a completed OAuth2 authorisation-code round-trip with PKCE (RFC 7636, S256) against the realm's OIDC endpoints; the id_token issued by the realm carries the authenticated subject. The wire vocabulary is OIDC on top of OAuth2 and the flow shape is authorisation-code + PKCE; the vendor commitment is Keycloak. The blueprint contributes Keycloak-shaped decisions the vendor-neutral sibling `security-auth-oauth2` deliberately does not fix: a Keycloak realm as the concrete issuer, a Keycloak client with a chosen verification mode (JWT via JWKS, or opaque via the RFC 7662 introspection endpoint), the Keycloak claim shape for client roles, and the local-first stand-up shape through the vendor's official container image.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Two commitments only make sense together. Fixing the flow shape (authorisation-code + PKCE) keeps the state machine legible and defends against front-channel code interception; fixing the vendor (Keycloak) lets the project reason about a concrete realm surface, a concrete admin console, and a concrete container image at operate time. A project that wants vendor-neutrality picks the sibling; a project that has committed to running a Keycloak realm gets the Keycloak-shaped decisions the sibling deliberately leaves open.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:01-flow-shape"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

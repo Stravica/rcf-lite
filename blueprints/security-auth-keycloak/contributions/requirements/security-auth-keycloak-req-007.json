@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Refresh-token rotation follows the realm's configured rotation model",
+  "description": "Keycloak issues refresh tokens with a per-realm rotation configuration; the operator chooses at the realm layer whether refresh-token reuse is a hard fail (rotation with revoke-on-reuse) or a soft rotation (return a new refresh but let the old one live to expiry). The blueprint's refresh handler presents the current stored refresh token on every refresh call to the realm's `token_endpoint` with `grant_type=refresh_token`, replaces the stored value with the new one on a 2xx response, and treats a 4xx `invalid_grant` on refresh as a session-invalidation signal: the project session handle is invalidated server-side, the associated refresh-token chain is cleared, and one structured audit event `keycloak.refresh_invalidated` is emitted carrying the realm slug and the session-handle hash; no token value is emitted. The blueprint does NOT re-implement reuse-detection above the realm's own model: if the realm is configured to detect reuse and revoke, the realm's `invalid_grant` response IS the signal; if the realm is configured to allow soft rotation, that is the operator's declared risk posture and the blueprint honours it. This deliberately differs from the vendor-neutral sibling's stricter uniform posture; Keycloak owns the rotation model at the realm layer.",
+  "category": "functional",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "The vendor-neutral sibling mandates rotation-with-reuse-detection because it cannot rely on the underlying provider to enforce it; Keycloak already enforces the operator's chosen model at the realm, so the blueprint's role is to honour the realm's decision rather than to layer a second policy on top. The operator's authority stops at the realm; overriding it in project code would fight the operator's own configuration.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:07-refresh"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

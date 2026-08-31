@@ -1,0 +1,45 @@
+{
+  "usId": "security-auth-keycloak-US-11105",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Opaque-token introspection verifies against the RFC 7662 endpoint and refuses inactive or errored responses",
+  "asA": "operator whose realm client is configured to issue opaque access tokens",
+  "iWant": "the introspection client to verify every access token against the realm's introspection endpoint on the RFC 7662 shape",
+  "soThat": "the mechanism handles opaque-token clients honestly and reflects realm-side revocations in real time",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11105-1",
+      "description": "An opaque access token that the endpoint returns as `active: true` verifies successfully and yields a claim record.",
+      "given": "a realm record with `verificationMode='introspection'` and a local stub introspection responder wired to answer `active: true` with a fixed claim record for the presented token",
+      "when": "the introspection client is invoked on the token",
+      "then": "the client issues a POST to the record's `introspection_endpoint` with body `token=<opaque-value>`, `Content-Type: application/x-www-form-urlencoded`, and `Authorization: Basic <base64(clientId:clientSecret)>`; the response body is parsed as JSON; the claim record from the response is returned to the caller; the audit log records one `keycloak.introspection_verified` event carrying realmSlug and no token value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11105-2",
+      "description": "An opaque access token that the endpoint returns as `active: false` is refused with `KEYCLOAK_INTROSPECTION_INACTIVE`.",
+      "given": "the same realm record and a stub responder configured to answer `active: false` for the presented token (a revoked or expired token)",
+      "when": "the introspection client is invoked",
+      "then": "the response is a 4xx with body error code `KEYCLOAK_INTROSPECTION_INACTIVE`; no session cookie is set; the audit log records one `keycloak.introspection_refused` event carrying realmSlug and reason class `inactive`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11105-3",
+      "description": "A non-2xx response from the introspection endpoint refuses the token with `KEYCLOAK_INTROSPECTION_ENDPOINT_ERROR` naming the HTTP status class.",
+      "given": "the same realm record and a stub responder configured to return HTTP 503 for the presented token",
+      "when": "the introspection client is invoked",
+      "then": "the response is a 4xx with body error code `KEYCLOAK_INTROSPECTION_ENDPOINT_ERROR` and a `detail` field naming the status class as `5xx`; no session cookie is set; the audit log records one `keycloak.introspection_refused` event carrying realmSlug and reason class `endpoint-error`; the mechanism does not fall back to a permissive posture",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1203-security-auth-keycloak-introspection-client"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

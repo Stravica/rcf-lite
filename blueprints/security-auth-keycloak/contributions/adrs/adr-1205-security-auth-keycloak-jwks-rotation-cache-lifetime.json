@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1205-security-auth-keycloak-jwks-rotation-cache-lifetime",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "JWKS cache TTL is 900 seconds by default with kid-miss refresh; the operator raises or lowers on the realm record",
+  "context": "JWKS caching sits on the hot path of JWT verification: too short a TTL means unnecessary network round-trips against the realm on every verification; too long a TTL means a key rotation the realm has published takes too long to reach the verifier, which either delays revocation or produces silent verification failures when the old key ages out and no cached entry exists for the new one. Two mechanisms defend against the second failure mode: a TTL that bounds the maximum staleness, and a kid-miss refresh that recovers when the realm has rotated inside the TTL window.",
+  "decision": "The default TTL for a cached JWKS response is 900 seconds (15 minutes). The realm record MAY declare `jwksCacheTtlSeconds` to raise or lower this; values below 60 are refused at boot (the network amplification would be self-defeating) and values above 86400 are refused at boot (staleness beyond a day risks losing rotations for too long). Every verification path first consults the cache; on a kid-miss (the token's `kid` does not appear in the cached JWKS), the verifier triggers exactly one refresh from `jwks_uri`; if the refresh succeeds and the new JWKS carries the kid, verification proceeds; if the refresh succeeds and the new JWKS still does not carry the kid, the token is refused with `KEYCLOAK_JWT_KID_UNKNOWN`; if the refresh itself fails, the token is refused with `KEYCLOAK_JWKS_UNREACHABLE`. A kid-miss triggers at most one refresh per token verification; a flood of unknown-kid tokens does not multiply into a flood of JWKS fetches.",
+  "consequences": "A key rotation the realm has published propagates within one TTL window at the worst case and within one verification at the best case (a kid-miss refresh recovers immediately). The trade against a shorter TTL (say 60 seconds) is the network round-trip cost; against a longer TTL (say 3600 seconds) is the maximum staleness window. The one-refresh-per-verification cap defends the realm's JWKS endpoint against a token-based amplification attack. The refuse-on-unknown-kid-after-refresh posture is what catches genuine forgery attempts (an attacker who signs with a key the realm never published sees exactly one JWKS refresh and then a stable-coded refusal).",
+  "alternativesConsidered": [
+    {
+      "name": "No cache; fetch JWKS on every verification",
+      "summary": "Every request triggers one JWKS fetch.",
+      "reasonNotChosen": "Trivial to implement and unacceptable in production. The realm's JWKS endpoint would carry a request rate equal to the project's verification rate; on a small project that is fine and on any larger deployment it is untenable."
+    },
+    {
+      "name": "Cache forever; refresh only on kid-miss",
+      "summary": "No TTL; only a token whose kid is unknown triggers a refresh.",
+      "reasonNotChosen": "Loses the bound-staleness property. A realm that has rotated but that has not yet issued a token under the new key (a common state for the first few minutes after rotation) leaves the verifier holding a cache no signal will refresh. The TTL is the belt against that class of missed-rotation state."
+    },
+    {
+      "name": "Push-based invalidation (webhook the realm calls into the project)",
+      "summary": "The realm notifies the project when JWKS rotates.",
+      "reasonNotChosen": "Not a Keycloak feature at v1 of this blueprint; would require project-authored plumbing on both sides. A pull-with-TTL model is the standard shape and Keycloak matches it verbatim."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

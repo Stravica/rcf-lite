@@ -1,0 +1,45 @@
+{
+  "usId": "security-auth-keycloak-US-11107",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Roles lift from the realm's client-roles or realm-roles claim path onto the Principal",
+  "asA": "operator whose realm client publishes role assignments on either the per-client or the realm-wide claim path",
+  "iWant": "the role adapter to populate the reduced Principal's `roles[]` from the path the realm record declares",
+  "soThat": "handler code paths read roles from the Principal without knowing the Keycloak claim shape",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11107-1",
+      "description": "A realm record with `roleClaimShape='client-roles'` lifts `resource_access.<clientId>.roles` onto `Principal.roles`.",
+      "given": "a verified access token whose payload carries `resource_access: { my-client: { roles: ['admin', 'editor'] } }` and a realm record with `clientId='my-client'` and `roleClaimShape='client-roles'`",
+      "when": "the role adapter is invoked on the verified claim record",
+      "then": "the resulting reduced Principal's `roles[]` equals `['admin', 'editor']` in insertion order; no other role source is consulted; no `keycloak.roles_refused` event is emitted",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11107-2",
+      "description": "A verified token whose expected claim path is absent yields an empty `Principal.roles`, not a refusal.",
+      "given": "a verified access token whose payload does not carry a `resource_access.<clientId>.roles` field and a realm record with `roleClaimShape='client-roles'`",
+      "when": "the role adapter is invoked",
+      "then": "the reduced Principal's `roles[]` equals `[]`; no error class is emitted; the audit log records no `keycloak.roles_refused` event; the mechanism does not decide whether an empty roles set is acceptable - that is the project's authoriser above the Principal",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11107-3",
+      "description": "A verified token whose expected claim path is present but not an array of strings is refused with `KEYCLOAK_ROLES_MALFORMED`.",
+      "given": "a verified access token whose payload carries `resource_access.my-client.roles = 'admin'` (a string, not an array) and a realm record with `roleClaimShape='client-roles'`",
+      "when": "the role adapter is invoked",
+      "then": "the response is a 4xx with body error code `KEYCLOAK_ROLES_MALFORMED`; the reduced Principal is not produced; the audit log records one `keycloak.roles_refused` event carrying realmSlug and reason class `malformed`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1205-security-auth-keycloak-role-adapter"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

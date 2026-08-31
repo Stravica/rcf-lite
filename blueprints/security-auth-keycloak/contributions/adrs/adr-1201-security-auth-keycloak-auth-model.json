@@ -1,0 +1,35 @@
+{
+  "adrId": "ADR-1201-security-auth-keycloak-auth-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "A Keycloak realm is the project's identity source; federation is OIDC authorisation-code + PKCE with per-realm verification mode",
+  "context": "A project has one authentication model; the client tier, the server tier, and every operator surface must reason against it. The security-auth-keycloak blueprint contributes a vendor-committed shape of that model: identity, sign-in surface, credential storage, MFA, and account recovery live at a Keycloak realm the operator runs; the project owns the discovery client, the token verifier (JWKS or introspection depending on the realm's client configuration), the role adapter, the provider-router seam, and the optional application session on top. Every other auth-family blueprint (security-auth-magic-link, security-auth-clerk, security-auth-oauth2) contributes its own decision on this topic; blueprint composition surfaces the pairing at add time for the operator to reconcile into one project-level model. That surfacing is intended.",
+  "decision": "The project's authentication model is delegated identity to a Keycloak realm the operator runs, federated through OAuth2 authorisation-code with PKCE (RFC 7636, S256), with the realm's OIDC endpoints resolved through discovery (REQ-002). Every access token the project receives from the realm is verified either through JWKS (default, REQ-003) or through the RFC 7662 introspection endpoint (opt-in per realm, REQ-004); the verification mode is a per-realm-record field. Roles are read from Keycloak's client-roles or realm-roles claim path per the realm's configuration (REQ-006); the project's own handlers see only the reduced Principal. The application session posture on top of the verified token stream is either an opaque-handle session cookie (the default, mirroring the sibling blueprints' opaque-handle contract) or stateless bearer verification per request; the operator picks one per realm record (REQ-008). Refresh follows the realm's rotation model (REQ-007). Sign-out invalidates the project session; realm-side sign-out is a project option (REQ-010). Fail-safe boot follows a declared posture (REQ-011). Runtime-verify binds against a local Keycloak container; live cloud-tenant smokes are accountBound (REQ-012). The blueprint contributes a provider-routing seam (REQ-005) that a project's own middleware may use to route requests to one of several issuers; the seam is described in generic OAuth2/OIDC vocabulary and does not itself commit the blueprint to any specific second issuer.",
+  "consequences": "The project owns the discovery client, the token verifier, the role adapter, the session-bridge (opaque-handle mode) or the bearer verifier (stateless mode), the provider-router seam, and the optional local-container harness for runtime-verify; the realm owns the sign-in surface, the credential storage, MFA, account recovery, refresh-token issuance policy, role assignments, and the whole admin console. A realm swap is a discovery-record refresh plus (if the client configuration changed) a re-choice of `verificationMode`; the project's code path does not change. Composing with another auth-family blueprint conflicts on this topic by design; the expected resolution is one project-level ADR that fixes the identity surface and the credential shape for the whole project. The local-container runtime-verify posture makes CI honest without demanding cloud-realm credentials; a project that has a cloud realm wires it on top and the accountBound smokes light up. Every path that produces or consumes a session record (opaque-handle mode) or that reads a bearer token (stateless mode) flows through one narrow set of modules the ship gate compels.",
+  "alternativesConsidered": [
+    {
+      "name": "Vendor-neutral OAuth2 authorisation-code + PKCE (security-auth-oauth2)",
+      "summary": "The sibling blueprint's model: keep the flow (authorisation-code + PKCE) but do not commit to a vendor; let the project drop in any conforming IdP through a fixed provider-abstraction record.",
+      "reasonNotChosen": "Right choice for projects that are not committed to a single vendor. This blueprint is for projects that have committed to Keycloak: they want the Keycloak-shaped decisions (JWKS vs introspection, client-roles vs realm-roles, local-container stand-up, RP-initiated logout through the realm's end_session_endpoint) fixed at the mechanism layer so the project code path can name a Keycloak realm rather than an abstract provider record."
+    },
+    {
+      "name": "Hosted identity vendor with vendor-committed shape (security-auth-clerk)",
+      "summary": "The Clerk sibling: Clerk hosts the sign-in surface, the credential storage, MFA, account recovery; the project runs a middleware boundary against Clerk's session-verification API.",
+      "reasonNotChosen": "Valid for projects that want a hosted-identity fast lane. This blueprint targets the operator who wants self-hosted control over the realm and the admin surface, or who has an existing Keycloak deployment they cannot displace. The Clerk lane trades vendor commitment for less operator work; the Keycloak lane trades operator work for full self-hosted control."
+    },
+    {
+      "name": "Passwordless magic-link with server-issued opaque cookie sessions (security-auth-magic-link)",
+      "summary": "The magic-link sibling's model: mint a single-use token on POST /login, deliver by email, verify on GET /login/verify, issue an opaque-handle session cookie.",
+      "reasonNotChosen": "Valid for projects with no third-party identity dependency and the willingness to own the whole authentication surface in-house. This blueprint delegates that surface entirely to the realm; the trade against magic-link is running a Keycloak realm rather than an in-process principal registry."
+    },
+    {
+      "name": "Hand-wire the Keycloak flow inside the project without a mechanism-level record",
+      "summary": "Keep the Keycloak URLs, client id, secret, and JWKS knowledge inline in project code; no discovery, no per-realm record, no injected verifier.",
+      "reasonNotChosen": "Cheap on day one and expensive on day thirty: the realm URL layout changes, the client configuration changes to opaque tokens, the operator introduces a second realm, or the deployment moves to a different hostname. Every one of those is a code edit rather than a record refresh; the injected verifier + discovery record shape pays back the abstraction cost by the second such change."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

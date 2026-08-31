@@ -1,0 +1,37 @@
+{
+  "usId": "security-auth-keycloak-US-11109",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The reduced Principal is what handlers read; provider tokens never surface on request.auth",
+  "asA": "operator building a handler behind the mechanism's session-verify middleware",
+  "iWant": "request.auth to carry only the reduced Principal, never a Keycloak access token, id_token, or refresh token",
+  "soThat": "no handler code path can accidentally reason about the realm's raw token surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11109-1",
+      "description": "A verified request in opaque-handle mode exposes only the reduced Principal on `request.auth`.",
+      "given": "a session issued from US-11101 (opaque-handle mode) and a project route wired behind the session-verify middleware",
+      "when": "the request is dispatched and the resolved `request.auth` object is inspected for keys",
+      "then": "the object contains exactly `principalId`, `provider`, `email`, `roles`, `organisationIds`; no `accessToken`, `idToken`, `refreshToken`, or raw-claims field is present; `principalId` is a stable string starting with the realmSlug followed by a colon",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11109-2",
+      "description": "A verified request in stateless mode exposes only the reduced Principal on `request.auth`; no server-side session record was created.",
+      "given": "a realm record with `sessionMode='stateless'` and `bearerSource='authorization-header'` and a request carrying a valid Keycloak-minted JWT in the Authorization header",
+      "when": "the request is dispatched",
+      "then": "the mechanism verifies the token, populates the reduced Principal, and does not create a session-record entry (the session-record store's `put` port is not invoked); `request.auth` carries only the fields listed in AC-11109-1; no `Set-Cookie` is emitted by the mechanism on this response",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1202-security-auth-keycloak-jwt-verifier",
+    "TAC-1205-security-auth-keycloak-role-adapter"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

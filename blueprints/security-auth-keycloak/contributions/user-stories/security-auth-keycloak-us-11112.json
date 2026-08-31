@@ -1,0 +1,37 @@
+{
+  "usId": "security-auth-keycloak-US-11112",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-012",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Live cloud-realm smoke ACs are accountBound and skip cleanly when the realm is unreachable",
+  "asA": "operator running the project's CI pipeline without live cloud-realm credentials configured",
+  "iWant": "the runtime-verify layer to skip the live-realm smoke ACs with a stable-coded reason",
+  "soThat": "CI does not fail and the honest coverage state is on the record",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11112-1",
+      "description": "Every TC bound to a runtime-verify AC that targets a live cloud-hosted realm carries an `accountBound` flag; the runtime-verify runner honours the flag by skipping and emitting a stable-coded reason.",
+      "given": "a project scratch tree with this blueprint applied, one project-authored TC bound to AC-11112-2 flagged `accountBound`, and no live cloud-realm credentials in the runtime environment",
+      "when": "`rcf audit coverage --strict` reports the coverage state and the runtime-verify runner is invoked",
+      "then": "the coverage report lists the AC as covered by a TC whose latest run outcome is `skipped` with reason `KEYCLOAK_LIVE_REALM_UNREACHABLE`; the pipeline exit code is 0; the audit log records one `keycloak.accountbound_skip` event carrying the AC id and the missing-credential class",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11112-2",
+      "description": "A live cloud-hosted-realm smoke against a project-owned Keycloak deployment completes a full authorisation-code + PKCE round-trip and issues a project session whose Principal carries the deployment's realm slug.",
+      "given": "live cloud-realm credentials configured in the runtime environment and the project's redirect URI registered at the realm's admin console (operator-authored, out of the blueprint's mechanism reach)",
+      "when": "the operator drives a real browser through the sign-in surface at the live realm",
+      "then": "the flow completes; a project session cookie is set with the same shape as AC-11101-3; `request.auth.provider` equals the live realm's declared realmSlug; the project-authored TC for this AC records a `pass` outcome",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1201-security-auth-keycloak-discovery-client",
+    "TAC-1202-security-auth-keycloak-jwt-verifier"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

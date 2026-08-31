@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-010",
+  "prdId": "PRD-001",
+  "title": "Sign-out invalidates the project session; Keycloak session-end is an operator-declared option",
+  "description": "A POST to the project's sign-out route invalidates the project session handle server-side and clears the session cookie (opaque-handle mode) or clears the bearer-source cookie (stateless mode); the next request from the browser is unauthenticated regardless of what the realm still holds. Provider-side sign-out through the realm's `end_session_endpoint` (RP-Initiated Logout, OIDC section) is NOT mandated: a realm record whose `providerLogout` field is `'redirect'` and whose `end_session_endpoint` is present on the discovery record causes the sign-out response to return a 302 to that endpoint after clearing the project session, with the `id_token_hint` query parameter carrying the raw id_token stored on the session record (opaque-handle mode) or the id_token the operator's declared bearer source has produced (stateless mode). A record that sets `providerLogout: 'redirect'` on a realm whose discovery omits `end_session_endpoint` is refused at boot with a stable-coded error naming the realm slug.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "The project-session invariant is `sign-out clears the project session`; RP-initiated logout is a legitimate but variable operator preference (some deployments want a full realm sign-out, others want the realm session to persist for the operator's other applications on the same realm). Declaring the posture on the realm record with a fail-fast on missing endpoint catches misconfiguration where the project believes it is signing out at the realm and silently is not.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:10-sign-out"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}
