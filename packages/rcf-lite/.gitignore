@@ -1,0 +1,5 @@
+# Staged copy of the repo-root blueprint shelf, produced by
+# `scripts/stage-blueprint-shelf.mjs` as part of the `prepack` /
+# `prepublishOnly` scripts so `npm pack` ships the shelf inside the
+# package. The authoritative shelf lives at the repo root.
+blueprints/

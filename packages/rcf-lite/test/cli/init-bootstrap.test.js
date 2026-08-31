@@ -50,12 +50,12 @@ test('fresh dir: init creates the tree, .mcp.json and BOTH CLAUDE.md + AGENTS.md
   assert.doesNotMatch(stdout, /^ {2}rcf\/manifest\.json/m);
   // Tree.
   assert.equal(await fileExists(join(tmp, 'rcf/manifest.json')), true);
-  // MCP config: exact registration shape install.md documents.
+  // MCP config: portable `npx rcf-lite mcp` shape (0.13.0). Callers that
+  // want the absolute `node <binPath>` shape can still pass binPath into
+  // writeMcpConfig; init itself no longer bakes an absolute path.
   const mcp = JSON.parse(await readFile(join(tmp, '.mcp.json'), 'utf8'));
-  assert.equal(mcp.mcpServers.rcf.command, 'node');
-  assert.equal(mcp.mcpServers.rcf.args.length, 2);
-  assert.match(mcp.mcpServers.rcf.args[0], /bin\/rcf\.js$/);
-  assert.equal(mcp.mcpServers.rcf.args[1], 'mcp');
+  assert.equal(mcp.mcpServers.rcf.command, 'npx');
+  assert.deepEqual(mcp.mcpServers.rcf.args, ['rcf-lite', 'mcp']);
   // Agent instructions written to BOTH files (vendor-neutral default),
   // each inside markers and carrying the three firm rules.
   for (const name of ['CLAUDE.md', 'AGENTS.md']) {
@@ -80,7 +80,8 @@ test('existing .mcp.json with another server: merged, other server and unknown k
   const mcp = JSON.parse(await readFile(join(tmp, '.mcp.json'), 'utf8'));
   assert.deepEqual(mcp.mcpServers.playwright, existing.mcpServers.playwright, 'foreign server preserved');
   assert.deepEqual(mcp.someUnknownKey, existing.someUnknownKey, 'unknown top-level key preserved');
-  assert.equal(mcp.mcpServers.rcf.command, 'node');
+  assert.equal(mcp.mcpServers.rcf.command, 'npx');
+  assert.deepEqual(mcp.mcpServers.rcf.args, ['rcf-lite', 'mcp']);
 });
 
 test('existing rcf entry in .mcp.json is left alone', async () => {

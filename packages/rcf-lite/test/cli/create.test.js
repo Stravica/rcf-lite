@@ -63,13 +63,27 @@ test('rcf create us --parent REQ-999 exits 3 (brokenReference)', async () => {
   assert.match(stderr, /brokenReference/);
 });
 
-test('rcf create ac --parent US-101 --description X mutates the parent US', async () => {
+test('rcf create ac --parent US-101 --description X replaces the seeded phantom in place', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'Second criterion']);
+  // A freshly-initialised US carries one seeded placeholder AC-101-1 (schema
+  // requires acceptanceCriteria minItems:1). The first operator-authored AC
+  // must REPLACE that phantom instead of appending after it, so real ACs
+  // land at -1 and audit coverage never counts the placeholder as
+  // unmet criteria.
+  const { code, stdout } = await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'First real criterion']);
   assert.equal(code, 0);
-  assert.match(stdout, /AC-101-2 created/);
+  assert.match(stdout, /AC-101-1 created/);
   const us = JSON.parse(await readFile(join(tmp, 'rcf/user-stories/us-101.json'), 'utf8'));
-  assert.equal(us.acceptanceCriteria.length, 2);
+  assert.equal(us.acceptanceCriteria.length, 1);
+  assert.equal(us.acceptanceCriteria[0].id, 'AC-101-1');
+  assert.equal(us.acceptanceCriteria[0].description, 'First real criterion');
+  // A subsequent create ac appends normally.
+  const { code: code2, stdout: stdout2 } = await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'Second criterion']);
+  assert.equal(code2, 0);
+  assert.match(stdout2, /AC-101-2 created/);
+  const us2 = JSON.parse(await readFile(join(tmp, 'rcf/user-stories/us-101.json'), 'utf8'));
+  assert.equal(us2.acceptanceCriteria.length, 2);
+  assert.equal(us2.acceptanceCriteria[1].id, 'AC-101-2');
 });
 
 test('rcf create fbs --build-order collision exits 2 (§D6 amendment)', async () => {

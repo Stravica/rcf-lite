@@ -824,12 +824,30 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
       field: 'parent',
     });
   }
+  // Phantom-AC replacement (G5). A freshly-created US carries a single
+  // seeded AC-N-1 whose description equals the exact seed sentinel below;
+  // the schema requires acceptanceCriteria minItems:1, so we cannot ship
+  // the US without one. On the operator's FIRST `create ac --parent US-N`
+  // (no explicit --id given, and the existing single AC is unmistakably
+  // the seed), we REPLACE that phantom instead of appending after it -
+  // so the operator's first real AC lands at -1 and audit coverage /
+  // trace no longer count the seed as an unmet criterion. Any operator
+  // edit to the seed (custom given/when/then/scope/provenance, different
+  // description, testable=false) disqualifies it from replacement and
+  // the append path runs as before.
+  const currentAcs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
+  const seedIndex = detectSeededPhantomAcIndex(currentAcs, parentUsId);
+  const replacingPhantom = seedIndex !== -1 && !options.id;
+
   let acId = options.id;
   if (acId) {
-    const existing = (us.acceptanceCriteria ?? []).some((ac) => ac.id === acId);
+    const existing = currentAcs.some((ac) => ac.id === acId);
     if (existing) {
       return rcfError({ kind: 'usage', message: `create ac: id ${acId} already exists on ${parentUsId}`, documentId: acId });
     }
+  } else if (replacingPhantom) {
+    // Reuse the seed's id (AC-<us>-1) so the operator's first AC is -1.
+    acId = currentAcs[seedIndex].id;
   } else {
     try {
       acId = nextIdForKind(tree, 'ac', { parentId: parentUsId });
@@ -845,9 +863,12 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
     ...(body?.when !== undefined ? { when: body.when } : {}),
     ...(body?.then !== undefined ? { then: body.then } : {}),
   };
+  const nextAcs = replacingPhantom
+    ? currentAcs.map((ac, i) => (i === seedIndex ? acEntry : ac))
+    : [...currentAcs, acEntry];
   const nextUs = {
     ...us,
-    acceptanceCriteria: [...(us.acceptanceCriteria ?? []), acEntry],
+    acceptanceCriteria: nextAcs,
     updatedAt: nowIso(),
   };
   const relPath = `rcf/user-stories/${parentUsId.toLowerCase()}.json`;
@@ -869,6 +890,47 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
     return rcfError({ kind: 'ioFailure', message: `create ac: write failed: ${err.message}`, filePath: relPath, stack: err.stack });
   }
   return { id: acId, filePath: relPath, parentId: parentUsId, body: acEntry };
+}
+
+/**
+ * A newly-created user story ships one seeded acceptance criterion
+ * (schema demands acceptanceCriteria minItems:1). The seed's description
+ * is the exact sentinel below, and no user-authored fields are attached.
+ * This detector returns the index of that seed AC when it is the ONLY AC
+ * on the US and is byte-for-byte unmodified from what the writer / init
+ * placed there; otherwise -1. Used by createInlineAc to REPLACE the seed
+ * on the operator's first `create ac`, so their first real AC lands at
+ * AC-<us>-1 rather than AC-<us>-2.
+ *
+ * Kept in sync with the two seed emitters:
+ *  - src/core/store/writer.js assembleBody 'userStory' -> 'TODO: first acceptance criterion'
+ *  - src/core/store/init.js userStoryTemplate -> 'TODO: describe the first acceptance criterion'
+ *
+ * @param {Array<{id:string, description:string, testable?:boolean}>} acs
+ * @param {string} parentUsId
+ * @returns {number}
+ */
+function detectSeededPhantomAcIndex(acs, parentUsId) {
+  if (!Array.isArray(acs) || acs.length !== 1) return -1;
+  const [ac] = acs;
+  if (!ac || typeof ac !== 'object') return -1;
+  const mUs = /^US-(\d+)$/.exec(parentUsId);
+  if (!mUs) return -1;
+  const expectedId = `AC-${mUs[1]}-1`;
+  if (ac.id !== expectedId) return -1;
+  if (ac.testable !== true) return -1;
+  const seedDescriptions = new Set([
+    'TODO: first acceptance criterion',
+    'TODO: describe the first acceptance criterion',
+  ]);
+  if (!seedDescriptions.has(ac.description)) return -1;
+  // Any operator-authored optional field disqualifies replacement.
+  if (ac.given !== undefined) return -1;
+  if (ac.when !== undefined) return -1;
+  if (ac.then !== undefined) return -1;
+  if (ac.scope !== undefined) return -1;
+  if (ac.provenance !== undefined) return -1;
+  return 0;
 }
 
 /**
