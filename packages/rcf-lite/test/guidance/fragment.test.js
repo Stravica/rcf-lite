@@ -41,3 +41,26 @@ test('the markers are stable strings init and the funnel agree on', () => {
   assert.equal(MARKER_BEGIN, '<!-- rcf:managed:begin -->');
   assert.equal(MARKER_END, '<!-- rcf:managed:end -->');
 });
+
+test('RULE 14 teaches the agent to run the freshness verb and OFFER, never install', async () => {
+  const fragment = await loadHarnessFragment();
+  // Header shape matches the rest of the ratchet.
+  assert.match(fragment, /### RULE 14: Check freshness at session start; offer, never install\./);
+  // The verb the rule tells the agent to run is the phase-2 CLI form.
+  assert.match(fragment, /run `rcf version --check`/);
+  // The load-bearing safety verb (Baz ruling): OFFER, in caps, and
+  // "install" appears only inside "never install".
+  assert.match(fragment, /OFFER the upgrade/);
+  const installMatches = fragment.match(/\binstall\b/g) ?? [];
+  const neverInstallMatches = fragment.match(/\bnever install\b/g) ?? [];
+  assert.equal(
+    installMatches.length,
+    neverInstallMatches.length,
+    'the bare word "install" appears only inside "never install"',
+  );
+  // Unknown-status silence: freshness is advisory, never a gate.
+  assert.match(fragment, /status: "unknown"/);
+  assert.match(fragment, /say nothing to the operator/);
+  // Consent posture: never run the upgrade without explicit go.
+  assert.match(fragment, /Never run the upgrade without the operator's\s+explicit go/);
+});

@@ -222,6 +222,19 @@ ask for. A failure the operator has to point out is a failure you did
 not check for. The depth for each stage's self-check lives in the
 build-cycle playbook.
 
+### RULE 14: Check freshness at session start; offer, never install.
+
+At the start of a new session on this project, run `rcf version --check`
+(one call, silent on network trouble) and note the result. If a newer
+release is available, tell the operator in one line what changed and
+OFFER the upgrade. The exact command to run depends on how rcf-lite is
+installed here (global npm, per-repo dep, npx pin); propose the command
+that matches this repo's setup and wait for the operator's yes before
+running it. If the check reports `status: "unknown"` (offline, cache
+miss, feed unreachable) say nothing to the operator; freshness is a
+convenience, not a gate. Never run the upgrade without the operator's
+explicit go.
+
 ### Session start
 
 Run `rcf define validate`. A broken tree is fixed or reported before anything
