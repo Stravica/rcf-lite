@@ -1,0 +1,36 @@
+{
+  "usId": "delivery-ci-workflows-US-6109",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-009",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The blueprint ships one illustrative GitHub Actions workflow file per workflow the matrix materialises; alternate providers wire the same entry points",
+  "asA": "operator setting up CI on an rcf-lite project for the first time",
+  "iWant": "one worked example per workflow the matrix materialises so I have a copy-paste starting point for every trigger, setup, invoke, and artefact-upload shape",
+  "soThat": "I get a working workflow set on GHA out of the box and a stable mapping to other providers",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6109-1",
+      "description": "The applied blueprint's source path (recorded on `manifest.blueprints[delivery-ci-workflows].source`) contains one illustrative GitHub Actions workflow file per workflow in the matrix under `assets/ci-provider-examples/github-actions/`. At the widest shape the files are `pull-request-checks.yml`, `default-branch-checks.yml`, `release.yml`, and `scheduled-audit.yml`. Each workflow defines the required trigger set for its workflow, sets up Node and the package manager, installs dependencies, invokes the corresponding Node entry point as a single command line, and uploads the corresponding report directory or file as a workflow artefact.",
+      "given": "an rcf-lite project that has applied this blueprint",
+      "when": "the operator opens the blueprint's source path and reads the files under `assets/ci-provider-examples/github-actions/`",
+      "then": "the four workflow files exist at that path, each file's `on:` block names the trigger set corresponding to its workflow, each file's steps include a Node setup and a package-manager setup, one step per file invokes the appropriate Node entry point as a single `node <path>` line (or a package-manager script that resolves to the same), and a final step uploads the corresponding report path as a workflow artefact",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6109-2",
+      "description": "The applied blueprint's guide names GitLab CI, CircleCI, Buildkite, and Jenkins as equally supported providers, states the mapping (job trigger, Node setup, single-line entry-point invocation, artefact upload) applied to each workflow in the matrix, and states that the blueprint does not ship provider-specific configuration for those runners in v2.0.0.",
+      "given": "an rcf-lite project that has applied this blueprint",
+      "when": "the operator opens `guide/delivery-ci-workflows.md` from the blueprint's source path",
+      "then": "the guide's `when to reach for it` or an adjacent section names GitLab CI, CircleCI, Buildkite, and Jenkins by name, describes the four mapping points applied to each workflow the matrix materialises, and states that no provider-specific configuration file for those runners is shipped by the blueprint at v2.0.0",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

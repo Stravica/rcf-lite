@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-012",
+  "prdId": "PRD-001",
+  "title": "A missing or unrecognised workflowShape field is refused at boot with a stable-coded error naming the field",
+  "description": "The workflow-materialiser performs a boot-check on the `workflowShape` declaration before any workflow file is produced. Any of the three required top-level fields (`branchModel`, `checkSet`, `providerHint`) being absent causes the materialiser to exit non-zero with a stable-coded error message that names the missing field. Any field (required or optional) carrying a value not in the recognised enumeration causes the same failure shape, with the message additionally naming the value it received and the allowed set. `releaseMode` being absent is NOT a failure (Q6-B ratification): the materialiser treats it as `releaseMode: none` and ships no release workflow. A `releaseMode: deployHandoff:<slug>` value additionally triggers a manifest boot-check (REQ-022) that names the required deploy blueprint if it is missing from `manifest.blueprints[]`. The boot-check runs before any workflow file is written; a partial workflow set never lands on disk.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "Silent defaults on missing configuration lead to workflow sets that materialise wrong-shaped without the operator noticing. Failing fast with a message that names the missing field is what turns the elicitation surface from advisory into contractual. Stable error codes let downstream automation (a project scaffolder, an rcf-lite doctor check) match on the failure without parsing free-form text.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:12-boot-check"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

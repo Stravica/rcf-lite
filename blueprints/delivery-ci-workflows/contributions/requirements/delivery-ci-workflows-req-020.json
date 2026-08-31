@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-020",
+  "prdId": "PRD-001",
+  "title": "A security-scan check the project realises produces a stable-shape scan report and fails non-zero on findings above the project threshold",
+  "description": "The elicited `securityScan` check, when the project enables it in `workflowShape.checkSet.securityScan`, runs a dependency-and-secret scan gate that exits non-zero when the scan finds any advisory at or above the project-configured severity threshold. The gate writes its per-gate report to `.rcf/reports/ci/security.json` in the shared per-gate report shape (with `checkKind: \"securityScan\"`). Findings below the threshold are reported in the per-gate report without flipping the exit code. The severity threshold is a project decision; the blueprint does not opine on the threshold.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A security scan whose severity threshold is a build-in choice punishes projects whose risk posture is different from the blueprint author's; a threshold the project owns keeps the gate applicable across risk postures. Binding the exit-code semantic and the report shape as an AC contract preserves the stable surface downstream readers depend on.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:20-check-security-scan"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

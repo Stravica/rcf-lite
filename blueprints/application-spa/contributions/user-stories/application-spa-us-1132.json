@@ -56,8 +56,8 @@
     },
     {
       "id": "AC-1132-6",
-      "description": "When the external-service-dependency provisioning probe is wired as a gate in the ci-pipeline runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the ci-pipeline runner refuses ship with a non-zero exit. The 'deployed-with-defects' probe verdict maps deterministically to a 'failed' entry in the TAC-703 aggregate; a run cannot land the pipeline aggregate at 'passed' while any external-service dependency carries placeholder credentials or an unratified deferral.",
-      "given": "the ci-pipeline runner configured with the external-service-dependency provisioning probe as a required gate",
+      "description": "When the external-service-dependency provisioning probe is wired as a gate in the delivery-ci-workflows runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the delivery-ci-workflows runner refuses ship with a non-zero exit. The 'deployed-with-defects' probe verdict maps deterministically to a 'failed' entry in the TAC-703 aggregate; a run cannot land the pipeline aggregate at 'passed' while any external-service dependency carries placeholder credentials or an unratified deferral.",
+      "given": "the delivery-ci-workflows runner configured with the external-service-dependency provisioning probe as a required gate",
       "when": "the probe reports 'deployed-with-defects' on any run",
       "then": "the aggregate report records the gate as failed and the runner exits non-zero",
       "testable": true,

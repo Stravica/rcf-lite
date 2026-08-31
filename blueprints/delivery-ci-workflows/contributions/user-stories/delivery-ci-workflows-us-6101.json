@@ -1,0 +1,37 @@
+{
+  "usId": "delivery-ci-workflows-US-6101",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-001",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The commit-triggered workflows run the required check set on every branch-model-defined trigger event",
+  "asA": "operator on an rcf-lite project with delivery-ci-workflows v2 applied",
+  "iWant": "the commit-triggered workflows the materialiser produced (pull-request-checks and default-branch-checks per the elicited branch model) to run the required check set on every trigger event that branch model defines",
+  "soThat": "no change reaches the default or trunk branch without the RCF chain, its coverage, and every enabled elicited check having been verified against the tree at the head commit",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6101-1",
+      "description": "The CI provider's jobs for the commit-triggered workflows are triggered by the trigger events the branch model defines: for feature-branch, pushes to the default branch and pull requests opened, synchronised, or reopened against the default branch; for trunk-based, pushes to the trunk branch and (in the `trunkPullRequests: sometimes` sub-shape) pull requests targeting the trunk branch. The trigger configuration is committed under source control, not set through a provider UI.",
+      "given": "the project's materialised workflow files and repository state at the head commit",
+      "when": "a trigger event fires that the elicited branch model names",
+      "then": "the aggregate pipeline report at the configured stable path (default `.rcf/reports/ci/pipeline.json`) is written by the resulting CI job, and its `trigger` field records the event kind and the workflow that ran",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6101-2",
+      "description": "The merge policy blocks a merge whose most recent aggregate pipeline run did not exit zero. The block is enforced by the repository's branch protection or the equivalent platform policy per the branch-model AC binding (AC-6114-3 for feature-branch; AC-6115-1 or AC-6115-2 for trunk-based).",
+      "given": "a change (a pull request in feature-branch or the with-PR trunk sub-shape, or a direct push in the trunk without-PR sub-shape) whose most recent aggregate pipeline run's report records `verdict: failed`",
+      "when": "the operator or an automated merge tool attempts to admit the change through the standard merge or push path",
+      "then": "the platform refuses the change, and the refusal reason references the failed required check that corresponds to the workflow that ran",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner",
+    "TAC-703-delivery-ci-workflows-aggregate-report"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

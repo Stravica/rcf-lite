@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-710-delivery-ci-workflows-scheduled-audit",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "accepted",
+  "title": "scheduledAudit is a top-level optional fifth dimension on workflowShape, defaulting to false",
+  "context": "The scheduled-audit workflow catches drift (dependency updates, secret rotations) that does not coincide with a merge. Whether to ship it is genuinely optional and does not fit cleanly under the four elicited dimensions. Two shapes considered: a fifth top-level field, and a nested cadence flag under `checkSet.securityScan.cadence`.",
+  "decision": "A fifth top-level field `scheduledAudit: boolean` (default `false`) governs whether the `scheduled-audit` workflow ships. When true, the workflow runs the same required check set the commit-triggered workflows run on a cron cadence and writes to a distinct aggregate report path (`.rcf/reports/ci/scheduled-audit.json`). When false or absent, no scheduled workflow ships. If future need arises for scheduled cadence on other checks, the field generalises to `scheduledCadence: string` accepting cron expressions without displacing the fifth dimension.",
+  "consequences": "The scheduled-audit dimension is explicit and independent of any specific check; the aggregate report path is distinct so scheduled-run outcomes never overwrite commit-triggered outcomes. Adopting the scheduled workflow is one boolean flip; opting out is the default. The forward path to a `scheduledCadence` generalisation is clear.",
+  "alternativesConsidered": [
+    {
+      "name": "Fold under `checkSet.securityScan.cadence`",
+      "summary": "A nested cadence flag on the security-scan check governs whether the scan runs on cron.",
+      "reasonNotChosen": "Conflates the check kind with its cadence; a project that wants the linter (not the security scan) on a cron cadence would need a second nested cadence field, blowing up the check-set shape."
+    },
+    {
+      "name": "Ship the scheduled-audit workflow always on",
+      "summary": "Every shape gets a scheduled workflow by default.",
+      "reasonNotChosen": "Small projects with no dependency exposure do not need scheduled scans; running them by default wastes CI minutes and lengthens noise."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

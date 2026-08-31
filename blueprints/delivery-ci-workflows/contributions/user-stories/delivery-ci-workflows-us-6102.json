@@ -1,0 +1,36 @@
+{
+  "usId": "delivery-ci-workflows-US-6102",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The gate suite is invoked as one Node entry point that any CI provider can run",
+  "asA": "operator picking or moving between CI providers on an rcf-lite project",
+  "iWant": "the gate suite to be a plain Node script the CI job invokes with one line",
+  "soThat": "moving from one provider to another is a rewrite of the trigger definition, not a rewrite of the gates",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6102-1",
+      "description": "The gate runner is a single Node entry point on disk under the project's tree (a script or module invocable as `node <path>` with no shell glue). The runner's file path is the same on every host.",
+      "given": "the project tree at the head commit",
+      "when": "the aggregate report is written by any CI run",
+      "then": "the aggregate report's `runner.entryPoint` field records a project-relative path to a `.js` or `.mjs` file that exists at that path in the tree",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6102-2",
+      "description": "The CI provider's job definition invokes the gate runner with a single command line: a `node <path>` invocation (or a package-manager script that resolves to the same). No gate-specific logic sits inside the CI provider's job definition.",
+      "given": "the project's CI configuration file(s) committed under source control",
+      "when": "an operator reads the job step that produces the pipeline report",
+      "then": "the step is a single-line invocation of the Node entry point (or an equivalent package-manager script), and every gate-level branching, timing, and report-writing responsibility lives inside the Node runner rather than the CI configuration",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner"
+  ],
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

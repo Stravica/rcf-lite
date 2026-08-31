@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-018",
+  "prdId": "PRD-001",
+  "title": "A typecheck the project realises produces a stable-shape typecheck report and fails non-zero on any type error",
+  "description": "The elicited `typecheck` check, when the project enables it in `workflowShape.checkSet.typecheck`, runs a typechecker gate that exits non-zero on any type error. The gate writes its per-gate report to `.rcf/reports/ci/typecheck.json` in the shared per-gate report shape (with `checkKind: \"typecheck\"`). The check is applicable only when the project uses a typed language or a TypeScript-style build; the workflow-materialiser turns the check on by default when the project tree contains a `tsconfig.json` or an equivalent tool marker, off otherwise. The project overrides the auto-detection by setting the check-set flag explicitly.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A typecheck gate belongs on any project with a typechecker; a project without one has no runner to satisfy the contract. Auto-detecting from a stable marker (a `tsconfig.json` or equivalent) keeps the default aligned with project shape while preserving the explicit override.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:18-check-typecheck"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

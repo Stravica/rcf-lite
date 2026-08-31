@@ -21,7 +21,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Principal registry samples | `assets/principal-registry-samples/single-address.md` | The single-address registry implementation for solo-operator deployments |
 | Principal registry samples | `assets/principal-registry-samples/allow-list-file.md` | An allow-list file registry pattern for small teams |
 | Guide | `guide/security-auth-magic-link.md` | Operator-facing: when to use it, when not, what stays your call, and the promotion signal for the future auth-oidc blueprint |
-| Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes, the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, hello-panel, persistence-data-sqlite, ci-pipeline, observability-essentials) |
+| Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes, the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, hello-panel, persistence-data-sqlite, delivery-ci-workflows, observability-essentials) |
 
 The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 

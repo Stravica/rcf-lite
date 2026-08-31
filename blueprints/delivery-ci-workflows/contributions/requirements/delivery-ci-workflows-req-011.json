@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-011",
+  "prdId": "PRD-001",
+  "title": "The project declares its CI workflow shape in a stable in-repo configuration file the workflow-materialiser reads",
+  "description": "The project ships a `workflowShape` declaration at the stable path `.rcf/config/delivery-ci-workflows.json` on the project tree. The declaration carries three required top-level fields (`branchModel`, `checkSet`, `providerHint`), one optional top-level field (`releaseMode`; absent has the same effect as `releaseMode: none`, per Q6-B ratification), one optional fifth field (`scheduledAudit`, default false), and one optional sub-field (`trunkPullRequests`) that qualifies `branchModel: trunk`. The four-field composed form (`branchModel`, `checkSet`, `releaseMode`, `providerHint`, with `releaseMode` defaulted to `none` when absent) is the authoritative representation the downstream workflow-materialiser (TAC-704) and every AC in this blueprint bind against; the profile-alias convenience surface (REQ-013) expands to the same composed form before any consumer reads it. The declaration is a data file, not code; the workflow-materialiser reads it once at the start of every materialisation run and refuses to proceed when the file is absent or malformed.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A workflow set that scales along size and complexity axes needs a place the project declares its shape once and every workflow materialisation reads. Naming the location (`.rcf/config/delivery-ci-workflows.json`), the file shape (four required fields + optional dimensions), and the authoritative representation (four-field form) turns the elicitation surface into a stable contract the workflow-materialiser and every downstream reader can depend on. A manifest-embedded location was considered and deferred; the in-repo file surface ships with v2.0.0 without waiting on a per-blueprint mechanism-side config surface.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:11-elicitation-surface"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

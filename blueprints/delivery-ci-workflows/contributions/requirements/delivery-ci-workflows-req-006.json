@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-006",
+  "prdId": "PRD-001",
+  "title": "The suite emits an aggregate pipeline report summarising every gate's outcome at a stable path",
+  "description": "The suite writes a single aggregate JSON report at a stable path under the same report directory (default `.rcf/reports/ci/pipeline.json`). The aggregate report carries the suite's own start and end ISO-8601 timestamps, the total duration, an overall pass/fail verdict, the fixed ordered list of gates the suite ran, and for each gate an entry naming the gate, its outcome, its duration, and the relative path to the per-gate report file. The aggregate schema is stable within a blueprint major version.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "The per-gate reports are the detail; the aggregate report is the single record the reviewer reads first. Its stable path and stable schema make the pipeline's verdict pluckable by any downstream reader (a merge-queue tool, a dashboard, an audit trail) without knowing the gate set or its ordering.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:06-aggregate-report"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

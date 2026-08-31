@@ -1,0 +1,28 @@
+{
+  "usId": "delivery-ci-workflows-US-6116",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-016",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The linter check produces a stable-shape lint report and fails non-zero on any lint error",
+  "asA": "operator whose project enables the elicited linter check",
+  "iWant": "a lint gate whose report shape and exit-code semantic are stable across projects",
+  "soThat": "downstream readers (dashboards, merge queues) can consume lint outcomes without per-project scraping",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6116-1",
+      "description": "When `checkSet.linter` is true, the gate-runner runs the project-realised linter runner, captures its exit code and streams, and writes the per-gate report to `.rcf/reports/ci/lint.json` with `checkKind: \"linter\"`. A non-zero exit code from the runner flips the gate outcome to `failed`.",
+      "given": "a project with `checkSet.linter: true` and a realised linter runner satisfying the runner-contract interface",
+      "when": "a CI workflow invokes the gate-runner",
+      "then": "a report file at `.rcf/reports/ci/lint.json` is written with `checkKind: \"linter\"`, and the gate outcome tracks the runner exit code",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner",
+    "TAC-702-delivery-ci-workflows-gate-report"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

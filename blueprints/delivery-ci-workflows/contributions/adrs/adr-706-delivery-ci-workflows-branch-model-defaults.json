@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-706-delivery-ci-workflows-branch-model-defaults",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "accepted",
+  "title": "branchModel defaults to feature; trunk is a first-class option; both share the check catalogue and report shape",
+  "context": "The operator ruling names feature-branch as the good default standard and trunk-based as an option to support. The workflow set differs across the two shapes at the trigger and merge-policy level but shares the check catalogue and the report shape. A branch-model policy that is not stated as an ADR risks silent drift when a project migrates between shapes.",
+  "decision": "The blueprint sets `branchModel: feature` as the default when the project supplies a profile alias that composes it (`smallLibrary`, `smallService`, `internalPackage`). Trunk-based is a first-class option elicited by `branchModel: trunk` with a nested `trunkPullRequests` sub-shape (`never`|`sometimes`, default `never`). Both branch models share the check catalogue (mandatory tier plus every `checkSet` flag) and the report shape (per-gate JSON + aggregate); they differ only in the workflow trigger set and the merge-policy AC binding. `branchModel` is deliberately NOT minted as a global topic because a sibling blueprint has no legitimate opinion on branch model; if evidence emerges to the contrary, the topic can be minted global in a v2.x minor bump.",
+  "consequences": "A project migrating between branch models changes the elicitation surface, not the check catalogue or the report shape. The merge-policy AC binds a different property per shape (default-branch protection on a PR aggregate; trunk push protection on a commit aggregate), keeping the two shapes explicit without duplicating the check contracts. The topic-not-minted decision keeps the composition surface clean until a case for the global is made.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship trunk-based as a project-level override of a feature-branch default",
+      "summary": "The default is feature; a trunk project supersedes the branch-model choice with a project-level ADR.",
+      "reasonNotChosen": "Trunk-based is not a workaround around feature-branch; it is a distinct workflow shape widely adopted in high-throughput teams. Treating it as an ADR override signals second-class status the operator ruling does not intend."
+    },
+    {
+      "name": "Mint `branchModel` as a global topic to force resolution with composing blueprints",
+      "summary": "A sibling blueprint that opines on branch model conflicts here; a project-level ADR resolves.",
+      "reasonNotChosen": "No sibling blueprint has a legitimate opinion on branch model (a `security-*` blueprint's scope is orthogonal to branch model choice). Minting the global creates a resolution surface for a conflict no shipped or plausible blueprint would generate."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}
