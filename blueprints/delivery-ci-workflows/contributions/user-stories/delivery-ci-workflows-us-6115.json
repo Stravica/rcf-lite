@@ -11,19 +11,19 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6115-1",
-      "description": "With `workflowShape.branchModel: trunk` and `trunkPullRequests` absent or `never`, the materialiser produces `default-branch-checks` only. The `pull-request-checks` workflow does not ship in this shape.",
-      "given": "a `workflowShape` with `branchModel: trunk` and no `trunkPullRequests` field",
+      "description": "With `workflowShape.branchModel: trunk` and `trunkPullRequests` absent or `never`, the materialiser produces `default-branch-checks` only, triggered by pushes to the configured trunk branch (`workflowShape.trunkBranch`, default `main`). The `pull-request-checks` workflow does not ship in this shape.",
+      "given": "a `workflowShape` with `branchModel: trunk`, `trunkBranch: trunk`, and no `trunkPullRequests` field",
       "when": "the workflow-materialiser runs",
-      "then": "a `default-branch-checks` workflow file lands at the provider's workflow path, no `pull-request-checks` workflow file lands, and the merge-policy AC binds to the trunk-branch push-protection property",
+      "then": "a `default-branch-checks` workflow file lands at the provider's workflow path, its trigger's branch list names `trunk` (the configured trunk branch), no `pull-request-checks` workflow file lands, and the merge-policy AC binds to the trunk-branch push-protection property",
       "testable": true,
       "scope": "runtime"
     },
     {
       "id": "AC-6115-2",
-      "description": "With `branchModel: trunk` and `trunkPullRequests: sometimes`, the materialiser additionally produces `pull-request-checks` on the same required check set as `default-branch-checks`.",
-      "given": "a `workflowShape` with `branchModel: trunk` and `trunkPullRequests: sometimes`",
+      "description": "With `branchModel: trunk` and `trunkPullRequests: sometimes`, the materialiser additionally produces `pull-request-checks` on the same required check set as `default-branch-checks`, both triggered against the configured trunk branch.",
+      "given": "a `workflowShape` with `branchModel: trunk`, `trunkBranch: trunk`, and `trunkPullRequests: sometimes`",
       "when": "the workflow-materialiser runs",
-      "then": "both workflow files land at the provider's workflow path, and the merge-policy AC binds to the default-branch-protection property that admits only PRs whose `pull-request-checks` aggregate passed",
+      "then": "both workflow files land at the provider's workflow path with their trigger branch lists naming `trunk`, and the merge-policy AC binds to the trunk-branch protection property that admits only PRs whose `pull-request-checks` aggregate passed",
       "testable": true,
       "scope": "runtime"
     }

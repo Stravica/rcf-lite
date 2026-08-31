@@ -67,7 +67,9 @@ The project ships `.rcf/config/delivery-ci-workflows.json` at the project root. 
     },
     "releaseMode": "tagPlusArtefact",
     "providerHint": "githubActions",
-    "scheduledAudit": false
+    "scheduledAudit": false,
+    "defaultBranch": "main",
+    "packageManager": "pnpm"
   }
 }
 ```
@@ -78,10 +80,24 @@ The project ships `.rcf/config/delivery-ci-workflows.json` at the project root. 
 - `releaseMode` (OPTIONAL, Q6-B ratification): `none`, `tagOnly`, `tagPlusArtefact`, or `deployHandoff:<slug>`. An absent field is treated the same as `none` (no release workflow ships). Not having a release path yet is a common scenario when starting a project; the ratification chose ergonomics over an explicit `none`.
 - `scheduledAudit` (optional): boolean; default `false`.
 - `trunkPullRequests` (optional; qualifies `branchModel: trunk`): `never` or `sometimes`; default `never`.
+- `defaultBranch` (optional; qualifies `branchModel: feature`): the branch name the commit-triggered workflows fire against; default `main`. The materialiser substitutes this value into the trigger's branch list; a project on `develop`, `master`, or any other convention names it here rather than hand-editing the workflow files.
+- `trunkBranch` (optional; qualifies `branchModel: trunk`): the trunk branch name the commit-triggered workflows fire against; default `main`. Same substitution semantics as `defaultBranch`.
+- `packageManager` (optional): `pnpm`, `npm`, `yarn`, or `bun`; default `pnpm`. Selects the within-provider package-manager substitution the materialiser applies to every produced workflow (see the substitution table below).
 
 ### Profile aliases
 
 Named profile aliases (`smallLibrary`, `smallService`, `internalPackage`, `trunkLibrary`) compose the four-field form. The materialiser expands the alias to the four-field form at boot; every AC binds to the four-field form. Adding an alias is a minor bump; renaming or removing an alias is a minor bump.
+
+## Bootstrap posture (the guaranteed-red first run)
+
+A fresh apply of this blueprint alongside its usual companions (an `application-*` blueprint plus a `persistence-*` blueprint, for example) contributes tens to hundreds of REQs and ACs and zero test cases. The mandatory tier's `coverage-strict` gate runs `rcf audit coverage --strict` which refuses when any AC lacks a resolving TC (ADR-702). That means the very first commit-triggered workflow the materialiser produces is guaranteed to refuse until either every AC has a TC OR a project-level ADR demotes the gate. This is a cost the operator either accepts up-front or defers behind a stated exit criterion; either way, name the posture at apply time rather than discovering it when the first PR is refused.
+
+Two ratified bootstrap postures:
+
+- **Author every TC before turning CI green.** Every AC the blueprint set contributed gets a TC before the first push; the coverage-strict gate stays merge-blocking from day one. Right when the AC count is small or the project's engineering standards refuse any advisory-only CI window.
+- **Demote coverage-strict to advisory-only for a bounded window.** Ship a project-level ADR that supersedes ADR-702 on the `strictCoverageGate` topic for the project only, demoting the gate to advisory (its per-gate report still lands; its `failed` outcome no longer flips the aggregate). Bind the ADR to a stated exit criterion (recommended: `N` consecutive `passed` outcomes on the default branch, e.g. `N = 5`, or an audit confirming every AC has a resolving TC, whichever comes first). Retire the ADR by flipping its status to `superseded` when the criterion is met; the coverage-strict gate reverts to merge-blocking without further action.
+
+The blueprint ships a starting-point ADR for the demotion posture at `assets/bootstrap/adr-bootstrap-coverage-supersession.template.json` (see the sibling `README.md` for the copy-adapt-register steps). Copy it, rename the id, fill the timestamps, register it as `scope: global` on topic `strictCoverageGate`, and the CI's first run turns green on every non-coverage gate on day one. The debt is real; the exit criterion keeps it visible.
 
 ## The check catalogue
 
@@ -117,6 +133,28 @@ Every mainstream CI provider ships the same four ingredients under a different r
 4. Node entry-point invocation and artefact upload per workflow.
 
 See `assets/ci-provider-examples/notes.md` for the per-provider translation.
+
+## Within-provider package-manager substitution
+
+The four-point mapping covers translation across providers; a project stays on one provider and picks its package manager. The illustrative GHA assets carry paired substitution markers fencing the setup step(s) and the install step; the materialiser replaces every line between the two fence markers (exclusive) with the per-manager block. The markers are YAML comments so the illustrative file is valid YAML on its own and reviewable as a diff after materialisation:
+
+- `# @@RCF-SUB-PKG-MGR-SETUP-BEGIN@@` and `# @@RCF-SUB-PKG-MGR-SETUP-END@@` fence the manager's setup step(s).
+- `# @@RCF-SUB-PKG-MGR-INSTALL-BEGIN@@` and `# @@RCF-SUB-PKG-MGR-INSTALL-END@@` fence the manager's install step.
+
+The four recognised managers map to these blocks (GHA reference; alternate providers use the equivalent action or command in the provider's own runner language):
+
+| `packageManager` | setup step | install line |
+|---|---|---|
+| `pnpm` (default) | `- uses: pnpm/action-setup@v4` followed by `with: { version: 9 }`; then `- uses: actions/setup-node@v4` with `node-version: 24` and `cache: pnpm` | `pnpm install --frozen-lockfile` |
+| `npm` | `- uses: actions/setup-node@v4` with `node-version: 24` and `cache: npm` | `npm ci` |
+| `yarn` | `- uses: actions/setup-node@v4` with `node-version: 24` and `cache: yarn` (yarn v1 or `enable-corepack` for berry) | `yarn install --frozen-lockfile` (v1) or `yarn install --immutable` (berry) |
+| `bun` | `- uses: oven-sh/setup-bun@v2` with `bun-version: latest` | `bun install --frozen-lockfile` |
+
+An unrecognised `packageManager` value refuses at the same boot-check exit path the enumerated fields use (AC-6112-2 shape).
+
+## Trigger branch-name substitution
+
+The commit-triggered assets (`pull-request-checks.yml`, `default-branch-checks.yml`) carry `# @@RCF-SUB-BRANCH-NAME@@` on the line immediately above the `branches:` list. The materialiser rewrites that one `branches:` line from `workflowShape.defaultBranch` (feature model) or `workflowShape.trunkBranch` (trunk model) so the branch-model AC (AC-6114/6115) is observable in the materialised output rather than being masked by a hard-coded `main`. Both fields default to `main`, so a project on the default keeps the current behaviour without touching the fields.
 
 ## Operator decisions that remain open after apply
 

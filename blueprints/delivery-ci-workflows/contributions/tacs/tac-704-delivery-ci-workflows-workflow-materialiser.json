@@ -11,9 +11,12 @@
     "Perform the boot-check: refuse missing required fields (`branchModel`, `checkSet`, `providerHint`), refuse unrecognised values on any field, refuse `deployHandoff:<slug>` when the deploy blueprint is absent from the manifest; exit non-zero with a stable-coded error naming the offending field (AC-6112-1, AC-6112-2, AC-6122-3).",
     "Expand a profile alias to the four-field composed form before any downstream reads it; refuse an unrecognised alias (AC-6113-1, AC-6113-2).",
     "Compute the workflow set from `workflowShape` per the matrix in the spec (§3.2): the two commit-triggered workflows per branch model, the release workflow per `releaseMode`, the scheduled-audit workflow per `scheduledAudit` (AC-6114-1, AC-6114-2, AC-6115-1, AC-6115-2, AC-6121-1, AC-6121-2, AC-6123-1, AC-6123-2).",
-    "Seed the provider-specific asset directory (v2.0.0: `assets/ci-provider-examples/github-actions/`) and write one workflow file per workflow in the set to the provider's workflow path (v2.0.0: `.github/workflows/` for GHA); alternate providers translate per the four-point mapping doc.",
+    "Read the applied blueprint source from `rcf/manifest.json`'s `blueprints[].source` field (the path recorded when `rcf define blueprint add` ran) and resolve the provider asset directory as `<source>/assets/ci-provider-examples/<providerHint>/`; do not hard-code the source path against `node_modules/` or any other convention.",
+    "Write one workflow file per workflow in the set to the provider's workflow path (v2.0.0: `.github/workflows/` for GHA); alternate providers translate per the four-point mapping doc.",
+    "Substitute the trigger branch name into the produced commit-triggered workflows: on `branchModel: feature`, the `pull-request-checks` and `default-branch-checks` triggers name `workflowShape.defaultBranch` (default `main`); on `branchModel: trunk`, they name `workflowShape.trunkBranch` (default `main`). The substitution is applied against the `# @@RCF-SUB-BRANCH-NAME@@` marker that the illustrative assets carry immediately above their `branches:` line; the marker's next line (the `branches: [...]` list) is rewritten to name the configured branch, so the property AC-6114/6115 binds to (the branch model determines which branch triggers the workflow) is observable in the materialised output rather than being masked by a hard-coded `main`.",
+    "Substitute the package-manager setup and install steps into every produced workflow: read `workflowShape.packageManager` (default `pnpm`; recognised values `pnpm`, `npm`, `yarn`, `bun`); replace every line fenced between `# @@RCF-SUB-PKG-MGR-SETUP-BEGIN@@` and `# @@RCF-SUB-PKG-MGR-SETUP-END@@` (exclusive) with the per-manager setup block, and every line fenced between `# @@RCF-SUB-PKG-MGR-INSTALL-BEGIN@@` and `# @@RCF-SUB-PKG-MGR-INSTALL-END@@` (exclusive) with the per-manager install block, per the substitution table in `guide/delivery-ci-workflows.md`. Refuse an unrecognised `packageManager` with the same boot-check error path the enumerated fields use.",
     "Materialisation is idempotent: re-running with the same `workflowShape` writes the same files byte-for-byte; changing the shape overwrites the workflow files atomically (temp file + rename).",
-    "Emit a materialiser-run summary to stdout naming the workflow files produced and the elicited-check set they carry."
+    "Emit a materialiser-run summary to stdout naming the workflow files produced, the elicited-check set they carry, and the substituted branch name and package manager."
   ],
   "internalStructure": "One Node module exporting `materialise({ configPath, providerAssetDir, workflowOutDir })` and a shebang entry point invocable as `node <path>` with no required argv. The reader parses the config; the boot-check module validates each field against the recognised enumeration; the matrix module computes the workflow set from the composed shape; the writer module reads the provider asset templates, substitutes the required check set into the gate-runner invocation line, and writes the workflow files atomically.",
   "interfaces": [
@@ -25,7 +28,7 @@
     {
       "name": "workflow-shape",
       "kind": "value",
-      "description": "The parsed and composed `workflowShape`: `{ branchModel, checkSet, releaseMode, providerHint, scheduledAudit, trunkPullRequests }` with alias expansion applied and `releaseMode` defaulted to `none` when absent."
+      "description": "The parsed and composed `workflowShape`: `{ branchModel, checkSet, releaseMode, providerHint, scheduledAudit, trunkPullRequests, defaultBranch, trunkBranch, packageManager }` with alias expansion applied, `releaseMode` defaulted to `none` when absent, `defaultBranch` and `trunkBranch` defaulted to `main` when absent, and `packageManager` defaulted to `pnpm` when absent."
     },
     {
       "name": "entry-point CLI",
@@ -60,5 +63,5 @@
   ],
   "tradeoffs": "A build-time materialiser costs an extra step in the project's onboarding (running `node <entryPointPath>` after editing the config) but buys byte-identical workflow files across two runs of the same shape, which is the property downstream tools (a diff-review, a CI-config-verifier) depend on. Writing to the provider workflow path (not a `dist/` directory) means the workflow files are committed and reviewable; the shape declaration and the materialised output are both under source control.",
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-08-31T12:00:00Z"
 }

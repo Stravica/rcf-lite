@@ -1,0 +1,28 @@
+{
+  "adrId": "ADR-XXX-bootstrap-coverage-supersession",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "During bootstrap the coverage-strict gate runs advisory-only until a stated exit criterion is met",
+  "context": "A fresh apply of the delivery-ci-workflows blueprint set (application-*, persistence-*, delivery-ci-workflows) contributes tens to hundreds of REQs and ACs and zero test cases. The mandatory-tier coverage-strict gate runs `rcf audit coverage --strict` which refuses when any AC lacks a resolving TC (ADR-702). On a fresh apply the very first commit-triggered workflow is therefore guaranteed to refuse until the project has authored a TC for every AC the blueprint set contributed. That is a real cost the operator either accepts up-front (author every TC before turning CI green) or defers behind a project-level supersession of ADR-702. This project accepts the deferral posture and states the exit criterion here.",
+  "decision": "During bootstrap the required-gate coverage invocation is demoted to advisory-only: the coverage-strict gate still runs on every commit-triggered workflow, its per-gate report still lands at the stable path, and the aggregate still records its outcome; but a `failed` outcome on coverage-strict does NOT flip the aggregate verdict to `failed` and does NOT block merge. Every other required gate (validate, and the elicited tier the project turned on) retains its merge-blocking semantics. This ADR supersedes ADR-702-delivery-ci-workflows-strict-coverage-gate on the `strictCoverageGate` topic for this project only. The demotion is bounded by a stated exit criterion: this ADR is retired (status flipped to superseded) when the mandatory-tier coverage-strict outcome has been `passed` on the default branch for N consecutive commits (recommended: N = 5) OR when the project's own audit shows every AC in the applied blueprint set has a resolving TC, whichever comes first. On retirement the coverage-strict gate reverts to merge-blocking per ADR-702's default posture, and this ADR's file is left in place with `status: superseded` for audit trail.",
+  "consequences": "The bootstrap window is a knowingly-relaxed CI posture; a reviewer merging during it MUST inspect the aggregate's coverage-strict per-gate report themselves rather than trusting the aggregate verdict alone. Every AC the blueprint set contributed still owes a TC; the exit criterion enforces the debt is repaid rather than allowed to accrue silently. A composing blueprint that ships its own coverage-mode opinion (a hypothetical `delivery-ci-workflows-shallow` or `delivery-ci-workflows-grace-window`) conflicts with this ADR the same way it would with ADR-702; the project-level resolver still picks the winner. Retiring this ADR is a one-line status change; the exit criterion is a checklist the retiring commit records.",
+  "alternativesConsidered": [
+    {
+      "name": "Author every TC before turning CI green",
+      "summary": "Do not demote the gate; author the ~N hundred TCs before the first CI run.",
+      "reasonNotChosen": "The blueprint set is large and TC authoring is a real cost; front-loading it delays every other CI signal the project needs from day one. The demote-with-exit-criterion posture keeps every OTHER gate merge-blocking from day one and pays the coverage debt on a stated schedule."
+    },
+    {
+      "name": "Demote coverage-strict permanently to shallow-any",
+      "summary": "Retire ADR-702 without an exit criterion; run shallow-any as the project's coverage floor forever.",
+      "reasonNotChosen": "ADR-702's own consequences section names the failure mode shallow-any hides (an AC bound but no TC resolves it, REQ reads as covered because a sibling AC's TC resolves). The bootstrap posture is a stated deferral, not a permanent policy change; retiring the deferral is a one-line change the exit criterion drives."
+    }
+  ],
+  "relatedAdrs": [
+    "ADR-702-delivery-ci-workflows-strict-coverage-gate"
+  ],
+  "createdAt": "TEMPLATE-createdAt-ISO8601",
+  "updatedAt": "TEMPLATE-updatedAt-ISO8601"
+}

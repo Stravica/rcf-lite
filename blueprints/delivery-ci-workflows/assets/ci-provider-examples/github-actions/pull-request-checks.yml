@@ -1,17 +1,21 @@
 # Illustrative pull-request-checks workflow for the delivery-ci-workflows blueprint.
-# Copy this file into the host project as `.github/workflows/pull-request-checks.yml`
-# and adjust the `node-version`, package-manager setup, and entry-point path
-# to match the project's realised gate runner (TAC-701).
+# Copy this file into the host project as `.github/workflows/pull-request-checks.yml`.
+# The file below is the pnpm+main default the materialiser writes when
+# workflowShape.packageManager and workflowShape.defaultBranch are absent.
+#
+# The file carries paired RCF substitution markers the materialiser rewrites
+# from workflowShape (see guide/delivery-ci-workflows.md, "Within-provider
+# package-manager substitution" and "Trigger branch-name substitution" for
+# marker names, replacement blocks, and the substitution table). A
+# hand-copier on the default (pnpm + main) keeps the file as-is; a project
+# on npm/yarn/bun or a non-main branch either runs the materialiser or
+# applies the substitution table from the guide by hand.
 #
 # The workflow runs one CI-provider-neutral Node entry point that invokes the
 # required check set (the mandatory tier plus the elicited subset the project
 # turned on in workflowShape.checkSet), writes per-gate and aggregate JSON
 # reports under `.rcf/reports/ci/`, and uploads the report directory as a
 # workflow artefact for downstream readers.
-#
-# Feature-branch shape: pull requests targeting the default branch.
-# Trunk-based shape (trunkPullRequests: sometimes): pull requests targeting
-# the trunk branch. Adjust the branch name on the `on: pull_request:` block.
 #
 # See `guide/delivery-ci-workflows.md` (four-point mapping) for translating
 # this workflow to GitLab CI, CircleCI, Buildkite, or Jenkins.
@@ -20,6 +24,7 @@ name: pull-request-checks
 
 on:
   pull_request:
+    # @@RCF-SUB-BRANCH-NAME@@
     branches: [main]
 
 jobs:
@@ -31,6 +36,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      # @@RCF-SUB-PKG-MGR-SETUP-BEGIN@@
       - name: setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -41,9 +47,12 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # @@RCF-SUB-PKG-MGR-SETUP-END@@
 
+      # @@RCF-SUB-PKG-MGR-INSTALL-BEGIN@@
       - name: install dependencies
         run: pnpm install --frozen-lockfile
+      # @@RCF-SUB-PKG-MGR-INSTALL-END@@
 
       # Single-line invocation of the project's realised gate runner.
       # The runner spawns the mandatory tier (`rcf define validate` then

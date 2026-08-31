@@ -1,6 +1,6 @@
 {
   "gate": "validate",
-  "command": ["rcf", "validate"],
+  "command": ["rcf", "define", "validate"],
   "toolVersion": "0.7.4",
   "startedAt": "2026-08-24T10:15:03.221Z",
   "endedAt": "2026-08-24T10:15:04.891Z",
