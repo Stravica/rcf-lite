@@ -29,10 +29,10 @@
     },
     {
       "id": "AC-12112-3",
-      "description": "The Served-surface Verifier uses the `versionSha` field to confirm the promoted version is the version being served; a promote whose post-promote probe returns a `versionSha` that does not match the promoted id fails the release.",
-      "given": "a promote of version W with build sha `sha-W`",
+      "description": "The Served-surface Verifier uses the `versionSha` field on the probe response body (the git commit sha the served version was built from) to confirm the promoted version is the version being served; the value the verifier compares against is the promote record's `versionSha` field, distinct from the promote record's `promotedVersionId` (the vendor-assigned version UUID). A promote whose post-promote probe returns a `versionSha` that does not match the promote record's `versionSha` fails the release.",
+      "given": "a promote of version W with promote record `{ promotedVersionId: 'v-uuid-W', versionSha: 'sha-W' }`",
       "when": "the verifier's post-promote probe returns a body whose `versionSha` reads `sha-P` (a stale prior version)",
-      "then": "the verifier records the mismatch as `PROMOTE_VERIFY_FAILED` with the observed and expected shas; the release is not marked successful",
+      "then": "the verifier records the mismatch as `PROMOTE_VERIFY_FAILED` with the observed `sha-P` and the expected `sha-W`; the release is not marked successful",
       "testable": true,
       "scope": "deployed"
     }

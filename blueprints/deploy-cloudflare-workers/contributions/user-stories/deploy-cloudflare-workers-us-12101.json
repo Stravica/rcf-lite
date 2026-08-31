@@ -11,10 +11,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-12101-1",
-      "description": "A `wrangler.toml` (or `wrangler.jsonc`) exists at the repo root, parses as valid config, and its top-level object carries `name`, `main`, `compatibility_date`, and every binding block the Worker's runtime code references.",
+      "description": "A `wrangler.toml` (or `wrangler.jsonc`) exists at the repo root, parses as valid config, and its top-level object carries `name`, `main`, `compatibility_date`, and every non-secret binding block the Worker's runtime code references (KV namespaces, D1 databases, R2 buckets, Durable Object namespaces, static-assets binding, and non-secret environment variables); secret bindings are implicit through env-accessor references in the Worker source and are NOT declared in the manifest (wrangler 4.x has no `[secrets]` block, no `secrets.required[]` list, and no empty-value binding entry for secrets).",
       "given": "a fresh clone of a repo that has applied the blueprint and realised the manifest",
       "when": "a manifest loader parses the file",
-      "then": "the loader returns a config object whose `name` is a non-empty string, `main` resolves to an existing entry file, `compatibility_date` matches `\\d{4}-\\d{2}-\\d{2}`, and every binding name referenced from the Worker's source appears as a declaration key in the config",
+      "then": "the loader returns a config object whose `name` is a non-empty string, `main` resolves to an existing entry file, `compatibility_date` matches `\\d{4}-\\d{2}-\\d{2}`, and every non-secret binding name referenced from the Worker's source appears as a declaration key in the config; the config carries no `[secrets]` block",
       "testable": true,
       "scope": "runtime"
     },
@@ -33,6 +33,15 @@
       "given": "the secrets contract resolves a set of secret values `V` for the current environment",
       "when": "a redaction-scanner runs against `wrangler.toml`, any committed environment file, and the CI workflows",
       "then": "no file in the scanned set contains any byte sequence in `V`",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12101-4",
+      "description": "When the manifest declares an `[assets]` block AND the Worker's fetch handler installs an auth gate on any route whose path could be shadowed by a file under the assets `directory`, the manifest MUST declare `[assets] run_worker_first` naming every gated route (glob-matched); a deployed request to any listed path is answered by the fetch handler before the assets pipeline runs. Without the listing, the assets pipeline serves the shadowing file directly and the auth gate is silently bypassed at the edge.",
+      "given": "a Worker whose fetch handler installs an auth middleware on `/notes` and a `./public/notes.html` file present at build time; the deployed Worker is reachable at production URL P",
+      "when": "an unauthenticated HTTP GET hits `P/notes`",
+      "then": "the response is the auth middleware's unauthenticated response (a redirect to sign-in, a 401, or the middleware's declared shape); the response is NOT the byte content of `./public/notes.html`; a manifest that omits `/notes` from `[assets] run_worker_first` fails the deployed observation because the assets pipeline answered before the fetch handler ran",
       "testable": true,
       "scope": "deployed"
     }

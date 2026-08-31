@@ -11,10 +11,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-12106-1",
-      "description": "Every secret binding the Worker consumes at runtime is declared by NAME only in `wrangler.toml` (using the vendor's declaration primitive) and is populated on the deploy target through the vendor's own secret-set flow, sourced from the project's secrets contract.",
+      "description": "Every secret binding the Worker consumes at runtime is referenced implicitly via the runtime's env accessor (in the default JS/TS Worker, `env.<NAME>`) in the Worker source; wrangler 4.x has no `[secrets]` block, no `secrets.required[]` list, and no empty-value binding entry for secrets, and the vendor treats each such env-accessor reference as an implicit secret binding declaration and refuses `wrangler deploy` when the referenced secret has not been set on the target. Each such name is populated on the deploy target through the vendor's own secret-set flow, sourced from the project's secrets contract.",
       "given": "a project that has applied both this blueprint and the `security-secrets-management` blueprint (or an equivalent project-authored secrets contract)",
-      "when": "the wrangler manifest is parsed and every secret binding it declares is cross-checked against the secrets contract's declared names",
-      "then": "every secret binding named in the manifest maps to a name declared in the secrets contract; every name has a resolvable value in the active deploy environment; no binding declaration in the manifest carries an inline value",
+      "when": "the Worker source is scanned for env-accessor references that resolve to secret bindings (per the manifest loader's binding-kind classification) and each such name is cross-checked against the secrets contract's declared names",
+      "then": "every implicitly-referenced secret name maps to a name declared in the secrets contract; every name has a resolvable value in the active deploy environment; the manifest carries no `[secrets]` block, no `secrets.required[]` list, and no binding declaration with an inline secret value",
       "testable": true,
       "scope": "runtime"
     },
