@@ -88,6 +88,17 @@ The project ships `.rcf/config/delivery-ci-workflows.json` at the project root. 
 
 Named profile aliases (`smallLibrary`, `smallService`, `internalPackage`, `trunkLibrary`) compose the four-field form. The materialiser expands the alias to the four-field form at boot; every AC binds to the four-field form. Adding an alias is a minor bump; renaming or removing an alias is a minor bump.
 
+## Bootstrap posture (the guaranteed-red first run)
+
+A fresh apply of this blueprint alongside its usual companions (an `application-*` blueprint plus a `persistence-*` blueprint, for example) contributes tens to hundreds of REQs and ACs and zero test cases. The mandatory tier's `coverage-strict` gate runs `rcf audit coverage --strict` which refuses when any AC lacks a resolving TC (ADR-702). That means the very first commit-triggered workflow the materialiser produces is guaranteed to refuse until either every AC has a TC OR a project-level ADR demotes the gate. This is a cost the operator either accepts up-front or defers behind a stated exit criterion; either way, name the posture at apply time rather than discovering it when the first PR is refused.
+
+Two ratified bootstrap postures:
+
+- **Author every TC before turning CI green.** Every AC the blueprint set contributed gets a TC before the first push; the coverage-strict gate stays merge-blocking from day one. Right when the AC count is small or the project's engineering standards refuse any advisory-only CI window.
+- **Demote coverage-strict to advisory-only for a bounded window.** Ship a project-level ADR that supersedes ADR-702 on the `strictCoverageGate` topic for the project only, demoting the gate to advisory (its per-gate report still lands; its `failed` outcome no longer flips the aggregate). Bind the ADR to a stated exit criterion (recommended: `N` consecutive `passed` outcomes on the default branch, e.g. `N = 5`, or an audit confirming every AC has a resolving TC, whichever comes first). Retire the ADR by flipping its status to `superseded` when the criterion is met; the coverage-strict gate reverts to merge-blocking without further action.
+
+The blueprint ships a starting-point ADR for the demotion posture at `assets/bootstrap/adr-bootstrap-coverage-supersession.template.json` (see the sibling `README.md` for the copy-adapt-register steps). Copy it, rename the id, fill the timestamps, register it as `scope: global` on topic `strictCoverageGate`, and the CI's first run turns green on every non-coverage gate on day one. The debt is real; the exit criterion keeps it visible.
+
 ## The check catalogue
 
 Two tiers:
