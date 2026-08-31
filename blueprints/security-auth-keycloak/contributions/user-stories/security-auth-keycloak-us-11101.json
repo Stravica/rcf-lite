@@ -1,0 +1,47 @@
+{
+  "usId": "security-auth-keycloak-US-11101",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A complete authorisation-code + PKCE round-trip against a local Keycloak realm issues a project session",
+  "asA": "operator signing in through the project's Keycloak-backed sign-in surface",
+  "iWant": "the browser to complete a Keycloak authorisation-code round-trip and end up holding a project session cookie",
+  "soThat": "the project treats me as authenticated on subsequent requests without re-presenting credentials to the realm",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11101-1",
+      "description": "The sign-in route redirects to the realm's `authorization_endpoint` with `response_type=code`, PKCE S256 challenge, and a stable `state` value the flow controller stores server-side.",
+      "given": "a project wired against a local Keycloak realm through the realm-config module and a browser hitting GET `/auth/sign-in`",
+      "when": "the request is dispatched and the response is inspected",
+      "then": "the response is a 302 whose `Location` starts with the realm's discovered `authorization_endpoint`; the query carries `response_type=code`, `code_challenge` matching `^[A-Za-z0-9_-]{43,128}$`, `code_challenge_method=S256`, a `state` value distinct from any prior observed value in the test collector; no `response_type=token` or `access_type=implicit` is present",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11101-2",
+      "description": "The callback exchanges the code at the realm's `token_endpoint` and receives an access token plus id_token.",
+      "given": "the realm has minted an authorisation code for the pending flow keyed by the state value from AC-11101-1",
+      "when": "the browser follows the realm's redirect back to the project's callback route",
+      "then": "the flow controller issues a POST to the realm's `token_endpoint` whose body carries `grant_type=authorization_code`, the returned `code`, `client_id`, `code_verifier` (matching the stored verifier), and `redirect_uri`; the response is a 2xx carrying `access_token` and `id_token`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11101-3",
+      "description": "The callback completes with a Secure HttpOnly session cookie whose value is a project-issued opaque handle, not a Keycloak-minted token.",
+      "given": "AC-11101-2 has completed against a realm whose record declares `sessionMode: 'opaque-handle'`",
+      "when": "the browser inspects the response cookie jar",
+      "then": "a session cookie declared by the project's session-cookie name is set with `Secure`, `HttpOnly`, `SameSite=Lax`; the cookie value does not equal the access_token, the id_token, or any refresh_token returned by the realm; the reduced Principal on the next protected-route request carries `principalId` derived from `{realmSlug, sub}` and `provider` equal to the realmSlug",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1201-security-auth-keycloak-discovery-client",
+    "TAC-1202-security-auth-keycloak-jwt-verifier",
+    "TAC-1205-security-auth-keycloak-role-adapter"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

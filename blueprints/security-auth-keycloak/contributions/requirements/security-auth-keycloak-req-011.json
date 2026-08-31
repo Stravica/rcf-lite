@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-011",
+  "prdId": "PRD-001",
+  "title": "Fail-safe boot when the realm is unreachable follows a declared posture",
+  "description": "A realm record declares a `bootPosture` field with three legal values: `strict` (default), `deferred`, and `standby`. Under `strict`, a discovery fetch failure at boot terminates the process with a stable-coded error naming the realm slug and the fetch failure class (`KEYCLOAK_DISCOVERY_UNREACHABLE`, `KEYCLOAK_DISCOVERY_MALFORMED`, `KEYCLOAK_DISCOVERY_TIMEOUT`); no listener is left running. Under `deferred`, the process starts, the affected realm is marked `unhealthy`, requests routed to that realm through the provider-router (REQ-005) refuse with `KEYCLOAK_REALM_UNAVAILABLE` and the discovery client (TAC-1201) attempts one exponential-backoff refresh loop bounded by `deferredRetryCapSeconds` (default 300); success populates the record and the realm goes `healthy`. Under `standby`, the process starts, the affected realm is marked `unhealthy` in the same way, and the discovery client stays quiet until a project-authored trigger (an admin route, a scheduled probe, an operator signal) calls `refresh(realmSlug)`; the operator opts in to standby only when the deployment demands manual control. A realm's health transitions are emitted as structured audit events `keycloak.realm_healthy` and `keycloak.realm_unhealthy` carrying the realm slug and the current class.",
+  "category": "functional",
+  "domain": "reliability",
+  "priority": "must",
+  "rationale": "A project deployed alongside a self-hosted realm inherits the realm's uptime characteristics. `strict` is the safest default for a small project (crash-loop until the realm is up, obvious to whoever wired the deployment); `deferred` matches deployments that want the process to survive a realm restart and self-heal; `standby` matches deployments where the operator wants to control when the process reaches the realm (for example, a migration window where a partial realm is not usable). Naming the posture on the record makes the choice a paper-trailed decision rather than a hidden retry constant.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:11-fail-safe-boot"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

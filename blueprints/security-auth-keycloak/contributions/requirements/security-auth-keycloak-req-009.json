@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-009",
+  "prdId": "PRD-001",
+  "title": "Local-first stand-up uses Keycloak's official container image; no realm data is committed",
+  "description": "The blueprint's local-first posture stands up a Keycloak realm from the vendor's official container image (`quay.io/keycloak/keycloak`; the operator pins the currently-supported stable tag at boot time and updates on the vendor's own upgrade cadence). The container is started in development mode with placeholder admin credentials the harness reads from a project environment file (never committed) and a realm-configuration seed the harness applies through the vendor's `kc.sh import` path or through the admin REST API. The seed carries a placeholder realm name (`example`), a placeholder client id, and placeholder role assignments; nothing that appears in the seed matches any real deployment. The reference asset under `assets/local-container/` names the shape a project's harness follows; the blueprint does not lift a specific compose file, a specific realm name, or a specific client id from any deployment. A project may substitute a persistent scratch service, a shared team-level container, or an alternate stand-up path (a system-installed Keycloak, a devcontainer, a Kubernetes namespace) as long as the resulting realm satisfies the discovery-endpoint shape and the client-configuration expectations REQ-002 and REQ-003 (or REQ-004) name.",
+  "category": "functional",
+  "domain": "verification",
+  "priority": "must",
+  "rationale": "Keycloak is self-hostable and the vendor publishes a container image designed for exactly this purpose; a project that wants runtime-verify against a real realm can stand one up per test suite and tear it down without paying for a cloud tenant. Committing to the official image (with an operator-chosen tag) keeps the mechanism upgradeable on the vendor's cadence rather than pinning a specific version in the blueprint. Placeholder-only seeds keep the blueprint's tree free of any deployment-shaped signal.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:09-local-stand-up"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

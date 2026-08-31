@@ -1,0 +1,45 @@
+{
+  "usId": "security-auth-keycloak-US-11108",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Refresh rotates the stored refresh token; realm invalid_grant invalidates the session",
+  "asA": "operator whose session has been active long enough for the access token to expire",
+  "iWant": "the flow controller to refresh through the realm's token endpoint and honour the realm's rotation model",
+  "soThat": "the session continues without a re-sign-in until the realm signals invalidation",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11108-1",
+      "description": "A refresh call rotates the stored refresh token: the pre-refresh value is discarded and the realm's new value is stored.",
+      "given": "a session issued from US-11101 whose access token has been marked expired by the test-injected clock and whose stored refresh token is `rt-old`",
+      "when": "the next protected-route request triggers the flow controller's refresh path against the local realm",
+      "then": "the flow controller issues a POST to the realm's `token_endpoint` with `grant_type=refresh_token` and `refresh_token=rt-old`; the realm returns a 2xx carrying a new `access_token` and a new `refresh_token=rt-new`; the session record now stores `rt-new` and no other refresh-token value; the pre-refresh `rt-old` is not present in the session record or the audit log",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11108-2",
+      "description": "A 400 `invalid_grant` on refresh invalidates the session handle and emits a `keycloak.refresh_invalidated` audit event.",
+      "given": "the same session and a stored refresh token the realm is configured to refuse (a revoked token; the local Keycloak container's realm has revoke-on-refresh-reuse or a reuse-token detection turned on, or the test-injected mock returns 400 invalid_grant for the presented token)",
+      "when": "the flow controller invokes the refresh path",
+      "then": "the flow controller invalidates the session handle, clears the associated refresh-token chain, and emits one structured audit event `keycloak.refresh_invalidated` carrying realmSlug and session-handle-hash and no token value; the next protected-route request with the original cookie is refused as unauthenticated",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11108-3",
+      "description": "A realm configuration that does not return a refresh token is supported; no refresh call is attempted and the session lives out its own project-lifetime.",
+      "given": "a realm record whose client configuration is set to omit refresh_token (a bearer-only client, or a client with refresh tokens disabled)",
+      "when": "the sign-in from US-11101 completes and the access-token expiry passes on the test-injected clock",
+      "then": "the session record's refresh-token slot is empty; the flow controller does not attempt a refresh call; the session's own project-lifetime expiry (per the session-bridge, in opaque-handle mode) is the sole grant duration; a protected-route request past the project-lifetime expiry is refused as unauthenticated",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1202-security-auth-keycloak-jwt-verifier"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

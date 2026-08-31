@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1204-security-auth-keycloak-session-vs-token-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Keycloak owns tokens; the project chooses opaque-handle session or stateless bearer per realm record",
+  "context": "Keycloak's ownership of the token stream is not negotiable within this blueprint's vendor commitment; the realm mints access, id, and refresh tokens and the project verifies them. What the project can choose is the shape of any application session it layers on top. The vendor-neutral sibling committed to opaque-handle sessions uniformly because it could not rely on the underlying provider for revocation; a Keycloak-committed blueprint has the realm's revocation clock available and can honestly support a stateless posture where the operator prefers it.",
+  "decision": "The realm record carries a `sessionMode` field with two legal values: `opaque-handle` (the default) and `stateless`. Under `opaque-handle`, the session-bridge issues an opaque-handle cookie (`Secure`, `HttpOnly`, `SameSite=Lax`); the server-side session record stores the Keycloak-minted access token, id_token, and (if issued) refresh token keyed by the handle; the browser never holds a provider-minted token; the reduced Principal is what handlers read from `request.auth`. Under `stateless`, no server-side session record is kept; every request re-verifies the access token from a bearer source the operator declares on the record (`bearerSource: 'authorization-header' | 'cookie:<name>'`); the reduced Principal is derived per request from the verified token and no session cookie is issued by the mechanism (a project may still issue its own out-of-band session for unrelated reasons, but the auth mechanism does not). Provider tokens are never exposed on `request.auth` in either mode; only the reduced Principal (`principalId`, `provider`, `email?`, `roles[]`, `organisationIds[]`) crosses outward.",
+  "consequences": "The reference wiring is opaque-handle: it works out of the box on any Node HTTP framework, matches the sibling blueprints' pattern, and gives the project cheap sign-out (one delete on the session record). The stateless posture matches deployments where the operator has committed to bearer-per-request verification (a service tier, a public API surface behind an API gateway that itself terminates the browser session, a strict-no-cookie environment). Naming the mode on the record makes the trade a paper-trailed decision. The two modes are not composable per realm record; a project that needs both patterns on different routes declares two realm records (potentially against the same realm) with distinct `sessionMode` values and routes through the provider-router seam.",
+  "alternativesConsidered": [
+    {
+      "name": "Opaque-handle only (mirror the sibling blueprints uniformly)",
+      "summary": "Every session is server-side; no stateless posture.",
+      "reasonNotChosen": "Fights the operational reason a project might choose Keycloak in the first place. A deployment on a stateless service tier that wants Keycloak-issued JWTs verified per request and no cookie shape is a legitimate posture; refusing it in the mechanism would drive that project to hand-wire the verification outside the blueprint and lose the ship-gate observability."
+    },
+    {
+      "name": "Stateless only (JWT in cookie, browser holds the JWT)",
+      "summary": "Every request carries the Keycloak-minted JWT in a cookie; no server-side session record.",
+      "reasonNotChosen": "Leaks the provider token surface into every browser side-channel; a compromised cookie is a lifted Keycloak token whose only revocation clock is the realm's expiry timer. Opaque-handle is the safer default for the common small-project deployment shape."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

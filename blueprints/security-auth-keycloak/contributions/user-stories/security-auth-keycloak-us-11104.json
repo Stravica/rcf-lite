@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-keycloak-US-11104",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Expired or forged access tokens are refused with distinct stable-coded reasons",
+  "asA": "operator whose project receives an access token that fails one of the standard invariants",
+  "iWant": "the JWT verifier to refuse the token before it can lift into a Principal",
+  "soThat": "no session is issued and no protected route runs against an unverified identity",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11104-1",
+      "description": "A token whose `exp` claim is in the past is refused with `KEYCLOAK_JWT_EXPIRED` and no session is issued.",
+      "given": "a JWT verifier warm against the realm's JWKS and an access token whose `exp` claim was minted 60 seconds before the test-injected clock's current time",
+      "when": "the verifier is invoked",
+      "then": "the response is a 4xx with body error code `KEYCLOAK_JWT_EXPIRED`; no session cookie is set on the response; the audit log records one `keycloak.jwt_refused` event carrying realmSlug and reason class `expired` and no token value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11104-2",
+      "description": "A token signed under a key not published by the realm at any point in the test's window is refused with `KEYCLOAK_JWT_SIGNATURE_INVALID` after exactly one JWKS refresh.",
+      "given": "a JWT verifier and a token signed by a key that was never on any JWKS response the realm returned",
+      "when": "the verifier is invoked",
+      "then": "the verifier observes one JWKS refresh against the injected httpFetch, then refuses the token with `KEYCLOAK_JWT_SIGNATURE_INVALID`; no session cookie is set; the audit log records one `keycloak.jwt_refused` event carrying realmSlug and reason class `signature`; the reason class is `signature`, not `kid-unknown` (the kid appears in JWKS; the signature under that kid does not verify)",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1202-security-auth-keycloak-jwt-verifier"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

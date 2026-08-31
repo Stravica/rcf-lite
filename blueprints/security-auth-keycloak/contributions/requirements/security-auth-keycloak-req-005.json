@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-005",
+  "prdId": "PRD-001",
+  "title": "A provider-routing seam lets a project's middleware decide which issuer to consult per request",
+  "description": "The blueprint contributes a provider-router seam (TAC-1204) that a project's own middleware layer invokes on every authenticated request to answer one question: for this request, which configured realm record (or, at the operator's option, which other OAuth2/OIDC issuer the project may have declared elsewhere in its own middleware chain) is the authoritative source of identity? The seam is a pure function on the request shape: `route(request) -> { realmSlug, verificationMode }` or the sentinel `notThisIssuer` when the routing decision hands off to a middleware layer above this blueprint's mechanism reach. The seam does NOT itself name any second issuer; the blueprint is Keycloak-committed and the seam's role is to make explicit the ONE point in the request-processing chain where a project that has chosen to consult two issuers can wire that decision. A project that has only Keycloak configured wires the seam to a constant realmSlug and the mechanism is unchanged. The routing decision is expressed in generic OAuth2/OIDC vocabulary (a header the middleware layer inspects, a request-path prefix, a claim on a preflight token) and refuses to embed any concrete deployment shape.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A project may sit in a deployment where a receiving system's request stream carries tokens issued by more than one server. The blueprint stays vendor-committed to Keycloak: it does not name a second issuer, it does not describe a specific dual-provider integration, and it does not contribute an ADR that fixes what the second issuer is. What it does contribute is the seam a project's own middleware needs when it holds that decision: the SHAPE of the routing function and the exact seam location in the request-processing chain. Naming this seam explicitly, in generic vocabulary, is the ratified provider-aware install-design shape; without it, a project that had that need would hand-wire the decision somewhere in its handlers where the ship gate cannot see it, and every downstream reader of the codebase would guess where the routing lived.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:05-provider-routing"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

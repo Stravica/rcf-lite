@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1202-security-auth-keycloak-verification-mode-choice",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Verification mode is a per-realm-record choice between JWKS (default) and RFC 7662 introspection",
+  "context": "Keycloak clients issue either JWT access tokens (verifiable off-line against the realm's JWKS) or opaque access tokens (verifiable only through the RFC 7662 introspection endpoint). The choice is made at the Keycloak client configuration layer (Access Token Signature vs Bearer-only clients using opaque handles) and each has legitimate operational reasons. A blueprint that fixes one mode fights half the deployments. A blueprint that lets a project mix modes at random inside one realm record blurs the mechanism.",
+  "decision": "The realm record carries a `verificationMode` field with two legal values: `jwks` (the default) and `introspection`. The verifier reads the field once per verification and dispatches to the JWT verifier (TAC-1202) or the introspection client (TAC-1203) accordingly. A single realm record carries a single mode; a project whose realm has both kinds of clients declares one realm record per client and routes through the provider-router seam (REQ-005). The default is JWKS because JWKS is cheap on the hot path and matches the more common Keycloak client configuration; introspection is opt-in per record.",
+  "consequences": "The verifier stays single-branched inside one realm record. The role adapter (TAC-1205) reads roles from the verified claims in both modes (the introspection response body is claim-shaped identically to the id_token payload for role-carrying paths). The operator's mode choice is legible on the record and does not require a code path change to swap; a realm reconfigured from JWT to opaque tokens is a `verificationMode` field flip on the record plus a discovery re-fetch (introspection_endpoint appears on discovery in both modes but its use only matters in introspection mode). Runtime-verify covers both modes; the JWKS path binds against a real local Keycloak container and the introspection path binds against a local stub responder (or a second local realm configured for opaque tokens, per project preference).",
+  "alternativesConsidered": [
+    {
+      "name": "JWKS only (fix the mode at the mechanism layer)",
+      "summary": "Refuse to support introspection at all; every client must be configured to issue JWTs.",
+      "reasonNotChosen": "Excludes deployments that legitimately prefer opaque tokens (some regulated environments require server-side revocation reflection with no JWT-in-flight window). Fixing a mode at the mechanism boundary is exactly the vendor-lock this blueprint is designed to accept for Keycloak specifically, not for token shape."
+    },
+    {
+      "name": "Introspection only (fix the mode at the mechanism layer)",
+      "summary": "Every access token is verified through the introspection endpoint on every request.",
+      "reasonNotChosen": "Trades a documented performance property for one policy uniformity. Introspection is one HTTP round-trip per verification against the realm; the hot-path cost is unacceptable on any deployment where the JWKS-cached path would satisfy the operator's revocation posture."
+    },
+    {
+      "name": "Auto-detect the mode from the token shape at first receipt",
+      "summary": "Peek at the token; if it parses as a JWT with valid header, run JWKS; otherwise run introspection.",
+      "reasonNotChosen": "The mode is not the token's decision to make; it is the realm operator's. Auto-detect makes the mechanism reason about the operator's realm configuration in code rather than on the record, and a realm reconfigured mid-deployment would flip modes without a paper trail. Naming the choice on the record makes it observable and reviewable."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

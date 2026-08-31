@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-002",
+  "prdId": "PRD-001",
+  "title": "OIDC discovery against the Keycloak realm's well-known endpoint drives the endpoint record",
+  "description": "The project reads the realm's discovery document from `<issuerBaseUrl>/realms/<realm>/.well-known/openid-configuration` at boot (or at a cached refresh cadence when the operator prefers a background refresh) and populates the realm record's endpoint fields from it: `authorization_endpoint`, `token_endpoint`, `userinfo_endpoint`, `jwks_uri`, `introspection_endpoint`, `end_session_endpoint`, `issuer`. The record shape the project maintains carries `{ realmSlug, issuerBaseUrl, realmName, clientId, clientSecret (server-only), verificationMode ('jwks' | 'introspection'), roleClaimShape ('client-roles' | 'realm-roles'), scopes[], redirectUri, providerLogout ('redirect' | 'none') }`. A realm whose discovery fetch fails at boot follows the fail-safe posture in REQ-011; a realm whose discovery response omits any endpoint the chosen `verificationMode` depends on is refused at boot with a stable-coded error naming the missing field.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Keycloak publishes discovery as a matter of course; a project that reads it at boot inherits the realm's current endpoint shape without having to encode a Keycloak URL layout in project code. A realm operator who moves the deployment or reshapes the URL path (a valid Keycloak configuration option through the realm's `hostname-*` settings) does not require a project code change; the discovery pull refreshes the record. Fail-fast on missing endpoints catches an operator who has enabled JWKS-mode against a client whose realm does not publish `jwks_uri` (a rare misconfiguration but a real one).",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:02-discovery"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

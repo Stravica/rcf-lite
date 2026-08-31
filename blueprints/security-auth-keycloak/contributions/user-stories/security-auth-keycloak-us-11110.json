@@ -1,0 +1,45 @@
+{
+  "usId": "security-auth-keycloak-US-11110",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-010",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sign-out invalidates the project session; realm end-session is a per-record option",
+  "asA": "operator who has signed in through the project's Keycloak-backed sign-in surface",
+  "iWant": "a sign-out request to clear my project session server-side and, when the realm record declares it, redirect to the realm's end-session endpoint",
+  "soThat": "the next request from this browser is unauthenticated regardless of what the realm still holds",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11110-1",
+      "description": "A POST to the sign-out route invalidates the session handle server-side and clears the session cookie in the browser.",
+      "given": "a session issued from US-11101 (opaque-handle mode) and a project route at `POST /auth/sign-out` wired to the flow controller",
+      "when": "the browser dispatches the sign-out request",
+      "then": "the response clears the session cookie (`Set-Cookie` with the cookie name, empty value, `Max-Age=0`, `HttpOnly`, `Secure`, `SameSite=Lax`); the session-record store no longer holds a record for the pre-signout session handle; the next protected-route request replaying the pre-signout cookie value is refused as unauthenticated",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11110-2",
+      "description": "When a realm record sets `providerLogout: 'redirect'` and discovery has `end_session_endpoint`, sign-out returns a 302 to that endpoint.",
+      "given": "a realm record whose declaration sets `providerLogout: 'redirect'`, a discovery response carrying `end_session_endpoint`, and a session issued against that realm",
+      "when": "the sign-out route is invoked",
+      "then": "the response status is 302; the `Location` header equals the discovered `end_session_endpoint` with the configured `post_logout_redirect_uri` and, when the id_token is available on the session record, the `id_token_hint` query parameter carrying the raw id_token; the session cookie is cleared on the same response; the session record is deleted",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11110-3",
+      "description": "A realm record with `providerLogout: 'redirect'` whose discovery response omits `end_session_endpoint` refuses boot with `KEYCLOAK_LOGOUT_NOT_DECLARED`.",
+      "given": "a realm-config record whose `providerLogout` is `'redirect'` pointed at a discovery document that lacks the `end_session_endpoint` field",
+      "when": "the discovery client's boot fetch completes",
+      "then": "the process terminates with error code `KEYCLOAK_LOGOUT_NOT_DECLARED` naming the realm slug; no listener is left running; the audit log records one `keycloak.discovery_refused` event carrying realmSlug and reason class `logout-endpoint-missing`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1201-security-auth-keycloak-discovery-client"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

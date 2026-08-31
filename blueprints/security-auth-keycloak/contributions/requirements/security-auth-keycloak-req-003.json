@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-003",
+  "prdId": "PRD-001",
+  "title": "JWT verification via JWKS with a rotation cache is the default verification mode",
+  "description": "When the realm record's `verificationMode` is `jwks` (the default), the JWT verifier reads the realm's public key set from the `jwks_uri` on the discovery record and validates every access token (and every id_token) against it before any session issue or downstream authorisation check. Verification checks: signature valid under a key from JWKS resolved by the token's `kid`; `iss` equality against the discovery record's `issuer`; `aud` containment of the record's `clientId` (or, for realm-scoped tokens whose `azp` names the client, `azp` equality); `exp` in the future by at least one second; `nbf` not in the future; `iat` in the past by no more than `idTokenMaxAgeSeconds` (default 3600). The JWKS is cached by realm slug with a TTL declared on `jwksCacheTtlSeconds` (default 900, see ADR-1205); a `kid` miss triggers exactly one refresh before refusing the token, so a key rotation the realm has published propagates without a process restart. Cache entries are refreshed on TTL expiry from the head of the queue; no verification path blocks on JWKS fetch when a cached entry is still valid.",
+  "category": "functional",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "JWKS-based verification is cheap on the hot path and keeps the realm the sole custodian of signing material. A rotation cache with kid-miss refresh means the realm can roll keys on its own cadence and the project keeps verifying without downtime, without the project code path knowing anything about rotation timing. Fail-safe on kid-miss (one refresh, then refuse) prevents an attacker from flooding an unknown-kid token to force unbounded JWKS fetches.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:03-jwt-verify"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

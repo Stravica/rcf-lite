@@ -1,0 +1,45 @@
+{
+  "tacId": "TAC-1203-security-auth-keycloak-introspection-client",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Keycloak introspection client (RFC 7662)",
+  "purpose": "The verifier the mechanism uses when the realm record's `verificationMode` is `introspection`. Owns the RFC 7662 request shape (HTTP basic auth with `clientId:clientSecret`, `token` form parameter), the response handling, the optional short-lived cache, and the extraction of the verified claim record the role adapter reads.",
+  "responsibilities": [
+    "Issue a POST to the record's `introspection_endpoint` with `Content-Type: application/x-www-form-urlencoded`, `Authorization: Basic <base64(clientId:clientSecret)>`, and body `token=<the-access-token>` (AC-11105-1).",
+    "Parse the response body as JSON per RFC 7662; a response with `active: true` yields the claim record; a response with `active: false` refuses the token with `KEYCLOAK_INTROSPECTION_INACTIVE` (AC-11105-2).",
+    "Refuse a non-2xx response with `KEYCLOAK_INTROSPECTION_ENDPOINT_ERROR` naming the HTTP status class; emit `keycloak.introspection_refused` carrying realmSlug and status class (AC-11105-3).",
+    "Cache the response when the record's `introspectionCacheTtlSeconds` is greater than zero; cache key is a stable hash of the token value (SHA-256 hex prefix, never the token) so the cache does not carry token strings; default TTL is 0 (no cache); AC-11105-1 covers the uncached path.",
+    "Emit one structured audit event `keycloak.introspection_verified` on a 2xx `active: true` carrying realmSlug and no token value (AC-11105-1)."
+  ],
+  "internalStructure": "One factory function producing an introspect closure over the discovery client (for the endpoint), an injected `httpFetch`, an injected clock, and an injected auditSink. The optional cache is a Map keyed by the token-hash whose value is `{ claims, cachedAt }`; entries evict on TTL expiry from the read path.",
+  "interfaces": [
+    {
+      "name": "discoveryClient",
+      "kind": "read-api",
+      "description": "TAC-1201's exported endpoint-record accessor for `introspection_endpoint`."
+    },
+    {
+      "name": "httpFetch",
+      "kind": "read-api",
+      "description": "Process HTTP-fetch port."
+    },
+    {
+      "name": "clock",
+      "kind": "read-api",
+      "description": "Injected time source."
+    },
+    {
+      "name": "auditSink",
+      "kind": "callback",
+      "description": "Structured-event sink; never invoked with a token value."
+    }
+  ],
+  "dependencies": [
+    { "name": "Discovery client", "kind": "tac", "tacId": "TAC-1201-security-auth-keycloak-discovery-client", "description": "Provides the introspection endpoint from discovery." }
+  ],
+  "tradeoffs": "The introspection round-trip is expensive on the hot path; the optional cache lets an operator on a high-issuance realm claw back some of the cost at the price of a bounded revocation-reflection delay. Hashing the token as the cache key defends against a leaked cache dump: nothing on disk (or in a warmed memory dump) is a token; the hash cannot be exchanged. Refusing on non-2xx keeps the mechanism from falling back to a permissive posture when the endpoint is misbehaving.",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

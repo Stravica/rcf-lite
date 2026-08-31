@@ -1,0 +1,45 @@
+{
+  "usId": "security-auth-keycloak-US-11102",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Discovery is fetched at boot from the realm's well-known endpoint; missing endpoints refuse boot",
+  "asA": "operator wiring a project against a Keycloak realm",
+  "iWant": "the discovery client to read the realm's well-known configuration and populate the endpoint record",
+  "soThat": "the project's other TACs read Keycloak endpoints from the realm's own declaration rather than from hardcoded URLs",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11102-1",
+      "description": "At boot the discovery client fetches `<issuerBaseUrl>/realms/<realm>/.well-known/openid-configuration` and populates the record's endpoint fields from the response.",
+      "given": "a realm-config record with `realmSlug='r1'`, `issuerBaseUrl='http://127.0.0.1:<port>'`, `realmName='example'`, `verificationMode='jwks'` and a local Keycloak container reachable at that base URL",
+      "when": "the process boots and the discovery client runs its boot-time fetch",
+      "then": "the record has fields `authorizeUrl`, `tokenUrl`, `userinfoUrl`, `jwksUri`, `introspectionEndpoint`, `endSessionEndpoint`, and `issuer` populated from the discovery response; a `keycloak.realm_healthy` audit event is emitted carrying `realmSlug='r1'`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11102-2",
+      "description": "The discovery client refreshes on the record's `discoveryRefreshSeconds` cadence; a refresh failure logs a warning event but does not flip a healthy realm to unhealthy.",
+      "given": "a healthy realm from AC-11102-1 with `discoveryRefreshSeconds=60`",
+      "when": "the test-injected clock advances 61 seconds and the discovery endpoint is momentarily made to return a 503 for one request",
+      "then": "the refresh attempt is observed against the test-injected httpFetch; a `keycloak.discovery_refused` warning-class audit event is emitted; the realm's health stays `healthy` and the previous endpoint record continues to serve; the next successful refresh emits `keycloak.discovery_refreshed`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-11102-3",
+      "description": "A realm record whose `verificationMode` requires an endpoint the discovery response does not carry refuses boot with a stable-coded error.",
+      "given": "a realm record with `verificationMode='introspection'` pointed at a discovery response whose body omits the `introspection_endpoint` field",
+      "when": "the discovery client's boot fetch completes",
+      "then": "the process terminates with error code `KEYCLOAK_DISCOVERY_MISSING_ENDPOINT` naming the realmSlug and the missing field `introspection_endpoint`; no listener is left running; the audit log records one `keycloak.discovery_refused` event carrying realmSlug and reason class `missing-endpoint`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1201-security-auth-keycloak-discovery-client"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

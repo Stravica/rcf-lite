@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-keycloak-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Opaque-token introspection via the RFC 7662 endpoint is the alternate verification mode",
+  "description": "When the realm record's `verificationMode` is `introspection`, the verifier calls the realm's `introspection_endpoint` on every presented access token, presenting the record's `clientId` and `clientSecret` via HTTP basic auth per RFC 7662 section 2.1. A response with `active: true` is treated as verified and the response's claim record is the identity source; a response with `active: false` or a non-2xx status refuses the token with a stable-coded reason. Introspection is expensive on the hot path (one HTTP round-trip per verification) so the mode is opt-in per realm record; the introspection response MAY be short-lived cached under the record's `introspectionCacheTtlSeconds` (default 0 for no cache; the operator raises it when their realm's issuance rate makes the round-trip cost visible). This is the seam that lets the receiving system co-exist with another OAuth2 or OIDC provider a project's own middleware layer routes to: an introspection endpoint speaks the same RFC 7662 shape whether the issuer is Keycloak or some other conforming server, so a project may reach for the introspection path where its middleware has chosen to consult a non-Keycloak issuer without changing the vocabulary this blueprint owns.",
+  "category": "functional",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "Some Keycloak client configurations issue opaque tokens rather than JWTs, and some projects prefer introspection for the stronger revocation guarantee (a JWT is valid until expiry; an introspection endpoint reflects revocations in real time). Making mode a per-record field keeps the mechanism symmetric across the two verification paths and lets a project mix modes across realms if the deployment has more than one. The RFC 7662 shape is standards-tracked and generic; the seam is described in that vocabulary rather than as an integration to any specific non-Keycloak issuer.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:04-introspection"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}
