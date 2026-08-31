@@ -88,6 +88,47 @@ test('apply-time band gate refuses a REQ contribution outside the library AC ban
   assert.ok(!manifest.blueprints || manifest.blueprints.length === 0);
 });
 
+test('library apply stamps libraryPrefix on the applied-blueprint record', async () => {
+  const root = await scaffoldProject();
+  const source = await writeBlueprint(root, {
+    slug: 'auth-oauth2',
+    contributions: [{ kind: 'req', id: 'REQ-50201', path: 'req.json', body: reqBody('wsd-auth-oauth2-REQ-50201') }],
+  });
+  const { tree } = await walkTree({ projectRoot: root });
+  const result = await applyBlueprint({
+    projectRoot: root, tree, source, now,
+    displaySource: 'wsd:auth-oauth2',
+    effectiveSlug: 'wsd-auth-oauth2',
+    libraryPrefix: 'wsd',
+    libraryBands: { ac: { start: 50000, end: 59999 } },
+  });
+  assert.equal(result.applied, true, `unexpected: ${JSON.stringify(result)}`);
+  const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  assert.equal(manifest.blueprints.length, 1);
+  const record = manifest.blueprints[0];
+  assert.equal(record.slug, 'wsd-auth-oauth2');
+  assert.equal(record.source, 'wsd:auth-oauth2');
+  assert.equal(record.libraryPrefix, 'wsd', `libraryPrefix not stamped: ${JSON.stringify(record)}`);
+});
+
+test('shelf apply does not stamp libraryPrefix on the applied-blueprint record', async () => {
+  const root = await scaffoldProject();
+  const source = await writeBlueprint(root, {
+    slug: 'spa',
+    contributions: [{ kind: 'req', id: 'spa-REQ-101', path: 'req.json', body: reqBody('spa-REQ-101') }],
+  });
+  const { tree } = await walkTree({ projectRoot: root });
+  const result = await applyBlueprint({
+    projectRoot: root, tree, source, now,
+    displaySource: 'spa',
+  });
+  assert.equal(result.applied, true, `unexpected: ${JSON.stringify(result)}`);
+  const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  const record = manifest.blueprints[0];
+  assert.equal(record.slug, 'spa');
+  assert.equal(record.libraryPrefix, undefined, `libraryPrefix leaked onto a shelf apply: ${JSON.stringify(record)}`);
+});
+
 test('apply-time band gate refuses an ADR contribution outside a declared suffix block', async () => {
   const root = await scaffoldProject();
   const adrBody = {
