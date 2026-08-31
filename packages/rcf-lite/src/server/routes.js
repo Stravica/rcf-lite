@@ -1,9 +1,10 @@
-// HTTP route table for the live-view server. Only five routes are served:
+// HTTP route table for the live-view server. Routes served:
 // GET /              -> rendered page (text/html)
 // GET /events        -> SSE stream (text/event-stream)
 // GET /style.css     -> shipped stylesheet
 // GET /mermaid.min.js-> vendored mermaid runtime
 // GET /live-client.js-> phase 3.8 live client script
+// GET /scope.json    -> deep-link scope resolver (w-2026-08-30-dave-020)
 // Everything else -> 404 text/plain.
 //
 // No CORS headers, no cache headers on static assets beyond what the
@@ -25,6 +26,10 @@ const MIME = {
  * @property {string} stylePath
  * @property {string} mermaidPath
  * @property {string} liveClientPath
+ * @property {((req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => Promise<void>|void)} [scope]
+ *           Deep-link scope handler (w-2026-08-30-dave-020). Optional so
+ *           the router stays usable in tests that mount only the static
+ *           routes without a project root.
  */
 
 /**
@@ -72,6 +77,15 @@ export function createRouter(deps) {
     }
     if (path === '/live-client.js') {
       serveFile(res, deps.liveClientPath, MIME.js).catch((err) => fail(res, err));
+      return;
+    }
+    if (path === '/scope.json') {
+      if (typeof deps.scope !== 'function') {
+        res.writeHead(404, { 'content-type': MIME.txt });
+        res.end('not found\n');
+        return;
+      }
+      Promise.resolve(deps.scope(req, res)).catch((err) => fail(res, err));
       return;
     }
 

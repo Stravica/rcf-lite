@@ -733,3 +733,45 @@ footer {
   details.doc-details > .req-body,
   details.doc-details > .us-body { padding: 0.75rem 1rem; }
 }
+
+/* --------------------------------------------------------------------
+ * Deep-link scope overlay (w-2026-08-30-dave-020)
+ *
+ * When body.rcf-scoped is present the client has applied a URL-driven
+ * scope (blueprint / node). Everything inside #rcf-live-content is
+ * dimmed except:
+ *   - .rcf-in-scope         a doc that IS in the scope set
+ *   - .rcf-scope-ancestor   an ancestor of an in-scope doc (kept full
+ *                           strength so the drill-down chain is legible)
+ *   - .rcf-customised       an in-scope doc whose bytes differ from
+ *                           the shipping blueprint source (a project
+ *                           customisation over the applied contribution)
+ *
+ * Left visible-but-dimmed rather than hidden so the reader can see
+ * where in the tree the scoped set sits.
+ * -------------------------------------------------------------------- */
+
+body.rcf-scoped #rcf-live-content [data-doc-id]:not(.rcf-in-scope):not(.rcf-scope-ancestor) {
+  opacity: 0.28;
+  transition: opacity 120ms ease-in-out;
+}
+body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope {
+  opacity: 1;
+  outline: 2px solid #4c9a2a;
+  outline-offset: 2px;
+}
+body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
+  outline-color: #d68f00;
+  box-shadow: 0 0 0 3px rgba(214, 143, 0, 0.18);
+}
+
+#rcf-scope-banner {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #d68f00;
+  background: #fff7e6;
+  color: #6b4300;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+#rcf-scope-banner a { color: #b03a2e; text-decoration: underline; }
