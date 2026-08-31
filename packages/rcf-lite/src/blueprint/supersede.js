@@ -14,13 +14,20 @@
 // This is what makes option 3 as printed by the reshaped conflict
 // message executable VERBATIM from the refused-add state: the operator
 // runs `rcf define blueprint supersede <topic> --incoming <source>` immediately
-// after the refused add, with zero prep; the verb loads the incoming
-// blueprint from disk, finds its scope:global ADR on <topic>, stamps
-// the id into the incoming blueprint's namespace, and uses that
-// {slug, adrId} as the second side of supersedes[]. Round-2 shipped
-// with the writer requiring 2 already-applied ADRs, which meant option
-// 3 as printed exited 2 in the refused-add state; the escalation the
-// worker adapted around was that AC-1002-5 could not pass as written.
+// after the refused add, with zero prep; the verb resolves the incoming
+// source through `resolveBlueprintSource` (the SAME resolver `add`
+// uses, so `@stock/<slug>`, bare kebab slugs, colon-qualified library
+// refs, and filesystem paths are all accepted here just as they are on
+// `add`), loads the incoming blueprint from disk, finds its
+// scope:global ADR on <topic>, stamps the id into the incoming
+// blueprint's namespace, and uses that {slug, adrId} as the second
+// side of supersedes[]. Round-2 shipped with the writer requiring 2
+// already-applied ADRs, which meant option 3 as printed exited 2 in
+// the refused-add state; the escalation the worker adapted around was
+// that AC-1002-5 could not pass as written. The `--incoming` argument
+// was subsequently fed directly to `loadBlueprint`, which understands
+// paths only — a newcomer who intuited the `@stock/<slug>` form from
+// `add`'s help hit a refusal. Persona re-run 2026-08-31 arc-4, H2.
 //
 // Two side effects, both governed by dryRun:
 //   1. Writes the project ADR file (JSON, minimally valid — the operator
@@ -46,11 +53,12 @@
 import { mkdir, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { rcfError } from '../core/errors/index.js';
+import { isRcfError, rcfError } from '../core/errors/index.js';
 import { loadBlueprint } from './loader.js';
 import { updateManifest } from './manifest-writer.js';
 import { stampId } from './namespace.js';
 import { nextResolutionId } from './resolutions.js';
+import { resolveBlueprintSource } from './shelf-resolver.js';
 
 /**
  * @typedef {object} SupersedeResult
@@ -79,9 +87,16 @@ import { nextResolutionId } from './resolutions.js';
  * @param {Date} [args.now]
  * @param {boolean} [args.dryRun]
  * @param {string} [args.reason]
+ * @param {(source: string, opts: { projectRoot: string }) => Promise<import('./shelf-resolver.js').ResolvedSource | import('../core/errors/index.js').RcfError>} [args._resolveSource]
+ *   Test-only injection point; production callers omit this and the
+ *   shared `resolveBlueprintSource` runs. Mirrors the same DI on
+ *   `view/scope.js` so a hermetic test can exercise the `@stock/` and
+ *   colon-qualified branches without staging the packaged shelf or a
+ *   library registry.
  * @returns {Promise<SupersedeResult | import('../core/errors/index.js').RcfError>}
  */
-export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomingSource, now = new Date(), dryRun = false, reason }) {
+export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomingSource, now = new Date(), dryRun = false, reason, _resolveSource }) {
+  const resolveImpl = _resolveSource ?? resolveBlueprintSource;
   if (typeof topic !== 'string' || topic.trim().length === 0) {
     // Schema minLength:1 accepts whitespace-only; the writer refuses
     // it up-front so a whitespace-only topic never lands on disk.
@@ -122,8 +137,27 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
   // incomingSource is informational only (skipped silently unless it
   // would add a distinct {slug, adrId} pair, in which case it is
   // appended for a >= 3-blueprint scenario).
+  //
+  // The incoming source is routed through the SAME resolver `add` uses
+  // (`resolveBlueprintSource`), so `@stock/<slug>`, bare kebab slugs,
+  // colon-qualified library refs, and filesystem paths are all accepted
+  // here just as they are on `add`. Before this routing the verb fed
+  // the raw string directly to `loadBlueprint`, which understands paths
+  // only; a newcomer following the conflict card's own printed remedy
+  // with the ergonomic `@stock/<slug>` form (identical to what `add`
+  // accepted) hit a refusal. Persona re-run 2026-08-31 arc-4, H2.
   if (typeof incomingSource === 'string' && incomingSource.length > 0) {
-    const loaded = await loadBlueprint(incomingSource);
+    const resolved = await resolveImpl(incomingSource, { projectRoot });
+    if (isRcfError(resolved)) {
+      // Wrap the resolver's error under the --incoming banner so the
+      // operator sees which flag failed.
+      return rcfError({
+        kind: resolved.kind,
+        message: `--incoming ${incomingSource}: ${resolved.message}`,
+        filePath: resolved.filePath,
+      });
+    }
+    const loaded = await loadBlueprint(resolved.resolved);
     if (loaded.kind) {
       // Preserve the loader's own rcfError but drop any 'blueprint: '
       // narrator prefix so the CLI's `[error] blueprint supersede: `
@@ -134,6 +168,15 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
         filePath: loaded.filePath,
       });
     }
+    // For library-qualified sources the applied identity is rewired
+    // under the library prefix (`<libraryPrefix>-<blueprintSlug>`), so
+    // the supersedes[] entry must reference that effective slug and
+    // stamp the ADR id under it — matching what `apply.js` writes to
+    // `manifest.blueprints[].slug`. For shelf / path sources the
+    // blueprint's own slug applies.
+    const effectiveSlug = resolved.kind === 'library'
+      ? resolved.effectiveSlug
+      : loaded.slug;
     let matched = null;
     for (const c of loaded.contributions ?? []) {
       if (c.kind === 'adr' && c.scope === 'global' && c.topic === topic) {
@@ -144,14 +187,14 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
     if (!matched) {
       return rcfError({
         kind: 'usage',
-        message: `--incoming ${incomingSource}: blueprint '${loaded.slug}' declares no scope:global ADR on topic '${topic}'.`,
+        message: `--incoming ${incomingSource}: blueprint '${effectiveSlug}' declares no scope:global ADR on topic '${topic}'.`,
       });
     }
-    const stamped = stampId(matched.id, loaded.slug);
+    const stamped = stampId(matched.id, effectiveSlug);
     if ('error' in stamped) {
       return rcfError({ kind: 'validation', message: `--incoming ${incomingSource}: ${stamped.error}` });
     }
-    const incomingPair = { slug: loaded.slug, adrId: stamped.id, path: `rcf/adrs/${stamped.id.toLowerCase()}.json` };
+    const incomingPair = { slug: effectiveSlug, adrId: stamped.id, path: `rcf/adrs/${stamped.id.toLowerCase()}.json` };
     // Dedupe against the applied side: an incoming blueprint that is
     // also currently applied (unusual — refused-add state means it is
     // NOT applied) would otherwise be double-listed.
