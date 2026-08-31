@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1105-security-auth-oauth2-refresh-token-posture",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Refresh tokens rotate on every exchange and revoke the chain on reuse detection",
+  "context": "Refresh tokens live longer than access tokens; the operational purpose is to keep a session alive without a re-sign-in when the short-lived access token expires. The failure mode this ADR addresses is refresh-token theft: an attacker who lifts a refresh token from anywhere it lives can hold identity indefinitely if the token is not rotated. The industry pattern (RFC 6749 section 10.4; the OAuth 2.0 Security BCP) is rotation-with-reuse-detection: every exchange returns a new refresh token, the previous value is discarded, and the same value seen twice revokes the whole chain.",
+  "decision": "The flow controller rotates refresh tokens on every exchange: the current stored value is replaced by the provider's newly-returned value; the previous value is discarded and not retained anywhere except transiently in the exchange call itself. Presenting the same refresh-token value a second time is a `refresh_token_reuse` signal: the flow controller invalidates the session handle, clears every stored refresh token that shares the chain root, and emits one structured audit event carrying the provider id, the session-handle hash, and the detection timestamp; no token value is emitted. A provider that does not issue refresh tokens is a supported posture: the session lives out its own project-lifetime and no refresh path is exercised.",
+  "consequences": "The trade against a bare posture is a small piece of chain-tracking state (which handles share a chain root) and the audit surface for reuse detection; the win is that a lifted refresh token is a bounded-window attack rather than an unbounded one. A provider that does not respect rotation (returns the same refresh-token value on consecutive exchanges) presents as reuse against this blueprint and revokes the chain; that is the correct posture and any provider that violates rotation is a project-level ADR conversation.",
+  "alternativesConsidered": [
+    {
+      "name": "No rotation (keep the same refresh token across exchanges)",
+      "summary": "The initial refresh token is used until the provider revokes it.",
+      "reasonNotChosen": "Loses the whole point of the reuse-detection defence. Simpler; strictly worse."
+    },
+    {
+      "name": "Rotate but do not revoke on reuse",
+      "summary": "Rotate on every exchange, but treat a reuse presentation as a benign error.",
+      "reasonNotChosen": "Half the defence: the rotation prevents indefinite re-use of a single lifted token, but the reuse signal is ignored. The BCP recommendation is to treat reuse as evidence of theft and revoke."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

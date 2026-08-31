@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1104-security-auth-oauth2-session-bridge-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Provider tokens live server-side; the browser holds an opaque handle only",
+  "context": "The session-bridge chooses between two shapes that both work as sign-in ceremonies. The first: the browser holds an opaque server-issued handle, and provider tokens (access, id, refresh) live on a server-side record keyed by the handle. The second: the browser holds a JWT or a similar structured credential the provider issued, and the server re-verifies on every request. The rcf-lite tier this blueprint targets is small greenfield projects with one deployable and a session-record store that is either in-memory (for a scratch project) or a small table on a persistence blueprint (SQLite or D1). At that tier the opaque-handle shape reads simpler, hides the provider token graph from the browser, and makes sign-out a single delete against the server-side store.",
+  "decision": "The session-bridge issues an opaque-handle cookie; provider tokens (access, id, refresh) are stored on the server-side session record keyed by the handle. The cookie value is neither the access token, the id_token, nor a refresh token; nothing exposed on `request.auth` is a provider token; nothing rendered into the client tier is a provider token. The reduced Principal (`principalId`, `provider`, `email?`, `roles[]`, `organisationIds[]`) is the only claim shape downstream code sees. `principalId` is derived from `{provider.id, subject}` so a user signed in through two providers is two principals unless the project's `enrichPrincipal` hook declares otherwise.",
+  "consequences": "Sign-out is one delete; refresh-token reuse detection is one lookup; a compromised session record has server-side revocation as an option. The trade is a server-side store per session; that store is a project responsibility (in-memory in the reference wiring; a table on a composed persistence blueprint otherwise). A project whose deployable count grows beyond one and whose sessions must be shared across processes is naturally led to a persistence-backed session store; the composition path is clean because the session-bridge injects the store.",
+  "alternativesConsidered": [
+    {
+      "name": "JWT-in-cookie (browser holds a project-signed JWT)",
+      "summary": "The cookie value is a signed JWT the browser round-trips on every request; the session-bridge verifies signature and reads the claims.",
+      "reasonNotChosen": "Common at scale where a stateless server is a hard constraint; carries no server-side revocation without a companion revocation-list mechanism, and puts identity claims on a token the browser holds (a footprint an XSS can lift). The rcf-lite tier does not need the statelessness enough to pay those costs."
+    },
+    {
+      "name": "Provider access token as the cookie",
+      "summary": "The browser holds the provider's access token directly.",
+      "reasonNotChosen": "Leaks the vendor's token surface into every browser side-channel, ties revocation to the vendor's clock, and rules out multi-provider composition (a single cookie shape cannot represent N provider tokens at once)."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,37 @@
+{
+  "usId": "security-auth-oauth2-US-10109",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A second provider drops in through config only; the same flow serves both",
+  "asA": "operator wiring the project against a second identity provider",
+  "iWant": "adding the second provider to be a config-record write with no change to the flow-controller or session-bridge code",
+  "soThat": "the provider abstraction promise the blueprint makes is real, not aspirational",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10109-1",
+      "description": "A round-trip against a second mock OIDC provider added purely by extending the provider-config list issues a project session whose Principal carries the second provider's id.",
+      "given": "the mock provider from US-10101 plus a second mock OIDC provider added to the provider-config module with a distinct `id`, `issuer`, and JWKS; no code change to the flow controller or session-bridge modules",
+      "when": "a browser dispatches `GET /auth/sign-in?provider=<second-id>` and completes the round-trip",
+      "then": "the resulting session's `request.auth.provider` equals the second provider's `id`; `principalId` is derived under the second provider's slug and does not collide with any principalId issued against the first provider even when the underlying `sub` claim value is identical; the flow controller's request log records the redirect and the token exchange against the second provider's URLs, not the first",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10109-2",
+      "description": "A sign-in request whose `provider` query parameter names an id not in the provider-config list is refused before any redirect.",
+      "given": "the two-provider configuration from AC-10109-1",
+      "when": "a browser dispatches `GET /auth/sign-in?provider=nonexistent-id`",
+      "then": "the response is a 4xx with body error code `OAUTH2_PROVIDER_UNKNOWN`; no `Location` header pointing at an authorise endpoint is emitted; no pending-flow record is written",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1102-security-auth-oauth2-provider-adapter",
+    "TAC-1104-security-auth-oauth2-provider-selector"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

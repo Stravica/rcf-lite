@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1102-security-auth-oauth2-provider-abstraction-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The provider-abstraction contract is a fixed record shape, not a per-vendor code path",
+  "context": "A blueprint that spans N provider vendors either scales through an abstraction seam or drifts into per-vendor branches inside the state machine. The proposal that minted this blueprint (round-2 proposal, review outcomes) calls this out explicitly: the authoring effort is in getting the seam right; get it wrong and the blueprint becomes either over-generic (an empty interface no one can implement without inventing every field) or under-generic (a code path per vendor with `if provider.id === 'google'` branches inside the flow controller). Neither serves a project that wants to swap or compose providers.",
+  "decision": "The provider abstraction is a plain data record, not an object with methods. Every provider a project drops in declares `{ id, label, authorizeUrl, tokenUrl, userinfoUrl, issuer?, jwksUri?, clientId, clientSecret, scopes[], redirectUri, flow: 'authorisation-code-pkce', providerKind: 'oidc' | 'oauth2-only', endSessionEndpoint?, providerLogout?: 'redirect' | 'none' | absent, enabled?: boolean }`. The provider adapter (TAC-1102) validates every record at boot; the flow controller (TAC-1101) reads fields from the record on every step; nothing in the state machine branches on the provider's vendor name. Vendor-specific quirks that do not fit the record shape (Google's `hd` claim, GitHub's per-org enforcement, Microsoft's tenant scoping) are the responsibility of vendor-specific companion blueprints if demand arrives; the v1 contract is deliberately narrow.",
+  "consequences": "Adding a provider is a config-record write, not a code edit. A project may compose N providers on one deployment; the code path is identical for each. The trade is that vendor-specific claims (Google's `hd`, Microsoft's tenant `tid`) are inaccessible through the reduced Principal unless the project authors an `enrichPrincipal` hook; that is the intended posture. A vendor whose surface diverges from the record shape (an obscure IdP that omits the standard scopes-and-endpoints vocabulary) is a project-level ADR conversation, not a mechanism change here.",
+  "alternativesConsidered": [
+    {
+      "name": "Object interface with methods (`buildAuthorizeUrl`, `exchangeCode`, `verifyIdToken`)",
+      "summary": "Every provider implements a class that overrides the interface.",
+      "reasonNotChosen": "Pushes the state machine into every provider; the flow controller becomes a passthrough. That inverts the intended locus of control: the state machine is the point of consistency, and putting per-provider code in the flow shape means every provider re-implements the invariants. The record shape puts consistency in one place."
+    },
+    {
+      "name": "Discovery-only (read RFC 8414 metadata at boot)",
+      "summary": "Read `/.well-known/oauth-authorization-server` per provider and let the discovery document declare the endpoints.",
+      "reasonNotChosen": "Fine for providers that publish discovery; useless for the ones that do not, and there are enough of both to matter. The record shape accepts a discovery-driven boot loader as an implementation choice on the project side: a project may fetch discovery at boot and populate the record; the mechanism above the record does not change."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

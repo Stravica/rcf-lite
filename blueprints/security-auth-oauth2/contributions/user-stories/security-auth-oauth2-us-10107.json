@@ -1,0 +1,46 @@
+{
+  "usId": "security-auth-oauth2-US-10107",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Refresh-token exchange rotates the stored token; a reused token revokes the chain",
+  "asA": "operator whose session has been active long enough for the access token to expire",
+  "iWant": "the flow controller to transparently refresh the stored access token using the stored refresh token",
+  "soThat": "the session continues without a re-sign-in until the project's session lifetime expires",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10107-1",
+      "description": "The refresh-token exchange rotates the stored refresh token: the pre-refresh value is discarded and the provider's new value is stored on the session record.",
+      "given": "a session issued from US-10101 whose access token has been marked expired by the test-injected clock and whose stored refresh token is `rt-old`",
+      "when": "the next protected-route request triggers the flow controller's refresh path",
+      "then": "the flow controller issues a POST to the provider's `tokenUrl` with `grant_type=refresh_token` and `refresh_token=rt-old`; the provider returns a new `access_token` and new `refresh_token=rt-new`; the session record now stores `rt-new` and no other refresh-token value; the pre-refresh `rt-old` is not present in the session record or the audit log",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10107-2",
+      "description": "A second refresh attempt presenting the pre-rotation value revokes the session and emits a `refresh_token_reuse` audit event.",
+      "given": "the session and refresh-token-rotation from AC-10107-1 have completed and `rt-old` is captured in the test",
+      "when": "the test injects a refresh call presenting `rt-old` at the flow controller",
+      "then": "the flow controller invalidates the session handle, clears every stored refresh token that shares the same chain root, and emits one structured audit event `oauth2.refresh_token_reuse` carrying the provider id, the session-handle hash, and the detection timestamp; the event carries no token value; the next protected-route request with the original cookie is refused as unauthenticated",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10107-3",
+      "description": "A provider that does not return a refresh token on the token exchange is a supported configuration; no refresh-related record is stored.",
+      "given": "a mock provider configuration that omits `refresh_token` on the token response",
+      "when": "the sign-in completes and the session record is inspected",
+      "then": "the session record's refresh-token slot is empty; the flow controller does not attempt a refresh call on any subsequent request against this session; the session's own project-lifetime expiry (per the session-bridge) is the sole grant duration",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1101-security-auth-oauth2-flow-controller",
+    "TAC-1103-security-auth-oauth2-session-bridge"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

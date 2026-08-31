@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-005",
+  "prdId": "PRD-001",
+  "title": "OIDC identity is verified through the id_token when the provider declares OIDC",
+  "description": "When a provider's declaration carries `providerKind: oidc`, the token-exchange response is expected to carry an `id_token` (a signed JWT). The flow controller verifies the id_token against the provider's `jwksUri` before any downstream consumption: signature validation with a key resolved from JWKS by the token's `kid`, `iss` equality against the provider's `issuer`, `aud` containment of the provider's `clientId`, `exp` in the future by at least one second, `iat` in the past by no more than `idTokenMaxAgeSeconds` (default 3600), and `nonce` equality against the value the flow controller minted onto the authorisation redirect and stored on the pending flow. A missing id_token when the provider declared OIDC is a refuse-fast: the flow terminates with `OAUTH2_MISSING_ID_TOKEN` and no session is issued. A provider declared as `providerKind: oauth2-only` bypasses id_token verification and relies on the userinfo endpoint's response for identity, per REQ-006.",
+  "category": "functional",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "A provider that speaks OIDC lets the flow controller verify identity claims signed by the provider without a network hop after the token exchange; the id_token is the cheapest, strongest identity signal available. A refuse-fast when a declared-OIDC provider omits the id_token catches misconfiguration (a client that requested only OAuth2 scopes, a provider whose `scope=openid` was omitted) that would otherwise silently fall back to userinfo and lose the JWT audit trail. A separate posture for `oauth2-only` providers keeps the mechanism usable against providers (GitHub is the canonical example) whose surface does not include id_token.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:05-id-token"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

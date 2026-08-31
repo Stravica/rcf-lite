@@ -1,0 +1,47 @@
+{
+  "usId": "security-auth-oauth2-US-10101",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A complete authorisation-code + PKCE round-trip issues a project session",
+  "asA": "operator signing in through the project's OAuth2 sign-in surface",
+  "iWant": "the browser to be redirected to the provider's authorise endpoint, to be redirected back with a code, and to end up holding a project session cookie",
+  "soThat": "the project treats me as authenticated on subsequent requests without re-presenting credentials to the provider",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10101-1",
+      "description": "The initial GET on the project's sign-in route redirects to the provider's authorise endpoint with `response_type=code`, a non-empty `code_challenge`, `code_challenge_method=S256`, and a `state` value not present in any prior redirect within the test's observation window.",
+      "given": "a project wired to a mock OIDC provider through the provider-config module and a browser that hits GET `/auth/sign-in?provider=<id>`",
+      "when": "the request is dispatched and the response is inspected",
+      "then": "the response is a 302 to the provider's declared `authorizeUrl`; the location query carries `response_type=code`, `code_challenge` (matches `^[A-Za-z0-9_-]{43,128}$`), `code_challenge_method=S256`, a `state` value distinct from any previously observed value in the test's collector; no `access_type=implicit` or `response_type=token` is present",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10101-2",
+      "description": "The callback with a valid code and matching state redeems the code at the provider's token endpoint using the PKCE verifier and receives an access token plus (for OIDC) an id_token.",
+      "given": "the mock provider has minted an authorisation code for the pending flow keyed by the state value from AC-10101-1",
+      "when": "the browser follows the provider's redirect back to the project's callback route",
+      "then": "the flow controller issues a POST to the provider's `tokenUrl` whose body carries `grant_type=authorization_code`, the returned `code`, `client_id`, `code_verifier` (matching the pending-flow record), and `redirect_uri`; the response is a 2xx with `access_token`; for an OIDC provider the response additionally carries an `id_token`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10101-3",
+      "description": "The callback completes with a Secure HttpOnly session cookie whose value is a project-issued opaque handle, not a provider token.",
+      "given": "AC-10101-2 has completed",
+      "when": "the browser inspects the response cookie jar",
+      "then": "a session cookie declared by the project's session-cookie name (per config) is set with `Secure`, `HttpOnly`, and `SameSite=Lax`; the cookie value does not equal the access token, the id_token, or any refresh token returned by the provider; the value matches the opaque-handle shape declared by the session-bridge",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1101-security-auth-oauth2-flow-controller",
+    "TAC-1102-security-auth-oauth2-provider-adapter",
+    "TAC-1103-security-auth-oauth2-session-bridge"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

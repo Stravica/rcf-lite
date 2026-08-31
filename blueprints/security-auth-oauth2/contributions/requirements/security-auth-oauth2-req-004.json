@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-004",
+  "prdId": "PRD-001",
+  "title": "PKCE with the S256 challenge method is mandatory on every authorisation-code exchange",
+  "description": "Every authorisation redirect includes `code_challenge` derived from a cryptographically random 43-to-128-character `code_verifier` by BASE64URL(SHA256(verifier)), and `code_challenge_method=S256`. The `plain` challenge method is not accepted. The `code_verifier` is stored server-side on the pending-flow record keyed by `state`; it is never sent on the front channel and is never rendered into the client tier. The token exchange POST carries the `code_verifier` verbatim; the flow controller refuses to construct a token-exchange request that does not carry a matching verifier for the pending flow, and refuses to consume a token-exchange response for a `state` whose stored verifier does not match. A provider that refuses the S256 challenge method or that does not appear to enforce PKCE binding at all is a project-level ADR conversation, not a config-flag flip.",
+  "category": "functional",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "The authorisation-code flow without PKCE lets an attacker who intercepts an authorisation code (through a compromised redirect handler, a shared browser environment, or an intermediary proxy) redeem it at the token endpoint without further evidence of possession. PKCE binds the code to a verifier the requester holds; without the verifier the code is unspendable. Mandating S256 excludes the `plain` method that a mis-implemented provider might otherwise accept and that erodes the guarantee to nil.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:04-pkce"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

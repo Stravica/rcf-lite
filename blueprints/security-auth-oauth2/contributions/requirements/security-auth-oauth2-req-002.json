@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-002",
+  "prdId": "PRD-001",
+  "title": "One provider-abstraction contract fixes what a plug-in provider must declare",
+  "description": "Every provider a project drops in is a plain data record on a fixed shape: `id` (project-local stable slug), `label` (operator-visible name), `authorizeUrl`, `tokenUrl`, `userinfoUrl`, `issuer` (OIDC), `jwksUri` (OIDC), `clientId`, `clientSecret` (server-only; the record on the client tier carries a redacted placeholder), `scopes[]`, `redirectUri`, `flow` (fixed to `authorisation-code-pkce` at v1), `providerKind` (`oidc` or `oauth2-only`). A provider whose declaration is missing a required field, or declares `providerKind: oidc` but omits `issuer` or `jwksUri`, is refused at boot with a stable-coded error naming the provider `id` and the missing field. No project code path reasons against the provider's vendor name; every reasoning path reasons against the record's fields.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A provider abstraction that scales beyond two vendors names the shape the code depends on, not the vendors that satisfy it. If the code path branches on `provider.id === 'google'` the mechanism has already lost the promise this blueprint makes. A field-record contract lets the flow controller and the session bridge stay one implementation across every provider a project ever wires; adding a provider is a config-record write, not a code edit. Field-level fail-fast on boot is the mechanism that catches misconfigured records before they surface as a signed-in user whose profile turns out to be blank.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:02-provider-contract"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
