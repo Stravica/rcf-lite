@@ -223,3 +223,93 @@ test('rcf define blueprint library --help prints the library HELP block', async 
   assert.match(res.stdout, /Usage: rcf define blueprint library/);
   assert.match(res.stdout, /--i-have-reviewed/);
 });
+
+// Ownership-check preference: libraryPrefix on the record wins over
+// string-matching `source`. The edge: an operator re-registers a library
+// under a different prefix; string-matching `source: 'wsd:...'` against
+// the new prefix would orphan the record and let the library be removed
+// with applied blueprints still on-tree. The record's libraryPrefix is
+// the ownership fact.
+test('library remove refuses via libraryPrefix on the record even when source does not match the registered prefix', async () => {
+  const project = await scaffoldProject();
+  const lib = await scaffoldLibrary({
+    prefix: 'wsd',
+    blueprintSlug: 'auth-oauth2',
+    bands: { ac: { start: 50000, end: 59999 } },
+    contributions: [{ kind: 'req', id: 'REQ-50101', path: 'req.json' }],
+  });
+  const add = await runBin(project, ['define', 'blueprint', 'library', 'add', lib, '--no-review', '--i-have-reviewed']);
+  assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+  // Hand-write a manifest record whose source does NOT start with 'wsd:'
+  // (as if it was applied under a previously-registered prefix that has
+  // since been renamed) but whose libraryPrefix declares the ownership.
+  const manifestPath = join(project, 'rcf', 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.blueprints = [{
+    slug: 'wsd-auth-oauth2',
+    version: '1.0.0',
+    appliedAt: '2026-09-01T10:00:00Z',
+    source: 'legacy-prefix:auth-oauth2',
+    libraryPrefix: 'wsd',
+  }];
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+  const remove = await runBin(project, ['define', 'blueprint', 'library', 'remove', 'wsd']);
+  assert.notEqual(remove.code, 0, `expected refusal; stdout=${remove.stdout} stderr=${remove.stderr}`);
+  assert.match(remove.stderr, /applied blueprint\(s\) came through 'wsd'/);
+});
+
+// Back-compat: pre-0.5.1 records carry no libraryPrefix. The remove
+// ownership check must still refuse via the `source` prefix fallback so
+// projects on old records are not silently orphaned.
+test('library remove refuses via source-prefix fallback on a pre-field record (no libraryPrefix stamped)', async () => {
+  const project = await scaffoldProject();
+  const lib = await scaffoldLibrary({
+    prefix: 'wsd',
+    blueprintSlug: 'auth-oauth2',
+    bands: { ac: { start: 50000, end: 59999 } },
+    contributions: [{ kind: 'req', id: 'REQ-50101', path: 'req.json' }],
+  });
+  const add = await runBin(project, ['define', 'blueprint', 'library', 'add', lib, '--no-review', '--i-have-reviewed']);
+  assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+  const manifestPath = join(project, 'rcf', 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.blueprints = [{
+    slug: 'wsd-auth-oauth2',
+    version: '1.0.0',
+    appliedAt: '2026-09-01T10:00:00Z',
+    source: 'wsd:auth-oauth2',
+  }];
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+  const remove = await runBin(project, ['define', 'blueprint', 'library', 'remove', 'wsd']);
+  assert.notEqual(remove.code, 0, `expected refusal; stdout=${remove.stdout} stderr=${remove.stderr}`);
+  assert.match(remove.stderr, /applied blueprint\(s\) came through 'wsd'/);
+});
+
+// libraryPrefix wins the other way too: a record stamped 'wsd' is NOT
+// removable by a `library remove otherprefix` even if source happens to
+// start with 'otherprefix:'. Guards against a stale source string
+// masquerading as ownership.
+test('library remove does not refuse for a record whose libraryPrefix names a different library', async () => {
+  const project = await scaffoldProject();
+  const otherLib = await scaffoldLibrary({
+    prefix: 'other',
+    blueprintSlug: 'auth-oauth2',
+    bands: { ac: { start: 60000, end: 69999 } },
+    contributions: [{ kind: 'req', id: 'REQ-60101', path: 'req.json' }],
+  });
+  const addOther = await runBin(project, ['define', 'blueprint', 'library', 'add', otherLib, '--no-review', '--i-have-reviewed']);
+  assert.equal(addOther.code, 0, `addOther stderr: ${addOther.stderr}`);
+  const manifestPath = join(project, 'rcf', 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.blueprints = [{
+    slug: 'wsd-auth-oauth2',
+    version: '1.0.0',
+    appliedAt: '2026-09-01T10:00:00Z',
+    source: 'other:auth-oauth2',
+    libraryPrefix: 'wsd',
+  }];
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+  const remove = await runBin(project, ['define', 'blueprint', 'library', 'remove', 'other']);
+  assert.equal(remove.code, 0, `expected clean remove; stdout=${remove.stdout} stderr=${remove.stderr}`);
+  assert.match(remove.stdout, /removed 'other'/);
+});

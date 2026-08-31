@@ -49,6 +49,13 @@ import { nextResolutionId } from './resolutions.js';
  *        record, so `rcf define blueprint remove wsd-auth-oauth2` reads back
  *        cleanly. `namespaceOverride` still wins over `effectiveSlug` if both
  *        are set (operator explicitly chose a different namespace).
+ * @param {string} [args.libraryPrefix] - the registered library prefix the
+ *        blueprint was resolved through (spec §5.3, §7.3). When set the applied
+ *        record carries a `libraryPrefix` field so `rcf library remove`'s
+ *        ownership check reads the ownership fact off the record itself
+ *        rather than string-matching `source`. Absent for shelf and path
+ *        applies. Requires @stravica-ai/rcf-schemas 0.5.1 or later
+ *        (`appliedBlueprintRecord.libraryPrefix`, additive optional).
  * @param {{ ac: { start: number, end: number }, suffixBlocks?: Array<{ kind: string, start: number, end: number }> }} [args.libraryBands]
  *        Declared bands from the resolved library. When set, every stamped
  *        contribution is band-gated before write; a contribution whose numeric
@@ -72,7 +79,7 @@ import { nextResolutionId } from './resolutions.js';
  *        prove the rollback runs. Never used in production.
  * @returns {Promise<ApplyResult | import('../core/errors/index.js').RcfError>}
  */
-export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryBands, resolveDeclarations, now = new Date(), dryRun = false, _copyFileForTest }) {
+export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryPrefix, libraryBands, resolveDeclarations, now = new Date(), dryRun = false, _copyFileForTest }) {
   const hintSource = typeof displaySource === 'string' && displaySource.length > 0 ? displaySource : source;
   const blueprint = await loadBlueprint(source);
   if (blueprint.kind) return blueprint; // RcfError
@@ -256,11 +263,12 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
   // carries the qualified typed ref for library-resolved blueprints
   // (`wsd:auth-oauth2`) so `rcf define blueprint upgrade` reads back
   // cleanly (spec §5.3); local-path applies carry the absolute path as
-  // today. The optional `libraryPrefix` field named in spec §5.3 is a
-  // schema-additive change on `appliedBlueprintRecord` (the record's
-  // schema is `additionalProperties: false`); it is deferred and
-  // tracked in the PR description as a follow-up so the shape lands as
-  // a coordinated schemas + rcf-lite bump.
+  // today. When the apply resolved through a registered external
+  // library the record additionally carries `libraryPrefix`: the
+  // ownership fact for the library-registered ownership check in
+  // `rcf library remove`, so the registry may be edited (renamed,
+  // re-pointed, unregistered) without orphaning previously applied
+  // records. Shelf and path applies carry no `libraryPrefix`.
   const recordSource = typeof displaySource === 'string' && displaySource.length > 0 && displaySource !== source
     ? displaySource
     : source;
@@ -270,6 +278,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
     appliedAt: now.toISOString(),
     source: recordSource,
     ...(namespaceOverride ? { namespace: namespaceOverride } : {}),
+    ...(typeof libraryPrefix === 'string' && libraryPrefix.length > 0 ? { libraryPrefix } : {}),
     ...(writtenContributions.length > 0 ? { contributions: writtenContributions } : {}),
   };
   const manifestResult = await updateManifest({

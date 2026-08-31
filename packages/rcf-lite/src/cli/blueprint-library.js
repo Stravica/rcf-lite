@@ -313,13 +313,26 @@ async function handleRemove({ args, parsed, projectRoot, stdout, stderr }) {
     return 2;
   }
   // Refuse when any applied blueprint on the project came through the
-  // library. Signal: `manifest.blueprints[].source` starts with `<prefix>:`.
+  // library. The ownership fact lives on the record itself as
+  // `libraryPrefix` (stamped at apply-time when the apply resolved
+  // through this registry). Records applied before the field shipped
+  // (@stravica-ai/rcf-schemas 0.5.1) carry no `libraryPrefix`; for
+  // those we fall back to the pre-field signal, `source` starting with
+  // `<prefix>:`. Preferring the record over the string match makes the
+  // ownership durable across registry edits: a library re-registered
+  // under a different prefix does not orphan the records applied under
+  // the previous prefix.
   const { tree, errors } = await walkTree({ projectRoot });
   if (errors.length > 0) {
     for (const e of errors) stderr.write(`[tree] ${e.kind}: ${e.message}\n`);
     return 2;
   }
-  const referring = (tree.manifest?.blueprints ?? []).filter((b) => typeof b.source === 'string' && b.source.startsWith(`${libraryPrefix}:`));
+  const referring = (tree.manifest?.blueprints ?? []).filter((b) => {
+    if (typeof b.libraryPrefix === 'string' && b.libraryPrefix.length > 0) {
+      return b.libraryPrefix === libraryPrefix;
+    }
+    return typeof b.source === 'string' && b.source.startsWith(`${libraryPrefix}:`);
+  });
   if (referring.length > 0) {
     stderr.write(`[error] blueprint library remove: ${referring.length} applied blueprint(s) came through '${libraryPrefix}':\n`);
     for (const r of referring) stderr.write(`  ${r.slug} <- ${r.source}\n`);

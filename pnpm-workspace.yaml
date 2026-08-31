@@ -1,5 +1,8 @@
 packages:
   - "packages/*"
+minimumReleaseAgeExclude:
+  - '@stravica-ai/rcf-schemas@0.5.1'
+
 # Reserved slot for the future rcf-define-lite workspace package.
 # See docs/2026-08-06_packaging-consolidation-proposal.md (target layout section).
 # The `packages/*` glob above will pick it up when the directory is created;

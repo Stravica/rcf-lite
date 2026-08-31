@@ -211,10 +211,14 @@ export async function main(argv, deps = {}) {
       // the library prefix and forward the library's declared bands
       // for the apply-time gate (spec §5.3, §8.3). The qualified typed
       // ref is passed as `displaySource` so the applied record's
-      // `source` field carries it verbatim (spec §5.3).
+      // `source` field carries it verbatim (spec §5.3). The library
+      // prefix is stamped onto the applied record so the ownership
+      // fact for `rcf library remove` lives on the record itself
+      // rather than being re-derived by string-matching `source`.
       ...(resolved.kind === 'library' ? {
         displaySource: resolved.original,
         effectiveSlug: resolved.effectiveSlug,
+        libraryPrefix: resolved.libraryPrefix,
         libraryBands: resolved.libraryBands,
       } : {}),
       resolveDeclarations: resolveDeclarations.value,
