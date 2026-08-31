@@ -1,0 +1,45 @@
+{
+  "usId": "persistence-data-d1-US-13102",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-d1-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Schema evolution ships as numbered forward-only migration files under a wrangler-managed directory",
+  "asA": "operator who needs deploys reproducible from a git ref with no schema state outside version control",
+  "iWant": "every schema change to be a new numbered `.sql` file under the wrangler-configured migrations directory, applied by the wrangler CLI",
+  "soThat": "the schema shape at any deployed version can be read from the committed files and the vendor's own tooling is the single applier",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13102-1",
+      "description": "The migrations directory named on the D1 binding (`migrations_dir` in the project's wrangler config; default `migrations/`) exists in the source tree and contains one `.sql` file per shipped migration. Each filename begins with a monotonic integer that is unique across the directory; the file body is engine-native SQL.",
+      "given": "the source tree at any commit that produces a running Worker",
+      "when": "the migrations directory is listed and each filename's leading integer is extracted",
+      "then": "the sequence of leading integers is strictly increasing with no duplicates, every file has a non-empty SQL body, and no file in the directory falls outside the wrangler-configured pattern",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13102-2",
+      "description": "Running `wrangler d1 migrations list <database> --local` against a fresh local D1 lists every file in the migrations directory as unapplied; running `wrangler d1 migrations apply <database> --local` applies them in order and a subsequent `list` reports zero unapplied.",
+      "given": "a fresh local D1 (no prior applies) and the migrations directory from AC-13102-1",
+      "when": "the `list` then `apply` then `list` sequence runs against the local database",
+      "then": "the first `list` prints every migration file as unapplied, the `apply` exits zero, and the second `list` prints zero unapplied migrations",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-13102-3",
+      "description": "The D1 bookkeeping table configured on the binding (`migrations_table`; default `d1_migrations`) holds one row per applied migration, keyed by the filename or its leading integer, after `wrangler d1 migrations apply` completes.",
+      "given": "the local D1 after the `apply` in AC-13102-2 completes",
+      "when": "the bookkeeping table is read via `wrangler d1 execute <database> --local --command \"SELECT * FROM d1_migrations\"` (or the configured `migrations_table` name)",
+      "then": "the returned row count equals the number of migration files in the directory, and the recorded identifiers match the migration filenames or their leading integers",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1402-persistence-data-d1-migration-catalog"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

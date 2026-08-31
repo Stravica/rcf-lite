@@ -1,0 +1,18 @@
+{
+  "reqId": "email-smtp-resend-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Transport is Resend's SMTP endpoint, credentialed from placeholder-referenced secrets and a placeholder-referenced verified sender address",
+  "description": "The adapter dials Resend's SMTP submission endpoint (host and port declared as configuration references, not literal in-code strings) and authenticates with an SMTP username and an SMTP password sourced from a Secrets Manager slice. The from-address on every outgoing message is a project-configured verified sender address, also sourced from configuration rather than a literal. Three configuration references are named by the adapter: `RESEND_SMTP_USER`, `RESEND_SMTP_PASSWORD`, and `RESEND_FROM_ADDRESS`. The names are references only; the values live in the vendor the project's Secrets Manager resolves against. No SMTP credential, no signing secret, and no real sender domain is ever committed to the repo or embedded in the adapter's code paths.",
+  "category": "functional",
+  "domain": "email",
+  "priority": "must",
+  "rationale": "SMTP over the Resend endpoint keeps the adapter close to a generic SMTP shape a follow-up `email-smtp-<othervendor>` blueprint can sibling cleanly. Sourcing credentials and the sender address through placeholder references defers vendor-side secrets custody to the project's secrets-management posture (composable with the shipped `security-secrets-management` blueprint or with a project-authored equivalent) and keeps this blueprint's on-disk footprint free of secret material.",
+  "tags": [
+    "blueprint:email-smtp-resend",
+    "category:02-transport-and-credentials"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

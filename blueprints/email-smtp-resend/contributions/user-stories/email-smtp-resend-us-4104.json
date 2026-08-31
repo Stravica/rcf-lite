@@ -1,0 +1,45 @@
+{
+  "usId": "email-smtp-resend-US-4104",
+  "prdId": "PRD-001",
+  "reqId": "email-smtp-resend-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A webhook request with a valid signature reaches the downstream handler; a mismatched signature is refused",
+  "asA": "operator whose project accepts webhook posts from the provider",
+  "iWant": "the verifier to gate downstream delivery on a constant-time signature check",
+  "soThat": "fabricated delivery events cannot corrupt the project's event stream",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4104-1",
+      "description": "A webhook POST whose signature header matches the expected signature computed from the request body, the timestamp header, and the configured signing secret reaches the downstream handler; the verifier returns HTTP 200 and the handler observes the parsed event exactly once.",
+      "given": "a running project with a downstream handler that counts invocations, a configured signing secret, and a POST whose signature header carries the signature the verifier computes",
+      "when": "the POST is delivered to the webhook route",
+      "then": "the response status is 200, the handler invocation counter increments by exactly one, and the parsed event delivered to the handler matches the POST body",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4104-2",
+      "description": "A webhook POST whose signature header does not match the expected signature is refused with HTTP 401 and an empty body; the downstream handler is not invoked and a `webhookVerificationFailed` audit event is emitted.",
+      "given": "a running project instrumented to observe the audit sink and a POST whose signature header carries a mismatched value",
+      "when": "the POST is delivered to the webhook route",
+      "then": "the response status is 401, the response body is empty, the handler invocation counter is unchanged, and the audit sink observes exactly one `webhookVerificationFailed` event",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4104-3",
+      "description": "The signing secret does not appear on the response body, on any log line the verifier writes during the call, or on any exception the verifier throws during the call.",
+      "given": "a running project instrumented to capture the verifier's log stream and any thrown exceptions, and a distinctive signing secret the test can byte-scan for",
+      "when": "a mix of matched and mismatched webhook posts is delivered",
+      "then": "no captured response body, log line, or exception message contains the distinctive signing secret substring",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-402-email-smtp-resend-webhook-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,39 @@
+{
+  "tacId": "TAC-1404-persistence-data-d1-recovery-runner",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Recovery runner (Time Travel and export)",
+  "purpose": "The project-side ops surface that exercises D1's two recovery paths without a Worker code change: `wrangler d1 time-travel restore <database> --timestamp=<unix-seconds>` for the in-vendor point-in-time restore path, and `wrangler d1 export <database> --output <artifact> --remote` for the off-vendor portable-artifact path. Emits `backupExported` and `timeTravelRestored` events on the store event log at each invocation.",
+  "responsibilities": [
+    "Invoke `wrangler d1 time-travel restore <database> --timestamp=<unix-seconds>` on operator request; the target database is rewound in place to the recorded state at the named timestamp within the vendor's supported recovery window (AC-13106-1).",
+    "Invoke `wrangler d1 export <database> --output <artifact-path> --remote` on the configured schedule; the artifact file is written to the project-configured destination (a repository asset, an R2 bucket, an object store the project already runs); the artifact is a portable `.sql` file that reloads into a fresh D1 via `wrangler d1 execute --file <artifact-path>` (after stripping BEGIN TRANSACTION / COMMIT statements per the vendor's import guidance) (AC-13106-2).",
+    "Emit `backupExported` and `timeTravelRestored` events on the store event log carrying only store-metadata fields (target database, artifact path, restore timestamp or bookmark, ISO-8601 completion timestamp); never carry values read from domain rows (AC-13106-1, AC-13106-2, AC-13107-1).",
+    "Run entirely from the project's ops or CI surface; require no Worker source change to invoke either path (AC-13106-3)."
+  ],
+  "internalStructure": "A small set of ops-side scripts or CI job steps (project-authored) that invoke the wrangler commands and post events to the project's log sink. The runner shares the facade's onEvent contract (metadata only, no domain values) but does not import the facade module; the two surfaces meet only through the shared event-record shape.",
+  "interfaces": [
+    {
+      "name": "recovery.timeTravelRestore",
+      "kind": "ops-command",
+      "description": "recovery.timeTravelRestore({ database, env, timestamp }) invokes `wrangler d1 time-travel restore` and emits the timeTravelRestored event."
+    },
+    {
+      "name": "recovery.export",
+      "kind": "ops-command",
+      "description": "recovery.export({ database, env, outputPath }) invokes `wrangler d1 export` and emits the backupExported event."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Store facade",
+      "kind": "tac",
+      "tacId": "TAC-1401-persistence-data-d1-facade",
+      "description": "Shares the event-record shape used for backupExported and timeTravelRestored; the runner does not import the facade module at runtime."
+    }
+  ],
+  "tradeoffs": "Time Travel is the vendor's built-in fast path but bounded by the plan's recovery window (7 days on Free, 30 days on Paid at the vendor's currently published limits); an operator whose compliance model needs longer retention runs the export step on a schedule and holds the artifacts off-vendor. The export path is portable at the cost of run time (an export blocks other database requests for the duration per the vendor's current guidance), so schedule it in low-traffic windows. Neither path fully covers the other; the two-path posture is the shape the vendor's tooling produces.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

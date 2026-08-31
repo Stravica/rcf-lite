@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Framework-agnostic middleware boundary contract",
+  "description": "The project integrates Clerk on the server through a middleware boundary whose shape is fixed by the blueprint and whose framework is not. The boundary is a function of the form `verify(request) -> { authenticated: boolean, principal?: Principal, reason?: string }` where `Principal` is the reduced shape from REQ-001. Framework-specific adapters (an Express request handler, a Fastify hook, a Node HTTP wrapper, a Cloudflare Workers fetch handler) are project-authored thin wrappers that delegate to the same underlying verifier; the blueprint does not mandate Express and does not mandate any single HTTP framework, only the shape of the boundary. A request that fails verification is denied at the boundary; a request that passes carries the principal onto the request object under a fixed field name (`request.auth`) for downstream handlers to read.",
+  "category": "technical",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Fixing the shape and leaving the framework open is what lets the blueprint apply cleanly against every Node HTTP framework the rcf-lite tier realistically ships against. A project on Fastify does not have to import Express to consume this blueprint; a project on Workers does not have to shim a Node middleware chain. The stable field name (`request.auth`) is what lets downstream handlers and higher-level authorisation checks read the principal without adapter-specific glue.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:03-middleware-boundary"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

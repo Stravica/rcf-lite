@@ -1,0 +1,46 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12103",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every merge to main produces an uploaded version at a stable preview alias URL",
+  "asA": "reviewer of a merged change",
+  "iWant": "a stable preview URL that always resolves to the newest-of-main uploaded version",
+  "soThat": "I can look at the change on a live surface without waiting for a production promote",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12103-1",
+      "description": "A successful `build-and-upload` CI run on a merge to main leaves the preview alias URL resolving to the version id the run just uploaded, and the version-id URL resolving to the same version permanently.",
+      "given": "a merge to main triggers `build-and-upload` and it exits zero with recorded `versionId` V and `previewAliasUrl` A and `versionIdUrl` U",
+      "when": "an HTTP request hits A and then a second HTTP request hits U within five minutes of the run completing",
+      "then": "both responses carry the `versionSha` field of V's build provenance in the health-probe body, and the two responses agree on that field",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12103-2",
+      "description": "A subsequent merge that produces a new upload W leaves the preview alias URL resolving to W while the version-id URL for the previous version V still resolves to V.",
+      "given": "an upload V behind preview alias A followed by a fresh merge that produces upload W",
+      "when": "requests hit A and the version-id URLs for V and W after W's run completes",
+      "then": "the response at A carries W's `versionSha`; the response at V's version-id URL still carries V's `versionSha`; the two are distinct",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12103-3",
+      "description": "The uploaded version does not serve production traffic; the production URL continues to serve the version that was serving before the upload.",
+      "given": "production is serving version P and a merge lands producing upload W",
+      "when": "the `build-and-upload` run completes and no promote has run",
+      "then": "the production URL's health probe carries P's `versionSha`, not W's",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1303-deploy-cloudflare-workers-preview-url-resolver",
+    "TAC-1301-deploy-cloudflare-workers-deploy-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

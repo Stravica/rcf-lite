@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-clerk-US-9109",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Rate-limiting and anti-enumeration on the sign-in flow are delegated to Clerk",
+  "asA": "operator triggering repeated sign-in attempts",
+  "iWant": "the project to leave rate-limiting and anti-enumeration to Clerk rather than layering a second rate limiter on top",
+  "soThat": "the sign-in surface's rate-limit behaviour is one system's behaviour and does not confuse users with two competing back-off timers",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9109-1",
+      "description": "The project's sign-in surface applies no project-authored rate limiter, throttle, or enumeration defence to the sign-in POST or its equivalent Clerk-initiated flow.",
+      "given": "the project's request-handling surface for the sign-in route(s) that front Clerk's sign-in flow",
+      "when": "a source-tree scan enumerates rate-limit middleware, throttle wrappers, or enumeration-defence checks bound to the sign-in surface",
+      "then": "the scan returns zero matches on the sign-in surface; the same scan on other surfaces (a public API, a webhook receiver) is unaffected by this AC",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9109-2",
+      "description": "Repeated sign-in attempts against the project's Clerk development instance exhibit Clerk's documented rate-limit behaviour, not a project-authored variant.",
+      "given": "a burst of N sign-in attempts (N chosen to exceed Clerk's documented per-address threshold for the strategy) against the project's Clerk-development instance",
+      "when": "the burst is dispatched and the responses are collected",
+      "then": "the observed refusal shape (status code, response body error identifier, retry-after header if any) matches Clerk's documented rate-limit response for the strategy; no project-authored refusal shape appears in the burst",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1001-security-auth-clerk-middleware"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,64 @@
+{
+  "tacId": "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Deploy CI Workflows",
+  "purpose": "The two CI workflow files that operationalise the upload-and-promote model. `build-and-upload` runs on every merge to main and produces an uploaded version at the preview alias URL. `promote` runs only on explicit operator trigger and routes production to a named version id (or the newest-of-main) through the Promote Gate. Both workflows are the project's sole vendor-authenticated ship paths.",
+  "responsibilities": [
+    "Ship a `build-and-upload` workflow file whose trigger set is `push` scoped to the main branch (and any linear-history proxy), with no `pull_request` or `schedule` trigger (AC-12107-1, AC-12104-1).",
+    "The `build-and-upload` workflow checks out the tree at the merged commit, installs pinned dependencies, runs the project build, invokes `deployAdapter.uploadVersion({ previewAlias })`, and writes `versionId`, `versionIdUrl`, `previewAliasUrl` to the workflow's structured output and to the run summary (AC-12103-1, AC-12107-2).",
+    "The `build-and-upload` workflow injects the commit sha, an ISO 8601 build timestamp, and the CI run URL into the built bundle before `uploadVersion` runs; the values become the version's provenance surface (AC-12112-1).",
+    "Ship a `promote` workflow file whose trigger set is exclusively the platform's explicit-manual-trigger primitive (`workflow_dispatch` on GitHub Actions), declaring exactly one input `versionId` typed as an optional string (AC-12104-2, AC-12108-1).",
+    "The `promote` workflow calls the Promote Gate with the input `versionId`; on gate-side success, the workflow's summary carries `promotedVersionId`, `previousVersionId`, `promotedBy`, `promotedAt` (AC-12104-3, AC-12108-2, AC-12108-3).",
+    "Both workflows authenticate to the vendor using named CI secrets (`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` for the default vendor); the secrets are populated only into the vendor CLI's environment; no log line prints either byte sequence (AC-12107-3, AC-12106-2).",
+    "The CI gate that guards both workflows scans the change for wrangler-manifest issues (undeclared bindings, inline secrets, collapsed URLs) before the deploy verbs run; a lint failure refuses the workflow with a stable-coded error (AC-12101-2, AC-12101-3, AC-12105-2, AC-12106-3)."
+  ],
+  "internalStructure": "Two YAML workflow files (GitHub Actions form shipped as an asset under `assets/ci-workflows/`) plus a Node.js orchestration script per workflow that both files invoke. The scripts are the durable form; the YAML files are thin shims that platform-adapt the trigger set and input handling. A project on another CI platform authors platform-native trigger stanzas and calls the same orchestration scripts.",
+  "interfaces": [
+    {
+      "name": "workflowRuntime",
+      "kind": "read-api",
+      "description": "The CI platform's runtime (event context, actor login, workflow inputs, run URL, summary sink, structured-output sink). Consumed by the orchestration scripts."
+    },
+    {
+      "name": "promoteGate",
+      "kind": "read-write-api",
+      "description": "The Promote Gate (TAC-1304) callable; the `promote` workflow invokes it with the resolved `versionId` and the `promotedBy` principal from the workflow runtime."
+    },
+    {
+      "name": "buildStep",
+      "kind": "read-api",
+      "description": "Project-authored build step invoked by `build-and-upload` before `uploadVersion` runs; must produce the artefact the wrangler manifest's `main` points at."
+    },
+    {
+      "name": "secretBinding",
+      "kind": "read-api",
+      "description": "Named CI secrets the workflows read: `CLOUDFLARE_API_TOKEN` (or the operator-chosen vendor token name) and `CLOUDFLARE_ACCOUNT_ID` (or the operator-chosen account-id name); values populate the vendor CLI's environment via the platform's secret-injection primitive."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Deploy Adapter",
+      "kind": "tac",
+      "tacId": "TAC-1301-deploy-cloudflare-workers-deploy-adapter",
+      "description": "The workflows' only path to the vendor: `uploadVersion` from `build-and-upload`, and `promoteVersion` via the Promote Gate from `promote`."
+    },
+    {
+      "name": "Promote Gate",
+      "kind": "tac",
+      "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
+      "description": "The `promote` workflow delegates its full body to the gate; the workflow's role is trigger-set enforcement and input-declaration plumbing."
+    },
+    {
+      "name": "Wrangler Manifest",
+      "kind": "tac",
+      "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+      "description": "The CI gate's pre-flight lint reads the manifest and enforces the shape rules before either workflow's deploy verbs run."
+    }
+  ],
+  "tradeoffs": "The GitHub Actions form is shipped as a first-class asset because it is the CI platform the estate the blueprint targets uses today. A project on GitLab CI, Buildkite, CircleCI, or a self-hosted runner adapts the trigger stanzas and the input primitive; the orchestration scripts stay identical. The trade is a project on a non-GHA platform has to author the platform-native wrapper themselves; the payoff is the durable behaviour is in Node.js, not YAML.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

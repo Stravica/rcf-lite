@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-d1-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Multi-statement writes that require atomicity are issued through the batch surface; the facade never surfaces a partial-batch result",
+  "description": "When the facade needs to commit two or more statements as one unit (a domain operation that writes to more than one table, an insert-then-update pair whose semantics depend on both landing), the facade issues them through `db.batch([<prepared statements>])`. On any statement in the batch failing, the facade surfaces the failure to the caller without surfacing any of the batch's other statement results as though they had committed. Single-statement writes commit as their own transaction; the facade does not synthesise atomicity across independent facade calls, and consumers do not chain facade calls under the assumption that they run in one transaction.",
+  "category": "technical",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "D1 does not expose explicit BEGIN/COMMIT to the Worker binding; `batch()` is the only vendor-supported multi-statement atomicity primitive, and its contract is that a mid-batch failure rolls back the sequence. Naming that surface explicitly at the REQ level puts every domain operation whose correctness depends on multi-statement atomicity on the one path the vendor's contract supports. Refusing to expose partial-batch results means a consumer never has to reason about whether an error is 'some statements landed, some did not'; either the batch committed or it did not.",
+  "tags": [
+    "blueprint:persistence-data-d1",
+    "category:05-batch-atomicity"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

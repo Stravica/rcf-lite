@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-1502-observability-probe-endpoints-handler-set",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Probe handler set",
+  "purpose": "Owns the HTTP handlers each shipped profile binds. Each handler is a pure function of the resolved profile's response contract and the readiness predicate the profile installed. The handler set contains no per-profile branching outside this module; the resolver's profile object selects which handlers get built. The response body is generated strictly from the profile's enumerated response contract, so a field never appears on the wire that the contract did not declare.",
+  "responsibilities": [
+    "Build a liveness HTTP handler that returns the profile's pass response when the event loop is responsive and the profile's fail response otherwise (AC-14101-1, AC-14102-1, AC-14102-2).",
+    "Build a readiness HTTP handler that reads the operator-declared readiness predicate on invocation, returns the profile's pass response when the predicate is pass, and returns the profile's fail response when it is fail (AC-14102-3).",
+    "Build a single-signal health HTTP handler for profiles whose `semanticModel` equals `singleHealthSignal` (loadBalancer, uptimeMonitor, reverseProxy): the same predicate drives one handler whose pass and fail responses respect the profile's response contract, with content-length zero for body-less profiles (AC-14103-3, AC-14105-1, AC-14106-3).",
+    "Build a Kubernetes JSON handler whose parsed body is exactly `{\"status\":\"pass\"}` or `{\"status\":\"fail\"}` and no other keys, refusing at build time a contract that includes a field beyond `status` (AC-14105-2, AC-14106-2).",
+    "Refuse to emit any string on any handler response that matches an operator-declared dependency name, environment name, hostname, replica id, build hash, or commit sha; the response-writer is generated per profile response contract and cannot include a field the contract did not enumerate (AC-14106-1)."
+  ],
+  "internalStructure": "One module exporting a `buildHandlerSet({ profile, readinessPredicate, now })` function. The function returns a `{ handlers }` object whose keys match the profile's resolved probe path set (`/live`, `/ready` for kubernetes; `/health` for loadBalancer; the resolved path for others). Each handler is an async function `(req, res)` that reads the current pass or fail answer, chooses the pass or fail branch of the profile's response contract, and writes the response. The response-writer is a per-profile pure function generated from the contract; there is no shared writer that could accidentally include a field the contract omitted.",
+  "interfaces": [
+    {
+      "name": "buildHandlerSet",
+      "kind": "factory",
+      "description": "buildHandlerSet({ profile, readinessPredicate, now }) -> { handlers }. `profile` is the frozen object from TAC-1501. `readinessPredicate` is a project-supplied `() -> 'pass' | 'fail'` function (default: strict-any-fail over declared dependency cached state). `now` is a `() -> Date` for test isolation. Returns a map of resolved path to stateless async handler. Called once at boot."
+    },
+    {
+      "name": "readinessPredicate",
+      "kind": "read-api",
+      "description": "Project-supplied synchronous function returning the current readiness state as `'pass'` or `'fail'`. The handler set never reads dependency state directly; the predicate boundary is where per-project logic lives."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "profile resolver",
+      "kind": "tac",
+      "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
+      "description": "Reads the frozen profile object this component builds handlers against."
+    }
+  ],
+  "tradeoffs": "The handler-set builder generates one response-writer per profile response contract; there is no polymorphic writer shared across profiles. This costs a small amount of duplication (the pass and fail branches for each profile shape are separate) and buys the invariant that a handler cannot emit a field the profile contract did not enumerate. The alternative (one generic writer that reads a field list at runtime) leaks the field-list surface into every handler and re-opens the class REQ-006 exists to close.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

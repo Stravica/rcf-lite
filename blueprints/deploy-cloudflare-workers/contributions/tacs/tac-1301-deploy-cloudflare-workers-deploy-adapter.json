@@ -1,0 +1,53 @@
+{
+  "tacId": "TAC-1301-deploy-cloudflare-workers-deploy-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Deploy Adapter",
+  "purpose": "The one project module that talks to the deploy vendor. Wraps the vendor's CLI (or SDK) behind a fixed named-verb surface every other module imports. Uploads versions, promotes versions, lists version history, resolves the newest-of-main from the preview alias, and describes any single version's provenance and URLs. Nothing else in the project spawns the vendor CLI or issues a vendor deploy call.",
+  "responsibilities": [
+    "Expose `uploadVersion({ previewAlias })` that uploads the current build to the vendor and returns `{ versionId, versionIdUrl, previewAliasUrl }`; refuse an empty `previewAlias` with `DEPLOY_PREVIEW_ALIAS_REQUIRED` (AC-12102-2, AC-12103-1).",
+    "Expose `promoteVersion({ versionId })` that routes production traffic to the named version and returns `{ promotedVersionId, previousVersionId }`; refuse when `versionId` is absent from `listVersions()` with `DEPLOY_VERSION_NOT_FOUND` (AC-12102-3, AC-12108-3).",
+    "Expose `listVersions()` returning the recent version history with the currently-serving id marked (AC-12109-1).",
+    "Expose `resolveNewestOfMain()` that looks up the version id currently behind the operator-chosen preview alias and returns it (AC-12108-2).",
+    "Expose `describeVersion({ versionId })` returning provenance (`versionSha`, `builtAt`, `ciRunUrl`) and URLs (`versionIdUrl`) for the named version (AC-12112-1, AC-12112-2).",
+    "Refuse a manifest whose production route resolves to the same host as the preview alias URL with `DEPLOY_URL_COLLAPSED` (AC-12105-2).",
+    "Route every CLI invocation through a redactor that scrubs the vendor API token and account id from every emitted log line (AC-12107-3, AC-12106-2)."
+  ],
+  "internalStructure": "One stateless class per process with an injected vendor binding and an injected redactor. The vendor binding is a project-authored module implementing the port in the interfaces block; the default vendor binding shells to the `wrangler` CLI and lives under the same package as the adapter. Every verb is a thin translation from the named surface to a vendor CLI invocation (or SDK call) plus response parsing plus provenance-URL assembly.",
+  "interfaces": [
+    {
+      "name": "vendorBinding",
+      "kind": "read-write-api",
+      "description": "Project-supplied vendor binding implementing `uploadArtefact({ configPath, previewAlias })`, `deployVersion({ versionId })`, `listVersions()`, `getAlias({ alias })`. The default binding shells to `wrangler versions upload --preview-alias <alias>`, `wrangler versions deploy <versionId>`, `wrangler versions list`, and `wrangler versions view <alias>` respectively."
+    },
+    {
+      "name": "redactor",
+      "kind": "callback",
+      "description": "Log-line filter that replaces any bytes matching the vendor API token or account id with a fixed placeholder before emitting; runs on every stdout and stderr line the vendor CLI produces."
+    },
+    {
+      "name": "manifest",
+      "kind": "read-api",
+      "description": "The wrangler-manifest loader (TAC-1302) resolving the current Worker's config, the production route or custom-domain declaration, and the declared binding names."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Wrangler Manifest",
+      "kind": "tac",
+      "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+      "description": "Upstream source of the config the adapter passes to the vendor CLI, and the manifest the collapsed-URL guard reads."
+    },
+    {
+      "name": "Preview URL Resolver",
+      "kind": "tac",
+      "tacId": "TAC-1303-deploy-cloudflare-workers-preview-url-resolver",
+      "description": "Assembles the preview alias URL and version-id URL strings the adapter returns; consulted from `uploadVersion` and `describeVersion`."
+    }
+  ],
+  "tradeoffs": "The adapter is process-local and stateless; every call reaches the vendor. That means a chain of adapter calls in one CI step costs one vendor round-trip per call rather than a shared session. The trade keeps the adapter easy to reason about and easy to reimplement against a different vendor. A project that wants a session-shared invocation supplies a vendor binding whose backing is a long-lived process rather than a CLI spawn per call; the port shape does not change.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

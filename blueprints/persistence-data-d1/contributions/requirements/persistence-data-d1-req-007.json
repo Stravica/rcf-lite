@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-d1-REQ-007",
+  "prdId": "PRD-001",
+  "title": "The store lifecycle event log holds no secret material",
+  "description": "No field on any store lifecycle event (facadeReady, migrationsApplied, backupExported, timeTravelRestored, queryFailed) carries user data, credential material, session handles, token secrets, private keys, or the values of any column marked as secret in the domain schema. Event fields are limited to store metadata: the binding name, environment name, ISO-8601 timestamps, migration version integers, migration filenames, artifact paths, Time Travel bookmarks or timestamps, D1 error codes, and the domain-verb name that surfaced a queryFailed event.",
+  "category": "security",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "The event log is safe to ship to a third-party observability provider only if it holds no secret material. Store events describe the store's own lifecycle, not the domain data it holds; conflating the two produces a log stream a leak turns into a session-takeover breach. Enforcing metadata-only at emit time inside the facade is the only reliable posture; downstream redaction misses cases.",
+  "tags": [
+    "blueprint:persistence-data-d1",
+    "category:07-log-secrecy"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

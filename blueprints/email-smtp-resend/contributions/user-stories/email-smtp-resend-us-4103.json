@@ -1,0 +1,45 @@
+{
+  "usId": "email-smtp-resend-US-4103",
+  "prdId": "PRD-001",
+  "reqId": "email-smtp-resend-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A rate-limited provider triggers bounded jittered retry and returns one adapter result on budget exhaustion",
+  "asA": "operator whose project is receiving rate-limit refusals from the provider",
+  "iWant": "the adapter to retry inside a bounded budget with jittered backoff and then surface one clean failure",
+  "soThat": "a transient rate-limit refusal converts to a bounded delay rather than a retry storm the caller has to defend against",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4103-1",
+      "description": "On a `RESEND_RATE_LIMITED` provider return the adapter retries with exponential backoff and full jitter and stops on either a successful attempt or the configured retry budget, whichever comes first; the number of SMTP submissions equals `1 + observed_retries` and observed_retries is at most the configured budget (default 2).",
+      "given": "a running project instrumented to count SMTP submissions and a provider seam that returns rate-limited on the first attempt and accepts on a later attempt within the budget",
+      "when": "the magic-link route triggers one adapter send",
+      "then": "the submission counter after the adapter returns equals `1 + observed_retries`, `observed_retries` is at least one and at most the configured budget, and the returned object has `ok === true`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4103-2",
+      "description": "When every attempt in the budget window returns rate-limited, the adapter returns exactly one result with `ok: false`, `error` starting with `RESEND_RATE_LIMITED`, and the submission counter equals `1 + configured_budget`.",
+      "given": "a running project with a provider seam that returns rate-limited on every attempt and configured retry budget of 2",
+      "when": "the magic-link route triggers one adapter send",
+      "then": "the adapter returns once, `ok === false`, `error` starts with `RESEND_RATE_LIMITED`, and the SMTP submission counter equals 3",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4103-3",
+      "description": "On a `RESEND_SENDER_UNVERIFIED` or `RESEND_RECIPIENT_REJECTED` provider return the adapter does not retry; the submission counter after the adapter returns equals 1.",
+      "given": "a running project with a provider seam that returns the terminal-invalid class on the first attempt",
+      "when": "the magic-link route triggers one adapter send",
+      "then": "the submission counter equals 1 and the returned object has `ok === false` with `error` starting with the terminal class code",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-401-email-smtp-resend-send-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-402-email-smtp-resend-retry-and-backoff-posture",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Retry is bounded to two attempts on transient classes with exponential full-jitter backoff; terminal classes never retry",
+  "context": "Every mail-adapter default has to pick a retry posture. Unbounded retry against a rate-limited transport is a self-reinforcing failure: every caller retries in lockstep, the transport's throttle escalates, and the outage lengthens. Zero retry surfaces transient network glitches as apparent hard failures the caller has to defend against on its own. The classes the classification table produces split naturally into transient (`RESEND_RATE_LIMITED`, `RESEND_TRANSPORT_ERROR`) and terminal (`RESEND_SENDER_UNVERIFIED`, `RESEND_RECIPIENT_REJECTED`); the retry posture is different for each split.",
+  "decision": "On the transient classes the adapter retries up to a bounded budget (default 2 retries, project-configurable via a numeric configuration reference; total attempts including the first are therefore at most 3) using exponential backoff with full jitter, base 250ms and cap 8000ms. On the terminal classes the adapter does not retry: it returns one result immediately with the terminal-class code. The budget and the backoff parameters live behind configuration references; a project running under a tighter latency SLA lowers the cap, a project running behind a proxy layer that already retries lowers the budget to zero, without touching the adapter source.",
+  "consequences": "A transient rate-limit refusal converts to a bounded delay (worst-case around 20 seconds across the default budget) rather than a retry storm the caller has to defend against. A terminally-invalid input (an unverified domain, a malformed recipient) surfaces immediately as one adapter return rather than looping into a rate-limit escalation. The budget and cap are ADR-scoped defaults, not blueprint-immutable numbers; a project with a firmer SLA or a heavier proxy retry layer tunes them without an ADR supersede. The full-jitter algorithm chosen is the AWS-reference exponential-backoff-with-full-jitter shape: `sleep = random_between(0, min(cap, base * 2 ** attempt))`. A project that wants a different jitter shape (equal jitter, decorrelated jitter) supersedes this ADR at the project level and swaps the jitter function; the interface the retry loop consults (`retryClock`) is factored out to support the swap.",
+  "alternativesConsidered": [
+    {
+      "name": "No retry at any layer inside the adapter",
+      "summary": "The adapter returns the first result verbatim; every caller decides its own retry policy.",
+      "reasonNotChosen": "Pushes a decision the caller almost never varies onto every caller, and lets each caller diverge on a class the transport itself treats as retryable. The class distinction is a property of the provider, not a property of the caller; centralising it in the adapter is the correct scope."
+    },
+    {
+      "name": "Unbounded retry until first success",
+      "summary": "Loop until the provider accepts.",
+      "reasonNotChosen": "Turns rate-limit refusal into a self-reinforcing outage. The bounded budget with jitter is the standard defence and is what every well-behaved SMTP-consumer library ships."
+    },
+    {
+      "name": "Retry on the terminal classes as well",
+      "summary": "Retry every non-success return regardless of class.",
+      "reasonNotChosen": "Wastes budget on an outcome the provider has already classified as invalid, and risks an unverified-sender loop tripping the provider's rate limiter. The class distinction is the point of the classification table."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

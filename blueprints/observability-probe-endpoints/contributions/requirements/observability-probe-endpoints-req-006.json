@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-probe-endpoints-REQ-006",
+  "prdId": "PRD-001",
+  "title": "No internal identifier is exposed on any external-visible probe response",
+  "description": "The probe response, on every profile that emits a response payload, contains no dependency name, no environment name (dev, staging, live), no hostname, no replica id, no database identifier, no queue name, no internal URL, no build hash, no commit sha, no numeric metric value, no dependency count, no latency measurement, no error rate. The response is bounded to the fields REQ-005 enumerates for the profile and to the resolved status code. A profile that adds any field beyond that set is refused by the profile validator at boot with a stable-coded error naming the offending field.",
+  "category": "security",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "The probe endpoint is the surface the external supervisor reaches; on public HTTP profiles that surface is also reachable by anyone who resolves the traffic host. Fingerprinting a service by its probe body is a documented reconnaissance step; every internal identifier on the response feeds it. The invariant is enforced by the profile shape, not by author discipline: a body richer than pass or fail fails the validator, not code review.",
+  "tags": [
+    "blueprint:observability-probe-endpoints",
+    "category:06-external-secrecy"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

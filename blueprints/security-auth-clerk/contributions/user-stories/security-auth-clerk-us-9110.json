@@ -1,0 +1,37 @@
+{
+  "usId": "security-auth-clerk-US-9110",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The project runtime does not create, update, or delete users or organisations on Clerk",
+  "asA": "operator running the deployed application",
+  "iWant": "the project's request lifecycle to leave user and organisation management to Clerk's own surfaces",
+  "soThat": "identity state has one authoritative home and the project does not accumulate a split-brain user table that drifts from Clerk",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9110-1",
+      "description": "A source-tree scan finds no request-lifecycle call to Clerk's user-create, user-update, user-delete, organisation-create, organisation-update, or organisation-delete Backend API endpoints outside a project-authored provisioning script directory.",
+      "given": "the project's source tree after the blueprint's TACs are realised",
+      "when": "a scan enumerates every call to Clerk's Backend API mutation endpoints",
+      "then": "every match resolves to a file under a directory conventionally named `scripts/provisioning/` (or the project's declared equivalent); no match resolves to a request handler, a middleware, or a runtime module served by the project's HTTP surface",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9110-2",
+      "description": "The middleware's session verifier and claims mapper do not mutate Clerk state as a side effect of verification; a scan of the session verifier module finds no calls to Clerk Backend API mutation endpoints.",
+      "given": "the session verifier module (TAC-1003) and the claims mapper module (TAC-1004) after the blueprint's TACs are realised",
+      "when": "a scan enumerates every Clerk SDK call the two modules make",
+      "then": "every match resolves to a read-shaped operation (session verification, organisation membership lookup); no match resolves to a Clerk mutation endpoint",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1001-security-auth-clerk-middleware",
+    "TAC-1003-security-auth-clerk-session-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1303-deploy-cloudflare-workers-preview-vs-production",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Preview URLs (per-version-id + stable alias) and production URL are distinct addressable surfaces; the promote step is what changes which one production maps to",
+  "context": "The failure mode this ADR closes is the collapsed URL: a project where the reviewer of a merged change and the visitor to the deployed application look at the same URL. When the preview surface and the production surface are the same string, every merge is a production act, review is what happens after users notice, and rollback is a second merge landing before enough users notice. The vendor's own primitive shape supports keeping them distinct: every uploaded version has a permanent per-version-id URL and a mutable stable-alias URL that can be pointed at the newest-of-main; production is the mapped custom domain (or the workers.dev production host) whose current version id changes only on an explicit deploy verb.",
+  "decision": "The blueprint mandates three URL kinds per Worker, all distinct hostnames, all discoverable through the Deploy Adapter's `deploy status` verb: (1) a per-VERSION-ID URL, unique per upload, permanent, useful for pinning a change-review link; (2) a STABLE PREVIEW ALIAS URL fixed to an operator-chosen alias string (the common default is `main`), always resolving to the newest-of-main uploaded version, useful for a persistent stakeholder-shareable link; (3) a PRODUCTION URL, declared under the wrangler manifest's `route`/`routes`/`workers_dev`/custom-domain stanza, changing which version it maps to only when a `promote` workflow runs. The Preview URL Resolver (TAC-1303) assembles the first two and refuses any alias string whose assembled host segment equals the production URL's host segment. The manifest loader refuses a wrangler config whose production route resolves to the preview alias URL host with `DEPLOY_URL_COLLAPSED`.",
+  "consequences": "Reviewers and stakeholders reach the newest-of-main at a persistent, memorable URL that never masquerades as production. Users hit production at a hostname that only changes version behind an explicit operator act. Change-review links are pinnable to a specific version id and never rot. The trade is one Worker now surfaces three URLs the project has to reason about (and the operator has to explain once when a new engineer joins); the payoff is the class of leaks-through-collapsed-URL is closed by the manifest's own validation, not by discipline.",
+  "alternativesConsidered": [
+    {
+      "name": "Preview alias URL and production URL as the same string with a query parameter switching mode",
+      "summary": "One hostname, `?preview=1` flips to the newest-of-main; production is the default response.",
+      "reasonNotChosen": "The query-parameter mode is trivially forgettable and does not survive a link-shortener, an email quoting, or a browser that strips query strings. The class of leak this ADR closes reopens exactly when the operator hands out the URL to someone who does not add the query parameter."
+    },
+    {
+      "name": "Per-version URLs only; no stable alias URL",
+      "summary": "Every upload gets a URL; the stable-shareable-review-URL story is 'copy the URL from the CI run'.",
+      "reasonNotChosen": "The per-version-id URL is essential for pinning a change; the stable alias URL is essential for a persistent 'the latest' surface stakeholders can bookmark. Shipping only the first fails the persistent-review use case; the vendor's own primitive supports both cheaply so both ship."
+    },
+    {
+      "name": "Preview URL = production URL under a special header",
+      "summary": "One hostname; the vendor routes to the newest-of-main when a specific request header is set (a signed cookie, an auth-only bypass).",
+      "reasonNotChosen": "Same class as the query-parameter option: the mode is invisible to the URL string and non-portable across link handoffs. It also couples the preview surface to an auth model that may not exist on day one."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

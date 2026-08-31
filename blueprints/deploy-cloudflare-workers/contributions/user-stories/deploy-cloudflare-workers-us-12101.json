@@ -1,0 +1,45 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12101",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The repo-root wrangler manifest is the sole declaration of the Worker's deploy shape",
+  "asA": "operator reading a fresh repo",
+  "iWant": "one file at the repo root that declares the Worker name, entry, compatibility settings, and every binding",
+  "soThat": "the deploy shape is legible without reading CI scripts or a vendor dashboard",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12101-1",
+      "description": "A `wrangler.toml` (or `wrangler.jsonc`) exists at the repo root, parses as valid config, and its top-level object carries `name`, `main`, `compatibility_date`, and every binding block the Worker's runtime code references.",
+      "given": "a fresh clone of a repo that has applied the blueprint and realised the manifest",
+      "when": "a manifest loader parses the file",
+      "then": "the loader returns a config object whose `name` is a non-empty string, `main` resolves to an existing entry file, `compatibility_date` matches `\\d{4}-\\d{2}-\\d{2}`, and every binding name referenced from the Worker's source appears as a declaration key in the config",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12101-2",
+      "description": "A CI gate scans the Worker's source tree for references to bindings (env accessors keyed by binding name) and refuses the build when a referenced binding name has no matching declaration in `wrangler.toml`.",
+      "given": "a change adds `env.NEW_KV.get(...)` to the Worker source and does not add `NEW_KV` to `wrangler.toml`",
+      "when": "the CI gate runs on the change",
+      "then": "the run fails with a stable-coded `WRANGLER_BINDING_UNDECLARED` error naming the offending source path and the missing binding name",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12101-3",
+      "description": "The manifest never carries a secret VALUE; a source-tree scan across every file that could contribute a bound value at deploy time (the wrangler config, any `.env`-shaped file the deploy step reads, any CI environment block committed to the repo) finds no match for any value the secrets contract resolves.",
+      "given": "the secrets contract resolves a set of secret values `V` for the current environment",
+      "when": "a redaction-scanner runs against `wrangler.toml`, any committed environment file, and the CI workflows",
+      "then": "no file in the scanned set contains any byte sequence in `V`",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

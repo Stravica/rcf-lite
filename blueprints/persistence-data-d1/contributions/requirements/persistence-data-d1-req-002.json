@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-d1-REQ-002",
+  "prdId": "PRD-001",
+  "title": "The store schema evolves through numbered forward-only migration files managed by the wrangler CLI",
+  "description": "Schema evolution is expressed as a directory of numbered `.sql` migration files under the project-side migrations folder configured in the wrangler binding (`migrations_dir`). Each file's leading version integer is monotonic and unique; the file body is engine-native SQL. Applying migrations is the wrangler CLI's responsibility (`wrangler d1 migrations apply <database> --env <target>`), which tracks applied versions in the D1-side bookkeeping table configured by `migrations_table` (default `d1_migrations`). The project's source tree does not carry a hand-rolled migration runner; the wrangler CLI is the runner.",
+  "category": "technical",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "D1 is a managed service whose vendor tooling already owns the migration surface (create/list/apply plus a bookkeeping table). Layering a project-side runner on top duplicates the vendor's contract and forces a project to reconcile two sources of truth on 'has this migration applied'. Delegating to wrangler keeps the vendor's bookkeeping authoritative, the migration file shape portable to any project reading these docs, and the deploy pipeline the one place migration application is orchestrated.",
+  "tags": [
+    "blueprint:persistence-data-d1",
+    "category:02-migration-catalog"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,46 @@
+{
+  "usId": "observability-probe-endpoints-US-14102",
+  "prdId": "PRD-001",
+  "reqId": "observability-probe-endpoints-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A Kubernetes-supervised replica is probed at /live and /ready on the request-traffic listener with no operator configuration",
+  "asA": "kubelet running a probing loop against a pod that applied the blueprint with no explicit configuration",
+  "iWant": "the pod to answer HTTP GET probes at /live and /ready on the container's request-traffic port immediately after boot",
+  "soThat": "the standard Kubernetes livenessProbe and readinessProbe of shape httpGet: { path: /live, port: <containerPort> } and httpGet: { path: /ready, port: <containerPort> } work without further wiring",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14102-1",
+      "description": "A running process on the shipped Kubernetes default answers GET /live with status 200 whenever the event loop is responsive.",
+      "given": "a process booted on the shipped `kubernetes` profile default with no operator override, running normally with its event loop responsive",
+      "when": "an unauthenticated GET is issued against `/live` on the request-traffic listener port",
+      "then": "the response status code is 200 and the JSON body equals `{\"status\":\"pass\"}`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14102-2",
+      "description": "The liveness handler on the shipped Kubernetes default performs zero downstream network calls per probe hit.",
+      "given": "a network-egress observer attached to the liveness handler on a process running the shipped `kubernetes` default",
+      "when": "a GET is issued against `/live`",
+      "then": "the observer records zero egress connections attributable to the handler between request receipt and response send",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-14102-3",
+      "description": "A running process on the shipped Kubernetes default answers GET /ready with 200 when the operator-declared readiness predicate is pass and 503 when it is fail.",
+      "given": "a process booted on the shipped `kubernetes` profile default with a readiness predicate wired against a stubbed dependency state",
+      "when": "the stubbed state is set to pass and a GET is issued against `/ready`, then the stubbed state is set to fail and a GET is issued again",
+      "then": "the first response has status 200 and body `{\"status\":\"pass\"}`; the second response has status 503 and body `{\"status\":\"fail\"}`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1502-observability-probe-endpoints-handler-set",
+    "TAC-1503-observability-probe-endpoints-listener-topology"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

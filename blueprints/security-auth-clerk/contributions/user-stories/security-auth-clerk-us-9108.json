@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-clerk-US-9108",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The signInStrategy config surface fixes the shape not the choice",
+  "asA": "operator configuring which sign-in strategies the project's Clerk instance offers",
+  "iWant": "a single config record on the project side that names the primary and alternate strategies",
+  "soThat": "changing the enabled strategy set is a config edit and a Clerk-dashboard change rather than a codebase search-and-replace",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9108-1",
+      "description": "The project exposes a single `signInStrategy` config record whose shape is `{ primary: string, alternates: string[] }` and whose values are Clerk's currently-documented strategy identifiers.",
+      "given": "the project's configuration surface at boot",
+      "when": "the sign-in surface reads its strategy configuration",
+      "then": "the surface reads exactly one `signInStrategy` config record; the record's own-property keys are exactly `{primary, alternates}`; `primary` is a non-empty string; `alternates` is an array of strings",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9108-2",
+      "description": "A source-tree scan finds no hard-coded strategy string outside the config module.",
+      "given": "the project's source tree after the blueprint's TACs are realised",
+      "when": "a scan enumerates literal string matches for the strategy identifiers known to Clerk's strategy enumeration at build time",
+      "then": "every match resolves to the single config module or to test fixtures; no sign-in surface, no middleware, no handler carries a hard-coded strategy string",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1001-security-auth-clerk-middleware"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

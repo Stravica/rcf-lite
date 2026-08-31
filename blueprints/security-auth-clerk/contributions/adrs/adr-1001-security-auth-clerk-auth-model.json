@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-1001-security-auth-clerk-auth-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Clerk-hosted identity with server-verified session cookies is the project's authentication model",
+  "context": "A project has one authentication model; the client tier, the server tier, and every operator surface must reason against it. The security-auth-clerk blueprint contributes a Clerk-committed shape of that model: identity, sign-in UX, credential storage, MFA, and account recovery all live at Clerk; the project owns the reduction of a verified session into a principal and the authorisation adapter that speaks in project verbs. A client-tier blueprint (application-spa), a server-tier blueprint (application-api-rest), and every other auth-family blueprint (security-auth-magic-link, security-auth-oauth2 when it ships, security-auth-keycloak when it ships) contribute their own decisions on this topic; blueprint composition surfaces the pairing at add time for the operator to reconcile into one project-level model. That surfacing is intended.",
+  "decision": "The project's authentication model is Clerk-hosted identity. Sign-in is delegated to Clerk's sign-in surfaces (hosted UI or embedded components); credential storage, MFA, account recovery, and sign-in strategy choice are Clerk's concerns. The wire credential is a Clerk-issued session cookie named `__session` (per Clerk's currently-supported cookie contract), Secure, HttpOnly, SameSite=Lax. Server-side middleware verifies the cookie against Clerk's session-verification surface and lifts the resolved claims into a reduced Principal shape the rest of the project reasons against. The project does not own a user table, does not mint credentials, and does not implement sign-in UX beyond wiring the Clerk surface into a route. User and organisation provisioning are Clerk-owned and are read-only from the runtime's perspective (REQ-009). Rate-limiting and anti-enumeration on the sign-in flow are Clerk's (REQ-007).",
+  "consequences": "The project owns the middleware boundary, the session verifier, the claims mapper, and the authorisation adapter; Clerk owns everything else on the identity surface. Vendor swap (from Clerk to a different hosted identity vendor) is a project-level ADR supersede on this topic plus an adapter swap on the middleware and verifier modules; the boundary shape does not change. Composing with another auth-family blueprint (magic-link, OAuth2, Keycloak) conflicts on this topic by design; the expected resolution is one project-level ADR that fixes the identity surface and the credential shape for the whole project. The `accountBound` posture on runtime-verify ACs is explicit: runs without Clerk reachability skip those ACs with a stable-coded reason; passing without a live Clerk session is not an option.",
+  "alternativesConsidered": [
+    {
+      "name": "Passwordless magic-link with server-issued opaque cookie sessions",
+      "summary": "The security-auth-magic-link blueprint's model: mint a single-use token on POST /login, deliver by email, verify on GET /login/verify, issue an opaque-handle session cookie.",
+      "reasonNotChosen": "Valid for projects that want no third-party identity dependency; the trade is that the project owns the principal registry, the email adapter, the rate-limiter, and the anti-enumeration posture. Clerk removes that surface at the cost of a vendor dependency; the blueprint at hand names that trade explicitly."
+    },
+    {
+      "name": "Self-hosted OIDC via Keycloak",
+      "summary": "Run a Keycloak instance the project federates against through the OIDC authorization-code flow.",
+      "reasonNotChosen": "Valid for projects with existing ops capacity and a hard multi-tenant IdP requirement; the container plus realm configuration cost is disproportionate at the rcf-lite tier this blueprint targets. A future security-auth-keycloak blueprint covers that shape and conflicts here on the same topic; the operator resolves at apply."
+    },
+    {
+      "name": "Direct OAuth2 authorization-code flow with a specific external provider (Google, GitHub)",
+      "summary": "Skip a hosted identity vendor; wire OAuth2 directly against one or more social providers.",
+      "reasonNotChosen": "Valid where a project wants exactly one social sign-in and nothing more; the trade is that the project owns token handling, refresh flows, provider quirks, and the principal registry. A future security-auth-oauth2 blueprint covers that shape and conflicts here on the same topic; the operator resolves at apply."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

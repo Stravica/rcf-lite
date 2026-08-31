@@ -1,0 +1,18 @@
+{
+  "reqId": "observability-probe-endpoints-REQ-008",
+  "prdId": "PRD-001",
+  "title": "A change of target integration profile is a configuration change; the source tree does not re-shape",
+  "description": "Switching the target integration from one profile to another (for example, moving a service from a Kubernetes deployment to a Docker Compose deployment behind a load balancer) is expressed as a change to the operator-declared profile name and its per-profile options. The source tree that binds the profile handlers and the profile-resolver call site do not change; the profile shift takes effect on the next process start. A source-tree change is required only when the operator authors a new custom profile or extends the shipped profile set; existing profiles are switched by configuration alone.",
+  "category": "nonFunctional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "The elicitation surface earns its complexity by making the switch cheap. A project that pays for the resolver plus the handler-set indirection at author time must get a configuration-only migration path in return; otherwise the elicitation is theatre. A project that outgrows a profile authors a new one against the profile contract and files it under the custom slot, then changes the profile name in configuration.",
+  "tags": [
+    "blueprint:observability-probe-endpoints",
+    "category:08-profile-swap"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

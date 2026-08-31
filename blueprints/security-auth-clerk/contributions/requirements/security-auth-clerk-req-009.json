@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-clerk-REQ-009",
+  "prdId": "PRD-001",
+  "title": "User and organisation provisioning are read-only from the project's perspective",
+  "description": "Users and organisations are created, updated, and deleted through Clerk's surfaces (the Clerk dashboard, the Clerk sign-up flow, or the Clerk Backend API called from a project-authored provisioning script). The project's runtime does not create, update, or delete users or organisations on Clerk's behalf as part of the request lifecycle; roles and organisation memberships are read from the verified session by the middleware and propagated as read-only fields on the principal. A project that needs to mirror Clerk state into a local table for query purposes does so through a project-authored Clerk-webhook consumer whose contract is out of scope for the blueprint's default (a project that includes one authors one additional TAC and a scope-local ADR).",
+  "category": "technical",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Split-brain identity state (Clerk holds one shape, the project's tables hold a divergent shape) is the failure mode this requirement forecloses. Clerk is authoritative for identity; the project reads. Mirroring is a project decision layered on the read-only floor, not a substitute for it.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:09-provisioning-boundary"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

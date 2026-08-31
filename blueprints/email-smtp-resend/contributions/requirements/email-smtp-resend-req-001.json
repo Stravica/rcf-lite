@@ -1,0 +1,18 @@
+{
+  "reqId": "email-smtp-resend-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The adapter satisfies the mail-adapter interface named by the shipped magic-link blueprint's TAC-504",
+  "description": "The Resend send adapter exposes exactly the `send({ to, subject, textBody, htmlBody })` method the magic-link blueprint's `TAC-504-security-auth-magic-link-email-delivery-adapter` names, and resolves the fixed outcome shape `{ ok, providerStatus, providerMessageId, error }` on every call. No other method is added to the auth-facing surface; provider status codes and provider message ids are normalised into the four declared fields inside the adapter. A project composing this blueprint alongside the magic-link blueprint wires the adapter reference into the auth routes at composition time and calls `adapter.send` directly.",
+  "category": "functional",
+  "domain": "email",
+  "priority": "must",
+  "rationale": "The mail-adapter contract is the mandate the auth flow gates on; this blueprint's only reason to exist is to fill that mandate with a shipped default a project can apply and rely on. A shape that differs from TAC-504 leaves the auth routes unable to call the adapter without a project-authored shim, which defeats the shipped-default posture. Normalising provider-specific vocabulary inside the adapter keeps the auth code provider-neutral.",
+  "tags": [
+    "blueprint:email-smtp-resend",
+    "category:01-mail-adapter-contract"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

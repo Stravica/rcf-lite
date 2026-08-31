@@ -1,0 +1,38 @@
+{
+  "tacId": "TAC-1403-persistence-data-d1-deploy-gate",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Deploy-time migration gate",
+  "purpose": "The CI or ops-side step that runs `wrangler d1 migrations apply <database> --env <target>` strictly before `wrangler deploy --env <target>` for the same environment; refuses to publish a new Worker version when the migration apply fails; emits a structured `migrationsApplied` event on the store event log on each successful apply.",
+  "responsibilities": [
+    "Run `wrangler d1 migrations apply <database> --env <target>` as a step whose completion is a hard prerequisite for the deploy step against the same environment (AC-13103-1).",
+    "Fail the deploy job when the migrations-apply step exits non-zero; do not run `wrangler deploy` against that environment; leave the previously deployed Worker in place (AC-13103-2).",
+    "Emit one `migrationsApplied` event per successful apply carrying the environment name, the database identifier, the applied migration filenames or version integers, and the ISO-8601 completion timestamp; carry no domain-row values (AC-13103-3, AC-13107-1)."
+  ],
+  "internalStructure": "A CI job (GitHub Actions step, or the project's equivalent) whose YAML or configuration is committed alongside the Worker source. The step invokes wrangler via the vendor's own action or via a direct `pnpm exec wrangler d1 migrations apply` call; environment secrets are supplied by the CI credential store, following the discipline the project's secrets management sets. On success, the step invokes the project's event-emission surface with a `migrationsApplied` payload before the deploy step runs.",
+  "interfaces": [
+    {
+      "name": "ciStep.migrationsApply",
+      "kind": "ci-step",
+      "description": "The CI job step that runs `wrangler d1 migrations apply <database> --env <target>`; declared as a prerequisite for the deploy step."
+    },
+    {
+      "name": "ciStep.deploy",
+      "kind": "ci-step",
+      "description": "The CI job step that runs `wrangler deploy --env <target>`; declares the migrations-apply step as its prerequisite (needs, depends-on, or sequential ordering per the CI tool)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Migration catalog",
+      "kind": "tac",
+      "tacId": "TAC-1402-persistence-data-d1-migration-catalog",
+      "description": "The directory the apply step reads; the file set at HEAD determines what the apply attempts."
+    }
+  ],
+  "tradeoffs": "Ordering the apply strictly before the deploy costs a small amount of CI latency per environment (one wrangler invocation, one round trip to the D1 API) in exchange for making the schema-behind-the-code state impossible in production. Projects that need faster CI can parallelise across environments, but never inside one environment's apply-then-deploy sequence. The gate is a project-authored CI file; the blueprint does not ship a CI template, because CI shape is a `ci-pipeline`-adjacent concern the project owns.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

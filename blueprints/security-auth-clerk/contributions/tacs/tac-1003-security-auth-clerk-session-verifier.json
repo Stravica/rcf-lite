@@ -1,0 +1,38 @@
+{
+  "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Clerk session verifier",
+  "purpose": "The one module in the project that speaks to Clerk's session-verification surface. Owns the verification of a `__session` cookie value into either a set of validated Clerk claims or a rejection with a stable failure class. Owns the revocation-observation posture: the verifier does not cache a valid session past its useful life, and it bounds how long a revoked session can continue to satisfy `verifySessionCookie` before the revocation is honoured.",
+  "responsibilities": [
+    "Expose `verifySessionCookie(cookieValue) -> { valid: boolean, claims?: object, reason?: string, revokedAt?: string }` (AC-9101-3, AC-9103-1, AC-9107-1).",
+    "Reject tampered cookies (signature mismatch, malformed shape, unknown session id) without a cached-hit shortcut; every rejection contributes an audit event carrying the failure class and no cookie value (AC-9101-3).",
+    "Honour Clerk-side revocation within the `revocationCheckIntervalMs` window declared by ADR-1005; a session revoked more than `revocationCheckIntervalMs` ago must not verify (AC-9107-2).",
+    "Emit an audit event on every verification attempt (success and failure) with fields `{ outcome, reasonClass?, sessionIdPrefix, at }`; no field carries the cookie value, no field carries a full session id, no field carries a raw claim (AC-9101-3).",
+    "Confine the import of Clerk's server SDK to this module and the middleware wiring (TAC-1001); do not export the SDK's internal types across the module boundary (AC-9102-2)."
+  ],
+  "internalStructure": "One stateless class over an injected Clerk SDK client and an injected audit sink. The verifier is instantiated once at process boot with the Clerk publishable and secret keys read from the project's secrets manifest under placeholder-named entries (`CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`). The revocation check is either the Clerk SDK's native revocation-aware verify (preferred when the SDK exposes it at the project's build time) or a bounded-freshness cache the verifier maintains itself; ADR-1005 documents which shape the default vendor default expects.",
+  "interfaces": [
+    {
+      "name": "clerkClient",
+      "kind": "read-api",
+      "description": "The Clerk server SDK's session-verification surface. The verifier's constructor takes a Clerk client instance; the module does not construct its own from environment variables."
+    },
+    {
+      "name": "auditSink",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with `{ outcome, reasonClass?, sessionIdPrefix, at }` on every verification attempt; never invoked with a cookie value or a full session id."
+    },
+    {
+      "name": "clock",
+      "kind": "clock",
+      "description": "Injectable clock returning the current instant; used for revocation-window bounding and for the audit event's `at` field."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The verifier holds credential material (the Clerk secret key) in memory for the lifetime of the process; a heap dump of a compromised process exposes it. That is the same trade the secrets-management blueprint's Secrets Manager client makes, and the mitigation is the same: process isolation and the secrets rotation gate. The revocation-check window is a latency versus freshness trade the operator tunes on ADR-1005; a shorter window costs a Clerk round trip per request under some SDK shapes, a longer window admits a bounded read of a revoked session.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

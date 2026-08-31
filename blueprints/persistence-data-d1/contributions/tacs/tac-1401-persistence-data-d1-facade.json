@@ -1,0 +1,51 @@
+{
+  "tacId": "TAC-1401-persistence-data-d1-facade",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "D1 store facade",
+  "purpose": "The single Worker-side module that reads the D1 binding from `env`, exposes narrow named domain verbs to consumer code, issues every query as a parameterised prepared statement, batches multi-statement writes that require atomicity, and emits structured lifecycle events to the injected sink. Consumers never destructure the D1 binding outside this module; the facade is the one place the vendor surface lives.",
+  "responsibilities": [
+    "Read the D1 binding from the Worker `env` under the configured binding name; hold no other reference to the vendor surface; export no symbol that leaks the raw binding (AC-13101-1, AC-13101-2).",
+    "Expose the domain CRUD verbs as named exports with typed parameters; refuse a general-purpose raw-SQL passthrough on the public surface (AC-13101-2, AC-13104-2).",
+    "Issue every read and write through `db.prepare(<static SQL literal>).bind(<parameters>).first() | .all() | .run() | .raw()`; never call `db.exec(...)` with a non-literal string; never build SQL by string concatenation with consumer arguments (AC-13104-1, AC-13104-3).",
+    "Issue multi-statement writes requiring atomicity through a single `db.batch([...])` call; surface no partial-batch result on a mid-batch failure (AC-13105-1, AC-13105-2, AC-13105-3).",
+    "Emit structured lifecycle events on the injected onEvent sink: facadeReady on first invocation per Worker isolate, queryFailed on any prepared-statement or batch failure the facade catches. Carry only store-metadata fields; never carry values read from domain rows (AC-13107-1, AC-13107-2)."
+  ],
+  "internalStructure": "One module that exports a `createStore({ env, bindingName, onEvent })` factory returning a facade object whose methods are the named CRUD verbs plus an event-sink hook. The D1 binding read is scoped to this module; the factory captures the binding reference and the sink and hands back a set of closures. Consumers destructure the verbs they need at their top level and hold the facade reference for the Worker request's lifetime (or, when the isolate reuses the facade across requests, for the isolate's lifetime).",
+  "interfaces": [
+    {
+      "name": "createStore",
+      "kind": "factory",
+      "description": "createStore({ env, bindingName, onEvent }) -> Store; the sole entry point every consumer calls. Reads env[bindingName] as the D1 binding; hands back a Store whose methods are the named CRUD verbs."
+    },
+    {
+      "name": "onEvent",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with { event, ts, ... } for facadeReady and queryFailed events. Never invoked with domain-row values."
+    },
+    {
+      "name": "store.verbs",
+      "kind": "read-write-api",
+      "description": "The named domain CRUD verbs the facade exposes. Each verb has typed parameters; no verb accepts a raw SQL string or a general query object from consumer code."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Migration catalog",
+      "kind": "tac",
+      "tacId": "TAC-1402-persistence-data-d1-migration-catalog",
+      "description": "The catalog directory the wrangler CLI applies against the target database; the facade does not import it at runtime, but its schema is what the facade's static SQL literals target."
+    },
+    {
+      "name": "Recovery runner",
+      "kind": "tac",
+      "tacId": "TAC-1404-persistence-data-d1-recovery-runner",
+      "description": "Shares the facade's event sink for backupExported and timeTravelRestored events; invoked from the ops or CI surface, not from Worker code."
+    }
+  ],
+  "tradeoffs": "The facade holds no long-lived engine handle: D1 is request-scoped, and each Worker invocation reads env for the binding. That cost buys the same one-boundary invariant every other AC on this blueprint depends on. Projects that need per-verb tracing or connection-scoped context (session tokens for read-replica routing via `withSession`) wire it inside this module and preserve the facade's outward interface unchanged.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

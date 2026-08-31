@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1305-deploy-cloudflare-workers-dev-mode-drift",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Local dev-mode is an emulator; ship-gate coverage never counts a dev-mode probe as a deployed observation",
+  "context": "Every deploy vendor of any complexity ships a local development mode: a process that runs on the developer's laptop and answers requests at a loopback port, approximating the deployed runtime. The failure mode is the emulator being treated as authoritative for ship coverage: an AC scoped `deployed` gets a test case that hits the dev-mode URL and passes there because the emulator handles the case, then fails on production because the emulator's regular-expression engine differs, or its static-assets ordering differs, or its binding-emulation surface differs. The RCF `deployed` scope tag exists precisely to close this class; the blueprint has to make the class refuseable at the coverage-gate layer.",
+  "decision": "The blueprint's `deployed`-scope ACs are only satisfied by a probe against an actual uploaded Worker: a per-version-id URL, a preview alias URL, or the production URL. A test case whose runtime target URL matches the dev-mode local pattern (`http://localhost:*`, `http://127.0.0.1:*`, or the vendor's local emulator loopback host) is refused as coverage for a `deployed`-scope AC with the code `DEPLOY_DEV_MODE_INADMISSIBLE`. Dev-mode remains a valid target for `runtime`-scope and `library`-scope ACs, and for developer-loop iteration; it is inadmissible for `deployed`-scope coverage. The project's runtime-verify catalogue names the dev-mode drift classes the operator authoring probes must be aware of; the catalogue is kept current against the vendor's release notes.",
+  "consequences": "The ship gate refuses a class of easy-to-hit false positives that would otherwise let a passing local test carry a broken deployed AC to green. The trade: some kinds of probe (a startup-behaviour probe, a code-shape probe) that would run cheaply against dev-mode now cost a full upload-plus-preview to satisfy the deployed-scope AC; the blueprint's guide names those as the classes the operator authors as `runtime`-scope ACs against dev-mode where the deployed observation adds no signal, and as `deployed`-scope ACs against the preview URL where it does.",
+  "alternativesConsidered": [
+    {
+      "name": "Treat dev-mode as fully-authoritative when a project-declared fidelity flag is set",
+      "summary": "The project declares 'dev-mode is close enough for our purposes' and the coverage gate accepts dev-mode probes for deployed-scope ACs.",
+      "reasonNotChosen": "The flag becomes an escape hatch that quietly disables the gate the RCF `deployed` scope tag exists to enforce. When the emulator drifts in a way the project does not yet know about, the flag masks it. If a project genuinely wants dev-mode as its runtime target, it authors those ACs as `runtime`-scope and does not need the flag."
+    },
+    {
+      "name": "Warn on dev-mode probes for deployed-scope ACs; do not refuse",
+      "summary": "The coverage gate emits a warning and counts the coverage anyway.",
+      "reasonNotChosen": "Warnings that do not refuse become noise. The class of drift this ADR closes is precisely the class where a project shipped for months on a warning nobody read. Refusing at the gate keeps the invariant load-bearing."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

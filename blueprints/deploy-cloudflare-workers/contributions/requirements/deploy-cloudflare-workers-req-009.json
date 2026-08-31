@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-009",
+  "prdId": "PRD-001",
+  "title": "Rollback is a promote of a prior version id; the promote workflow is the sole ship-to-production path",
+  "description": "Rolling production back to a previous version is not a distinct code path in the project's deploy tooling. It is the same `promote` workflow (REQ-008) triggered with the prior version id supplied as the `versionId` input. The prior version id is discoverable by calling the Deploy Adapter's `listVersions` verb, which returns the recent history with the currently-serving id marked. A project may surface a `wrangler rollback` shortcut in operator documentation for convenience, but at the contract level the shortcut is a promote of the second-most-recent version id and the audit trail records it the same way. No project-authored `rollback` verb bypasses the promote workflow's structured record or the post-promote verifier.",
+  "category": "functional",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "Two ship paths is one too many. If rollback has its own bespoke script, the script drifts from the promote path in exactly the moments an incident is the wrong time to discover drift. Framing rollback as a promote of a known-good version id keeps the ship path narrow, the audit shape uniform, and the post-promote verifier applied unconditionally.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:09-rollback"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

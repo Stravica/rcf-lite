@@ -1,0 +1,46 @@
+{
+  "usId": "security-auth-clerk-US-9103",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A protected route admits authenticated requests and refuses unauthenticated ones",
+  "asA": "operator navigating the deployed application",
+  "iWant": "routes marked as protected to serve me when I hold a valid session and to refuse me when I do not",
+  "soThat": "the middleware boundary is what actually gates access rather than a comment on a handler",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9103-1",
+      "description": "A request to a protected route carrying a valid `__session` cookie for a signed-in operator receives the handler's response with status 200 (or the handler's success status for the specific route).",
+      "given": "a protected route wired through the middleware with a role gate of `authenticated`",
+      "when": "an authenticated request from a signed-in Clerk-development-instance user reaches the route",
+      "then": "the middleware runs the handler; the response status is the handler's declared success status (200 for a GET); the response body is what the handler returns",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9103-2",
+      "description": "A request to the same protected route carrying no `__session` cookie is refused at the middleware boundary before the handler runs.",
+      "given": "the same protected route from AC-9103-1",
+      "when": "a request without a `__session` cookie reaches the route",
+      "then": "the response status is 401 (for an API-shaped route) or a 302 redirect to the sign-in surface (for a page-shaped route); the handler is never invoked; the response body carries no principal or session information",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-9103-3",
+      "description": "The middleware refuses on expired sessions the same way it refuses on missing sessions.",
+      "given": "a request carrying a `__session` cookie whose corresponding Clerk session has been ended (via administrative revoke on the Clerk dashboard, or by expiry)",
+      "when": "the request reaches a protected route",
+      "then": "the middleware refuses with the same status and shape as AC-9103-2; the handler is never invoked",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1001-security-auth-clerk-middleware",
+    "TAC-1003-security-auth-clerk-session-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

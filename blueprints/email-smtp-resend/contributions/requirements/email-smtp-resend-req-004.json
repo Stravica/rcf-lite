@@ -1,0 +1,18 @@
+{
+  "reqId": "email-smtp-resend-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Retry-and-backoff posture is bounded, jittered, and refuses to loop on a rejection the provider has already classified as terminal",
+  "description": "On a `RESEND_TRANSPORT_ERROR` or a `RESEND_RATE_LIMITED` return, the adapter retries up to a bounded budget (default 2 retries, project-configurable via a numeric configuration reference; total attempts including the first are therefore at most 3) with exponential backoff and full jitter (base 250ms, cap 8000ms). On `RESEND_SENDER_UNVERIFIED` and `RESEND_RECIPIENT_REJECTED` the adapter does not retry: the provider classified the request as terminally invalid and looping wastes budget and risks a rate-limit escalation. After exhausting the retry budget the adapter returns `{ ok: false, ... }` with the last-observed provider status and the class code that caused the exhaustion; the caller sees one adapter return, not a retry storm.",
+  "category": "functional",
+  "domain": "email",
+  "priority": "must",
+  "rationale": "Unbounded or unjittered retry against a rate-limited transport is a self-reinforcing failure: every caller retries in lockstep and the transport's own throttle escalates. A jittered, bounded budget converts a transient class into a bounded delay and a terminal class into an immediate return. Skipping retry on the terminally-invalid classes stops the adapter from turning a configuration mistake (unverified domain, malformed recipient) into a retry loop the operator has to hunt.",
+  "tags": [
+    "blueprint:email-smtp-resend",
+    "category:04-retry-and-backoff"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

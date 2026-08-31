@@ -1,0 +1,47 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12109",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Rollback is a promote of a prior version id",
+  "asA": "operator responding to a bad release",
+  "iWant": "the same promote workflow to take a prior version id and route production to it",
+  "soThat": "rollback carries the same audit shape and post-promote verification as every other ship",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12109-1",
+      "description": "The Deploy Adapter's `listVersions` verb returns the recent version history with the currently-serving version id marked; the `promote` workflow's `versionId` input accepts any id present in this list.",
+      "given": "an operator on a machine authenticated to the deploy vendor",
+      "when": "the operator invokes `deployAdapter.listVersions()` and picks a prior id P then triggers the `promote` workflow with `versionId=P`",
+      "then": "`listVersions` returns a list containing P with the currently-serving flag on the correct entry; the `promote` run succeeds; the deploy-log record names P as `promotedVersionId` and the prior currently-serving id as `previousVersionId`",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-12109-2",
+      "description": "The project's source tree contains no separately-authored `rollback` verb that bypasses the `promote` workflow, the deploy-log record, or the post-promote verifier.",
+      "given": "the project source tree",
+      "when": "a scan searches for verbs named `rollback` (or synonyms `revert`, `undoPromote`) that spawn the vendor CLI or issue a vendor deploy call outside the Deploy Adapter",
+      "then": "no such verb exists; every rollback path routes through the `promote` workflow and the Deploy Adapter",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12109-3",
+      "description": "A rollback promote runs the served-surface verifier against the production URL and fails the run if any probe path fails, exactly like a forward promote.",
+      "given": "a promote of a prior version id P that intentionally fails a probe (a probe path P is missing from the older bundle)",
+      "when": "the `promote` workflow completes",
+      "then": "the workflow exits non-zero with `PROMOTE_VERIFY_FAILED`; the failing probe path and the response status are recorded; the deploy-log record does not mark the release successful",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1301-deploy-cloudflare-workers-deploy-adapter",
+    "TAC-1304-deploy-cloudflare-workers-promote-gate",
+    "TAC-1305-deploy-cloudflare-workers-served-surface-verifier"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

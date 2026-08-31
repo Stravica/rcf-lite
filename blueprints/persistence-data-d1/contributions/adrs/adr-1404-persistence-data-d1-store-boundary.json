@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1404-persistence-data-d1-store-boundary",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The D1 store facade is the only module that reads the D1 binding; consumers use named domain verbs, and every statement is a parameterised prepared statement",
+  "context": "A persistence boundary that leaks (the domain code reads the D1 binding from `env` directly, or the facade exposes a general-purpose raw-SQL passthrough) is a boundary the swap-out story does not work through, the test-double story does not work through, the reasoning-about-persistence-code-paths story does not work through, and (worse for D1 than for a local-file engine) the SQL-injection story does not work through: consumer-supplied string concatenation into a prepared-statement argument is functionally equivalent to a `db.exec(<consumer string>)` call, and the vendor's `prepare().bind()` chain is only safe when it stays a static SQL literal.",
+  "decision": "One module (the D1 store facade, TAC-1401) reads the D1 binding from the Worker `env`. Every other module in the source tree that touches persistence imports the facade and calls its named verbs. The facade's public surface exposes named domain verbs with typed parameters; it does not export the D1 binding, and it does not expose a general-purpose query method whose parameter is a SQL string or a prepared-statement object supplied by a consumer. Every statement the facade issues is a `db.prepare(<static SQL literal>).bind(<parameters>).first() | .all() | .run() | .raw()` chain; `db.exec(...)` is never called with a non-literal string; SQL is never constructed by string concatenation with consumer arguments. Multi-statement writes that require atomicity go through `db.batch([...])`; the facade never fakes atomicity by chaining sequential independent calls under an application-side try-catch.",
+  "consequences": "The engine choice is swappable because there is exactly one place that reads the binding. Domain tests run against an in-memory double that implements the same verb surface, without any reference to D1 at any point in the test's call path. Every persistence code path is discoverable by grepping for the facade's exports. Consumer arguments never traverse the SQL parser; the vendor's parameter-binding layer is the only place values reach the engine, and SQL injection is closed by construction rather than by discipline-at-call-site. Consumers pay a small cost when they need a new query shape (a facade edit and a consumer edit, in one commit); the size of that cost is the mechanism enforcing the boundary. Composing blueprints that contribute persistence-adjacent components (a cache, an outbox, a projection) contribute their own facade modules on the same discipline; every one of them imports the D1 store facade for its persistence needs, not the D1 binding.",
+  "alternativesConsidered": [
+    {
+      "name": "General-purpose raw-query passthrough on the facade",
+      "summary": "The facade exposes `execute(sql, params)` that consumers use for ad-hoc queries the facade does not otherwise express.",
+      "reasonNotChosen": "Any raw-query passthrough migrates over time from 'occasional escape hatch' to 'the way consumers write queries'. Every such call site is a code path that has to be re-audited on an engine swap, a code path that cannot be tested against an in-memory double, and (uniquely damaging on D1) a code path where the consumer-supplied SQL string is one edit away from a SQL-injection surface. The escape hatch is not worth the boundary erosion."
+    },
+    {
+      "name": "Domain-code direct env reads for hot-path queries",
+      "summary": "Performance-sensitive queries read `env.<BINDING_NAME>` directly and skip the facade.",
+      "reasonNotChosen": "Performance is not a defensible reason to erode the boundary at the rcf-lite Workers-tier target: the facade adds no measurable overhead over the direct binding read, and hot-path queries that genuinely need it are a rare-enough case to justify a specialised facade verb rather than a binding-read shortcut. Projects that outgrow the tier and need a different posture do so by superseding this ADR with reasoning."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
