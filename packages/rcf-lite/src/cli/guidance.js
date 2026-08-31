@@ -34,7 +34,7 @@ const OPTION_SPEC = {
 
 export const HELP = `Usage: rcf guidance [topic] [options]
 
-Print a guidance-pack document from the installed rcf-build-lite
+Print a guidance-pack document from the installed rcf-lite
 package to stdout. The pack ships with the package and is never copied
 into your project, so this verb is how a CLI-only agent reads the
 method. MCP-wired harnesses can use the rcf://docs/<slug> resources and

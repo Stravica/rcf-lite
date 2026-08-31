@@ -172,7 +172,7 @@ export async function main(argv, deps = {}) {
   const first = argv[0];
   if (first === '--version' || first === '-v') {
     const version = await readPackageVersion();
-    stdout.write(`rcf ${version}\n`);
+    stdout.write(`rcf-lite ${version}\n`);
     return 0;
   }
   if (first === '--help' || first === '-h') {

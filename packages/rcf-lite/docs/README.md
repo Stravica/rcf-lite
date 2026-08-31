@@ -1,6 +1,6 @@
 # Docs
 
-The RCF Build Lite documentation set. Pick by what you need:
+The RCF Lite documentation set. Pick by what you need:
 
 | Doc | Answers | Primary reader |
 |---|---|---|

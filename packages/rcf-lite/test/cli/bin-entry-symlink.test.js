@@ -32,7 +32,7 @@ async function runNode(argv0Bin, args = ['--version']) {
   }
 }
 
-test('BUG-001: rcf --version via a symlinked bin path prints "rcf <semver>"', async () => {
+test('BUG-001: rcf --version via a symlinked bin path prints "rcf-lite <semver>"', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'rcf-bug001-e2e-'));
   try {
     const linkedRoot = join(dir, 'linked-root');
@@ -43,8 +43,8 @@ test('BUG-001: rcf --version via a symlinked bin path prints "rcf <semver>"', as
     // Pre-fix: stdout was empty. Post-fix: prints the version line.
     assert.match(
       stdout,
-      /^rcf \d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?\n?$/,
-      `expected "rcf <semver>" via symlinked path, got: ${JSON.stringify(stdout)}`,
+      /^rcf-lite \d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?\n?$/,
+      `expected "rcf-lite <semver>" via symlinked path, got: ${JSON.stringify(stdout)}`,
     );
   } finally {
     rmSync(dir, { recursive: true, force: true });
