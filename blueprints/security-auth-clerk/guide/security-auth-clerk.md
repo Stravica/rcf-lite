@@ -66,6 +66,15 @@ A project applies the blueprint on a fresh tree, provisions a Clerk development 
 - Provisioning-script directory location (`scripts/provisioning/` by convention on AC-9110-1, or a project-declared equivalent). Blueprint owns that provisioning is not a request handler; project owns where the scripts live.
 - Whether to layer a project-authored Clerk-webhook consumer (for user-created, session-ended, or organisation-membership-changed events). Blueprint's default omits it; a project that adds one authors one TAC and one ADR alongside this blueprint's contributions.
 
+## Runtime coverage
+
+The middleware boundary contract (TAC-1001's `verify(request) -> { authenticated, principal?, reason? }`) is framework-agnostic and runs unchanged on Node HTTP servers (Express, Fastify) and on the Cloudflare Workers fetch handler. Two sample sets ship in `assets/`:
+
+- `assets/middleware/node-middleware-shape.md` for Express and Fastify: adapter wrappers around `verify(request)` that attach the reduced `Principal` to `request.auth`.
+- `assets/middleware/workers-fetch-shape.md` and `assets/wiring/workers-wrangler-toml-shape.md` for Cloudflare Workers: a fetch-handler adapter that carries the same `verify(request)` contract onto the Fetch API `Request` shape, plus the wrangler.toml overlay (`nodejs_compat`, the two Clerk secret names, the `CLERK_SIGN_IN_URL` var, and the `run_worker_first` posture on auth-gated routes that the assets binding would otherwise silently bypass).
+
+A project on a single framework picks up one adapter and pays nothing for the others; a project that hosts multiple runtimes (a Node main app plus a Workers edge function against the same Clerk instance) picks up both sample sets and shares one session verifier and one claims mapper across them.
+
 ## Cost-honesty paragraph
 
 Shipping this doc set costs the project the following. Clerk is a paid vendor beyond the development tier; the operator budgets for it. The `accountBound` runtime-verify posture means the CI runner needs Clerk reachability to actually verify the runtime-verify ACs; a CI runner without outbound network for that vendor either skips those ACs (which the ship gate flags) or the operator wires a preview Clerk instance for CI to reach. The middleware boundary discipline (`request.auth` and `can`/`assert` everywhere) is a code-review load on every new handler; a project that lets the discipline slip loses the vendor-swap-safety the blueprint is buying. The `revocationCheckIntervalMs` window is a stated trade between per-request cost and sign-out prompt-ness; the operator picks a number that reflects the project's actual policy, not the blueprint's default forever. The read-only provisioning posture forces the operator to run Clerk mutations outside the request lifecycle; a project that wants a per-request user-create call is on a different pattern and should think again. The blueprint says nothing about MFA policy, about pricing, about SLA, or about vendor-lock exit; a project that needs any of those spends its own build cycles on them and this blueprint does not save it any work there.
