@@ -1,0 +1,33 @@
+{
+  "tacId": "TAC-1102-security-auth-oauth2-provider-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "OAuth2 provider adapter",
+  "purpose": "The pluggable seam that turns a project-authored provider record into the resolved shape the flow controller uses on every step. Owns per-record validation at boot, provider lookup by id at flow initiation, and the JWKS fetching port the id_token verifier reads through. Does NOT own the state machine and does NOT own session issue; those are the flow controller (TAC-1101) and the session-bridge (TAC-1103) respectively.",
+  "responsibilities": [
+    "Load the provider-config module at boot and validate every record: required fields present, `flow=authorisation-code-pkce`, `providerKind` in {`oidc`, `oauth2-only`}, OIDC providers carry `issuer` and `jwksUri`, records with `providerLogout='redirect'` carry `endSessionEndpoint` (AC-10108-3, AC-10109-2, REQ-002, REQ-008).",
+    "Refuse boot on a malformed record with a stable-coded error naming the provider id and the missing or invalid field; audit event `oauth2.provider_config_refused` carries provider id and reason class (AC-10108-3).",
+    "Expose `resolve(providerId) -> record | absent`; return `absent` for an unknown id and let the flow controller emit OAUTH2_PROVIDER_UNKNOWN (AC-10109-2).",
+    "Expose `fetchJwks(providerId) -> { keys[] }` with a cache keyed by provider id whose TTL is `jwksCacheTtlSeconds` (default 900); refresh on cache miss or on a verifier hint that a key is unknown (AC-10105-1, AC-10105-2).",
+    "Never expose `clientSecret` on the client-tier record form; the client-tier record carries a redacted placeholder and the server-tier record carries the real value (REQ-002)."
+  ],
+  "internalStructure": "One factory function producing an adapter closure over an injected `providerConfig` module (a plain data record set) and an injected `httpFetch` port (the process's HTTP client, either the platform's `fetch` or an injected mock in tests). The JWKS cache is a Map keyed by provider id whose value is `{ keys[], fetchedAt }`; TTL eviction is on read. The validator is a pure function invoked once at boot per record.",
+  "interfaces": [
+    {
+      "name": "providerConfig",
+      "kind": "read-api",
+      "description": "The project-authored provider-config module exposing `list() -> record[]`. Each record is a plain object with the fields declared in REQ-002 and REQ-008. Server-tier records carry `clientSecret`; client-tier records carry a redacted placeholder."
+    },
+    {
+      "name": "httpFetch",
+      "kind": "read-api",
+      "description": "The process's HTTP-fetch port used for JWKS fetch; injected so the test harness can substitute an in-process mock that returns the mock provider's JWKS."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "Fixing the record shape and validating at boot fails fast on misconfigured providers rather than at the moment a real operator tries to sign in; the trade is a slightly larger boot-time surface for the operator to fix and a much smaller failure window at operate time. Caching JWKS costs the process a small piece of memory per provider and buys the id_token verifier a cheap read on every callback; the TTL and the miss-refresh path bound the staleness at `jwksCacheTtlSeconds + one callback`. Not owning the state machine keeps this TAC's surface narrow enough that a new provider vendor is a config-record write, not a code change here.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

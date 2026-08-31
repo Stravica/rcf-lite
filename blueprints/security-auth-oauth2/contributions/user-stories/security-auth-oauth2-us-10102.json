@@ -1,0 +1,45 @@
+{
+  "usId": "security-auth-oauth2-US-10102",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A callback with a state that does not match a pending flow is refused",
+  "asA": "operator whose browser has been redirected to the callback endpoint with a state value the project's pending-flow store never issued",
+  "iWant": "the callback to be refused before any token exchange",
+  "soThat": "an attacker who guesses or replays a state value cannot force the project to redeem a code they control",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10102-1",
+      "description": "A callback whose state value has no corresponding pending-flow record is refused with a stable-coded response and no token-exchange call.",
+      "given": "the pending-flow store is empty and a request is dispatched to the callback route with `state=<random-value>&code=<random-value>`",
+      "when": "the request reaches the flow controller",
+      "then": "the response is a 4xx with body error code `OAUTH2_STATE_UNKNOWN`; the mock provider's `tokenUrl` records zero request attempts for this state value; no session cookie is set on the response",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10102-2",
+      "description": "A callback that presents a state value from a pending flow already consumed on a prior successful exchange is refused with the same shape.",
+      "given": "a successful flow from US-10101 has consumed state value `s1`",
+      "when": "a subsequent callback request is dispatched with the same `state=s1` value",
+      "then": "the response is a 4xx with body error code `OAUTH2_STATE_ALREADY_CONSUMED`; the mock provider's `tokenUrl` records zero new request attempts for this state; no session cookie is set on the response",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10102-3",
+      "description": "A callback whose state maps to a pending-flow record older than the configured TTL is refused with a stable-coded response.",
+      "given": "a pending-flow record for state `s2` was minted `pendingFlowTtlSeconds + 60` seconds before the callback (simulated by advancing the flow-controller's clock through the test-injected clock port)",
+      "when": "the callback for `s2` is dispatched",
+      "then": "the response is a 4xx with body error code `OAUTH2_STATE_EXPIRED`; the pending-flow record has been evicted from the store; no session cookie is set on the response",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1101-security-auth-oauth2-flow-controller"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

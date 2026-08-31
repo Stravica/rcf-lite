@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-008",
+  "prdId": "PRD-001",
+  "title": "Sign-out invalidates the project session; provider-side sign-out is a project option",
+  "description": "The blueprint mandates one sign-out shape: a project route (`POST /auth/sign-out` in the reference wiring) that invalidates the project session handle server-side and clears the session cookie on the response. Every subsequent request presenting the cleared cookie or the invalidated handle is treated as unauthenticated. Provider-side sign-out (RP-Initiated Logout, RFC-drafted for OIDC; provider-specific for OAuth2-only providers) is a project-authored option NOT mandated by the blueprint: a project that wants a downstream provider session cleared on sign-out sets `providerLogout: 'redirect'` on the provider record, and the flow controller emits a redirect to the provider's declared `endSessionEndpoint` after clearing the project session. A provider whose declaration omits `endSessionEndpoint` and whose record is set to `providerLogout: 'redirect'` is refused at boot with `OAUTH2_LOGOUT_NOT_DECLARED`.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "The mandated shape is the invariant: project sessions clear on sign-out. Provider-side sign-out is a legitimate but variable concern (some deployments want a full downstream logout, others want the provider to keep the user signed in for other applications on the same tenant); mandating one posture would fight half the deployments. The declared config with fail-fast on missing endpoint catches the misconfiguration where a project believes it is doing provider-side sign-out and silently is not.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:08-sign-out"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

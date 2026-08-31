@@ -1,0 +1,28 @@
+{
+  "usId": "security-auth-oauth2-US-10111",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Provider records are validated at boot; the state machine reasons against fields, not vendor names",
+  "asA": "operator configuring one or more provider records for the project",
+  "iWant": "the provider adapter to validate every record's shape at boot and expose a fields-only surface to the flow controller",
+  "soThat": "adding, removing, or swapping a provider is a config-record write with no code path change and no vendor-name branch",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10111-1",
+      "description": "The provider adapter's boot-time validator enforces the provider-abstraction contract on every configured record and the flow controller reads only record fields on every step of the state machine. The two refusal ACs anchored under the sign-out and multi-provider stories (AC-10108-3, AC-10109-2) exercise this contract's refuse-fast behaviour at the concrete failure modes; this story's AC binds the shape-level property that every record must satisfy before either of those refuse-fast paths can even be reached.",
+      "given": "a project provider-config module carrying at least one record and the provider adapter loaded at boot per TAC-1102",
+      "when": "the flow controller initiates any step of the authorisation-code + PKCE flow against the configured provider (mint redirect, exchange code, verify id_token, invoke userinfo, mint sign-out redirect)",
+      "then": "every URL, credential, scope list, redirect target, and provider-kind determination the flow controller reads comes from the record's declared fields (`authorizeUrl`, `tokenUrl`, `userinfoUrl`, `issuer`, `jwksUri`, `clientId`, `clientSecret`, `scopes`, `redirectUri`, `providerKind`, `endSessionEndpoint`); a source-tree scan of the flow-controller module records zero string-literal branches keyed on a provider `id` value (no `provider.id === 'google'`, no vendor-name switch); a boot with a record missing any REQ-002-mandated field refuses with the stable-coded error class named on TAC-1102's responsibilities and no server process is left listening",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1101-security-auth-oauth2-flow-controller",
+    "TAC-1102-security-auth-oauth2-provider-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

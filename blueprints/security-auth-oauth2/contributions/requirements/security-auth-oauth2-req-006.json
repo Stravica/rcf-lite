@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Session issue after code exchange goes through one bridge",
+  "description": "After a successful token exchange (and id_token verification for OIDC providers), the flow controller passes the resolved identity to the session-bridge (TAC-1103). The bridge translates the provider identity into a reduced `Principal` shape: `principalId` (a stable in-process id derived from the provider's `sub` claim under an OIDC provider, or the provider's userinfo `id` field under an `oauth2-only` provider, joined to the provider's `id` slug so two providers cannot collide on the same underlying sub), `provider` (the provider `id`), `email` (if the provider returned one), `roles` (an empty array by default; a project-authored bridge extension may enrich), `organisationIds` (empty by default; project-authored bridge extension may enrich). The bridge then issues a project session (opaque-handle cookie is the reference shape; the storage seam is delegated). No downstream code path reasons about the provider's raw claim shape, provider tokens, or refresh material; only the reduced `Principal` and the session handle cross the bridge outward.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A single reduction point stops the provider's claim vocabulary from leaking through the codebase. If handlers reach for `req.auth.claims.email_verified` today the codebase depends on the provider's schema forever, and the provider-swap promise this blueprint makes collapses. Deriving `principalId` from `{provider.id, subject}` also makes multi-provider composition safe: a user who signs in through Google and later through the same email at GitHub is TWO distinct principals until the project authors an explicit identity-merge policy; the blueprint refuses to accidentally merge them.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:06-session-bridge"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Refresh tokens rotate on every exchange and revoke the whole chain on reuse",
+  "description": "When the provider issues a refresh token alongside the access token, the flow-controller stores it server-side keyed by the project session handle (never in a cookie the browser holds, never in the client tier). On refresh, the controller presents the current refresh token to the provider, replaces its stored copy with the new refresh token the provider returns, and updates the associated access-token record. Detecting the same refresh-token value on a second refresh attempt (a `refresh_token_reuse` signal) revokes the entire chain: the current session handle is invalidated, every stored refresh token that shares the same chain root is cleared, and one structured audit event `oauth2.refresh_token_reuse` is emitted carrying the provider `id`, the session handle hash, and the detection timestamp; no token value is emitted. A provider that does not issue refresh tokens for a given configuration is a supported posture: the project session lives out its own lifecycle (REQ-008) without a refresh chain.",
+  "category": "functional",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "Refresh-token rotation with reuse detection is the standard hardening for the class of attacks where an attacker exfiltrates a refresh token: as soon as either party redeems the token again, the identity chain is broken and the honest party (or the attacker) is refused. Storing refresh tokens server-side (rather than round-tripping through the browser) means an XSS or a malicious extension cannot lift them from the client tier. Naming reuse detection as an audit event with a stable code makes the detection legible to project ops without requiring a bespoke log-mining pipeline.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:07-refresh"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

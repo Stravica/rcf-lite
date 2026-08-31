@@ -1,0 +1,29 @@
+{
+  "tacId": "TAC-1104-security-auth-oauth2-provider-selector",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "OAuth2 provider selector",
+  "purpose": "The optional sign-in UX for projects configured with more than one provider. Renders a list of the configured providers by their operator-visible `label` and routes each choice to `/auth/sign-in?provider=<id>`. Optional at wire time: a project may substitute a bespoke selector surface as long as it honours the query-parameter contract on the sign-in route.",
+  "responsibilities": [
+    "Read the provider-config list at request time and render one item per provider record whose `enabled` field is true (or absent, defaulting to enabled) (AC-10109-1).",
+    "Render each item as a link (or a form-post button, per the wiring shim's declared class) whose target is `/auth/sign-in?provider=<id>`; render the item's operator-visible `label` as the visible text (AC-10109-1).",
+    "Short-circuit when N==1: a request to the selector route with a single-provider configuration returns a 302 to `/auth/sign-in?provider=<the-single-id>` instead of rendering a list (REQ-009).",
+    "Refuse to render on an empty provider-config list with a stable-coded error page code `OAUTH2_NO_PROVIDERS_CONFIGURED`; this is a boot-time refusal in the reference wiring, not a run-time page (REQ-009)."
+  ],
+  "internalStructure": "One factory function producing a request-handler closure over an injected `providerConfig` module. The reference wiring is framework-agnostic and returns a plain HTML string; framework shims (an Express handler, a Fastify handler, a Workers fetch wrapper) are one-file adapters colocated with this TAC's module directory. A project that wants a React or Vue rendering substitutes its own selector surface that hits the same query-parameter contract.",
+  "interfaces": [
+    {
+      "name": "providerConfig",
+      "kind": "read-api",
+      "description": "The provider-config module (same source as TAC-1102 reads); exposes `list() -> record[]` and the enabled flag."
+    }
+  ],
+  "dependencies": [
+    { "name": "OAuth2 provider adapter", "kind": "tac", "tacId": "TAC-1102-security-auth-oauth2-provider-adapter", "description": "Reads the same provider-config the adapter validates at boot." }
+  ],
+  "tradeoffs": "A first-party selector surface makes the multi-provider posture visible without a project-side page implementation; the cost is one rendering path the blueprint owns and a small piece of style the project may want to override. Substituting a bespoke selector is a plain wire swap on the sign-in route; the query-parameter contract is the seam, not the rendering. Not owning the sign-in initiation logic (that belongs to the flow controller) keeps this TAC's surface small: it is a route that renders a list and links; the state machine is elsewhere.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-oauth2-US-10103",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A PKCE verifier mismatch at the token exchange terminates the flow",
+  "asA": "operator whose callback presents a valid state and code but whose stored PKCE verifier no longer matches the challenge the provider recorded",
+  "iWant": "the flow to terminate with a distinct stable-coded error before any session issue",
+  "soThat": "an attacker who has captured a code cannot redeem it without the verifier bound to the original request",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10103-1",
+      "description": "The token exchange POST always carries the verifier stored on the pending-flow record; no code path constructs a token exchange without one.",
+      "given": "a successful sign-in flow through the mock provider",
+      "when": "the flow controller's outbound token-exchange request is inspected before it leaves the process",
+      "then": "the request body contains a `code_verifier` field whose value equals the verifier stored on the pending-flow record for the state; the request body carries no `code_challenge_method` field (verifier is presented, method is provider-remembered from authorise)",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10103-2",
+      "description": "The mock provider's token endpoint returning `invalid_grant` on a verifier mismatch causes the flow to terminate without a session issue.",
+      "given": "the mock provider is configured to reject the token exchange with a 400 `invalid_grant` for a specific test callback",
+      "when": "the callback reaches the flow controller",
+      "then": "the response is a 4xx with body error code `OAUTH2_TOKEN_EXCHANGE_FAILED` naming the provider response class as `invalid_grant`; no session cookie is set on the response; the pending-flow record for this state has been evicted",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1101-security-auth-oauth2-flow-controller"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

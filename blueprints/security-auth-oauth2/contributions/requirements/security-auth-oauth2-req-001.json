@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Authorisation-code flow with PKCE is the sole delegated-identity flow",
+  "description": "The project's authentication model is delegated identity via OAuth2 authorisation-code flow (RFC 6749 section 4.1) hardened with Proof Key for Code Exchange (RFC 7636). The implicit flow, the resource-owner password credentials flow, and the client credentials flow are refused at the flow-controller boundary. The `response_type` on the authorisation request is fixed to `code`; the token exchange is a back-channel POST that presents the `code_verifier`. The mechanism is vendor-neutral: any provider that speaks authorisation-code + PKCE plugs in through the provider-abstraction contract; no provider name appears in the flow controller's code path.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "Two failure modes justify fixing the flow. First, the implicit flow returns tokens on the front channel and cannot be hardened against interception or replay in a single-page application; browsers and IdPs have deprecated it. Second, a provider-shape choice that lets one project run authorisation-code and another run implicit forks the composition surface and forces every downstream TAC (session bridge, refresh discipline, sign-out) to reason about both. Fixing the flow at the blueprint layer keeps the flow-controller state machine linear and the provider adapter surface small.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:01-flow-shape"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

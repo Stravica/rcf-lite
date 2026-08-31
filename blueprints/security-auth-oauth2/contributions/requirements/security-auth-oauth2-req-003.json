@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-003",
+  "prdId": "PRD-001",
+  "title": "CSRF on the authorisation redirect is defended with an unguessable state parameter",
+  "description": "Every authorisation redirect the flow controller mints carries a `state` parameter. The value is a cryptographically random 128-bit-or-more opaque string generated per request; the controller binds `state` to the pending flow record (provider id, code_verifier, nonce, requested redirect target, minted-at timestamp) and stores that record in an integrity-checked one-time server-side pending-flow store keyed by `state`. On callback, the controller looks up the pending flow by the returned `state`, refuses the callback if the lookup misses or the record has already been consumed, and deletes the record after a single successful consumption. A stored pending flow older than a configured `pendingFlowTtlSeconds` (default 600) is treated as absent. The `state` value is never logged, never exposed in a client-tier document, and never rendered into an error page.",
+  "category": "functional",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "Without a bound `state` the authorisation callback endpoint is an unauthenticated request the browser can be tricked into invoking with an attacker-controlled `code`, and the session-issue seam is a CSRF-shaped identity forgery. Binding the flow record on the server side (rather than storing state in a cookie the browser echoes back) also carries the PKCE verifier off the client tier for the duration of the flow, which removes a category of storage-side leaks the client tier can suffer. The one-time consumption plus TTL defends against replay of a captured state value.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:03-csrf"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

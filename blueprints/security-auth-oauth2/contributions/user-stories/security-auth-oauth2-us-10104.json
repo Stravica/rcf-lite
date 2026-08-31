@@ -1,0 +1,36 @@
+{
+  "usId": "security-auth-oauth2-US-10104",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "An expired or already-consumed authorisation code is refused",
+  "asA": "operator whose callback presents a code the provider has already invalidated",
+  "iWant": "the flow to terminate cleanly with a stable-coded error",
+  "soThat": "no session is issued against a code that no longer proves possession",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10104-1",
+      "description": "The mock provider returning `invalid_grant` on an expired code causes the flow to terminate without a session issue.",
+      "given": "the mock provider is configured to expire a specific code after one second and the callback is dispatched after two seconds (test-injected clock)",
+      "when": "the callback reaches the flow controller",
+      "then": "the response is a 4xx with body error code `OAUTH2_TOKEN_EXCHANGE_FAILED` naming the provider response class as `invalid_grant`; no session cookie is set on the response",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10104-2",
+      "description": "A callback that presents a code from a pending-flow already consumed on a prior successful exchange is refused before the token endpoint is called.",
+      "given": "a successful flow has consumed state `s3` and code `c3`",
+      "when": "a subsequent callback request is dispatched with `state=s3&code=c3`",
+      "then": "the response is a 4xx with body error code `OAUTH2_STATE_ALREADY_CONSUMED`; the mock provider's `tokenUrl` records zero new request attempts for this state; no session cookie is set on the response",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1101-security-auth-oauth2-flow-controller"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

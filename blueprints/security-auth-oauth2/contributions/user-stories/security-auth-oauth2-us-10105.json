@@ -1,0 +1,55 @@
+{
+  "usId": "security-auth-oauth2-US-10105",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The id_token is verified against the provider's JWKS and refused on any invariant failure",
+  "asA": "operator signing in through an OIDC-declared provider",
+  "iWant": "the flow controller to verify the id_token's signature, issuer, audience, expiry, and nonce before any session issue",
+  "soThat": "a forged or replayed id_token cannot be turned into a project session",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10105-1",
+      "description": "A valid id_token from the mock OIDC provider passes verification: signature valid against JWKS, iss equals the provider's issuer, aud contains the client_id, exp in the future, nonce equals the pending-flow's stored nonce.",
+      "given": "a successful sign-in flow through the mock OIDC provider",
+      "when": "the flow controller invokes its verifier module on the returned id_token",
+      "then": "the verifier returns `{ valid: true, claims: { iss, aud, sub, exp, nonce } }`; the flow proceeds to session issue; the audit log records one `oauth2.id_token_verified` event carrying provider id and no token value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10105-2",
+      "description": "An id_token signed by an unknown key is refused with a distinct stable-coded reason and no session issue.",
+      "given": "the mock provider is configured to sign one token exchange with a key not published on JWKS",
+      "when": "the callback reaches the flow controller",
+      "then": "the response is a 4xx with body error code `OAUTH2_ID_TOKEN_SIGNATURE_INVALID`; no session cookie is set; the audit log records one `oauth2.id_token_refused` event carrying provider id, reason class `signature`, and no token value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10105-3",
+      "description": "An id_token whose iss does not equal the provider's declared issuer is refused with a distinct stable-coded reason.",
+      "given": "the mock provider is configured to mint a token whose `iss` claim is a URL other than the declared `issuer`",
+      "when": "the callback reaches the flow controller",
+      "then": "the response is a 4xx with body error code `OAUTH2_ID_TOKEN_ISSUER_MISMATCH`; no session cookie is set; the audit log records one `oauth2.id_token_refused` event carrying provider id, reason class `issuer`, and no token value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10105-4",
+      "description": "A missing id_token in a response from a provider declared as OIDC terminates the flow with a distinct stable-coded reason.",
+      "given": "the mock provider is configured to omit the `id_token` field from one token response and remains declared as `providerKind: oidc`",
+      "when": "the callback reaches the flow controller",
+      "then": "the response is a 4xx with body error code `OAUTH2_MISSING_ID_TOKEN`; no session cookie is set; the audit log records one `oauth2.id_token_refused` event carrying provider id, reason class `missing`, and no token value",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1101-security-auth-oauth2-flow-controller",
+    "TAC-1102-security-auth-oauth2-provider-adapter"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

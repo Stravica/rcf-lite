@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1106-security-auth-oauth2-multi-provider-routing",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Multi-provider routing is expressed at the query-parameter layer, not through a hard-coded default",
+  "context": "A project configured with more than one provider needs a way to route a sign-in request to a specific provider. Three shapes exist: a hard-coded default provider (the first in the list), an explicit query parameter naming the provider, or a distinct sign-in URL per provider. The first is dangerous (an operator who reorders the list changes the sign-in behaviour without a code change); the third is verbose (N routes to declare and wire). The second is observable at the URL layer and refuses ambiguity.",
+  "decision": "On N>1 provider configurations, the flow controller requires an explicit `provider` query parameter on the sign-in route (`GET /auth/sign-in?provider=<id>`); a missing or unknown id is refused with a stable-coded response. On N==1 configurations, the sign-in route without a `provider` parameter short-circuits to the single configured provider; a `provider` parameter naming an id other than the single configured one is refused. The provider-selector TAC (TAC-1104) renders a list-of-providers page as an optional UX; a project may substitute a bespoke selector as long as it honours the query-parameter contract.",
+  "consequences": "The routing is legible from the URL alone: an operator inspecting a sign-in link knows which provider is being invoked. Adding a provider is a config-record write plus a link on whatever selector surface the project uses; the state machine does not change. The trade against a hard-coded default is a small piece of URL noise on multi-provider deployments; that noise is exactly the observability the URL was for.",
+  "alternativesConsidered": [
+    {
+      "name": "Hard-coded default (first provider in the list)",
+      "summary": "A sign-in request without a `provider` parameter defaults to the first configured provider.",
+      "reasonNotChosen": "Changes behaviour on a list reorder without a code change; a project that removes a provider silently changes the sign-in flow. The routing loses observability."
+    },
+    {
+      "name": "Distinct sign-in URL per provider (`/auth/sign-in/google`, `/auth/sign-in/github`)",
+      "summary": "One route per configured provider.",
+      "reasonNotChosen": "Verbose (N routes), and the URL vocabulary leaks the provider id into every place the sign-in URL is referenced. The query-parameter shape keeps the base URL stable across configurations."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

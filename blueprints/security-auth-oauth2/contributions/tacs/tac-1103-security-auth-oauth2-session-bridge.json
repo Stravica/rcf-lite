@@ -1,0 +1,51 @@
+{
+  "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "OAuth2 session-bridge",
+  "purpose": "The single point where a resolved provider identity crosses into the project's session vocabulary. Owns the derivation of the reduced Principal shape, the issue-and-verify contract for the project session cookie, the storage of the provider tokens (access, id, refresh) associated with the session, and the invalidation on sign-out. Every downstream code path that reads `request.auth` reads what this bridge lifted; nothing downstream sees the provider's raw claim shape.",
+  "responsibilities": [
+    "Derive `principalId` as a stable string composed from `{provider.id, sub}` (OIDC) or `{provider.id, userinfo.id}` (oauth2-only); refuse an identity with a missing subject with `OAUTH2_SUBJECT_MISSING` (AC-10106-1, AC-10109-1).",
+    "Populate the reduced Principal with `principalId`, `provider`, optional `email`, empty `roles[]`, empty `organisationIds[]`; expose a project-authored `enrichPrincipal(principal) -> principal` hook if the config declares one; refuse to expose provider tokens on the Principal (AC-10106-1, AC-10106-3).",
+    "Issue an opaque-handle session cookie: mint a cryptographically random handle, store the session record `{ handle, principal, providerId, accessToken, idToken, refreshToken?, issuedAt, expiresAt }` in the session-record store, and emit `Set-Cookie` with `HttpOnly`, `Secure`, `SameSite=Lax` (AC-10101-3, AC-10106-1).",
+    "Verify a presented handle at the middleware boundary: lookup, expiry check, tampered-value refusal, populate `request.auth` on success, refuse otherwise; do not renew a tampered cookie (AC-10106-1, AC-10106-2).",
+    "Invalidate on sign-out: delete the session record, clear the associated refresh-token chain, emit the cookie-clear header (AC-10108-1).",
+    "Delegate the session-record store to a project-authored implementation (in-memory for the reference wiring; SQLite for `persistence-data-sqlite`-composed projects; D1 for `persistence-data-d1`-composed projects); do not embed a store implementation (REQ-006)."
+  ],
+  "internalStructure": "One factory function producing an issue/verify/invalidate closure over an injected `sessionRecordStore`, an injected `refreshTokenStore` (shared with the flow controller), an injected `randomBytes` port for handle minting, an injected clock, and an injected `enrichPrincipal` hook (or a no-op default). The session-record shape is a plain object; the store's on-disk shape is the project's concern.",
+  "interfaces": [
+    {
+      "name": "sessionRecordStore",
+      "kind": "read-write-api",
+      "description": "Project-supplied store exposing `put(handle, record)`, `get(handle) -> record | absent`, `delete(handle)`, and `purgeExpired(now)`. In-memory is the reference default; a persistence-data-sqlite-composed project points this at a table."
+    },
+    {
+      "name": "refreshTokenStore",
+      "kind": "read-write-api",
+      "description": "Shared with the flow controller: exposes `put(handle, refreshToken)`, `clearChain(chainRoot)`."
+    },
+    {
+      "name": "randomBytes",
+      "kind": "read-api",
+      "description": "Cryptographic random-byte source used to mint session handles; a 128-bit-or-more entropy budget is expected."
+    },
+    {
+      "name": "clock",
+      "kind": "read-api",
+      "description": "Injected time source; the same clock the flow controller uses."
+    },
+    {
+      "name": "enrichPrincipal",
+      "kind": "callback",
+      "description": "Optional project-authored hook called on the reduced Principal to add `roles` and `organisationIds` from project-side sources. A no-op default is applied when the config does not declare one."
+    }
+  ],
+  "dependencies": [
+    { "name": "OAuth2 flow controller", "kind": "tac", "tacId": "TAC-1101-security-auth-oauth2-flow-controller", "description": "The bridge is invoked by the controller at the end of a successful callback; the bridge does not initiate flows." }
+  ],
+  "tradeoffs": "Deriving `principalId` from `{provider.id, subject}` prevents accidental cross-provider identity merging; the trade is that a project that wants such merging must author an explicit identity-merge policy in its enrichPrincipal hook. Storing provider tokens on the server-side session record rather than the browser cookie carries a small per-session storage cost and buys the project one code path for revocation on sign-out and refresh-token reuse; the tokens never appear in a place the browser can leak them. Exposing an `enrichPrincipal` hook without prescribing a role-source lets a project reach for its own claim-mapping vocabulary without the blueprint committing to one.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
