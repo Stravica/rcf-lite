@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-023",
+  "prdId": "PRD-001",
+  "title": "An optional scheduledAudit dimension materialises a cron-triggered workflow running the required check set on cadence",
+  "description": "When `workflowShape.scheduledAudit` is `true`, the workflow-materialiser produces a `scheduled-audit` workflow that fires on a cron schedule (the provider's own schedule surface) and runs the same required check set the pull-request and default-branch workflows run. When the field is `false` (default), no scheduled workflow ships. The scheduled-audit workflow writes its aggregate report to a distinct stable path (`.rcf/reports/ci/scheduled-audit.json`) so a scheduled-run outcome never overwrites the most recent commit-triggered outcome downstream readers depend on.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "Dependency updates and secret rotations do not always coincide with a merge; a scheduled cadence catches drift the commit-triggered workflows would miss. Making the dimension explicit (a top-level fifth field) rather than folding it under a specific check's cadence keeps the axis general: a future need for scheduled cadence on other checks generalises to `scheduledCadence: string` without displacing the fifth dimension.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:23-scheduled-audit"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

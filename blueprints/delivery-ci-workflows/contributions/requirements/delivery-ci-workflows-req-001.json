@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The materialised commit-triggered workflows run the required check set on every trigger event the branch model defines",
+  "description": "The commit-triggered workflows the materialiser produces (per REQ-014 for feature-branch and REQ-015 for trunk-based) run the required check set on every trigger event the elicited branch model defines: for feature-branch, pushes to the default branch and pull requests targeting the default branch; for trunk-based, pushes to the trunk branch (and, in the sub-shape where `trunkPullRequests: sometimes`, pull requests targeting the trunk branch). The workflows' aggregate exit status is the merge criterion: the branch protection or equivalent policy refuses to admit a change whose most recent aggregate run did not exit zero, per the merge-policy AC binding for the branch model in play (AC-6114-3, AC-6115-1, AC-6115-2). No manual override path bypasses the required check set; a hotfix that skips it requires a documented ADR trail.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "Gates that run sometimes are gates that fail sometimes. Binding the required check set to every trigger event the branch model defines turns the RCF chain and the elicited checks from a habit into a build property, and removes the class of drift where a chain-authoring seat's fix passes locally but the tree ships already broken. The branch-model dimension controls the trigger set; the merge-policy AC per shape is what wires the aggregate into the platform surface.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:01-required-check"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

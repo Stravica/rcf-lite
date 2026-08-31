@@ -38,7 +38,7 @@
     },
     {
       "id": "AC-1133-4",
-      "description": "For every core flow that fails or is skipped, the probe writes a machine-readable refusal on the report naming the flow id, the entry-point route, the step at which the flow diverged from expectation, the assertion that did not hold, and the captured evidence up to the divergence. The refusal renders in the probe's stdout with the flow id and the report path, so a ci-pipeline operator reading the runner output sees which flow refused and where to look. Silent-log refusals are not permitted; every refusal exits the probe non-zero.",
+      "description": "For every core flow that fails or is skipped, the probe writes a machine-readable refusal on the report naming the flow id, the entry-point route, the step at which the flow diverged from expectation, the assertion that did not hold, and the captured evidence up to the divergence. The refusal renders in the probe's stdout with the flow id and the report path, so a delivery-ci-workflows operator reading the runner output sees which flow refused and where to look. Silent-log refusals are not permitted; every refusal exits the probe non-zero.",
       "given": "any core flow the probe records as 'fail' or 'skip'",
       "when": "the probe run terminates",
       "then": "the probe report carries a structured refusal entry naming the flow, the divergence step, and the failing assertion; stdout names the flow id and the report path; the process exit is non-zero",
@@ -56,8 +56,8 @@
     },
     {
       "id": "AC-1133-6",
-      "description": "When the core-flow end-to-end probe is wired as a gate in the ci-pipeline runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the ci-pipeline runner refuses ship with a non-zero exit. The 'deployed-with-defects' probe verdict maps deterministically to a 'failed' entry in the TAC-703 aggregate; a run cannot land the pipeline aggregate at 'passed' while any enumerated core flow ran as 'fail' or 'skip'.",
-      "given": "the ci-pipeline runner configured with the core-flow end-to-end probe as a required gate",
+      "description": "When the core-flow end-to-end probe is wired as a gate in the delivery-ci-workflows runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the delivery-ci-workflows runner refuses ship with a non-zero exit. The 'deployed-with-defects' probe verdict maps deterministically to a 'failed' entry in the TAC-703 aggregate; a run cannot land the pipeline aggregate at 'passed' while any enumerated core flow ran as 'fail' or 'skip'.",
+      "given": "the delivery-ci-workflows runner configured with the core-flow end-to-end probe as a required gate",
       "when": "the probe reports 'deployed-with-defects' on any run",
       "then": "the aggregate report records the gate as failed and the runner exits non-zero",
       "testable": true,

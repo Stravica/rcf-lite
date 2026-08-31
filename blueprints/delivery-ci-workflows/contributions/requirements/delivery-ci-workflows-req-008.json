@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-008",
+  "prdId": "PRD-001",
+  "title": "The suite refuses to declare a pipeline pass when any required gate report is missing from the aggregate",
+  "description": "The aggregate report's `gates` array lists every required gate in fixed configured order. If the suite completes without a corresponding per-gate report on disk for any required gate (a runner crash, an unhandled exception in a gate invocation, a report directory that was not writable), the aggregate report records the missing gate as `missing` with an explanatory reason, the aggregate verdict is `failed`, and the suite exits non-zero. A missing report is never treated as an implicit pass.",
+  "category": "nonFunctional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "The failure mode this REQ closes is silent gate skipping: a runner that dies mid-suite, a gate whose Node child process was killed, a report-directory permission error that swallowed the write. Any of those is indistinguishable from 'the gate passed' unless the suite explicitly refuses on missing reports. The aggregate report is the sole ledger of what actually ran.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:08-missing-gate-refusal"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-24T00:00:00Z",
+  "updatedAt": "2026-08-24T00:00:00Z"
+}

@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-707-delivery-ci-workflows-release-workflow-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "accepted",
+  "title": "The release workflow scales across four discrete modes (none, tagOnly, tagPlusArtefact, deployHandoff); releaseMode absent means no release workflow (Q6-B)",
+  "context": "A release workflow that only ever ships a maximum shape punishes projects with no release path; a release workflow that scales continuously along an infinite axis is not testable. The operator ruling names a scaled release workflow whose shape follows the project shape; the ratified spec fixes the four discrete modes and (per Q6-B) leaves `releaseMode` OPTIONAL, meaning an absent field signals no release workflow at all.",
+  "decision": "The release workflow shape is fixed at four discrete modes: `none` (no release workflow ships), `tagOnly` (release entity only), `tagPlusArtefact` (artefact-publish step added), `deployHandoff:<slug>` (promote workflow invocation added). `releaseMode` is OPTIONAL in the elicitation surface (Q6-B ratification): an absent field has the same effect as `releaseMode: none`, meaning no release workflow ships. Not having a release flow yet is a common scenario when starting a project; requiring an explicit `none` value would impose paperwork on a case the ratification chose to make ergonomic. A field that IS present must carry one of the four enumerated values; an unrecognised value flips the boot-check to fail. The mode enumeration is stable across a major version; adding a fifth mode is a major bump. The four modes cover the maturity range from internal package (no release) to paired service (deploy handoff).",
+  "consequences": "A project chooses a release mode once; the workflow set follows. Excluding the required check set from the release workflow avoids the redundant run-and-lengthen pattern the ratified spec calls out. The manifest boot-check on `deployHandoff:<slug>` prevents a handoff to an unapplied deploy target; the cross-blueprint composition works because the deploy blueprint's promote-workflow shape is already ratified.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship a continuous release-workflow-complexity dial rather than four discrete modes",
+      "summary": "The elicitation surface accepts a numeric level; the workflow-materialiser interpolates.",
+      "reasonNotChosen": "Continuous dials are neither legible nor testable; four discrete modes cover the maturity range with named archetypes the operator can reason about."
+    },
+    {
+      "name": "Fold the artefact-publish step into a separate blueprint",
+      "summary": "A `delivery-artefact-publish` blueprint contributes the artefact step; this blueprint stays at tagOnly.",
+      "reasonNotChosen": "The artefact-publish step is trivially small when named as an AC contract (produce a verified artefact at a stable identifier); minting a whole blueprint for it costs more than the contract does. A future security-provenance blueprint can compose here on `releaseArtefacts`."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

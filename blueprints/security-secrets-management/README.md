@@ -21,7 +21,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Agent access pattern | `assets/cli-usage/agent-access-pattern.md` | The piped-stdin pattern for `secrets read` and `secrets put`, including a Node.js spawn wrapper that keeps the value off argv and off any log line |
 | UI three-way choice | `assets/ui-integration/three-way-choice.md` | The elicitation script for the admin-UI choice with the shape of each outcome and the field contract for the `integrate` variant |
 | Guide | `guide/security-secrets-management.md` | Operator-facing: when to use it, when not, what stays your call, and the promotion signals for the hosted-vendor and admin-SPA companion blueprints |
-| Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes and the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, hello-panel, persistence-data-sqlite, ci-pipeline, observability-essentials, security-secrets-management) |
+| Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes and the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, hello-panel, persistence-data-sqlite, delivery-ci-workflows, observability-essentials, security-secrets-management) |
 
 The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 

@@ -1,0 +1,37 @@
+{
+  "usId": "delivery-ci-workflows-US-6123",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-023",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The scheduledAudit dimension materialises a cron workflow running the required check set on cadence",
+  "asA": "operator wanting to catch dependency drift and secret rotations between merges",
+  "iWant": "to opt into a scheduled workflow that runs the same required check set on a cron cadence",
+  "soThat": "drift that does not coincide with a merge is caught rather than missed until the next unrelated PR",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6123-1",
+      "description": "When `workflowShape.scheduledAudit` is `true`, the workflow-materialiser produces a `scheduled-audit` workflow triggered by the provider's cron surface, running the same required check set the pull-request and default-branch workflows run. The aggregate report writes to `.rcf/reports/ci/scheduled-audit.json` (distinct from the commit-triggered `pipeline.json`).",
+      "given": "a `workflowShape` with `scheduledAudit: true`",
+      "when": "the workflow-materialiser runs",
+      "then": "a `scheduled-audit` workflow file lands at the provider's workflow path, its trigger set names a cron schedule, and its command line invokes the Node gate-runner entry point with the required check set writing to the distinct report path",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6123-2",
+      "description": "When `scheduledAudit` is `false` or absent, no scheduled workflow ships and no `.rcf/reports/ci/scheduled-audit.json` file path is populated.",
+      "given": "a `workflowShape` with `scheduledAudit` absent (default `false`)",
+      "when": "the workflow-materialiser runs",
+      "then": "no `scheduled-audit` workflow file is created and no `.rcf/reports/ci/scheduled-audit.json` file path is written",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-704-delivery-ci-workflows-workflow-materialiser",
+    "TAC-706-delivery-ci-workflows-scheduled-audit"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

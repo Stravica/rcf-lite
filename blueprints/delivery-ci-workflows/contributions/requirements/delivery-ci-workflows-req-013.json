@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-013",
+  "prdId": "PRD-001",
+  "title": "Named profile aliases expand to the authoritative four-field workflowShape form before any consumer reads it",
+  "description": "The elicitation surface accepts a named profile alias (`smallLibrary`, `smallService`, `internalPackage`, `trunkLibrary`) in place of the four-field form. On boot the workflow-materialiser detects the alias, expands it to the shipped four-field composition, and treats the expanded form as authoritative for every downstream. Every AC in this blueprint binds to the four-field form only; the alias layer is a convenience surface, not an authoritative representation. An unrecognised alias name is refused at boot with a stable-coded error naming the alias and listing the shipped set. A project that wants a shape the shipped aliases do not name uses the four-field form.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "should",
+  "rationale": "Profile aliases keep the common cases (published library, greenfield service, internal package) short and legible while preserving the four independent axes for shapes the aliases do not cover. Expanding aliases to the four-field form at boot means every downstream reader (workflow-materialiser, deploy handoff, scheduled-audit) sees one representation regardless of how the project declared it; adding an alias is additive; renaming or removing an alias is a minor bump per §2.3.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:13-profile-aliases"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

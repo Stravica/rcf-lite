@@ -1,0 +1,36 @@
+{
+  "usId": "delivery-ci-workflows-US-6111",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-011",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The project declares its workflow shape in a stable in-repo file the materialiser reads",
+  "asA": "operator standing up an rcf-lite project with the delivery-ci-workflows blueprint applied",
+  "iWant": "to declare my project's CI workflow shape once in a stable in-repo configuration file that the workflow-materialiser reads on every run",
+  "soThat": "the workflow set my project produces is a function of a checked-in declaration, not a hidden default or an operator's memory",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6111-1",
+      "description": "The workflow-materialiser reads its input `workflowShape` from the stable path `.rcf/config/delivery-ci-workflows.json` on the project tree. The reader path is documented in the blueprint guide and does not vary with CI provider.",
+      "given": "a project that has applied delivery-ci-workflows v2 and populated `.rcf/config/delivery-ci-workflows.json`",
+      "when": "the workflow-materialiser runs (locally or in CI)",
+      "then": "the materialiser reads the file at the documented path and treats its `workflowShape` as authoritative",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6111-2",
+      "description": "The three required fields (`branchModel`, `checkSet`, `providerHint`), the optional `releaseMode` field (absent has the same effect as `releaseMode: none`, per Q6-B ratification), the optional `scheduledAudit` fifth field, and the optional `trunkPullRequests` sub-field are the complete surface the materialiser reads. No other field the file carries is interpreted by v2.0.0; unknown fields are ignored (forward-compatibility).",
+      "given": "a `workflowShape` declaration carrying the three required fields, the optional fields, and additional unknown fields",
+      "when": "the workflow-materialiser reads the file",
+      "then": "the materialiser processes the recognised fields and ignores the unknown fields without failing the boot-check",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-704-delivery-ci-workflows-workflow-materialiser"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

@@ -49,9 +49,9 @@ v1.1.0 is an additive-non-global minor bump. No global topics change; no contrib
 - `application-spa-US-1130` (anchored to application-spa-REQ-011) with four ACs binding the icon-adherence probe.
 - `TAC-207-application-spa-token-adherence-probe`: a Node build-scan probe the project realises; scans the built component-scope stylesheets for raw palette literals, diffs the light and dark token key sets for parity, writes a stable JSON report, and exits non-zero on any violation.
 - `TAC-208-application-spa-icon-adherence-probe`: a Node build-scan probe the project realises; scans the component source for inline SVG outside the icon registry and for icon references naming aliases the registry does not declare, writes a stable JSON report, and exits non-zero on any violation.
-- `ADR-202-application-spa-theming` and `ADR-206-application-spa-iconography` are amended in place at version 1.1.0: the decision is unchanged; the consequences narrative names the new probe and the ci-pipeline gate-failure path the probe rides.
+- `ADR-202-application-spa-theming` and `ADR-206-application-spa-iconography` are amended in place at version 1.1.0: the decision is unchanged; the consequences narrative names the new probe and the delivery-ci-workflows gate-failure path the probe rides.
 
-The v1.1 probes are runtime-observable AC binding at the ship gate. When a project wires each probe as a required gate in the ci-pipeline runner (TAC-701), a violation refuses ship through TAC-702's per-gate report and TAC-703's aggregate report; the run4 pattern of a discipline declared but not compelled no longer applies to these two categories.
+The v1.1 probes are runtime-observable AC binding at the ship gate. When a project wires each probe as a required gate in the delivery-ci-workflows runner (TAC-701), a violation refuses ship through TAC-702's per-gate report and TAC-703's aggregate report; the run4 pattern of a discipline declared but not compelled no longer applies to these two categories.
 
 ## What v1.2.0 adds
 
@@ -69,7 +69,7 @@ The bump encodes three class rules the deployment / handover gates now compel:
 
 1. **External-service dependency provisioning.** Every external service the app calls at runtime is enumerated on a stable manifest; every credential field is checked against the canonical placeholder-shape detector; every `verified` dependency requires captured live-handshake evidence from the shipped runtime; every `deferred` dependency requires an operator-ratified persistent record (a README note or a status.md quirk line does NOT satisfy).
 2. **Core-flow end-to-end.** Every core user flow is enumerated on a stable manifest; authentication is ALWAYS included when the app has a application-spa-REQ-009 surface; every flow executes end-to-end against the shipped runtime (production entry-point construction, production security headers, real external providers) driven by a real browser, with captured evidence per flow; a skipped, timed-out, or absent flow is a hard refusal.
-3. **Sign-off vocabulary.** A run in which every core flow completes and every external dependency is verified-or-ratified-deferred lands at aggregate verdict `ok`. Any placeholder-shape credential, any missing handshake evidence, any unratified deferral, any core-flow fail-or-skip lands at aggregate verdict `deployed-with-defects`. A "documented workaround exists" does not convert a broken flow into `ok`; the aggregate verdict is what the ci-pipeline runner surfaces.
+3. **Sign-off vocabulary.** A run in which every core flow completes and every external dependency is verified-or-ratified-deferred lands at aggregate verdict `ok`. Any placeholder-shape credential, any missing handshake evidence, any unratified deferral, any core-flow fail-or-skip lands at aggregate verdict `deployed-with-defects`. A "documented workaround exists" does not convert a broken flow into `ok`; the aggregate verdict is what the delivery-ci-workflows runner surfaces.
 
 Contributions:
 

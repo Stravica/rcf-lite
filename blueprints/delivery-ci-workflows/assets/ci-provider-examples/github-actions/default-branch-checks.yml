@@ -1,0 +1,55 @@
+# Illustrative default-branch-checks workflow for the delivery-ci-workflows blueprint.
+# Copy this file into the host project as `.github/workflows/default-branch-checks.yml`
+# and adjust the `node-version`, package-manager setup, and entry-point path
+# to match the project's realised gate runner (TAC-701).
+#
+# Feature-branch shape: pushes to the default branch (which happens on merge).
+# Trunk-based shape: pushes to the trunk branch (every commit). The workflow
+# shape is identical; only the branch name on the `on: push:` block differs.
+#
+# The workflow runs the same required check set as pull-request-checks and
+# writes to the same aggregate report path `.rcf/reports/ci/pipeline.json`.
+#
+# See `guide/delivery-ci-workflows.md` (four-point mapping) for translating
+# this workflow to GitLab CI, CircleCI, Buildkite, or Jenkins.
+
+name: default-branch-checks
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-set:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: run rcf check set
+        run: node scripts/rcf-ci.js
+
+      - name: upload rcf ci reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: default-branch-checks-reports
+          path: .rcf/reports/ci/
+          if-no-files-found: warn
+          retention-days: 30

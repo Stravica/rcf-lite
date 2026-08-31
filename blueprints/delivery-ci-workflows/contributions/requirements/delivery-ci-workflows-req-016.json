@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-016",
+  "prdId": "PRD-001",
+  "title": "A linter check the project realises produces a stable-shape lint report and fails non-zero on any lint error",
+  "description": "The elicited `linter` check, when the project enables it in `workflowShape.checkSet.linter`, runs a lint gate that exits non-zero on any lint error the project treats as blocking. The gate writes its per-gate report to `.rcf/reports/ci/lint.json` in the shared per-gate report shape (with `checkKind: \"linter\"`). The blueprint does not pick the linter tool; the project realises the runner over the tool of its choice and satisfies the runner-contract interface the gate-runner TAC binds. Warnings that the project does not treat as blocking are reported in the per-gate report without flipping the exit code.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A lint gate that runs but does not gate is a lint gate that quietly rots; a lint gate whose report shape drifts across projects is a gate downstream readers cannot depend on. Naming the exit-code semantic, the report path, and the report shape as an AC contract turns the linter check into a stable surface without forcing a tool choice.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:16-check-linter"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

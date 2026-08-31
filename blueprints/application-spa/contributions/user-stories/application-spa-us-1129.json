@@ -38,8 +38,8 @@
     },
     {
       "id": "AC-1129-4",
-      "description": "When the token-adherence probe is wired as a gate in the ci-pipeline runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the ci-pipeline runner refuses ship with a non-zero exit.",
-      "given": "the ci-pipeline runner configured with the token-adherence probe as a required gate",
+      "description": "When the token-adherence probe is wired as a gate in the delivery-ci-workflows runner (TAC-701), a non-zero probe exit propagates through the per-gate report (TAC-702) and the aggregate report (TAC-703), and the delivery-ci-workflows runner refuses ship with a non-zero exit.",
+      "given": "the delivery-ci-workflows runner configured with the token-adherence probe as a required gate",
       "when": "the probe reports `fail` on any run",
       "then": "the aggregate report records the gate as failed and the runner exits non-zero",
       "testable": true,

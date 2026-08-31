@@ -1,0 +1,46 @@
+{
+  "usId": "delivery-ci-workflows-US-6114",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-014",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The feature-branch shape materialises pull-request-checks and default-branch-checks",
+  "asA": "operator on a feature-branch project with delivery-ci-workflows v2 applied",
+  "iWant": "the workflow-materialiser to produce two workflows (pull-request-checks and default-branch-checks) sharing the same required check set",
+  "soThat": "every push to the default branch and every pull request against it is gated identically and my merge policy has one aggregate to bind to",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6114-1",
+      "description": "With `workflowShape.branchModel: feature`, the materialiser produces a `pull-request-checks` workflow triggered by pull requests targeting the default branch. The workflow invokes the Node gate-runner entry point (TAC-701) with the required check set (mandatory tier plus every `checkSet` flag set true).",
+      "given": "a `workflowShape` with `branchModel: feature` and every `checkSet` flag true",
+      "when": "the workflow-materialiser runs",
+      "then": "a `pull-request-checks` workflow file lands at the provider's workflow path, its trigger set names pull requests against the default branch, and its command line invokes the Node gate-runner entry point with the required check set",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6114-2",
+      "description": "With `branchModel: feature`, the materialiser additionally produces a `default-branch-checks` workflow triggered by pushes to the default branch. The workflow invokes the same Node gate-runner entry point on the same required check set.",
+      "given": "the same `workflowShape`",
+      "when": "the workflow-materialiser runs",
+      "then": "a `default-branch-checks` workflow file lands at the provider's workflow path, its trigger set names pushes to the default branch, and its command line invokes the Node gate-runner entry point with the required check set",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6114-3",
+      "description": "The AC contract requires the project to configure default-branch protection (or the platform equivalent) to require the `pull-request-checks` aggregate as a merge-blocking check. The blueprint states the property; the configuration itself lives on the platform surface.",
+      "given": "a feature-branch project with the two workflows materialised",
+      "when": "a pull request whose most recent `pull-request-checks` aggregate report records `verdict: failed` is submitted for merge",
+      "then": "the platform refuses the merge and the refusal reason references the failed `pull-request-checks` required check",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-704-delivery-ci-workflows-workflow-materialiser",
+    "TAC-701-delivery-ci-workflows-gate-runner"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}
