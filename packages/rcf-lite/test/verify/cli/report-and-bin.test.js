@@ -66,7 +66,7 @@ test('bin: --version prints the package version', async () => {
   const stdout = capture();
   const code = await binMain(['--version'], { stdout: stdout.stream });
   assert.equal(code, 0);
-  assert.match(stdout.out.text, /rcf \d+\.\d+\.\d+/);
+  assert.match(stdout.out.text, /rcf-lite \d+\.\d+\.\d+/);
 });
 
 test('bin: `rcf verify frobnicate` exits 2 (unknown sub-verb)', async () => {
