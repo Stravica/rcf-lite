@@ -49,7 +49,7 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
 - [ ] Every AC's `then` clause is runtime-observable (specifies what an agent inspecting the deployed surface would see), not document-observable ("the project declares an ADR" is the anti-pattern).
 - [ ] Every AC that constrains project-source realisation cross-links to a TAC the project must realise, or names a runtime-verify probe the ship gate will exercise. Mechanism-reach principle from the standard, section 7.
 - [ ] Every REQ / US carries `blueprint:<slug>` in `tags` so a chain-authoring seat sees which blueprint minted the doc.
-- [ ] `rcf audit coverage --strict` on a scratch project that applied your blueprint reports every blueprint AC as `covered-unresolved` (uncovered by TC), NOT as passed. A blueprint AC that passes without a project TC binding it is a false-positive on shipped floors.
+- [ ] `rcf audit coverage --strict` on a scratch project that applied your blueprint reports every blueprint AC as `uncovered` (no project TC binds it), NOT as passed. A blueprint AC that passes without a project TC binding it is a false-positive on shipped floors. (The distinct class `covered-unresolved` is reserved for the case where a TC is authored to claim coverage but its testPointer does not resolve to a real test in the working tree.)
 - [ ] Every TAC the blueprint ships names its interfaces and its dependencies, and the responsibilities table cross-references the AC ids each responsibility satisfies.
 - [ ] Known mechanism-reach gaps (categories the AC binds but no project-side gate enforces) are listed in the blueprint's `README.md` under "Known mechanism-reach gaps". The watchpost run4 icon/token/component-library gap is the cautionary example.
 

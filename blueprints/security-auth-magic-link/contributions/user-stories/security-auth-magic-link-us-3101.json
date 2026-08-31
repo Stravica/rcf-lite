@@ -56,7 +56,7 @@
     }
   ],
   "tacIds": [
-    "TAC-501-security-auth-magic-link-magic-link-manager",
+    "TAC-501-security-auth-magic-link-manager",
     "TAC-503-security-auth-magic-link-login-routes"
   ],
   "createdAt": "2026-08-21T00:00:00Z",

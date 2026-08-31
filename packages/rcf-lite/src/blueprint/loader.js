@@ -112,7 +112,7 @@ function validateMetadata(doc, metaPath) {
     // Category is optional; when present it must be a kebab slug (same
     // shape as blueprint slug). The loader validates SHAPE only: the
     // vocabulary (application, security, email, deploy, delivery,
-    // persistence, observability-essentials, and future additions) is documented
+    // persistence, observability, and future additions) is documented
     // in the authoring standard rather than pinned in code, so a new
     // category minted at standard-review time does not need a loader
     // change. The docs shelf and `rcf define blueprint list` render

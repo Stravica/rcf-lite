@@ -48,7 +48,7 @@
     {
       "name": "Magic-link manager",
       "kind": "tac",
-      "tacId": "TAC-501-security-auth-magic-link-magic-link-manager",
+      "tacId": "TAC-501-security-auth-magic-link-manager",
       "description": "Provides mint and consume semantics."
     },
     {

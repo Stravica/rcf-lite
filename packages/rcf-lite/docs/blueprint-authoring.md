@@ -109,7 +109,7 @@ AC ids are not namespaced by the schema grammar; the band allocation IS the coll
 
 A composing blueprint takes a fresh band rather than proposing namespaced AC ids. A US id numeric like `1101` gets its ACs as `AC-1101-1`, `AC-1101-2`, and so on; the US id anchors the band.
 
-Suffix-family ids (ADR, TAC) are string-distinct once slug-suffixed, but number them in the same block for legibility: SPA uses 2xx, REST uses 3xx, the next blueprint takes 4xx.
+Suffix-family ids (ADR, TAC) are string-distinct once slug-suffixed, but number them in the same block for legibility: application-spa uses 2xx, application-api-rest uses 3xx, and every new blueprint claims its own non-overlapping suffix block (see the shared band-registry table in each blueprint's `docs/topics.md`).
 
 **Collision warning that has actually bitten.** In run4 of the watchpost case study, a project-side `US-1101` derived mechanically from `REQ-011` (leading `11` + sequence `01`) collided with the application-spa blueprint's `application-spa-us-1101` at the AC-id-scoping bucket. The seat allocated the project story as `US-1181` and moved on. Two lessons for authors:
 

@@ -12,12 +12,14 @@
 //
 // - Prefix families (REQ, US, PRD, BS, TAD, TS): the blueprint slug is
 //   attached as a lowercase kebab-slug PREFIX joined by `-` to the
-//   family prefix. `REQ-001` under blueprint `spa` becomes `application-spa-REQ-001`.
+//   family prefix. `REQ-001` under blueprint `application-spa` becomes
+//   `application-spa-REQ-001`.
 //
 // - Suffix families (ADR, TAC, FBS, CN): the blueprint slug is attached
 //   as a lowercase kebab-slug SUFFIX joined by `-` to the numeric tail.
-//   `ADR-005` under blueprint `spa` becomes `ADR-005-spa`; a longer slug
-//   segment (`spa-theme`) becomes `ADR-005-application-spa-theme`.
+//   `ADR-005` under blueprint `application-spa` becomes
+//   `ADR-005-application-spa`; a longer slug (`application-spa-theme`)
+//   becomes `ADR-005-application-spa-theme`.
 //
 // - AC and TC: not namespaced. AC ids are anchored to their parent US
 //   (whose id is prefix-namespaced) and TC ids are anchored to their
@@ -70,18 +72,19 @@ export function namespaceStyleFor(id) {
  *   - Ids that already carry a slug segment are accepted VERBATIM: the
  *     blueprint author's declared contribution list is the truth for
  *     what that blueprint owns. String grammar does not veto (`stampId`
- *     used to refuse `ADR-201-application-spa-theme` under slug `spa` on the basis
- *     that `spa-theme` != `spa`, which broke every blueprint whose
- *     suffix-family ids carried a semantic tail after the slug).
+ *     used to refuse `ADR-201-application-spa-theme` under slug
+ *     `application-spa` on the basis that `application-spa-theme` !=
+ *     `application-spa`, which broke every blueprint whose suffix-family
+ *     ids carried a semantic tail after the slug).
  *   - AC and TC pass through unchanged (no namespacing family).
  *   - An id that matches no family pattern, or a slug that is not a
  *     valid kebab, is refused.
  *
- * Cross-blueprint claims (`spa-theme-REQ-001` declared under blueprint
- * `spa` where `spa-theme` is also applied) are caught by the manifest-
- * record consulted at write time (`apply.js` overwrite guard +
- * cross-claim detector). String parsing here is deliberately not a
- * trust surface.
+ * Cross-blueprint claims (`application-spa-theme-REQ-001` declared
+ * under blueprint `application-spa` where `application-spa-theme` is
+ * also applied) are caught by the manifest-record consulted at write
+ * time (`apply.js` overwrite guard + cross-claim detector). String
+ * parsing here is deliberately not a trust surface.
  *
  * @param {string} id - canonical id (either bare `REQ-001` or already
  *                      namespaced `application-spa-REQ-001` / `ADR-201-application-spa-theme`)
@@ -119,10 +122,11 @@ export function stampId(id, slug) {
  * scan). `isNamespacedFor` retains exact-slug grammar semantics for
  * external consumers (docs generators, id-audit tooling) but must NOT
  * be used to authorise a write or a delete -- for slug+tail ids like
- * `ADR-201-application-spa-theme` the parsed suffix is `spa-theme`, which returns
- * false for a legitimate `spa`-owned contribution whose author put a
- * semantic tail after the slug. That misread is the exact reason the
- * ownership call-sites were routed off this predicate.
+ * `ADR-201-application-spa-theme` the parsed suffix is
+ * `application-spa-theme`, which returns false for a legitimate
+ * `application-spa`-owned contribution whose author put a semantic tail
+ * after the slug. That misread is the exact reason the ownership
+ * call-sites were routed off this predicate.
  *
  * @param {string} id
  * @param {string} slug

@@ -15,7 +15,7 @@ Phase 1 resolves local path sources only; registry and git-ref resolution is a m
 | Piece | Where | What |
 |---|---|---|
 | Metadata | `blueprint.json` | Slug, version, and the 32 contributions with scope/topic on the one global ADR |
-| Doc set | `contributions/` | 11 REQs, 11 USs (37 ACs), 5 TACs, 5 ADRs, all schema-valid against rcf-schemas 0.4.5 and namespaced (`security-auth-magic-link-REQ-001` prefix family; `ADR-501-security-auth-magic-link-magic-link-model` suffix family) |
+| Doc set | `contributions/` | 11 REQs, 11 USs (37 ACs), 5 TACs, 5 ADRs, all schema-valid against rcf-schemas 0.4.5 and namespaced (`security-auth-magic-link-REQ-001` prefix family; `ADR-501-security-auth-magic-link-model` suffix family) |
 | Email templates | `assets/email-templates/magic-link-email.md` | The text and HTML bodies the routes hand to the adapter for magic-link delivery, with placeholders for base URL, token URL, and expiry window |
 | Stub adapter reference | `assets/email-templates/stub-adapter.md` | The record-only stub the blueprint ships for tests, with the exact call log shape and outcome shape |
 | Principal registry samples | `assets/principal-registry-samples/single-address.md` | The single-address registry implementation for solo-operator deployments |
@@ -35,7 +35,7 @@ Deliberately not contributed: authorisation (roles, permissions, tenancy) is a p
 
 ## The one global decision
 
-ADR-501-security-auth-magic-link-magic-link-model ships `scope: global` on topic `authModel`. This is the third half of the project-level authentication model; application-spa contributes ADR-205-application-spa-auth-model on the same topic (the client half: cookie-based sessions, 401-redirect posture), application-api-rest contributes ADR-302-application-api-rest-auth-model on the same topic (the server half: four declared auth classes enforced in middleware). Applying any two of the three on one project surfaces the pairing for operator resolution, which is the composition mechanism doing its job. See `docs/topics.md` for the exact strings, the expected resolutions, and the AC id band allocation (security-auth-magic-link owns 3101-3899).
+ADR-501-security-auth-magic-link-model ships `scope: global` on topic `authModel`. This is the third half of the project-level authentication model; application-spa contributes ADR-205-application-spa-auth-model on the same topic (the client half: cookie-based sessions, 401-redirect posture), application-api-rest contributes ADR-302-application-api-rest-auth-model on the same topic (the server half: four declared auth classes enforced in middleware). Applying any two of the three on one project surfaces the pairing for operator resolution, which is the composition mechanism doing its job. See `docs/topics.md` for the exact strings, the expected resolutions, and the AC id band allocation (security-auth-magic-link owns 3101-3899).
 
 ## Quality bar
 
