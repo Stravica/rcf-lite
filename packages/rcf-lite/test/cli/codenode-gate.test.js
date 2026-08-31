@@ -87,6 +87,11 @@ test('--no-code-nodes only combines with .build mark (exit 2 otherwise)', async 
 
 test('rcf coverage --with-code reports the four classes and never blocks', async () => {
   const tmp = await scaffold('coverage');
+  // Two AC creates: the first replaces the seeded phantom in place at
+  // AC-101-1 (0.13.0 G5), the second appends at AC-101-2 so the test
+  // exercises both `implemented-uncovered` (AC-101-1 with a Code Node)
+  // and `unimplemented` (AC-101-2 without one).
+  await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'First acceptance criterion']);
   await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'A second acceptance criterion']);
   await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/save.js#save', '--acs', 'AC-101-1']);
   await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/orphan.js']);

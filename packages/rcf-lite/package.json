@@ -1,6 +1,6 @@
 {
   "name": "rcf-lite",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "type": "module",
   "description": "One-install tooling for the Requirements Confidence Framework (RCF): the unified `rcf` CLI grouped into the five RCF tool groups (discover, define, build, verify, audit) plus a small core set (init, doctor, guidance, mcp), an MCP server, the live tree viewer and the fresh-context adversarial ship-gate verifier. Consumes @stravica-ai/rcf-schemas.",
   "license": "Apache-2.0",
@@ -29,6 +29,8 @@
     "rcf",
     "releases",
     "fixtures",
+    "blueprints",
+    "scripts/preinstall-node-check.mjs",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
@@ -43,7 +45,10 @@
     "build:managed": "node scripts/gen-managed-artefacts.mjs",
     "canary:register": "node scripts/canary-register.mjs",
     "validate:releases": "node scripts/validate-releases.mjs",
-    "prepublishOnly": "node scripts/gen-managed-artefacts.mjs && node scripts/validate-releases.mjs",
+    "stage:blueprints": "node scripts/stage-blueprint-shelf.mjs",
+    "preinstall": "node scripts/preinstall-node-check.mjs",
+    "prepack": "node scripts/stage-blueprint-shelf.mjs",
+    "prepublishOnly": "node scripts/gen-managed-artefacts.mjs && node scripts/stage-blueprint-shelf.mjs && node scripts/validate-releases.mjs",
     "rcf": "node bin/rcf.js"
   },
   "repository": {

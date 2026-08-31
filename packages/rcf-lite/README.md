@@ -15,6 +15,8 @@ It is the tooling for the [Requirements Confidence Framework (RCF)](https://stra
 
 ## Start here
 
+**Node 24 or newer is required.** The preinstall gate rejects older majors so the CLI never lands half-wired; check with `node --version` first.
+
 Three steps before you start your coding agent, then one prompt inside the session.
 
 1. Install the CLI:

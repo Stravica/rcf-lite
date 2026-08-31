@@ -219,6 +219,8 @@ export async function main(argv, deps = {}) {
     stdout.write(`  Gitignore          ${gitignoreVerbAndTarget(gitignoreResult)}.\n`);
     stdout.write('\nNext: start your agent session in this directory and tell it what you want to build. '
       + 'It elicits the requirements and drives the build from there - you do not fill in the document chain by hand.\n');
+    stdout.write('\nRun `rcf doctor` to confirm the wiring stays clean over time '
+      + '(it also checks whether managed blocks have drifted from the shipped canon).\n');
   }
   return 0;
 }

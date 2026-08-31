@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.12.0"
+latest: "0.13.0"
 releases:
+  - version: "0.13.0"
+    date: "2026-08-31"
+    breaking: false
+    headlines:
+      - "The 14 first-party blueprints now ship inside the installed package, so any doc pointing at a blueprint slug works on a fresh install."
+      - "rcf define blueprint add resolves bare slugs and @stock slugs against the packaged shelf, matching how the docs write the commands."
+      - "Installing on Node earlier than 24 now refuses outright instead of silently resolving an old placeholder release."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.12.0"
     date: "2026-08-28"
     breaking: true

@@ -184,17 +184,25 @@ export async function loadHarnessFragment({ templatePath } = {}) {
 }
 
 /**
- * Write or merge the project-root .mcp.json with the rcf server entry
- * (the exact registration shape docs/install.md documents). MERGE
- * discipline: other servers and unknown top-level keys are preserved
+ * Write or merge the project-root .mcp.json with the rcf server entry.
+ * MERGE discipline: other servers and unknown top-level keys are preserved
  * verbatim; an existing `rcf` entry is left alone.
+ *
+ * The default entry invokes the CLI via `npx rcf-lite mcp` rather than an
+ * absolute `node <binPath>` path so the config stays portable across
+ * machines and CI checkouts (a project imported on a teammate's machine
+ * or moved to a different install location keeps working without a
+ * re-init). Callers wiring the config from tests can still pass an
+ * absolute `binPath` to force the legacy `node <binPath> mcp` shape.
  *
  * @param {object} args
  * @param {string} args.projectRoot
- * @param {string} [args.binPath] - test override
+ * @param {string} [args.binPath] - if provided, use `{ command: 'node',
+ *        args: [binPath, 'mcp'] }` instead of `npx rcf-lite mcp`. Test
+ *        override / opt-out for pinned deployments.
  * @returns {Promise<{ file: string, action: 'created'|'merged'|'kept' } | import('#core/errors').RcfError>}
  */
-export async function writeMcpConfig({ projectRoot, binPath = rcfBinPath() }) {
+export async function writeMcpConfig({ projectRoot, binPath } = {}) {
   const file = join(projectRoot, '.mcp.json');
   const raw = await readIfExists(file);
   let config = {};
@@ -224,11 +232,14 @@ export async function writeMcpConfig({ projectRoot, binPath = rcfBinPath() }) {
   if (servers.rcf) {
     return { file: '.mcp.json', action: 'kept' };
   }
+  const rcfEntry = typeof binPath === 'string' && binPath.length > 0
+    ? { command: 'node', args: [binPath, 'mcp'] }
+    : { command: 'npx', args: ['rcf-lite', 'mcp'] };
   const next = {
     ...config,
     mcpServers: {
       ...servers,
-      rcf: { command: 'node', args: [binPath, 'mcp'] },
+      rcf: rcfEntry,
     },
   };
   await writeFile(file, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
@@ -345,15 +356,22 @@ export const SETUP_FUNNEL_INSTRUCTION = 'Setup incomplete. Run `npx rcf init` to
 /**
  * Manual instructions printed by `rcf init --no-agent-setup`.
  *
- * @param {string} [binPath]
+ * @param {string} [binPath] - when omitted (the default), the manual
+ *   registration snippet uses `npx rcf-lite mcp` for portability across
+ *   machines and checkouts. Pass a specific absolute path only when the
+ *   caller wants to pin to a particular install (test fixtures, or a
+ *   deployment that has deliberately vendored the CLI).
  * @returns {string}
  */
-export function manualSetupInstructions(binPath = rcfBinPath()) {
+export function manualSetupInstructions(binPath) {
+  const useNpx = typeof binPath !== 'string' || binPath.length === 0;
+  const registration = useNpx
+    ? '       { "mcpServers": { "rcf": { "command": "npx", "args": ["rcf-lite", "mcp"] } } }'
+    : `       { "mcpServers": { "rcf": { "command": "node", "args": ["${binPath}", "mcp"] } } }`;
   return [
     'Agent setup skipped (--no-agent-setup). To wire the harness manually:',
     '  1. Register the MCP server in your project-root .mcp.json:',
-    '       { "mcpServers": { "rcf": { "command": "node",',
-    `         "args": ["${binPath}", "mcp"] } } }`,
+    registration,
     '  2. Paste the fragment from `rcf guidance harness-template` (the',
     '     first ```markdown fence) into your project\'s CLAUDE.md or',
     '     AGENTS.md.',

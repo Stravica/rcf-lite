@@ -21,6 +21,7 @@ import {
   listBlueprints,
   removeBlueprint,
   renderDiff,
+  resolveBlueprintSource,
   supersedeBlueprintTopic,
 } from '../blueprint/index.js';
 import { conflictReportJson, renderConflictReport } from '../blueprint/conflicts.js';
@@ -28,11 +29,17 @@ import { conflictReportJson, renderConflictReport } from '../blueprint/conflicts
 export const HELP = `Usage: rcf define blueprint <verb> [options]
 
 Verbs:
-  add <source>           Apply a blueprint from a source directory
-                         (Phase 1: local path; the registry / git-ref
-                         resolver is a Phase 2 concern). Writes an entry
-                         to manifest.blueprints[] and copies namespaced
-                         contributions into the tree.
+  add <source>           Apply a blueprint from a source directory.
+                         <source> resolves in this order:
+                           - a path (./foo, /abs, has a slash) is used as-is;
+                           - @stock/<slug> resolves to the packaged shelf that
+                             ships with rcf-lite (recommended long form);
+                           - a bare kebab slug (deploy-cloudflare-workers,
+                             application-spa) resolves to the same shelf;
+                           - any other @<library>/<slug> is reserved for the
+                             phase-2 external-libraries mechanism and refuses.
+                         Writes an entry to manifest.blueprints[] and copies
+                         namespaced contributions into the tree.
   list                   List every applied blueprint (slug, version,
                          appliedAt, contributionCount), grouped by the
                          \`category\` declared on each blueprint's own
@@ -148,7 +155,22 @@ export async function main(argv, deps = {}) {
       stderr.write('[error] blueprint add: missing <source>\n');
       return 2;
     }
-    const source = rest[0];
+    const rawSource = rest[0];
+    const resolved = await resolveBlueprintSource(rawSource);
+    if (isRcfError(resolved)) {
+      if (parsed.values.json) {
+        stderr.write(`${JSON.stringify({ refused: true, error: { kind: resolved.kind, message: resolved.message } })}\n`);
+      } else {
+        stderr.write(`[error] blueprint add: ${resolved.message}\n`);
+      }
+      return 2;
+    }
+    // Feed the resolved absolute path to the applier; keep the original
+    // typed source on the CLI for the supersede hint the conflict
+    // renderer prints, so the operator sees exactly the string they can
+    // copy back into a fresh shell.
+    const source = resolved.resolved;
+    const displaySource = resolved.original;
     const resolveDeclarations = parseResolveOptions(parsed.values.resolve, parsed.values.reason);
     if (resolveDeclarations.error) {
       stderr.write(`[error] blueprint add: ${resolveDeclarations.error}\n`);
@@ -156,6 +178,7 @@ export async function main(argv, deps = {}) {
     }
     const result = await applyBlueprint({
       projectRoot, tree, source,
+      displaySource,
       namespaceOverride: parsed.values.namespace,
       resolveDeclarations: resolveDeclarations.value,
       now,

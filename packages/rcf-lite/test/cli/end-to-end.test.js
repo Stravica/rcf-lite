@@ -51,11 +51,16 @@ test('scripted journey: init -> create req -> validate -> create us -> ac -> ts 
   tree = await reload(tmp);
   assert.deepEqual(tree.childrenByParent.get('REQ-002'), ['US-201']);
 
-  // 4. create an AC on US-201.
+  // 4. create an AC on US-201. The first create replaces the seeded
+  // phantom AC-201-1 in place (0.13.0 G5), then a second create appends
+  // AC-201-2 so the rest of the journey has two ACs to work with.
+  await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-201', '--description', 'first real criterion']);
   await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-201', '--description', 'second criterion']);
   tree = await reload(tmp);
   const us201 = tree.byId.get('US-201');
   assert.equal(us201.acceptanceCriteria.length, 2);
+  assert.equal(us201.acceptanceCriteria[0].id, 'AC-201-1');
+  assert.equal(us201.acceptanceCriteria[1].id, 'AC-201-2');
 
   // 5. create a TS on US-201.
   await runBin(tmp, [
