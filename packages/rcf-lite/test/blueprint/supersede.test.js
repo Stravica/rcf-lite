@@ -218,6 +218,136 @@ test('supersede: refuses to overwrite an existing file at the scaffolded path', 
   assert.match(result.message, /refuse to overwrite/);
 });
 
+test('supersede: --incoming routes through the resolveBlueprintSource pipeline; @stock, bare kebab slug, and path forms are all accepted (persona re-run 2026-08-31 arc-4 H2)', async () => {
+  // The persona re-run repro walked this via the packaged shelf; the
+  // hermetic form here injects a stub resolver that maps `@stock/rest`,
+  // `rest`, and the raw tmpdir path all onto the SAME on-disk blueprint,
+  // proving the routing accepts every form `add` accepts. Before the
+  // fix, supersede fed --incoming directly to loadBlueprint and the
+  // first two forms refused with "no blueprint.json found" at a
+  // cwd-relative path.
+  const { root, rest } = await twoBlueprintsCollidingOnAuth();
+  // Both-applied state (same shortcut the older tests use).
+  const manifestPath = join(root, 'rcf', 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.blueprints.push({
+    slug: 'rest', version: '1.0.0', appliedAt: '2026-08-19T10:00:05Z', source: rest,
+    contributions: [{ id: 'ADR-003-rest', path: 'rcf/adrs/adr-003-rest.json', kind: 'adr', scope: 'global', topic: 'auth' }],
+  });
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+
+  const stubResolver = async (source) => {
+    // The stub speaks the same three shapes the shipped resolver does:
+    // '@stock/<slug>' and bare '<slug>' land as kind:'shelf'; anything
+    // else is treated as a path.
+    if (source === '@stock/rest' || source === 'rest') {
+      return { kind: 'shelf', resolved: rest, original: source, slug: 'rest' };
+    }
+    return { kind: 'path', resolved: rest, original: source };
+  };
+  const forms = ['@stock/rest', 'rest', rest];
+  for (const [i, form] of forms.entries()) {
+    // Fresh manifest for each iteration so the run-once overwrite guard
+    // does not fire.
+    const m = JSON.parse(await readFile(manifestPath, 'utf8'));
+    m.resolutions = [];
+    await writeFile(manifestPath, `${JSON.stringify(m, null, 2)}\n`, 'utf8');
+    // The scaffolded ADR from the previous form must be cleared too or
+    // the overwrite guard refuses the second run.
+    await mkdir(join(root, 'rcf', 'adrs'), { recursive: true });
+    const { rm } = await import('node:fs/promises');
+    await rm(join(root, 'rcf', 'adrs', 'adr-006-auth.json'), { force: true });
+
+    const tw = await walkTree({ projectRoot: root });
+    const result = await supersedeBlueprintTopic({
+      projectRoot: root, tree: tw.tree, topic: 'auth', incomingSource: form,
+      now: new Date(`2026-08-19T10:0${i}:00Z`),
+      _resolveSource: stubResolver,
+    });
+    assert.equal(
+      result.superseded, true,
+      `supersede should accept form '${form}' via the resolver pipeline; got ${JSON.stringify(result)}`,
+    );
+    assert.equal(result.supersedes.length, 2, `form '${form}' should list both sides`);
+    const slugs = result.supersedes.map((s) => s.slug).sort();
+    assert.deepEqual(slugs, ['rest', 'spa'], `form '${form}' should carry both slugs`);
+  }
+});
+
+test('supersede: --incoming propagates a resolver refusal under the --incoming banner (unregistered library prefix, malformed source)', async () => {
+  const { root, rest } = await twoBlueprintsCollidingOnAuth();
+  const manifestPath = join(root, 'rcf', 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.blueprints.push({
+    slug: 'rest', version: '1.0.0', appliedAt: '2026-08-19T10:00:05Z', source: rest,
+    contributions: [{ id: 'ADR-003-rest', path: 'rcf/adrs/adr-003-rest.json', kind: 'adr', scope: 'global', topic: 'auth' }],
+  });
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  const tw = await walkTree({ projectRoot: root });
+  // The slash-qualified `@<library>/<slug>` form is refused by the
+  // resolver with a pointer at the ratified colon form; the supersede
+  // wrapper must surface that refusal under `--incoming <source>:`.
+  const result = await supersedeBlueprintTopic({
+    projectRoot: root, tree: tw.tree, topic: 'auth', incomingSource: '@dave/rest', now,
+  });
+  assert.equal(result.kind, 'usage');
+  assert.match(result.message, /^--incoming @dave\/rest: /);
+  assert.match(result.message, /slash-qualified '@<library>\/<slug>' shape/);
+});
+
+test('supersede: --incoming with a library-qualified source uses effectiveSlug for the supersedes[] entry (matches apply.js identity rewiring)', async () => {
+  // Build a fresh scaffold with a bare-id ADR in the incoming
+  // blueprint so the stamper actually applies the effectiveSlug as a
+  // suffix (an ADR id that already carries a suffix would be trusted
+  // verbatim by stampId — that is by-design and shared with apply.js).
+  const root = await scaffoldProject();
+  const spa = await writeBlueprint(root, 'blueprint-spa', {
+    slug: 'spa',
+    contributions: [
+      {
+        id: 'ADR-005-spa', kind: 'adr', path: 'adr-005-spa.json',
+        scope: 'global', topic: 'auth',
+        body: adrBody({ id: 'ADR-005-spa', title: 'SPA auth', decision: 'HttpOnly cookies.', topic: 'auth' }),
+      },
+    ],
+  });
+  const lib = await writeBlueprint(root, 'blueprint-lib-auth', {
+    slug: 'auth',
+    contributions: [
+      {
+        id: 'ADR-007', kind: 'adr', path: 'adr-007.json',
+        scope: 'global', topic: 'auth',
+        body: adrBody({ id: 'ADR-007-wsd-auth', title: 'Library auth', decision: 'OAuth.', topic: 'auth' }),
+      },
+    ],
+  });
+  const tw0 = await walkTree({ projectRoot: root });
+  const spaApply = await applyBlueprint({ projectRoot: root, tree: tw0.tree, source: spa, now });
+  assert.equal(spaApply.applied, true);
+
+  const stubResolver = async () => ({
+    kind: 'library',
+    resolved: lib,
+    original: 'wsd:auth',
+    libraryPrefix: 'wsd',
+    libraryBlueprintSlug: 'auth',
+    effectiveSlug: 'wsd-auth',
+    libraryBands: undefined,
+  });
+  const tw = await walkTree({ projectRoot: root });
+  const result = await supersedeBlueprintTopic({
+    projectRoot: root, tree: tw.tree, topic: 'auth', incomingSource: 'wsd:auth',
+    now, _resolveSource: stubResolver,
+  });
+  assert.equal(result.superseded, true, `library-qualified supersede: ${JSON.stringify(result)}`);
+  // The incoming side must carry the effectiveSlug (`wsd-auth`), not
+  // the raw blueprint.json slug (`auth`); that is how apply.js stamps
+  // the identity onto manifest.blueprints[].slug.
+  const bySlug = Object.fromEntries(result.supersedes.map((s) => [s.slug, s.adrId]));
+  assert.ok('wsd-auth' in bySlug, `expected 'wsd-auth' in supersedes[], got ${JSON.stringify(result.supersedes)}`);
+  assert.equal(bySlug['wsd-auth'], 'ADR-007-wsd-auth');
+});
+
 test('supersede: topic is validated as a lookup key; empty and whitespace-only are refused, camelCase / kebab / snake are accepted (Phase 3.5 round 2 loosen)', async () => {
   const root = await scaffoldProject();
   const { tree } = await walkTree({ projectRoot: root });
