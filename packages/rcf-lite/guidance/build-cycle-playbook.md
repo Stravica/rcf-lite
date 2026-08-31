@@ -264,7 +264,7 @@ One condensed pass against this repository's own tree, captured at build time. Q
 
 ```
 $ rcf build
-# Build queue: BS-001 - RCF Build Lite initial delivery
+# Build queue: BS-001 - RCF Lite initial delivery
 
 Generation strategy: dependencyFirst
 
@@ -311,7 +311,7 @@ Two actionable items, and the tier column says how they relate: FBS-013 and FBS-
 - Estimated hours: 7
 - Risk level: medium
 - Domain: guidance
-- Parent chain: BS-001 -> PRD-001 (RCF Build Lite)
+- Parent chain: BS-001 -> PRD-001 (RCF Lite)
 ```
 
 Mark pickup, and the cycle is running:

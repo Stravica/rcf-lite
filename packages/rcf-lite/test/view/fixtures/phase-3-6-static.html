@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RCF Build Lite - RCF review surface</title>
+  <title>RCF Lite - RCF review surface</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='64' fill='%23c14a3a'/%3E%3Ctext x='256' y='370' font-family='Georgia,serif' font-size='360' font-weight='600' text-anchor='middle' fill='%23f7f5f0'%3ES%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
   <noscript>
@@ -18,7 +18,7 @@
 </head>
 <body>
   <header>
-    <h1>RCF Build Lite</h1>
+    <h1>RCF Lite</h1>
     <p class="subtitle">RCF review surface</p>
     <nav class="tabs" role="tablist" aria-label="Document sections">
       <button type="button" role="tab" data-tab="overview" aria-selected="true" aria-controls="tab-overview">Overview</button>
@@ -33,9 +33,9 @@
       <h2 class="tab-heading">Overview</h2>
       <div class="prd-body">
         <article id="PRD-001" class="doc doc-prd">
-  <h3>PRD-001 - RCF Build Lite</h3>
+  <h3>PRD-001 - RCF Lite</h3>
   
-  <p><strong>Executive summary:</strong> RCF Build Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.</p>
+  <p><strong>Executive summary:</strong> RCF Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.</p>
 <p><strong>Problem statement:</strong> Power vibe-coders build real applications without engineering teams. They cannot read code, so they cannot judge whether what an AI tool produces is trustworthy. The full RCF chain makes output trustworthy without reading code, but authoring that chain by hand is the very effort these users lack the time and discipline for. There is no tool that runs the full RCF method over in-repository documents and surfaces it through structured, deterministic operations.</p>
 <section class="field-list"><h4>Target users</h4><ul><li>Power vibe-coders: product owners, founders and business voices building applications without engineering teams</li><li>AI coding tools that need a structured, deterministic surface over a project&#39;s RCF documents</li><li>Maintainers dogfooding RCF on the Build Lite repository itself</li></ul></section>
 <section class="field-list"><h4>In scope</h4><ul><li>On-disk RCF project structure under a project rcf folder</li><li>Visual review surface rendering the whole RCF tree as a diagram and a browsable page</li><li>Deterministic create, read, update and delete on every RCF document type</li><li>Traceability and query: coverage, trace forward, trace back, impact analysis</li><li>SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge</li><li>Local stdio MCP surface exposing query, CRUD, view and build to AI tooling</li><li>Validation of every document against the published schema package at every boundary</li><li>Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims</li></ul></section>
@@ -45,10 +45,10 @@
 <section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
-  &quot;productName&quot;: &quot;RCF Build Lite&quot;,
+  &quot;productName&quot;: &quot;RCF Lite&quot;,
   &quot;version&quot;: &quot;0.1.0&quot;,
   &quot;status&quot;: &quot;draft&quot;,
-  &quot;executiveSummary&quot;: &quot;RCF Build Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.&quot;,
+  &quot;executiveSummary&quot;: &quot;RCF Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.&quot;,
   &quot;problemStatement&quot;: &quot;Power vibe-coders build real applications without engineering teams. They cannot read code, so they cannot judge whether what an AI tool produces is trustworthy. The full RCF chain makes output trustworthy without reading code, but authoring that chain by hand is the very effort these users lack the time and discipline for. There is no tool that runs the full RCF method over in-repository documents and surfaces it through structured, deterministic operations.&quot;,
   &quot;targetUsers&quot;: [
     &quot;Power vibe-coders: product owners, founders and business voices building applications without engineering teams&quot;,
@@ -4445,7 +4445,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <h3>ADR-001 - Local filesystem is the single source of truth</h3>
   
   <p><strong>Status:</strong> accepted</p>
-  <p><strong>Context:</strong> RCF Build Lite must guarantee that a project&#39;s RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.</p>
+  <p><strong>Context:</strong> RCF Lite must guarantee that a project&#39;s RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.</p>
   <p><strong>Decision:</strong> Every read and write targets the local rcf tree directly. No external service, cache or database mirrors the documents. The CLI, the MCP server and the build loop all reach the filesystem only through the document store.</p>
   <p><strong>Consequences:</strong> The tool works offline and stays harness-agnostic. There is no sync problem and no second source to drift. The cost is that any multi-user or hosted scenario is out of scope by construction, which matches the product boundaries.</p>
   <section class="field-list"><h4>Alternatives considered</h4><ul><li><strong>GitHub API as source of truth</strong> - Read and write documents through the GitHub contents API as v1 did.<br/><em>Not chosen because:</em> Breaks the in-repository differentiator, requires network access and hit the API single-file fetch limit on large documents.</li><li><strong>Local database index</strong> - Keep the files but maintain a database index for fast queries.<br/><em>Not chosen because:</em> Introduces a second source of truth that can drift; query volumes for a single project do not justify it.</li></ul></section>
@@ -4458,7 +4458,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;version&quot;: &quot;0.1.0&quot;,
   &quot;status&quot;: &quot;accepted&quot;,
   &quot;title&quot;: &quot;Local filesystem is the single source of truth&quot;,
-  &quot;context&quot;: &quot;RCF Build Lite must guarantee that a project&#39;s RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.&quot;,
+  &quot;context&quot;: &quot;RCF Lite must guarantee that a project&#39;s RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.&quot;,
   &quot;decision&quot;: &quot;Every read and write targets the local rcf tree directly. No external service, cache or database mirrors the documents. The CLI, the MCP server and the build loop all reach the filesystem only through the document store.&quot;,
   &quot;consequences&quot;: &quot;The tool works offline and stays harness-agnostic. There is no sync problem and no second source to drift. The cost is that any multi-user or hosted scenario is out of scope by construction, which matches the product boundaries.&quot;,
   &quot;alternativesConsidered&quot;: [
@@ -4758,7 +4758,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>Context:</strong> The persona programme showed self-verification is only as truthful as the runtime it verifies against, and that a green suite plus a confident claim can still ship a user-facing defect (runs 03 and 05). The durable answer is a productised independent verification gate (rcf verify-lite), being scoped separately at HQ. But the base offering needs a stopgap now, and it must not pretend to be the independent gate: an in-loop self-review by the same agent is not an independent check and cannot be sold as one.</p>
   <p><strong>Decision:</strong> The guidance carries interim self-review guidance - documentation and prompt-level, not a new subsystem - for a carefully-scoped manual-review subagent dispatch: a periodic review every few FBS builds plus one at the end of the build. The reviewer runs fresh-context, drives the APP against the acceptance criteria rather than reading the code, and targets the defect classes green suites miss: session-class bugs, false-promise UI (stubs that imply real actions), runtime mismatch (localhost versus deployed), dead auth paths, and dead code. The guidance states plainly that this is an interim stopgap until rcf verify-lite exists and that it is not the independent verification gate.</p>
   <p><strong>Consequences:</strong> The base offering gains a review step that catches the defect classes the five-stage loop demonstrably missed, at documentation cost and with no new code surface to maintain. Because it is guidance, it can ship now and be retired or folded into rcf verify-lite later without a migration. The cost and the honesty boundary are the same point: a same-programme reviewer is better than nothing and weaker than an independent gate, and the guidance says so rather than overclaiming. Update 2026-07-28: rcf verify-lite has since shipped and rcf build finalise runs it as the independent gate, so the &#39;stopgap until the gate exists&#39; framing recorded in the decision above is spent. The decision itself stands - the self-review is still guidance, still not a subsystem, still not the gate - but it is now positioned as the cheap in-loop check that runs between builds, subordinate to the finalise gate rather than a placeholder for it, and AC-805-4 and the guidance were reworded to match.</p>
-  <section class="field-list"><h4>Alternatives considered</h4><ul><li><strong>Wait for rcf verify-lite</strong> - Ship no review step until the productised independent gate exists.<br/><em>Not chosen because:</em> Leaves the base offering shipping the exact defect classes the programme caught, for months, against users who cannot catch them themselves.</li><li><strong>Build an independent-gate subsystem now</strong> - Solve the independent-verification problem inside rcf-build-lite immediately.<br/><em>Not chosen because:</em> That is a separate product being scoped at HQ; duplicating it here pre-empts a repo reshape and over-builds the lite tier. The Tier-1 scope is guidance, not a gate.</li></ul></section>
+  <section class="field-list"><h4>Alternatives considered</h4><ul><li><strong>Wait for rcf verify-lite</strong> - Ship no review step until the productised independent gate exists.<br/><em>Not chosen because:</em> Leaves the base offering shipping the exact defect classes the programme caught, for months, against users who cannot catch them themselves.</li><li><strong>Build an independent-gate subsystem now</strong> - Solve the independent-verification problem inside rcf-lite immediately.<br/><em>Not chosen because:</em> That is a separate product being scoped at HQ; duplicating it here pre-empts a repo reshape and over-builds the lite tier. The Tier-1 scope is guidance, not a gate.</li></ul></section>
   
   
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
@@ -4775,7 +4775,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     },
     {
       &quot;name&quot;: &quot;Build an independent-gate subsystem now&quot;,
-      &quot;summary&quot;: &quot;Solve the independent-verification problem inside rcf-build-lite immediately.&quot;,
+      &quot;summary&quot;: &quot;Solve the independent-verification problem inside rcf-lite immediately.&quot;,
       &quot;reasonNotChosen&quot;: &quot;That is a separate product being scoped at HQ; duplicating it here pre-empts a repo reshape and over-builds the lite tier. The Tier-1 scope is guidance, not a gate.&quot;
     }
   ],
@@ -4840,7 +4840,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       <h2 class="tab-heading">Build sequence</h2>
       
 <article id="BS-001" class="doc doc-bs">
-  <h3>BS-001 - RCF Build Lite initial delivery</h3>
+  <h3>BS-001 - RCF Lite initial delivery</h3>
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
@@ -4850,7 +4850,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;version&quot;: &quot;0.1.0&quot;,
   &quot;status&quot;: &quot;draft&quot;,
-  &quot;title&quot;: &quot;RCF Build Lite initial delivery&quot;,
+  &quot;title&quot;: &quot;RCF Lite initial delivery&quot;,
   &quot;buildPhilosophy&quot;: &quot;Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.&quot;,
   &quot;generationStrategy&quot;: &quot;dependencyFirst&quot;,
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,

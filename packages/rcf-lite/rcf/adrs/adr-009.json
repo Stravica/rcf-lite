@@ -12,7 +12,7 @@
     },
     {
       "name": "Build an independent-gate subsystem now",
-      "summary": "Solve the independent-verification problem inside rcf-build-lite immediately.",
+      "summary": "Solve the independent-verification problem inside rcf-lite immediately.",
       "reasonNotChosen": "That is a separate product being scoped at HQ; duplicating it here pre-empts a repo reshape and over-builds the lite tier. The Tier-1 scope is guidance, not a gate."
     }
   ],

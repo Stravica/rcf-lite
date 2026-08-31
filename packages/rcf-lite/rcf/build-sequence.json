@@ -3,7 +3,7 @@
   "prdId": "PRD-001",
   "version": "0.1.0",
   "status": "draft",
-  "title": "RCF Build Lite initial delivery",
+  "title": "RCF Lite initial delivery",
   "buildPhilosophy": "Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.",
   "generationStrategy": "dependencyFirst",
   "createdAt": "2026-06-25T00:00:00Z",

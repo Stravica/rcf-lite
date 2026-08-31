@@ -1,4 +1,4 @@
-# Build queue: BS-001 - RCF Build Lite initial delivery
+# Build queue: BS-001 - RCF Lite initial delivery
 
 Generation strategy: dependencyFirst
 

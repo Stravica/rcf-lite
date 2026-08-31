@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "status": "accepted",
   "title": "Local filesystem is the single source of truth",
-  "context": "RCF Build Lite must guarantee that a project's RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.",
+  "context": "RCF Lite must guarantee that a project's RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.",
   "decision": "Every read and write targets the local rcf tree directly. No external service, cache or database mirrors the documents. The CLI, the MCP server and the build loop all reach the filesystem only through the document store.",
   "consequences": "The tool works offline and stays harness-agnostic. There is no sync problem and no second source to drift. The cost is that any multi-user or hosted scenario is out of scope by construction, which matches the product boundaries.",
   "alternativesConsidered": [
