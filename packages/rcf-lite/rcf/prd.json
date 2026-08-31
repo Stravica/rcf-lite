@@ -1,9 +1,9 @@
 {
   "prdId": "PRD-001",
-  "productName": "RCF Build Lite",
+  "productName": "RCF Lite",
   "version": "0.1.0",
   "status": "draft",
-  "executiveSummary": "RCF Build Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.",
+  "executiveSummary": "RCF Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.",
   "problemStatement": "Power vibe-coders build real applications without engineering teams. They cannot read code, so they cannot judge whether what an AI tool produces is trustworthy. The full RCF chain makes output trustworthy without reading code, but authoring that chain by hand is the very effort these users lack the time and discipline for. There is no tool that runs the full RCF method over in-repository documents and surfaces it through structured, deterministic operations.",
   "targetUsers": [
     "Power vibe-coders: product owners, founders and business voices building applications without engineering teams",

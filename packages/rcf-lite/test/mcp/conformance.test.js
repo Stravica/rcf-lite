@@ -124,7 +124,7 @@ test('conformance: SDK resources - list, tree read, one methodology doc byte-fai
     }
     const tree = await client.readResource({ uri: 'rcf://tree' });
     assert.equal(tree.contents[0].mimeType, 'application/json');
-    assert.equal(JSON.parse(tree.contents[0].text).project, 'RCF Build Lite');
+    assert.equal(JSON.parse(tree.contents[0].text).project, 'RCF Lite');
     const doc = await client.readResource({ uri: 'rcf://docs/overview' });
     const expected = await readFile(resolve(repoRoot, 'guidance/overview.md'), 'utf8');
     assert.equal(doc.contents[0].text, expected);

@@ -9,12 +9,12 @@
 - Estimated hours: 6
 - Risk level: low
 - Domain: projectStructure
-- Parent chain: BS-001 -> PRD-001 (RCF Build Lite)
+- Parent chain: BS-001 -> PRD-001 (RCF Lite)
 - Spec last touched: 2026-07-02T10:22:43Z
 
 ## 2. Queue and dependency context
 
-- Build sequence: BS-001 - RCF Build Lite initial delivery
+- Build sequence: BS-001 - RCF Lite initial delivery
 - Generation strategy: dependencyFirst
 - Build philosophy: Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.
 
@@ -104,7 +104,7 @@ Notes: The store is intentionally synchronous where possible; a local CLI does n
 
 ### ADR ADR-001: Local filesystem is the single source of truth (accepted)
 
-Context: RCF Build Lite must guarantee that a project's RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.
+Context: RCF Lite must guarantee that a project's RCF documents live in the source repository, beside the code. v1 tooling operated over the GitHub API rather than the local repo, which broke the in-repository differentiator and tied the tool to a network surface.
 
 Decision: Every read and write targets the local rcf tree directly. No external service, cache or database mirrors the documents. The CLI, the MCP server and the build loop all reach the filesystem only through the document store.
 

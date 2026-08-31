@@ -3,7 +3,7 @@
   "mode": "queue",
   "bs": {
     "bsId": "BS-001",
-    "title": "RCF Build Lite initial delivery",
+    "title": "RCF Lite initial delivery",
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
