@@ -23,6 +23,7 @@
     { "id": "security-auth-oauth2-US-10108", "kind": "us", "path": "user-stories/security-auth-oauth2-us-10108.json" },
     { "id": "security-auth-oauth2-US-10109", "kind": "us", "path": "user-stories/security-auth-oauth2-us-10109.json" },
     { "id": "security-auth-oauth2-US-10110", "kind": "us", "path": "user-stories/security-auth-oauth2-us-10110.json" },
+    { "id": "security-auth-oauth2-US-10111", "kind": "us", "path": "user-stories/security-auth-oauth2-us-10111.json" },
     { "id": "TAC-1101-security-auth-oauth2-flow-controller", "kind": "tac", "path": "tacs/tac-1101-security-auth-oauth2-flow-controller.json" },
     { "id": "TAC-1102-security-auth-oauth2-provider-adapter", "kind": "tac", "path": "tacs/tac-1102-security-auth-oauth2-provider-adapter.json" },
     { "id": "TAC-1103-security-auth-oauth2-session-bridge", "kind": "tac", "path": "tacs/tac-1103-security-auth-oauth2-session-bridge.json" },

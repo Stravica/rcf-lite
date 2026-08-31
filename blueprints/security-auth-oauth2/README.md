@@ -16,8 +16,8 @@ Composing with `security-auth-magic-link`, `security-auth-clerk`, or any other b
 
 | Piece | Where | What |
 |---|---|---|
-| Metadata | `blueprint.json` | Slug, version, category `security`, and the 30 contributions with scope/topic on the one global ADR |
-| Doc set | `contributions/` | 10 REQs, 10 USs (27 ACs), 4 TACs, 6 ADRs, all schema-valid and namespaced (`security-auth-oauth2-REQ-001` prefix family; `ADR-1101-security-auth-oauth2-auth-model` suffix family) |
+| Metadata | `blueprint.json` | Slug, version, category `security`, and the 31 contributions with scope/topic on the one global ADR |
+| Doc set | `contributions/` | 10 REQs, 11 USs (28 ACs), 4 TACs, 6 ADRs, all schema-valid and namespaced (`security-auth-oauth2-REQ-001` prefix family; `ADR-1101-security-auth-oauth2-auth-model` suffix family) |
 | Provider records | `assets/providers/*.md` | Sample provider records for Google (OIDC), GitHub (oauth2-only), and a generic OIDC-discovery-driven record; placeholders for `clientId` and `clientSecret` only |
 | Session-bridge sample | `assets/session-bridge/opaque-handle-shape.md` | The reference opaque-handle session-record shape and the reduced Principal contract; record-only, non-production |
 | Mock provider bootstrap | `assets/mock-provider/mock-oidc-shape.md` | The shape of a local mock OIDC provider stood up per REQ-010's acceptance-bar AC; the file names the endpoints, the JWKS shape, and the token minting shape without committing a specific library version |

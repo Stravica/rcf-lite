@@ -38,13 +38,13 @@ AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by t
 | observability-essentials (was observability) | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
 | security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx (1001-1099) | round-2 (sibling PR) | `authModel` |
-| security-auth-oauth2 (this package) | 10101-10899 | 11xx (1101-1199) | round-2 (this PR) | `authModel` |
+| security-auth-oauth2 (this package) | 10101-10899 | 11xx (1101-1199) | round-2 (this PR; US 10101-10111 shipped, ADR/TAC 1101-1106 shipped) | `authModel` |
 | security-auth-keycloak (reserved) | 11101-11899 | 12xx (1201-1299) | reserved | `authModel` |
 | deploy-cloudflare-workers (reserved) | 12101-12899 | 13xx (1301-1399) | reserved | (to be declared) |
 | persistence-data-d1 (reserved) | 13101-13899 | 14xx (1401-1499) | reserved | `persistenceStore` |
 | observability-probe-endpoints (reserved) | 14101-14899 | 15xx (1501-1599) | reserved | (to be declared) |
 
-US 10101-10110 sit at the LOW end of the 10101-10899 band on purpose. A project-side story that mechanically derives from a security-auth-oauth2 REQ id into the number `10110` would collide against security-auth-oauth2-US-10110 in this package; the band leaves headroom at the HIGH end (US 10181-10899) so a project's own stories anchored to security-auth-oauth2 REQs can allocate without conflict. The watchpost run4 lesson applies here too.
+US 10101-10111 sit at the LOW end of the 10101-10899 band on purpose. A project-side story that mechanically derives from a security-auth-oauth2 REQ id into the number `10111` would collide against security-auth-oauth2-US-10111 in this package; the band leaves headroom at the HIGH end (US 10181-10899) so a project's own stories anchored to security-auth-oauth2 REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 
 The ADR/TAC suffix block 1101-1199 is the second block to cross into the four-digit suffix space; `security-auth-clerk` opened the four-digit door at 1001-1099. Every shipped blueprint continues to load, validate, and audit against this shape without a schema change: rcf-schemas 0.5.0 `adrId` and `tacId` patterns are `^ADR-\d{3,}(-[a-z0-9]+...)?$` (three-digit minimum, unbounded above); four-digit and higher suffixes validate verbatim. The registry table above records the growth for a downstream author reaching for the next block.
 
