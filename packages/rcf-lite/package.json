@@ -27,6 +27,7 @@
     "src",
     "guidance",
     "rcf",
+    "releases",
     "fixtures",
     "README.md",
     "LICENSE",
@@ -41,7 +42,8 @@
     "vendor": "node scripts/vendor-mermaid.mjs",
     "build:managed": "node scripts/gen-managed-artefacts.mjs",
     "canary:register": "node scripts/canary-register.mjs",
-    "prepublishOnly": "node scripts/gen-managed-artefacts.mjs",
+    "validate:releases": "node scripts/validate-releases.mjs",
+    "prepublishOnly": "node scripts/gen-managed-artefacts.mjs && node scripts/validate-releases.mjs",
     "rcf": "node bin/rcf.js"
   },
   "repository": {
@@ -71,6 +73,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "js-yaml": "^4.1.0",
     "mermaid": "11.6.0"
   }
 }

@@ -1,0 +1,96 @@
+# rcf-lite release feed source of truth.
+#
+# This file is the single source that the docs site (stravica.ai) reads
+# at build time to publish the machine-readable feed at
+#   https://stravica.ai/docs/rcf/releases.json
+# and that the rcf-lite package's prepublishOnly step validates against
+# `package.json:version` so a release cannot ship without its own entry.
+#
+# Contract lives in
+#   projects/rcf-lite-wsd/specs/update-awareness-spec-2026-08-28.md
+# section 1 (ratified 2026-08-30).
+#
+# Editing rules at release time:
+#   1. Add the new release as the top entry under `releases:` (newest
+#      first).
+#   2. Update `latest:` to match the new top entry's `version`.
+#   3. Keep `headlines[]` operator-facing: one to three sentences, plain
+#      language, sentence case, terminal period, no method vocabulary
+#      shortcuts.
+#   4. Set `breaking: true` only when the release is a semver-breaking
+#      change per the pre-1.0 breaking-is-minor convention (see
+#      CHANGELOG.md preamble).
+#   5. `minAgentAction` names the extra work the agent needs to do beyond
+#      running the install command. `null` means no extra action. The
+#      enumerated values are listed in the spec section 1.5:
+#        - rewrite-shell-invocations
+#        - rerun-init
+#        - regenerate-chain
+#        - schema-migration
+#   6. `notesUrl` is optional. It currently points at the top of the
+#      human changelog; per-release deep links are a follow-up once the
+#      docs pipeline gives /docs/ headings stable anchor ids.
+#   7. Do not delete or rewrite historical entries; the feed is append-only.
+#
+# Every published release under the `rcf-lite` npm name is listed here.
+# The pre-rename history (packages published under
+# `@stravica-ai/rcf-build-lite`, `@stravica-ai/rcf-lite-core`, and
+# `@stravica-ai/rcf-verify-lite`) lives in CHANGELOG.md but is not part of
+# this feed; the feed is scoped to what an operator can install today as
+# `npm install rcf-lite`.
+
+feedVersion: 1
+latest: "0.12.0"
+releases:
+  - version: "0.12.0"
+    date: "2026-08-28"
+    breaking: true
+    headlines:
+      - "Tests that claim to pass or fail must now point at a real test file, enforced by the shared schema."
+      - "Tests marked pending or skipped no longer need a pointer, matching how in-progress coverage really looks."
+    minAgentAction: "schema-migration"
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
+  - version: "0.11.0"
+    date: "2026-08-27"
+    breaking: false
+    headlines:
+      - "The shipped agent guidance gained three new rules for how the agent drives the method loop."
+      - "Re-run rcf init to refresh the managed block in your project's agent instructions file."
+    minAgentAction: "rerun-init"
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
+  - version: "0.10.0"
+    date: "2026-08-26"
+    breaking: true
+    headlines:
+      - "The command-line interface is reorganised: every command now sits under one of five groups."
+      - "Old flat command forms fail with a message that names the new form."
+    minAgentAction: "rewrite-shell-invocations"
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
+  - version: "0.9.0"
+    date: "2026-08-25"
+    breaking: false
+    headlines:
+      - "Blueprints landed: compose pre-built implementation patterns onto your project instead of inventing them from a blank page."
+      - "Six starter blueprints ship in the same release, covering web app, REST API, auth, persistence, CI pipeline and observability."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
+  - version: "0.8.0"
+    date: "2026-08-12"
+    breaking: false
+    headlines:
+      - "A shared standards ruleset ships bundled with the package and now feeds refuse-first admissibility checks on the chain."
+      - "The verifier catches a subtle dishonesty: a test that is narrower in scope than the check it claims to prove."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
+  - version: "0.7.1"
+    date: "2026-08-12"
+    breaking: false
+    headlines:
+      - "The first release under the unified rcf-lite name, bringing the previously separate tools together as one package on the public npm registry."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
