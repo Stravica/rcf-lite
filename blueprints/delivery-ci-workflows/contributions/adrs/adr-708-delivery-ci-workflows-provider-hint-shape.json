@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-708-delivery-ci-workflows-provider-hint-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "accepted",
+  "title": "providerHint selects which provider's illustrative asset set the blueprint ships; v2.0.0 ships GHA only",
+  "context": "v1 shipped one illustrative GitHub Actions workflow and a four-point mapping doc for GitLab CI, CircleCI, Buildkite, and Jenkins. v2 has three or four workflows in the matrix. Shipping full asset sets for every provider would triple or quadruple the asset payload; shipping for none would leave every operator writing YAML from a mapping table.",
+  "decision": "v2.0.0 ships illustrative assets for `providerHint: githubActions` only (one workflow file per workflow in the matrix). Every other `providerHint` value is accepted at the elicitation surface but does not seed provider assets; operators using those providers translate the GHA assets per the four-point mapping doc, which extends to cover the full matrix at v2.0.0. Shipping per-provider full asset sets is a v2.1 candidate driven by demand.",
+  "consequences": "The asset payload stays small; the AC contracts (provider-neutral by design) remain the load-bearing surface. Projects on GHA get a working starting point; projects on other providers get the same starting point after the mapping doc's four-point translation. A sibling asset pack (an npm package materialising other providers' YAML from the same `workflowShape`) can ship independently.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship full asset sets for every provider at v2.0.0",
+      "summary": "Five provider directories, four workflow files each.",
+      "reasonNotChosen": "Twenty asset files to keep in sync across v2.x bumps for demand that is currently unproven for four of the five providers."
+    },
+    {
+      "name": "Ship no illustrative assets and rely on the mapping doc",
+      "summary": "Every operator writes their own YAML from the AC contracts and the mapping doc.",
+      "reasonNotChosen": "v1 shipped a GHA workflow because the working example carries the AC contracts more clearly than the doc alone; removing that reference regresses the operator experience for the majority provider."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

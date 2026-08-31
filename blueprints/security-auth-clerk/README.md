@@ -1,4 +1,4 @@
-# Security auth Clerk blueprint (v1.0.0)
+# Security auth Clerk blueprint (v1.1.0)
 
 The tenth content blueprint on the rcf-build-lite blueprint mechanism, category `security`. A Clerk-committed sibling to `security-auth-magic-link` on the `authModel` global topic: Clerk hosts the identity surface (users, sessions, sign-in UX, credential storage, MFA, account recovery); the project owns a framework-agnostic middleware boundary, a session verifier confined to one module, a Clerk-claim-to-project-verb authorisation adapter, and a reduced principal shape the rest of the codebase reasons against. Targeted at small greenfield rcf-lite projects that want hosted identity without building the user-and-session surface themselves; larger deployments supersede the vendor by superseding ADR-1001 with a project-level ADR and swapping the middleware and verifier adapters.
 
@@ -20,10 +20,12 @@ Composing with `security-auth-magic-link` (or any other blueprint contributing `
 | Doc set | `contributions/` | 9 REQs, 11 USs (25 ACs), 4 TACs, 5 ADRs, all schema-valid and namespaced (`security-auth-clerk-REQ-001` prefix family; `ADR-1001-security-auth-clerk-auth-model` suffix family) |
 | React-family sample | `assets/wiring/clerk-provider-react.md` | The shape of a `ClerkProvider` wiring in a React-family client tier: where the provider mounts, what the SPA blueprint's session-and-redirect posture composes with |
 | Vue-family sample | `assets/wiring/clerk-provider-vue.md` | The same shape rendered for a Vue-family client tier so the operator can pattern-match without a framework translation step |
-| Middleware sample | `assets/middleware/node-middleware-shape.md` | The framework-agnostic middleware boundary contract (`verify(request)`), with adapter samples for Express and Fastify |
+| Middleware sample (Node) | `assets/middleware/node-middleware-shape.md` | The framework-agnostic middleware boundary contract (`verify(request)`), with adapter samples for Express and Fastify |
+| Middleware sample (Workers) | `assets/middleware/workers-fetch-shape.md` | The Cloudflare Workers fetch-handler adapter around the same `verify(request)` contract; a project on Workers picks up this file, a project on Node picks up the Node sample |
+| Workers wrangler integration | `assets/wiring/workers-wrangler-toml-shape.md` | The wrangler.toml overlay a Workers deployer applies: `nodejs_compat`, `CLERK_SIGN_IN_URL`, the Clerk secret names, and the `run_worker_first` posture the auth-gate bypass finding required |
 | Role-claim mapping | `assets/authorisation/role-claim-mapping-sample.md` | A worked verb-to-role mapping-table example, with the reduction from Clerk's `org:role` claim shape into the project's `roles` array |
 | Guide | `guide/security-auth-clerk.md` | Operator-facing: when to use it, when not, the promotion signals for the OAuth2 and Keycloak siblings, the operator decisions that remain open, the cost-honesty paragraph |
-| Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes and the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, email-smtp-resend, persistence-data-sqlite, ci-pipeline, observability-essentials, security-secrets-management, security-auth-clerk) |
+| Coordination vocabulary | `docs/topics.md` | The one global-topic string this blueprint contributes and the shared id band registry (application-spa, application-api-rest, security-auth-magic-link, email-smtp-resend, persistence-data-sqlite, delivery-ci-workflows, observability-essentials, security-secrets-management, security-auth-clerk) |
 
 The doc set is contributions (copied into the project tree by `rcf define blueprint add`); the guide, assets, and docs are package-resident references. Guide rendering into `rcf/knowledge/docs/blueprint-guides/` and asset ingestion are mechanism follow-ups; until they land, the working agent reads them from the applied blueprint's source path recorded in `manifest.blueprints[].source`.
 

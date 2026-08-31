@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-705-delivery-ci-workflows-elicitation-surface",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "accepted",
+  "title": "The workflowShape elicitation surface lives in the in-repo file `.rcf/config/delivery-ci-workflows.json` at v2.0.0",
+  "context": "The v2 workflow set scales along four elicited dimensions the project declares once. Two candidate locations for the declaration were considered: an in-repo config file at a stable path, and a manifest-embedded per-blueprint config slot (`manifest.blueprints[<slug>].config`). The manifest slot is the natural mechanism-side home if and when rcf-lite grows a per-blueprint config surface; that facility does not ship at v2.0.0.",
+  "decision": "v2.0.0 requires the project to ship the `workflowShape` declaration at the stable path `.rcf/config/delivery-ci-workflows.json`. The path is documented in the blueprint guide and the mechanism does not extend the manifest for it. The workflow-materialiser reads this file on every run and refuses to boot when it is missing or malformed. If and when rcf-lite ships a per-blueprint manifest-embedded config surface, this ADR is superseded by a v2.x ADR that widens the source to accept either the manifest entry or the in-repo file (with the manifest entry taking precedence when both are present).",
+  "consequences": "The elicitation surface ships without waiting on a mechanism-side extension. The location is greppable and version-controllable; a project change to the workflow shape is a diff on one file. The workflow-materialiser has a single source of truth. When the manifest-embedded surface lands in the future, the migration is additive and does not break existing v2 projects.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship the elicitation surface manifest-embedded from v2.0.0",
+      "summary": "The mechanism extends `manifest.blueprints[<slug>]` with a `config` slot; the blueprint's validation runs on apply.",
+      "reasonNotChosen": "The mechanism-side extension is a separate rcf-lite work item outside v2.0.0's scope; blocking v2 on it delays a feature-gap fix the strongly-recommended list names as biggest."
+    },
+    {
+      "name": "Ship the elicitation surface as environment variables the CI provider supplies",
+      "summary": "The workflow-materialiser reads `RCF_BRANCH_MODEL`, `RCF_CHECK_SET`, etc. from the provider environment.",
+      "reasonNotChosen": "Environment variables that gate control flow break the local-parity property REQ-010 (v1) mandates and every AC that binds to the declaration would have to work equally in CI and on a developer machine. A file at a stable path in the project tree is equally available in both."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

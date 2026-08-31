@@ -1,0 +1,46 @@
+{
+  "usId": "delivery-ci-workflows-US-6122",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-022",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The deployHandoff release mode invokes the deploy blueprint's promote workflow and refuses at boot when that blueprint is absent",
+  "asA": "operator declaring a paired service on delivery-ci-workflows v2",
+  "iWant": "the release workflow to hand off to the named deploy blueprint's promote workflow after the artefact-publish step succeeds",
+  "soThat": "the CI-side and deploy-side workflows compose without either duplicating the other's WHAT",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6122-1",
+      "description": "When `workflowShape.releaseMode` is `deployHandoff:<slug>` and the named deploy blueprint is present in `manifest.blueprints[]`, the release workflow invokes the deploy blueprint's `promote` workflow via `workflow_dispatch` after the artefact-publish step succeeds. The invocation passes the just-published version identifier as the `versionId` input.",
+      "given": "a `workflowShape` with `releaseMode: deployHandoff:deploy-cloudflare-workers`, the named deploy blueprint applied, and an artefact-publish step that succeeded",
+      "when": "the release trigger fires",
+      "then": "the release workflow dispatches the promote workflow with `versionId` set to the just-published version identifier and waits on the promote workflow's outcome",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6122-2",
+      "description": "The release workflow's aggregate outcome is `passed` only when the promote workflow's outcome is `passed`. A failed promote workflow flips the release workflow's aggregate to `failed`.",
+      "given": "a release workflow in `deployHandoff` mode whose promote workflow returned a failed outcome",
+      "when": "the release workflow aggregates its outcome",
+      "then": "the release workflow's aggregate report at `.rcf/reports/ci/release.json` records `verdict: failed` and names the promote workflow's failure in its `gates[]` array",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6122-3",
+      "description": "When `releaseMode` is `deployHandoff:<slug>` and the named deploy blueprint is not present in `manifest.blueprints[]`, the workflow-materialiser boot-check refuses with a stable-coded error naming the missing blueprint slug and pointing at `rcf define blueprint add <deploy-slug>`.",
+      "given": "a `workflowShape` with `releaseMode: deployHandoff:deploy-cloudflare-workers` and no such blueprint in the manifest",
+      "when": "the workflow-materialiser boots",
+      "then": "the materialiser exits non-zero with a stable-coded error naming the missing slug and pointing at the resolution command, and no release workflow file lands on disk",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-704-delivery-ci-workflows-workflow-materialiser",
+    "TAC-705-delivery-ci-workflows-release-workflow"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

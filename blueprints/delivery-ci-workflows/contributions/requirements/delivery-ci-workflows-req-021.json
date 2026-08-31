@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-021",
+  "prdId": "PRD-001",
+  "title": "The release workflow shape scales with the releaseMode dimension across four discrete modes",
+  "description": "When `workflowShape.releaseMode` is `none`, no release workflow ships. When `tagOnly`, a release workflow fires on the project-declared release trigger (a `release` event, a `workflow_dispatch`, or both) and creates a release entity on the CI provider's own release surface (a GitHub Release, a GitLab release, whatever the provider ships). When `tagPlusArtefact`, the release workflow also runs the project-realised artefact-publish step and uploads its output to the release entity; the AC contract requires the artefact-publish step to produce a verified artefact reachable at a stable identifier. When `deployHandoff:<slug>`, the release workflow additionally invokes the named deploy blueprint's promote workflow per REQ-022. The release workflow does not run the required check set; the check set already ran on the default-branch-checks workflow at the commit the release points at.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "Release workflow shape scales with project maturity: an internal package has no release path (mode `none`); a documented release stamps a tag (`tagOnly`); a published library adds an artefact (`tagPlusArtefact`); a paired service hands off to deploy (`deployHandoff`). Four discrete modes cover the maturity range without inventing intermediate states the operator has to reason about. Excluding the check set from the release workflow avoids the redundant run-and-lengthen pattern.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:21-release-mode"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

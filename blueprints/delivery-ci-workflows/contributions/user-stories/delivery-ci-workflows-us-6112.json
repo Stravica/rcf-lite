@@ -1,0 +1,36 @@
+{
+  "usId": "delivery-ci-workflows-US-6112",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-012",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "A missing or unrecognised workflowShape field fails fast with a stable-coded error",
+  "asA": "operator maintaining a project on delivery-ci-workflows v2",
+  "iWant": "the workflow-materialiser to refuse to run when its input `workflowShape` is missing a required field or carries an unrecognised value",
+  "soThat": "a misconfiguration is caught at boot with a message I can match on, not by a subtly wrong-shaped workflow set landing on disk",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6112-1",
+      "description": "A `workflowShape` missing any of the three required fields (`branchModel`, `checkSet`, `providerHint`) causes the workflow-materialiser to exit non-zero with a stable error code and a message naming the missing field. `releaseMode` being absent does NOT fail the boot-check (per Q6-B ratification): the materialiser treats absent `releaseMode` as `releaseMode: none` and ships no release workflow. No workflow file is written when the boot-check does fail.",
+      "given": "a `workflowShape` declaration whose `providerHint` field is absent (or any of the three required fields)",
+      "when": "the workflow-materialiser boots",
+      "then": "the materialiser exits non-zero, prints an error naming the missing field with a stable code, and leaves the provider's workflow directory unchanged",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6112-2",
+      "description": "A required field whose value is not in the recognised enumeration for that field causes the same failure shape: non-zero exit, stable-coded error, no workflow file written.",
+      "given": "a `workflowShape` carrying `branchModel: hybrid` (a value the enumeration does not include)",
+      "when": "the workflow-materialiser boots",
+      "then": "the materialiser exits non-zero, prints an error naming the field, the value received, and the recognised set, with a stable code",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-704-delivery-ci-workflows-workflow-materialiser"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

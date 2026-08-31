@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-709-delivery-ci-workflows-release-artefacts",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "accepted",
+  "title": "The releaseArtefacts global topic names the decision area of what the release workflow produces on a release trigger",
+  "context": "The v2 release workflow ships four discrete modes governing what the workflow produces on a release trigger (nothing, a tag, a tag plus artefact, or a tag plus artefact plus deploy handoff). The choice of what a project releases is a decision area a future release-notes blueprint or an artefact-provenance blueprint would also opine on. Naming the decision area as a scope:global topic reserves the string for composition; scope-local answers this blueprint contributes (the `releaseMode` enumeration) are the concrete answers.",
+  "decision": "The blueprint mints a new global topic `releaseArtefacts` (exact string, lowerCamelCase, one concept per topic, no version suffix). ADR-709 (this ADR) is the delivery-ci-workflows contribution on that topic and states the four-mode release shape as the delivery-side answer. Future composing blueprints (a `security-release-provenance` blueprint minting a signature-attestation opinion, a `delivery-release-notes` blueprint minting a changelog opinion, an `observability-release-tracking` blueprint minting a deployment-marker opinion) contribute their own scope:global ADR on the same string; the mechanism's conflict detector surfaces the pairing; expected resolution is one project-level ADR that fixes the extended answer.",
+  "consequences": "The composition surface for release artefact decisions is reserved; a future provenance or notes blueprint does not have to mint a new string. The topic is category-agnostic by design; a security-side or observability-side blueprint contributing here is not misusing the delivery category. `branchModel` is deliberately NOT minted as a topic because no shipped or plausible sibling blueprint has a legitimate opinion on branch model; if that changes, `branchModel` can be added in a v2.x minor bump.",
+  "alternativesConsidered": [
+    {
+      "name": "Do not mint a new global topic",
+      "summary": "The release workflow's output shape is a scope-local decision only; future composing blueprints coordinate at the project level.",
+      "reasonNotChosen": "A future provenance blueprint's opinion on artefact signatures overlaps with the delivery-side artefact-publish step; leaving the topic unminted means the conflict-detector cannot surface the pairing. Minting the string reserves the composition surface without forcing an answer."
+    },
+    {
+      "name": "Mint the topic string as `releaseWorkflow` instead",
+      "summary": "The name spans the whole workflow, not only its artefact production.",
+      "reasonNotChosen": "The workflow includes trigger and orchestration decisions that are delivery-side by nature; the ARTEFACT is the piece a security or observability blueprint would opine on. Naming the topic narrowly keeps the composition surface aligned with the plausible composers."
+    }
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

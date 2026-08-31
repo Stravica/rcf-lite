@@ -80,7 +80,7 @@ Starter vocabulary (ratified 2026-08-30 with round-2 chunk zero):
 
 New categories are minted by adding a row to this table in a chunk-zero-style pass, not by patching the loader: the loader validates SHAPE (kebab slug), so a blueprint may ship with a category the table does not yet name, and the shelf will render it verbatim. Prefer consolidation over near-duplicate categories; if two candidates read as the same shelf group to a first-time reader, pick one and note the reasoning here.
 
-Category is also a naming discipline. Every shipped blueprint carries a category-qualified slug: application-spa (category `application`), application-api-rest (category `application`), security-auth-magic-link (category `security`), persistence-data-sqlite (category `persistence`), observability-essentials (category `observability`), ci-pipeline (category `delivery`), security-secrets-management (category `security`). Auth-family blueprints share the `security-` slug prefix; persistence-family blueprints share the `persistence-` prefix; and so on. New blueprints follow the same category-qualified slug convention.
+Category is also a naming discipline. Every shipped blueprint carries a category-qualified slug: application-spa (category `application`), application-api-rest (category `application`), security-auth-magic-link (category `security`), persistence-data-sqlite (category `persistence`), observability-essentials (category `observability`), delivery-ci-workflows (category `delivery`), security-secrets-management (category `security`). Auth-family blueprints share the `security-` slug prefix; persistence-family blueprints share the `persistence-` prefix; and so on. New blueprints follow the same category-qualified slug convention.
 
 ## 4. Namespacing
 
@@ -109,7 +109,7 @@ The shelf-wide band registry (recorded at ship, never predicted; kept in sync ac
 | email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
 | hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
-| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
 | observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
 | security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |

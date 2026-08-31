@@ -15,7 +15,7 @@ Note on the deliberate conflict with observability-essentials: this blueprint is
 
 Note on the delineation from observability-essentials's `statusPageContract` topic: this blueprint does not contribute an opinion on the public status page. A project that wants the probe surface from this blueprint AND the public status page and notification outcome sink from observability-essentials resolves the two `healthProbes` and `readinessSemantics` conflicts with project-level ADRs and keeps `statusPageContract` on the essentials-supplied side; the blueprints then compose without further conflict.
 
-Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, persistence-data-sqlite, ci-pipeline, observability-essentials, security-secrets-management, security-auth-clerk, email-smtp-resend, and deploy-cloudflare-workers vocabularies, restated as law): lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`probeInterface`, `probeSurface`, `probes`, `livenessReadiness`, `probeTransport` are all wrong when `healthProbes` already exists; `readinessAggregation`, `readyPolicy`, `readinessRule` are all wrong when `readinessSemantics` already exists).
+Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, persistence-data-sqlite, delivery-ci-workflows, observability-essentials, security-secrets-management, security-auth-clerk, email-smtp-resend, and deploy-cloudflare-workers vocabularies, restated as law): lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`probeInterface`, `probeSurface`, `probes`, `livenessReadiness`, `probeTransport` are all wrong when `healthProbes` already exists; `readinessAggregation`, `readyPolicy`, `readinessRule` are all wrong when `readinessSemantics` already exists).
 
 ## Id number bands (registry bootstrap)
 
@@ -31,7 +31,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
 | hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
-| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
 | observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
 | security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |

@@ -1,0 +1,64 @@
+{
+  "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "2.0.0",
+  "status": "approved",
+  "name": "Workflow materialiser (Node reader + writer)",
+  "purpose": "The Node module the project realises to READ the `workflowShape` declaration from `.rcf/config/delivery-ci-workflows.json` and WRITE the provider-specific workflow files that make up the workflow set. One materialiser per project; the same code path runs locally and in CI. The materialiser is not a runtime CI job; it is a build-time authoring step the project runs when its shape changes.",
+  "responsibilities": [
+    "Read `.rcf/config/delivery-ci-workflows.json` at project root and parse it as JSON (AC-6111-1, AC-6111-2).",
+    "Perform the boot-check: refuse missing required fields (`branchModel`, `checkSet`, `providerHint`), refuse unrecognised values on any field, refuse `deployHandoff:<slug>` when the deploy blueprint is absent from the manifest; exit non-zero with a stable-coded error naming the offending field (AC-6112-1, AC-6112-2, AC-6122-3).",
+    "Expand a profile alias to the four-field composed form before any downstream reads it; refuse an unrecognised alias (AC-6113-1, AC-6113-2).",
+    "Compute the workflow set from `workflowShape` per the matrix in the spec (§3.2): the two commit-triggered workflows per branch model, the release workflow per `releaseMode`, the scheduled-audit workflow per `scheduledAudit` (AC-6114-1, AC-6114-2, AC-6115-1, AC-6115-2, AC-6121-1, AC-6121-2, AC-6123-1, AC-6123-2).",
+    "Seed the provider-specific asset directory (v2.0.0: `assets/ci-provider-examples/github-actions/`) and write one workflow file per workflow in the set to the provider's workflow path (v2.0.0: `.github/workflows/` for GHA); alternate providers translate per the four-point mapping doc.",
+    "Materialisation is idempotent: re-running with the same `workflowShape` writes the same files byte-for-byte; changing the shape overwrites the workflow files atomically (temp file + rename).",
+    "Emit a materialiser-run summary to stdout naming the workflow files produced and the elicited-check set they carry."
+  ],
+  "internalStructure": "One Node module exporting `materialise({ configPath, providerAssetDir, workflowOutDir })` and a shebang entry point invocable as `node <path>` with no required argv. The reader parses the config; the boot-check module validates each field against the recognised enumeration; the matrix module computes the workflow set from the composed shape; the writer module reads the provider asset templates, substitutes the required check set into the gate-runner invocation line, and writes the workflow files atomically.",
+  "interfaces": [
+    {
+      "name": "materialise",
+      "kind": "factory",
+      "description": "materialise({ configPath, providerAssetDir, workflowOutDir }) -> Promise<{ workflowsWritten: string[], summary: object }>; the sole callable the entry point invokes. Reads the config, runs the boot-check, computes the matrix, writes the workflows."
+    },
+    {
+      "name": "workflow-shape",
+      "kind": "value",
+      "description": "The parsed and composed `workflowShape`: `{ branchModel, checkSet, releaseMode, providerHint, scheduledAudit, trunkPullRequests }` with alias expansion applied and `releaseMode` defaulted to `none` when absent."
+    },
+    {
+      "name": "entry-point CLI",
+      "kind": "cli",
+      "description": "`node <entryPointPath>` with no required argv. Optional flag `--config <path>` overrides the default config path; `--out <path>` overrides the default workflow output directory. Exit code is 0 on success and non-zero (with the boot-check error code) on any refused input."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Gate runner",
+      "kind": "tac",
+      "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+      "description": "The materialiser writes workflow files whose command line invokes the gate-runner Node entry point with the elicited check set. The materialiser does not import the runner; it invokes the runner as a separate Node process at CI time."
+    },
+    {
+      "name": "Release workflow",
+      "kind": "tac",
+      "tacId": "TAC-705-delivery-ci-workflows-release-workflow",
+      "description": "The materialiser produces the release workflow file whose steps satisfy the release-workflow TAC per the elicited `releaseMode`."
+    },
+    {
+      "name": "Scheduled audit",
+      "kind": "tac",
+      "tacId": "TAC-706-delivery-ci-workflows-scheduled-audit",
+      "description": "The materialiser produces the scheduled-audit workflow file whose cron trigger satisfies the scheduled-audit TAC when `scheduledAudit: true`."
+    },
+    {
+      "name": "Manifest reader",
+      "kind": "external",
+      "description": "The materialiser reads `rcf/manifest.json` to perform the `deployHandoff` manifest boot-check (AC-6122-3); refusal names the missing slug and the resolution command."
+    }
+  ],
+  "tradeoffs": "A build-time materialiser costs an extra step in the project's onboarding (running `node <entryPointPath>` after editing the config) but buys byte-identical workflow files across two runs of the same shape, which is the property downstream tools (a diff-review, a CI-config-verifier) depend on. Writing to the provider workflow path (not a `dist/` directory) means the workflow files are committed and reviewable; the shape declaration and the materialised output are both under source control.",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

@@ -32,7 +32,7 @@
       "description": "The directory the apply step reads; the file set at HEAD determines what the apply attempts."
     }
   ],
-  "tradeoffs": "Ordering the apply strictly before the deploy costs a small amount of CI latency per environment (one wrangler invocation, one round trip to the D1 API) in exchange for making the schema-behind-the-code state impossible in production. Projects that need faster CI can parallelise across environments, but never inside one environment's apply-then-deploy sequence. The gate is a project-authored CI file; the blueprint does not ship a CI template, because CI shape is a `ci-pipeline`-adjacent concern the project owns.",
+  "tradeoffs": "Ordering the apply strictly before the deploy costs a small amount of CI latency per environment (one wrangler invocation, one round trip to the D1 API) in exchange for making the schema-behind-the-code state impossible in production. Projects that need faster CI can parallelise across environments, but never inside one environment's apply-then-deploy sequence. The gate is a project-authored CI file; the blueprint does not ship a CI template, because CI shape is a `delivery-ci-workflows`-adjacent concern the project owns.",
   "createdAt": "2026-08-30T00:00:00Z",
   "updatedAt": "2026-08-30T00:00:00Z"
 }

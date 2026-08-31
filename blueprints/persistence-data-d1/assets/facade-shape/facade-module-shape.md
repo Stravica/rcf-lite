@@ -112,4 +112,4 @@ Not a runnable facade. The snippets above are the SHAPE; a project's own domain 
 
 Not an ORM. Projects that reach for Drizzle or Kysely wire it inside the verb bodies and preserve the outward verb surface. The prepared-statement discipline (static SQL literals inside the verb, values only through `bind`) survives an ORM: most ORMs emit static SQL from typed queries at build time, and the AC-13104-1 grep still lands on static literals.
 
-Not the ci-pipeline gate. TAC-1403's deploy-gate is a CI file, not a facade responsibility; the two surfaces meet only through the shared event-record shape.
+Not the delivery-ci-workflows gate. TAC-1403's deploy-gate is a CI file, not a facade responsibility; the two surfaces meet only through the shared event-record shape.

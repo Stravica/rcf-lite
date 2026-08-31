@@ -1,0 +1,18 @@
+{
+  "reqId": "delivery-ci-workflows-REQ-019",
+  "prdId": "PRD-001",
+  "title": "A unit-test check the project realises produces a stable-shape test report and fails non-zero on any failing test",
+  "description": "The elicited `unitTest` check, when the project enables it in `workflowShape.checkSet.unitTest`, runs the project unit-test suite as a gate that exits non-zero on any failing test. The gate writes its per-gate report to `.rcf/reports/ci/test.json` in the shared per-gate report shape (with `checkKind: \"unitTest\"`). The blueprint does not pick the test runner; the project realises the runner and satisfies the runner-contract interface. A missing runner (an empty test suite before the project has any tests) is recorded in the per-gate report and does not by itself fail the gate.",
+  "category": "functional",
+  "domain": "continuous-integration",
+  "priority": "must",
+  "rationale": "A unit-test gate is table stakes for any greenfield project; naming it in the elicited catalogue keeps the default set aligned with what a project engineer expects to find in a CI floor. Preserving the tool choice at the project layer is what keeps the blueprint neutral across test frameworks.",
+  "tags": [
+    "blueprint:delivery-ci-workflows",
+    "category:19-check-unit-test"
+  ],
+  "version": "2.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

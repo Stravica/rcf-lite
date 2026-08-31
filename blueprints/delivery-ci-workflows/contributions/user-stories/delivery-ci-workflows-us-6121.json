@@ -1,0 +1,46 @@
+{
+  "usId": "delivery-ci-workflows-US-6121",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-021",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The release workflow shape scales with the releaseMode dimension",
+  "asA": "operator declaring a release path on delivery-ci-workflows v2",
+  "iWant": "the release workflow the materialiser produces to scale with what my project has already declared (no release, tag only, tag plus artefact, or handoff to deploy)",
+  "soThat": "I choose the maturity level of my release path once and the workflow set follows",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6121-1",
+      "description": "When `workflowShape.releaseMode` is `none`, the workflow-materialiser writes no `release` workflow file to the provider's workflow path. A project with no release path does not ship a workflow.",
+      "given": "a `workflowShape` with `releaseMode: none`",
+      "when": "the workflow-materialiser runs",
+      "then": "no `release` workflow file is created at the provider's workflow path and no `.rcf/reports/ci/release.json` file is written",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6121-2",
+      "description": "When `releaseMode` is `tagOnly`, the release workflow fires on a release trigger and creates a release entity on the CI provider's own release surface. No artefact-publish step ships. When `tagPlusArtefact`, the release workflow additionally runs the project-realised artefact-publish step and uploads its output to the release entity.",
+      "given": "a `workflowShape` with `releaseMode: tagPlusArtefact` and a realised artefact-publish step",
+      "when": "a release trigger fires",
+      "then": "the release workflow creates the release entity, runs the artefact-publish step, uploads the published artefact to the release entity, and records the just-published version identifier in the aggregate report",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6121-3",
+      "description": "The release workflow does not include the required check set. Its aggregate report at `.rcf/reports/ci/release.json` carries the release-flow outcome (tag creation, artefact publish, optional deploy handoff) and not the gate-runner outcome.",
+      "given": "a release workflow materialised in any non-`none` mode",
+      "when": "the release trigger fires",
+      "then": "the release workflow does not invoke the gate-runner entry point and the `pipeline.json` at the same commit remains the record of the check set outcome",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-704-delivery-ci-workflows-workflow-materialiser",
+    "TAC-705-delivery-ci-workflows-release-workflow"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

@@ -10,7 +10,7 @@ This file is the security-auth-keycloak half of the cross-blueprint contract. Th
 
 The security-auth-keycloak blueprint claims one global topic. Every other contribution is scope-local (ADR-1202 through ADR-1206 name the verification-mode choice, the provider-routing seam, the session-vs-token contract, the JWKS rotation-cache lifetime, and the refresh-and-sign-out posture without contributing global topics; a composing blueprint that holds a different opinion on any of them authors its own project-level ADR if it wants to override).
 
-Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, security-auth-clerk, security-auth-oauth2, persistence-data-sqlite, ci-pipeline, observability-essentials, and security-secrets-management vocabularies, restated as law): lower camelCase, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`auth`, `authentication`, `identityProvider`, `keycloakProvider` are all wrong when `authModel` already exists).
+Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, security-auth-clerk, security-auth-oauth2, persistence-data-sqlite, delivery-ci-workflows, observability-essentials, and security-secrets-management vocabularies, restated as law): lower camelCase, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`auth`, `authentication`, `identityProvider`, `keycloakProvider` are all wrong when `authModel` already exists).
 
 ## The deliberate authModel conflict, restated
 
@@ -37,7 +37,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
 | hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
-| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
 | observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
 | security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |

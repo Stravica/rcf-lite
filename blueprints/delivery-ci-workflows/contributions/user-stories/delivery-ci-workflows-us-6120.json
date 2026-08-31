@@ -1,0 +1,28 @@
+{
+  "usId": "delivery-ci-workflows-US-6120",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-020",
+  "version": "2.0.0",
+  "status": "approved",
+  "title": "The security-scan check fails non-zero on findings at or above the project severity threshold",
+  "asA": "operator whose project enables the elicited security-scan check",
+  "iWant": "a security-scan gate whose exit code is driven by the project-configured severity threshold, not a build-in choice",
+  "soThat": "the gate applies across risk postures without changing the tool or the report shape",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6120-1",
+      "description": "When `checkSet.securityScan` is true, the gate-runner runs the project-realised security-scan runner. A non-zero exit code (indicating one or more findings at or above the project-configured severity threshold) flips the gate outcome to `failed`. Findings below the threshold are recorded in the per-gate report without flipping the exit code. The per-gate report at `.rcf/reports/ci/security.json` carries `checkKind: \"securityScan\"`.",
+      "given": "a project with `checkSet.securityScan: true` and a realised security-scan runner configured with the project's severity threshold",
+      "when": "a CI workflow invokes the gate-runner",
+      "then": "a report file at `.rcf/reports/ci/security.json` is written with `checkKind: \"securityScan\"`, and the gate outcome tracks the runner exit code",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner",
+    "TAC-702-delivery-ci-workflows-gate-report"
+  ],
+  "createdAt": "2026-08-31T00:00:00Z",
+  "updatedAt": "2026-08-31T00:00:00Z"
+}

@@ -10,7 +10,7 @@ This file is the security-auth-clerk half of the cross-blueprint contract. The P
 
 The security-auth-clerk blueprint claims one global topic. Every other contribution is scope-local (ADR-1002 through ADR-1005 name the middleware-boundary shape, the authorisation-adapter contract, the claims-mapping discipline, and the session-lifecycle posture without contributing global topics; a composing blueprint that holds a different opinion on any of them authors its own project-level ADR if it wants to override).
 
-Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, persistence-data-sqlite, ci-pipeline, observability-essentials, and security-secrets-management vocabularies, restated as law): lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`identity`, `identityProvider`, `authVendor`, `signIn` are all wrong when `authModel` already exists).
+Rules for new topics (inherited from the application-spa, application-api-rest, security-auth-magic-link, persistence-data-sqlite, delivery-ci-workflows, observability-essentials, and security-secrets-management vocabularies, restated as law): lower camel case, one concept per topic, no version suffixes. A topic names the decision area, not the chosen answer. Do not mint variants of existing strings (`identity`, `identityProvider`, `authVendor`, `signIn` are all wrong when `authModel` already exists).
 
 ## Id number bands (registry bootstrap)
 
@@ -26,7 +26,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
 | hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
-| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
 | observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
 | security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
