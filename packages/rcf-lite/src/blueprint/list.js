@@ -11,7 +11,11 @@
 // as `category: null` so grouped rendering can place it under an
 // uncategorised heading rather than swallow the row.
 
+import { isAbsolute } from 'node:path';
+
+import { isRcfError } from '../core/errors/index.js';
 import { loadBlueprint } from './loader.js';
+import { resolveBlueprintSource } from './shelf-resolver.js';
 
 /**
  * @param {import('#core/store/walker.js').TreeModel} tree
@@ -37,22 +41,52 @@ export function listBlueprints(tree) {
  * `category: null` so the caller can render the row under an
  * uncategorised group rather than skip it.
  *
+ * A row's `source` may be a non-path token in two ratified cases: an
+ * external-library colon ref (`wsd:auth-oauth2`, spec §5.3) and, on
+ * legacy manifests pre-#128, bare shelf sugar (`application-spa`).
+ * Both re-resolve through `resolveBlueprintSource` against `projectRoot`
+ * before we hand a filesystem path to the loader; without this every
+ * such row would render under `uncategorised` (integration review
+ * d-2026-08-31-046).
+ *
  * @param {ReturnType<typeof listBlueprints>} rows
+ * @param {object} [opts]
+ * @param {string} [opts.projectRoot] - absolute path to the project root.
+ *   Required to re-resolve library colon refs and bare shelf slugs.
+ *   Absolute-path sources still work when omitted (they need no
+ *   re-resolution), so tests that only exercise absolute paths keep
+ *   their existing single-argument shape.
  * @returns {Promise<Array<{ slug: string, version: string, appliedAt: string, source: string, namespace: string | null, contributionCount: number, category: string | null }>>}
  */
-export async function enrichRowsWithCategories(rows) {
+export async function enrichRowsWithCategories(rows, opts = {}) {
+  const projectRoot = typeof opts.projectRoot === 'string' && opts.projectRoot.length > 0
+    ? opts.projectRoot
+    : null;
   const out = [];
   for (const row of rows) {
     let category = null;
     if (typeof row.source === 'string' && row.source.length > 0) {
-      const loaded = await loadBlueprint(row.source);
-      if (!loaded.kind && typeof loaded.category === 'string') {
-        category = loaded.category;
+      const sourceAbs = await resolveSourceForList(row.source, projectRoot);
+      if (sourceAbs !== null) {
+        const loaded = await loadBlueprint(sourceAbs);
+        if (!loaded.kind && typeof loaded.category === 'string') {
+          category = loaded.category;
+        }
       }
     }
     out.push({ ...row, category });
   }
   return out;
+}
+
+async function resolveSourceForList(source, projectRoot) {
+  if (isAbsolute(source)) return source;
+  if (projectRoot === null) return null;
+  const resolved = await resolveBlueprintSource(source, { projectRoot }).catch(() => null);
+  if (resolved && !isRcfError(resolved) && typeof resolved.resolved === 'string') {
+    return resolved.resolved;
+  }
+  return null;
 }
 
 /**

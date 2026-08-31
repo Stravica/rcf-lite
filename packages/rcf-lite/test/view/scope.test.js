@@ -113,6 +113,102 @@ test('detectCustomisations flags files whose bytes differ from the shipping sour
   await rm(root, { recursive: true, force: true });
 });
 
+test('detectCustomisations re-resolves a bare shelf-slug source through the packaged shelf (F1)', async () => {
+  // Regression for integration review d-2026-08-31-046 F1: a legacy or
+  // sugar-carrying manifest whose `record.source` is a bare kebab slug
+  // (`application-spa`) must re-resolve to the packaged shelf and light
+  // up bytes-differ customisation detection. Pre-fix the resolver
+  // fell through the `isAbsolute` guard and returned a relative token
+  // the FS could not open, so every contribution rendered as
+  // missingSource.
+  const root = await mkdtemp(join(tmpdir(), 'rcf-scope-shelfslug-'));
+  const src = join(root, 'src-blueprint');
+  const contribDir = join(src, 'contributions', 'reqs');
+  await mkdir(contribDir, { recursive: true });
+  await writeFile(
+    join(src, 'blueprint.json'),
+    JSON.stringify({
+      slug: 'faux-shelf', version: '1.0.0',
+      contributions: [{ id: 'faux-shelf-REQ-001', kind: 'req', path: 'reqs/faux-req-001.json' }],
+    }),
+  );
+  await writeFile(join(contribDir, 'faux-req-001.json'), '{"reqId":"faux-shelf-REQ-001","original":true}');
+  const projectRoot = join(root, 'project');
+  const reqDir = join(projectRoot, 'rcf', 'reqs');
+  await mkdir(reqDir, { recursive: true });
+  await writeFile(join(reqDir, 'faux-req-001.json'), '{"reqId":"faux-shelf-REQ-001","original":true,"customised":true}');
+
+  // Fake resolver that mirrors the shelf-resolver's response shape for
+  // a bare slug: returns the resolved abs path. This proves the wiring
+  // routes non-abs-path sources through the resolver rather than
+  // handing the raw slug to the loader.
+  const _resolveSource = async (source, opts) => {
+    assert.equal(opts.projectRoot, projectRoot);
+    if (source === 'faux-shelf') return { kind: 'shelf', resolved: src, original: source, slug: source };
+    return { kind: 'usage', message: 'not found' };
+  };
+  const record = {
+    slug: 'faux-shelf',
+    source: 'faux-shelf',
+    contributions: [{ id: 'faux-shelf-REQ-001', kind: 'req', path: 'rcf/reqs/faux-req-001.json' }],
+  };
+  const { customisedIds, missingSourceIds } = await detectCustomisations({
+    projectRoot, record, _resolveSource,
+  });
+  assert.deepEqual(customisedIds, ['faux-shelf-REQ-001']);
+  assert.deepEqual(missingSourceIds, []);
+  await rm(root, { recursive: true, force: true });
+});
+
+test('detectCustomisations re-resolves a colon-qualified library source through the registry (F1)', async () => {
+  // Regression for integration review d-2026-08-31-046 F1: a library
+  // apply records `source: "<prefix>:<slug>"` per spec §5.3. That token
+  // is not a filesystem path; scope.js must re-resolve it through the
+  // project registry (or an injected resolver seam) to reach the
+  // library's cache directory. Without this the library-applied
+  // customisation banner is silently broken.
+  const root = await mkdtemp(join(tmpdir(), 'rcf-scope-libref-'));
+  const src = join(root, 'lib-cache', 'blueprints', 'auth-oauth2');
+  const contribDir = join(src, 'contributions');
+  await mkdir(contribDir, { recursive: true });
+  await writeFile(
+    join(src, 'blueprint.json'),
+    JSON.stringify({
+      slug: 'auth-oauth2', version: '1.0.0',
+      contributions: [{ id: 'wsd-auth-oauth2-REQ-50101', kind: 'req', path: 'req.json' }],
+    }),
+  );
+  await writeFile(join(contribDir, 'req.json'), '{"reqId":"wsd-auth-oauth2-REQ-50101","original":true}');
+
+  const projectRoot = join(root, 'project');
+  const reqDir = join(projectRoot, 'rcf', 'requirements');
+  await mkdir(reqDir, { recursive: true });
+  await writeFile(join(reqDir, 'wsd-auth-oauth2-req-50101.json'), '{"reqId":"wsd-auth-oauth2-REQ-50101","original":true,"customised":true}');
+
+  const _resolveSource = async (source, opts) => {
+    assert.equal(opts.projectRoot, projectRoot);
+    if (source === 'wsd:auth-oauth2') {
+      return {
+        kind: 'library', resolved: src, original: source,
+        libraryPrefix: 'wsd', libraryBlueprintSlug: 'auth-oauth2',
+        effectiveSlug: 'wsd-auth-oauth2',
+      };
+    }
+    return { kind: 'usage', message: 'not found' };
+  };
+  const record = {
+    slug: 'wsd-auth-oauth2',
+    source: 'wsd:auth-oauth2',
+    contributions: [{ id: 'wsd-auth-oauth2-REQ-50101', kind: 'req', path: 'rcf/requirements/wsd-auth-oauth2-req-50101.json' }],
+  };
+  const { customisedIds, missingSourceIds } = await detectCustomisations({
+    projectRoot, record, _resolveSource,
+  });
+  assert.deepEqual(customisedIds, ['wsd-auth-oauth2-REQ-50101']);
+  assert.deepEqual(missingSourceIds, []);
+  await rm(root, { recursive: true, force: true });
+});
+
 test('detectCustomisations returns empty when the shipping source is unreadable', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-scope-'));
   const record = {

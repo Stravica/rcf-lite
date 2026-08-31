@@ -5,9 +5,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
@@ -555,4 +555,26 @@ test('conflict enrichment is symmetric: incoming side carries title + decision r
   assert.equal(c.incoming.decision, 'JWT bearer for API.');
   assert.equal(c.existing.title, 'SPA auth: cookies');
   assert.equal(c.existing.decision, 'Cookies for sessions.');
+});
+
+test('rcf define blueprint add <bare-shelf-slug> records the RESOLVED ABSOLUTE PATH on the manifest source (F1 regression)', async () => {
+  // Regression for integration review d-2026-08-31-046 F1. Pre-fix the
+  // CLI forwarded `displaySource = resolved.original` for every resolver
+  // kind; that flipped `manifest.blueprints[].source` to the operator's
+  // typed sugar (a bare kebab slug) for shelf applies, which then
+  // downstream broke both /scope.json's customisation banner and
+  // `blueprint list --category` grouping (spec assumed the record's
+  // source is the absolute shipping path, which is the pre-#120
+  // behaviour the apply.js docstring at lines 255-262 still asserts).
+  // A library apply's colon-form record is regression-covered in
+  // cli-library.test.js "blueprint add wsd:auth-oauth2 through
+  // registered library stamps effective slug and qualified source".
+  const root = await scaffold();
+  const apply = await runBin(root, ['define', 'blueprint', 'add', 'application-spa']);
+  assert.equal(apply.code, 0, `apply stderr: ${apply.stderr}`);
+  const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  const record = manifest.blueprints.find((b) => b.slug === 'application-spa');
+  assert.ok(record, `application-spa entry present: ${JSON.stringify(manifest.blueprints)}`);
+  assert.ok(isAbsolute(record.source), `expected absolute path, got '${record.source}'`);
+  assert.match(record.source, /blueprints\/application-spa$/);
 });

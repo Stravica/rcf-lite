@@ -188,12 +188,17 @@ export async function main(argv, deps = {}) {
       }
       return 2;
     }
-    // Feed the resolved absolute path to the applier; keep the original
-    // typed source on the CLI for the supersede hint the conflict
-    // renderer prints, so the operator sees exactly the string they can
-    // copy back into a fresh shell.
+    // Feed the resolved absolute path to the applier. The original
+    // typed source is preserved on the CLI for the conflict renderer's
+    // supersede hint (so the operator sees exactly the string they can
+    // copy back into a fresh shell). It is ONLY forwarded to the applier
+    // as `displaySource` for library-qualified resolves - spec §5.3
+    // requires the qualified typed ref (`wsd:auth-oauth2`) to be the
+    // record's `source`. For shelf and path resolves the record must
+    // carry the RESOLVED ABSOLUTE PATH, which is the pre-#120 behaviour
+    // that /scope.json and `blueprint list --category` both depend on
+    // to load the shipping source file (integration review d-2026-08-31-046).
     const source = resolved.resolved;
-    const displaySource = resolved.original;
     const resolveDeclarations = parseResolveOptions(parsed.values.resolve, parsed.values.reason);
     if (resolveDeclarations.error) {
       stderr.write(`[error] blueprint add: ${resolveDeclarations.error}\n`);
@@ -201,12 +206,14 @@ export async function main(argv, deps = {}) {
     }
     const result = await applyBlueprint({
       projectRoot, tree, source,
-      displaySource,
       namespaceOverride: parsed.values.namespace,
       // Library-qualified resolves rewire the applied identity under
       // the library prefix and forward the library's declared bands
-      // for the apply-time gate (spec §5.3, §8.3).
+      // for the apply-time gate (spec §5.3, §8.3). The qualified typed
+      // ref is passed as `displaySource` so the applied record's
+      // `source` field carries it verbatim (spec §5.3).
       ...(resolved.kind === 'library' ? {
+        displaySource: resolved.original,
         effectiveSlug: resolved.effectiveSlug,
         libraryBands: resolved.libraryBands,
       } : {}),
@@ -276,7 +283,7 @@ export async function main(argv, deps = {}) {
     // source's blueprint.json at list time; a source that no longer
     // resolves surfaces under the `uncategorised` group rather than
     // being dropped.
-    const enriched = await enrichRowsWithCategories(rows);
+    const enriched = await enrichRowsWithCategories(rows, { projectRoot });
     const groups = groupRowsByCategory(enriched);
     let first = true;
     for (const group of groups) {
