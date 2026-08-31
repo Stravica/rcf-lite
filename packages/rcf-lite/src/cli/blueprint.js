@@ -25,6 +25,7 @@ import {
   supersedeBlueprintTopic,
 } from '../blueprint/index.js';
 import { conflictReportJson, renderConflictReport } from '../blueprint/conflicts.js';
+import { handleLibraryVerb, LIBRARY_HELP } from './blueprint-library.js';
 
 export const HELP = `Usage: rcf define blueprint <verb> [options]
 
@@ -65,6 +66,11 @@ Verbs:
   diff <topic>           Side-by-side view of every applied blueprint's
                          scope:global ADR on <topic>: id, path, title,
                          status, decision. Read-only.
+  library <verb>         Manage external blueprint libraries. Sub-verbs:
+                         add, list, remove, refresh. See
+                         'rcf define blueprint library --help' for the
+                         full surface. Phase 2b covers local sources;
+                         network fetchers land in Phase 2c.
 
 Options:
   --namespace <slug>     Override the blueprint's default namespace
@@ -106,6 +112,11 @@ const OPTION_SPEC = {
   resolve: { type: 'string', multiple: true },
   reason: { type: 'string' },
   incoming: { type: 'string' },
+  // library-verb flags (parsed centrally so strict:true doesn't refuse
+  // them when the operator types `rcf define blueprint library add`).
+  prefix: { type: 'string' },
+  'i-have-reviewed': { type: 'boolean' },
+  'no-review': { type: 'boolean' },
   json: { type: 'boolean' },
   'dry-run': { type: 'boolean' },
   quiet: { type: 'boolean' },
@@ -131,12 +142,24 @@ export async function main(argv, deps = {}) {
     stderr.write(HELP);
     return 2;
   }
-  if (parsed.values.help || parsed.positionals.length === 0) {
+  const firstPositional = parsed.positionals[0];
+  // `rcf define blueprint library --help` routes into the library
+  // handler so the sub-verb HELP block is what the operator sees.
+  // Every other --help (and empty argv) prints the top-level HELP.
+  if (firstPositional !== 'library' && (parsed.values.help || parsed.positionals.length === 0)) {
     stdout.write(HELP);
     return 0;
   }
   const verb = parsed.positionals[0];
   const rest = parsed.positionals.slice(1);
+
+  // `library` sub-verbs manage the external-library registry; they
+  // never walk the RCF tree, and delegating early keeps the option
+  // parser from consuming `--i-have-reviewed` (a library-add-only flag)
+  // against a `library` add invocation.
+  if (verb === 'library') {
+    return handleLibraryVerb(parsed, rest, { stdout, stderr, cwd, now, stdin: deps.stdin });
+  }
 
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
@@ -156,7 +179,7 @@ export async function main(argv, deps = {}) {
       return 2;
     }
     const rawSource = rest[0];
-    const resolved = await resolveBlueprintSource(rawSource);
+    const resolved = await resolveBlueprintSource(rawSource, { projectRoot });
     if (isRcfError(resolved)) {
       if (parsed.values.json) {
         stderr.write(`${JSON.stringify({ refused: true, error: { kind: resolved.kind, message: resolved.message } })}\n`);
@@ -180,6 +203,13 @@ export async function main(argv, deps = {}) {
       projectRoot, tree, source,
       displaySource,
       namespaceOverride: parsed.values.namespace,
+      // Library-qualified resolves rewire the applied identity under
+      // the library prefix and forward the library's declared bands
+      // for the apply-time gate (spec §5.3, §8.3).
+      ...(resolved.kind === 'library' ? {
+        effectiveSlug: resolved.effectiveSlug,
+        libraryBands: resolved.libraryBands,
+      } : {}),
       resolveDeclarations: resolveDeclarations.value,
       now,
       dryRun: parsed.values['dry-run'] === true,

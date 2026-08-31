@@ -42,12 +42,18 @@ test('@stock/<slug> qualifier resolves against the packaged shelf', async () => 
   assert.equal(res.resolved, join(shelf, 'observability-essentials'));
 });
 
-test('other @<library>/<slug> is refused with a phase-2 reservation message', async () => {
+test('other @<library>/<slug> (slash form) is refused and points at the colon form', async () => {
+  // Phase 2b landed the ratified qualified surface (spec §9.2: colon).
+  // The slash form is a reserved non-canonical shape; the resolver
+  // refuses it and names the correct invocation so the operator sees
+  // both the ratified reference form and the register-first step.
   const shelf = await scaffoldShelf(['application-spa']);
   const res = await resolveBlueprintSource('@dave/local-thing', { packagedShelf: shelf });
   assert.equal(isRcfError(res), true);
   assert.equal(res.kind, 'usage');
-  assert.match(res.message, /reserved for the phase-2 external-libraries mechanism/);
+  assert.match(res.message, /slash-qualified/);
+  assert.match(res.message, /colon form 'dave:local-thing'/);
+  assert.match(res.message, /rcf define blueprint library add/);
   assert.match(res.message, /@stock\/<slug>/);
 });
 

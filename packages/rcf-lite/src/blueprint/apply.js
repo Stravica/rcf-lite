@@ -15,6 +15,7 @@ import { readFile } from 'node:fs/promises';
 import { rcfError } from '../core/errors/index.js';
 import { subdirFor } from '#core/store';
 import { detectCrossBlueprintClaims, detectGlobalAdrConflicts } from './conflicts.js';
+import { detectContributionsOutOfBand } from './library-registry.js';
 import { loadBlueprint } from './loader.js';
 import { updateManifest } from './manifest-writer.js';
 import { stampId } from './namespace.js';
@@ -40,6 +41,19 @@ import { nextResolutionId } from './resolutions.js';
  *        string the operator can copy back. Defaults to `source` when omitted (so
  *        existing callers keep today's byte-for-byte behaviour).
  * @param {string} [args.namespaceOverride] - non-default namespace slug
+ * @param {string} [args.effectiveSlug] - override for the blueprint's own slug
+ *        when applied through an external-library qualified reference (spec §5.3):
+ *        `<libraryPrefix>-<blueprintSlug>`. When set, this becomes BOTH the
+ *        stamping namespace (so contributions inherit the library prefix) AND
+ *        the value written into `manifest.blueprints[].slug` on the applied
+ *        record, so `rcf define blueprint remove wsd-auth-oauth2` reads back
+ *        cleanly. `namespaceOverride` still wins over `effectiveSlug` if both
+ *        are set (operator explicitly chose a different namespace).
+ * @param {{ ac: { start: number, end: number }, suffixBlocks?: Array<{ kind: string, start: number, end: number }> }} [args.libraryBands]
+ *        Declared bands from the resolved library. When set, every stamped
+ *        contribution is band-gated before write; a contribution whose numeric
+ *        portion falls outside the library's bands refuses at apply-time (spec
+ *        §8.3, open question 9.9 ratified as "add both").
  * @param {Array<{ topic: string, resolvedByAdrId: string }>} [args.resolveDeclarations]
  *        Operator-supplied conflict resolutions declared on the add
  *        itself. One entry per resolved topic. For each, the resolution
@@ -58,17 +72,30 @@ import { nextResolutionId } from './resolutions.js';
  *        prove the rollback runs. Never used in production.
  * @returns {Promise<ApplyResult | import('../core/errors/index.js').RcfError>}
  */
-export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, resolveDeclarations, now = new Date(), dryRun = false, _copyFileForTest }) {
+export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryBands, resolveDeclarations, now = new Date(), dryRun = false, _copyFileForTest }) {
   const hintSource = typeof displaySource === 'string' && displaySource.length > 0 ? displaySource : source;
   const blueprint = await loadBlueprint(source);
   if (blueprint.kind) return blueprint; // RcfError
-  const namespace = namespaceOverride ?? blueprint.slug;
+  // Effective slug rewires the blueprint's identity under a library
+  // prefix (spec §5.3). It becomes both the stamping namespace and the
+  // slug written into `manifest.blueprints[].slug`. `namespaceOverride`
+  // still wins over `effectiveSlug` (operator's explicit --namespace on
+  // the CLI). When neither is set the blueprint's own slug applies.
+  const appliedSlug = typeof effectiveSlug === 'string' && effectiveSlug.length > 0
+    ? effectiveSlug
+    : blueprint.slug;
+  const namespace = namespaceOverride ?? appliedSlug;
 
   const applied = tree.manifest?.blueprints ?? [];
-  const existing = applied.find((b) => b.slug === blueprint.slug);
+  const existing = applied.find((b) => b.slug === appliedSlug);
   const stamped = stampContributions(blueprint.contributions, namespace);
   if (stamped.error) {
     return rcfError({ kind: 'validation', message: stamped.error });
+  }
+  // Apply-time band gate for external-library blueprints.
+  if (libraryBands) {
+    const bandErr = detectContributionsOutOfBand(stamped.contributions, libraryBands);
+    if (bandErr) return bandErr;
   }
 
   // Pre-detection: fold operator-supplied --resolve declarations into a
@@ -76,7 +103,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
   // run. The final manifest write later composes the same resolution
   // records into the persisted manifest, so the in-memory copy and the
   // on-disk write agree.
-  const incomingForConflicts = { slug: blueprint.slug, contributions: stamped.contributions };
+  const incomingForConflicts = { slug: appliedSlug, contributions: stamped.contributions };
   const declResult = composeDeclaredResolutions({
     manifest: tree.manifest,
     applied,
@@ -109,7 +136,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
     ...detectCrossBlueprintClaims(applied, incomingForConflicts),
   ];
   if (conflicts.length > 0) {
-    return { applied: false, slug: blueprint.slug, version: blueprint.version, contributions: [], conflicts };
+    return { applied: false, slug: appliedSlug, version: blueprint.version, contributions: [], conflicts };
   }
 
   // Ownership set for the overwrite guard below. On a re-apply, the
@@ -122,7 +149,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
   if (existing && existing.version === blueprint.version) {
     return {
       applied: false, alreadyApplied: true,
-      slug: blueprint.slug, version: blueprint.version,
+      slug: appliedSlug, version: blueprint.version,
       contributions: stamped.contributions,
       ...(duplicateResolveTopics.length > 0 ? { warnings: [{ kind: 'duplicateResolveTopic', topics: duplicateResolveTopics }] } : {}),
     };
@@ -151,7 +178,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
       writtenContributions.push(preserveScope({ id: c.id, kind: c.kind, path: relDest }, c));
     }
   } else {
-    const tmpSuffix = `.rcf-tmp-${blueprint.slug}-${now.getTime()}`;
+    const tmpSuffix = `.rcf-tmp-${appliedSlug}-${now.getTime()}`;
     const stagedWrites = []; // { tmpAbs, absDest, relDest, id, kind, c }
     const rollback = async (err) => {
       for (const w of stagedWrites) {
@@ -184,7 +211,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
           for (const w of stagedWrites) await unlink(w.tmpAbs).catch(() => {});
           return rcfError({
             kind: 'duplicateId',
-            message: `blueprint apply: contribution ${c.id} would overwrite an existing file at ${relDest} that is not recorded as owned by blueprint '${blueprint.slug}'.`,
+            message: `blueprint apply: contribution ${c.id} would overwrite an existing file at ${relDest} that is not recorded as owned by blueprint '${appliedSlug}'.`,
             filePath: relDest,
           });
         }
@@ -225,12 +252,23 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
     }
   }
 
-  // Update manifest.blueprints[].
+  // Update manifest.blueprints[]. The applied record's `source` field
+  // carries the qualified typed ref for library-resolved blueprints
+  // (`wsd:auth-oauth2`) so `rcf define blueprint upgrade` reads back
+  // cleanly (spec §5.3); local-path applies carry the absolute path as
+  // today. The optional `libraryPrefix` field named in spec §5.3 is a
+  // schema-additive change on `appliedBlueprintRecord` (the record's
+  // schema is `additionalProperties: false`); it is deferred and
+  // tracked in the PR description as a follow-up so the shape lands as
+  // a coordinated schemas + rcf-lite bump.
+  const recordSource = typeof displaySource === 'string' && displaySource.length > 0 && displaySource !== source
+    ? displaySource
+    : source;
   const nextEntry = {
-    slug: blueprint.slug,
+    slug: appliedSlug,
     version: blueprint.version,
     appliedAt: now.toISOString(),
-    source,
+    source: recordSource,
     ...(namespaceOverride ? { namespace: namespaceOverride } : {}),
     ...(writtenContributions.length > 0 ? { contributions: writtenContributions } : {}),
   };
@@ -239,7 +277,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
     manifest: tree.manifest,
     mutate: (next) => {
       const list = Array.isArray(next.blueprints) ? next.blueprints : [];
-      const filtered = list.filter((b) => b.slug !== blueprint.slug);
+      const filtered = list.filter((b) => b.slug !== appliedSlug);
       filtered.push(nextEntry);
       next.blueprints = filtered;
       // Fold any --resolve declarations recorded on this add into the
@@ -257,7 +295,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
 
   return {
     applied: true,
-    slug: blueprint.slug,
+    slug: appliedSlug,
     version: blueprint.version,
     contributions: writtenContributions,
     ...(duplicateResolveTopics.length > 0 ? { warnings: [{ kind: 'duplicateResolveTopic', topics: duplicateResolveTopics }] } : {}),
