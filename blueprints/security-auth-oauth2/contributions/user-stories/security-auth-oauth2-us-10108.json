@@ -1,0 +1,46 @@
+{
+  "usId": "security-auth-oauth2-US-10108",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sign-out invalidates the project session; the provider redirect is a configured option",
+  "asA": "operator who has signed in through the project's OAuth2 sign-in surface",
+  "iWant": "a sign-out request to clear my project session on the server and in the browser",
+  "soThat": "the next request from this browser is unauthenticated regardless of what the provider still holds",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10108-1",
+      "description": "A POST to the sign-out route invalidates the session handle server-side and clears the session cookie in the browser.",
+      "given": "a session issued from US-10101 and a project route at `POST /auth/sign-out` wired to the flow controller",
+      "when": "the browser dispatches the sign-out request",
+      "then": "the response clears the session cookie (`Set-Cookie` with the cookie name, empty value, `Max-Age=0`, `HttpOnly`, `Secure`, `SameSite=Lax`); the session-record store no longer holds a record for the pre-signout session handle; the next protected-route request from this browser is refused as unauthenticated even if the browser replays the pre-signout cookie value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10108-2",
+      "description": "When a provider record sets `providerLogout: 'redirect'` and declares `endSessionEndpoint`, sign-out returns a 302 to that endpoint after clearing the project session.",
+      "given": "a mock provider whose declaration sets `providerLogout: 'redirect'` and carries an `endSessionEndpoint`, and a session issued against that provider",
+      "when": "the sign-out route is invoked",
+      "then": "the response status is 302; the `Location` header equals the declared `endSessionEndpoint` (with the configured `post_logout_redirect_uri` and, for OIDC providers, the `id_token_hint` query parameter as the raw id_token stored on the session record); the session cookie is cleared on the same response",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10108-3",
+      "description": "A provider record that sets `providerLogout: 'redirect'` without declaring `endSessionEndpoint` refuses boot with a stable-coded error.",
+      "given": "a project config that sets `providerLogout: 'redirect'` on a provider record whose `endSessionEndpoint` field is absent",
+      "when": "the flow controller's provider validator runs at boot",
+      "then": "the boot terminates with error code `OAUTH2_LOGOUT_NOT_DECLARED` naming the provider id; no server process is left listening; the audit log records one `oauth2.provider_config_refused` event carrying the provider id and reason class `logout-endpoint-missing`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1101-security-auth-oauth2-flow-controller",
+    "TAC-1103-security-auth-oauth2-session-bridge"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

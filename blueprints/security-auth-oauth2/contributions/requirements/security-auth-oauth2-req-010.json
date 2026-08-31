@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-010",
+  "prdId": "PRD-001",
+  "title": "Runtime verification uses a project-authored mock OIDC provider; live vendors are accountBound",
+  "description": "Runtime-verify ACs on this blueprint bind against a mock OIDC provider the project stands up in the same process space (or an adjacent process the test harness spawns and tears down). The mock is real OIDC on the wire: it publishes a discovery document, a JWKS with a signing key it holds, an `/authorize` endpoint that returns a code against a stored pending request, a `/token` endpoint that redeems the code with PKCE-verifier check, a `/userinfo` endpoint that returns a fixed claim record, and an `endSessionEndpoint`. The mock is authored by the project (from the shape shipped in `assets/mock-provider/`) or drawn from an existing library; the blueprint does not commit a specific implementation to the project tree. ACs that require a smoke test against a live public IdP (Google, GitHub, Microsoft, corporate SSO) are `accountBound`: the runtime-verify layer marks them with an `accountBound` flag and a stable-coded skip reason (`OAUTH2_LIVE_PROVIDER_UNREACHABLE`) when live credentials are not present; the CI pipeline does not fail on a skipped `accountBound` AC, and the ship gate reads the honest coverage.",
+  "category": "functional",
+  "domain": "verification",
+  "priority": "must",
+  "rationale": "A blueprint that only verifies against live vendors is unrunnable in CI without a set of secret credentials the blueprint has no honest way to demand of every consumer. A blueprint that only verifies against a fake and never touches a real vendor misses the whole class of vendor-quirk failures. The pattern here is the pattern the sibling clerk blueprint took at the vendor tier: fake the mechanism (a real OIDC surface stood up locally) so the state machine, the PKCE binding, the id_token verification, and the session-bridge round-trip are gated by real runtime facts; mark the live-vendor smokes as `accountBound` so a project that has the credentials wires them and the project that does not can still ship with an honest known-gap statement in its README.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:10-verify-posture"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

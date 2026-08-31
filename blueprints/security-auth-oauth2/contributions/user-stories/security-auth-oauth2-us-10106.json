@@ -1,0 +1,45 @@
+{
+  "usId": "security-auth-oauth2-US-10106",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A session issued after code exchange grants access to a protected route",
+  "asA": "operator holding a project session cookie issued by the flow controller",
+  "iWant": "a subsequent request to a project route wired behind the session-verify middleware to see the resolved Principal",
+  "soThat": "the project reasons about my identity without a fresh sign-in",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10106-1",
+      "description": "A request to a protected route carrying a valid session cookie sees a resolved Principal on the request.",
+      "given": "the session cookie from US-10101 and a project route wired behind the session-verify middleware from TAC-1103",
+      "when": "the request is dispatched",
+      "then": "the middleware attaches `request.auth` carrying `principalId`, `provider`, `email` (if the provider returned one), `roles` (empty array by default), and `organisationIds` (empty array by default); `principalId` is a stable string derived from `{ provider.id, sub }` (OIDC) or `{ provider.id, userinfo.id }` (oauth2-only)",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10106-2",
+      "description": "A request to a protected route without a session cookie, or with an invalidated handle, is refused before the route handler runs.",
+      "given": "a project route wired behind the session-verify middleware",
+      "when": "a request is dispatched with no session cookie, then with a cookie whose value has been tampered by a single byte",
+      "then": "the middleware treats each request as unauthenticated; the route handler is not invoked; the response is a 4xx (or a redirect to the sign-in route, per the wiring shim's declared class); no `request.auth` is attached in either case",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-10106-3",
+      "description": "The session-bridge does not expose provider tokens on `request.auth`.",
+      "given": "the session cookie from US-10101 and a protected route",
+      "when": "the request is dispatched and the resolved `request.auth` object is inspected for keys",
+      "then": "the object contains only the fields named in AC-10106-1; no `accessToken`, `idToken`, `refreshToken`, or provider-raw-claims field is exposed",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1103-security-auth-oauth2-session-bridge"
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

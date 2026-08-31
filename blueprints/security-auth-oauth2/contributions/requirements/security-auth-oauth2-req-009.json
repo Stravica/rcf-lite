@@ -1,0 +1,18 @@
+{
+  "reqId": "security-auth-oauth2-REQ-009",
+  "prdId": "PRD-001",
+  "title": "Two or more providers may be configured; the project selects one per sign-in",
+  "description": "A project may declare N providers on the provider-config module. When N > 1, the flow controller reads the requested provider id from the sign-in initiation (a `provider` query parameter on `GET /auth/sign-in` in the reference wiring) and refuses the request when the id is missing, unknown, or disabled. The provider-selector TAC (TAC-1104) renders a sign-in surface listing the configured providers by their operator-visible `label`, each linking to `/auth/sign-in?provider=<id>`; a project that wants a bespoke selector surface substitutes its own by wiring the same query-parameter contract on its own route. There is no fallback default provider; a missing `provider` on an N>1 configuration returns a stable-coded refusal, not the first entry in the list. When N == 1, the selector short-circuits: any request to `/auth/sign-in` without a `provider` parameter initiates the flow against the single configured provider.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A multi-provider blueprint that silently picks a default provider is a foot-gun: an operator who removes the first configured provider then finds every sign-in redirect changing shape without a config file diff. Requiring an explicit `provider` id on N>1 configurations makes the choice observable at the URL layer, which is the layer projects reason about. Single-provider projects get the short-circuit so they never write a query parameter that only exists because a second provider might one day be added.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:09-multi-provider"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

@@ -1,0 +1,61 @@
+{
+  "tacId": "TAC-1101-security-auth-oauth2-flow-controller",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "OAuth2 authorisation-code + PKCE flow controller",
+  "purpose": "The state machine that owns every step of the delegated-identity flow: mint an authorisation redirect (state, nonce, PKCE code_verifier); accept the callback; verify state, code, and (for OIDC) id_token; exchange the code for tokens; hand the resolved identity to the session-bridge; expose the sign-out route. Every provider goes through this one module; provider variation lives on the provider record, not in the state machine.",
+  "responsibilities": [
+    "Mint one pending-flow record per sign-in initiation carrying state, nonce, code_verifier, provider id, requested redirect target, and minted-at timestamp; store server-side in an integrity-checked one-time store (AC-10101-1, AC-10102-1, AC-10102-2, AC-10102-3).",
+    "Build the authorisation redirect with response_type=code, code_challenge, code_challenge_method=S256, state, nonce (OIDC), and the provider-declared scopes; return a 302 to the provider's authorizeUrl (AC-10101-1, AC-10103-1).",
+    "Accept the callback: look up the pending-flow by state, refuse on unknown/expired/consumed, and consume the record atomically on successful callback (AC-10102-1, AC-10102-2, AC-10102-3).",
+    "Exchange the code at the provider's tokenUrl with grant_type=authorization_code and the stored code_verifier; refuse on non-2xx with stable-coded OAUTH2_TOKEN_EXCHANGE_FAILED naming the provider response class (AC-10101-2, AC-10103-2, AC-10104-1).",
+    "Verify the id_token when the provider declared OIDC: signature against JWKS, iss equality against declared issuer, aud containment of client_id, exp in the future, nonce equality against stored nonce; refuse-fast when id_token is absent for an OIDC-declared provider (AC-10105-1, AC-10105-2, AC-10105-3, AC-10105-4).",
+    "Hand the resolved identity to the session-bridge (TAC-1103) and emit the session cookie on the callback response (AC-10101-3).",
+    "Rotate refresh tokens on every refresh call; detect refresh-token reuse and revoke the chain (AC-10107-1, AC-10107-2, AC-10107-3).",
+    "Serve the sign-out route: invalidate the session server-side, clear the cookie, and emit an optional redirect to the provider's endSessionEndpoint when the provider record sets providerLogout='redirect' (AC-10108-1, AC-10108-2, AC-10108-3).",
+    "Refuse a sign-in initiation whose provider id is missing on N>1 configuration or unknown on any configuration with stable-coded OAUTH2_PROVIDER_UNKNOWN (AC-10109-2).",
+    "Emit exactly one structured audit event per state transition (id_token_verified, id_token_refused, token_exchange_failed, refresh_token_reuse, accountbound_skip, provider_config_refused); no field may carry a token value, a cookie value, or a substring of either (AC-10105-1, AC-10105-2, AC-10107-2, AC-10108-3, AC-10110-1)."
+  ],
+  "internalStructure": "One factory function producing the controller closure over an injected provider adapter (TAC-1102), an injected session-bridge (TAC-1103), an injected pending-flow store, an injected refresh-token store, an injected clock, and an injected audit sink. The state machine is a linear sequence of pure-ish steps: mint pending-flow -> redirect; on callback, look up pending-flow -> verify state -> token exchange -> id_token verify (OIDC) -> hand to session-bridge -> respond. Every I/O boundary (HTTP call to the provider, store read/write, audit emit) is a named injected port; the test harness substitutes an in-process mock at each port.",
+  "interfaces": [
+    {
+      "name": "providerAdapter",
+      "kind": "read-api",
+      "description": "The provider adapter (TAC-1102) resolving a provider record by id, returning `{ authorizeUrl, tokenUrl, userinfoUrl, issuer, jwksUri, clientId, clientSecret, scopes, redirectUri, providerKind, endSessionEndpoint?, providerLogout? }` and exposing a JWKS-fetching port for id_token verification."
+    },
+    {
+      "name": "sessionBridge",
+      "kind": "read-write-api",
+      "description": "The session-bridge (TAC-1103) exposing `issue(principal, providerTokens) -> { handle, cookie }` and `verify(handle) -> { valid, principal?, refreshToken? }` and `invalidate(handle) -> void`."
+    },
+    {
+      "name": "pendingFlowStore",
+      "kind": "read-write-api",
+      "description": "Server-side one-time store keyed by state, exposing `put(state, record)`, `takeOnce(state) -> record | absent`, and TTL-based eviction. In-memory in the reference wiring; a project may inject a persistence-backed implementation."
+    },
+    {
+      "name": "refreshTokenStore",
+      "kind": "read-write-api",
+      "description": "Server-side store keyed by session handle, exposing `put(handle, refreshToken)`, `rotate(handle, oldToken, newToken)`, `reuseDetect(handle, presentedToken) -> { reuse: boolean, chainRoot?: string }`, and `clearChain(chainRoot)`."
+    },
+    {
+      "name": "clock",
+      "kind": "read-api",
+      "description": "Injected time source returning epoch seconds; the test harness substitutes a controllable clock for TTL and expiry-window checks."
+    },
+    {
+      "name": "auditSink",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with `{ event, providerId, sessionHandleHash?, reasonClass?, at }`; never invoked with a token value or a cookie value."
+    }
+  ],
+  "dependencies": [
+    { "name": "OAuth2 provider adapter", "kind": "tac", "tacId": "TAC-1102-security-auth-oauth2-provider-adapter", "description": "Provider record resolution and JWKS fetch." },
+    { "name": "OAuth2 session-bridge", "kind": "tac", "tacId": "TAC-1103-security-auth-oauth2-session-bridge", "description": "Session issue, verify, invalidate." }
+  ],
+  "tradeoffs": "Fixing the flow at the controller and pushing every provider variation onto the record shape costs the project a small piece of boot-time work (declaring the provider record fields for each vendor) and buys the project one code path across every vendor for the state machine. Storing the pending-flow and the refresh-token chain on server-side stores rather than a browser cookie costs the project a small piece of state per pending sign-in and per active session; it buys the project defence against a category of front-channel exfiltration attacks against the PKCE verifier and the refresh chain. Injecting the clock costs the project one line of wiring; it buys the test harness clean TTL-and-expiry testing without real sleeps.",
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}

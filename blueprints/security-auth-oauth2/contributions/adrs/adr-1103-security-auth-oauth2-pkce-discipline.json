@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1103-security-auth-oauth2-pkce-discipline",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "PKCE is mandatory on every authorisation-code exchange and the S256 method is the sole accepted challenge",
+  "context": "PKCE (RFC 7636) protects the authorisation-code flow against code interception. The mechanism defines two challenge methods: `plain` (the verifier is used as the challenge unchanged) and `S256` (the challenge is BASE64URL(SHA256(verifier))). `plain` erodes the protection to nil in the presence of any component that can observe the challenge on the wire; the specification recommends S256 for that reason. A blueprint that accepts `plain` when a provider offers it is a foot-gun in every environment where the front channel is not fully trusted.",
+  "decision": "Every authorisation redirect this blueprint mints declares `code_challenge_method=S256`. The flow controller refuses to construct a redirect without a challenge and refuses to accept a callback whose stored pending-flow does not carry a matching S256-derived challenge for the verifier the token exchange presents. A provider whose configuration would require `plain` (or that does not enforce PKCE binding at all) is a project-level ADR conversation, not a config-flag flip: the operator supersedes this ADR with a project-level ADR that accepts the erosion for their specific environment, or the operator picks a different provider.",
+  "consequences": "The state machine is single-branched on PKCE: mint verifier, derive S256 challenge, store verifier, present verifier on token exchange. The mechanism is stable across every provider that speaks the RFC correctly. A provider that refuses PKCE (or accepts `plain` and does not enforce the binding on the server side) is caught either at boot (when the record is misconfigured) or at operate time (when the token exchange fails); either way the failure is loud, not silent.",
+  "alternativesConsidered": [
+    {
+      "name": "Accept `plain` when a provider declares only `plain` support",
+      "summary": "Match the provider's declared method to keep more providers usable.",
+      "reasonNotChosen": "Trades a documented security property for provider breadth. A provider that only supports `plain` is a provider whose security posture is worse than the blueprint's claimed floor; accepting them silently means the floor is a lie."
+    },
+    {
+      "name": "Make the challenge method a project-config flag",
+      "summary": "Let the operator declare the method per provider.",
+      "reasonNotChosen": "Turns a load-bearing security invariant into a config knob the operator can flip without a paper trail. A project-level ADR is the right shape for making the trade explicit."
+    }
+  ],
+  "createdAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-08-30T00:00:00Z"
+}
