@@ -27,6 +27,7 @@
     "src",
     "guidance",
     "rcf",
+    "releases",
     "fixtures",
     "blueprints",
     "scripts/preinstall-node-check.mjs",
@@ -43,10 +44,11 @@
     "vendor": "node scripts/vendor-mermaid.mjs",
     "build:managed": "node scripts/gen-managed-artefacts.mjs",
     "canary:register": "node scripts/canary-register.mjs",
+    "validate:releases": "node scripts/validate-releases.mjs",
     "stage:blueprints": "node scripts/stage-blueprint-shelf.mjs",
     "preinstall": "node scripts/preinstall-node-check.mjs",
     "prepack": "node scripts/stage-blueprint-shelf.mjs",
-    "prepublishOnly": "node scripts/gen-managed-artefacts.mjs && node scripts/stage-blueprint-shelf.mjs",
+    "prepublishOnly": "node scripts/gen-managed-artefacts.mjs && node scripts/stage-blueprint-shelf.mjs && node scripts/validate-releases.mjs",
     "rcf": "node bin/rcf.js"
   },
   "repository": {
@@ -76,6 +78,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "js-yaml": "^4.1.0",
     "mermaid": "11.6.0"
   }
 }
