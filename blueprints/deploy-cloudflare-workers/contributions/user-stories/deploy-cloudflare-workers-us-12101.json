@@ -11,10 +11,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-12101-1",
-      "description": "A `wrangler.toml` (or `wrangler.jsonc`) exists at the repo root, parses as valid config, and its top-level object carries `name`, `main`, `compatibility_date`, and every binding block the Worker's runtime code references.",
+      "description": "A `wrangler.toml` (or `wrangler.jsonc`) exists at the repo root, parses as valid config, and its top-level object carries `name`, `main`, `compatibility_date`, and every non-secret binding block the Worker's runtime code references (KV namespaces, D1 databases, R2 buckets, Durable Object namespaces, static-assets binding, and non-secret environment variables); secret bindings are implicit through env-accessor references in the Worker source and are NOT declared in the manifest (wrangler 4.x has no `[secrets]` block, no `secrets.required[]` list, and no empty-value binding entry for secrets).",
       "given": "a fresh clone of a repo that has applied the blueprint and realised the manifest",
       "when": "a manifest loader parses the file",
-      "then": "the loader returns a config object whose `name` is a non-empty string, `main` resolves to an existing entry file, `compatibility_date` matches `\\d{4}-\\d{2}-\\d{2}`, and every binding name referenced from the Worker's source appears as a declaration key in the config",
+      "then": "the loader returns a config object whose `name` is a non-empty string, `main` resolves to an existing entry file, `compatibility_date` matches `\\d{4}-\\d{2}-\\d{2}`, and every non-secret binding name referenced from the Worker's source appears as a declaration key in the config; the config carries no `[secrets]` block",
       "testable": true,
       "scope": "runtime"
     },
