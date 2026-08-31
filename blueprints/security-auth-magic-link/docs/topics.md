@@ -16,15 +16,25 @@ Rules for new topics (inherited from the application-spa and REST vocabularies, 
 
 AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.4.4 schema grammar; the band allocation IS the AC-collision enforcement mechanism. Composing blueprints take a fresh band rather than proposing namespaced AC ids. Band allocation is ratified policy (2026-08-19); this table is the shared registry-bootstrap replicated across every shipped and forthcoming blueprint's `docs/topics.md` until a mechanism-side central registry lands (v1.1 candidate).
 
-| Blueprint | US band | ADR/TAC suffix block | Status |
-|---|---|---|---|
-| application-spa | 1101-1899 | 2xx | shipped v1.0.0 |
-| application-api-rest | 2101-2899 | 3xx | shipped v1.0.0 |
-| security-auth-magic-link (this package) | 3101-3899 | 5xx | shipped v1.0.0 (US 3101-3111, ADR-501 to ADR-505, TAC-501 to TAC-505) |
-| hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory |
-| persistence-data-sqlite | 5101-5899 | 6xx | reserved for the next blueprint |
-| ci-pipeline | 6101-6899 | 7xx | reserved for the next blueprint |
-| observability-essentials | 7101-7899 | 8xx | reserved for the next blueprint |
+This table is maintained shelf-wide across every blueprint's `docs/topics.md`. Rows are recorded at ship, never predicted.
+
+| Blueprint | US band | ADR/TAC suffix block | Status | Global topics |
+|---|---|---|---|---|
+| application-spa | 1101-1899 | 2xx | shipped v1.3.0 | `clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel` |
+| application-api-rest | 2101-2899 | 3xx | shipped v1.0.0 | `errorEnvelope`, `authModel`, `apiVersioning`, `logging` |
+| security-auth-magic-link | 3101-3899 | 5xx | shipped v1.0.0 | `authModel` |
+| email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
+| hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
+| persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
+| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
+| security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
+| security-auth-oauth2 | 10101-10899 | 11xx | shipped v1.0.0 | `authModel` |
+| security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
+| deploy-cloudflare-workers | 12101-12899 | 13xx | shipped v1.0.0 | `deploymentTarget` |
+| persistence-data-d1 | 13101-13899 | 14xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics` |
 
 US 3101-3111 sit at the LOW end of the 3101-3899 band on purpose. A project-side story that mechanically derives from `security-auth-magic-link-REQ-011` into the number `3111` would collide against security-auth-magic-link-US-3111 in this package; the band leaves headroom at the HIGH end (US 3181-3899) so a project's own stories anchored to security-auth-magic-link REQs can allocate without conflict.
 
