@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -26,6 +26,26 @@ async function runBin(cwd, args) {
   } catch (err) {
     return { code: err.code ?? 1, stdout: err.stdout ?? '', stderr: err.stderr ?? '' };
   }
+}
+
+// Interactive variant: pipes `input` to the child's stdin so the
+// review-on-add prompt can be answered. Returns the same shape as
+// runBin (code / stdout / stderr) once the child exits.
+function runBinInteractive(cwd, args, input) {
+  return new Promise((resolvePromise) => {
+    const child = spawn(process.execPath, [bin, ...args], {
+      cwd, env: { ...process.env, CI: '1' },
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', (chunk) => { stdout += chunk; });
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('close', (code) => resolvePromise({ code: code ?? 0, stdout, stderr }));
+    child.stdin.write(input);
+    child.stdin.end();
+  });
 }
 
 async function scaffoldProject() {
@@ -312,4 +332,112 @@ test('library remove does not refuse for a record whose libraryPrefix names a di
   const remove = await runBin(project, ['define', 'blueprint', 'library', 'remove', 'other']);
   assert.equal(remove.code, 0, `expected clean remove; stdout=${remove.stdout} stderr=${remove.stderr}`);
   assert.match(remove.stdout, /removed 'other'/);
+});
+
+// Multi-blueprint library scaffolder for the review-on-add render tests.
+// Each blueprint in `blueprints[]` is written with its own metadata and
+// contribution bodies so scope:global ADR topics reach the loader
+// (and, from there, the review-card renderer via
+// `library.blueprints[].globalTopics`).
+async function scaffoldLibraryMulti({ prefix, bands, blueprints, publisherContact, libraryDisplayName }) {
+  const root = await mkdtemp(join(tmpdir(), `rcf-lib-multi-${prefix}-`));
+  for (const bp of blueprints) {
+    const bpDir = join(root, 'blueprints', bp.slug);
+    await mkdir(join(bpDir, 'contributions'), { recursive: true });
+    await writeFile(
+      join(bpDir, 'blueprint.json'),
+      JSON.stringify({ slug: bp.slug, version: '1.0.0', contributions: bp.contributions }, null, 2),
+      'utf8',
+    );
+    for (const c of bp.contributions) {
+      const body = c.kind === 'req'
+        ? reqBody(c.id)
+        : { adrId: c.id, title: 't', status: 'accepted', context: 'c', decision: 'd', consequences: 'q', createdAt: '2026-09-01T00:00:00Z', updatedAt: '2026-09-01T00:00:00Z' };
+      await writeFile(join(bpDir, 'contributions', c.path), JSON.stringify(body, null, 2), 'utf8');
+    }
+  }
+  const publisher = { id: prefix, displayName: `${prefix} publisher` };
+  if (publisherContact) publisher.contact = publisherContact;
+  await writeFile(join(root, 'library.json'), JSON.stringify({
+    libraryVersion: 1,
+    libraryPrefix: prefix,
+    displayName: libraryDisplayName ?? `${prefix.toUpperCase()} library`,
+    publisher,
+    libraryRef: '1.0.0',
+    bands,
+    blueprints: blueprints.map((bp) => ({ slug: bp.slug, path: `blueprints/${bp.slug}` })),
+  }, null, 2), 'utf8');
+  return root;
+}
+
+// Spec §8.1: review-on-add prints a "Global topics these blueprints
+// claim (may conflict with core or with other libraries)" section
+// listing every qualified-slug -> topic mapping the library carries.
+test('review-on-add renders the section 8.1 "Global topics these blueprints claim" line for every blueprint that ships a scope:global ADR', async () => {
+  const project = await scaffoldProject();
+  const lib = await scaffoldLibraryMulti({
+    prefix: 'wsd',
+    bands: { ac: { start: 50000, end: 59999 }, suffixBlocks: [{ kind: 'adr', start: 5000, end: 5099 }] },
+    publisherContact: 'engineering@wsd.example',
+    libraryDisplayName: 'WSD organisational blueprint library',
+    blueprints: [
+      {
+        slug: 'auth-oauth2',
+        contributions: [
+          { kind: 'adr', id: 'ADR-5001', path: 'auth-model.json', scope: 'global', topic: 'authModel' },
+        ],
+      },
+      {
+        slug: 'std-error-envelope',
+        contributions: [
+          { kind: 'adr', id: 'ADR-5002', path: 'error-envelope.json', scope: 'global', topic: 'errorEnvelope' },
+        ],
+      },
+    ],
+  });
+
+  // Interactive add: pipe 'y' so the printer runs but no registry write
+  // is asserted here; the assertion is on the render.
+  const add = await runBinInteractive(project, ['define', 'blueprint', 'library', 'add', lib], 'y\n');
+  assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+  assert.match(add.stdout, /Global topics these blueprints claim \(may conflict with core or with other libraries\):/);
+  assert.match(add.stdout, /wsd:auth-oauth2\s+-> authModel/);
+  assert.match(add.stdout, /wsd:std-error-envelope\s+-> errorEnvelope/);
+});
+
+// Spec §8.1: review-on-add prints an explicit "Prefix check" line
+// reporting the collision-gate outcome alongside the band check.
+test('review-on-add renders the section 8.1 "Prefix check" line naming the library prefix', async () => {
+  const project = await scaffoldProject();
+  const lib = await scaffoldLibraryMulti({
+    prefix: 'wsd',
+    bands: { ac: { start: 50000, end: 59999 } },
+    blueprints: [{
+      slug: 'auth-oauth2',
+      contributions: [{ kind: 'req', id: 'REQ-50101', path: 'req.json' }],
+    }],
+  });
+  const add = await runBinInteractive(project, ['define', 'blueprint', 'library', 'add', lib], 'y\n');
+  assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+  assert.match(add.stdout, /Prefix check\s*:\s*'wsd' does not collide with any core slug\./);
+});
+
+// Suppress-the-header case: a library whose blueprints carry no
+// scope:global ADRs renders no "Global topics" section (the header
+// would otherwise be a lonely empty label). The "Prefix check" line
+// still renders, since prefix gating is unconditional.
+test('review-on-add suppresses the "Global topics" section when no blueprint claims one, and still prints "Prefix check"', async () => {
+  const project = await scaffoldProject();
+  const lib = await scaffoldLibraryMulti({
+    prefix: 'wsd',
+    bands: { ac: { start: 50000, end: 59999 } },
+    blueprints: [{
+      slug: 'auth-oauth2',
+      contributions: [{ kind: 'req', id: 'REQ-50101', path: 'req.json' }],
+    }],
+  });
+  const add = await runBinInteractive(project, ['define', 'blueprint', 'library', 'add', lib], 'y\n');
+  assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+  assert.doesNotMatch(add.stdout, /Global topics these blueprints claim/);
+  assert.match(add.stdout, /Prefix check\s*:\s*'wsd' does not collide with any core slug\./);
 });
