@@ -44,6 +44,7 @@ import { main as blueprintMain } from '../src/cli/blueprint.js';
 import { main as standardsMain } from '../src/cli/standards.js';
 import { main as updateMain } from '../src/cli/update.js';
 import { main as validateMain } from '../src/cli/validate.js';
+import { main as versionMain } from '../src/cli/version.js';
 import { main as viewMain } from '../src/cli/view.js';
 import { main as reqClassifyMain } from '../src/cli/req-classify.js';
 import { main as reqBaselineMain } from '../src/cli/req-baseline.js';
@@ -65,6 +66,7 @@ export const CORE = {
   doctor: doctorMain,
   guidance: guidanceMain,
   mcp: mcpMain,
+  version: versionMain,
   // help handled inline below (needs group context)
 };
 

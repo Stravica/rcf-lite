@@ -36,6 +36,7 @@ import { HELP as DESIGN_HELP } from './design.js';
 import { HELP as BROWSER_VERIFY_HELP } from './browser-verify.js';
 import { HELP as UPDATE_HELP } from './update.js';
 import { HELP as VALIDATE_HELP } from './validate.js';
+import { HELP as VERSION_HELP } from './version.js';
 import { HELP as VIEW_HELP } from './view.js';
 import { HELP as REQ_CLASSIFY_HELP } from './req-classify.js';
 import { HELP as REQ_BASELINE_HELP } from './req-baseline.js';
@@ -64,6 +65,8 @@ core         Platform plumbing that predates any RCF stage.
   doctor                   Diagnose and repair init-hygiene drift.
   guidance [topic]         Print a method document from the installed pack.
   mcp                      Serve the project over MCP (local stdio).
+  version [--check]        Print installed version; --check compares
+                           against the release feed.
   help [group] [verb]      Print help for a group or a verb.
 
 discover     Learn what is already true for this project.
@@ -286,6 +289,7 @@ export const CORE_HELP = {
   doctor: DOCTOR_HELP,
   guidance: GUIDANCE_HELP,
   mcp: MCP_HELP,
+  version: VERSION_HELP,
 };
 
 /**
