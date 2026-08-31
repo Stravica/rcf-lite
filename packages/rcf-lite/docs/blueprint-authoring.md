@@ -99,13 +99,27 @@ Two ways to author contribution ids in `blueprint.json`:
 
 AC ids are not namespaced by the schema grammar; the band allocation IS the collision-enforcement mechanism. Ratified policy (2026-08-19):
 
-| Band | Owner |
-|---|---|
-| 001-999 | Project-authored docs |
-| 1101-1899 | application-spa blueprint |
-| 2101-2899 | application-api-rest blueprint |
-| 3101-3899 | Reserved for the next blueprint |
-| 4xxx and above | Reserve here as new blueprints ship |
+The shelf-wide band registry (recorded at ship, never predicted; kept in sync across every blueprint's `docs/topics.md`):
+
+| Blueprint | US band | ADR/TAC suffix block | Status | Global topics |
+|---|---|---|---|---|
+| application-spa | 1101-1899 | 2xx | shipped v1.3.0 | `clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel` |
+| application-api-rest | 2101-2899 | 3xx | shipped v1.0.0 | `errorEnvelope`, `authModel`, `apiVersioning`, `logging` |
+| security-auth-magic-link | 3101-3899 | 5xx | shipped v1.0.0 | `authModel` |
+| email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
+| hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
+| persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
+| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
+| security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
+| security-auth-oauth2 | 10101-10899 | 11xx | shipped v1.0.0 | `authModel` |
+| security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
+| deploy-cloudflare-workers | 12101-12899 | 13xx | shipped v1.0.0 | `deploymentTarget` |
+| persistence-data-d1 | 13101-13899 | 14xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics` |
+
+Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (`14xxx` US band, `15xx` suffix block) and appends its row here after ship.
 
 A composing blueprint takes a fresh band rather than proposing namespaced AC ids. A US id numeric like `1101` gets its ACs as `AC-1101-1`, `AC-1101-2`, and so on; the US id anchors the band.
 

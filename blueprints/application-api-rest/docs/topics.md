@@ -17,12 +17,25 @@ Rules for new topics (inherited from the application-spa vocabulary, restated as
 
 Band allocation is ratified policy (2026-08-19); the band IS the AC-collision enforcement mechanism, since AC ids are not namespaced by the 0.4.4 grammar. Composing blueprints take a fresh band rather than proposing namespaced AC ids.
 
-| Band | Owner |
-|---|---|
-| 001-999 | Project-authored docs |
-| 1101-1899 | application-spa blueprint (US 1101-1128, ACs AC-1101-x to AC-1128-x) |
-| 2101-2899 | application-api-rest blueprint (this package: US 2101-2120, ACs AC-2101-x to AC-2120-x) |
-| 3101-3899 | Reserved for the next blueprint |
+This table is maintained shelf-wide across every blueprint's `docs/topics.md`. Rows are recorded at ship, never predicted.
+
+| Blueprint | US band | ADR/TAC suffix block | Status | Global topics |
+|---|---|---|---|---|
+| application-spa | 1101-1899 | 2xx | shipped v1.3.0 | `clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel` |
+| application-api-rest | 2101-2899 | 3xx | shipped v1.0.0 | `errorEnvelope`, `authModel`, `apiVersioning`, `logging` |
+| security-auth-magic-link | 3101-3899 | 5xx | shipped v1.0.0 | `authModel` |
+| email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
+| hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
+| persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
+| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
+| security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
+| security-auth-oauth2 | 10101-10899 | 11xx | shipped v1.0.0 | `authModel` |
+| security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
+| deploy-cloudflare-workers | 12101-12899 | 13xx | shipped v1.0.0 | `deploymentTarget` |
+| persistence-data-d1 | 13101-13899 | 14xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics` |
 
 Suffix-family ids (ADR, TAC): SPA numbers in the 2xx range, this package takes 3xx (ADR-301 to ADR-308, TAC-301 to TAC-306); the next blueprint should take 4xx.
 

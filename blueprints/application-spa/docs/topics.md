@@ -22,15 +22,25 @@ AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by t
 
 ## Full-ecosystem registry table (post-v1.1.0 SPA bump)
 
+This table is maintained shelf-wide across every blueprint's `docs/topics.md`. Rows are recorded at ship, never predicted.
+
 | Blueprint | US band | ADR/TAC suffix block | Status | Global topics |
 |---|---|---|---|---|
-| application-spa | 1101-1899 | 2xx | shipped v1.1.0 (main @ <merge-sha>) | `clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel` |
+| application-spa | 1101-1899 | 2xx | shipped v1.3.0 | `clientRouting`, `theming`, `clientState`, `errorEnvelope`, `authModel` |
 | application-api-rest | 2101-2899 | 3xx | shipped v1.0.0 | `errorEnvelope`, `authModel`, `apiVersioning`, `logging` |
-| security-auth-magic-link | 3101-3899 | 5xx | shipped v1.0.0 (main @ 3dfcfe56) | `authModel` |
-| hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved | `operatorPanel` |
-| persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 (main @ 30842c63) | `persistenceStore`, `migrationDiscipline` |
-| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 (main @ 595cab9c) | `ciGates`, `strictCoverageGate` |
-| observability-essentials | 7101-7899 | 8xx | queued (candidates NOT yet globally-committed: `healthProbes`, `statusPageContract`, `readinessSemantics`) |
+| security-auth-magic-link | 3101-3899 | 5xx | shipped v1.0.0 | `authModel` |
+| email-smtp-resend | 4101-4899 | 4xx | shipped v1.0.0 | none |
+| hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
+| persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| ci-pipeline | 6101-6899 | 7xx | shipped v1.0.0 | `ciGates`, `strictCoverageGate` |
+| observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
+| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
+| security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
+| security-auth-oauth2 | 10101-10899 | 11xx | shipped v1.0.0 | `authModel` |
+| security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
+| deploy-cloudflare-workers | 12101-12899 | 13xx | shipped v1.0.0 | `deploymentTarget` |
+| persistence-data-d1 | 13101-13899 | 14xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics` |
 
 SPA v1.1.0 stays on the LOW end of its band: v1.0.0 occupied US-1101 through US-1128; v1.1.0 adds US-1129 and US-1130, leaving headroom above 1130 for future minor bumps and for project-side stories that mechanically derive to the 11xx numeric range.
 
