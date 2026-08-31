@@ -35,6 +35,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      # @@RCF-SUB-PKG-MGR-SETUP-BEGIN@@
       - name: setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -45,9 +46,12 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # @@RCF-SUB-PKG-MGR-SETUP-END@@
 
+      # @@RCF-SUB-PKG-MGR-INSTALL-BEGIN@@
       - name: install dependencies
         run: pnpm install --frozen-lockfile
+      # @@RCF-SUB-PKG-MGR-INSTALL-END@@
 
       # The release orchestrator reads the releaseMode from its environment
       # (RCF_RELEASE_MODE) and runs the appropriate step sequence:

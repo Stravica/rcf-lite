@@ -67,7 +67,9 @@ The project ships `.rcf/config/delivery-ci-workflows.json` at the project root. 
     },
     "releaseMode": "tagPlusArtefact",
     "providerHint": "githubActions",
-    "scheduledAudit": false
+    "scheduledAudit": false,
+    "defaultBranch": "main",
+    "packageManager": "pnpm"
   }
 }
 ```
@@ -78,6 +80,9 @@ The project ships `.rcf/config/delivery-ci-workflows.json` at the project root. 
 - `releaseMode` (OPTIONAL, Q6-B ratification): `none`, `tagOnly`, `tagPlusArtefact`, or `deployHandoff:<slug>`. An absent field is treated the same as `none` (no release workflow ships). Not having a release path yet is a common scenario when starting a project; the ratification chose ergonomics over an explicit `none`.
 - `scheduledAudit` (optional): boolean; default `false`.
 - `trunkPullRequests` (optional; qualifies `branchModel: trunk`): `never` or `sometimes`; default `never`.
+- `defaultBranch` (optional; qualifies `branchModel: feature`): the branch name the commit-triggered workflows fire against; default `main`. The materialiser substitutes this value into the trigger's branch list; a project on `develop`, `master`, or any other convention names it here rather than hand-editing the workflow files.
+- `trunkBranch` (optional; qualifies `branchModel: trunk`): the trunk branch name the commit-triggered workflows fire against; default `main`. Same substitution semantics as `defaultBranch`.
+- `packageManager` (optional): `pnpm`, `npm`, `yarn`, or `bun`; default `pnpm`. Selects the within-provider package-manager substitution the materialiser applies to every produced workflow (see the substitution table below).
 
 ### Profile aliases
 
@@ -117,6 +122,28 @@ Every mainstream CI provider ships the same four ingredients under a different r
 4. Node entry-point invocation and artefact upload per workflow.
 
 See `assets/ci-provider-examples/notes.md` for the per-provider translation.
+
+## Within-provider package-manager substitution
+
+The four-point mapping covers translation across providers; a project stays on one provider and picks its package manager. The illustrative GHA assets carry paired substitution markers fencing the setup step(s) and the install step; the materialiser replaces every line between the two fence markers (exclusive) with the per-manager block. The markers are YAML comments so the illustrative file is valid YAML on its own and reviewable as a diff after materialisation:
+
+- `# @@RCF-SUB-PKG-MGR-SETUP-BEGIN@@` and `# @@RCF-SUB-PKG-MGR-SETUP-END@@` fence the manager's setup step(s).
+- `# @@RCF-SUB-PKG-MGR-INSTALL-BEGIN@@` and `# @@RCF-SUB-PKG-MGR-INSTALL-END@@` fence the manager's install step.
+
+The four recognised managers map to these blocks (GHA reference; alternate providers use the equivalent action or command in the provider's own runner language):
+
+| `packageManager` | setup step | install line |
+|---|---|---|
+| `pnpm` (default) | `- uses: pnpm/action-setup@v4` followed by `with: { version: 9 }`; then `- uses: actions/setup-node@v4` with `node-version: 24` and `cache: pnpm` | `pnpm install --frozen-lockfile` |
+| `npm` | `- uses: actions/setup-node@v4` with `node-version: 24` and `cache: npm` | `npm ci` |
+| `yarn` | `- uses: actions/setup-node@v4` with `node-version: 24` and `cache: yarn` (yarn v1 or `enable-corepack` for berry) | `yarn install --frozen-lockfile` (v1) or `yarn install --immutable` (berry) |
+| `bun` | `- uses: oven-sh/setup-bun@v2` with `bun-version: latest` | `bun install --frozen-lockfile` |
+
+An unrecognised `packageManager` value refuses at the same boot-check exit path the enumerated fields use (AC-6112-2 shape).
+
+## Trigger branch-name substitution
+
+The commit-triggered assets (`pull-request-checks.yml`, `default-branch-checks.yml`) carry `# @@RCF-SUB-BRANCH-NAME@@` on the line immediately above the `branches:` list. The materialiser rewrites that one `branches:` line from `workflowShape.defaultBranch` (feature model) or `workflowShape.trunkBranch` (trunk model) so the branch-model AC (AC-6114/6115) is observable in the materialised output rather than being masked by a hard-coded `main`. Both fields default to `main`, so a project on the default keeps the current behaviour without touching the fields.
 
 ## Operator decisions that remain open after apply
 

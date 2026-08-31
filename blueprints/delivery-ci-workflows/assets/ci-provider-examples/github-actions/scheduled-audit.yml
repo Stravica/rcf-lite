@@ -31,6 +31,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      # @@RCF-SUB-PKG-MGR-SETUP-BEGIN@@
       - name: setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -41,9 +42,12 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # @@RCF-SUB-PKG-MGR-SETUP-END@@
 
+      # @@RCF-SUB-PKG-MGR-INSTALL-BEGIN@@
       - name: install dependencies
         run: pnpm install --frozen-lockfile
+      # @@RCF-SUB-PKG-MGR-INSTALL-END@@
 
       # The scheduled runner is a thin wrapper around the gate-runner
       # (TAC-701) that overrides the aggregate report path to the

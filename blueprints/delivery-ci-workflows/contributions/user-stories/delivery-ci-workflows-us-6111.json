@@ -20,10 +20,10 @@
     },
     {
       "id": "AC-6111-2",
-      "description": "The three required fields (`branchModel`, `checkSet`, `providerHint`), the optional `releaseMode` field (absent has the same effect as `releaseMode: none`, per Q6-B ratification), the optional `scheduledAudit` fifth field, and the optional `trunkPullRequests` sub-field are the complete surface the materialiser reads. No other field the file carries is interpreted by v2.0.0; unknown fields are ignored (forward-compatibility).",
+      "description": "The three required fields (`branchModel`, `checkSet`, `providerHint`), the optional `releaseMode` field (absent has the same effect as `releaseMode: none`, per Q6-B ratification), the optional `scheduledAudit` field, the optional `trunkPullRequests` sub-field, and the optional substitution-surface fields `defaultBranch` (default `main`), `trunkBranch` (default `main`), and `packageManager` (default `pnpm`; recognised set `pnpm`, `npm`, `yarn`, `bun`) are the complete surface the workflow-materialiser reads. No other field the file carries is interpreted at this version; unknown fields are ignored (forward-compatibility).",
       "given": "a `workflowShape` declaration carrying the three required fields, the optional fields, and additional unknown fields",
       "when": "the workflow-materialiser reads the file",
-      "then": "the materialiser processes the recognised fields and ignores the unknown fields without failing the boot-check",
+      "then": "the materialiser processes the recognised fields (including the substitution-surface trio) and ignores the unknown fields without failing the boot-check",
       "testable": true,
       "scope": "runtime"
     }

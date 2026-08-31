@@ -1,11 +1,12 @@
 # Illustrative default-branch-checks workflow for the delivery-ci-workflows blueprint.
-# Copy this file into the host project as `.github/workflows/default-branch-checks.yml`
-# and adjust the `node-version`, package-manager setup, and entry-point path
-# to match the project's realised gate runner (TAC-701).
+# Copy this file into the host project as `.github/workflows/default-branch-checks.yml`.
+# The file below is the pnpm+main default the materialiser writes when
+# workflowShape.packageManager, workflowShape.defaultBranch and
+# workflowShape.trunkBranch are absent.
 #
-# Feature-branch shape: pushes to the default branch (which happens on merge).
-# Trunk-based shape: pushes to the trunk branch (every commit). The workflow
-# shape is identical; only the branch name on the `on: push:` block differs.
+# The file carries paired RCF substitution markers the materialiser
+# rewrites from workflowShape (see guide/delivery-ci-workflows.md for
+# marker names, replacement blocks, and the substitution table).
 #
 # The workflow runs the same required check set as pull-request-checks and
 # writes to the same aggregate report path `.rcf/reports/ci/pipeline.json`.
@@ -17,6 +18,7 @@ name: default-branch-checks
 
 on:
   push:
+    # @@RCF-SUB-BRANCH-NAME@@
     branches: [main]
 
 jobs:
@@ -28,6 +30,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      # @@RCF-SUB-PKG-MGR-SETUP-BEGIN@@
       - name: setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -38,9 +41,12 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      # @@RCF-SUB-PKG-MGR-SETUP-END@@
 
+      # @@RCF-SUB-PKG-MGR-INSTALL-BEGIN@@
       - name: install dependencies
         run: pnpm install --frozen-lockfile
+      # @@RCF-SUB-PKG-MGR-INSTALL-END@@
 
       - name: run rcf check set
         run: node scripts/rcf-ci.js
