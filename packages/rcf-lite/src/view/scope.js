@@ -22,6 +22,8 @@ import { readFile, stat } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
 
 import { loadBlueprint } from '../blueprint/loader.js';
+import { resolveBlueprintSource } from '../blueprint/shelf-resolver.js';
+import { isRcfError } from '../core/errors/index.js';
 
 /**
  * Parse the recognised scope keys from a URL query string.
@@ -85,15 +87,16 @@ export function listAppliedSlugs(manifest) {
  * @param {(abs: string) => Promise<string>} [args._readFile] - test seam
  * @returns {Promise<{ customisedIds: string[], missingSourceIds: string[] }>}
  */
-export async function detectCustomisations({ projectRoot, record, _readFile, _loadBlueprint }) {
+export async function detectCustomisations({ projectRoot, record, _readFile, _loadBlueprint, _resolveSource }) {
   const readImpl = _readFile ?? ((abs) => readFile(abs, 'utf8'));
   const loadImpl = _loadBlueprint ?? loadBlueprint;
+  const resolveImpl = _resolveSource ?? resolveBlueprintSource;
   const customisedIds = [];
   const missingSourceIds = [];
   if (!record || !Array.isArray(record.contributions)) {
     return { customisedIds, missingSourceIds };
   }
-  const sourceAbs = resolveSourceAbs(projectRoot, record.source);
+  const sourceAbs = await resolveSourceAbs(projectRoot, record.source, resolveImpl);
   const sourceIndex = await loadSourceContributionIndex({ sourceAbs, loadImpl });
   for (const c of record.contributions) {
     if (typeof c?.id !== 'string' || typeof c?.path !== 'string') continue;
@@ -132,9 +135,30 @@ export async function detectCustomisations({ projectRoot, record, _readFile, _lo
   return { customisedIds, missingSourceIds };
 }
 
-function resolveSourceAbs(projectRoot, source) {
+async function resolveSourceAbs(projectRoot, source, resolveImpl) {
   if (typeof source !== 'string' || source.length === 0) return null;
-  return isAbsolute(source) ? source : resolve(projectRoot, source);
+  if (isAbsolute(source)) return source;
+  // Non-path sources - a library colon ref (`wsd:auth-oauth2`), an
+  // `@stock/<slug>` sugar, or a bare shelf slug - need re-resolution
+  // through the blueprint resolver against the project registry and the
+  // packaged shelf. Without this, the applied-record's source is a
+  // token the FS cannot open and every contribution renders as
+  // missingSource in /scope.json (integration review d-2026-08-31-046).
+  // A relative filesystem path still falls through to the pre-fix
+  // resolve() below so an existing manifest carrying `./blueprint-foo`
+  // keeps its behaviour.
+  if (typeof projectRoot === 'string' && projectRoot.length > 0) {
+    const resolved = await resolveImpl(source, { projectRoot }).catch(() => null);
+    if (resolved && !isRcfError(resolved) && typeof resolved.resolved === 'string') {
+      return resolved.resolved;
+    }
+  }
+  // Fallback: treat as a relative filesystem path against projectRoot.
+  // Matches pre-fix behaviour byte-for-byte; a missing directory
+  // surfaces as `missingSource` via the loader below rather than here.
+  return typeof projectRoot === 'string' && projectRoot.length > 0
+    ? resolve(projectRoot, source)
+    : null;
 }
 
 /**

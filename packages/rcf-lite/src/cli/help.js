@@ -129,6 +129,24 @@ Run 'rcf help <group>' for group help; 'rcf help <group> <verb>' for
 per-verb help.
 `;
 
+const CORE_GROUP_HELP = `Usage: rcf <core-verb> [options]
+
+Platform plumbing that predates any RCF stage. Core verbs dispatch at
+the top level (they are invoked as \`rcf <verb>\`, not \`rcf core <verb>\`);
+this group is a documentation grouping for \`rcf help\`.
+
+Verbs:
+  init                     Scaffold a new RCF project in this directory.
+  doctor                   Diagnose and repair init-hygiene drift.
+  guidance [topic]         Print a method document from the installed pack.
+  mcp                      Serve the project over MCP (local stdio).
+  version [--check]        Print installed version; --check compares
+                           against the release feed.
+  help [group] [verb]      Print help for a group or a verb.
+
+Run 'rcf help <verb>' for per-verb help.
+`;
+
 const DISCOVER_HELP = `Usage: rcf discover <verb> [options]
 
 Learn what is already true for this project: classify supplied
@@ -226,6 +244,7 @@ Run 'rcf help audit <verb>' for per-verb help.
 `;
 
 export const GROUP_HELP = {
+  core: CORE_GROUP_HELP,
   discover: DISCOVER_HELP,
   define: DEFINE_HELP,
   build: BUILD_GROUP_HELP,
@@ -323,7 +342,10 @@ export async function main(argv, deps = {}) {
       stdout.write(GROUP_HELP[first]);
       return 0;
     }
-    const body = HELP_MAP[first][verb];
+    // `core` is a documentation grouping - core verbs dispatch at the
+    // top level, so `rcf help core <verb>` delegates to the same
+    // per-verb block that `rcf help <verb>` prints.
+    const body = first === 'core' ? CORE_HELP[verb] : HELP_MAP[first][verb];
     if (!body) {
       stderr.write(`[error] usage no help topic '${first} ${verb}'\n`);
       stdout.write(GROUP_HELP[first]);
