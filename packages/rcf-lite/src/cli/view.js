@@ -5,7 +5,9 @@
 // exported from that bin now live here so the CLI tests can still
 // exercise them without spawning a subprocess.
 
+import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
+import { join } from 'node:path';
 import { platform } from 'node:process';
 
 import { formatErrors } from '#core/errors';
@@ -20,6 +22,8 @@ import {
   readLogTail,
 } from '../view-supervisor/index.js';
 import { parsePersistUntil } from '../view-supervisor/persist-until.js';
+// Deep-link scope resolution (w-2026-08-30-dave-020).
+import { contributionsForBlueprint, listAppliedSlugs, treeHasId } from '../view/scope.js';
 
 export const DEFAULT_PORT = 4373;
 export const SHUTDOWN_BUDGET_MS = 2000;
@@ -58,6 +62,19 @@ Subverbs (spec §9.2):
                             record.
   rcf audit view logs [--tail <n>]
                             Print the supervisor log tail (default 200).
+  rcf audit view open [--blueprint <slug>] [--node <id>] [--no-open] [--json]
+                            Resolve a scoped deep-link into the running
+                            (or default) view server and print the URL.
+                            --blueprint scopes the tree to the applied
+                            blueprint's namespaced contribution list;
+                            --node focuses a single doc id (any kind in
+                            the tree). Both compose. Prints the URL to
+                            stdout every time; opens it in the default
+                            browser too when the terminal is a TTY and
+                            --no-open was not passed. --json emits the
+                            resolution shape for scripting. Refuses (exit
+                            2) if the slug is not applied or the node id
+                            is not on the tree.
 
 Options:
   --port <n>        Bind the HTTP server on the given port.
@@ -96,7 +113,7 @@ Exit codes:
   130 SIGINT
 `;
 
-const SUBVERBS = new Set(['start', 'status', 'stop', 'logs']);
+const SUBVERBS = new Set(['start', 'status', 'stop', 'logs', 'open']);
 
 /**
  * Parse the view subcommand argv. Hand-rolled so the CLI can pass
@@ -375,6 +392,10 @@ async function runSubverb({ subverb, argv, deps }) {
     return 0;
   }
 
+  if (subverb === 'open') {
+    return await runOpenSubverb({ argv, projectRoot, deps: { env, stdout, stderr } });
+  }
+
   if (subverb === 'logs') {
     const tailIdx = argv.indexOf('--tail');
     const tail = tailIdx >= 0 ? Number.parseInt(argv[tailIdx + 1] ?? '', 10) : 200;
@@ -451,4 +472,264 @@ async function runSubverb({ subverb, argv, deps }) {
     stderr.write(`[error] ioFailure view start --detach: ${err.message}\n`);
     return 1;
   }
+}
+
+// -------------------------------------------------------------------
+// `rcf audit view open` (w-2026-08-30-dave-020).
+//
+// Resolves a scoped deep-link into the running (or default) view
+// server and prints the URL. The agent-facing surface: during a
+// blueprint integration validation gate, the agent runs this to hand
+// the operator a URL that opens the viewer with the relevant
+// contribution set already visible (rest dimmed) and the target node
+// scrolled into view. Read-only: v1 does not accept approve/reject
+// state; that is a v2 concern (state-bearing, needs its own design).
+// -------------------------------------------------------------------
+
+/**
+ * Parse the argv slice for `open`. Kept out of `parseArgs` because
+ * the flag set overlaps enough to conflate error messages.
+ *
+ * @param {string[]} argv
+ * @returns {{ opts: object, errors: string[] }}
+ */
+export function parseOpenArgs(argv) {
+  const opts = {
+    blueprint: null,
+    node: null,
+    noOpen: false,
+    json: false,
+    port: null,
+    help: false,
+  };
+  const errors = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    switch (arg) {
+      case '--no-open':
+        opts.noOpen = true;
+        break;
+      case '--json':
+        opts.json = true;
+        break;
+      case '--help':
+      case '-h':
+        opts.help = true;
+        break;
+      case '--blueprint': {
+        const next = argv[i + 1];
+        if (next === undefined || next.startsWith('--')) {
+          errors.push('--blueprint requires a slug argument');
+          break;
+        }
+        opts.blueprint = next;
+        i += 1;
+        break;
+      }
+      case '--node': {
+        const next = argv[i + 1];
+        if (next === undefined || next.startsWith('--')) {
+          errors.push('--node requires a doc id argument');
+          break;
+        }
+        opts.node = next;
+        i += 1;
+        break;
+      }
+      case '--port': {
+        const next = argv[i + 1];
+        if (next === undefined || next.startsWith('--')) {
+          errors.push('--port requires a numeric argument');
+          break;
+        }
+        const n = Number(next);
+        if (!Number.isInteger(n) || n < 0 || n > 65535) {
+          errors.push(`--port expects an integer in [0, 65535], got ${next}`);
+        } else {
+          opts.port = n;
+        }
+        i += 1;
+        break;
+      }
+      default:
+        errors.push(`unknown option: ${arg}`);
+    }
+  }
+  return { opts, errors };
+}
+
+/**
+ * Read `rcf/manifest.json` off disk (bypasses the walker so the CLI
+ * can validate scope fast without a full tree walk when only a slug
+ * check is needed).
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<object|null>}
+ */
+async function readManifestFile(projectRoot) {
+  try {
+    const raw = await readFile(join(projectRoot, 'rcf', 'manifest.json'), 'utf8');
+    return JSON.parse(raw);
+  } catch (err) {
+    if (err && err.code === 'ENOENT') return null;
+    throw err;
+  }
+}
+
+/**
+ * Compose a scoped URL from the base URL plus scope params.
+ *
+ * @param {object} args
+ * @param {string} args.baseUrl - e.g. `http://127.0.0.1:4373/`
+ * @param {string|null} args.blueprint
+ * @param {string|null} args.node
+ * @returns {string}
+ */
+export function composeScopeUrl({ baseUrl, blueprint, node }) {
+  // The base URL from the supervisor / --port / env / default resolver
+  // always ends with `/`. Normalise defensively so a caller-supplied
+  // base without one still composes to a valid URL.
+  const trimmed = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const params = [];
+  if (blueprint) params.push(`blueprint=${encodeURIComponent(blueprint)}`);
+  if (node) params.push(`node=${encodeURIComponent(node)}`);
+  const query = params.length > 0 ? `?${params.join('&')}` : '';
+  // Hash so the existing hash-router activates the tab + drills the
+  // ancestor <details> chain without waiting for the client to fetch
+  // /scope.json.
+  const hash = node ? `#${encodeURIComponent(node)}` : '';
+  return `${trimmed}${query}${hash}`;
+}
+
+/**
+ * Resolve the base URL to open at. Prefers a running detached
+ * supervisor's recorded URL (respects any non-default --port a prior
+ * start invocation bound to); otherwise the RCF_VIEW_PORT / default
+ * pair. The command still prints a URL even when no server is
+ * running, so an agent can print one to the operator alongside a
+ * hint to start the server.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @param {number|null} args.port
+ * @param {NodeJS.ProcessEnv} args.env
+ * @returns {Promise<{ baseUrl: string, source: 'supervisor'|'flag'|'env'|'default' }>}
+ */
+export async function resolveBaseUrl({ projectRoot, port, env }) {
+  if (typeof port === 'number') {
+    return { baseUrl: `http://127.0.0.1:${port}/`, source: 'flag' };
+  }
+  try {
+    const status = await statusOfDetached(projectRoot);
+    if (status && status.state === 'running' && typeof status.url === 'string' && status.url.length > 0) {
+      const url = status.url.endsWith('/') ? status.url : `${status.url}/`;
+      return { baseUrl: url, source: 'supervisor' };
+    }
+  } catch { /* fall through */ }
+  const raw = env.RCF_VIEW_PORT;
+  if (raw !== undefined && raw !== '') {
+    const n = Number(raw);
+    if (Number.isInteger(n) && n >= 0 && n <= 65535) {
+      return { baseUrl: `http://127.0.0.1:${n}/`, source: 'env' };
+    }
+  }
+  return { baseUrl: `http://127.0.0.1:${DEFAULT_PORT}/`, source: 'default' };
+}
+
+/**
+ * The full open flow. Kept as a named export so the test suite can
+ * exercise it directly.
+ *
+ * @param {object} args
+ * @param {string[]} args.argv
+ * @param {string} args.projectRoot
+ * @param {{ env: NodeJS.ProcessEnv, stdout: NodeJS.WritableStream, stderr: NodeJS.WritableStream }} args.deps
+ * @returns {Promise<number>}
+ */
+export async function runOpenSubverb({ argv, projectRoot, deps }) {
+  const { env, stdout, stderr } = deps;
+  const { opts, errors: argErrors } = parseOpenArgs(argv);
+  if (opts.help) {
+    stdout.write(HELP);
+    return 0;
+  }
+  if (argErrors.length > 0) {
+    for (const msg of argErrors) stderr.write(`[error] usage view open: ${msg}\n`);
+    return 2;
+  }
+  if (!opts.blueprint && !opts.node) {
+    stderr.write('[error] usage view open: pass --blueprint <slug> and/or --node <id>\n');
+    return 2;
+  }
+
+  // Validate scope.
+  let manifest = null;
+  if (opts.blueprint) {
+    manifest = await readManifestFile(projectRoot);
+    const hit = contributionsForBlueprint(manifest, opts.blueprint);
+    if (!hit.found) {
+      const applied = listAppliedSlugs(manifest);
+      const hint = applied.length > 0
+        ? ` Applied: ${applied.join(', ')}.`
+        : ' No blueprints are applied to this project.';
+      stderr.write(`[error] usage view open: blueprint '${opts.blueprint}' is not applied to this project.${hint}\n`);
+      return 2;
+    }
+  }
+  let contributionIds = [];
+  if (manifest && opts.blueprint) {
+    const hit = contributionsForBlueprint(manifest, opts.blueprint);
+    contributionIds = hit.found ? hit.contributionIds : [];
+  }
+
+  if (opts.node) {
+    // Walk the tree once to prove the node exists. Cheaper than
+    // guessing at grammar; also gives the user the same "unknown id"
+    // wording as define/link.
+    const { tree } = await walkTree({ projectRoot });
+    if (!treeHasId(tree, opts.node)) {
+      stderr.write(`[error] usage view open: node id '${opts.node}' is not present on the tree.\n`);
+      return 2;
+    }
+  }
+
+  const { baseUrl, source } = await resolveBaseUrl({ projectRoot, port: opts.port, env });
+  const url = composeScopeUrl({ baseUrl, blueprint: opts.blueprint, node: opts.node });
+  const supervisor = source === 'supervisor';
+  const serverRunningNote = supervisor
+    ? null
+    : 'view server is not running; start it with `rcf audit view start --detach` for the URL to load';
+
+  if (opts.json) {
+    stdout.write(`${JSON.stringify({
+      url,
+      baseUrl,
+      urlSource: source,
+      blueprint: opts.blueprint,
+      node: opts.node,
+      contributionCount: contributionIds.length,
+      opened: false,
+      serverRunning: supervisor,
+    }, null, 2)}\n`);
+  } else {
+    stdout.write(`${url}\n`);
+    if (opts.blueprint) {
+      stdout.write(`  blueprint: ${opts.blueprint} (${contributionIds.length} contribution${contributionIds.length === 1 ? '' : 's'})\n`);
+    }
+    if (opts.node) {
+      stdout.write(`  node: ${opts.node}\n`);
+    }
+    if (serverRunningNote) stdout.write(`  note: ${serverRunningNote}\n`);
+  }
+
+  if (!opts.noOpen) {
+    maybeAutoOpen({
+      target: url,
+      noOpen: opts.noOpen,
+      stream: stdout,
+      env,
+      stderr,
+    });
+  }
+  return 0;
 }
