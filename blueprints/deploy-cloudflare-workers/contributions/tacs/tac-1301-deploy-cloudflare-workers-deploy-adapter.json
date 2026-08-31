@@ -8,10 +8,11 @@
   "purpose": "The one project module that talks to the deploy vendor. Wraps the vendor's CLI (or SDK) behind a fixed named-verb surface every other module imports. Uploads versions, promotes versions, lists version history, resolves the newest-of-main from the preview alias, and describes any single version's provenance and URLs. Nothing else in the project spawns the vendor CLI or issues a vendor deploy call.",
   "responsibilities": [
     "Expose `uploadVersion({ previewAlias })` that uploads the current build to the vendor and returns `{ versionId, versionIdUrl, previewAliasUrl }`; refuse an empty `previewAlias` with `DEPLOY_PREVIEW_ALIAS_REQUIRED` (AC-12102-2, AC-12103-1).",
-    "Expose `promoteVersion({ versionId })` that routes production traffic to the named version and returns `{ promotedVersionId, previousVersionId }`; refuse when `versionId` is absent from `listVersions()` with `DEPLOY_VERSION_NOT_FOUND` (AC-12102-3, AC-12108-3).",
+    "Expose `promoteVersion({ versionId })` that routes production traffic to the named version and returns `{ promotedVersionId, versionSha, previousVersionId }`; the returned `promotedVersionId` is the vendor-assigned version UUID (the string `wrangler versions deploy` took) and the returned `versionSha` is the git commit sha of the source tree the promoted version was built from (read from the version's provenance surface via `describeVersion`); refuse when `versionId` is absent from `listVersions()` with `DEPLOY_VERSION_NOT_FOUND` (AC-12102-3, AC-12108-3).",
     "Expose `listVersions()` returning the recent version history with the currently-serving id marked (AC-12109-1).",
-    "Expose `resolveNewestOfMain()` that looks up the version id currently behind the operator-chosen preview alias and returns it (AC-12108-2).",
-    "Expose `describeVersion({ versionId })` returning provenance (`versionSha`, `builtAt`, `ciRunUrl`) and URLs (`versionIdUrl`) for the named version (AC-12112-1, AC-12112-2).",
+    "Expose `resolveNewestOfMain()` that returns the version id currently behind the operator-chosen preview alias by reading `wrangler versions list --json` and picking the item with the greatest `metadata.created_on` whose `annotations['workers/alias']` matches the alias; there is no vendor CLI verb that maps an alias to a version id directly (AC-12108-2).",
+    "Expose `describeVersion({ versionId })` returning provenance (`versionSha`, `builtAt`, `ciRunUrl`) and URLs (`versionIdUrl`) for the named version; `versionSha` is the git commit sha baked into the version's bundle by `build-and-upload`, distinct from the version UUID `versionId` names (AC-12112-1, AC-12112-2).",
+    "Expose `resolveSubdomain()` that returns the account's workers.dev subdomain string every URL-assembly path needs; reads the `WORKERS_DEV_SUBDOMAIN` env var when set (project pin) and otherwise queries the vendor's `GET /accounts/<accountId>/workers/subdomain` REST endpoint; caches the value for the process's lifetime (AC-12105-1).",
     "Refuse a manifest whose production route resolves to the same host as the preview alias URL with `DEPLOY_URL_COLLAPSED` (AC-12105-2).",
     "Route every CLI invocation through a redactor that scrubs the vendor API token and account id from every emitted log line (AC-12107-3, AC-12106-2)."
   ],
@@ -20,7 +21,7 @@
     {
       "name": "vendorBinding",
       "kind": "read-write-api",
-      "description": "Project-supplied vendor binding implementing `uploadArtefact({ configPath, previewAlias })`, `deployVersion({ versionId })`, `listVersions()`, `getAlias({ alias })`. The default binding shells to `wrangler versions upload --preview-alias <alias>`, `wrangler versions deploy <versionId>`, `wrangler versions list`, and `wrangler versions view <alias>` respectively."
+      "description": "Project-supplied vendor binding implementing `uploadArtefact({ configPath, previewAlias })`, `deployVersion({ versionId })`, `listVersions()`, `resolveAlias({ alias })`, `getSubdomain({ accountId })`. The default binding shells to `wrangler versions upload --preview-alias <alias>`, `wrangler versions deploy <versionId>`, and `wrangler versions list --json` respectively; `resolveAlias` filters the `versions list --json` output on `annotations['workers/alias']` and picks the newest by `metadata.created_on` because wrangler 4.x has no CLI verb that resolves an alias to a version id (`wrangler versions view` accepts a version UUID only); `getSubdomain` calls the vendor's `GET /accounts/<accountId>/workers/subdomain` REST endpoint because `wrangler whoami` does not return the subdomain."
     },
     {
       "name": "redactor",

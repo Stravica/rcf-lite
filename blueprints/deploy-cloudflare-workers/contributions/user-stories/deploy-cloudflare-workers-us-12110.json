@@ -20,10 +20,10 @@
     },
     {
       "id": "AC-12110-2",
-      "description": "A probe passes when the response status is in the project-declared success set AND the response body carries the expected shape (for a health probe, a body whose `versionSha` field equals the promoted version's build sha).",
-      "given": "a successful promote of W and a `/healthz` probe declared as `{ status: [200], expectShape: { versionSha: '<PROMOTED_SHA>' } }`",
+      "description": "A probe passes when the response status is in the project-declared success set AND the response body carries the expected shape. For the mandatory health probe, `expectShape.versionSha` is substituted at verify time with the promote record's `versionSha` field (the git commit sha the promoted version was built from); the substitution value is NOT the promote record's `promotedVersionId` (the vendor-assigned version UUID), which names a different identifier and will never match the health-probe body.",
+      "given": "a successful promote of W with promote record `{ promotedVersionId: 'v-uuid-W', versionSha: 'sha-W' }` and a `/healthz` probe declared as `{ status: [200], expectShape: { versionSha: '<PROMOTED_VERSION_SHA>' } }`",
       "when": "the verifier receives the response",
-      "then": "the probe passes exactly when the status is 200 AND the JSON body's `versionSha` matches W's build provenance sha; a 200 response whose `versionSha` names a different sha fails the probe",
+      "then": "the verifier substitutes `sha-W` into the `expectShape.versionSha` slot before requesting; the probe passes exactly when the status is 200 AND the JSON body's `versionSha` matches `sha-W`; a 200 response whose `versionSha` names a different sha fails the probe",
       "testable": true,
       "scope": "deployed"
     },
