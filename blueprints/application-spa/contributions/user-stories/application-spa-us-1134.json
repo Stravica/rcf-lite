@@ -1,0 +1,24 @@
+{
+  "usId": "application-spa-US-1134",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-011",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Primary-nav icon renders at the expected size across declared themes on the home route in a browser (e2e)",
+  "asA": "operator relying on the iconography discipline the application-spa blueprint declares",
+  "iWant": "an end-to-end test that a real browser navigating the home route of the shipped application observes the primary-navigation icon rendered at the expected size across every theme declared on the blueprint's browserSurface",
+  "soThat": "the iconography discipline (application-spa-REQ-011: one icon set, consistent construction, semantic aliases) is verified end-to-end at a user-observable surface rather than assumed from component-library conformance alone",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1134-1",
+      "description": "The icon at the primary navigation slot renders at the expected size across all declared themes when the app loads its home route in a browser. Verification navigates a real browser through the same production entry-point construction the app ships (no header-stripping harness, no app.inject substitute), reads the rendered icon's computed bounding box, and asserts it equals the blueprint's iconAlias size token for that slot. A rendered box that resolves to the browser default (or to zero) refuses ship with a per-theme diagnostic naming the observed and expected sizes.",
+      "given": "the application booted through its production entry point with the primary navigation registered on the home route",
+      "when": "a real browser loads / in each theme declared on the blueprint's browserSurface and getBoundingClientRect() is read for the primary-nav icon",
+      "then": "the icon's rendered box equals the iconAlias size token for the primary-nav slot in every theme; a mismatch, a zero-size box, or a missing icon refuses ship with a per-theme diagnostic",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

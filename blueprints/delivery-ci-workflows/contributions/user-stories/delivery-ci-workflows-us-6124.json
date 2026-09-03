@@ -1,0 +1,29 @@
+{
+  "usId": "delivery-ci-workflows-US-6124",
+  "prdId": "PRD-001",
+  "reqId": "delivery-ci-workflows-REQ-019",
+  "version": "2.2.0",
+  "status": "approved",
+  "title": "The e2e check runs the project's testLevel:e2e cases as a distinct pull-request-checks CI job",
+  "asA": "operator whose project applies at least one blueprint declaring a browserSurface",
+  "iWant": "the materialised pull-request-checks workflow to contain a distinct e2e job that runs the project's testLevel:e2e test cases against a local preview or a --parity-env runtime, uploads browser artefacts (screenshots, HTML captures) as workflow artefacts, and reports its outcome to the aggregate pipeline report as a distinct row from the unit and integration rows",
+  "soThat": "browser-facing projects get a first-class e2e job in CI while API-only projects (no applied blueprint declaring a browserSurface) keep the pull-request-checks shape verbatim. The elicited check checkSet.e2e defaults on when a browserSurface is declared on any applied blueprint, off otherwise; an operator explicit `checkSet.e2e: off` in .rcf/config/delivery-ci-workflows.json is honoured (spec 2.3).",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6124-1",
+      "description": "When at least one applied blueprint declares .browserSurface.declared: true on its source blueprint.json AND checkSet.e2e is not explicitly false in .rcf/config/delivery-ci-workflows.json, the materialised pull-request-checks workflow contains a distinct e2e job that (a) runs the project's testLevel: e2e test cases against a local preview or a --parity-env runtime, (b) uploads screenshots and HTML captures as workflow artefacts, (c) reports its outcome to .rcf/reports/ci/pipeline.json as a distinct row from unit and integration rows, and (d) writes a per-gate report at .rcf/reports/ci/e2e.json with checkKind: \"e2e\". Projects that apply no browser-facing blueprint materialise no e2e job; projects that apply one but set checkSet.e2e: off in the config also materialise no e2e job.",
+      "given": "a project with .rcf/config/delivery-ci-workflows.json declared and at least one blueprint applied",
+      "when": "the workflow-materialiser runs against the project chain",
+      "then": "an e2e job is present in the materialised pull-request-checks workflow iff (a) at least one applied blueprint's source blueprint.json carries .browserSurface.declared: true and (b) checkSet.e2e is not false; when materialised the job satisfies the four points above; a project that applies no browser-facing blueprint (or that turns the check off) materialises the pull-request-checks workflow byte-identical to a 2.1 project",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-701-delivery-ci-workflows-gate-runner",
+    "TAC-702-delivery-ci-workflows-gate-report",
+    "TAC-704-delivery-ci-workflows-workflow-materialiser"
+  ],
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}
