@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Verify pins the Playwright MCP version.** `rcf verify run` no longer provisions `npx -y @playwright/mcp@latest`; the launcher composes the pin from an exported `PLAYWRIGHT_MCP_VERSION` constant in `packages/rcf-lite/src/verify/engine/launcher.js` and the DEFAULT_MCP_CONFIG is a `playwrightMcpConfig(PLAYWRIGHT_MCP_VERSION)` composition. Preflight prints `Playwright MCP: pinned to @playwright/mcp@<version>` on stderr; the effective pin (default or overridden) lands on the report as `run.runStats.playwrightMcpVersion` so a report re-render tells the operator which browser tooling this pass ran against. `--playwright-mcp-version <semver>` overrides the pin for one run (emergency use only), fires a loud stderr override notice, and refuses exit 2 with `--playwright-mcp-version expects a semver string, got '<value>'` on a non-semver value. Bump discipline: a pin change is a deliberate rcf-lite change, with its own commit, its own CHANGELOG line, and, where behaviour is affected, a re-run of the verify test set against the pinned tooling. Trace: `projects/rcf-lite-wsd/specs/rcf-lite-e2e-contract-spec-2026-09-03.md`, section 1; chain: `packages/rcf-lite/rcf/user-stories/us-1101.json` on REQ-011.
+
 ## [0.16.0] - 2026-09-03
 
 External blueprint libraries complete. Phase 2c lands git and tarball fetchers with a checked-in on-disk cache so a fresh clone lists library blueprints without a re-fetch, and a refresh path that re-resolves annotated-tag or tarball digest and refuses on drift. Amendment A2 makes plain-path adds library-aware so an author's local edit loop stamps the same effective slug and identity a qualified add would. Amendment A3 adds a blueprint paragraph to the managed agent-instructions block so the agent conversationally offers blueprints and registered libraries and the operator chooses. A library-authoring standard doc plus a worked-example fixture binds the doc against the shipped tooling.

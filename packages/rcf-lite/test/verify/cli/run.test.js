@@ -131,3 +131,61 @@ test('run: deployed + local URL exits 5 (NOT-DEPLOYED, never a soft pass), repor
   assert.equal(code, 5);
   assert.equal(JSON.parse(await readFile(out, 'utf8')).verdict, 'NOT-DEPLOYED');
 });
+
+/* ------------------------------------------------------------------ */
+/* Section 1 (spec 2026-09-03): pinned Playwright MCP + override.     */
+/* ------------------------------------------------------------------ */
+
+test('run: preflight prints the pinned Playwright MCP version to stderr', async () => {
+  const { root } = await scaffoldChain();
+  const out = await outPath();
+  const stderr = capture();
+  const code = await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000', '--out', out],
+    { stderr: stderr.stream, launchAgent: stubLauncher([passFinding]) },
+  );
+  assert.equal(code, 0);
+  assert.match(stderr.out.text, /^Playwright MCP: pinned to @playwright\/mcp@\d+\.\d+\.\d+$/m);
+});
+
+test('run: --playwright-mcp-version fires the loud override notice AND lands on the report', async () => {
+  const { root } = await scaffoldChain();
+  const out = await outPath();
+  const stderr = capture();
+  const code = await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000', '--out', out,
+      '--playwright-mcp-version', '0.0.99'],
+    { stderr: stderr.stream, launchAgent: stubLauncher([passFinding]) },
+  );
+  assert.equal(code, 0);
+  assert.match(stderr.out.text, /^Playwright MCP: OVERRIDE @playwright\/mcp@0\.0\.99 \(pinned default: \d+\.\d+\.\d+\)$/m);
+  const report = JSON.parse(await readFile(out, 'utf8'));
+  assert.equal(report.run.runStats.playwrightMcpVersion, '0.0.99');
+});
+
+test('run: default pin lands on the report as runStats.playwrightMcpVersion even with no override', async () => {
+  const { root } = await scaffoldChain();
+  const out = await outPath();
+  const stderr = capture();
+  await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000', '--out', out],
+    { stderr: stderr.stream, launchAgent: stubLauncher([passFinding]) },
+  );
+  const report = JSON.parse(await readFile(out, 'utf8'));
+  assert.match(report.run.runStats.playwrightMcpVersion, /^\d+\.\d+\.\d+$/);
+});
+
+test('run: --playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message', async () => {
+  const out = await outPath();
+  const stderr = capture();
+  const code = await runMain(
+    ['--repo', '/x', '--profile', 'ci', '--url', 'http://localhost', '--out', out,
+      '--playwright-mcp-version', 'notasemver'],
+    { stderr: stderr.stream },
+  );
+  assert.equal(code, 2);
+  assert.match(
+    stderr.out.text,
+    /--playwright-mcp-version expects a semver string, got 'notasemver'/,
+  );
+});

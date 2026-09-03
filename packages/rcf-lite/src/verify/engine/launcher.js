@@ -18,6 +18,46 @@ import { isolationEnv, isolationProvenance } from '#core/isolation';
 export const LAUNCHER_ENV = 'RCF_VERIFY_LAUNCHER';
 
 /**
+ * The pinned Playwright MCP version verify runs against. Verify is the ship
+ * gate; @latest re-resolves per verify run and any newly published
+ * Playwright MCP behaviour would become a silent runtime change on the next
+ * pass. The pin closes that reproducibility hole (spec 2026-09-03, section
+ * 1). A bump is a deliberate rcf-lite change with its own commit, CHANGELOG
+ * entry, and, where behaviour is affected, a re-run of the verify test set;
+ * pre-1.0, a Playwright MCP major bump ships as a rcf-lite minor bump per
+ * the pre-1.0 minor-is-breaking convention, a patch bump otherwise.
+ * `rcf verify run --playwright-mcp-version <semver>` overrides for one run
+ * only (emergency use), printed on stderr and recorded on the report.
+ */
+export const PLAYWRIGHT_MCP_VERSION = '0.0.80';
+
+/** True iff the value is a semver X.Y.Z (numeric segments; no pre-release). Verify's override
+ * accepts only exact semver so a typo cannot silently install a range. */
+export function isSemverString(value) {
+  return typeof value === 'string' && /^\d+\.\d+\.\d+$/.test(value);
+}
+
+/**
+ * Compose the Playwright MCP config with the given pin. Exported so the CLI
+ * override can build the same shape without duplicating the DEFAULT_MCP_CONFIG
+ * literal.
+ * @param {string} version - the semver pin
+ * @returns {object}
+ */
+export function playwrightMcpConfig(version) {
+  return {
+    mcpServers: {
+      playwright: {
+        type: 'stdio',
+        command: 'npx',
+        args: ['-y', `@playwright/mcp@${version}`],
+        env: {},
+      },
+    },
+  };
+}
+
+/**
  * The minimal, SCOPED tool surface the verifier agent needs to drive a live
  * app and collect runtime evidence (spec §9 method). Deliberately narrow —
  * NOT --dangerously-skip-permissions. The Playwright browser family (provided
@@ -40,16 +80,7 @@ export const DEFAULT_ALLOWED_TOOLS = Object.freeze([
  * context (§9). Server name `playwright` -> tool prefix `mcp__playwright__*`.
  * `npx` is resolved off PATH for portability (no machine-specific absolute).
  */
-export const DEFAULT_MCP_CONFIG = Object.freeze({
-  mcpServers: {
-    playwright: {
-      type: 'stdio',
-      command: 'npx',
-      args: ['-y', '@playwright/mcp@latest'],
-      env: {},
-    },
-  },
-});
+export const DEFAULT_MCP_CONFIG = Object.freeze(playwrightMcpConfig(PLAYWRIGHT_MCP_VERSION));
 
 /**
  * Build the child-process launch configuration for the verifier agent. Pure

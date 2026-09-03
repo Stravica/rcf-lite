@@ -96,18 +96,22 @@ test('runVerification: a launcher that throws -> LAUNCH-FAILURE report, NEVER a 
   assert.equal(gateTripped({ verdict: res.report.verdict }), true);
 });
 
-test('runVerification: launcher runStats thread into the report (fix 5); absent -> null (omit-not-fake)', async () => {
+test('runVerification: launcher runStats thread into the report (fix 5); playwrightMcpVersion always present (spec 2026-09-03 Q1)', async () => {
   const { root } = await scaffoldChain();
   const withStats = await runVerification(
     { repo: root, profile: 'ci', url: 'http://localhost:3000', provisionMode: 'skip' },
     { now: FIXED_NOW, launchAgent: async () => ({ findings: [passFinding], runStats: { durationMs: 4200, tokens: { outputTokens: 99 } } }) },
   );
   assert.equal(withStats.report.run.runStats.durationMs, 4200);
+  assert.match(withStats.report.run.runStats.playwrightMcpVersion, /^\d+\.\d+\.\d+$/);
+  // Absent launcher runStats: playwrightMcpVersion still lands (spec 2026-09-03 Q1).
+  // Other launcher-supplied fields are omit-not-fake.
   const noStats = await runVerification(
     { repo: root, profile: 'ci', url: 'http://localhost:3000', provisionMode: 'skip' },
     { now: FIXED_NOW, launchAgent: stubLauncher([passFinding]) },
   );
-  assert.equal(noStats.report.run.runStats, null);
+  assert.match(noStats.report.run.runStats.playwrightMcpVersion, /^\d+\.\d+\.\d+$/);
+  assert.equal(noStats.report.run.runStats.durationMs, undefined);
 });
 
 test('runVerification: unprovisionable prereqs surface as blockedAcs in the report (default run mode)', async () => {

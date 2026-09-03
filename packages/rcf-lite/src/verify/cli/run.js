@@ -12,6 +12,7 @@ import { parseArgs } from 'node:util';
 import { formatError, isRcfError } from '#core/errors';
 
 import { runVerification } from '../engine/index.js';
+import { isSemverString, PLAYWRIGHT_MCP_VERSION } from '../engine/launcher.js';
 import { serialiseReport } from '../report/index.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
 
@@ -26,6 +27,7 @@ const OPTION_SPEC = {
   'severity-gate': { type: 'string' },
   'provision-mode': { type: 'string' },
   persona: { type: 'string' },
+  'playwright-mcp-version': { type: 'string' },
   help: { type: 'boolean' },
 };
 
@@ -51,6 +53,12 @@ Optional:
                             PASS | COSMETIC | DEGRADED | BROKEN
   --provision-mode <m>      run | skip (default: run)
   --persona <name>          Adversarial persona flavour (default: generic-sceptic)
+  --playwright-mcp-version <semver>
+                            Override the pinned Playwright MCP version for
+                            one run (emergency use only; a loud stderr notice
+                            fires and the report records the overridden pin
+                            as runStats.playwrightMcpVersion). Must be an
+                            exact semver X.Y.Z.
   --help                    Print this help
 
 Exit codes:
@@ -119,6 +127,22 @@ export async function main(argv, deps = {}) {
     return 2;
   }
 
+  // --playwright-mcp-version override (spec 2026-09-03, section 1.4). Semver
+  // only; anything else refuses exit 2 with the spec-named message. When set,
+  // the effective pin fires a loud stderr override notice on preflight; when
+  // unset, preflight prints the pinned default.
+  const overrideRaw = flags['playwright-mcp-version'];
+  if (overrideRaw !== undefined && !isSemverString(overrideRaw)) {
+    stderr.write(`[error] usage --playwright-mcp-version expects a semver string, got '${overrideRaw}'\n`);
+    return 2;
+  }
+  if (overrideRaw !== undefined) {
+    // Loud override notice on stderr (spec 1.4: not silenceable with quiet).
+    stderr.write(`Playwright MCP: OVERRIDE @playwright/mcp@${overrideRaw} (pinned default: ${PLAYWRIGHT_MCP_VERSION})\n`);
+  } else {
+    stderr.write(`Playwright MCP: pinned to @playwright/mcp@${PLAYWRIGHT_MCP_VERSION}\n`);
+  }
+
   const result = await runVerification({
     repo: flags.repo,
     chainRef: flags.chain,
@@ -129,6 +153,7 @@ export async function main(argv, deps = {}) {
     provisionMode,
     persona: flags.persona,
     severityGate: gate,
+    playwrightMcpVersion: overrideRaw,
   }, deps);
 
   if (isRcfError(result)) {

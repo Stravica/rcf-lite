@@ -186,3 +186,38 @@ test('resolveLauncher: RCF_VERIFY_LAUNCHER module is used when no injection', as
     if (prev === undefined) delete process.env[LAUNCHER_ENV]; else process.env[LAUNCHER_ENV] = prev;
   }
 });
+
+/* ------------------------------------------------------------------ */
+/* Spec 2026-09-03, section 1.2: PLAYWRIGHT_MCP_VERSION pin.           */
+/* ------------------------------------------------------------------ */
+
+test('PLAYWRIGHT_MCP_VERSION is exported as a semver string and is NOT @latest', async () => {
+  const { PLAYWRIGHT_MCP_VERSION } = await import('../../../src/verify/engine/launcher.js');
+  assert.match(PLAYWRIGHT_MCP_VERSION, /^\d+\.\d+\.\d+$/);
+  assert.notEqual(PLAYWRIGHT_MCP_VERSION, 'latest');
+});
+
+test('DEFAULT_MCP_CONFIG composes @playwright/mcp with the pinned version (never @latest)', async () => {
+  const { PLAYWRIGHT_MCP_VERSION, DEFAULT_MCP_CONFIG } = await import('../../../src/verify/engine/launcher.js');
+  const args = DEFAULT_MCP_CONFIG.mcpServers.playwright.args;
+  assert.deepEqual(args, ['-y', `@playwright/mcp@${PLAYWRIGHT_MCP_VERSION}`]);
+  assert.ok(!args.some((a) => /@latest/.test(a)), 'no @latest in the args');
+});
+
+test('playwrightMcpConfig(version) composes an override MCP config with the given pin', async () => {
+  const { playwrightMcpConfig } = await import('../../../src/verify/engine/launcher.js');
+  const cfg = playwrightMcpConfig('0.0.99');
+  assert.deepEqual(cfg.mcpServers.playwright.args, ['-y', '@playwright/mcp@0.0.99']);
+});
+
+test('isSemverString: strict X.Y.Z shape, no pre-release, no v-prefix, no ranges', async () => {
+  const { isSemverString } = await import('../../../src/verify/engine/launcher.js');
+  assert.equal(isSemverString('0.0.99'), true);
+  assert.equal(isSemverString('1.50.0'), true);
+  assert.equal(isSemverString('v1.0.0'), false);
+  assert.equal(isSemverString('1.0'), false);
+  assert.equal(isSemverString('1.0.0-rc1'), false);
+  assert.equal(isSemverString('^1.0.0'), false);
+  assert.equal(isSemverString(''), false);
+  assert.equal(isSemverString(null), false);
+});

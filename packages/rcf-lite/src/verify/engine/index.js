@@ -18,7 +18,7 @@ import {
 import { readChain as defaultReadChain } from '../chain/index.js';
 import { runProvisioning, cleanup as defaultCleanup } from '../provision/index.js';
 import { composeBrief } from './brief.js';
-import { resolveLauncher } from './launcher.js';
+import { PLAYWRIGHT_MCP_VERSION, playwrightMcpConfig, resolveLauncher } from './launcher.js';
 import { aggregateVerdict, derivePerAcVerdicts, validateFinding } from '../verdict/index.js';
 import { buildReport } from '../report/index.js';
 
@@ -127,11 +127,23 @@ export async function runVerification(opts = {}, deps = {}) {
     if (cleanupResult.cleanupBlocked?.length) provisioning.cleanupBlocked = cleanupResult.cleanupBlocked;
   };
 
+  // Playwright MCP effective pin (spec 2026-09-03, section 1). The override
+  // overrides the constant for one run; unset means the pinned default. The
+  // effective pin lands on the report as runStats.playwrightMcpVersion so a
+  // report re-render tells the operator what browser tooling the pass ran
+  // against, whether default or overridden (spec Q1).
+  const playwrightMcpVersion = opts.playwrightMcpVersion ?? PLAYWRIGHT_MCP_VERSION;
+  const playwrightMcpOverridden = opts.playwrightMcpVersion !== undefined
+    && opts.playwrightMcpVersion !== null;
+  const mcpConfigForPin = playwrightMcpOverridden
+    ? playwrightMcpConfig(playwrightMcpVersion)
+    : undefined;
+
   // 6. Launch the isolated verifier agent (§7.3 isolation env, §9 fresh session).
   let launchResult;
   try {
     const launchAgent = await resolveLauncher(deps);
-    launchResult = await launchAgent({ brief, url, profile });
+    launchResult = await launchAgent({ brief, url, profile, mcpConfig: mcpConfigForPin });
   } catch (err) {
     // A verifier agent that could not run — or whose output could not be
     // ingested — is NEVER a fabricated PASS (§9). But the report is still
@@ -147,6 +159,7 @@ export async function runVerification(opts = {}, deps = {}) {
       findings: [], blockedAcs, provisioning,
       launchFailure: { message: err.message, rawOutputPath: err.rawOutputPath ?? null },
       perAcVerdicts,
+      runStats: { playwrightMcpVersion },
     });
     return { report };
   }
@@ -162,14 +175,21 @@ export async function runVerification(opts = {}, deps = {}) {
   // 9. Aggregate the verdict — split, never averaged (§5.1).
   const verdict = aggregateVerdict({ findings, blockedAcs, notDeployed: false });
 
-  // 10. Build the ingestible report (§5.3).
+  // 10. Build the ingestible report (§5.3). The effective Playwright MCP pin
+  // (default or overridden) always lands on the report as
+  // runStats.playwrightMcpVersion so a report re-render tells the operator
+  // which browser tooling this pass ran against (spec 2026-09-03, Q1).
+  const runStatsForReport = {
+    ...(launchResult?.runStats ?? {}),
+    playwrightMcpVersion,
+  };
   const report = buildReport({
     profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo,
     persona: opts.persona, startedAt, finishedAt: now(),
     verifierIsolation: isolationProvenance(),
     verdict, verdictAuthority,
     findings, blockedAcs, provisioning,
-    runStats: launchResult?.runStats ?? null,
+    runStats: runStatsForReport,
     perAcVerdicts,
   });
 
