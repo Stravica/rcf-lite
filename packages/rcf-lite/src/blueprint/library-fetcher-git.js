@@ -145,6 +145,7 @@ export async function fetchGitLibrary({ url, ref, refKind, targetDir, git = 'git
       if (!SHA_FULL.test(resolvedSha)) {
         return rcfError({ kind: 'usage', message: `git fetch: for-each-ref produced non-sha output '${resolvedSha}'` });
       }
+      await stripDotGit(scratch);
       const settled = await settleCache(scratch, targetDir);
       if (settled) return settled;
       return { resolvedSha, root: targetDir };
@@ -185,6 +186,7 @@ export async function fetchGitLibrary({ url, ref, refKind, targetDir, git = 'git
     } catch (err) {
       return rcfError({ kind: 'usage', message: `git fetch: checkout ${ref} failed: ${cleanGitStderr(err)}` });
     }
+    await stripDotGit(scratch);
     const settled = await settleCache(scratch, targetDir);
     if (settled) return settled;
     return { resolvedSha: ref.toLowerCase(), root: targetDir };
@@ -256,6 +258,23 @@ export async function resolveRemoteSha({ url, ref, refKind, git = 'git', timeout
     });
   } catch (err) {
     return rcfError({ kind: 'usage', message: `git resolve: ls-remote ${url} ${ref} failed: ${cleanGitStderr(err)}` });
+  }
+}
+
+/**
+ * Remove the .git dir from a fetched clone so the resulting cache is
+ * ordinary tree content the consuming project can `git add` under its
+ * own repo without git treating the nested `.git` as a gitlink and
+ * refusing the add. The fetch has already recorded the sha in the
+ * caller's return value; the pinned identity survives the strip.
+ */
+async function stripDotGit(root) {
+  try {
+    await rm(join(root, '.git'), { recursive: true, force: true });
+  } catch {
+    // A missing .git is fine; a rm failure is not load-bearing enough
+    // to fail the whole fetch, and the settle step will surface any
+    // real IO trouble.
   }
 }
 

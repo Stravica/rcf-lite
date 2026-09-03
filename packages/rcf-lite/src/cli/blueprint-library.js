@@ -434,12 +434,24 @@ async function performFetch({ kind, ref, parsed, projectRoot, stderr }) {
 }
 
 async function settleFinal(scratchAbs, finalAbs) {
-  const { rename, mkdir, rm } = await import('node:fs/promises');
+  const { rename, mkdir, rm, readdir } = await import('node:fs/promises');
   const { dirname } = await import('node:path');
   try {
     await rm(finalAbs, { recursive: true, force: true });
     await mkdir(dirname(finalAbs), { recursive: true });
     await rename(scratchAbs, finalAbs);
+    // Sweep the empty `.pending-<pid>-<ts>/` parent dir so a chain of
+    // adds does not leave scratch skeletons under the cache root. Only
+    // remove if the parent is now empty AND itself sits under
+    // `.blueprint-libraries/` (safety belt against removing a
+    // legitimate prefix directory).
+    const scratchParent = dirname(scratchAbs);
+    if (scratchParent.includes('.blueprint-libraries')) {
+      try {
+        const remaining = await readdir(scratchParent);
+        if (remaining.length === 0) await rm(scratchParent, { recursive: true, force: true });
+      } catch { /* dir already gone */ }
+    }
     return null;
   } catch (err) {
     return { kind: 'ioFailure', message: `library cache settle: ${err.message}` };
