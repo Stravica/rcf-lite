@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-09-03
+
+External blueprint libraries complete. Phase 2c lands git and tarball fetchers with a checked-in on-disk cache so a fresh clone lists library blueprints without a re-fetch, and a refresh path that re-resolves annotated-tag or tarball digest and refuses on drift. Amendment A2 makes plain-path adds library-aware so an author's local edit loop stamps the same effective slug and identity a qualified add would. Amendment A3 adds a blueprint paragraph to the managed agent-instructions block so the agent conversationally offers blueprints and registered libraries and the operator chooses. A library-authoring standard doc plus a worked-example fixture binds the doc against the shipped tooling.
+
 ### Added
 
 - **External blueprint libraries phase 2c: git and tarball fetchers + on-disk cache.** `rcf define blueprint library add` now accepts `git+<url>#<annotated-tag-or-sha>` and tarball URLs (with `--sha256 <hex>` for the pin). Fetched content lands under `rcf/.blueprint-libraries/<libraryPrefix>/<libraryRef>/`, checked into git as ordinary tree content so a fresh clone can `rcf define blueprint list` without a re-fetch (spec section 4.4). Floating branches (`main`, `master`, `HEAD`, `latest`, `develop`, `trunk`) refuse categorically; lightweight tags refuse with a diagnostic pointing at annotation as the fix; a tarball digest mismatch refuses the fetch and writes nothing. `rcf define blueprint library refresh <prefix>` re-resolves the tag's peeled commit (git) or re-downloads and re-verifies the digest (tarball) and refuses on drift per spec sections 6.4 / 9.12. `rcf define blueprint library remove <prefix>` now drops the on-disk cache for network sources. Zero new runtime dependencies: the git side shells out to the ambient `git` CLI; the tarball side uses built-in `fetch()`, `zlib`, and a bundled minimal POSIX-ustar parser. Auth remains out of scope for v1 (spec section 9.4): ambient git access is the model, no-access is definitive.
