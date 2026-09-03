@@ -1,0 +1,18 @@
+{
+  "fbsId": "FBS-022",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 22,
+  "executionStatus": "verified",
+  "title": "Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant",
+  "summary": "Declare @playwright/mcp and playwright as optional peer dependencies. Add src/setup/playwright-checks.js with the four checks and the loadBrowserFacingSources projection over manifest.blueprints. Wire the four checks into src/cli/doctor.js: run the three probes iff at least one applied blueprint declares a browserSurface OR the operator explicitly asks by --check; print the skip line otherwise; playwright-mcp-redundant fires only on browser-facing projects.",
+  "acIds": ["AC-1103-1","AC-1103-2","AC-1103-3","AC-1103-4"],
+  "dependsOnFbsIds": [],
+  "contextRequirements": { "tacIds": [], "adrIds": [] },
+  "domain": "verify",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1103 on REQ-011.",
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

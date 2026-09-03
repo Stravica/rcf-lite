@@ -1,0 +1,18 @@
+{
+  "fbsId": "FBS-020",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 20,
+  "executionStatus": "verified",
+  "title": "Verify pins the Playwright MCP version",
+  "summary": "Extend packages/rcf-lite/src/verify/engine/launcher.js with an exported PLAYWRIGHT_MCP_VERSION constant and a playwrightMcpConfig(version) composer; DEFAULT_MCP_CONFIG composes @playwright/mcp@<version> not @latest. Extend the CLI (src/verify/cli/run.js) with a --playwright-mcp-version override, a loud stderr override notice, and preflight-print of the pinned default. Stamp the effective pin on report.run.runStats.playwrightMcpVersion.",
+  "acIds": ["AC-1101-1","AC-1101-2","AC-1101-3","AC-1101-4"],
+  "dependsOnFbsIds": [],
+  "contextRequirements": { "tacIds": [], "adrIds": [] },
+  "domain": "verify",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1101 on REQ-011.",
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

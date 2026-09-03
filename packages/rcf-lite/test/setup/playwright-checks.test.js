@@ -152,3 +152,58 @@ test('loadBrowserFacingSources: a source with .browserSurface but no declared:tr
   const res = await loadBrowserFacingSources(root);
   assert.equal(res.browserFacing, false);
 });
+
+/* ------------------------------------------------------------------ */
+/* Live Claude Code 1.x list-format shape + Scope parsing.            */
+/* ------------------------------------------------------------------ */
+
+test('parseClaudeMcpListOutput: Claude Code 1.x colon-form line -> found (scope unknown when list omits it)', async () => {
+  const { parseClaudeMcpListOutput } = await import('../../src/setup/playwright-checks.js');
+  const text = [
+    'Checking MCP server health…',
+    '',
+    'rcf-tools: /usr/local/bin/docker exec -i rcf-tools-mcp node /app/servers/rcf-tools-mcp/dist/index.js - ✔ Connected',
+    'playwright: /Users/thefoot/.n/bin/npx -y @playwright/mcp@latest - ✔ Connected',
+    'rcf: node /path/to/rcf.js mcp - ⏸ Pending approval',
+  ].join('\n');
+  const parsed = parseClaudeMcpListOutput(text);
+  assert.equal(parsed.kind, 'found');
+  assert.equal(parsed.name, 'playwright');
+  // The 1.x list format does not carry a scope column; the caller resolves
+  // scope via `claude mcp get <name>` (see probeClaudeCodeMcp).
+  assert.equal(parsed.scope, 'unknown');
+});
+
+test('parseClaudeMcpGetScope: reads Scope: User / Project / Local off `claude mcp get` output', async () => {
+  const { parseClaudeMcpGetScope } = await import('../../src/setup/playwright-checks.js');
+  assert.equal(parseClaudeMcpGetScope('  Scope: User config (available in all your projects)\n'), 'user');
+  assert.equal(parseClaudeMcpGetScope('  Scope: Project config\n'), 'project');
+  assert.equal(parseClaudeMcpGetScope('  Scope: Local config\n'), 'local');
+  assert.equal(parseClaudeMcpGetScope('some unrelated output'), null);
+});
+
+test('probeClaudeCodeMcp: 1.x list + get -> found with named scope', async () => {
+  const { probeClaudeCodeMcp } = await import('../../src/setup/playwright-checks.js');
+  let call = 0;
+  const runProbe = async (cmd, args) => {
+    call += 1;
+    if (call === 1) {
+      // First: mcp list
+      return {
+        exitCode: 0,
+        timedOut: false,
+        stdout: 'playwright: npx -y @playwright/mcp@0.0.80 - ✔ Connected\n',
+      };
+    }
+    // Second: mcp get playwright
+    return {
+      exitCode: 0,
+      timedOut: false,
+      stdout: 'playwright:\n  Scope: User config (available in all your projects)\n  Status: ✔ Connected\n',
+    };
+  };
+  const res = await probeClaudeCodeMcp({ runProbe });
+  assert.equal(res.kind, 'found');
+  assert.equal(res.name, 'playwright');
+  assert.equal(res.scope, 'user');
+});

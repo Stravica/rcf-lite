@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-071",
+  "path": "test/blueprint/apply-spa-v1-4-0-schema.test.js",
+  "title": "Application-spa v1.4.0 browserSurface + browser-facing user stories + e2e template",
+  "description": "The SPA blueprint at 1.4.0 declares the top-level browserSurface object and contributes application-spa-US-1134 (icon on the home route) and application-spa-US-1135 (unauthenticated protected route lands on sign-in) as browser-facing acceptance criteria. blueprints/application-spa/assets/tc-templates/e2e.md ships as the paste-in test-case template naming rcf verify browser as the driver seam. blueprints/delivery-ci-workflows/blueprint.json bumps to 2.2.0 with US-6124 binding AC-6124-1 on the elicited e2e check, plus the illustrative e2e job in pull-request-checks.yml and the alternate-provider notes. The applied SPA v1.4.0 manifest still validates against rcf-schemas 0.5.1 (test/blueprint/apply-spa-v1-4-0-schema.test.js) with no browserSurface field on the applied blueprint record; doctor and any future workflow-materialiser read browserSurface off the applied record's source reference.",
+  "implementsAcIds": ["AC-1102-1", "AC-1102-2", "AC-1102-3", "AC-1102-4", "AC-1102-5"],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

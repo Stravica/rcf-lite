@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-072",
+  "path": "src/setup/playwright-checks.js#loadBrowserFacingSources",
+  "title": "Doctor's browser-facing projection + four Playwright checks",
+  "description": "loadBrowserFacingSources(projectRoot) walks manifest.blueprints[].source, reads each blueprint.json, and returns { browserFacing, sources[] } (spec 3.1). checkPlaywrightPresent(projectRoot) uses require.resolve('playwright'); checkBrowserPresent() probes PATH for chrome/chromium then ~/.cache/ms-playwright then `npx --no-install @playwright/mcp browser-status --json`; checkPlaywrightMcpReachable() spawns `npx --no-install @playwright/mcp --help` with a 15-second diagnostic ceiling. hasPlaywrightSignature + findProjectPlaywrightKey are the shared signature detectors doctor's redundant-entry check and init's project-scope probe consume. FIX_LINES exports the spec-verbatim fix lines; SKIP_LINE_NON_BROWSER_FACING is the single skip line for non-browser-facing projects. src/cli/doctor.js wires the four checks into KNOWN_CHECKS, honours the --check filter override on API-only projects (spec 3.5), and prints the skip line before the summary (spec 3.4).",
+  "implementsAcIds": ["AC-1103-1", "AC-1103-2", "AC-1103-3", "AC-1103-4"],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

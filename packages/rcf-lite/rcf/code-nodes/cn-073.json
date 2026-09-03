@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-073",
+  "path": "src/cli/init.js#runPlaywrightMcpPass",
+  "title": "Init's Playwright MCP pass + probeClaudeCodeMcp seam + redundant-entry check",
+  "description": "runPlaywrightMcpPass in src/cli/init.js implements the four-branch decision tree: project-scope Playwright signature detected -> left alone; probe found at any scope in Claude Code -> left alone; probe none -> write distinctly-named playwright-rcf entry; probe inconclusive -> write with the 'could not probe' notice. --no-playwright-mcp suppresses the write step entirely; the probe still runs so the print-out remains honest. probeClaudeCodeMcp in src/setup/playwright-checks.js shells out to `claude mcp list` (5s timeout) plus `claude mcp get <name>` for the scope; parseClaudeMcpListOutput and parseClaudeMcpGetScope carry the parsing logic. Doctor's playwright-mcp-redundant check (runPlaywrightMcpRedundantCheck in src/cli/doctor.js) fires only on browser-facing projects when both project and user scopes carry a Playwright signature; --fix does not repair the drift (deliberate operator choice per spec 4.5).",
+  "implementsAcIds": ["AC-1104-1", "AC-1104-2", "AC-1104-3", "AC-1104-4", "AC-1104-5"],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "fbsId": "FBS-021",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 21,
+  "executionStatus": "verified",
+  "title": "Blueprints amend for e2e as a declared test level",
+  "summary": "Bump application-spa to 1.4.0, add top-level browserSurface object, add US-1134 (icon) and US-1135 (auth) as new browser-facing acceptance criteria, and ship assets/tc-templates/e2e.md as the paste-in template. Bump delivery-ci-workflows to 2.2.0, add US-6124 with AC-6124-1 for the elicited e2e check, add the illustrative e2e job in pull-request-checks.yml, and add the alternate-provider notes for the e2e job. Prove the applied SPA v1.4.0 manifest validates against rcf-schemas 0.5.1 with no browserSurface field on the applied blueprint record.",
+  "acIds": ["AC-1102-1","AC-1102-2","AC-1102-3","AC-1102-4","AC-1102-5"],
+  "dependsOnFbsIds": [],
+  "contextRequirements": { "tacIds": [], "adrIds": [] },
+  "domain": "verify",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1102 on REQ-011.",
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

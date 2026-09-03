@@ -270,9 +270,12 @@ export function findProjectPlaywrightKey(mcpJson) {
 
 /**
  * Probe the Claude Code harness for a Playwright entry at any scope by
- * shelling out to `claude mcp list` and parsing its text output. Result
- * shapes:
- * - { kind: 'found', name, scope } - line matched signature and named scope
+ * shelling out to `claude mcp list` and parsing its text output. `list`
+ * itself does not name the scope column (as of Claude Code 1.x); when the
+ * list surfaces a Playwright entry, follow up with `claude mcp get <name>`
+ * to read the scope. Result shapes:
+ *
+ * - { kind: 'found', name, scope } - list matched signature and get named scope
  * - { kind: 'none' } - claude ran cleanly and reported no Playwright entry
  * - { kind: 'inconclusive', reason } - probe could not prove either way
  *
@@ -298,17 +301,55 @@ export async function probeClaudeCodeMcp(deps = {}) {
   if (parsed.kind === 'unparseable') {
     return { kind: 'inconclusive', reason: 'claude mcp list output did not parse' };
   }
-  if (parsed.kind === 'found') return { kind: 'found', name: parsed.name, scope: parsed.scope };
-  return { kind: 'none' };
+  if (parsed.kind === 'none') return { kind: 'none' };
+  // parsed.kind === 'found': list has a Playwright line but the shipping
+  // `claude mcp list` format does not carry an explicit scope column. Ask
+  // for the per-server detail so we can name the scope on the print-out.
+  let scope = parsed.scope;
+  if (!scope || scope === 'unknown') {
+    try {
+      const detail = await run('claude', ['mcp', 'get', parsed.name], timeoutMs);
+      if (detail.exitCode === 0 && typeof detail.stdout === 'string') {
+        scope = parseClaudeMcpGetScope(detail.stdout) ?? 'unknown';
+      } else {
+        scope = 'unknown';
+      }
+    } catch {
+      scope = 'unknown';
+    }
+  }
+  return { kind: 'found', name: parsed.name, scope };
 }
 
 /**
- * Parse `claude mcp list` text output for a Playwright signature. The docs
- * name the shape as human-readable text: each server on its own line,
- * beginning with a name; a scope marker `user`, `project`, or `local`
- * appears; the command tail column carries the command and its args. We
- * accept any line whose text contains `@playwright/mcp` and one of the
- * three scope tokens; the name is the first token on that line.
+ * Read the Scope line out of `claude mcp get <name>` output. Format observed
+ * on Claude Code 1.x: `  Scope: User config (available in all your projects)`
+ * for user, `  Scope: Local config` / `  Scope: Project config` otherwise.
+ * Returns 'user' | 'project' | 'local', or null when the format is not
+ * recognised (the caller then reports scope as 'unknown').
+ *
+ * @param {string} text
+ * @returns {'user'|'project'|'local'|null}
+ */
+export function parseClaudeMcpGetScope(text) {
+  if (typeof text !== 'string') return null;
+  const m = text.match(/Scope:\s*(User|Project|Local)/i);
+  if (!m) return null;
+  return m[1].toLowerCase();
+}
+
+/**
+ * Parse `claude mcp list` text output for a Playwright signature. Claude
+ * Code 1.x prints each server on its own line as
+ * `<name>: <command line> - <status>`; there is no scope column on the
+ * list output (per-server scope is available via `claude mcp get <name>`),
+ * so this parser returns the name and leaves the scope as 'unknown' for
+ * the caller to resolve if it wants one.
+ *
+ * Accepted line shapes:
+ * - `<name>: <command line> - <status>` (Claude Code 1.x)
+ * - `<name>  <scope>  <command line>` (older columnar form, kept for
+ *    tolerance)
  *
  * @param {string} text
  * @returns {{ kind: 'found', name: string, scope: string } | { kind: 'none' } | { kind: 'unparseable' }}
@@ -320,22 +361,31 @@ export function parseClaudeMcpListOutput(text) {
   for (const raw of lines) {
     const line = raw.trim();
     if (line.length === 0) continue;
-    if (/^(No |No MCP servers|Usage:|Error:)/i.test(line)) continue;
-    if (!/@playwright\/mcp/.test(line)) {
-      // A recognisable non-Playwright entry indicates parseable output.
-      if (/\b(user|project|local)\b/.test(line)) sawAnyEntry = true;
-      continue;
+    if (/^(No |No MCP servers|Usage:|Error:|Checking |name\b)/i.test(line)) continue;
+    // Recognise a non-Playwright entry so we can distinguish "parseable but
+    // no Playwright" from "unparseable output".
+    if (/^[A-Za-z0-9_.\/@-]+:\s+/.test(line) || /\b(user|project|local)\b/.test(line)) {
+      sawAnyEntry = true;
     }
+    if (!/@playwright\/mcp/.test(line)) continue;
+
+    // Extract the name. Both accepted shapes start with the name; the
+    // 1.x shape ends the name with a colon, the older shape is space-
+    // separated.
+    let name;
+    const colonForm = line.match(/^([A-Za-z0-9_.\/@-]+):\s+/);
+    if (colonForm) {
+      name = colonForm[1];
+    } else {
+      name = line.split(/\s+/)[0];
+    }
+    if (!name) continue;
+    // Older columnar shape may name the scope inline; keep that when present.
     const scopeMatch = line.match(/\b(user|project|local)\b/);
-    if (!scopeMatch) continue;
-    const firstToken = line.split(/\s+/)[0];
-    if (!firstToken) continue;
-    return { kind: 'found', name: firstToken, scope: scopeMatch[1] };
+    const scope = scopeMatch ? scopeMatch[1] : 'unknown';
+    return { kind: 'found', name, scope };
   }
-  // No Playwright line found; if we saw at least one non-Playwright entry,
-  // treat the output as parseable and definitively no Playwright.
   if (sawAnyEntry) return { kind: 'none' };
-  // Empty or unrecognised output.
   if (lines.every((l) => l.trim().length === 0)) return { kind: 'none' };
   return { kind: 'none' };
 }

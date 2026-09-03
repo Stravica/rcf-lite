@@ -1,0 +1,18 @@
+{
+  "fbsId": "FBS-023",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 23,
+  "executionStatus": "verified",
+  "title": "Init: Playwright MCP entry only when no scope-visible entry exists",
+  "summary": "Add a --no-playwright-mcp flag. After the rcf mcp entry write, detect a project-scope Playwright signature (any args string matching /^@playwright\/mcp(@|$)/) and leave it alone if present. Otherwise probe the harness (claude mcp list + claude mcp get <name>) and, on 'none' or 'inconclusive', write a distinctly named playwright-rcf project-scope entry. --no-playwright-mcp suppresses the write step entirely; the probe still runs so the print-out remains honest.",
+  "acIds": ["AC-1104-1","AC-1104-2","AC-1104-3","AC-1104-4","AC-1104-5"],
+  "dependsOnFbsIds": [],
+  "contextRequirements": { "tacIds": [], "adrIds": [] },
+  "domain": "verify",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1104 on REQ-011.",
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}
