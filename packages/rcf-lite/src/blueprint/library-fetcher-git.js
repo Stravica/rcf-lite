@@ -95,14 +95,22 @@ export async function fetchGitLibrary({ url, ref, refKind, targetDir, git = 'git
     return rcfError({ kind: 'ioFailure', message: `git fetch: scratch dir: ${err.message}`, stack: err.stack });
   }
   try {
-    const runGit = (args) => execFileAsync(git, args, { cwd: process.cwd(), encoding: 'utf8', timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
+    // Two runners: `runOutside` for the initial clone (has no working
+    // directory yet), `runInside` for every follow-up query against the
+    // clone in `scratch`. Splitting them keeps a subtle bug at bay:
+    // querying `refs/tags/<t>` from process.cwd() when the CLI happens
+    // to be invoked inside another git repo can either succeed (against
+    // the WRONG repo) or fail spuriously; scoping the query to the
+    // scratch clone is the only correct answer.
+    const runOutside = (args) => execFileAsync(git, args, { encoding: 'utf8', timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
+    const runInside = (args) => execFileAsync(git, args, { cwd: scratch, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 });
 
     if (refKind === 'tag') {
       // Shallow clone at the tag. `--no-tags` prevents pulling every
-      // tag object; the target tag object still arrives because
+      // OTHER tag object; the target tag object still arrives because
       // `--branch <tag>` fetches it explicitly.
       try {
-        await runGit(['clone', '--depth', '1', '--branch', ref, '--no-tags', url, scratch]);
+        await runOutside(['clone', '--depth', '1', '--branch', ref, '--no-tags', url, scratch]);
       } catch (err) {
         return rcfError({
           kind: 'usage',
@@ -110,22 +118,32 @@ export async function fetchGitLibrary({ url, ref, refKind, targetDir, git = 'git
         });
       }
       // Verify annotation. Annotated tags produce a tag OBJECT
-      // (`cat-file -t refs/tags/<t>` returns 'tag'); lightweight tags
-      // point straight at a commit and return 'commit'. The spec pin
-      // discipline (§6.1) requires annotation.
-      const objType = await runGitLine(runGit, ['cat-file', '-t', `refs/tags/${ref}`]);
+      // (`for-each-ref refs/tags/<t> %(objecttype)` returns 'tag');
+      // lightweight tags point straight at a commit and return
+      // 'commit'. The spec pin discipline (§6.1) requires annotation.
+      // `for-each-ref` is preferred over `cat-file -t` because it
+      // never touches a working-tree HEAD state; it queries the ref
+      // record directly.
+      const objType = await runGitLine(runInside, ['for-each-ref', `refs/tags/${ref}`, '--format=%(objecttype)']);
       if (typeof objType !== 'string') return objType;
-      if (objType.trim() !== 'tag') {
+      const objTypeTrim = objType.trim();
+      if (objTypeTrim.length === 0) {
+        return rcfError({
+          kind: 'usage',
+          message: `git fetch: ref '${ref}' at ${url} did not land a tag record in the clone; check that the ref names a tag (annotated) or pin to a sha.`,
+        });
+      }
+      if (objTypeTrim !== 'tag') {
         return rcfError({
           kind: 'usage',
           message: `git fetch: ref '${ref}' at ${url} is a lightweight tag (or a branch alias). Publishers must ship annotated tags so the pin has a tamper-evident object; re-tag upstream, or pin to a sha.`,
         });
       }
-      const sha = await runGitLine(runGit, ['rev-parse', `${ref}^{commit}`]);
+      const sha = await runGitLine(runInside, ['for-each-ref', `refs/tags/${ref}`, '--format=%(*objectname)']);
       if (typeof sha !== 'string') return sha;
       const resolvedSha = sha.trim();
       if (!SHA_FULL.test(resolvedSha)) {
-        return rcfError({ kind: 'usage', message: `git fetch: rev-parse produced non-sha output '${resolvedSha}'` });
+        return rcfError({ kind: 'usage', message: `git fetch: for-each-ref produced non-sha output '${resolvedSha}'` });
       }
       const settled = await settleCache(scratch, targetDir);
       if (settled) return settled;
@@ -137,7 +155,7 @@ export async function fetchGitLibrary({ url, ref, refKind, targetDir, git = 'git
     // full clone is the portable option). We disable checkout so the
     // sha resolve and the switch happen after the fetch settled.
     try {
-      await runGit(['clone', '--no-checkout', '--no-tags', url, scratch]);
+      await runOutside(['clone', '--no-checkout', '--no-tags', url, scratch]);
     } catch (err) {
       return rcfError({
         kind: 'usage',
@@ -147,14 +165,14 @@ export async function fetchGitLibrary({ url, ref, refKind, targetDir, git = 'git
     // Verify the sha exists AND names a commit (not a tree, blob or
     // annotated-tag object). `cat-file -e` fails on unknown objects.
     try {
-      await execFileAsync(git, ['cat-file', '-e', ref], { cwd: scratch, encoding: 'utf8', timeout: timeoutMs });
+      await runInside(['cat-file', '-e', ref]);
     } catch {
       return rcfError({
         kind: 'usage',
         message: `git fetch: commit sha '${ref}' is not reachable in ${url}. Check the sha, or ask the publisher to keep the ref in their history.`,
       });
     }
-    const commitType = await runGitLine((args) => execFileAsync(git, args, { cwd: scratch, encoding: 'utf8', timeout: timeoutMs, maxBuffer: 64 * 1024 * 1024 }), ['cat-file', '-t', ref]);
+    const commitType = await runGitLine(runInside, ['cat-file', '-t', ref]);
     if (typeof commitType !== 'string') return commitType;
     if (commitType.trim() !== 'commit') {
       return rcfError({
@@ -163,7 +181,7 @@ export async function fetchGitLibrary({ url, ref, refKind, targetDir, git = 'git
       });
     }
     try {
-      await execFileAsync(git, ['-c', 'advice.detachedHead=false', 'checkout', ref], { cwd: scratch, encoding: 'utf8', timeout: timeoutMs });
+      await runInside(['-c', 'advice.detachedHead=false', 'checkout', ref]);
     } catch (err) {
       return rcfError({ kind: 'usage', message: `git fetch: checkout ${ref} failed: ${cleanGitStderr(err)}` });
     }
@@ -205,11 +223,19 @@ export async function resolveRemoteSha({ url, ref, refKind, git = 'git', timeout
     // We take the peeled row (the commit the tag points at); if no
     // peeled row appears the tag is lightweight and we refuse for the
     // same reason as the fetch path (spec §6.1).
-    const { stdout } = await execFileAsync(git, ['ls-remote', '--tags', url, ref], {
+    //
+    // Ordering trap: `git ls-remote --tags <url> <pattern>` filters out
+    // peeled rows. Without the pattern arg (or with `--tags` plus a
+    // trailing pattern targeting the full ref path), git happily
+    // returns both. We list all tags and grep client-side so the peeled
+    // row survives; this is a small fixed cost (tag namespaces are
+    // tiny) and gives us a portable primitive.
+    const { stdout } = await execFileAsync(git, ['ls-remote', '--tags', url], {
       encoding: 'utf8', timeout: timeoutMs,
     });
     const lines = stdout.split('\n').filter((l) => l.length > 0);
-    const peeled = lines.find((l) => l.endsWith('^{}'));
+    const targetName = `refs/tags/${ref}`;
+    const peeled = lines.find((l) => l.endsWith(`${targetName}^{}`));
     if (peeled) {
       const sha = peeled.split(/\s+/)[0];
       if (!SHA_FULL.test(sha)) {
@@ -217,7 +243,7 @@ export async function resolveRemoteSha({ url, ref, refKind, git = 'git', timeout
       }
       return { resolvedSha: sha.toLowerCase() };
     }
-    const plain = lines.find((l) => l.endsWith(`refs/tags/${ref}`));
+    const plain = lines.find((l) => l.endsWith(targetName));
     if (plain) {
       return rcfError({
         kind: 'usage',

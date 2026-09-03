@@ -222,11 +222,21 @@ test('library refresh detects drift when the on-disk libraryRef changes', async 
   assert.match(refresh.stderr, /libraryRef '1\.0\.0' -> '1\.1\.0'/);
 });
 
-test('library add refuses a non-local ref in Phase 2b', async () => {
+test('library add refuses a floating git branch pin (Phase 2c pin discipline)', async () => {
   const project = await scaffoldProject();
-  const res = await runBin(project, ['define', 'blueprint', 'library', 'add', 'git+https://example.com/repo.git#v1.0.0', '--no-review', '--i-have-reviewed']);
+  // Point at a `git+file:///no/such/path` so no network is touched.
+  // The pin-discipline gate refuses BEFORE the transport is exercised
+  // because 'main' is on the floating-branch denylist (spec §6.1).
+  const res = await runBin(project, ['define', 'blueprint', 'library', 'add', 'git+file:///tmp/no-such-repo.git#main', '--no-review', '--i-have-reviewed']);
   assert.notEqual(res.code, 0);
-  assert.match(res.stderr, /Phase 2c/);
+  assert.match(res.stderr, /floating branch|alias/);
+});
+
+test('library add refuses a tarball ref without --sha256 (Phase 2c pin discipline)', async () => {
+  const project = await scaffoldProject();
+  const res = await runBin(project, ['define', 'blueprint', 'library', 'add', 'https://example.invalid/lib.tar.gz', '--no-review', '--i-have-reviewed']);
+  assert.notEqual(res.code, 0);
+  assert.match(res.stderr, /--sha256 <hex>/);
 });
 
 test('rcf define blueprint --help advertises the library sub-verb', async () => {

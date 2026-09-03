@@ -2,4 +2,9 @@
 # `scripts/stage-blueprint-shelf.mjs` as part of the `prepack` /
 # `prepublishOnly` scripts so `npm pack` ships the shelf inside the
 # package. The authoritative shelf lives at the repo root.
-blueprints/
+#
+# Root-anchored (leading '/') so this rule only matches
+# `packages/rcf-lite/blueprints/` and does not swallow every nested
+# `blueprints/` directory (e.g. the library-authoring fixture at
+# `test/fixtures/library-authoring-example/blueprints/`).
+/blueprints/

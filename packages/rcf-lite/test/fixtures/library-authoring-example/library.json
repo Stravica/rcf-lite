@@ -1,0 +1,21 @@
+{
+  "libraryVersion": 1,
+  "libraryPrefix": "wla",
+  "displayName": "Worked-example library authoring fixture",
+  "publisher": {
+    "id": "wla",
+    "displayName": "Worked-example publisher",
+    "contact": "example@example.invalid"
+  },
+  "libraryRef": "1.0.0",
+  "bands": {
+    "ac": { "start": 60000, "end": 60999 },
+    "suffixBlocks": [
+      { "kind": "adr", "start": 6000, "end": 6099 }
+    ]
+  },
+  "blueprints": [
+    { "slug": "example-standard", "path": "blueprints/example-standard" }
+  ],
+  "notes": "Minimum-viable library shape shipped as the docs/library-authoring.md worked example. This library is also the load-bearing fixture for test/blueprint/library-authoring-example.test.js: it must remain valid under both the phase-1 blueprint loader and the phase-2b library loader, or the doc drifts from what the shipped tooling accepts."
+}

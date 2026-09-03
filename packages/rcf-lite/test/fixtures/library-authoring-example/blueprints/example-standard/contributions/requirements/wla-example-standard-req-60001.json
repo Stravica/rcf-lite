@@ -1,0 +1,19 @@
+{
+  "reqId": "wla-example-standard-REQ-60001",
+  "prdId": "PRD-001",
+  "title": "Every worked-example project reads its greeting from the standard config path",
+  "description": "Projects that apply the worked-example library declare a single acceptance criterion, load-bearing on the fixture only, so the doc's walkthrough has an end-to-end observable outcome to point at. The project reads the greeting string from the path exampleGreetingPath declared by the library-level ADR and echoes it on start.",
+  "category": "functional",
+  "domain": "example",
+  "priority": "must",
+  "rationale": "The fixture exists to make library authoring concrete. A REQ that a real project could satisfy end-to-end (read a config, echo a string) keeps the example anchored to something a reader can imagine building, without pulling in domain complexity that would dilute the point (the library shape, not the greeting).",
+  "tags": [
+    "blueprint:example-standard",
+    "library:wla",
+    "fixture:library-authoring"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-03T00:00:00Z",
+  "updatedAt": "2026-09-03T00:00:00Z"
+}
