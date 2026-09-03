@@ -442,40 +442,86 @@ flowchart LR
   REQ-011["REQ-011"]
   AC-1101-1["AC-1101-1"]
   REQ-011 --> AC-1101-1
+  TC-030-default-config-uses-pin["TC-030-default-config-uses-pin"]
+  AC-1101-1 -.-> TC-030-default-config-uses-pin
+  TC-030-pin-constant-exported["TC-030-pin-constant-exported"]
+  AC-1101-1 -.-> TC-030-pin-constant-exported
   AC-1101-2["AC-1101-2"]
   REQ-011 --> AC-1101-2
+  TC-030-preflight-line["TC-030-preflight-line"]
+  AC-1101-2 -.-> TC-030-preflight-line
   AC-1101-3["AC-1101-3"]
   REQ-011 --> AC-1101-3
+  TC-030-override-non-semver-refused["TC-030-override-non-semver-refused"]
+  AC-1101-3 -.-> TC-030-override-non-semver-refused
+  TC-030-override-notice["TC-030-override-notice"]
+  AC-1101-3 -.-> TC-030-override-notice
   AC-1101-4["AC-1101-4"]
   REQ-011 --> AC-1101-4
+  TC-030-default-pin-on-report["TC-030-default-pin-on-report"]
+  AC-1101-4 -.-> TC-030-default-pin-on-report
   AC-1102-1["AC-1102-1"]
   REQ-011 --> AC-1102-1
+  TC-031-spa-version-and-flag["TC-031-spa-version-and-flag"]
+  AC-1102-1 -.-> TC-031-spa-version-and-flag
   AC-1102-2["AC-1102-2"]
   REQ-011 --> AC-1102-2
+  TC-031-spa-us-and-template["TC-031-spa-us-and-template"]
+  AC-1102-2 -.-> TC-031-spa-us-and-template
   AC-1102-3["AC-1102-3"]
   REQ-011 --> AC-1102-3
+  TC-031-ci-us-6124["TC-031-ci-us-6124"]
+  AC-1102-3 -.-> TC-031-ci-us-6124
   AC-1102-4["AC-1102-4"]
   REQ-011 --> AC-1102-4
+  TC-031-illustrative-workflow-and-notes["TC-031-illustrative-workflow-and-notes"]
+  AC-1102-4 -.-> TC-031-illustrative-workflow-and-notes
   AC-1102-5["AC-1102-5"]
   REQ-011 --> AC-1102-5
+  TC-031-manifest-validates["TC-031-manifest-validates"]
+  AC-1102-5 -.-> TC-031-manifest-validates
   AC-1103-1["AC-1103-1"]
   REQ-011 --> AC-1103-1
+  TC-032-peer-deps-optional["TC-032-peer-deps-optional"]
+  AC-1103-1 -.-> TC-032-peer-deps-optional
   AC-1103-2["AC-1103-2"]
   REQ-011 --> AC-1103-2
+  TC-032-fix-lines["TC-032-fix-lines"]
+  AC-1103-2 -.-> TC-032-fix-lines
   AC-1103-3["AC-1103-3"]
   REQ-011 --> AC-1103-3
+  TC-032-skip-line["TC-032-skip-line"]
+  AC-1103-3 -.-> TC-032-skip-line
   AC-1103-4["AC-1103-4"]
   REQ-011 --> AC-1103-4
+  TC-032-check-override["TC-032-check-override"]
+  AC-1103-4 -.-> TC-032-check-override
   AC-1104-1["AC-1104-1"]
   REQ-011 --> AC-1104-1
+  TC-033-project-scope-signature-left-alone["TC-033-project-scope-signature-left-alone"]
+  AC-1104-1 -.-> TC-033-project-scope-signature-left-alone
   AC-1104-2["AC-1104-2"]
   REQ-011 --> AC-1104-2
+  TC-033-probe-found-leaves-alone["TC-033-probe-found-leaves-alone"]
+  AC-1104-2 -.-> TC-033-probe-found-leaves-alone
+  TC-033-probe-inconclusive-writes-with-notice["TC-033-probe-inconclusive-writes-with-notice"]
+  AC-1104-2 -.-> TC-033-probe-inconclusive-writes-with-notice
+  TC-033-probe-none-writes-distinct["TC-033-probe-none-writes-distinct"]
+  AC-1104-2 -.-> TC-033-probe-none-writes-distinct
   AC-1104-3["AC-1104-3"]
   REQ-011 --> AC-1104-3
+  TC-033-distinct-entry-shape["TC-033-distinct-entry-shape"]
+  AC-1104-3 -.-> TC-033-distinct-entry-shape
   AC-1104-4["AC-1104-4"]
   REQ-011 --> AC-1104-4
+  TC-033-no-playwright-mcp-suppresses-write["TC-033-no-playwright-mcp-suppresses-write"]
+  AC-1104-4 -.-> TC-033-no-playwright-mcp-suppresses-write
   AC-1104-5["AC-1104-5"]
   REQ-011 --> AC-1104-5
+  TC-033-redundant-fires-browser-facing["TC-033-redundant-fires-browser-facing"]
+  AC-1104-5 -.-> TC-033-redundant-fires-browser-facing
+  TC-033-redundant-quiet-on-api-only["TC-033-redundant-quiet-on-api-only"]
+  AC-1104-5 -.-> TC-033-redundant-quiet-on-api-only
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -703,23 +749,46 @@ flowchart LR
   class TC-029-deterministic tc;
   class REQ-011 req;
   class AC-1101-1 ac;
+  class TC-030-default-config-uses-pin tc;
+  class TC-030-pin-constant-exported tc;
   class AC-1101-2 ac;
+  class TC-030-preflight-line tc;
   class AC-1101-3 ac;
+  class TC-030-override-non-semver-refused tc;
+  class TC-030-override-notice tc;
   class AC-1101-4 ac;
+  class TC-030-default-pin-on-report tc;
   class AC-1102-1 ac;
+  class TC-031-spa-version-and-flag tc;
   class AC-1102-2 ac;
+  class TC-031-spa-us-and-template tc;
   class AC-1102-3 ac;
+  class TC-031-ci-us-6124 tc;
   class AC-1102-4 ac;
+  class TC-031-illustrative-workflow-and-notes tc;
   class AC-1102-5 ac;
+  class TC-031-manifest-validates tc;
   class AC-1103-1 ac;
+  class TC-032-peer-deps-optional tc;
   class AC-1103-2 ac;
+  class TC-032-fix-lines tc;
   class AC-1103-3 ac;
+  class TC-032-skip-line tc;
   class AC-1103-4 ac;
+  class TC-032-check-override tc;
   class AC-1104-1 ac;
+  class TC-033-project-scope-signature-left-alone tc;
   class AC-1104-2 ac;
+  class TC-033-probe-found-leaves-alone tc;
+  class TC-033-probe-inconclusive-writes-with-notice tc;
+  class TC-033-probe-none-writes-distinct tc;
   class AC-1104-3 ac;
+  class TC-033-distinct-entry-shape tc;
   class AC-1104-4 ac;
+  class TC-033-no-playwright-mcp-suppresses-write tc;
   class AC-1104-5 ac;
+  class TC-033-redundant-fires-browser-facing tc;
+  class TC-033-redundant-quiet-on-api-only tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

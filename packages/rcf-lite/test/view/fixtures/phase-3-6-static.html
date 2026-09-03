@@ -9668,6 +9668,431 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-030">
+  <summary><span class="summary-label">TS-030 - Verify pins the Playwright MCP version, prints it in preflight, honours the override</span><span class="status draft">draft</span></summary>
+  <article id="TS-030" class="doc doc-ts">
+  <h3>TS-030 - Verify pins the Playwright MCP version, prints it in preflight, honours the override</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1101">US-1101</a></p>
+  <p><strong>Purpose:</strong> Cover the four ACs on US-1101: the pinned constant + composed default MCP config, the preflight stderr line, the override notice + non-semver refusal, and the default pin lands on the report as runStats.playwrightMcpVersion.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1101-1">AC-1101-1</a>, <a href="#AC-1101-2">AC-1101-2</a>, <a href="#AC-1101-3">AC-1101-3</a>, <a href="#AC-1101-4">AC-1101-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-030-pin-constant-exported">
+  <p><strong>TC-030-pin-constant-exported</strong> - covers <a href="#AC-1101-1">AC-1101-1</a> <span class="status pending">pending</span></p>
+  <p>PLAYWRIGHT_MCP_VERSION is exported as a semver string, not @latest</p>
+  <p><em>Test pointer:</em> <code>test/verify/engine/launcher.test.js::PLAYWRIGHT_MCP_VERSION is exported as a semver string and is NOT @latest</code></p>
+</div>
+<div class="tc" id="TC-030-default-config-uses-pin">
+  <p><strong>TC-030-default-config-uses-pin</strong> - covers <a href="#AC-1101-1">AC-1101-1</a> <span class="status pending">pending</span></p>
+  <p>DEFAULT_MCP_CONFIG.args composes @playwright/mcp with the pinned version and never @latest</p>
+  <p><em>Test pointer:</em> <code>test/verify/engine/launcher.test.js::DEFAULT_MCP_CONFIG composes @playwright/mcp with the pinned version (never @latest)</code></p>
+</div>
+<div class="tc" id="TC-030-preflight-line">
+  <p><strong>TC-030-preflight-line</strong> - covers <a href="#AC-1101-2">AC-1101-2</a> <span class="status pending">pending</span></p>
+  <p>rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr</p>
+  <p><em>Test pointer:</em> <code>test/verify/cli/run.test.js::run: preflight prints the pinned Playwright MCP version to stderr</code></p>
+</div>
+<div class="tc" id="TC-030-override-notice">
+  <p><strong>TC-030-override-notice</strong> - covers <a href="#AC-1101-3">AC-1101-3</a> <span class="status pending">pending</span></p>
+  <p>--playwright-mcp-version fires the loud stderr override notice and records the effective pin on the report</p>
+  <p><em>Test pointer:</em> <code>test/verify/cli/run.test.js::run: --playwright-mcp-version fires the loud override notice AND lands on the report</code></p>
+</div>
+<div class="tc" id="TC-030-override-non-semver-refused">
+  <p><strong>TC-030-override-non-semver-refused</strong> - covers <a href="#AC-1101-3">AC-1101-3</a> <span class="status pending">pending</span></p>
+  <p>--playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message</p>
+  <p><em>Test pointer:</em> <code>test/verify/cli/run.test.js::run: --playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message</code></p>
+</div>
+<div class="tc" id="TC-030-default-pin-on-report">
+  <p><strong>TC-030-default-pin-on-report</strong> - covers <a href="#AC-1101-4">AC-1101-4</a> <span class="status pending">pending</span></p>
+  <p>Even with no override the report records the default pin as runStats.playwrightMcpVersion</p>
+  <p><em>Test pointer:</em> <code>test/verify/cli/run.test.js::run: default pin lands on the report as runStats.playwrightMcpVersion even with no override</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-030&quot;,
+  &quot;usId&quot;: &quot;US-1101&quot;,
+  &quot;title&quot;: &quot;Verify pins the Playwright MCP version, prints it in preflight, honours the override&quot;,
+  &quot;purpose&quot;: &quot;Cover the four ACs on US-1101: the pinned constant + composed default MCP config, the preflight stderr line, the override notice + non-semver refusal, and the default pin lands on the report as runStats.playwrightMcpVersion.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1101-1&quot;,
+    &quot;AC-1101-2&quot;,
+    &quot;AC-1101-3&quot;,
+    &quot;AC-1101-4&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-030-pin-constant-exported&quot;,
+      &quot;acId&quot;: &quot;AC-1101-1&quot;,
+      &quot;description&quot;: &quot;PLAYWRIGHT_MCP_VERSION is exported as a semver string, not @latest&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/engine/launcher.test.js::PLAYWRIGHT_MCP_VERSION is exported as a semver string and is NOT @latest&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-default-config-uses-pin&quot;,
+      &quot;acId&quot;: &quot;AC-1101-1&quot;,
+      &quot;description&quot;: &quot;DEFAULT_MCP_CONFIG.args composes @playwright/mcp with the pinned version and never @latest&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/engine/launcher.test.js::DEFAULT_MCP_CONFIG composes @playwright/mcp with the pinned version (never @latest)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-preflight-line&quot;,
+      &quot;acId&quot;: &quot;AC-1101-2&quot;,
+      &quot;description&quot;: &quot;rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/cli/run.test.js::run: preflight prints the pinned Playwright MCP version to stderr&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-override-notice&quot;,
+      &quot;acId&quot;: &quot;AC-1101-3&quot;,
+      &quot;description&quot;: &quot;--playwright-mcp-version fires the loud stderr override notice and records the effective pin on the report&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/cli/run.test.js::run: --playwright-mcp-version fires the loud override notice AND lands on the report&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-override-non-semver-refused&quot;,
+      &quot;acId&quot;: &quot;AC-1101-3&quot;,
+      &quot;description&quot;: &quot;--playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/cli/run.test.js::run: --playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-default-pin-on-report&quot;,
+      &quot;acId&quot;: &quot;AC-1101-4&quot;,
+      &quot;description&quot;: &quot;Even with no override the report records the default pin as runStats.playwrightMcpVersion&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/cli/run.test.js::run: default pin lands on the report as runStats.playwrightMcpVersion even with no override&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-031">
+  <summary><span class="summary-label">TS-031 - application-spa v1.4.0 declares browserSurface, delivery-ci-workflows v2.2.0 documents the e2e job</span><span class="status draft">draft</span></summary>
+  <article id="TS-031" class="doc doc-ts">
+  <h3>TS-031 - application-spa v1.4.0 declares browserSurface, delivery-ci-workflows v2.2.0 documents the e2e job</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1102">US-1102</a></p>
+  <p><strong>Purpose:</strong> Cover the five ACs on US-1102: SPA blueprint at 1.4.0 with browserSurface.declared, the two new e2e user stories plus the e2e.md template, delivery-ci-workflows v2.2.0 US-6124 binding the four e2e-job points, the illustrative GHA workflow + per-provider notes, and the applied manifest validating with no browserSurface on the applied record.</p>
+  <p><strong>Test level:</strong> contract</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1102-1">AC-1102-1</a>, <a href="#AC-1102-2">AC-1102-2</a>, <a href="#AC-1102-3">AC-1102-3</a>, <a href="#AC-1102-4">AC-1102-4</a>, <a href="#AC-1102-5">AC-1102-5</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-031-spa-version-and-flag">
+  <p><strong>TC-031-spa-version-and-flag</strong> - covers <a href="#AC-1102-1">AC-1102-1</a> <span class="status pending">pending</span></p>
+  <p>SPA blueprint.json is at version 1.4.0 and browserSurface.declared is true</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -&gt; manifest still validates + no browserSurface on the applied record</code></p>
+</div>
+<div class="tc" id="TC-031-spa-us-and-template">
+  <p><strong>TC-031-spa-us-and-template</strong> - covers <a href="#AC-1102-2">AC-1102-2</a> <span class="status pending">pending</span></p>
+  <p>SPA contributes US-1134 and US-1135 as browser-facing e2e stories, and ships assets/tc-templates/e2e.md naming the browser-verify driver seam</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-2: application-spa ships US-1134 and US-1135 as browser-facing (scope: deployed) e2e stories, plus the e2e.md template</code></p>
+</div>
+<div class="tc" id="TC-031-ci-us-6124">
+  <p><strong>TC-031-ci-us-6124</strong> - covers <a href="#AC-1102-3">AC-1102-3</a> <span class="status pending">pending</span></p>
+  <p>delivery-ci-workflows v2.2.0 contributes US-6124 whose AC-6124-1 names the four e2e-job points</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-3: delivery-ci-workflows v2.2.0 US-6124 binds an AC naming the four e2e-job points</code></p>
+</div>
+<div class="tc" id="TC-031-illustrative-workflow-and-notes">
+  <p><strong>TC-031-illustrative-workflow-and-notes</strong> - covers <a href="#AC-1102-4">AC-1102-4</a> <span class="status pending">pending</span></p>
+  <p>Illustrative GHA pull-request-checks.yml carries the e2e job block and notes.md translates it per provider</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-4: illustrative GHA pull-request-checks.yml carries the e2e job and notes.md translates the four points per provider</code></p>
+</div>
+<div class="tc" id="TC-031-manifest-validates">
+  <p><strong>TC-031-manifest-validates</strong> - covers <a href="#AC-1102-5">AC-1102-5</a> <span class="status pending">pending</span></p>
+  <p>Applying SPA v1.4.0 produces a manifest that still validates against rcf-schemas 0.5.1 and the applied record carries no browserSurface field</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -&gt; manifest still validates + no browserSurface on the applied record</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-031&quot;,
+  &quot;usId&quot;: &quot;US-1102&quot;,
+  &quot;title&quot;: &quot;application-spa v1.4.0 declares browserSurface, delivery-ci-workflows v2.2.0 documents the e2e job&quot;,
+  &quot;purpose&quot;: &quot;Cover the five ACs on US-1102: SPA blueprint at 1.4.0 with browserSurface.declared, the two new e2e user stories plus the e2e.md template, delivery-ci-workflows v2.2.0 US-6124 binding the four e2e-job points, the illustrative GHA workflow + per-provider notes, and the applied manifest validating with no browserSurface on the applied record.&quot;,
+  &quot;testLevel&quot;: &quot;contract&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1102-1&quot;,
+    &quot;AC-1102-2&quot;,
+    &quot;AC-1102-3&quot;,
+    &quot;AC-1102-4&quot;,
+    &quot;AC-1102-5&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-031-spa-version-and-flag&quot;,
+      &quot;acId&quot;: &quot;AC-1102-1&quot;,
+      &quot;description&quot;: &quot;SPA blueprint.json is at version 1.4.0 and browserSurface.declared is true&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -&gt; manifest still validates + no browserSurface on the applied record&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-031-spa-us-and-template&quot;,
+      &quot;acId&quot;: &quot;AC-1102-2&quot;,
+      &quot;description&quot;: &quot;SPA contributes US-1134 and US-1135 as browser-facing e2e stories, and ships assets/tc-templates/e2e.md naming the browser-verify driver seam&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-2: application-spa ships US-1134 and US-1135 as browser-facing (scope: deployed) e2e stories, plus the e2e.md template&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-031-ci-us-6124&quot;,
+      &quot;acId&quot;: &quot;AC-1102-3&quot;,
+      &quot;description&quot;: &quot;delivery-ci-workflows v2.2.0 contributes US-6124 whose AC-6124-1 names the four e2e-job points&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-3: delivery-ci-workflows v2.2.0 US-6124 binds an AC naming the four e2e-job points&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-031-illustrative-workflow-and-notes&quot;,
+      &quot;acId&quot;: &quot;AC-1102-4&quot;,
+      &quot;description&quot;: &quot;Illustrative GHA pull-request-checks.yml carries the e2e job block and notes.md translates it per provider&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-4: illustrative GHA pull-request-checks.yml carries the e2e job and notes.md translates the four points per provider&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-031-manifest-validates&quot;,
+      &quot;acId&quot;: &quot;AC-1102-5&quot;,
+      &quot;description&quot;: &quot;Applying SPA v1.4.0 produces a manifest that still validates against rcf-schemas 0.5.1 and the applied record carries no browserSurface field&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -&gt; manifest still validates + no browserSurface on the applied record&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-032">
+  <summary><span class="summary-label">TS-032 - rcf doctor Playwright + browser checks on browser-facing projects</span><span class="status draft">draft</span></summary>
+  <article id="TS-032" class="doc doc-ts">
+  <h3>TS-032 - rcf doctor Playwright + browser checks on browser-facing projects</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1103">US-1103</a></p>
+  <p><strong>Purpose:</strong> Cover the four ACs on US-1103: peer-dependency declaration for @playwright/mcp and playwright as optional peers, the three doctor checks reporting fix lines on a browser-facing project, the skip line on an API-only project, and the --check override running one of the three checks on demand.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1103-1">AC-1103-1</a>, <a href="#AC-1103-2">AC-1103-2</a>, <a href="#AC-1103-3">AC-1103-3</a>, <a href="#AC-1103-4">AC-1103-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-032-peer-deps-optional">
+  <p><strong>TC-032-peer-deps-optional</strong> - covers <a href="#AC-1103-1">AC-1103-1</a> <span class="status pending">pending</span></p>
+  <p>packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies</p>
+  <p><em>Test pointer:</em> <code>test/pkg/peer-deps-playwright.test.js::AC-1103-1: @playwright/mcp and playwright are declared as optional peer dependencies</code></p>
+</div>
+<div class="tc" id="TC-032-fix-lines">
+  <p><strong>TC-032-fix-lines</strong> - covers <a href="#AC-1103-2">AC-1103-2</a> <span class="status pending">pending</span></p>
+  <p>A browser-facing project with the three items missing reports all three fix lines exactly per the spec</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor: browser-facing project with everything missing reports all three fix lines</code></p>
+</div>
+<div class="tc" id="TC-032-skip-line">
+  <p><strong>TC-032-skip-line</strong> - covers <a href="#AC-1103-3">AC-1103-3</a> <span class="status pending">pending</span></p>
+  <p>An API-only project prints the skip line and does not run the three checks</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor: API-only project prints the skip line and does NOT run the three checks</code></p>
+</div>
+<div class="tc" id="TC-032-check-override">
+  <p><strong>TC-032-check-override</strong> - covers <a href="#AC-1103-4">AC-1103-4</a> <span class="status pending">pending</span></p>
+  <p>--check playwright-present on an API-only project overrides the skip and runs the check</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor --check playwright-present on an API-only project runs the check anyway (spec 3.5)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-032&quot;,
+  &quot;usId&quot;: &quot;US-1103&quot;,
+  &quot;title&quot;: &quot;rcf doctor Playwright + browser checks on browser-facing projects&quot;,
+  &quot;purpose&quot;: &quot;Cover the four ACs on US-1103: peer-dependency declaration for @playwright/mcp and playwright as optional peers, the three doctor checks reporting fix lines on a browser-facing project, the skip line on an API-only project, and the --check override running one of the three checks on demand.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1103-1&quot;,
+    &quot;AC-1103-2&quot;,
+    &quot;AC-1103-3&quot;,
+    &quot;AC-1103-4&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-032-peer-deps-optional&quot;,
+      &quot;acId&quot;: &quot;AC-1103-1&quot;,
+      &quot;description&quot;: &quot;packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies&quot;,
+      &quot;testPointer&quot;: &quot;test/pkg/peer-deps-playwright.test.js::AC-1103-1: @playwright/mcp and playwright are declared as optional peer dependencies&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-032-fix-lines&quot;,
+      &quot;acId&quot;: &quot;AC-1103-2&quot;,
+      &quot;description&quot;: &quot;A browser-facing project with the three items missing reports all three fix lines exactly per the spec&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor: browser-facing project with everything missing reports all three fix lines&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-032-skip-line&quot;,
+      &quot;acId&quot;: &quot;AC-1103-3&quot;,
+      &quot;description&quot;: &quot;An API-only project prints the skip line and does not run the three checks&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor: API-only project prints the skip line and does NOT run the three checks&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-032-check-override&quot;,
+      &quot;acId&quot;: &quot;AC-1103-4&quot;,
+      &quot;description&quot;: &quot;--check playwright-present on an API-only project overrides the skip and runs the check&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor --check playwright-present on an API-only project runs the check anyway (spec 3.5)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-033">
+  <summary><span class="summary-label">TS-033 - rcf init Playwright MCP entry write only when no scope-visible entry exists</span><span class="status draft">draft</span></summary>
+  <article id="TS-033" class="doc doc-ts">
+  <h3>TS-033 - rcf init Playwright MCP entry write only when no scope-visible entry exists</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1104">US-1104</a></p>
+  <p><strong>Purpose:</strong> Cover the five ACs on US-1104: signature-based project-scope detection leaves a pre-existing entry alone, the injected probe drives the four downstream branches (none/found/inconclusive/CLI-absent), the distinct &#39;playwright-rcf&#39; entry has the exact shape, --no-playwright-mcp suppresses the write, and doctor&#39;s redundant-entry probe fires only on browser-facing projects.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1104-1">AC-1104-1</a>, <a href="#AC-1104-2">AC-1104-2</a>, <a href="#AC-1104-3">AC-1104-3</a>, <a href="#AC-1104-4">AC-1104-4</a>, <a href="#AC-1104-5">AC-1104-5</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-033-project-scope-signature-left-alone">
+  <p><strong>TC-033-project-scope-signature-left-alone</strong> - covers <a href="#AC-1104-1">AC-1104-1</a> <span class="status pending">pending</span></p>
+  <p>A pre-existing project-scope Playwright signature leaves .mcp.json untouched and prints the &#39;left alone&#39; line</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: existing project-scope Playwright signature -&gt; left alone (spec 4.1)</code></p>
+</div>
+<div class="tc" id="TC-033-probe-none-writes-distinct">
+  <p><strong>TC-033-probe-none-writes-distinct</strong> - covers <a href="#AC-1104-2">AC-1104-2</a> <span class="status pending">pending</span></p>
+  <p>Probe returning &#39;none&#39; drives the distinct playwright-rcf project-scope write branch</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: fresh project + probe=none -&gt; writes distinctly named playwright-rcf entry</code></p>
+</div>
+<div class="tc" id="TC-033-probe-found-leaves-alone">
+  <p><strong>TC-033-probe-found-leaves-alone</strong> - covers <a href="#AC-1104-2">AC-1104-2</a> <span class="status pending">pending</span></p>
+  <p>Probe returning &#39;found&#39; at user scope leaves .mcp.json alone with the &#39;already registered ... in Claude Code&#39; line</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: probe=found at user scope -&gt; left alone; no project entry written (spec 4.2)</code></p>
+</div>
+<div class="tc" id="TC-033-probe-inconclusive-writes-with-notice">
+  <p><strong>TC-033-probe-inconclusive-writes-with-notice</strong> - covers <a href="#AC-1104-2">AC-1104-2</a> <span class="status pending">pending</span></p>
+  <p>Probe returning &#39;inconclusive&#39; writes the distinct entry and prints the could-not-probe notice (covers both CLI-absent and unparseable branches via the injected probe result)</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: probe=inconclusive -&gt; writes playwright-rcf entry AND prints the could-not-probe notice (spec 4.3)</code></p>
+</div>
+<div class="tc" id="TC-033-distinct-entry-shape">
+  <p><strong>TC-033-distinct-entry-shape</strong> - covers <a href="#AC-1104-3">AC-1104-3</a> <span class="status pending">pending</span></p>
+  <p>The written playwright-rcf entry equals { type:&#39;stdio&#39;, command:&#39;npx&#39;, args:[&#39;-y&#39;, &#39;@playwright/mcp@&lt;version&gt;&#39;], env:{} }</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: fresh project + probe=none -&gt; writes distinctly named playwright-rcf entry</code></p>
+</div>
+<div class="tc" id="TC-033-no-playwright-mcp-suppresses-write">
+  <p><strong>TC-033-no-playwright-mcp-suppresses-write</strong> - covers <a href="#AC-1104-4">AC-1104-4</a> <span class="status pending">pending</span></p>
+  <p>--no-playwright-mcp suppresses the write; the probe still runs but no Playwright entry is created</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init --no-playwright-mcp: probe still runs, but no Playwright entry is written</code></p>
+</div>
+<div class="tc" id="TC-033-redundant-fires-browser-facing">
+  <p><strong>TC-033-redundant-fires-browser-facing</strong> - covers <a href="#AC-1104-5">AC-1104-5</a> <span class="status pending">pending</span></p>
+  <p>playwright-mcp-redundant fires when project + user both declare Playwright on a browser-facing project</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant fires when project + user both declare Playwright (browser-facing only)</code></p>
+</div>
+<div class="tc" id="TC-033-redundant-quiet-on-api-only">
+  <p><strong>TC-033-redundant-quiet-on-api-only</strong> - covers <a href="#AC-1104-5">AC-1104-5</a> <span class="status pending">pending</span></p>
+  <p>playwright-mcp-redundant does NOT fire on an API-only project</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant does NOT fire on an API-only project (spec 4.5)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-033&quot;,
+  &quot;usId&quot;: &quot;US-1104&quot;,
+  &quot;title&quot;: &quot;rcf init Playwright MCP entry write only when no scope-visible entry exists&quot;,
+  &quot;purpose&quot;: &quot;Cover the five ACs on US-1104: signature-based project-scope detection leaves a pre-existing entry alone, the injected probe drives the four downstream branches (none/found/inconclusive/CLI-absent), the distinct &#39;playwright-rcf&#39; entry has the exact shape, --no-playwright-mcp suppresses the write, and doctor&#39;s redundant-entry probe fires only on browser-facing projects.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1104-1&quot;,
+    &quot;AC-1104-2&quot;,
+    &quot;AC-1104-3&quot;,
+    &quot;AC-1104-4&quot;,
+    &quot;AC-1104-5&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-033-project-scope-signature-left-alone&quot;,
+      &quot;acId&quot;: &quot;AC-1104-1&quot;,
+      &quot;description&quot;: &quot;A pre-existing project-scope Playwright signature leaves .mcp.json untouched and prints the &#39;left alone&#39; line&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: existing project-scope Playwright signature -&gt; left alone (spec 4.1)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-probe-none-writes-distinct&quot;,
+      &quot;acId&quot;: &quot;AC-1104-2&quot;,
+      &quot;description&quot;: &quot;Probe returning &#39;none&#39; drives the distinct playwright-rcf project-scope write branch&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: fresh project + probe=none -&gt; writes distinctly named playwright-rcf entry&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-probe-found-leaves-alone&quot;,
+      &quot;acId&quot;: &quot;AC-1104-2&quot;,
+      &quot;description&quot;: &quot;Probe returning &#39;found&#39; at user scope leaves .mcp.json alone with the &#39;already registered ... in Claude Code&#39; line&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: probe=found at user scope -&gt; left alone; no project entry written (spec 4.2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-probe-inconclusive-writes-with-notice&quot;,
+      &quot;acId&quot;: &quot;AC-1104-2&quot;,
+      &quot;description&quot;: &quot;Probe returning &#39;inconclusive&#39; writes the distinct entry and prints the could-not-probe notice (covers both CLI-absent and unparseable branches via the injected probe result)&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: probe=inconclusive -&gt; writes playwright-rcf entry AND prints the could-not-probe notice (spec 4.3)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-distinct-entry-shape&quot;,
+      &quot;acId&quot;: &quot;AC-1104-3&quot;,
+      &quot;description&quot;: &quot;The written playwright-rcf entry equals { type:&#39;stdio&#39;, command:&#39;npx&#39;, args:[&#39;-y&#39;, &#39;@playwright/mcp@&lt;version&gt;&#39;], env:{} }&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: fresh project + probe=none -&gt; writes distinctly named playwright-rcf entry&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-no-playwright-mcp-suppresses-write&quot;,
+      &quot;acId&quot;: &quot;AC-1104-4&quot;,
+      &quot;description&quot;: &quot;--no-playwright-mcp suppresses the write; the probe still runs but no Playwright entry is created&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init --no-playwright-mcp: probe still runs, but no Playwright entry is written&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-redundant-fires-browser-facing&quot;,
+      &quot;acId&quot;: &quot;AC-1104-5&quot;,
+      &quot;description&quot;: &quot;playwright-mcp-redundant fires when project + user both declare Playwright on a browser-facing project&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant fires when project + user both declare Playwright (browser-facing only)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-redundant-quiet-on-api-only&quot;,
+      &quot;acId&quot;: &quot;AC-1104-5&quot;,
+      &quot;description&quot;: &quot;playwright-mcp-redundant does NOT fire on an API-only project&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant does NOT fire on an API-only project (spec 4.5)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
+}
+</pre></details>
+</article>
+</details>
 
     </section>
   </main>

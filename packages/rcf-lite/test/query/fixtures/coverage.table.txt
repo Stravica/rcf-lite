@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 11  covered: 10  covered-unresolved: 0  uncovered: 1
+Requirements: 11  covered: 11  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -105,21 +105,21 @@ REQ-010      yes      AC-1001-1   yes         TC-026-add-writes-manifest
                       AC-1004-2   yes         TC-029-operator-override
                       AC-1004-3   yes         TC-029-empty-never-blocks
                       AC-1004-4   yes         TC-029-deterministic
-REQ-011      no       AC-1101-1   no          -
-                      AC-1101-2   no          -
-                      AC-1101-3   no          -
-                      AC-1101-4   no          -
-                      AC-1102-1   no          -
-                      AC-1102-2   no          -
-                      AC-1102-3   no          -
-                      AC-1102-4   no          -
-                      AC-1102-5   no          -
-                      AC-1103-1   no          -
-                      AC-1103-2   no          -
-                      AC-1103-3   no          -
-                      AC-1103-4   no          -
-                      AC-1104-1   no          -
-                      AC-1104-2   no          -
-                      AC-1104-3   no          -
-                      AC-1104-4   no          -
-                      AC-1104-5   no          -
+REQ-011      yes      AC-1101-1   yes         TC-030-default-config-uses-pin, TC-030-pin-constant-exported
+                      AC-1101-2   yes         TC-030-preflight-line
+                      AC-1101-3   yes         TC-030-override-non-semver-refused, TC-030-override-notice
+                      AC-1101-4   yes         TC-030-default-pin-on-report
+                      AC-1102-1   yes         TC-031-spa-version-and-flag
+                      AC-1102-2   yes         TC-031-spa-us-and-template
+                      AC-1102-3   yes         TC-031-ci-us-6124
+                      AC-1102-4   yes         TC-031-illustrative-workflow-and-notes
+                      AC-1102-5   yes         TC-031-manifest-validates
+                      AC-1103-1   yes         TC-032-peer-deps-optional
+                      AC-1103-2   yes         TC-032-fix-lines
+                      AC-1103-3   yes         TC-032-skip-line
+                      AC-1103-4   yes         TC-032-check-override
+                      AC-1104-1   yes         TC-033-project-scope-signature-left-alone
+                      AC-1104-2   yes         TC-033-probe-found-leaves-alone, TC-033-probe-inconclusiv...
+                      AC-1104-3   yes         TC-033-distinct-entry-shape
+                      AC-1104-4   yes         TC-033-no-playwright-mcp-suppresses-write
+                      AC-1104-5   yes         TC-033-redundant-fires-browser-facing, TC-033-redundant-q...
