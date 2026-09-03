@@ -1,0 +1,22 @@
+{
+  "reqId": "REQ-011",
+  "prdId": "PRD-001",
+  "title": "e2e verification contract: pinned Playwright MCP, declared e2e test level, doctor and init behaviour",
+  "description": "The rcf-lite verify pass provisions a version-pinned Playwright MCP server instead of @latest, prints the effective pin in preflight, and honours an emergency override. The rcf method exposes e2e as a declared test level: the application-spa blueprint declares a browserSurface, contributes browser-facing acceptance criteria, and cross-links a test-case template to the browser-verify TAC; the delivery-ci-workflows blueprint materialises a distinct e2e CI job when an applied blueprint declares a browserSurface. rcf doctor gains playwright-present, browser-present, playwright-mcp-reachable, and playwright-mcp-redundant checks for browser-facing projects; non-browser projects skip the three with one reason line. rcf init writes a Playwright MCP entry only when a project-scope signature is absent and a user-scope harness probe cannot prove one exists; otherwise it leaves the wiring alone or writes the distinctly named playwright-rcf fallback. All four parts observe the ratified 2026-09-03 e2e contract at projects/rcf-lite-wsd/specs/rcf-lite-e2e-contract-spec-2026-09-03.md.",
+  "category": "functional",
+  "domain": "verify",
+  "priority": "must",
+  "rationale": "Verify is the ship gate. A silent runtime change in the browser MCP on the next verify run is the reproducibility hole Baz named on 2026-09-03. Pinning the MCP closes it. Formalising e2e as a declared test level gives browser-facing projects a first-class contract instead of relying on the verify browser stage as a proxy for coverage. Doctor and init together make Playwright the operator's decision, not rcf-lite's ambient inheritance.",
+  "tags": [
+    "verify",
+    "playwright-mcp",
+    "e2e",
+    "blueprint-library",
+    "doctor",
+    "init"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-03T16:56:00Z",
+  "updatedAt": "2026-09-03T16:56:00Z"
+}

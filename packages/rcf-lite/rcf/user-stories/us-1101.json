@@ -1,0 +1,51 @@
+{
+  "usId": "US-1101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-011",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Verify pins the Playwright MCP version and prints it in preflight",
+  "asA": "operator running rcf verify as the ship gate",
+  "iWant": "the verify launcher to provision a version-pinned @playwright/mcp instead of @latest, print the effective pin in preflight, record it in the report, and honour an emergency override with a loud stderr notice",
+  "soThat": "a newly published Playwright MCP release cannot become a silent runtime change on the next verify run, and every report artefact carries the exact browser tooling version the pass ran against",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1101-1",
+      "description": "packages/rcf-lite/src/verify/engine/launcher.js exports a PLAYWRIGHT_MCP_VERSION constant, and DEFAULT_MCP_CONFIG.args composes @playwright/mcp@<PLAYWRIGHT_MCP_VERSION> instead of @playwright/mcp@latest.",
+      "given": "the rcf-lite source at HEAD",
+      "when": "the launcher module is imported",
+      "then": "PLAYWRIGHT_MCP_VERSION resolves to a semver string and DEFAULT_MCP_CONFIG.mcpServers.playwright.args contains the exact-pinned @playwright/mcp@<version> token, with no @latest anywhere in the module",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1101-2",
+      "description": "rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr; the line is not suppressed by --quiet.",
+      "given": "a browser-facing fixture project and a stubbed verify launcher",
+      "when": "rcf verify run is invoked with valid required flags",
+      "then": "stderr contains one line matching /^Playwright MCP: pinned to @playwright\\/mcp@/ carrying the effective pin",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1101-3",
+      "description": "rcf verify run --playwright-mcp-version <semver> overrides the pinned constant for one run, prints a loud stderr override notice, and records the effective pin on the report as runStats.playwrightMcpVersion. A non-semver value refuses with exit 2.",
+      "given": "the same fixture, run with --playwright-mcp-version 0.0.99",
+      "when": "the run completes",
+      "then": "stderr carries one line matching /^Playwright MCP: OVERRIDE @playwright\\/mcp@0\\.0\\.99/, the report's run.runStats.playwrightMcpVersion equals 0.0.99, and rerunning with --playwright-mcp-version notasemver exits 2 with a semver-shape error",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1101-4",
+      "description": "Even when no override fires, the report records the effective (default) pin as run.runStats.playwrightMcpVersion so a report re-render tells the operator what browser tooling the pass ran against.",
+      "given": "a completed verify run with no override",
+      "when": "the report JSON is inspected",
+      "then": "report.run.runStats.playwrightMcpVersion equals PLAYWRIGHT_MCP_VERSION",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-03T16:56:00Z",
+  "updatedAt": "2026-09-03T16:56:00Z"
+}

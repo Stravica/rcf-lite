@@ -1,0 +1,60 @@
+{
+  "usId": "US-1102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-011",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Application-spa declares browserSurface and delivery-ci-workflows materialises an e2e CI job",
+  "asA": "operator applying the application-spa and delivery-ci-workflows blueprints",
+  "iWant": "the SPA blueprint's manifest to declare a browserSurface field, its browser-facing acceptance criteria and e2e test-case template to ship, and the delivery-ci-workflows materialiser to wire a distinct e2e CI job when at least one applied blueprint carries a browserSurface",
+  "soThat": "e2e is a first-class declared test level in the chain, and browser-facing projects get a distinct pull-request-checks e2e job while API-only projects keep the existing workflow shape verbatim",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1102-1",
+      "description": "blueprints/application-spa/blueprint.json is at version 1.4.0 and carries a top-level browserSurface object with declared: true; the object also carries routes[] and themes[] as reference hint arrays.",
+      "given": "the SPA blueprint at HEAD",
+      "when": "blueprint.json is inspected",
+      "then": "version equals 1.4.0 and .browserSurface.declared is true",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1102-2",
+      "description": "The SPA blueprint contributes two new browser-facing acceptance criteria in the 1101 to 1899 band (existing 1131 and 1132 are already occupied by unrelated 1.3.x contributions): US-1134 binds an e2e AC on application-spa-REQ-011 (iconography), US-1135 binds an e2e AC on application-spa-REQ-009 (user arrival and auth surfaces); a paste-in assets/tc-templates/e2e.md test-case template ships and names the browser-verify TAC as its driver seam.",
+      "given": "the SPA blueprint at HEAD",
+      "when": "blueprints/application-spa/contributions/user-stories/ and blueprints/application-spa/assets/tc-templates/ are inspected",
+      "then": "application-spa-us-1134.json and application-spa-us-1135.json exist, each binds one AC whose scope is deployed and whose description names an e2e observable at a rendered browser surface; assets/tc-templates/e2e.md exists and references TAC-208",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1102-3",
+      "description": "blueprints/delivery-ci-workflows/blueprint.json is at version 2.2.0 and contributes a new US-6124 whose AC binds the elicited e2e check to a distinct e2e CI job that runs project testLevel: e2e cases against a local preview or --parity-env runtime, uploads browser artefacts, and reports a distinct row in the aggregate pipeline report.",
+      "given": "the delivery-ci-workflows blueprint at HEAD",
+      "when": "blueprint.json and contributions/user-stories/delivery-ci-workflows-us-6124.json are inspected",
+      "then": "version equals 2.2.0 and the US-6124 record binds an AC-6124-1 whose description names the four points above",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1102-4",
+      "description": "The illustrative GHA workflow at blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/pull-request-checks.yml carries a documented e2e job, and the alternate-provider notes file at ../notes.md carries one line per provider translating the same four points.",
+      "given": "the delivery-ci-workflows blueprint at HEAD",
+      "when": "the illustrative workflow file is inspected",
+      "then": "the workflow declares an e2e job as an example, and notes.md contains one line per provider (GitLab CI, CircleCI, Buildkite, Jenkins) naming the four points",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1102-5",
+      "description": "Applying application-spa v1.4.0 to a scratch project produces a manifest that still validates against rcf-schemas 0.5.1; the applied blueprint record carries no new field, and doctor and the delivery-ci-workflows materialiser both read browserSurface from the applied record's source blueprint.json via the existing manifest.blueprints[].source reference.",
+      "given": "a scratch project created by rcf init with application-spa v1.4.0 applied",
+      "when": "the resulting rcf/manifest.json is validated against the shipped schemas",
+      "then": "validation passes and no browserSurface key appears on the applied blueprint record itself",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-03T16:56:00Z",
+  "updatedAt": "2026-09-03T16:56:00Z"
+}

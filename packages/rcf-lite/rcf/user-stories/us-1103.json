@@ -1,0 +1,51 @@
+{
+  "usId": "US-1103",
+  "prdId": "PRD-001",
+  "reqId": "REQ-011",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "rcf doctor checks Playwright and a browser on browser-facing projects and skips them otherwise",
+  "asA": "operator running rcf doctor on either a browser-facing or an API-only project",
+  "iWant": "doctor to run playwright-present, browser-present, and playwright-mcp-reachable checks when at least one applied blueprint declares a browserSurface, and to skip all three with one printed reason line otherwise",
+  "soThat": "browser-facing projects surface missing Playwright, missing browser, or an unreachable @playwright/mcp with actionable fix lines, while API-only projects are not asked to install a browser stack they will never use",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1103-1",
+      "description": "packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies (peerDependenciesMeta.<pkg>.optional: true). npm and pnpm do not fail install when the peers are absent.",
+      "given": "packages/rcf-lite at HEAD",
+      "when": "package.json is inspected",
+      "then": ".peerDependencies['@playwright/mcp'] and .peerDependencies.playwright are declared and .peerDependenciesMeta.<pkg>.optional is true for both",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1103-2",
+      "description": "On a browser-facing fixture project (application-spa v1.4.0 applied), rcf doctor runs playwright-present, browser-present, and playwright-mcp-reachable; each check emits at most one fix line naming the exact remedy per the spec's fix-line table.",
+      "given": "a browser-facing fixture with no @playwright/mcp installed",
+      "when": "rcf doctor is run",
+      "then": "the three checks appear in the drift output and their fix lines match the spec's fix-line strings",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1103-3",
+      "description": "On an API-only fixture project (application-api-rest applied, no browser-facing blueprint), rcf doctor prints one line naming the three skipped checks and their skip reason. The line is not suppressed by --quiet.",
+      "given": "an API-only fixture project",
+      "when": "rcf doctor is run",
+      "then": "stdout contains exactly one line 'rcf doctor: skipping playwright-present, browser-present, playwright-mcp-reachable (no applied blueprint declares a browser surface).'",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1103-4",
+      "description": "The three checks are legal values of --check <check>[,check]; passing one explicitly on a non-browser project overrides the skip and runs it.",
+      "given": "an API-only fixture project",
+      "when": "rcf doctor --check playwright-present is run",
+      "then": "the playwright-present check runs and reports its result rather than being skipped",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-03T16:56:00Z",
+  "updatedAt": "2026-09-03T16:56:00Z"
+}

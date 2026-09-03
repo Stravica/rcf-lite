@@ -18,7 +18,8 @@
     "SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge",
     "Local stdio MCP surface exposing query, CRUD, view and build to AI tooling",
     "Validation of every document against the published schema package at every boundary",
-    "Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims"
+    "Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims",
+    "End-to-end verification contract: version-pinned Playwright MCP in verify, e2e as a declared test level in the chain (application-spa browserSurface and delivery-ci-workflows e2e CI job), doctor checks for browser-facing projects, and init that writes a Playwright MCP entry only when no scope-visible entry exists"
   ],
   "outOfScope": [
     "The schema package itself, which is the separately published rcf-schemas contract",
@@ -43,5 +44,5 @@
     "MCP transport is local stdio only"
   ],
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-20T17:56:57.237Z"
+  "updatedAt": "2026-09-03T16:56:00Z"
 }
