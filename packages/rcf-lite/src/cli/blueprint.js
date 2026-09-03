@@ -115,6 +115,7 @@ const OPTION_SPEC = {
   // library-verb flags (parsed centrally so strict:true doesn't refuse
   // them when the operator types `rcf define blueprint library add`).
   prefix: { type: 'string' },
+  sha256: { type: 'string' },
   'i-have-reviewed': { type: 'boolean' },
   'no-review': { type: 'boolean' },
   json: { type: 'boolean' },

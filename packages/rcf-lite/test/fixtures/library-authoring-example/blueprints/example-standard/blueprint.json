@@ -1,0 +1,9 @@
+{
+  "slug": "example-standard",
+  "version": "1.0.0",
+  "category": "example",
+  "contributions": [
+    { "id": "wla-example-standard-REQ-60001", "kind": "req", "path": "requirements/wla-example-standard-req-60001.json" },
+    { "id": "ADR-6001-wla-example-standard", "kind": "adr", "path": "adrs/adr-6001-wla-example-standard.json" }
+  ]
+}

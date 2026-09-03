@@ -1,0 +1,13 @@
+{
+  "adrId": "ADR-6001-wla-example-standard",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Worked-example projects read the greeting string from a fixed config path",
+  "context": "The worked-example library exists to make external-library authoring concrete for readers of docs/library-authoring.md. It ships one blueprint whose whole surface is a greeting string; that blueprint needs one project-level decision it can land, so the doc has an ADR to point at when explaining how library ADRs stamp with a suffix under the library prefix (ADR-6001-wla-example-standard, inside the library's declared adr suffix block 6000..6099).",
+  "decision": "Projects that apply the wla:example-standard blueprint read the greeting string from a single config key, exampleGreetingPath, at project start. The default value is 'config/greeting.txt' relative to the project root; projects that want a different path override the key in their runtime config. No other side effects; no dependencies.",
+  "consequences": "The library contributes exactly one REQ and one ADR, both stamped under the wla prefix. A project applying wla:example-standard will see the ADR appear at rcf/adrs/adr-6001-wla-example-standard.json and the REQ at rcf/requirements/wla-example-standard-req-60001.json. Removing the library refuses on the applied REQ per phase-1 library-ownership semantics until the operator drops the blueprint from the project.",
+  "createdAt": "2026-09-03T00:00:00Z",
+  "updatedAt": "2026-09-03T00:00:00Z"
+}

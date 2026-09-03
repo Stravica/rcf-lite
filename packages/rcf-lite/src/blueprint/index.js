@@ -23,3 +23,25 @@ export {
   detectContributionsOutOfBand,
   detectPrefixCollision,
 } from './library-registry.js';
+export {
+  CACHE_ROOT,
+  absoluteCachePath,
+  ensureEmptyCache,
+  relativeCachePath,
+  removeCache,
+  resolveCachePath,
+  sanitiseRef,
+} from './library-cache.js';
+export {
+  fetchGitLibrary,
+  parseGitRef,
+  resolveRemoteSha,
+  isFullSha,
+  refusedRefs,
+} from './library-fetcher-git.js';
+export {
+  createUstarBuffer,
+  fetchTarballLibrary,
+  parseUstar,
+  sha256Hex,
+} from './library-fetcher-tarball.js';

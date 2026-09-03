@@ -63,6 +63,9 @@ test('the docs set exists: README.md plus the docs/ files', async () => {
     'docs/getting-started.md',
     'docs/how-it-works.md',
     'docs/install.md',
+    // 2c: external blueprint library authoring standard (phase 2a
+    // deliverable of the external-libraries spec, landed with 2c).
+    'docs/library-authoring.md',
     // 0.8.0 slug-train car 2: shared standards ruleset reference doc, bundled
     // inside the umbrella (NV-BL-SR-01/02/03).
     'docs/ruleset.md',
