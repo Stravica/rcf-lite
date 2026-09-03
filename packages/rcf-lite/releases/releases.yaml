@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.15.0"
+latest: "0.16.0"
 releases:
+  - version: "0.16.0"
+    date: "2026-09-03"
+    breaking: false
+    headlines:
+      - "External blueprint libraries now support git and tarball sources with an on-disk cache checked into the tree, plus a refresh command that re-resolves a library's pinned reference and refuses the update on drift."
+      - "Adding a blueprint from a local path inside an unregistered library now stamps the same slug and identity a registered add would, closing the author-and-test-locally loop."
+      - "The managed agent-instructions block now teaches the agent to offer blueprints and registered libraries in plain words so the operator picks; a new library authoring standard doc and worked-example fixture ship with the package. Rerun rcf init to refresh the block."
+    minAgentAction: "rerun-init"
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.15.0"
     date: "2026-08-31"
     breaking: false
