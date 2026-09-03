@@ -4,26 +4,25 @@
   "reqId": "delivery-ci-workflows-REQ-019",
   "version": "2.2.0",
   "status": "approved",
-  "title": "The e2e check runs the project's testLevel:e2e cases as a distinct pull-request-checks CI job",
+  "title": "The e2e check is documented in the illustrative pull-request-checks workflow and the check catalogue",
   "asA": "operator whose project applies at least one blueprint declaring a browserSurface",
-  "iWant": "the materialised pull-request-checks workflow to contain a distinct e2e job that runs the project's testLevel:e2e test cases against a local preview or a --parity-env runtime, uploads browser artefacts (screenshots, HTML captures) as workflow artefacts, and reports its outcome to the aggregate pipeline report as a distinct row from the unit and integration rows",
-  "soThat": "browser-facing projects get a first-class e2e job in CI while API-only projects (no applied blueprint declaring a browserSurface) keep the pull-request-checks shape verbatim. The elicited check checkSet.e2e defaults on when a browserSurface is declared on any applied blueprint, off otherwise; an operator explicit `checkSet.e2e: off` in .rcf/config/delivery-ci-workflows.json is honoured (spec 2.3).",
+  "iWant": "the illustrative pull-request-checks workflow to ship a documented e2e job block naming the four points a browser-facing project's e2e job satisfies (distinct job running the project's testLevel: e2e cases against a local preview or a --parity-env runtime, browser-artefact upload, distinct row in the aggregate pipeline report, per-gate report at .rcf/reports/ci/e2e.json), and the elicited checkSet.e2e entry to exist in the check catalogue so a project that turns the check off does so through a supported knob",
+  "soThat": "browser-facing projects get a documentation contract they copy-paste today, ahead of the runtime materialiser landing (spec amendment A2, 2026-09-03: rcf-lite ships no workflow-materialiser at this train, so this AC is documentation-only; the runtime iff wiring lands in a follow-up train with its own paired TS entry)",
   "acceptanceCriteria": [
     {
       "id": "AC-6124-1",
-      "description": "When at least one applied blueprint declares .browserSurface.declared: true on its source blueprint.json AND checkSet.e2e is not explicitly false in .rcf/config/delivery-ci-workflows.json, the materialised pull-request-checks workflow contains a distinct e2e job that (a) runs the project's testLevel: e2e test cases against a local preview or a --parity-env runtime, (b) uploads screenshots and HTML captures as workflow artefacts, (c) reports its outcome to .rcf/reports/ci/pipeline.json as a distinct row from unit and integration rows, and (d) writes a per-gate report at .rcf/reports/ci/e2e.json with checkKind: \"e2e\". Projects that apply no browser-facing blueprint materialise no e2e job; projects that apply one but set checkSet.e2e: off in the config also materialise no e2e job.",
-      "given": "a project with .rcf/config/delivery-ci-workflows.json declared and at least one blueprint applied",
-      "when": "the workflow-materialiser runs against the project chain",
-      "then": "an e2e job is present in the materialised pull-request-checks workflow iff (a) at least one applied blueprint's source blueprint.json carries .browserSurface.declared: true and (b) checkSet.e2e is not false; when materialised the job satisfies the four points above; a project that applies no browser-facing blueprint (or that turns the check off) materialises the pull-request-checks workflow byte-identical to a 2.1 project",
+      "description": "The illustrative pull-request-checks.yml under blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/ carries a documented e2e job block whose header comment names the four points a browser-facing project's e2e job satisfies: (a) runs the project's testLevel: e2e cases against a local preview or a --parity-env runtime, (b) uploads screenshots and HTML captures as workflow artefacts, (c) writes a distinct row to the aggregate pipeline report at .rcf/reports/ci/pipeline.json, (d) writes a per-gate report at .rcf/reports/ci/e2e.json with checkKind: 'e2e'. The header also tells a non-browser project to delete the e2e job before committing. The elicited checkSet.e2e entry exists in the delivery-ci-workflows check catalogue (blueprint.json) so a project that turns the check off does so through a supported knob. The runtime iff wiring (materialiser adds or omits the job based on manifest.blueprints[].source.browserSurface.declared and .rcf/config/delivery-ci-workflows.json:checkSet.e2e) lands in a follow-up train with its own TS entry; this AC is documentation-only per spec amendment A2 (2026-09-03).",
+      "given": "the delivery-ci-workflows blueprint at v2.2.0",
+      "when": "blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/pull-request-checks.yml and blueprint.json are inspected",
+      "then": "the illustrative pull-request-checks.yml declares an e2e job; the block above it names the four points and the delete-me note for non-browser projects; blueprint.json's check catalogue carries checkSet.e2e",
       "testable": true,
-      "scope": "runtime"
+      "scope": "library"
     }
   ],
   "tacIds": [
     "TAC-701-delivery-ci-workflows-gate-runner",
-    "TAC-702-delivery-ci-workflows-gate-report",
-    "TAC-704-delivery-ci-workflows-workflow-materialiser"
+    "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-09-03T17:00:00Z",
-  "updatedAt": "2026-09-03T17:00:00Z"
+  "updatedAt": "2026-09-03T18:30:50Z"
 }

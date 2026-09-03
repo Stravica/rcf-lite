@@ -95,10 +95,19 @@ test('AC-1102-3: delivery-ci-workflows v2.2.0 US-6124 binds an AC naming the fou
   const ac = us6124.acceptanceCriteria.find((c) => c.id === 'AC-6124-1');
   assert.ok(ac, 'AC-6124-1 must exist on US-6124');
   const desc = ac.description;
-  assert.match(desc, /distinct e2e job/i, 'names a distinct e2e CI job');
+  // Spec amendment A2 (2026-09-03): AC-6124-1 is a documentation contract,
+  // not a runtime claim (rcf-lite ships no materialiser at this train).
+  assert.equal(
+    ac.scope,
+    'library',
+    'A2 downgrade: AC-6124-1 must be library-scope (no materialiser exists yet)',
+  );
+  assert.match(desc, /documented e2e job block/i, 'names a documented e2e job block, not a materialised job');
   assert.match(desc, /testLevel:\s*e2e/i, 'names testLevel: e2e cases');
-  assert.match(desc, /artefacts?/i, 'names artefact upload');
+  assert.match(desc, /artefacts?/i, 'names browser-artefact upload');
   assert.match(desc, /pipeline\.json|aggregate/i, 'names the aggregate report row');
+  assert.match(desc, /checkSet\.e2e/i, 'names the elicited checkSet.e2e catalogue entry');
+  assert.match(desc, /documentation-only|amendment A2/i, 'names the A2 documentation-only downgrade so a later reader is not misled');
 });
 
 test('AC-1102-4: illustrative GHA pull-request-checks.yml carries the e2e job and notes.md translates the four points per provider', async () => {

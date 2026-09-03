@@ -74,12 +74,16 @@ jobs:
           retention-days: 30
 
   # e2e job (delivery-ci-workflows v2.2.0, application-spa v1.4.0):
-  # materialised as a distinct job only when at least one applied blueprint
-  # on the project declares `browserSurface` on its source blueprint.json AND
-  # `.rcf/config/delivery-ci-workflows.json:checkSet.e2e` is not explicitly
-  # false. Projects with no browser-facing blueprint delete this job before
-  # committing; the materialiser regenerates it from the project chain on
-  # every `rcf define blueprint add`.
+  # documentation contract per spec 2026-09-03 amendment A2. rcf-lite ships
+  # no workflow-materialiser at this train, so this block is copy-paste
+  # documentation for browser-facing projects, not runtime output. A
+  # non-browser project deletes this whole `e2e:` block (from the comment
+  # above down to the last step of the job) before committing; a browser
+  # project keeps it. The runtime iff wiring, which will add or omit this
+  # job based on `manifest.blueprints[].source.browserSurface.declared` on
+  # any applied blueprint AND
+  # `.rcf/config/delivery-ci-workflows.json:checkSet.e2e` not being
+  # explicitly false, lands in a follow-up train with its own TS entry.
   #
   # The job runs the project's testLevel: e2e cases against a local preview
   # (or a --parity-env runtime) driven through the same Playwright
