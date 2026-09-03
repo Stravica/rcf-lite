@@ -103,7 +103,7 @@ Options:
                                     knowledge, identity, playwright-present,
                                     browser-present, playwright-mcp-reachable,
                                     playwright-mcp-redundant.
-  --json                    Emit machine-readable envelope: { ok, drift[] }.
+  --json                    Emit machine-readable envelope: { ok, drift, writes, notices }.
   --quiet                   Only summary line + first 3 drift items.
   --force                   Accept a legacy-markers --fix on hand-edited
                             content that a non-interactive run would

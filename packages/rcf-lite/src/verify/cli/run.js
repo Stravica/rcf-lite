@@ -133,7 +133,10 @@ export async function main(argv, deps = {}) {
   // unset, preflight prints the pinned default.
   const overrideRaw = flags['playwright-mcp-version'];
   if (overrideRaw !== undefined && !isSemverString(overrideRaw)) {
-    stderr.write(`[error] usage --playwright-mcp-version expects a semver string, got '${overrideRaw}'\n`);
+    // Spec sections 1.4 and 6 name the message without a prefix. The
+    // module's other refusals prefix with `[error] usage`, but this one
+    // is the spec-verbatim line and stands on its own.
+    stderr.write(`--playwright-mcp-version expects a semver string, got '${overrideRaw}'\n`);
     return 2;
   }
   if (overrideRaw !== undefined) {

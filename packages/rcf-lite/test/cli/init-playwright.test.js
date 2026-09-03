@@ -110,7 +110,7 @@ test('init --no-playwright-mcp: probe still runs, but no Playwright entry is wri
   assert.equal(code, 0);
   const mcp = JSON.parse(await readFile(join(root, '.mcp.json'), 'utf8'));
   assert.ok(!mcp.mcpServers['playwright-rcf'], '--no-playwright-mcp must suppress the write');
-  assert.match(stdout.out.text, /--no-playwright-mcp set; no entry written/);
+  assert.match(stdout.out.text, /--no-playwright-mcp set; nothing written\./);
 });
 
 test('init: --help lists --no-playwright-mcp', async () => {

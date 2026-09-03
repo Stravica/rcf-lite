@@ -377,11 +377,20 @@ async function runPlaywrightMcpPass({ projectRoot, stdout, quiet, optOut, probeC
   }
 
   const projectKey = mcpJson ? findProjectPlaywrightKey(mcpJson) : null;
+  // Gate finding 8 (2026-09-03): when --no-playwright-mcp is set, print the
+  // opt-out notice on EVERY terminal branch of this pass, in addition to the
+  // honest probe line. The probe still runs (spec 4.4) so the print-out is
+  // always honest about what init could see; the notice makes the reason a
+  // write did not happen unambiguous on the branches that would otherwise
+  // have written.
+  const optOutLine = 'Playwright MCP: --no-playwright-mcp set; nothing written.\n';
+
   if (projectKey) {
     if (!quiet) {
       stdout.write(
         `Playwright MCP: already registered in .mcp.json under key '${projectKey}' at project scope, left alone.\n`,
       );
+      if (optOut) stdout.write(optOutLine);
     }
     return { action: 'left-alone-project', name: projectKey };
   }
@@ -394,13 +403,24 @@ async function runPlaywrightMcpPass({ projectRoot, stdout, quiet, optOut, probeC
       stdout.write(
         `Playwright MCP: already registered under key '${probeResult.name}' at ${probeResult.scope} scope in Claude Code, left alone.\n`,
       );
+      if (optOut) stdout.write(optOutLine);
     }
     return { action: 'left-alone-harness', name: probeResult.name, scope: probeResult.scope };
   }
 
   if (optOut) {
     if (!quiet) {
-      stdout.write('Playwright MCP: --no-playwright-mcp set; no entry written.\n');
+      // The honest probe line first, then the opt-out notice.
+      if (probeResult.kind === 'inconclusive') {
+        stdout.write(
+          `Playwright MCP: could not probe user-scope entries (${probeResult.reason}).\n`,
+        );
+      } else {
+        stdout.write(
+          'Playwright MCP: no ambient Playwright entry found at any scope this init could probe.\n',
+        );
+      }
+      stdout.write(optOutLine);
     }
     return { action: 'skipped-opt-out' };
   }
