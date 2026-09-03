@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 10  covered: 10  covered-unresolved: 0  uncovered: 0
+Requirements: 11  covered: 10  covered-unresolved: 0  uncovered: 1
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -105,3 +105,21 @@ REQ-010      yes      AC-1001-1   yes         TC-026-add-writes-manifest
                       AC-1004-2   yes         TC-029-operator-override
                       AC-1004-3   yes         TC-029-empty-never-blocks
                       AC-1004-4   yes         TC-029-deterministic
+REQ-011      no       AC-1101-1   no          -
+                      AC-1101-2   no          -
+                      AC-1101-3   no          -
+                      AC-1101-4   no          -
+                      AC-1102-1   no          -
+                      AC-1102-2   no          -
+                      AC-1102-3   no          -
+                      AC-1102-4   no          -
+                      AC-1102-5   no          -
+                      AC-1103-1   no          -
+                      AC-1103-2   no          -
+                      AC-1103-3   no          -
+                      AC-1103-4   no          -
+                      AC-1104-1   no          -
+                      AC-1104-2   no          -
+                      AC-1104-3   no          -
+                      AC-1104-4   no          -
+                      AC-1104-5   no          -

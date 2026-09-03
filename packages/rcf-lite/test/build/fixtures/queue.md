@@ -23,11 +23,15 @@ Generation strategy: dependencyFirst
 | 17 | 1 | FBS-017 | Namespaced blueprint ids and scope:global ADR conflict surfacing | notStarted | blocked | FBS-016 |
 | 18 | 0 | FBS-018 | Standards ingestion: rcf define standards add + reference-by-default | notStarted | actionable |  |
 | 19 | 1 | FBS-019 | Selective retrieval at bundle assembly (contextRequirements.standardIds) | notStarted | blocked | FBS-018 |
+| 20 | 0 | FBS-020 | Verify pins the Playwright MCP version | verified | verified |  |
+| 21 | 0 | FBS-021 | Blueprints amend for e2e as a declared test level | verified | verified |  |
+| 22 | 0 | FBS-022 | Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant | verified | verified |  |
+| 23 | 0 | FBS-023 | Init: Playwright MCP entry only when no scope-visible entry exists | verified | verified |  |
 
-Totals: items 19 | notStarted 6 | inProgress 0 | complete 13 | verified 0 | actionable 4 | blocked 2
+Totals: items 23 | notStarted 6 | inProgress 0 | complete 13 | verified 4 | actionable 4 | blocked 2
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023
 - tier 1: FBS-002, FBS-017, FBS-019
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008
 - tier 3: FBS-006, FBS-009, FBS-010

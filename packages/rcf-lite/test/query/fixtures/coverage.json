@@ -1,11 +1,11 @@
 {
-  "ok": true,
+  "ok": false,
   "strict": false,
   "totals": {
-    "requirements": 10,
+    "requirements": 11,
     "covered": 10,
     "coveredUnresolved": 0,
-    "uncovered": 0
+    "uncovered": 1
   },
   "requirements": [
     {
@@ -901,6 +901,121 @@
           "testCases": [
             "TC-029-deterministic"
           ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-011",
+      "covered": false,
+      "coverageClass": "uncovered",
+      "acs": [
+        {
+          "id": "AC-1101-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1101-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1101-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1101-4",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-4",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-5",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1103-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1103-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1103-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1103-4",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-4",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-5",
+          "covered": false,
+          "testCases": [],
           "unresolvedTestCases": []
         }
       ]

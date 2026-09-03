@@ -7,11 +7,11 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 19,
+    "items": 23,
     "notStarted": 6,
     "inProgress": 0,
     "complete": 13,
-    "verified": 0,
+    "verified": 4,
     "actionable": 4,
     "blocked": 2
   },
@@ -25,7 +25,11 @@
         "FBS-014",
         "FBS-015",
         "FBS-016",
-        "FBS-018"
+        "FBS-018",
+        "FBS-020",
+        "FBS-021",
+        "FBS-022",
+        "FBS-023"
       ]
     },
     {
@@ -285,6 +289,46 @@
       "blockedBy": [
         "FBS-018"
       ]
+    },
+    {
+      "fbsId": "FBS-020",
+      "buildOrder": 20,
+      "tier": 0,
+      "title": "Verify pins the Playwright MCP version",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-021",
+      "buildOrder": 21,
+      "tier": 0,
+      "title": "Blueprints amend for e2e as a declared test level",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-022",
+      "buildOrder": 22,
+      "tier": 0,
+      "title": "Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-023",
+      "buildOrder": 23,
+      "tier": 0,
+      "title": "Init: Playwright MCP entry only when no scope-visible entry exists",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [],
+      "state": "verified",
+      "blockedBy": []
     }
   ]
 }
