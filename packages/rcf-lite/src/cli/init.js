@@ -31,6 +31,11 @@ import {
   writeAgentInstructions,
   writeMcpConfig,
 } from '../setup/agent-setup.js';
+import {
+  findProjectPlaywrightKey,
+  probeClaudeCodeMcp,
+} from '../setup/playwright-checks.js';
+import { PLAYWRIGHT_MCP_VERSION } from '../verify/engine/launcher.js';
 import { writeKnowledgeSeed } from '../setup/knowledge-seed.js';
 import { writeIdentityTemplate } from '../setup/identity-seed.js';
 import {
@@ -46,6 +51,7 @@ const OPTION_SPEC = {
   'project-name': { type: 'string' },
   'non-interactive': { type: 'boolean' },
   'no-agent-setup': { type: 'boolean' },
+  'no-playwright-mcp': { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
 };
@@ -70,6 +76,11 @@ Options:
                             not on a TTY or when piped)
   --no-agent-setup          Scaffold the tree only; print the manual
                             harness-wiring instructions instead
+  --no-playwright-mcp       Skip the Playwright MCP entry step. The probe
+                            still runs so the print-out remains honest, but
+                            init writes no Playwright entry and touches no
+                            existing one. Use when a user-scope Playwright
+                            entry is declared in a harness init cannot probe.
   --quiet                   Suppress non-error stdout
   --help                    Print this help
 `;
@@ -169,6 +180,26 @@ export async function main(argv, deps = {}) {
   const mcpResult = await writeMcpConfig({ projectRoot: cwd });
   if (mcpResult && 'kind' in mcpResult && 'message' in mcpResult) {
     stderr.write(`[error] ${mcpResult.kind} ${mcpResult.message}\n`);
+    return 2;
+  }
+
+  // Step 1a: Playwright MCP entry (spec 2026-09-03, section 4). Writes a
+  // distinctly named 'playwright-rcf' entry ONLY when init can prove no
+  // Playwright entry exists at any scope the harness can report. Detection
+  // is by command tail (spec 4.1). Cross-scope probe of the Claude Code
+  // harness via `claude mcp list` (spec 4.2). Where the harness cannot be
+  // probed non-interactively, init falls back to the distinctly-named entry
+  // with a notice (spec 4.3). --no-playwright-mcp suppresses the write
+  // entirely; the probe still runs so the print-out remains honest.
+  const playwrightPass = await runPlaywrightMcpPass({
+    projectRoot: cwd,
+    stdout,
+    quiet: Boolean(flags.quiet),
+    optOut: Boolean(flags['no-playwright-mcp']),
+    probeClaudeCodeMcp: deps.probeClaudeCodeMcp ?? probeClaudeCodeMcp,
+  });
+  if (playwrightPass && 'kind' in playwrightPass && 'message' in playwrightPass) {
+    stderr.write(`[error] ${playwrightPass.kind} ${playwrightPass.message}\n`);
     return 2;
   }
 
@@ -297,3 +328,118 @@ function countLocal(haystack, needle) {
     i = at + needle.length;
   }
 }
+
+/**
+ * Init's Playwright MCP pass (spec 2026-09-03, section 4). Decision tree:
+ *
+ *   1. If --no-playwright-mcp: probe still runs so the print-out is honest,
+ *      but no .mcp.json entry is written or touched.
+ *   2. If the project-scope .mcp.json carries a Playwright signature under
+ *      any key (spec 4.1): print the 'left alone' line and return.
+ *   3. Probe the Claude Code harness (spec 4.2):
+ *      - 'found': print the 'already registered at <scope> scope' line and
+ *        return (no shadowing).
+ *      - 'none': write the distinctly-named 'playwright-rcf' entry.
+ *      - 'inconclusive' (claude absent, non-zero, or unparseable): write the
+ *        distinctly-named 'playwright-rcf' entry with the 'could not probe'
+ *        notice.
+ *
+ * A distinct project-scope entry keeps init's "never write outside the
+ * project root" discipline; a coexisting user-scope entry the operator has
+ * that init could not see is not shadowed by naming convention.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @param {NodeJS.WritableStream} args.stdout
+ * @param {boolean} args.quiet
+ * @param {boolean} args.optOut
+ * @param {import('../setup/playwright-checks.js').probeClaudeCodeMcp} args.probeClaudeCodeMcp
+ * @returns {Promise<{ action: 'left-alone-project'|'left-alone-harness'|'written'|'skipped-opt-out', name?: string, scope?: string } | import('../core/errors/index.js').RcfError>}
+ */
+async function runPlaywrightMcpPass({ projectRoot, stdout, quiet, optOut, probeClaudeCodeMcp: probeImpl }) {
+  const mcpPath = join(projectRoot, '.mcp.json');
+  let mcpJson = null;
+  try {
+    const raw = await readFile(mcpPath, 'utf8');
+    try {
+      mcpJson = JSON.parse(raw);
+    } catch {
+      // writeMcpConfig already refused unparseable with a distinct error and
+      // returned before us; if we somehow reach here with a corrupt file,
+      // stay out and let doctor surface it. Return silently.
+      return { action: 'skipped-opt-out' };
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+    // .mcp.json does not exist yet (rcf mcp write above would have created
+    // it; if that step ran we should not hit ENOENT). Treat as no project
+    // entry and continue to the probe.
+  }
+
+  const projectKey = mcpJson ? findProjectPlaywrightKey(mcpJson) : null;
+  if (projectKey) {
+    if (!quiet) {
+      stdout.write(
+        `Playwright MCP: already registered in .mcp.json under key '${projectKey}' at project scope, left alone.\n`,
+      );
+    }
+    return { action: 'left-alone-project', name: projectKey };
+  }
+
+  // Probe the harness even when --no-playwright-mcp so the print-out remains
+  // honest about what init can see.
+  const probeResult = await probeImpl();
+  if (probeResult.kind === 'found') {
+    if (!quiet) {
+      stdout.write(
+        `Playwright MCP: already registered under key '${probeResult.name}' at ${probeResult.scope} scope in Claude Code, left alone.\n`,
+      );
+    }
+    return { action: 'left-alone-harness', name: probeResult.name, scope: probeResult.scope };
+  }
+
+  if (optOut) {
+    if (!quiet) {
+      stdout.write('Playwright MCP: --no-playwright-mcp set; no entry written.\n');
+    }
+    return { action: 'skipped-opt-out' };
+  }
+
+  // Compose the distinctly-named entry. Distinct from 'playwright' (the
+  // common name a user-scope entry uses) and from any name Claude Code
+  // writes by default. If init could not see a user-scope entry that
+  // actually exists, both coexist and no shadowing has occurred; verify
+  // provisions its OWN MCP config anyway.
+  const distinctEntry = {
+    type: 'stdio',
+    command: 'npx',
+    args: ['-y', `@playwright/mcp@${PLAYWRIGHT_MCP_VERSION}`],
+    env: {},
+  };
+  const nextBody = mcpJson ?? {};
+  const servers = (nextBody.mcpServers && typeof nextBody.mcpServers === 'object' && !Array.isArray(nextBody.mcpServers))
+    ? nextBody.mcpServers
+    : {};
+  const nextConfig = {
+    ...nextBody,
+    mcpServers: {
+      ...servers,
+      'playwright-rcf': distinctEntry,
+    },
+  };
+  await writeFile(mcpPath, `${JSON.stringify(nextConfig, null, 2)}\n`, 'utf8');
+
+  if (!quiet) {
+    if (probeResult.kind === 'inconclusive') {
+      stdout.write(
+        `Playwright MCP: could not probe user-scope entries (${probeResult.reason}). Wrote 'playwright-rcf' at project scope; remove with \`rcf init --no-playwright-mcp\` or delete the entry by hand.\n`,
+      );
+    } else {
+      stdout.write(
+        "Playwright MCP: wrote 'playwright-rcf' at project scope (no ambient Playwright entry found at any scope this init could probe). Remove with `rcf init --no-playwright-mcp` or delete the entry by hand.\n",
+      );
+    }
+  }
+  return { action: 'written' };
+}
+
