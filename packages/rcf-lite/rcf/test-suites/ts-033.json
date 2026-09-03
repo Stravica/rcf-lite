@@ -1,0 +1,83 @@
+{
+  "id": "TS-033",
+  "usId": "US-1104",
+  "title": "rcf init Playwright MCP entry write only when no scope-visible entry exists",
+  "purpose": "Cover the five ACs on US-1104: signature-based project-scope detection leaves a pre-existing entry alone, the injected probe drives the four downstream branches (none/found/inconclusive/CLI-absent), the distinct 'playwright-rcf' entry has the exact shape, --no-playwright-mcp suppresses the write, and doctor's redundant-entry probe fires only on browser-facing projects.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-1104-1",
+    "AC-1104-2",
+    "AC-1104-3",
+    "AC-1104-4",
+    "AC-1104-5"
+  ],
+  "testCases": [
+    {
+      "id": "TC-033-project-scope-signature-left-alone",
+      "acId": "AC-1104-1",
+      "description": "A pre-existing project-scope Playwright signature leaves .mcp.json untouched and prints the 'left alone' line",
+      "testPointer": "test/cli/init-playwright.test.js::init: existing project-scope Playwright signature -> left alone (spec 4.1)",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-033-probe-none-writes-distinct",
+      "acId": "AC-1104-2",
+      "description": "Probe returning 'none' drives the distinct playwright-rcf project-scope write branch",
+      "testPointer": "test/cli/init-playwright.test.js::init: fresh project + probe=none -> writes distinctly named playwright-rcf entry",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-033-probe-found-leaves-alone",
+      "acId": "AC-1104-2",
+      "description": "Probe returning 'found' at user scope leaves .mcp.json alone with the 'already registered ... in Claude Code' line",
+      "testPointer": "test/cli/init-playwright.test.js::init: probe=found at user scope -> left alone; no project entry written (spec 4.2)",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-033-probe-inconclusive-writes-with-notice",
+      "acId": "AC-1104-2",
+      "description": "Probe returning 'inconclusive' writes the distinct entry and prints the could-not-probe notice (covers both CLI-absent and unparseable branches via the injected probe result)",
+      "testPointer": "test/cli/init-playwright.test.js::init: probe=inconclusive -> writes playwright-rcf entry AND prints the could-not-probe notice (spec 4.3)",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-033-distinct-entry-shape",
+      "acId": "AC-1104-3",
+      "description": "The written playwright-rcf entry equals { type:'stdio', command:'npx', args:['-y', '@playwright/mcp@<version>'], env:{} }",
+      "testPointer": "test/cli/init-playwright.test.js::init: fresh project + probe=none -> writes distinctly named playwright-rcf entry",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-033-no-playwright-mcp-suppresses-write",
+      "acId": "AC-1104-4",
+      "description": "--no-playwright-mcp suppresses the write; the probe still runs but no Playwright entry is created",
+      "testPointer": "test/cli/init-playwright.test.js::init --no-playwright-mcp: probe still runs, but no Playwright entry is written",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-033-redundant-fires-browser-facing",
+      "acId": "AC-1104-5",
+      "description": "playwright-mcp-redundant fires when project + user both declare Playwright on a browser-facing project",
+      "testPointer": "test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant fires when project + user both declare Playwright (browser-facing only)",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-033-redundant-quiet-on-api-only",
+      "acId": "AC-1104-5",
+      "description": "playwright-mcp-redundant does NOT fire on an API-only project",
+      "testPointer": "test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant does NOT fire on an API-only project (spec 4.5)",
+      "status": "pending",
+      "scope": "runtime"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-03T18:30:50Z",
+  "updatedAt": "2026-09-03T18:30:50Z"
+}
