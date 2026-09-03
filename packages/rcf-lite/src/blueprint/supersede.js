@@ -26,7 +26,7 @@
 // the refused-add state; the escalation the worker adapted around was
 // that AC-1002-5 could not pass as written. The `--incoming` argument
 // was subsequently fed directly to `loadBlueprint`, which understands
-// paths only — a newcomer who intuited the `@stock/<slug>` form from
+// paths only; a newcomer who intuited the `@stock/<slug>` form from
 // `add`'s help hit a refusal. Persona re-run 2026-08-31 arc-4, H2.
 //
 // Two side effects, both governed by dryRun:
@@ -171,7 +171,7 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
     // For library-qualified sources the applied identity is rewired
     // under the library prefix (`<libraryPrefix>-<blueprintSlug>`), so
     // the supersedes[] entry must reference that effective slug and
-    // stamp the ADR id under it — matching what `apply.js` writes to
+    // stamp the ADR id under it; matching what `apply.js` writes to
     // `manifest.blueprints[].slug`. For shelf / path sources the
     // blueprint's own slug applies.
     const effectiveSlug = resolved.kind === 'library'
