@@ -1,14 +1,16 @@
 // `rcf define blueprint library <verb>` CLI.
 //
-// Verbs (Phase 2b):
-//   add      register an external library on this project (local source in
-//            2b; network fetchers land in 2c)
+// Verbs (Phase 2b + 2c):
+//   add      register an external library on this project. Accepts a
+//            local path, a `git+<url>#<tag-or-sha>` ref, or a tarball
+//            URL with `--sha256 <hex>`.
 //   list     list registered libraries
 //   remove   unregister a library (refuses when any applied blueprint on
-//            the project came through the library)
-//   refresh  re-validate an already-registered library's on-disk shape
+//            the project came through the library) and removes the cache
+//   refresh  re-fetch the pinned ref, verify against the registry's
+//            resolved sha or tarball digest, refuse on drift
 //
-// Spec: external-blueprint-libraries-spec-2026-08-31.md sections 4, 8.
+// Spec: external-blueprint-libraries-spec-2026-08-31.md sections 4, 6, 8.
 
 import { isAbsolute, resolve } from 'node:path';
 import { stat } from 'node:fs/promises';
@@ -27,6 +29,19 @@ import {
 } from '../blueprint/library-registry.js';
 import { knownShelfSlugs, packagedShelfPath } from '../blueprint/shelf-resolver.js';
 import { walkTree } from '#core/store';
+import {
+  absoluteCachePath,
+  ensureEmptyCache,
+  relativeCachePath,
+  removeCache,
+  resolveCachePath,
+} from '../blueprint/library-cache.js';
+import {
+  fetchGitLibrary,
+  parseGitRef,
+  resolveRemoteSha,
+} from '../blueprint/library-fetcher-git.js';
+import { fetchTarballLibrary } from '../blueprint/library-fetcher-tarball.js';
 
 /**
  * Union of core-shelf blueprint slugs used for the prefix-collision
@@ -49,33 +64,46 @@ export const LIBRARY_HELP = `Usage: rcf define blueprint library <verb> [options
 
 Verbs:
   add <ref>            Register an external library on this project.
-                       <ref> is either a local absolute or relative path
-                       to a library root (a directory containing
-                       library.json). Fetches metadata, runs review-on-
-                       add, and writes an entry to
-                       rcf/blueprint-libraries.json.
-
-                       Phase 2b covers local sources; the git and
-                       tarball fetchers land in Phase 2c. A private-repo
-                       library today is registered via a local clone.
+                       <ref> is one of:
+                         - a local absolute or relative path to a library
+                           root (a directory containing library.json);
+                         - a git ref pinned to an annotated tag or a
+                           commit sha, e.g.
+                           git+https://github.com/wsd-team/wsd-blueprint-library.git#v1.2.0
+                           or git+ssh://git@github.com/... . Floating
+                           branches (main, master, HEAD, latest) refuse.
+                         - a tarball URL (.tar / .tar.gz / .tgz) paired
+                           with --sha256 <hex>; SHA-256 is verified on
+                           the download bytes and stored as the pin.
+                       Fetches metadata, runs review-on-add, writes an
+                       entry to rcf/blueprint-libraries.json, and lands
+                       the extracted content under
+                       rcf/.blueprint-libraries/<prefix>/<ref>/ (checked
+                       into git as ordinary tree content so a fresh
+                       clone can 'rcf define blueprint list' without a
+                       re-fetch).
 
   list [--json]        List every registered library on this project
                        (prefix, source, publisher, blueprint count).
 
-  remove <prefix>      Unregister a library. Refuses when any applied
-                       blueprint on the project came through this
-                       library.
+  remove <prefix>      Unregister a library and drop its cache. Refuses
+                       when any applied blueprint on the project came
+                       through this library.
 
-  refresh <prefix>     Re-validate an already-registered library's
-                       on-disk shape. Phase 2b re-reads the local
-                       library.json and reports any drift from the
-                       registry snapshot; phase 2c will re-fetch a git
-                       or tarball source and verify the sha.
+  refresh <prefix>     Re-fetch the pinned ref for a network library and
+                       verify against the registry's resolved sha or
+                       tarball digest; refuse-and-report on drift (spec
+                       §6.4 / §9.12: annotated-tag moves are a supply
+                       chain event, not an auto-update). Local sources
+                       re-validate the on-disk library.json against the
+                       registry snapshot.
 
 Options:
   --prefix <slug>      (add) Override the library's declared prefix.
                        Rarely needed; only useful when two libraries
                        collide on prefix locally.
+  --sha256 <hex>       (add) Required when <ref> is a tarball URL. The
+                       expected SHA-256 (64 hex chars) of the download.
   --i-have-reviewed    (add) Skip the interactive review-on-add prompt.
                        Required companion to --no-review when scripting;
                        the two-flag form keeps a library-add trust
@@ -90,6 +118,7 @@ Options:
 
 const LIBRARY_OPTION_SPEC = {
   prefix: { type: 'string' },
+  sha256: { type: 'string' },
   'i-have-reviewed': { type: 'boolean' },
   'no-review': { type: 'boolean' },
   json: { type: 'boolean' },
@@ -143,33 +172,26 @@ async function handleAdd({ args, parsed, projectRoot, now, stdout, stderr, stdin
   }
   const ref = args[0];
 
-  // Phase 2b: local sources only. Fetchers land in 2c.
   const kind = classifySourceRef(ref);
-  if (kind !== 'local') {
-    stderr.write(
-      `[error] blueprint library add: source kind '${kind}' requires the network fetchers landing in Phase 2c. `
-      + 'In 2b, register the library from a local path (a directory carrying library.json). '
-      + 'For private git repos today, clone the repo locally and point add at the clone.\n',
-    );
-    return 2;
-  }
+  // Fetch phase: land the library on disk under a temporary cachePath
+  // computed against the library's declared prefix (loader reads it from
+  // library.json) once we know it. For local sources the cache path is
+  // the operator's own directory - no copy, no cache slot. For git and
+  // tarball we fetch into an on-disk cache and load from there.
+  const dryRun = parsed.values['dry-run'] === true;
+  const fetchResult = await performFetch({ kind, ref, parsed, projectRoot, stderr });
+  if (typeof fetchResult === 'number') return fetchResult;
 
-  const localRoot = isAbsolute(ref) ? ref : resolve(projectRoot, ref);
-  let libStat;
-  try {
-    libStat = await stat(localRoot);
-  } catch (err) {
-    stderr.write(`[error] blueprint library add: path '${localRoot}' cannot be read: ${err.message}\n`);
-    return 2;
-  }
-  if (!libStat.isDirectory()) {
-    stderr.write(`[error] blueprint library add: path '${localRoot}' is not a directory.\n`);
-    return 2;
-  }
+  const { libraryRoot, sourceKind, sourceRef, resolvedSha, tarballSha256, cachePathAbs, cachePathRel } = fetchResult;
 
-  const library = await loadLibrary(localRoot, { validateBlueprints: true });
+  const library = await loadLibrary(libraryRoot, { validateBlueprints: true });
   if (isRcfError(library)) {
     stderr.write(`[error] blueprint library add: ${library.message}\n`);
+    if (sourceKind !== 'local' && cachePathAbs) {
+      // Roll back a fetched-but-invalid library so the cache does not
+      // linger as ghost state.
+      await removeCache(cachePathAbs);
+    }
     return 2;
   }
 
@@ -210,20 +232,31 @@ async function handleAdd({ args, parsed, projectRoot, now, stdout, stderr, stdin
     return 2;
   }
   if (wantsReview) {
-    printReview({ stdout, ref, library, libraryPrefix, coreReservations });
+    printReview({ stdout, ref, library, libraryPrefix, coreReservations, sourceKind, resolvedSha, tarballSha256 });
     if (!iHaveReviewed) {
       const proceed = await prompt(stdin, stdout, 'Proceed with add? [y/N] ');
       if (!/^y(es)?$/i.test((proceed ?? '').trim())) {
         stdout.write('[blueprint library] aborted by operator; no registry entry written.\n');
+        if (sourceKind !== 'local' && cachePathAbs) {
+          await removeCache(cachePathAbs);
+        }
         return 0;
       }
     }
   }
 
+  const provenance = { tier: sourceKind };
+  if (sourceKind === 'git') {
+    provenance.shaVerifiedAt = now.toISOString();
+  } else if (sourceKind === 'tarball') {
+    provenance.shaVerifiedAt = now.toISOString();
+    provenance.tarballSha256 = tarballSha256;
+  }
   const entry = {
     libraryPrefix,
-    sourceKind: 'local',
-    sourceRef: localRoot,
+    sourceKind,
+    sourceRef,
+    ...(resolvedSha ? { resolvedSha } : {}),
     displayName: library.displayName,
     publisher: { ...library.publisher },
     libraryRef: library.libraryRef,
@@ -231,37 +264,186 @@ async function handleAdd({ args, parsed, projectRoot, now, stdout, stderr, stdin
     blueprints: library.blueprints.map((b) => ({ slug: b.slug, path: b.path })),
     addedAt: now.toISOString(),
     reviewedBy: 'operator',
-    provenance: { tier: 'local' },
-    cachePath: localRoot,
+    provenance,
+    cachePath: sourceKind === 'local' ? libraryRoot : cachePathRel,
   };
 
   const nextRegistry = {
     registryVersion: registry.registryVersion,
     libraries: [...registry.libraries, entry],
   };
-  const write = await writeLibraryRegistry(projectRoot, nextRegistry, { dryRun: parsed.values['dry-run'] === true });
+  const write = await writeLibraryRegistry(projectRoot, nextRegistry, { dryRun });
   if (isRcfError(write)) {
     stderr.write(`[error] blueprint library add: ${write.message}\n`);
+    if (sourceKind !== 'local' && cachePathAbs) await removeCache(cachePathAbs);
     return 2;
   }
   if (parsed.values.json) {
     stdout.write(`${JSON.stringify({
-      added: !parsed.values['dry-run'],
-      dryRun: parsed.values['dry-run'] === true,
+      added: !dryRun,
+      dryRun,
       libraryPrefix: entry.libraryPrefix,
+      sourceKind: entry.sourceKind,
+      resolvedSha: entry.resolvedSha ?? null,
+      tarballSha256: entry.provenance.tarballSha256 ?? null,
+      cachePath: entry.cachePath,
       blueprintCount: entry.blueprints.length,
       registryPath: write.path,
     })}\n`);
     return 0;
   }
   if (!parsed.values.quiet) {
-    if (parsed.values['dry-run']) {
-      stdout.write(`[blueprint library] dry-run: would add '${libraryPrefix}' (${entry.blueprints.length} blueprint(s)) to ${write.path}.\n`);
+    if (dryRun) {
+      stdout.write(`[blueprint library] dry-run: would add '${libraryPrefix}' (${entry.blueprints.length} blueprint(s), source=${sourceKind}) to ${write.path}.\n`);
     } else {
-      stdout.write(`[blueprint library] added '${libraryPrefix}' (${entry.blueprints.length} blueprint(s)) to ${write.path}.\n`);
+      const pinNote = resolvedSha ? ` (sha ${resolvedSha.slice(0, 12)})` : (tarballSha256 ? ` (sha256 ${tarballSha256.slice(0, 12)})` : '');
+      stdout.write(`[blueprint library] added '${libraryPrefix}' (${entry.blueprints.length} blueprint(s), ${sourceKind})${pinNote} to ${write.path}.\n`);
     }
   }
   return 0;
+}
+
+/**
+ * Land the library on disk. Returns either a numeric exit code (error
+ * already reported to stderr) or an object describing the fetched
+ * library placement.
+ *
+ * @returns {Promise<number | { libraryRoot: string, sourceKind: 'local' | 'git' | 'tarball', sourceRef: string, resolvedSha?: string, tarballSha256?: string, cachePathAbs?: string, cachePathRel?: string }>}
+ */
+async function performFetch({ kind, ref, parsed, projectRoot, stderr }) {
+  const dryRun = parsed.values['dry-run'] === true;
+  if (kind === 'local') {
+    const localRoot = isAbsolute(ref) ? ref : resolve(projectRoot, ref);
+    let libStat;
+    try {
+      libStat = await stat(localRoot);
+    } catch (err) {
+      stderr.write(`[error] blueprint library add: path '${localRoot}' cannot be read: ${err.message}\n`);
+      return 2;
+    }
+    if (!libStat.isDirectory()) {
+      stderr.write(`[error] blueprint library add: path '${localRoot}' is not a directory.\n`);
+      return 2;
+    }
+    return { libraryRoot: localRoot, sourceKind: 'local', sourceRef: localRoot };
+  }
+  if (kind === 'git') {
+    const parsed_ref = parseGitRef(ref);
+    if (isRcfError(parsed_ref)) {
+      stderr.write(`[error] blueprint library add: ${parsed_ref.message}\n`);
+      return 2;
+    }
+    // Provisional cache slot keyed by tag or short sha. The final slot
+    // moves to the library-declared libraryRef if it differs, but for
+    // git the ref-as-typed is what the operator will use to look this
+    // library up in the registry.
+    const provisionalRef = parsed_ref.ref;
+    // We do not yet know libraryPrefix (that comes from library.json)
+    // so we fetch into a scratch dir and rename later based on the
+    // loaded prefix. Fetch into <projectRoot>/rcf/.blueprint-libraries/.pending-<pid>/
+    const scratchPrefix = `.pending-${process.pid}-${Date.now().toString(36)}`;
+    const scratchAbs = absoluteCachePath(projectRoot, scratchPrefix, provisionalRef);
+    const prepErr = await ensureEmptyCache(scratchAbs, { replace: true });
+    if (prepErr) {
+      stderr.write(`[error] blueprint library add: ${prepErr.message}\n`);
+      return 2;
+    }
+    if (dryRun) {
+      stderr.write(`[error] blueprint library add: --dry-run is not supported for network fetches (would fetch ${parsed_ref.url}#${parsed_ref.ref}).\n`);
+      await removeCache(scratchAbs);
+      return 2;
+    }
+    const fetched = await fetchGitLibrary({ url: parsed_ref.url, ref: parsed_ref.ref, refKind: parsed_ref.refKind, targetDir: scratchAbs });
+    if (isRcfError(fetched)) {
+      stderr.write(`[error] blueprint library add: ${fetched.message}\n`);
+      await removeCache(scratchAbs);
+      return 2;
+    }
+    // Peek at library.json before we settle the cache slot so we know
+    // the prefix and libraryRef the operator committed to.
+    const peek = await loadLibrary(scratchAbs, { validateBlueprints: false });
+    if (isRcfError(peek)) {
+      stderr.write(`[error] blueprint library add: ${peek.message}\n`);
+      await removeCache(scratchAbs);
+      return 2;
+    }
+    const finalRel = relativeCachePath(peek.libraryPrefix, peek.libraryRef);
+    const finalAbs = absoluteCachePath(projectRoot, peek.libraryPrefix, peek.libraryRef);
+    const settleErr = await settleFinal(scratchAbs, finalAbs);
+    if (settleErr) {
+      stderr.write(`[error] blueprint library add: ${settleErr.message}\n`);
+      return 2;
+    }
+    return {
+      libraryRoot: finalAbs,
+      sourceKind: 'git',
+      sourceRef: ref,
+      resolvedSha: fetched.resolvedSha,
+      cachePathAbs: finalAbs,
+      cachePathRel: finalRel,
+    };
+  }
+  if (kind === 'tarball') {
+    const expected = typeof parsed.values.sha256 === 'string' ? parsed.values.sha256 : '';
+    if (!expected) {
+      stderr.write("[error] blueprint library add: tarball source requires --sha256 <hex> (64 hex chars); the SHA-256 is the pin (spec §6.1).\n");
+      return 2;
+    }
+    if (dryRun) {
+      stderr.write(`[error] blueprint library add: --dry-run is not supported for network fetches (would fetch tarball ${ref}).\n`);
+      return 2;
+    }
+    const scratchPrefix = `.pending-${process.pid}-${Date.now().toString(36)}`;
+    const provisionalRef = 'downloading';
+    const scratchAbs = absoluteCachePath(projectRoot, scratchPrefix, provisionalRef);
+    const prepErr = await ensureEmptyCache(scratchAbs, { replace: true });
+    if (prepErr) {
+      stderr.write(`[error] blueprint library add: ${prepErr.message}\n`);
+      return 2;
+    }
+    const fetched = await fetchTarballLibrary({ url: ref, expectedSha256: expected, targetDir: scratchAbs });
+    if (isRcfError(fetched)) {
+      stderr.write(`[error] blueprint library add: ${fetched.message}\n`);
+      await removeCache(scratchAbs);
+      return 2;
+    }
+    const peek = await loadLibrary(scratchAbs, { validateBlueprints: false });
+    if (isRcfError(peek)) {
+      stderr.write(`[error] blueprint library add: ${peek.message}\n`);
+      await removeCache(scratchAbs);
+      return 2;
+    }
+    const finalRel = relativeCachePath(peek.libraryPrefix, peek.libraryRef);
+    const finalAbs = absoluteCachePath(projectRoot, peek.libraryPrefix, peek.libraryRef);
+    const settleErr = await settleFinal(scratchAbs, finalAbs);
+    if (settleErr) {
+      stderr.write(`[error] blueprint library add: ${settleErr.message}\n`);
+      return 2;
+    }
+    return {
+      libraryRoot: finalAbs,
+      sourceKind: 'tarball',
+      sourceRef: ref,
+      tarballSha256: fetched.tarballSha256,
+      cachePathAbs: finalAbs,
+      cachePathRel: finalRel,
+    };
+  }
+  stderr.write(`[error] blueprint library add: unknown source kind '${kind}'.\n`);
+  return 2;
+}
+
+async function settleFinal(scratchAbs, finalAbs) {
+  const { rename, mkdir, rm } = await import('node:fs/promises');
+  const { dirname } = await import('node:path');
+  try {
+    await rm(finalAbs, { recursive: true, force: true });
+    await mkdir(dirname(finalAbs), { recursive: true });
+    await rename(scratchAbs, finalAbs);
+    return null;
+  } catch (err) {
+    return { kind: 'ioFailure', message: `library cache settle: ${err.message}` };
+  }
 }
 
 async function handleList({ parsed, projectRoot, stdout, stderr }) {
@@ -343,10 +525,21 @@ async function handleRemove({ args, parsed, projectRoot, stdout, stderr }) {
     registryVersion: registry.registryVersion,
     libraries: registry.libraries.filter((l) => l.libraryPrefix !== libraryPrefix),
   };
-  const write = await writeLibraryRegistry(projectRoot, nextRegistry, { dryRun: parsed.values['dry-run'] === true });
+  const dryRun = parsed.values['dry-run'] === true;
+  const write = await writeLibraryRegistry(projectRoot, nextRegistry, { dryRun });
   if (isRcfError(write)) {
     stderr.write(`[error] blueprint library remove: ${write.message}\n`);
     return 2;
+  }
+  // Clean the on-disk cache for network sources so a subsequent `add`
+  // starts from a clean slate. Local sources point at the operator's
+  // own directory and must never be touched.
+  if (!dryRun && entry.sourceKind !== 'local') {
+    const cachePathAbs = resolveCachePath(projectRoot, entry.cachePath);
+    const cacheErr = await removeCache(cachePathAbs);
+    if (cacheErr) {
+      stderr.write(`[warn] blueprint library remove: registry entry gone; cache cleanup failed: ${cacheErr.message}\n`);
+    }
   }
   if (!parsed.values.quiet) {
     stdout.write(`[blueprint library] removed '${libraryPrefix}' from ${write.path}.\n`);
@@ -370,45 +563,157 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
     stderr.write(`[error] blueprint library refresh: library '${libraryPrefix}' is not registered.\n`);
     return 2;
   }
-  if (entry.sourceKind !== 'local') {
-    stderr.write(`[error] blueprint library refresh: source kind '${entry.sourceKind}' requires the network fetchers landing in Phase 2c.\n`);
-    return 2;
+  if (entry.sourceKind === 'local') {
+    const library = await loadLibrary(entry.cachePath, { validateBlueprints: true });
+    if (isRcfError(library)) {
+      stderr.write(`[error] blueprint library refresh: ${library.message}\n`);
+      return 2;
+    }
+    const drifted = compareLibrarySnapshot(entry, library);
+    if (drifted.length > 0) {
+      stderr.write(`[blueprint library refresh] '${libraryPrefix}' has drifted from the registered snapshot:\n`);
+      for (const d of drifted) stderr.write(`  ${d}\n`);
+      stderr.write("re-run 'rcf define blueprint library add <ref>' to pick up the newer library (spec §10.1: freshness is advisory, adoption is an operator act).\n");
+      return 3;
+    }
+    if (!parsed.values.quiet) {
+      stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: on-disk library matches the registry snapshot.\n`);
+    }
+    return 0;
   }
-  const library = await loadLibrary(entry.cachePath, { validateBlueprints: true });
-  if (isRcfError(library)) {
-    stderr.write(`[error] blueprint library refresh: ${library.message}\n`);
-    return 2;
+  if (entry.sourceKind === 'git') {
+    const parsedGit = parseGitRef(entry.sourceRef);
+    if (isRcfError(parsedGit)) {
+      stderr.write(`[error] blueprint library refresh: registered sourceRef is malformed: ${parsedGit.message}\n`);
+      return 2;
+    }
+    const upstream = await resolveRemoteSha({ url: parsedGit.url, ref: parsedGit.ref, refKind: parsedGit.refKind });
+    if (isRcfError(upstream)) {
+      stderr.write(`[error] blueprint library refresh: ${upstream.message}\n`);
+      return 2;
+    }
+    if (typeof entry.resolvedSha === 'string' && entry.resolvedSha.toLowerCase() !== upstream.resolvedSha) {
+      stderr.write(
+        `[blueprint library refresh] '${libraryPrefix}' pin drift: the tag '${parsedGit.ref}' at ${parsedGit.url} has moved from sha `
+        + `${entry.resolvedSha} to ${upstream.resolvedSha}. Publishers should not move annotated tags. `
+        + `Re-add explicitly if intentional (spec §6.4 / §9.12).\n`,
+      );
+      return 3;
+    }
+    // Sha matches; re-fetch into a scratch cache and verify the tree
+    // still validates. This catches the (rare) case of a cache tree
+    // that has been corrupted or hand-edited between refreshes.
+    const scratchPrefix = `.pending-${process.pid}-${Date.now().toString(36)}`;
+    const scratchAbs = absoluteCachePath(projectRoot, scratchPrefix, parsedGit.ref);
+    const prepErr = await ensureEmptyCache(scratchAbs, { replace: true });
+    if (prepErr) { stderr.write(`[error] blueprint library refresh: ${prepErr.message}\n`); return 2; }
+    const fetched = await fetchGitLibrary({ url: parsedGit.url, ref: parsedGit.ref, refKind: parsedGit.refKind, targetDir: scratchAbs });
+    if (isRcfError(fetched)) {
+      await removeCache(scratchAbs);
+      stderr.write(`[error] blueprint library refresh: ${fetched.message}\n`);
+      return 2;
+    }
+    const library = await loadLibrary(scratchAbs, { validateBlueprints: true });
+    if (isRcfError(library)) {
+      await removeCache(scratchAbs);
+      stderr.write(`[error] blueprint library refresh: ${library.message}\n`);
+      return 2;
+    }
+    const drifted = compareLibrarySnapshot(entry, library);
+    if (drifted.length > 0) {
+      await removeCache(scratchAbs);
+      stderr.write(`[blueprint library refresh] '${libraryPrefix}' has drifted from the registered snapshot:\n`);
+      for (const d of drifted) stderr.write(`  ${d}\n`);
+      stderr.write("re-run 'rcf define blueprint library add <ref>' to pick up the newer library.\n");
+      return 3;
+    }
+    // Land the fresh tree in the registered cache slot.
+    const finalAbs = resolveCachePath(projectRoot, entry.cachePath);
+    const settleErr = await settleFinal(scratchAbs, finalAbs);
+    if (settleErr) { stderr.write(`[error] blueprint library refresh: ${settleErr.message}\n`); return 2; }
+    if (!parsed.values.quiet) {
+      stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: git ref '${parsedGit.ref}' still resolves to ${upstream.resolvedSha.slice(0, 12)}.\n`);
+    }
+    return 0;
   }
-  // Detect drift from the registry snapshot on load-bearing fields.
+  if (entry.sourceKind === 'tarball') {
+    const expected = entry.provenance?.tarballSha256;
+    if (typeof expected !== 'string' || expected.length === 0) {
+      stderr.write("[error] blueprint library refresh: tarball entry has no provenance.tarballSha256 pin.\n");
+      return 2;
+    }
+    const scratchPrefix = `.pending-${process.pid}-${Date.now().toString(36)}`;
+    const scratchAbs = absoluteCachePath(projectRoot, scratchPrefix, 'refreshing');
+    const prepErr = await ensureEmptyCache(scratchAbs, { replace: true });
+    if (prepErr) { stderr.write(`[error] blueprint library refresh: ${prepErr.message}\n`); return 2; }
+    const fetched = await fetchTarballLibrary({ url: entry.sourceRef, expectedSha256: expected, targetDir: scratchAbs });
+    if (isRcfError(fetched)) {
+      await removeCache(scratchAbs);
+      stderr.write(`[error] blueprint library refresh: ${fetched.message}\n`);
+      return 2;
+    }
+    const library = await loadLibrary(scratchAbs, { validateBlueprints: true });
+    if (isRcfError(library)) {
+      await removeCache(scratchAbs);
+      stderr.write(`[error] blueprint library refresh: ${library.message}\n`);
+      return 2;
+    }
+    const drifted = compareLibrarySnapshot(entry, library);
+    if (drifted.length > 0) {
+      await removeCache(scratchAbs);
+      stderr.write(`[blueprint library refresh] '${libraryPrefix}' has drifted from the registered snapshot:\n`);
+      for (const d of drifted) stderr.write(`  ${d}\n`);
+      stderr.write("re-run 'rcf define blueprint library add <ref>' to pick up the newer library.\n");
+      return 3;
+    }
+    const finalAbs = resolveCachePath(projectRoot, entry.cachePath);
+    const settleErr = await settleFinal(scratchAbs, finalAbs);
+    if (settleErr) { stderr.write(`[error] blueprint library refresh: ${settleErr.message}\n`); return 2; }
+    if (!parsed.values.quiet) {
+      stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: tarball SHA-256 still matches ${expected.slice(0, 12)}.\n`);
+    }
+    return 0;
+  }
+  stderr.write(`[error] blueprint library refresh: unknown source kind '${entry.sourceKind}'.\n`);
+  return 2;
+}
+
+function compareLibrarySnapshot(entry, library) {
   const drifted = [];
   if (library.libraryPrefix !== entry.libraryPrefix) drifted.push(`libraryPrefix '${entry.libraryPrefix}' -> '${library.libraryPrefix}'`);
   if (library.libraryRef !== entry.libraryRef) drifted.push(`libraryRef '${entry.libraryRef}' -> '${library.libraryRef}'`);
   if (JSON.stringify(library.bands) !== JSON.stringify(entry.bands)) drifted.push('bands changed');
-  if (drifted.length > 0) {
-    stderr.write(`[blueprint library refresh] '${libraryPrefix}' has drifted from the registered snapshot:\n`);
-    for (const d of drifted) stderr.write(`  ${d}\n`);
-    stderr.write("re-run 'rcf define blueprint library add <ref>' to pick up the newer library (spec §10.1: freshness is advisory, adoption is an operator act).\n");
-    return 3;
-  }
-  if (!parsed.values.quiet) {
-    stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: on-disk library matches the registry snapshot.\n`);
-  }
-  return 0;
+  return drifted;
 }
 
 function classifySourceRef(ref) {
-  if (ref.startsWith('git+') || ref.startsWith('git@') || ref.startsWith('https://') || ref.startsWith('http://') || ref.startsWith('ssh://')) return 'git';
-  if (ref.endsWith('.tar.gz') || ref.endsWith('.tgz') || ref.endsWith('.tar')) return 'tarball';
+  // Tarball extension wins over the transport check because `https://.../foo.tar.gz`
+  // is a valid tarball ref and would otherwise be misclassified as git.
+  // Strip an optional `#` fragment before the extension check so a
+  // fragmented tarball URL still classifies correctly.
+  const noFragment = ref.split('#')[0];
+  if (noFragment.endsWith('.tar.gz') || noFragment.endsWith('.tgz') || noFragment.endsWith('.tar')) return 'tarball';
+  if (ref.startsWith('git+') || ref.startsWith('git@') || ref.startsWith('ssh://')) return 'git';
+  // http(s) with a `.git` in the path or a `#<ref>` fragment reads as
+  // a git URL; unadorned http(s) without either signal falls back to
+  // local so an accidental URL does not silently invoke a git clone.
+  if ((ref.startsWith('https://') || ref.startsWith('http://')) && (ref.includes('.git') || ref.includes('#'))) return 'git';
   return 'local';
 }
 
-function printReview({ stdout, ref, library, libraryPrefix, coreReservations }) {
+function printReview({ stdout, ref, library, libraryPrefix, coreReservations, sourceKind = 'local', resolvedSha, tarballSha256 }) {
   const suffix = (library.bands.suffixBlocks ?? []).map((b) => `${b.kind} ${b.start}-${b.end}`).join(', ');
   stdout.write(`\nREVIEW - you are about to add this library to the project registry.\n\n`);
   stdout.write(`  Library      : ${library.displayName}\n`);
   stdout.write(`  Prefix       : ${libraryPrefix}\n`);
   stdout.write(`  Publisher    : ${library.publisher.displayName}${library.publisher.contact ? ` <${library.publisher.contact}>` : ''}\n`);
-  stdout.write(`  Source       : ${ref} (local)\n`);
+  stdout.write(`  Source       : ${ref} (${sourceKind})\n`);
+  if (typeof resolvedSha === 'string' && resolvedSha.length > 0) {
+    stdout.write(`  Pinned sha   : ${resolvedSha}\n`);
+  }
+  if (typeof tarballSha256 === 'string' && tarballSha256.length > 0) {
+    stdout.write(`  Tarball sha  : ${tarballSha256}\n`);
+  }
   stdout.write(`  Library ref  : ${library.libraryRef}\n`);
   stdout.write(`  AC band      : ${library.bands.ac.start} - ${library.bands.ac.end}\n`);
   if (suffix.length > 0) stdout.write(`  Suffix blocks: ${suffix}\n`);
@@ -430,7 +735,7 @@ function printReview({ stdout, ref, library, libraryPrefix, coreReservations }) 
       stdout.write(`    ${qualified.padEnd(qualifiedWidth)} -> ${bp.globalTopics.join(', ')}\n`);
     }
   }
-  stdout.write(`\n  Provenance   : local (dev use)\n`);
+  stdout.write(`\n  Provenance   : ${sourceKind}${sourceKind === 'local' ? ' (dev use)' : ''}\n`);
   stdout.write(`  Band check   : cross-checked ${coreReservations.ac.length} core AC row(s), ${coreReservations.suffixBlocks.length} core suffix block(s); no overlap.\n`);
   stdout.write(`  Prefix check : '${libraryPrefix}' does not collide with any core slug.\n`);
   stdout.write(`\n`);

@@ -40,12 +40,13 @@
 // before pack runs.
 
 import { existsSync } from 'node:fs';
-import { stat } from 'node:fs/promises';
-import { dirname, isAbsolute, join, resolve, sep } from 'node:path';
+import { readFile, stat } from 'node:fs/promises';
+import { basename, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { rcfError } from '../core/errors/index.js';
 import { findLibrary, readLibraryRegistry } from './library-registry.js';
+import { loadLibrary } from './library-loader.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // packages/rcf-lite/src/blueprint -> packages/rcf-lite
@@ -143,12 +144,20 @@ export async function resolveBlueprintSource(source, opts = {}) {
     });
   }
 
-  // Rule 4: path-looking arguments are passed through unchanged. We look
-  // at the SHAPE only (does it contain a separator, does it start with a
-  // relative-path marker, is it absolute), so an existing operator with a
-  // `./blueprints/foo` invocation keeps the current behaviour byte-for-byte.
+  // Rule 4: path-looking arguments are passed through unchanged UNLESS
+  // an ancestor of the resolved path carries a `library.json` (spec
+  // amendment A2, 2026-09-03). In that case the resolver walks up from
+  // the target, loads the library manifest, requires the target to sit
+  // at `<library-root>/blueprints/<slug>`, and returns a kind=library
+  // result with `libraryPrefix`, `effectiveSlug`, `libraryBands` so the
+  // apply layer stamps the same identity a qualified `<prefix>:<slug>`
+  // would. A path with NO library.json in any ancestor keeps the
+  // phase-1 route unchanged, byte-for-byte.
   if (isAbsolute(source) || PATH_HINT.test(source)) {
-    return { kind: 'path', resolved: resolve(source), original: source };
+    const abs = resolve(source);
+    const libraryHit = await tryLibraryAwareLocalPath(abs, source);
+    if (libraryHit) return libraryHit;
+    return { kind: 'path', resolved: abs, original: source };
   }
 
   // Rule 5: any other bare kebab token is a shelf slug.
@@ -163,6 +172,90 @@ export async function resolveBlueprintSource(source, opts = {}) {
   // failure locus close to what they wrote rather than adding a
   // resolver-specific class.
   return { kind: 'path', resolved: resolve(source), original: source };
+}
+
+/**
+ * Ancestor-walk from a target directory looking for a `library.json`.
+ * Stops at the filesystem root. When a manifest is found and the target
+ * sits at `<library-root>/blueprints/<slug>`, returns a library-kind
+ * resolution; when the target is under a library root at any other
+ * path shape, returns a usage error naming the expected layout.
+ * Returns null when no `library.json` is found in any ancestor - the
+ * caller then keeps the phase-1 path route unchanged.
+ *
+ * @param {string} abs         absolute target directory
+ * @param {string} original    the source the operator typed (verbatim)
+ * @returns {Promise<null | import('./shelf-resolver.js').ResolvedSource | import('../core/errors/index.js').RcfError>}
+ */
+async function tryLibraryAwareLocalPath(abs, original) {
+  const libraryRoot = await findLibraryAncestor(abs);
+  if (!libraryRoot) return null;
+  // The target must be `<library-root>/blueprints/<slug>`, i.e. a direct
+  // grandchild of the library root under a `blueprints/` folder. Any
+  // other shape (nested deeper, a sibling docs/ folder, the library
+  // root itself) is a usage error naming the expected form so the
+  // operator sees the fix immediately.
+  const relFromRoot = abs.slice(libraryRoot.length).split(sep).filter(Boolean);
+  if (relFromRoot.length !== 2 || relFromRoot[0] !== 'blueprints') {
+    return rcfError({
+      kind: 'usage',
+      message: (
+        `blueprint source '${original}' is inside a library at ${libraryRoot}, but its path must be `
+        + `'<library-root>/blueprints/<slug>' (found '${relFromRoot.join('/') || '<library-root>'}'). `
+        + `Move the blueprint under 'blueprints/<slug>/' inside the library or point 'blueprint add' at that layout.`
+      ),
+      filePath: abs,
+    });
+  }
+  const blueprintSlug = basename(abs);
+  const library = await loadLibrary(libraryRoot, { validateBlueprints: false });
+  if (library && typeof library === 'object' && library.kind) {
+    // Malformed library.json: surface the loader's own error verbatim.
+    return library;
+  }
+  // Refuse if the library.json does not declare this blueprint slug -
+  // an author who has not yet added the entry to `blueprints[]` should
+  // be told loudly, not silently applied.
+  if (!library.blueprints.some((b) => b.slug === blueprintSlug)) {
+    return rcfError({
+      kind: 'usage',
+      message: (
+        `blueprint source '${original}' is inside library '${library.libraryPrefix}' at ${libraryRoot}, `
+        + `but library.json does not declare a blueprint with slug '${blueprintSlug}'. `
+        + `Add '{ "slug": "${blueprintSlug}", "path": "blueprints/${blueprintSlug}" }' to library.json:blueprints[] first.`
+      ),
+      filePath: join(libraryRoot, 'library.json'),
+    });
+  }
+  return {
+    kind: 'library',
+    resolved: abs,
+    original,
+    libraryPrefix: library.libraryPrefix,
+    libraryBlueprintSlug: blueprintSlug,
+    effectiveSlug: `${library.libraryPrefix}-${blueprintSlug}`,
+    libraryBands: library.bands,
+  };
+}
+
+async function findLibraryAncestor(startDir) {
+  let cur = startDir;
+  while (true) {
+    try {
+      // Fast probe: try to read `library.json`. `readFile` returning
+      // ENOENT is the most common case; any other read error is treated
+      // the same as "no library here" so the walk continues to the
+      // parent without swallowing a real defect (the loader will
+      // re-raise if the operator points directly at a broken library).
+      await readFile(join(cur, 'library.json'), 'utf8');
+      return cur;
+    } catch {
+      // fall through
+    }
+    const parent = dirname(cur);
+    if (parent === cur) return null;
+    cur = parent;
+  }
 }
 
 async function resolveLibraryQualified({ libraryPrefix, blueprintSlug, original, projectRoot }) {
