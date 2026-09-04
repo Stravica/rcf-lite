@@ -77,7 +77,10 @@ const expectedCounts = {
   // code paths' own suites. See test/store/walker.test.js's expected-count
   // comment for the full rationale.
   req: 12,
-  userStory: 36,
+  // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
+  // the `rcf define blueprint remove-resolution` verb the spec section
+  // 9 remedy names.
+  userStory: 37,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -93,18 +96,22 @@ const expectedCounts = {
   // on shipped blueprints).
   adr: 10,
   buildSequence: 1,
-  fbs: 26,
+  // FBS-027 covers the remove-resolution verb (US-1204).
+  fbs: 27,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
   // Phase 1 blueprint mechanism added 11 CNs for the mechanism modules.
   // Phase 3.5 (w-2026-08-19-008) added CN-069 for supersede.js#supersedeBlueprintTopic.
   // e2e contract added CN-070..073 for the four commits' main code paths.
-  codeNode: 75,
+  // CN-076 anchors src/blueprint/remove-resolution.js#removeResolution
+  // (spec A2 verb, US-1204 / FBS-027).
+  codeNode: 76,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
-  testSuite: 36,
+  // TS-037 pairs with US-1204 for the remove-resolution verb.
+  testSuite: 37,
 };
 
 test('expected file counts by category', () => {

@@ -1,0 +1,25 @@
+{
+  "usId": "US-1204",
+  "prdId": "PRD-001",
+  "reqId": "REQ-012",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Operator running `rcf define blueprint remove-resolution <adr-id>` drops a redundant historical resolutions[] entry cleanly (spec section 9 remedy)",
+  "asA": "operator running `rcf doctor --check probe-path-owner` on a project that upgraded to observability-essentials v2.0.0 + observability-probe-endpoints v1.1.0 and now sees a redundant-<topic>-resolution drift line",
+  "iWant": "the `rcf define blueprint remove-resolution <adr-id>` verb the drift line and section 9 name to actually exist, drop the named manifest.resolutions[] entry (and nothing else), refuse exit 2 when the id is not a resolution entry, and be idempotent on a second run",
+  "soThat": "the section 9 migration remedy printed by the doctor is executable verbatim, and re-running the same command after a successful pass is a no-op rather than a refusal",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1204-1",
+      "description": "The `rcf define blueprint remove-resolution <adr-id>` verb exists on the blueprint CLI (advertised in `rcf help define blueprint`), matches the `<adr-id>` argument against `manifest.resolutions[].resolvedByAdrId`, and exhibits three ratified behaviours: (a) when an entry matches, drop that entry and only that entry from `manifest.resolutions[]` (every other manifest section byte-identical, and the project-level ADR file at `rcf/adrs/<adr-id>.json` untouched), print one result line naming the id, the topic, and the dropped resolution id, and exit 0; (b) when the `<adr-id>` is a well-formed ADR id that still names an ADR present on the project tree but is no longer on any `resolutions[]` entry, print `[blueprint] nothing to remove: '<adr-id>' is not on manifest.resolutions[]` and exit 0 (idempotent on re-run of the same operation); (c) when the `<adr-id>` is malformed against the ADR id grammar, or is well-formed but names no ADR on the tree and no resolutions[] entry, print `[error] blueprint remove-resolution: ...` on stderr and exit 2.",
+      "given": "a project whose manifest.resolutions[] carries one globalAdrTopic entry on healthProbes with resolvedByAdrId = 'ADR-011-health-probes' and the ADR file present at rcf/adrs/adr-011-health-probes.json",
+      "when": "the operator runs `rcf define blueprint remove-resolution ADR-011-health-probes` once, then a second time, then with 'not-an-adr' and with 'ADR-999-nowhere'",
+      "then": "the first run exits 0 with the removal line and drops the single resolutions[] entry (project-ADR file untouched, every other manifest section byte-identical); the second run exits 0 with the 'nothing to remove' line and does not write; 'not-an-adr' exits 2 with 'is not a well-formed ADR id'; 'ADR-999-nowhere' exits 2 with 'is not a resolution entry on this manifest'; and `rcf help define blueprint` output contains the `remove-resolution <adr-id>` verb block",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

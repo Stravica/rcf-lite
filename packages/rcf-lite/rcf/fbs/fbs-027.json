@@ -1,0 +1,25 @@
+{
+  "fbsId": "FBS-027",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 27,
+  "executionStatus": "verified",
+  "title": "`rcf define blueprint remove-resolution <adr-id>` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)",
+  "summary": "Add packages/rcf-lite/src/blueprint/remove-resolution.js implementing removeResolution({ projectRoot, tree, resolvedByAdrId }) with the three ratified behaviours (remove + idempotent + refuse), export it from packages/rcf-lite/src/blueprint/index.js, wire the `remove-resolution` verb into packages/rcf-lite/src/cli/blueprint.js's HELP block and dispatch, and cover the surface with packages/rcf-lite/test/blueprint/remove-resolution.test.js (module) and remove-resolution cases appended to packages/rcf-lite/test/blueprint/cli.test.js (CLI edge). No changes to the doctor hint text (it names the verb already); no changes to project ADR files (the verb is scoped to manifest.resolutions[]).",
+  "acIds": [
+    "AC-1204-1"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-026"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "domain": "blueprints",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1204 on REQ-012. Spec amendment A2, added under the envelope 2026-09-04 after gate d-2026-09-04-016 finding 1 (the doctor and spec section 9 named the verb before it existed).",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

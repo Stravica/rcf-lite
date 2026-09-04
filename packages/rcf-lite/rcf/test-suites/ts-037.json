@@ -1,0 +1,55 @@
+{
+  "id": "TS-037",
+  "usId": "US-1204",
+  "title": "`rcf define blueprint remove-resolution <adr-id>` verb: remove + idempotent + refuse behaviours",
+  "purpose": "Cover the single AC on US-1204: the ratified three-behaviour surface (remove entry, idempotent re-run, refuse-exit-2 on malformed or unknown id) end-to-end through the CLI, plus the help block advertising the verb.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-1204-1"
+  ],
+  "testCases": [
+    {
+      "id": "TC-037-remove-drops-entry-and-prints-line",
+      "acId": "AC-1204-1",
+      "description": "One resolutions[] entry seeded with resolvedByAdrId 'ADR-011-health-probes'; the verb prints the removal line naming the id, topic 'healthProbes' and resolution id, exits 0, drops the single entry from manifest.resolutions[], and leaves every other manifest section and the ruling ADR file on disk unchanged.",
+      "testPointer": "test/blueprint/cli.test.js::rcf blueprint remove-resolution drops the resolutions[] entry and prints one result line (spec A2)",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-037-idempotent-second-run",
+      "acId": "AC-1204-1",
+      "description": "After a successful remove, a second run of the same command exits 0 and prints the 'nothing to remove' line without writing the manifest.",
+      "testPointer": "test/blueprint/cli.test.js::rcf blueprint remove-resolution is idempotent on re-run when the ruling ADR still exists on the tree",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-037-refuse-malformed-adr-id",
+      "acId": "AC-1204-1",
+      "description": "A malformed id 'not-an-adr' exits 2 with the well-formed-ADR-id error on stderr.",
+      "testPointer": "test/blueprint/cli.test.js::rcf blueprint remove-resolution refuses exit 2 on a malformed <adr-id>",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-037-refuse-unknown-adr-id",
+      "acId": "AC-1204-1",
+      "description": "A well-formed id ('ADR-999-nowhere') that names no ADR on the tree and no resolutions[] entry exits 2 with the 'is not a resolution entry' error on stderr.",
+      "testPointer": "test/blueprint/cli.test.js::rcf blueprint remove-resolution refuses exit 2 when <adr-id> is well-formed but names no ADR anywhere on the tree",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-037-help-lists-verb",
+      "acId": "AC-1204-1",
+      "description": "`rcf help define blueprint` output contains the `remove-resolution <adr-id>` verb block including the idempotent-on-re-run line.",
+      "testPointer": "test/blueprint/cli.test.js::rcf help define blueprint prints the remove-resolution verb",
+      "status": "pending",
+      "scope": "library"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

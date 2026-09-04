@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-076",
+  "path": "src/blueprint/remove-resolution.js#removeResolution",
+  "title": "`rcf define blueprint remove-resolution` verb implementation",
+  "description": "removeResolution({ projectRoot, tree, resolvedByAdrId }) matches the argument against tree.manifest.resolutions[].resolvedByAdrId and drops the single matching entry via updateManifest (validates + tmp-write + rename); no other section of the manifest is touched, and the project-level ADR file at rcf/adrs/<adr-id>.json is left in place as historical context. Refuses with a usage rcfError (mapped to exit 2 at the CLI edge) when the id is malformed against ^ADR-\\d{3,}(-<kebab-tail>)?$ or when it is well-formed but names no ADR on tree.byId and is not on resolutions[]. When the id is well-formed and names an ADR present on the tree but is not on resolutions[], returns `{ removed: false, alreadyAbsent: true }` so the CLI edge prints the 'nothing to remove' line and exits 0 (the second-pass idempotency semantics ratified in spec A2). The verb is dispatched from src/cli/blueprint.js's main() and advertised in the HELP block; the doctor's probe-path-owner check names it verbatim as the remedy line for a redundant historical resolution.",
+  "implementsAcIds": [
+    "AC-1204-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}
