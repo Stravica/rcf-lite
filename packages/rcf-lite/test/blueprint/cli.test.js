@@ -595,3 +595,97 @@ test('rcf define blueprint add <bare-shelf-slug> records the RESOLVED ABSOLUTE P
   assert.ok(isAbsolute(record.source), `expected absolute path, got '${record.source}'`);
   assert.match(record.source, /blueprints\/application-spa$/);
 });
+
+// ---------------------------------------------------------------------------
+// remove-resolution verb (spec amendment A2, w-2026-09-03-dave-021).
+// Drops one manifest.resolutions[] entry by resolvedByAdrId. The verb
+// prints one result line; refuses exit 2 on a malformed or unknown id;
+// idempotent on a re-run when the ruling ADR still exists on the tree.
+// ---------------------------------------------------------------------------
+
+async function seedManifestWithHealthProbesResolution(root, { resolvedByAdrId, resolutionId = 'res-2026-09-04-001' }) {
+  const manifestPath = join(root, 'rcf', 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.resolutions = [
+    {
+      id: resolutionId,
+      createdAt: '2026-09-04T00:00:00Z',
+      kind: 'globalAdrTopic',
+      topic: 'healthProbes',
+      resolvedByAdrId,
+      supersedes: [
+        { slug: 'observability-essentials', adrId: 'ADR-801-observability-essentials' },
+        { slug: 'observability-probe-endpoints', adrId: 'ADR-1501-observability-probe-endpoints' },
+      ],
+    },
+  ];
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  const adrsDir = join(root, 'rcf', 'adrs');
+  await mkdir(adrsDir, { recursive: true });
+  const adrPath = join(adrsDir, `${resolvedByAdrId.toLowerCase()}.json`);
+  const body = {
+    adrId: resolvedByAdrId,
+    prdId: 'PRD-001',
+    tadId: 'TAD-001',
+    version: '1.0.0',
+    status: 'accepted',
+    title: 'Project ruling on healthProbes',
+    context: 'Two blueprints previously collided on healthProbes; this ADR was the ruling.',
+    decision: 'Adopt probe-endpoints as the sole owner after v2.0.0 alignment.',
+    consequences: 'The historical resolution is now redundant; operator may drop it.',
+    createdAt: '2026-09-04T00:00:00Z',
+    updatedAt: '2026-09-04T00:00:00Z',
+  };
+  await writeFile(adrPath, `${JSON.stringify(body, null, 2)}\n`, 'utf8');
+}
+
+test('rcf blueprint remove-resolution drops the resolutions[] entry and prints one result line (spec A2)', async () => {
+  const root = await scaffold();
+  const adrId = 'ADR-011-health-probes';
+  await seedManifestWithHealthProbesResolution(root, { resolvedByAdrId: adrId });
+  const run = await runBin(root, ['define', 'blueprint', 'remove-resolution', adrId]);
+  assert.equal(run.code, 0, `stderr: ${run.stderr}\nstdout: ${run.stdout}`);
+  assert.match(run.stdout, /\[blueprint\] removed resolution for 'ADR-011-health-probes' \(topic 'healthProbes'\); dropped resolution res-2026-09-04-001\.\n/);
+  const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
+  assert.equal(Array.isArray(manifest.resolutions) ? manifest.resolutions.length : 0, 0);
+});
+
+test('rcf blueprint remove-resolution is idempotent on re-run when the ruling ADR still exists on the tree', async () => {
+  const root = await scaffold();
+  const adrId = 'ADR-011-health-probes';
+  await seedManifestWithHealthProbesResolution(root, { resolvedByAdrId: adrId });
+  const first = await runBin(root, ['define', 'blueprint', 'remove-resolution', adrId]);
+  assert.equal(first.code, 0);
+  const second = await runBin(root, ['define', 'blueprint', 'remove-resolution', adrId]);
+  assert.equal(second.code, 0, `stderr: ${second.stderr}\nstdout: ${second.stdout}`);
+  assert.match(second.stdout, /\[blueprint\] nothing to remove: 'ADR-011-health-probes' is not on manifest\.resolutions\[\]\.\n/);
+});
+
+test('rcf blueprint remove-resolution refuses exit 2 on a malformed <adr-id>', async () => {
+  const root = await scaffold();
+  const bad = await runBin(root, ['define', 'blueprint', 'remove-resolution', 'not-an-adr']);
+  assert.equal(bad.code, 2);
+  assert.match(bad.stderr, /\[error\] blueprint remove-resolution: 'not-an-adr' is not a well-formed ADR id/);
+});
+
+test('rcf blueprint remove-resolution refuses exit 2 when <adr-id> is well-formed but names no ADR anywhere on the tree', async () => {
+  const root = await scaffold();
+  const bad = await runBin(root, ['define', 'blueprint', 'remove-resolution', 'ADR-999-nowhere']);
+  assert.equal(bad.code, 2);
+  assert.match(bad.stderr, /\[error\] blueprint remove-resolution: 'ADR-999-nowhere' is not a resolution entry on this manifest/);
+});
+
+test('rcf blueprint remove-resolution refuses exit 2 when <adr-id> is missing', async () => {
+  const root = await scaffold();
+  const bad = await runBin(root, ['define', 'blueprint', 'remove-resolution']);
+  assert.equal(bad.code, 2);
+  assert.match(bad.stderr, /\[error\] blueprint remove-resolution: missing <adr-id>/);
+});
+
+test('rcf help define blueprint prints the remove-resolution verb', async () => {
+  const root = await scaffold();
+  const { code, stdout } = await runBin(root, ['help', 'define', 'blueprint']);
+  assert.equal(code, 0);
+  assert.match(stdout, /remove-resolution <adr-id>/);
+  assert.match(stdout, /Idempotent on re-run/);
+});

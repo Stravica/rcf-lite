@@ -310,7 +310,7 @@ test('assertion 7: essentials-alone shape gates on required probeInterface.paths
   assert.ok(iface802.includes('REQUIRED'), 'TAC-802 interface must mark path as REQUIRED');
 });
 
-// Assertion 8: startup binding when enabled — declared on probe-endpoints
+// Assertion 8: startup binding when enabled, declared on probe-endpoints
 // (US-14102 AC-14102-4) and consumed by api-rest (US-2108 AC-2108-4).
 test('assertion 8: startup binding when enabled is declared on probe-endpoints and consumed by api-rest', async () => {
   const us14102 = JSON.parse(await readFile(
@@ -329,7 +329,7 @@ test('assertion 8: startup binding when enabled is declared on probe-endpoints a
     'AC-2108-4 must name the enablement source (startup.enabled flag or probeInterface.paths.startup)');
 });
 
-// Assertion 9: no handler duplication when probe-endpoints is composed —
+// Assertion 9: no handler duplication when probe-endpoints is composed,
 // declared on essentials TAC-801/802 responsibilities.
 test('assertion 9: essentials TAC-801/802 promise no dual handler registration when probe-endpoints is composed', async () => {
   const tac801 = JSON.parse(await readFile(

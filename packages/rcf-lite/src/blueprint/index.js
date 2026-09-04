@@ -3,6 +3,7 @@
 export { applyBlueprint } from './apply.js';
 export { listBlueprints, enrichRowsWithCategories, groupRowsByCategory } from './list.js';
 export { removeBlueprint } from './remove.js';
+export { removeResolution } from './remove-resolution.js';
 export { loadBlueprint } from './loader.js';
 export { detectGlobalAdrConflicts, detectCrossBlueprintClaims, renderConflictReport, conflictReportJson } from './conflicts.js';
 export { stampId, parseIdParts, namespaceStyleFor, isNamespacedFor } from './namespace.js';
