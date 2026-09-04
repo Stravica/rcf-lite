@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-080",
+  "path": "blueprints/application-error-handling/README.md",
+  "title": "application-error-handling blueprint tree applies clean and docs/topics.md distinguishes errorHandling from errorEnvelope",
+  "description": "Anchored by the core companions train (w-2026-09-03-dave-030, d-2026-09-04-022); see the spec at projects/rcf-lite-wsd/specs/rcf-lite-core-companions-spec-2026-09-04.md for the full trace.",
+  "implementsAcIds": [
+    "AC-1302-2",
+    "AC-1302-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

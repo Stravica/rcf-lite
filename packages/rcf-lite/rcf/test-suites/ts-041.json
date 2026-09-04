@@ -14,7 +14,7 @@
       "id": "TC-041-suggestion-block",
       "acId": "AC-1402-1",
       "description": "rcf define blueprint add application-api-rest into a fresh fixture prints the header line and one line per suggested role with the origin annotation; the apply does not adopt any companion.",
-      "testPointer": "test/cli/blueprint-companions.test.js::apply prints resolved companion suggestion block after success",
+      "testPointer": "test/cli/blueprint-companions.test.js::apply prints resolved companion suggestion block after success (TC-041-suggestion-block)",
       "status": "pending",
       "scope": "library"
     },
@@ -22,7 +22,7 @@
       "id": "TC-041-no-suggestions-flag",
       "acId": "AC-1402-1",
       "description": "rcf define blueprint add application-api-rest --no-companion-suggestions succeeds and produces no suggestion block on stdout.",
-      "testPointer": "test/cli/blueprint-companions.test.js::--no-companion-suggestions suppresses the block",
+      "testPointer": "test/cli/blueprint-companions.test.js::--no-companion-suggestions suppresses the block (TC-041-no-suggestions-flag)",
       "status": "pending",
       "scope": "library"
     },
@@ -30,7 +30,7 @@
       "id": "TC-041-companion-flag-writes-pin",
       "acId": "AC-1402-2",
       "description": "rcf define blueprint add application-api-rest --companion logging=observability-logging --companion errorHandling=application-error-handling writes rcf/companions.json with both pins carrying pinnedAt.",
-      "testPointer": "test/cli/blueprint-companions.test.js::--companion selectors write rcf/companions.json pins with pinnedAt",
+      "testPointer": "test/cli/blueprint-companions.test.js::--companion selectors write rcf/companions.json pins with pinnedAt (TC-041-companion-flag-writes-pin)",
       "status": "pending",
       "scope": "library"
     },
@@ -38,7 +38,7 @@
       "id": "TC-041-companion-flag-non-provider",
       "acId": "AC-1402-2",
       "description": "rcf define blueprint add --companion logging=observability-essentials (which does not declare providesRoles containing logging) refuses exit 2 with the specified message shape.",
-      "testPointer": "test/cli/blueprint-companions.test.js::--companion naming a non-provider refuses exit 2",
+      "testPointer": "test/cli/blueprint-companions.test.js::--companion naming a non-provider refuses exit 2 with no side effects (TC-041-companion-flag-non-provider)",
       "status": "pending",
       "scope": "library"
     },
@@ -46,7 +46,7 @@
       "id": "TC-041-pin-file-shape-and-overwrite",
       "acId": "AC-1402-3",
       "description": "rcf/companions.json is created lazily with schemaVersion 1 and current-pin-only shape; a re-run with a different --companion value overwrites the pin and prints the pin-transition stderr line.",
-      "testPointer": "test/cli/blueprint-companions.test.js::rcf/companions.json shape and pin overwrite prints transition line",
+      "testPointer": "test/cli/blueprint-companions.test.js::rcf/companions.json shape and pin overwrite prints transition line (TC-041-pin-file-shape-and-overwrite)",
       "status": "pending",
       "scope": "library"
     }

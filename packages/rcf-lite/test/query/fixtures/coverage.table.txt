@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 12  covered: 12  covered-unresolved: 0  uncovered: 0
+Requirements: 15  covered: 15  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -130,3 +130,24 @@ REQ-012      yes      AC-1201-1   yes         TC-034-permutations-no-globaladr-c
                       AC-1203-2   yes         TC-036-essentials-no-dual-handler, TC-036-essentials-no-s...
                       AC-1203-3   yes         TC-036-api-rest-auth-exempt-list, TC-036-api-rest-startup...
                       AC-1204-1   yes         TC-037-help-lists-verb, TC-037-idempotent-second-run, TC-...
+REQ-013      yes      AC-1301-1   yes         TC-038-blueprint-json-fields
+                      AC-1301-2   yes         TC-038-clean-apply
+                      AC-1301-3   yes         TC-038-anatomy-and-topics
+                      AC-1302-1   yes         TC-039-blueprint-json-fields
+                      AC-1302-2   yes         TC-039-clean-apply
+                      AC-1302-3   yes         TC-039-topics-distinct
+REQ-014      yes      AC-1401-1   yes         TC-040-loader-accepts-both
+                      AC-1401-2   yes         TC-040-refuse-bad-camelcase, TC-040-refuse-em-dash-and-em...
+                      AC-1401-3   yes         TC-040-paired-adr-required
+                      AC-1402-1   yes         TC-041-no-suggestions-flag, TC-041-suggestion-block
+                      AC-1402-2   yes         TC-041-companion-flag-non-provider, TC-041-companion-flag...
+                      AC-1402-3   yes         TC-041-pin-file-shape-and-overwrite
+                      AC-1403-1   yes         TC-042-companions-slug-not-applied, TC-042-companions-slu...
+                      AC-1403-2   yes         TC-042-companions-set-refuses-non-provider, TC-042-compan...
+                      AC-1403-3   yes         TC-042-companions-json-envelope
+                      AC-1404-1   yes         TC-043-resolver-tier-ladder
+                      AC-1404-2   yes         TC-043-two-libraries-on-companions-verb, TC-043-two-libra...
+                      AC-1404-3   yes         TC-043-validate-refuses-unresolvable-pin
+REQ-015      yes      AC-1501-1   yes         TC-044-loader-accepts-standards-fields
+                      AC-1501-2   yes         TC-044-loader-refuses-missing-clause
+                      AC-1501-3   yes         TC-044-no-cross-check-and-sentinel

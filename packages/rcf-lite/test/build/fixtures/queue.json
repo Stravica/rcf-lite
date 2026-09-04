@@ -7,11 +7,11 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 27,
+    "items": 34,
     "notStarted": 6,
     "inProgress": 0,
     "complete": 13,
-    "verified": 8,
+    "verified": 15,
     "actionable": 4,
     "blocked": 2
   },
@@ -66,7 +66,44 @@
       "fbsIds": [
         "FBS-007",
         "FBS-011",
-        "FBS-012"
+        "FBS-012",
+        "FBS-028"
+      ]
+    },
+    {
+      "tier": 5,
+      "fbsIds": [
+        "FBS-029"
+      ]
+    },
+    {
+      "tier": 6,
+      "fbsIds": [
+        "FBS-030"
+      ]
+    },
+    {
+      "tier": 7,
+      "fbsIds": [
+        "FBS-031"
+      ]
+    },
+    {
+      "tier": 8,
+      "fbsIds": [
+        "FBS-032"
+      ]
+    },
+    {
+      "tier": 9,
+      "fbsIds": [
+        "FBS-033"
+      ]
+    },
+    {
+      "tier": 10,
+      "fbsIds": [
+        "FBS-034"
       ]
     }
   ],
@@ -376,6 +413,90 @@
       "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-026"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-028",
+      "buildOrder": 28,
+      "tier": 4,
+      "title": "observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-027"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-029",
+      "buildOrder": 29,
+      "tier": 5,
+      "title": "application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-028"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-030",
+      "buildOrder": 30,
+      "tier": 6,
+      "title": "Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-029"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-031",
+      "buildOrder": 31,
+      "tier": 7,
+      "title": "rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-030"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-032",
+      "buildOrder": 32,
+      "tier": 8,
+      "title": "rcf define blueprint companions <slug>|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-031"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-033",
+      "buildOrder": 33,
+      "tier": 9,
+      "title": "Deterministic tier ladder resolver (applied > pinned > registered library > shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-032"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-034",
+      "buildOrder": 34,
+      "tier": 10,
+      "title": "Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-033"
       ],
       "state": "verified",
       "blockedBy": []

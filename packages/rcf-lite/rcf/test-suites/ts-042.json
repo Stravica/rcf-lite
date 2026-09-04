@@ -14,7 +14,7 @@
       "id": "TC-042-companions-slug-text",
       "acId": "AC-1403-1",
       "description": "rcf define blueprint companions application-api-rest with application-api-rest applied prints the header and one line per role with the origin annotations already-applied / shelf-fallback / registered-library.",
-      "testPointer": "test/cli/blueprint-companions.test.js::rcf define blueprint companions <slug> prints resolved companions with origin",
+      "testPointer": "test/cli/blueprint-companions.test.js::rcf define blueprint companions <slug> prints resolved companions with origin (TC-042-companions-slug-text)",
       "status": "pending",
       "scope": "library"
     },
@@ -22,7 +22,7 @@
       "id": "TC-042-companions-slug-not-applied",
       "acId": "AC-1403-1",
       "description": "rcf define blueprint companions <slug> refuses exit 2 when the named slug is not applied on the project.",
-      "testPointer": "test/cli/blueprint-companions.test.js::rcf define blueprint companions refuses when slug is not applied",
+      "testPointer": "test/cli/blueprint-companions.test.js::rcf define blueprint companions refuses when slug is not applied (TC-042-companions-slug-not-applied)",
       "status": "pending",
       "scope": "library"
     },
@@ -30,7 +30,7 @@
       "id": "TC-042-companions-set-unset-round-trip",
       "acId": "AC-1403-2",
       "description": "rcf define blueprint companions set logging observability-logging writes companions.json; rcf define blueprint companions unset logging removes the entry; an unset without a pin refuses exit 2.",
-      "testPointer": "test/cli/blueprint-companions.test.js::companions set writes pin and unset removes it; unset without pin refuses",
+      "testPointer": "test/cli/blueprint-companions.test.js::companions set writes pin and unset removes it; unset without pin refuses (TC-042-companions-set-unset-round-trip)",
       "status": "pending",
       "scope": "library"
     },
@@ -38,7 +38,7 @@
       "id": "TC-042-companions-set-refuses-non-provider",
       "acId": "AC-1403-2",
       "description": "rcf define blueprint companions set logging observability-essentials refuses exit 2 because observability-essentials does not declare providesRoles containing logging.",
-      "testPointer": "test/cli/blueprint-companions.test.js::companions set refuses non-provider slug",
+      "testPointer": "test/cli/blueprint-companions.test.js::companions set refuses non-provider slug (TC-042-companions-set-refuses-non-provider)",
       "status": "pending",
       "scope": "library"
     },
@@ -46,7 +46,7 @@
       "id": "TC-042-companions-json-envelope",
       "acId": "AC-1403-3",
       "description": "rcf define blueprint companions application-api-rest --json emits {slug, suggestions: [{role, provider, origin, notes}]} preserving the order of suggestedCompanions[].",
-      "testPointer": "test/cli/blueprint-companions.test.js::--json emits machine-readable envelope preserving suggestedCompanions order",
+      "testPointer": "test/cli/blueprint-companions.test.js::--json emits machine-readable envelope preserving suggestedCompanions order (TC-042-companions-json-envelope)",
       "status": "pending",
       "scope": "library"
     }

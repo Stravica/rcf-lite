@@ -565,6 +565,107 @@ flowchart LR
   AC-1204-1 -.-> TC-037-refuse-unknown-adr-id
   TC-037-remove-drops-entry-and-prints-line["TC-037-remove-drops-entry-and-prints-line"]
   AC-1204-1 -.-> TC-037-remove-drops-entry-and-prints-line
+  REQ-013["REQ-013"]
+  AC-1301-1["AC-1301-1"]
+  REQ-013 --> AC-1301-1
+  TC-038-blueprint-json-fields["TC-038-blueprint-json-fields"]
+  AC-1301-1 -.-> TC-038-blueprint-json-fields
+  AC-1301-2["AC-1301-2"]
+  REQ-013 --> AC-1301-2
+  TC-038-clean-apply["TC-038-clean-apply"]
+  AC-1301-2 -.-> TC-038-clean-apply
+  AC-1301-3["AC-1301-3"]
+  REQ-013 --> AC-1301-3
+  TC-038-anatomy-and-topics["TC-038-anatomy-and-topics"]
+  AC-1301-3 -.-> TC-038-anatomy-and-topics
+  AC-1302-1["AC-1302-1"]
+  REQ-013 --> AC-1302-1
+  TC-039-blueprint-json-fields["TC-039-blueprint-json-fields"]
+  AC-1302-1 -.-> TC-039-blueprint-json-fields
+  AC-1302-2["AC-1302-2"]
+  REQ-013 --> AC-1302-2
+  TC-039-clean-apply["TC-039-clean-apply"]
+  AC-1302-2 -.-> TC-039-clean-apply
+  AC-1302-3["AC-1302-3"]
+  REQ-013 --> AC-1302-3
+  TC-039-topics-distinct["TC-039-topics-distinct"]
+  AC-1302-3 -.-> TC-039-topics-distinct
+  REQ-014["REQ-014"]
+  AC-1401-1["AC-1401-1"]
+  REQ-014 --> AC-1401-1
+  TC-040-loader-accepts-both["TC-040-loader-accepts-both"]
+  AC-1401-1 -.-> TC-040-loader-accepts-both
+  AC-1401-2["AC-1401-2"]
+  REQ-014 --> AC-1401-2
+  TC-040-refuse-bad-camelcase["TC-040-refuse-bad-camelcase"]
+  AC-1401-2 -.-> TC-040-refuse-bad-camelcase
+  TC-040-refuse-em-dash-and-emoji["TC-040-refuse-em-dash-and-emoji"]
+  AC-1401-2 -.-> TC-040-refuse-em-dash-and-emoji
+  TC-040-refuse-empty-reason["TC-040-refuse-empty-reason"]
+  AC-1401-2 -.-> TC-040-refuse-empty-reason
+  AC-1401-3["AC-1401-3"]
+  REQ-014 --> AC-1401-3
+  TC-040-paired-adr-required["TC-040-paired-adr-required"]
+  AC-1401-3 -.-> TC-040-paired-adr-required
+  AC-1402-1["AC-1402-1"]
+  REQ-014 --> AC-1402-1
+  TC-041-no-suggestions-flag["TC-041-no-suggestions-flag"]
+  AC-1402-1 -.-> TC-041-no-suggestions-flag
+  TC-041-suggestion-block["TC-041-suggestion-block"]
+  AC-1402-1 -.-> TC-041-suggestion-block
+  AC-1402-2["AC-1402-2"]
+  REQ-014 --> AC-1402-2
+  TC-041-companion-flag-non-provider["TC-041-companion-flag-non-provider"]
+  AC-1402-2 -.-> TC-041-companion-flag-non-provider
+  TC-041-companion-flag-writes-pin["TC-041-companion-flag-writes-pin"]
+  AC-1402-2 -.-> TC-041-companion-flag-writes-pin
+  AC-1402-3["AC-1402-3"]
+  REQ-014 --> AC-1402-3
+  TC-041-pin-file-shape-and-overwrite["TC-041-pin-file-shape-and-overwrite"]
+  AC-1402-3 -.-> TC-041-pin-file-shape-and-overwrite
+  AC-1403-1["AC-1403-1"]
+  REQ-014 --> AC-1403-1
+  TC-042-companions-slug-not-applied["TC-042-companions-slug-not-applied"]
+  AC-1403-1 -.-> TC-042-companions-slug-not-applied
+  TC-042-companions-slug-text["TC-042-companions-slug-text"]
+  AC-1403-1 -.-> TC-042-companions-slug-text
+  AC-1403-2["AC-1403-2"]
+  REQ-014 --> AC-1403-2
+  TC-042-companions-set-refuses-non-provider["TC-042-companions-set-refuses-non-provider"]
+  AC-1403-2 -.-> TC-042-companions-set-refuses-non-provider
+  TC-042-companions-set-unset-round-trip["TC-042-companions-set-unset-round-trip"]
+  AC-1403-2 -.-> TC-042-companions-set-unset-round-trip
+  AC-1403-3["AC-1403-3"]
+  REQ-014 --> AC-1403-3
+  TC-042-companions-json-envelope["TC-042-companions-json-envelope"]
+  AC-1403-3 -.-> TC-042-companions-json-envelope
+  AC-1404-1["AC-1404-1"]
+  REQ-014 --> AC-1404-1
+  TC-043-resolver-tier-ladder["TC-043-resolver-tier-ladder"]
+  AC-1404-1 -.-> TC-043-resolver-tier-ladder
+  AC-1404-2["AC-1404-2"]
+  REQ-014 --> AC-1404-2
+  TC-043-two-libraries-on-companions-verb["TC-043-two-libraries-on-companions-verb"]
+  AC-1404-2 -.-> TC-043-two-libraries-on-companions-verb
+  TC-043-two-libraries-refuse-exit-3["TC-043-two-libraries-refuse-exit-3"]
+  AC-1404-2 -.-> TC-043-two-libraries-refuse-exit-3
+  AC-1404-3["AC-1404-3"]
+  REQ-014 --> AC-1404-3
+  TC-043-validate-refuses-unresolvable-pin["TC-043-validate-refuses-unresolvable-pin"]
+  AC-1404-3 -.-> TC-043-validate-refuses-unresolvable-pin
+  REQ-015["REQ-015"]
+  AC-1501-1["AC-1501-1"]
+  REQ-015 --> AC-1501-1
+  TC-044-loader-accepts-standards-fields["TC-044-loader-accepts-standards-fields"]
+  AC-1501-1 -.-> TC-044-loader-accepts-standards-fields
+  AC-1501-2["AC-1501-2"]
+  REQ-015 --> AC-1501-2
+  TC-044-loader-refuses-missing-clause["TC-044-loader-refuses-missing-clause"]
+  AC-1501-2 -.-> TC-044-loader-refuses-missing-clause
+  AC-1501-3["AC-1501-3"]
+  REQ-015 --> AC-1501-3
+  TC-044-no-cross-check-and-sentinel["TC-044-no-cross-check-and-sentinel"]
+  AC-1501-3 -.-> TC-044-no-cross-check-and-sentinel
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -854,6 +955,58 @@ flowchart LR
   class TC-037-refuse-malformed-adr-id tc;
   class TC-037-refuse-unknown-adr-id tc;
   class TC-037-remove-drops-entry-and-prints-line tc;
+  class REQ-013 req;
+  class AC-1301-1 ac;
+  class TC-038-blueprint-json-fields tc;
+  class AC-1301-2 ac;
+  class TC-038-clean-apply tc;
+  class AC-1301-3 ac;
+  class TC-038-anatomy-and-topics tc;
+  class AC-1302-1 ac;
+  class TC-039-blueprint-json-fields tc;
+  class AC-1302-2 ac;
+  class TC-039-clean-apply tc;
+  class AC-1302-3 ac;
+  class TC-039-topics-distinct tc;
+  class REQ-014 req;
+  class AC-1401-1 ac;
+  class TC-040-loader-accepts-both tc;
+  class AC-1401-2 ac;
+  class TC-040-refuse-bad-camelcase tc;
+  class TC-040-refuse-em-dash-and-emoji tc;
+  class TC-040-refuse-empty-reason tc;
+  class AC-1401-3 ac;
+  class TC-040-paired-adr-required tc;
+  class AC-1402-1 ac;
+  class TC-041-no-suggestions-flag tc;
+  class TC-041-suggestion-block tc;
+  class AC-1402-2 ac;
+  class TC-041-companion-flag-non-provider tc;
+  class TC-041-companion-flag-writes-pin tc;
+  class AC-1402-3 ac;
+  class TC-041-pin-file-shape-and-overwrite tc;
+  class AC-1403-1 ac;
+  class TC-042-companions-slug-not-applied tc;
+  class TC-042-companions-slug-text tc;
+  class AC-1403-2 ac;
+  class TC-042-companions-set-refuses-non-provider tc;
+  class TC-042-companions-set-unset-round-trip tc;
+  class AC-1403-3 ac;
+  class TC-042-companions-json-envelope tc;
+  class AC-1404-1 ac;
+  class TC-043-resolver-tier-ladder tc;
+  class AC-1404-2 ac;
+  class TC-043-two-libraries-on-companions-verb tc;
+  class TC-043-two-libraries-refuse-exit-3 tc;
+  class AC-1404-3 ac;
+  class TC-043-validate-refuses-unresolvable-pin tc;
+  class REQ-015 req;
+  class AC-1501-1 ac;
+  class TC-044-loader-accepts-standards-fields tc;
+  class AC-1501-2 ac;
+  class TC-044-loader-refuses-missing-clause tc;
+  class AC-1501-3 ac;
+  class TC-044-no-cross-check-and-sentinel tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

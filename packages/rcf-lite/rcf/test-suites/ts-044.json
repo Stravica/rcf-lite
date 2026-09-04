@@ -14,7 +14,7 @@
       "id": "TC-044-loader-accepts-standards-fields",
       "acId": "AC-1501-1",
       "description": "loadBlueprint on a fixture with standardsTrace [{id: WSD-001, version: 2026-05}] and one ADR contribution carrying recommendedDefault true and standardsTraceClause 'WSD-001 clause 3.1' returns the fields on the LoadedBlueprint object; no rcfError.",
-      "testPointer": "test/blueprint/loader-standards-trace.test.js::loader accepts standardsTrace and recommendedDefault/elicited/standardsTraceClause",
+      "testPointer": "test/blueprint/loader-standards-trace.test.js::loader accepts standardsTrace and recommendedDefault/elicited/standardsTraceClause (AC-1501-1)",
       "status": "pending",
       "scope": "library"
     },
@@ -22,7 +22,7 @@
       "id": "TC-044-loader-refuses-missing-clause",
       "acId": "AC-1501-2",
       "description": "loadBlueprint refuses a fixture declaring standardsTrace but with one ADR contribution missing standardsTraceClause; rcfError kind validation with the exact refusal message shape.",
-      "testPointer": "test/blueprint/loader-standards-trace.test.js::loader refuses missing standardsTraceClause when standardsTrace is declared",
+      "testPointer": "test/blueprint/loader-standards-trace.test.js::loader refuses missing standardsTraceClause when standardsTrace is declared (AC-1501-2)",
       "status": "pending",
       "scope": "library"
     },
@@ -30,7 +30,7 @@
       "id": "TC-044-no-cross-check-and-sentinel",
       "acId": "AC-1501-3",
       "description": "The two new core companion blueprints (observability-logging, application-error-handling), which declare NO standardsTrace, load clean regardless of standardsTraceClause presence; a fixture with standardsTrace declared and every ADR carrying 'generic enterprise practice' loads clean; the loader does not refuse a MUST-marked ADR (no cross-check of clause severity to kind, per amendment A2).",
-      "testPointer": "test/blueprint/loader-standards-trace.test.js::no cross-check on severity; sentinel and no-standardsTrace baseline both load clean",
+      "testPointer": "test/blueprint/loader-standards-trace.test.js::no cross-check on severity; sentinel and no-standardsTrace baseline both load clean (AC-1501-3)",
       "status": "pending",
       "scope": "library"
     }

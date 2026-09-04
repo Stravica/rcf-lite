@@ -14,7 +14,7 @@
       "id": "TC-040-loader-accepts-both",
       "acId": "AC-1401-1",
       "description": "loadBlueprint against a fixture declaring providesRoles: [\"logging\"] and suggestedCompanions: [{role: \"logging\", reason: \"...\"}] returns the fields on the LoadedBlueprint object; a fixture declaring neither also loads clean.",
-      "testPointer": "test/blueprint/loader-companions.test.js::loader accepts and preserves providesRoles and suggestedCompanions",
+      "testPointer": "test/blueprint/loader-companions.test.js::loader accepts and preserves providesRoles and suggestedCompanions (AC-1401-1)",
       "status": "pending",
       "scope": "library"
     },
@@ -22,7 +22,7 @@
       "id": "TC-040-refuse-bad-camelcase",
       "acId": "AC-1401-2",
       "description": "loadBlueprint refuses a fixture declaring providesRoles: [\"Logging\"] (upper camel) with rcfError kind validation naming providesRoles[0] and the offending value.",
-      "testPointer": "test/blueprint/loader-companions.test.js::loader refuses providesRoles value that fails the lower camelCase pattern",
+      "testPointer": "test/blueprint/loader-companions.test.js::loader refuses providesRoles value that fails the lower camelCase pattern (AC-1401-2)",
       "status": "pending",
       "scope": "library"
     },
@@ -30,7 +30,7 @@
       "id": "TC-040-refuse-empty-reason",
       "acId": "AC-1401-2",
       "description": "loadBlueprint refuses a fixture with suggestedCompanions entry whose reason is empty or whitespace-only.",
-      "testPointer": "test/blueprint/loader-companions.test.js::loader refuses suggestedCompanions entry with empty or whitespace-only reason",
+      "testPointer": "test/blueprint/loader-companions.test.js::loader refuses suggestedCompanions entry with empty or whitespace-only reason (AC-1401-2)",
       "status": "pending",
       "scope": "library"
     },
@@ -38,7 +38,7 @@
       "id": "TC-040-refuse-em-dash-and-emoji",
       "acId": "AC-1401-2",
       "description": "loadBlueprint refuses a fixture with an em-dash (U+2014) or an emoji in the reason string.",
-      "testPointer": "test/blueprint/loader-companions.test.js::loader refuses em-dash or emoji in suggestedCompanions reason",
+      "testPointer": "test/blueprint/loader-companions.test.js::loader refuses em-dash in suggestedCompanions reason (AC-1401-2)",
       "status": "pending",
       "scope": "library"
     },
@@ -46,7 +46,7 @@
       "id": "TC-040-paired-adr-required",
       "acId": "AC-1401-3",
       "description": "loadBlueprint refuses a fixture declaring providesRoles: [\"logging\"] but no scope:global ADR carrying topic 'logging' with the exact paired-ADR refusal message.",
-      "testPointer": "test/blueprint/loader-companions.test.js::loader refuses providesRoles without a paired scope:global ADR on the topic string",
+      "testPointer": "test/blueprint/loader-companions.test.js::loader refuses providesRoles without a paired scope:global ADR on the topic string (AC-1401-3)",
       "status": "pending",
       "scope": "library"
     }

@@ -14,7 +14,7 @@
       "id": "TC-043-resolver-tier-ladder",
       "acId": "AC-1404-1",
       "description": "The resolveCompanions function returns origin already-applied when a provider is applied, registered-library-<prefix> when one library provides it, shelf-fallback when only the core shelf provides it, and pinned when rcf/companions.json overrides.",
-      "testPointer": "test/blueprint/companions-resolver.test.js::tier ladder returns the correct origin per case",
+      "testPointer": "test/blueprint/companions-resolver.test.js::resolver returns shelf-fallback when only the core shelf provides the role",
       "status": "pending",
       "scope": "library"
     },
@@ -22,7 +22,7 @@
       "id": "TC-043-two-libraries-refuse-exit-3",
       "acId": "AC-1404-2",
       "description": "With two registered libraries both providing role logging and no pin, rcf define blueprint add on a service blueprint refuses exit 3 with the ambiguous-role message naming both library slugs and the three resolution paths verbatim.",
-      "testPointer": "test/cli/blueprint-companions.test.js::two libraries providing one role refuse exit 3 with three-path resolution message",
+      "testPointer": "test/cli/blueprint-companions.test.js::two libraries providing one role refuse exit 3 with three-path resolution message (TC-043-two-libraries-refuse-exit-3)",
       "status": "pending",
       "scope": "library"
     },
@@ -30,7 +30,7 @@
       "id": "TC-043-two-libraries-on-companions-verb",
       "acId": "AC-1404-2",
       "description": "The same two-libraries-one-role case on rcf define blueprint companions <slug> refuses exit 3 with the same three-path resolution message.",
-      "testPointer": "test/cli/blueprint-companions.test.js::rcf define blueprint companions refuses exit 3 when two libraries provide same role",
+      "testPointer": "test/cli/blueprint-companions.test.js::rcf define blueprint companions refuses exit 3 when two libraries provide same role (TC-043-two-libraries-on-companions-verb)",
       "status": "pending",
       "scope": "library"
     },
@@ -38,7 +38,7 @@
       "id": "TC-043-validate-refuses-unresolvable-pin",
       "acId": "AC-1404-3",
       "description": "rcf define validate refuses exit 3 when rcf/companions.json pins a role to a slug that no applied blueprint, no registered library, and no shelf blueprint provides; message shape names the exact role and slug.",
-      "testPointer": "test/cli/validate-companions-pin.test.js::validate refuses exit 3 when a companions.json pin names an unresolvable provider",
+      "testPointer": "test/cli/validate-companions-pin.test.js::validate refuses exit 3 when a companions.json pin names an unresolvable provider (TC-043-validate-refuses-unresolvable-pin)",
       "status": "pending",
       "scope": "library"
     }

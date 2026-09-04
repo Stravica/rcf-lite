@@ -14,7 +14,7 @@
       "id": "TC-039-blueprint-json-fields",
       "acId": "AC-1302-1",
       "description": "blueprints/application-error-handling/blueprint.json declares slug, version 1.0.0, category application, providesRoles [\"errorHandling\"], and includes contributions for REQ-001..004, US-16101..16107, TAC-1701, TAC-1702 and ADR-1701..1703 with ADR-1701 carrying scope global and topic errorHandling.",
-      "testPointer": "test/blueprint/application-error-handling-anatomy.test.js::blueprint.json declares the ratified shape",
+      "testPointer": "test/blueprint/application-error-handling-anatomy.test.js::application-error-handling: blueprint.json declares the ratified shape (TC-039-blueprint-json-fields)",
       "status": "pending",
       "scope": "library"
     },
@@ -22,7 +22,7 @@
       "id": "TC-039-clean-apply",
       "acId": "AC-1302-2",
       "description": "rcf define blueprint add applies application-error-handling cleanly into a fresh fixture, records manifest.blueprints[] with the slug at 1.0.0, and writes rcf/adr/adr-1701-application-error-handling-record-shape.json.",
-      "testPointer": "test/blueprint/application-error-handling-anatomy.test.js::apply into a fresh fixture succeeds and writes the namespaced contributions",
+      "testPointer": "test/blueprint/application-error-handling-anatomy.test.js::application-error-handling: apply into a fresh fixture succeeds and writes the namespaced contributions (TC-039-clean-apply)",
       "status": "pending",
       "scope": "library"
     },
@@ -30,7 +30,7 @@
       "id": "TC-039-topics-distinct",
       "acId": "AC-1302-3",
       "description": "docs/topics.md distinguishes errorHandling from errorEnvelope (errorHandling internal record and boundary; errorEnvelope stays with application-api-rest as REST wire shape) and reserves the 16101-16899 band with 17xx suffix block.",
-      "testPointer": "test/blueprint/application-error-handling-anatomy.test.js::docs/topics.md distinguishes errorHandling from errorEnvelope",
+      "testPointer": "test/blueprint/application-error-handling-anatomy.test.js::application-error-handling: docs/topics.md distinguishes errorHandling from errorEnvelope (TC-039-topics-distinct)",
       "status": "pending",
       "scope": "library"
     }

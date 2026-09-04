@@ -34,24 +34,33 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // add TS-030..033 for the four USs if the ratified test-axis discipline
   // wants a paired TS per US on the dogfood tree; call recorded in the
   // shipping PR under Calls made.
-  assert.equal(tree.requirements.length, 12);
+  // Core companions train (w-2026-09-03-dave-030, d-2026-09-04-022)
+  // added REQ-013/014/015 for the two new core blueprints,
+  // companion-suggestion mechanism, and standards-derived-blueprint
+  // discipline (12 -> 15).
+  assert.equal(tree.requirements.length, 15);
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
   // `rcf define blueprint remove-resolution` verb the doctor and spec
-  // section 9 name as the redundant-resolution remedy.
-  assert.equal(tree.userStories.length, 37);
+  // section 9 name as the redundant-resolution remedy. Core companions
+  // train added US-1301/1302/1401..1404/1501 (37 -> 44).
+  assert.equal(tree.userStories.length, 44);
   assert.equal(tree.tacs.length, 8);
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
   // camelCase topics).
   assert.equal(tree.adrs.length, 10);
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
-  // FBS-027 was added for the remove-resolution verb (US-1204).
-  assert.equal(tree.fbsItems.length, 27);
+  // FBS-027 was added for the remove-resolution verb (US-1204). Core
+  // companions train added FBS-028..034 for the seven new USs on
+  // REQ-013/014/015 (27 -> 34).
+  assert.equal(tree.fbsItems.length, 34);
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
   // above. TS-037 pairs with US-1204 for the remove-resolution verb.
-  assert.equal(tree.testSuites.length, 37);
+  // Core companions train added TS-038..044 paired with US-1301..1501
+  // (37 -> 44).
+  assert.equal(tree.testSuites.length, 44);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');
@@ -144,10 +153,10 @@ test('walkTree computes parentByChild by inverting child-borne parent fields', a
   assert.equal(tree.parentByChild.get('FBS-001'), 'BS-001');
 });
 
-test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-012)', async () => {
+test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-015)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   const reqChildren = tree.childrenByParent.get('PRD-001') ?? [];
-  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012']);
+  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015']);
   const tadChildren = tree.childrenByParent.get('TAD-001') ?? [];
   // TAD gathers both TAC and ADR children.
   for (const id of ['TAC-001', 'TAC-002', 'TAC-007', 'ADR-001', 'ADR-005']) {

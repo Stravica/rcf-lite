@@ -1,0 +1,27 @@
+{
+  "fbsId": "FBS-031",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 31,
+  "executionStatus": "verified",
+  "title": "rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json",
+  "summary": "Core companions train (w-2026-09-03-dave-030, d-2026-09-04-022). Covers the AC set above end to end through the shipped code paths named on the paired CN implementsAcIds[] and the paired TS testPointer entries under packages/rcf-lite/test/. Runtime provenance: Node 24.14.0 on the repo's dogfood tree; each fixture verified in scratchpad. See the spec at projects/rcf-lite-wsd/specs/rcf-lite-core-companions-spec-2026-09-04.md.",
+  "acIds": [
+    "AC-1402-1",
+    "AC-1402-2",
+    "AC-1402-3"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-030"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "domain": "blueprints",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Part of the core companions train (w-2026-09-03-dave-030, d-2026-09-04-022). One FBS per US on REQ-013/014/015.",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}
