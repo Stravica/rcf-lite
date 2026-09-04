@@ -49,6 +49,7 @@ import { main as viewMain } from '../src/cli/view.js';
 import { main as reqClassifyMain } from '../src/cli/req-classify.js';
 import { main as reqBaselineMain } from '../src/cli/req-baseline.js';
 import { main as intakeMain } from '../src/cli/intake.js';
+import { main as evalMain } from '../src/cli/eval.js';
 
 // Verify group members are handled by the verify-suite dispatch tree.
 import { main as verifyRunMain } from '../src/verify/cli/run.js';
@@ -118,6 +119,10 @@ export const GROUPS = {
     coverage: coverageMain,
     trace: traceMain,
     impact: impactMain,
+    // rcf-eval-node spec section 4: `rcf audit eval coverage`. `eval`
+    // is a compound sub-dispatcher; today it exposes just `coverage`,
+    // future EVAL-shaped audits (trace, run history) plug in here.
+    eval: evalMain,
   },
 };
 

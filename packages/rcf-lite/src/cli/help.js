@@ -15,6 +15,7 @@
 
 import { HELP as BUILD_HELP } from './build.js';
 import { HELP as COVERAGE_HELP } from './coverage.js';
+import { HELP as AUDIT_EVAL_HELP } from './eval.js';
 import { HELP as CREATE_HELP } from './create.js';
 import { HELP as DELETE_HELP } from './delete.js';
 import { HELP as DOCTOR_HELP } from './doctor.js';
@@ -237,6 +238,8 @@ Verbs:
   view                     Live HTML tree render (long-running server).
   coverage [scope-id]      Structural coverage over the PRD -> REQ -> US ->
                            AC -> TS -> TC chain.
+  eval coverage [scope-id] EVAL coverage over nonDeterministic ACs
+                           (spec rcf-eval-node-2026-09-04 section 4).
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
 
@@ -299,6 +302,7 @@ export const HELP_MAP = {
     coverage: COVERAGE_HELP,
     trace: TRACE_HELP,
     impact: IMPACT_HELP,
+    eval: AUDIT_EVAL_HELP,
   },
 };
 
