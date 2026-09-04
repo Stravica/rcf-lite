@@ -71,7 +71,7 @@ test('application-dashboard: packaged design-guidance asset carries eight sectio
   assert.ok(uniqueHttps.size >= 5, `expected at least 5 unique https citations, got ${uniqueHttps.size}: ${[...uniqueHttps].join(', ')}`);
   // Named source families all appear at least once.
   assert.ok(guidance.includes('nngroup.com'), 'NN/g cited');
-  assert.ok(guidance.includes('edwardtufte.com') || guidance.includes('tufte'), 'Tufte cited');
+  assert.ok(guidance.toLowerCase().includes('tufte'), 'Tufte cited');
   assert.ok(guidance.includes('design-system.service.gov.uk'), 'GOV.UK Design System cited');
   assert.ok(guidance.includes('WCAG22') || guidance.includes('wcag22') || guidance.includes('WCAG 2.2'), 'WCAG 2.2 cited');
   assert.ok(guidance.toLowerCase().includes('few') || guidance.toLowerCase().includes('information dashboard design'), 'Few cited');

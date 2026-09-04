@@ -2,49 +2,50 @@
 
 A packaged asset shipped with the `application-dashboard` blueprint. Read at apply, referenced at project-side review, and cited from every REQ, ADR and pack check that anchors on a design rule. The applying agent honours the eight sections below. Where a section names an AC id, the rule is a runtime-observable AC on this blueprint (the ship gate refuses on failure). Where a section stays operator guidance, the applying agent honours it and the shipping surface is reviewed by hand.
 
-Sources are cited by URL at each section. Five sources anchor this guidance:
+Sources are cited by URL at each section. Five bodies of work anchor this guidance:
 
-- Nielsen Norman Group dashboard design research: https://www.nngroup.com/articles/dashboards/
-- Stephen Few, Information Dashboard Design: https://www.oreilly.com/library/view/information-dashboard-design/9781938377006/
-- Edward Tufte, The Visual Display of Quantitative Information: https://www.edwardtufte.com/tufte/books_vdqi
-- GOV.UK Design System patterns (data, download): https://design-system.service.gov.uk/patterns/
+- Nielsen Norman Group research on how people read on the web: https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/
+- Stephen Few's dashboard-design library at Perceptual Edge: https://www.perceptualedge.com/library.php
+- Edward Tufte, The Visual Display of Quantitative Information (Wikipedia reference): https://en.wikipedia.org/wiki/The_Visual_Display_of_Quantitative_Information
+- GOV.UK Design System patterns index: https://design-system.service.gov.uk/patterns/
 - WCAG 2.2 Understanding docs: https://www.w3.org/WAI/WCAG22/Understanding/
 
 ## 1. Primary KPI placement
 
-The primary KPI is the reader's anchor. Place it top-left on every ratified breakpoint (1440, 1024, 360). The NN/g dashboard research reports a strong F-scan reading pattern on the first fixation; the top-left tile is where the reader's eye lands first. On a 360 phone layout the tile row reflows to one column and the primary KPI stays first in DOM order and top of the stack.
+The primary KPI is the reader's anchor. Place it top-left on every ratified breakpoint (1440, 1024, 360). NN/g's F-shaped-pattern reading research reports that the top-left region of a text-heavy layout is where a reader's eye lands first; that is the spot the anchor tile has to occupy. On a 360 phone layout the tile row reflows to one column and the primary KPI stays first in DOM order and top of the stack.
 
 The primary KPI kind is one of five values (ADR-2001): `revenue`, `active-users`, `error-rate`, `throughput`, `custom`. A `custom` value carries a short operator name in `data-kpi-name`. A dashboard with no primary KPI fails project-side review.
 
 Sources:
-- NN/g dashboard design: https://www.nngroup.com/articles/dashboards/
-- Few, Information Dashboard Design (F-scan and glance-value chapter).
+- NN/g F-shaped pattern of reading: https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/
+- Stephen Few, Dashboard Design for Rich and Rapid Monitoring (Perceptual Edge): https://www.perceptualedge.com/articles/visual_business_intelligence/dd_for_rapid_monitoring.pdf
 
 Hardens into AC-19102-1.
 
 ## 2. Tile density and count limits
 
-Keep the tile row to at most eight tiles. Beyond eight the glance-value drops sharply; a reader scanning a nine-tile row misses the middle tiles on the first fixation and either scrolls or gives up. If the dashboard needs more metrics, break them into a second view (a drilldown), not a longer row.
+Keep the tile row to at most eight tiles. Beyond eight the glance value drops sharply; a reader scanning a nine-tile row misses the middle tiles on the first fixation and either scrolls or gives up. If the dashboard needs more metrics, break them into a second view (a drilldown), not a longer row.
 
 A stat tile carries one number. A stat tile that tries to carry a mini-chart and three numbers is a small dashboard inside a dashboard; move it to its own dashboard slot instead.
 
 The primary tile can be visually heavier than the supporting tiles (a larger value, an accent border) but the shape stays a stat tile: one metric, one context line, one state.
 
 Sources:
-- Few, Information Dashboard Design (density chapter): https://www.oreilly.com/library/view/information-dashboard-design/9781938377006/
-- Tufte on chartjunk: https://www.edwardtufte.com/tufte/books_vdqi
+- Stephen Few, Dashboard Confusion Revisited (Perceptual Edge): https://www.perceptualedge.com/articles/visual_business_intelligence/dboard_confusion_revisited.pdf
+- Tufte on chartjunk (Wikipedia summary of the concept): https://en.wikipedia.org/wiki/Chartjunk
 
 Stays operator guidance.
 
 ## 3. Timeframe and filter chrome
 
-The timeframe picker is the single most-touched control on the surface. Ship three presets by recommendedDefault (ADR-2002): `last-7-days`, `last-30-days`, `quarter-to-date`. `last-7-days` is the ship default unless the operator elicits an override. Operators may supply their own preset set (a fiscal-year window, a shift window) at apply; missing presets are ignored, extra presets append.
+The timeframe picker is one of the most-touched controls on the surface. Ship three presets by recommendedDefault (ADR-2002): `last-7-days`, `last-30-days`, `quarter-to-date`. `last-7-days` is the ship default unless the operator elicits an override. Operators may supply their own preset set (a fiscal-year window, a shift window) at apply; missing presets are ignored, extra presets append.
 
 Filter chrome exposes each operator-configured filter as a labelled interactive control (a `<button>`, a `<select>`, or an `<input>`), keyboard-reachable in reading order before the tile row. A hover-only filter is refused; a dropdown that opens on hover fails the accessibility contract.
 
 Sources:
-- GOV.UK Design System patterns (filter): https://design-system.service.gov.uk/patterns/filter/
+- GOV.UK Design System patterns index (the standalone filter pattern page has been retired; the index is the current landing): https://design-system.service.gov.uk/patterns/
 - WCAG 2.2 Understanding SC 2.1.1 Keyboard: https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html
+- WCAG 2.2 Understanding SC 1.4.13 Content on Hover or Focus: https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html
 
 Hardens into AC-19105-1 and the fan-out rule under AC-19104-1.
 
@@ -65,7 +66,7 @@ Hardens into AC-19103-1 and AC-19103-2.
 
 Dashboard tiles read at a glance; low contrast punishes the reader. Text on a tile carries at least 4.5:1 contrast against its background (WCAG 1.4.3); state-cue graphics carry 3:1 non-text contrast (WCAG 1.4.11). If the shipped chart region reuses the application-charts render shell, the palette contract comes from ADR-1902 on that blueprint; the shipped light and dark categorical palettes are contrast-safe by default.
 
-Colour alone never carries state or series distinction: pair colour with a shape, a pattern or a label. The single most common defect on shipped dashboards is a red-orange-green traffic light with no non-colour cue.
+Colour alone never carries state or series distinction: pair colour with a shape, a pattern or a label. Traffic-light state cues (red, orange, green) recur as a defect on shipped dashboards; pair the colour with an icon, a label or a text state.
 
 Sources:
 - WCAG 2.2 Understanding SC 1.4.3 Contrast Minimum: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
@@ -77,13 +78,14 @@ Stays operator guidance for the tile row; hardens for the chart region through a
 
 If the reader's question is what the value is, ship a stat tile. If the reader's question is how the values compare across a small set, ship a stat tile row and a table. If the reader's question is how the values move over time, ship a chart. If the reader wants to sort, filter, page, select, or export a table of records, ship the `application-datatable` blueprint's table; the dashboard's tile row is not a replacement.
 
-A chart with three data points is a table. A pie chart with more than four slices is a table. A dashboard that overuses charts to fill space produces the chartjunk Tufte warned about; a table is often the honest shape.
+A chart with three data points is a table. A pie chart with more than four slices is a table. A dashboard that overuses charts to fill space produces the chartjunk Tufte warned against; a table is often the honest shape.
 
 The dashboard's chart region delegates rendering to the application-charts render shell (TAC-1901); the accessibility, palette, text-alternative and keyboard-traversal ACs on that blueprint apply. The paired text-alternative table is one of those ACs (application-charts AC-18103-1), so the reader always has the table view for the chart.
 
 Sources:
-- Tufte, The Visual Display of Quantitative Information: https://www.edwardtufte.com/tufte/books_vdqi
-- NN/g on tables vs charts: https://www.nngroup.com/articles/charts-and-tables/
+- The Visual Display of Quantitative Information (Wikipedia reference): https://en.wikipedia.org/wiki/The_Visual_Display_of_Quantitative_Information
+- NN/g Choosing Chart Types (video): https://www.nngroup.com/videos/choosing-chart-types/
+- NN/g Comparison Tables, 5 scenarios (video): https://www.nngroup.com/videos/comparison-tables/
 
 Stays operator guidance; the shell contract enforces the chart-region mount through the render shell (AC-19101-2).
 
@@ -94,8 +96,8 @@ Every dashboard reader wants to know how fresh the data is. The shell renders on
 Auto-refresh is off by default. An operator elicits a refresh interval at apply if the surface genuinely needs unattended refresh (an ops screen, an event-day dashboard); the elicited interval sets `data-auto-refresh` on the shell root to the elicited seconds. A dashboard that refreshes every 30 seconds without an operator opt-in wastes budget and produces distracting motion; a dashboard that refreshes on a hidden tab drops keystrokes in the operator's active tab.
 
 Sources:
-- NN/g on real-time interfaces: https://www.nngroup.com/articles/real-time-user-interface/
-- Few on refresh discipline: https://www.oreilly.com/library/view/information-dashboard-design/9781938377006/
+- Nielsen, Response Times: The 3 Important Limits (NN/g): https://www.nngroup.com/articles/response-times-3-important-limits/
+- Stephen Few, Dashboard Design for Real-Time Situation Awareness (Perceptual Edge): https://www.perceptualedge.com/articles/Whitepapers/Dashboard_Design.pdf
 
 Hardens into AC-19104-1 (fan-out and stamp) and AC-19104-2 (auto-refresh default).
 
@@ -115,7 +117,8 @@ Read this list against the shipped surface; if any of the following applies, fix
 - The dashboard names a "primary KPI" that is not the reader's actual anchor question.
 
 Sources:
-- Few, Information Dashboard Design (anti-patterns chapter): https://www.oreilly.com/library/view/information-dashboard-design/9781938377006/
-- NN/g dashboard design: https://www.nngroup.com/articles/dashboards/
+- Stephen Few, Common Pitfalls in Dashboard Design (Perceptual Edge whitepaper): https://www.perceptualedge.com/articles/Whitepapers/Common_Pitfalls.pdf
+- Stephen Few, Why Most Dashboards Fail (Perceptual Edge): https://www.perceptualedge.com/articles/misc/WhyMostDashboardsFail.pdf
+- NN/g Data Visualizations for Dashboards (video): https://www.nngroup.com/videos/data-visualizations-dashboards/
 
 Stays operator guidance; individual patterns harden through the ACs the guidance names above.
