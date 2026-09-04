@@ -1,0 +1,15 @@
+{
+  "reqId": "application-dashboard-REQ-002",
+  "prdId": "PRD-001",
+  "title": "The primary KPI tile sits top-left in DOM order and in CSS Grid position across the ratified breakpoints",
+  "description": "The tile row's primary KPI carries a top-left placement the reader reaches first, on the NN/g F-scan of the surface, at every ratified breakpoint (1440, 1024, 360). At 1440 and 1024 the primary KPI is the first tile in DOM order and its computed CSS Grid column-start is 1 and row-start is 1; at 360 the tile row reflows to one column and the primary KPI is the first tile in DOM order and its row-start is 1. The tile carries a `data-tile-role=\"primary-kpi\"` attribute and a `data-kpi-kind` attribute whose value is one of the ADR-2001 enum values (revenue, active-users, error-rate, throughput, custom). A dashboard that ships no primary KPI tile fails this REQ at project-side review; a dashboard whose primary KPI is not top-left at any of the three breakpoints fails the pack check AC-19102-1.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The primary KPI is the reader's anchor on a dashboard glance; the F-scan reading pattern (NN/g dashboard design research) puts the top-left tile at the reader's first fixation. Codifying the placement as a runtime-observable CSS Grid position at the three ratified breakpoints turns a design convention into a check a Playwright probe can drive.",
+  "tags": ["blueprint:application-dashboard", "category:02-primary-kpi-hierarchy"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

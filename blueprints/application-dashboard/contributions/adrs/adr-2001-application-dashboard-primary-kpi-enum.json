@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2001-application-dashboard-primary-kpi-enum",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Elicit the primary KPI kind from a fixed enum (revenue, active-users, error-rate, throughput, custom)",
+  "context": "The primary KPI is the reader's anchor on the dashboard's first fixation. Every applying project already has a primary KPI in the business sense; the problem is that the surface's `data-kpi-kind` attribute either stays free-form (any string) and cross-project comparisons drift, or hard-picks one KPI at the shelf and forces every applying project to relabel. Neither option lands the runtime discipline the pack needs to prove the primary-KPI-top-left rule.",
+  "decision": "The primary-KPI kind is elicited at apply from a fixed enum: `revenue`, `active-users`, `error-rate`, `throughput`, or `custom`. The elicited value lands on the primary tile as `data-kpi-kind`; a `custom` choice carries a `data-kpi-name` attribute with the operator's own short name. The pack asserts the attribute value is one of the enum values (or `custom` with a `data-kpi-name`), the tile is top-left in DOM order and CSS Grid position at every ratified breakpoint. The five enum values cover the shipped shelf's known cases (SaaS revenue dashboards, product-analytics active-users dashboards, SRE error-rate dashboards, throughput-focused ops dashboards, and the custom escape hatch); a new enum value moves the ADR to v1.1.0 with a shelf-wide review.",
+  "consequences": "Applying projects pick from a small, review-worthy set; the pack has a runtime-observable attribute to check; cross-project comparisons on a shelf-wide dashboard registry are trivial. The `custom` value keeps the escape hatch honest: a project with a KPI outside the five stays within the ADR while documenting its own name on `data-kpi-name`.",
+  "alternativesConsidered": [
+    {
+      "name": "Free-form primary-KPI kind",
+      "summary": "The attribute accepts any string.",
+      "reasonNotChosen": "Every applying project would ship its own label and cross-project reasoning would drift; the pack could not usefully assert a value shape."
+    },
+    {
+      "name": "Hard-pick revenue as the primary KPI",
+      "summary": "Every dashboard on the shelf carries `revenue` as its primary KPI.",
+      "reasonNotChosen": "Product-analytics and SRE dashboards would have to relabel their real primary KPI; the shelf would ship a dishonest attribute."
+    }
+  ],
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

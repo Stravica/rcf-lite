@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-09-04T22:10:00.000Z",
+  "updatedAt": "2026-09-04T22:10:00.000Z",
+  "purpose": "Cover AC-2001-1..7 via unit tests over the shipped application-dashboard blueprint's contribution counts (five REQs, seven USs, three TACs, three ADRs, 18 contributions total), the packaged design-guidance asset shape (eight sections and at least five https citations), the pack-loader accepting the shipped pack file with every check id cross-checked against the blueprint's contributed AC ids and every check carrying a description, the pack schema accepting the pack's applicability predicate (references tacIds), the sample-app fixture exporting startServer serving a dashboard route with a primary-KPI-top-left tile grid, a paired chart region, a timeframe preset picker refetching every tile with the same from/to boundary and matching as-of stamp, per-tile four states, an export handle, a request log surface and a reflow to one column at 360, and the negative-run behaviour on the ?break=kpi-position, ?break=fanout and ?break=state-aria switches, plus a unit test for the pack-browser resize seam extension.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-2001-1",
+    "AC-2001-2",
+    "AC-2001-3",
+    "AC-2001-4",
+    "AC-2001-5",
+    "AC-2001-6",
+    "AC-2001-7"
+  ],
+  "id": "TS-049",
+  "usId": "US-2001",
+  "title": "application-dashboard v1.0.0 shelf shape, packaged guidance, probe pack cross-check and resize seam",
+  "testCases": [
+    {
+      "id": "TC-049-blueprint-json-shape",
+      "acId": "AC-2001-1",
+      "description": "blueprint.json declares slug application-dashboard, version 1.0.0, category application, 18 contributions in 5 REQ / 7 US / 3 TAC / 3 ADR groups, providesRoles empty array, suggestedCompanions declares logging and errorHandling",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-dashboard-anatomy.test.js::application-dashboard: blueprint.json declares the ratified shape (TC-049-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-049-applies-clean",
+      "acId": "AC-2001-2",
+      "description": "Fresh init project applies the blueprint cleanly; walkTree produces zero errors; 5 REQs and 7 USs land under the application-dashboard prefix",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-dashboard-anatomy.test.js::application-dashboard: applies cleanly on a fresh init project and adds 18 documents to the tree (TC-049-applies-clean)"
+    },
+    {
+      "id": "TC-049-guidance-asset",
+      "acId": "AC-2001-3",
+      "description": "assets/guidance/dashboard-design.md carries the eight ratified section headings and at least five https:// citations from the named sources",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-dashboard-anatomy.test.js::application-dashboard: packaged design-guidance asset carries eight sections and five https citations (TC-049-guidance-asset)"
+    },
+    {
+      "id": "TC-049-pack-checks-cross-check",
+      "acId": "AC-2001-4",
+      "description": "Every pack check id resolves to an AC id contributed by the blueprint; expected three check ids in the spec's order (AC-19102-1, AC-19104-1, AC-19103-1); every check carries a description field; applicability predicate references tacIds",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-dashboard-anatomy.test.js::application-dashboard: every pack check id matches a contributed AC id, every check carries a description, appliesTo binds tacIds (TC-049-pack-checks-cross-check)"
+    },
+    {
+      "id": "TC-049-fixture-dashboard-render",
+      "acId": "AC-2001-5",
+      "description": "Sample-app fixture startServer renders a dashboard route with a primary KPI top-left tile, a paired chart region, timeframe preset controls, per-tile state switches, an export handle and a request log; loader discovery finds the shipped pack against an applied scratch project",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-dashboard-anatomy.test.js::application-dashboard sample-app fixture: startServer renders the dashboard shell (TC-049-fixture-dashboard-render)"
+    },
+    {
+      "id": "TC-049-negative-runs",
+      "acId": "AC-2001-6",
+      "description": "The pack refuses ship on each broken variant: ?break=kpi-position triggers verdict fail on AC-19102-1; ?break=fanout triggers verdict fail on AC-19104-1; ?break=state-aria triggers verdict fail on AC-19103-1; every failure records severity block and the aggregate verdict is block",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-dashboard-anatomy.test.js::application-dashboard sample-app fixture: break switches refuse ship on each surface (TC-049-negative-runs)"
+    },
+    {
+      "id": "TC-049-resize-seam",
+      "acId": "AC-2001-7",
+      "description": "pack-browser exposes resize(width, height); the project-route handle drives page.setViewportSize with the given dimensions and the same handle can be re-queried through window.innerWidth after a resize call",
+      "status": "pending",
+      "testPointer": "test/browser-verify/pack-browser-resize.test.js::pack-browser: resize dimension normalisation rounds finite positive numbers (TC-049-resize-seam)"
+    }
+  ],
+  "status": "draft"
+}

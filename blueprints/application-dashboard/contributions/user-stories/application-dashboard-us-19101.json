@@ -1,0 +1,35 @@
+{
+  "usId": "application-dashboard-US-19101",
+  "prdId": "PRD-001",
+  "reqId": "application-dashboard-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The dashboard shell renders the five required regions on every shipped surface",
+  "asA": "product owner responsible for the shipped dashboard surface",
+  "iWant": "the shell to render a tile row, a chart region, filter chrome, a timeframe picker and an export handle on every dashboard surface",
+  "soThat": "every REQ, TAC and pack check on this blueprint anchors onto a stable, inspectable shell structure rather than a floating layout convention",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19101-1",
+      "description": "Given a rendered dashboard surface, the DOM carries five labelled `role=\"region\"` elements naming (via `aria-label` or an in-region `<h2>` header) the tile row, the chart region, the filter chrome, the timeframe picker and the export handle. A surface that omits one of the five regions either renders the region as an empty labelled `role=\"region\"` element the pack can inspect or supersedes REQ-001 with a project-authored REQ documenting the omission.",
+      "given": "a rendered dashboard surface",
+      "when": "the accessibility tree is read",
+      "then": "five labelled regions cover the tile row, the chart region, the filter chrome, the timeframe picker and the export handle",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-19101-2",
+      "description": "Given the shell's chart region, the rendered chart mounts through the application-charts render shell (TAC-1901): the chart region contains at least one `section.chartRegion[role=\"region\"]` element carrying the shape the application-charts pack asserts on (an `svg.chartSvg` and a paired `<table>` element in the same landmark). A chart region that renders a chart outside the render shell fails project-side review.",
+      "given": "the rendered chart region",
+      "when": "the mount seam is inspected",
+      "then": "the chart mounts through the application-charts render shell",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": ["TAC-2001-application-dashboard-tile-grid"],
+  "tags": ["blueprint:application-dashboard"],
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

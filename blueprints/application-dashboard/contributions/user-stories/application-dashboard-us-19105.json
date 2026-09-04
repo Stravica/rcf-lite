@@ -1,0 +1,35 @@
+{
+  "usId": "application-dashboard-US-19105",
+  "prdId": "PRD-001",
+  "reqId": "application-dashboard-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The filter chrome exposes accessible controls and refetches every tile with the same boundary",
+  "asA": "operator narrowing the dashboard with a filter chip or a filter input",
+  "iWant": "the filter chrome to expose accessible controls that carry the operator's choice to every fetch and refetch every tile with the same boundary",
+  "soThat": "the shell renders a filtered view at one boundary without drifting between tiles",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19105-1",
+      "description": "Given a rendered dashboard surface with filter chrome, every filter control (chip, dropdown, search input) is a labelled interactive element (a `<button>`, a `<select>` or an `<input>`) with an accessible name; the controls are keyboard-reachable in reading order before the tile row; the operator's active filter selection is reflected on the shell as a `data-active-filters` attribute the pack can read. A filter chrome that ships hover-only controls (a hover-reveal menu on a mouseover element) fails project-side review.",
+      "given": "a rendered dashboard with filter chrome",
+      "when": "the accessibility tree is read",
+      "then": "every filter control is a labelled interactive element keyboard-reachable in reading order",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-19105-2",
+      "description": "Given an operator-driven filter change (activate a filter chip, type into a filter input), the shell issues one refetch per tile and one per rendered chart with the same `filter` query parameter set applied to every fetch; the shell's `data-active-filters` attribute updates on the same paint as the refetch batch. This AC is a runtime-observable fan-out clause; the pack asserts the fetch fan-out on the timeframe seam (AC-19104-1) which the fixture drives; the filter fan-out is a mechanism-reach gap the README names for a v1.1 minor bump.",
+      "given": "a rendered dashboard and a filter change",
+      "when": "the request log is read",
+      "then": "every refetch carries the same active-filters set and the shell attribute updates",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2002-application-dashboard-filter-chrome"],
+  "tags": ["blueprint:application-dashboard"],
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

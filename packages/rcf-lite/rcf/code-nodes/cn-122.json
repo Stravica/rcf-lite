@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-122",
+  "path": "src/browser-verify/pack-browser.js#createPackBrowser",
+  "implementsAcIds": [
+    "AC-2001-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T22:10:00.000Z",
+  "updatedAt": "2026-09-04T22:10:00.000Z"
+}

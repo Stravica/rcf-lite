@@ -15,6 +15,7 @@ The blueprint claims no new global topics at v1.0.0. The datatable shell is a ge
 |---|---|---|---|---|
 | application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
+| application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 
 The shelf-wide band registry lives in `packages/rcf-lite/docs/blueprint-authoring.md` section 5.
 

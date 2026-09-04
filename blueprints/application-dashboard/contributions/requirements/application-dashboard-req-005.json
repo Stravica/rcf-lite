@@ -1,0 +1,15 @@
+{
+  "reqId": "application-dashboard-REQ-005",
+  "prdId": "PRD-001",
+  "title": "The export handle exposes an accessible format list and delegates PNG-of-chart to the application-charts render shell",
+  "description": "The export handle is a labelled `<button>` on the shell that opens an operator-navigable list of export formats: CSV of the currently rendered data, PDF of the shipped dashboard surface, and PNG of a specific rendered chart. The list is keyboard-reachable in reading order and closes on Escape without losing focus. PNG-of-chart delegates to the application-charts render shell (TAC-1901): the export handle names the chart the operator picked from the chart region and the charts shell owns the PNG generation. Formats outside the shipped set (SVG, XLSX) are the elicited-override path (ADR-2003) and follow the same accessible-list contract.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Export is one of the shelf's most-requested affordances and one of the most under-reviewed for accessibility: a hover-only dropdown or a mouse-only download button is common. Naming the accessible-list contract explicitly and delegating PNG-of-chart to the charts blueprint is what keeps the export handle honest and prevents a duplicate PNG generator inside the dashboard shell.",
+  "tags": ["blueprint:application-dashboard", "category:05-export-handle"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

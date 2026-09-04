@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 19,
-    "covered": 19,
+    "requirements": 20,
+    "covered": 20,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -1526,6 +1526,69 @@
           "covered": true,
           "testCases": [
             "TC-048-negative-runs"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-020",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-2001-1",
+          "covered": true,
+          "testCases": [
+            "TC-049-blueprint-json-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2001-2",
+          "covered": true,
+          "testCases": [
+            "TC-049-applies-clean"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2001-3",
+          "covered": true,
+          "testCases": [
+            "TC-049-guidance-asset"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2001-4",
+          "covered": true,
+          "testCases": [
+            "TC-049-pack-checks-cross-check"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2001-5",
+          "covered": true,
+          "testCases": [
+            "TC-049-fixture-dashboard-render"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2001-6",
+          "covered": true,
+          "testCases": [
+            "TC-049-negative-runs"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2001-7",
+          "covered": true,
+          "testCases": [
+            "TC-049-resize-seam"
           ],
           "unresolvedTestCases": []
         }

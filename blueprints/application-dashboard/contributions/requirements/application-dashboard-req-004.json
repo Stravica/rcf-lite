@@ -1,0 +1,15 @@
+{
+  "reqId": "application-dashboard-REQ-004",
+  "prdId": "PRD-001",
+  "title": "The timeframe picker and the filter chrome refetch every tile and chart with the same boundary and update the as-of stamp",
+  "description": "A timeframe preset change (from the operator-elicited set: last-7-days, last-30-days, quarter-to-date or an elicited override) issues one refetch per tile and one refetch per rendered chart, and every fetch carries the same `from` and `to` boundary and the same `preset` name. A filter chrome change (operator toggles a filter chip, types into a filter input) issues the same refetch fan-out with the same boundary. Once every fetch has returned (or the timeout has elapsed) the shell updates one `as of <ISO-8601>` stamp on the shell, and every rendered tile carries the same stamp. A shell whose fetches drift boundaries (one tile refetches with the new boundary, another with the old) fails the pack check AC-19104-1; a shell whose as-of stamp does not match every tile's rendered stamp fails the same check.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The fan-out contract is what stops a dashboard from lying to the reader: two tiles at different boundaries render numbers the reader compares as if they were the same period, and the comparison is silently wrong. Codifying the same-boundary rule and pinning it to a single as-of stamp is the runtime check that makes the fan-out contract inspectable.",
+  "tags": ["blueprint:application-dashboard", "category:04-fanout-contract"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

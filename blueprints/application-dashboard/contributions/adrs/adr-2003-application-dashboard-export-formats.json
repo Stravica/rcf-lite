@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2003-application-dashboard-export-formats",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Ship three export formats by recommendedDefault (CSV, PDF, PNG-of-chart) with elicited overrides and PNG delegation to the charts render shell",
+  "context": "Export is a legal-and-audit necessity on most shipped dashboards, and the accessibility posture of an export handle is often the last thing anyone reviews. The three most-requested formats are CSV (data extract), PDF (whole-dashboard snapshot), and PNG (one-chart download). SVG, XLSX and a Slack-share button are common project-side additions. A dashboard shell that carries its own PNG generator is a common defect because it produces a chart image that drifts from the shipped chart.",
+  "decision": "The blueprint ships three export formats by recommendedDefault: `csv`, `pdf`, and `png-chart`. Operators supply their own format set through the elicited override; missing formats are ignored, extra formats append to the shipped set with an operator-supplied `label` and `data-export-format` value. PNG-of-chart delegates to the application-charts render shell (TAC-1901): the export handle carries no PNG generator of its own; the charts shell owns the PNG output for every rendered chart on the surface. Applying projects that ship a chart engine outside the render shell either supersede this ADR with a project-authored delegation or lose the PNG-of-chart affordance.",
+  "consequences": "The applying project gets the three most-requested formats out of the box and an elicited override for the rest. The delegation to the charts shell keeps the PNG output consistent with the rendered chart; a project that supersedes the delegation names the residual and owns the chart-drift risk.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship the format list open-ended (no defaults)",
+      "summary": "Every project elicits its own format set at apply.",
+      "reasonNotChosen": "Every project would ship the first-pass format set the operator asked for and the accessibility posture of the format list would move with the operator's brief. The three-format default carries the shelf's discipline."
+    },
+    {
+      "name": "Bake a PNG generator into the dashboard shell",
+      "summary": "The shell owns the PNG output for its rendered charts.",
+      "reasonNotChosen": "The charts shell already renders every chart on the surface; a second PNG path drifts from the rendered chart and duplicates the accessibility contract."
+    }
+  ],
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

@@ -1,0 +1,50 @@
+{
+  "createdAt": "2026-09-04T22:10:00.000Z",
+  "updatedAt": "2026-09-04T22:10:00.000Z",
+  "usId": "US-2001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-020",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The application-dashboard blueprint ships on the shelf with its packaged design-guidance asset and probe pack refuses ship on a broken dashboard surface",
+  "asA": "shelf consumer applying the application-dashboard v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files, the packaged design-guidance asset, the Playwright probe pack anchoring primary-KPI position, timeframe refetch fan-out and per-tile state contract, and a sample-app fixture proving the pack passes on a compliant surface and refuses on a broken one",
+  "soThat": "a project consuming rcf-lite gets the dashboard-shape ACs, the operator-facing design guidance the applying agent reads at ship, the pack that runs the three runtime-observable ACs, and a golden fixture the pack refuses on a surface that drops the primary-KPI placement or the timeframe fan-out or the four-state distinction",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2001-1",
+      "description": "The shelf carries blueprints/application-dashboard/blueprint.json declaring slug application-dashboard, version 1.0.0, category application, and 18 contributions (5 REQs, 7 USs, 3 TACs, 3 ADRs); the suggestedCompanions array declares logging and errorHandling with reasons from the ratified spec section 5.3; providesRoles is absent (leaf blueprint per spec; the loader refuses an empty providesRoles array when set, so the leaf-blueprint intent is expressed by omitting the field).",
+      "testable": true
+    },
+    {
+      "id": "AC-2001-2",
+      "description": "rcf define blueprint add ./blueprints/application-dashboard applies the 18 contributions cleanly on a fresh init project; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.",
+      "testable": true
+    },
+    {
+      "id": "AC-2001-3",
+      "description": "The packaged design-guidance asset at blueprints/application-dashboard/assets/guidance/dashboard-design.md exists, carries the eight sections named in the ratified spec section 5.3.1 (primary KPI placement; tile density and count limits; timeframe and filter chrome; loading, empty and error states; colour and contrast; when a table beats a chart, delegating to application-datatable; refresh cadence and staleness; anti-patterns), and carries at least five https:// citations to the sources named in the spec (NN/g dashboard design, Few, Tufte, GOV.UK Design System patterns, WCAG 2.2 Understanding docs).",
+      "testable": true
+    },
+    {
+      "id": "AC-2001-4",
+      "description": "The shipped probe pack blueprints/application-dashboard/probe-packs/application-dashboard.pack.mjs loads via T-0's pack-loader against a scratch project with the blueprint applied; each of its three check ids (AC-19102-1 primary-KPI position, AC-19104-1 timeframe refetch fan-out, AC-19103-1 per-tile state contract) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack's appliesTo predicate references the tacIds seam and binds TAC-2001-application-dashboard-tile-grid.",
+      "testable": true
+    },
+    {
+      "id": "AC-2001-5",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-dashboard/ ships a dependency-free Node HTTP server (server.js) with a start script; when started, its dashboard route renders a tile grid with a primary KPI top-left (data attribute naming its kind from the enum), a chart region reusing the application-charts sample-app markup shape, a timeframe preset picker whose change refetches every tile with the same from/to boundary and updates an as-of ISO-8601 stamp, per-tile four states switchable by query, an export handle listing CSV/PDF/PNG, a request log exposed on window.__dashboardFetches and at /__requests, and CSS that reflows to one column at 360 with the primary KPI first. Running the pack against the fixture returns verdict pass on every check (severity block, aggregate pass).",
+      "testable": true
+    },
+    {
+      "id": "AC-2001-6",
+      "description": "The probe pack refuses ship on a broken fixture: with the primary KPI moved off top-left via the ?break=kpi-position switch, running the pack returns verdict fail on AC-19102-1 at severity block and the aggregate verdict is block; with the timeframe refetch fan-out drift-boundary via ?break=fanout, verdict fail on AC-19104-1 at severity block; with the aria-live and role region attributes dropped via ?break=state-aria, verdict fail on AC-19103-1 at severity block.",
+      "testable": true
+    },
+    {
+      "id": "AC-2001-7",
+      "description": "The pack-browser seam (packages/rcf-lite/src/browser-verify/pack-browser.js) exposes a resize(width, height) method to probe pack authors: on the MCP route the method calls the pinned Playwright MCP's browser_resize tool, on the project route it calls page.setViewportSize({ width, height }), and packs can drive the three breakpoint checks (1440/1024/360) through the new seam.",
+      "testable": true
+    }
+  ]
+}

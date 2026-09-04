@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-121",
+  "path": "../../blueprints/application-dashboard/assets/guidance/dashboard-design.md",
+  "implementsAcIds": [
+    "AC-2001-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T22:10:00.000Z",
+  "updatedAt": "2026-09-04T22:10:00.000Z"
+}

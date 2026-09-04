@@ -1,0 +1,35 @@
+{
+  "usId": "application-dashboard-US-19104",
+  "prdId": "PRD-001",
+  "reqId": "application-dashboard-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A timeframe preset change refetches every tile and chart with the same boundary and updates the as-of stamp",
+  "asA": "operator changing the dashboard timeframe from last-7-days to last-30-days",
+  "iWant": "every tile and chart to refetch with the same from and to boundary and the same preset name",
+  "soThat": "the shell renders a coherent snapshot at one boundary and the as-of stamp reads the same on every tile",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19104-1",
+      "description": "Given a rendered dashboard surface and an operator-driven timeframe preset change (click a preset control, or select a value from a timeframe menu), one refetch fires per tile and one per rendered chart; every fetch carries the same `from` boundary, the same `to` boundary and the same `preset` name in its query string; once every fetch has returned (or the timeout has elapsed) the shell updates one `data-as-of` attribute on the shell root and every tile carries the same `data-as-of` value in ISO-8601 form. Probed by the application-dashboard pack check AC-19104-1 (Playwright drives to the dashboard route, waits for the initial fetch batch, clicks the second preset control, waits for the new batch, reads the request log from `window.__dashboardFetches` and from `GET /__requests`, and asserts every fetch in the new batch carries the same from/to/preset trio and every tile carries the same `data-as-of` matching the shell root).",
+      "given": "a rendered dashboard surface and a timeframe preset change",
+      "when": "the request log and the DOM are read",
+      "then": "every refetch carries the same from/to/preset and every tile's data-as-of matches the shell root",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-19104-2",
+      "description": "Given a rendered dashboard with an operator-elicited auto-refresh interval (ADR-2002), the shell refetches on the same fan-out contract at the interval: every tile refetches with the same from/to/preset, the as-of stamp updates on the shell root and every tile. When no auto-refresh interval is elicited, the shell does not refresh unattended (a dashboard that refreshes every ten seconds without an operator opt-in is a defect). The pack asserts the initial default is auto-refresh off through a `data-auto-refresh` attribute on the shell root; a fixture whose default is on fails project-side review.",
+      "given": "a rendered dashboard with or without an elicited auto-refresh interval",
+      "when": "the shell renders",
+      "then": "auto-refresh is off unless the interval is elicited; refreshes follow the same fan-out contract",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2002-application-dashboard-filter-chrome"],
+  "tags": ["blueprint:application-dashboard"],
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

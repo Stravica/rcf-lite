@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-04T22:10:00.000Z",
+  "updatedAt": "2026-09-04T22:10:00.000Z",
+  "acIds": [
+    "AC-2001-1",
+    "AC-2001-2",
+    "AC-2001-3",
+    "AC-2001-4",
+    "AC-2001-5",
+    "AC-2001-6",
+    "AC-2001-7"
+  ],
+  "fbsId": "FBS-039",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 39,
+  "executionStatus": "notStarted",
+  "title": "application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension",
+  "summary": "T-3 of the ratified visual round (spec 2026-09-04, section 5.3): the application-dashboard v1.0.0 blueprint on the shelf. Ships 18 contributions (5 REQs on shell composition, primary-KPI visual hierarchy, per-tile four-state contract, timeframe and filter chrome refetch fan-out, and export handle with format delegation to charts; 7 USs binding runtime-observable ACs plus one on packaged-guidance adherence; 3 TACs on the tile grid with CSS Grid position semantics, the filter chrome and timeframe picker with the refetch fan-out contract, and the export handle; 3 ADRs on the primary-KPI kinds enum, the timeframe presets and the export formats), a packaged design-guidance asset carrying the eight sections and five https citations per spec 5.3.1, a Playwright probe pack whose three checks (AC-19102-1 primary-KPI position by DOM order and CSS Grid position at 1440/1024/360, AC-19104-1 timeframe refetch fan-out with same boundary and matching as-of ISO-8601 stamp, AC-19103-1 per-tile four-state contract with role region, aria-live polite and non-colour distinction) are anchored to blueprint AC ids per T-0 AC-1701-3 and each carries a description field per spec section 9, and a dependency-free sample-app fixture the pack probes for real. Extends the pack-browser seam with a resize(width, height) method the pack drives to probe the three breakpoints. Applies cleanly (validate 0, coverage strict 0, eval strict 0 on a scratch project). Consumes application-charts through the shared render shell (the dashboard's chart region reuses the charts sample-app markup shape); references application-datatable in the packaged guidance's when-a-table-beats-a-chart section.",
+  "dependsOnFbsIds": []
+}

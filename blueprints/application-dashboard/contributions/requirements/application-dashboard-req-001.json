@@ -1,0 +1,15 @@
+{
+  "reqId": "application-dashboard-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The dashboard shell composes a tile row, a chart region, filter chrome, a timeframe picker and an export handle",
+  "description": "A rendered dashboard on the shipped surface composes five regions on one page: a tile row carrying the primary KPI and up to seven supporting stat tiles; a chart region reusing the application-charts render shell for every rendered chart; filter chrome exposing operator-configured filters as accessible controls; a timeframe picker exposing the presets ADR-2002 elicits; and an export handle whose formats ADR-2003 elicits. The five regions are the shell contract; a dashboard that ships fewer regions (a page with no export handle, or no filter chrome) either supersedes this REQ with a project-authored REQ documenting the omitted region or renders the region as empty with a labelled `role=\"region\"` element the pack can inspect.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "A dashboard is a compound surface: the tile row, the chart region and the filter chrome each need their own AC coverage. Naming the five regions on the shell is what lets every subsequent REQ, TAC and pack check anchor onto a stable, inspectable structure rather than a floating layout convention.",
+  "tags": ["blueprint:application-dashboard", "category:01-shell-composition"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

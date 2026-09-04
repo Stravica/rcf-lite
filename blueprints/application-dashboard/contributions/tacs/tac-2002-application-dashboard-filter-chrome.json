@@ -1,0 +1,41 @@
+{
+  "tacId": "TAC-2002-application-dashboard-filter-chrome",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Timeframe picker and filter chrome with refetch fan-out contract",
+  "purpose": "Owns the shell's timeframe picker and filter chrome, and the refetch fan-out contract: a preset change or a filter change issues one refetch per tile and one per rendered chart, every fetch carrying the same boundary and the same preset name, and once the batch has returned the shell updates one `data-as-of` attribute the tiles inherit. The fan-out contract is the substitutable interface the pack asserts on (AC-19104-1).",
+  "responsibilities": [
+    "Render the timeframe picker as an accessible list of presets (labelled `<button>` elements or a `<select>`) with a keyboard-reachable default from ADR-2002 (`last-7-days` unless elicited) (AC-19104-1).",
+    "Render filter chrome as labelled interactive elements (chips, dropdowns, text inputs) keyboard-reachable in reading order before the tile row; a hover-only control is refused at project-side review (AC-19105-1).",
+    "On a preset change or a filter change, issue one refetch per tile and one per rendered chart; every fetch carries the same `from` and `to` boundary, the same `preset` name and the same active-filters set (AC-19104-1, AC-19105-2).",
+    "Update one `data-as-of` attribute on the shell root once every fetch has returned (or the timeout has elapsed) and propagate the same value to every tile's `data-as-of` attribute (AC-19104-1).",
+    "Expose a request log on `window.__dashboardFetches` (an append-only array of `{ from, to, preset, filters, tileId, chartId, at }` records) so the pack can read every fetch after each preset change (AC-19104-1)."
+  ],
+  "internalStructure": "One preset-picker module and one filter-chrome module composed on the shell factory. The fan-out contract is implemented as a fetch dispatcher that receives the boundary and the active-filters set, invokes a per-tile fetcher and a per-chart fetcher, and awaits the batch before updating the shell's `data-as-of` attribute.",
+  "interfaces": [
+    {
+      "name": "onTimeframeChange",
+      "kind": "function",
+      "description": "onTimeframeChange({ preset, from, to }) -> Promise<void>. Called by the preset picker on activation; issues the fan-out and updates the shell's data-as-of."
+    },
+    {
+      "name": "onFilterChange",
+      "kind": "function",
+      "description": "onFilterChange({ filters }) -> Promise<void>. Called by the filter chrome on activation; issues the fan-out with the current boundary and updates the shell's data-active-filters and data-as-of."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Tile grid",
+      "kind": "tac",
+      "tacId": "TAC-2001-application-dashboard-tile-grid",
+      "description": "The fan-out dispatcher calls back into TAC-2001 to re-render each tile through the shell factory on refetch."
+    }
+  ],
+  "tradeoffs": "The single as-of stamp on the shell root is opinionated: a project whose per-tile freshness differs (a slow-cached tile at 5 minutes, a live tile at 15 seconds) may want a per-tile stamp instead. This TAC insists on the shell-level stamp because it is the reader's mental model of the dashboard's coherence; a per-tile stamp is a project-authored override that supersedes REQ-004 and names the residual. Auto-refresh is off by default (AC-19104-2) because unattended refresh is the most common defect on shipped dashboards.",
+  "notes": "Known mechanism-reach gap: filter fan-out (AC-19105-2) is a runtime-observable clause the shipped pack does not itself check today (the pack asserts the timeframe fan-out on AC-19104-1). A v1.1 minor bump would add a filter-fan-out check on the pack; the README names it individually.",
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

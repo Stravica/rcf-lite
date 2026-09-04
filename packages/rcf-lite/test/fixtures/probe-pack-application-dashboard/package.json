@@ -1,0 +1,10 @@
+{
+  "name": "probe-pack-application-dashboard-fixture",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Dependency-free sample app the application-dashboard probe pack probes on the shelf. See ../server.js and ./README.md.",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
