@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 16,
-    "covered": 16,
+    "requirements": 17,
+    "covered": 17,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -1361,6 +1361,61 @@
           "covered": true,
           "testCases": [
             "TC-045-runonecase-spawns-the-invoker-claude-or"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-017",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1701-1",
+          "covered": true,
+          "testCases": [
+            "TC-046-pack-loader-loads-both-pack-js-and-pack"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1701-2",
+          "covered": true,
+          "testCases": [
+            "TC-046-applicability-predicate-source-scan"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1701-3",
+          "covered": true,
+          "testCases": [
+            "TC-046-loader-refuses-at-exit-2-a-pack-whose"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1701-4",
+          "covered": true,
+          "testCases": [
+            "TC-046-runner-pack-pass-invokes-each-check-s"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1701-5",
+          "covered": true,
+          "testCases": [
+            "TC-046-cli-probe-pack-option-restricts-to-one"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1701-6",
+          "covered": true,
+          "testCases": [
+            "TC-046-prechecks-runs-before-browser-checks-a"
           ],
           "unresolvedTestCases": []
         }

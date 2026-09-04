@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 16  covered: 16  covered-unresolved: 0  uncovered: 0
+Requirements: 17  covered: 17  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -155,3 +155,9 @@ REQ-016      yes      AC-1601-1   yes         TC-045-computeevalcoverage-across-
                       AC-1601-2   yes         TC-045-per-ac-verdicts-carries-the-two-new-eval
                       AC-1601-3   yes         TC-045-findevalrefusalacs-and
                       AC-1601-4   yes         TC-045-runonecase-spawns-the-invoker-claude-or
+REQ-017      yes      AC-1701-1   yes         TC-046-pack-loader-loads-both-pack-js-and-pack
+                      AC-1701-2   yes         TC-046-applicability-predicate-source-scan
+                      AC-1701-3   yes         TC-046-loader-refuses-at-exit-2-a-pack-whose
+                      AC-1701-4   yes         TC-046-runner-pack-pass-invokes-each-check-s
+                      AC-1701-5   yes         TC-046-cli-probe-pack-option-restricts-to-one
+                      AC-1701-6   yes         TC-046-prechecks-runs-before-browser-checks-a
