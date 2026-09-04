@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T16:22:23.766Z",
-  "updatedAt": "2026-09-04T16:22:37.368Z",
+  "updatedAt": "2026-09-04T17:21:35.618Z",
   "purpose": "Cover the four ACs on US-1601 via the unit and integration suites landed in this train. L1 through L3 are deterministic tests over pure or seam-injected code paths; L4 tests the judge invocation shape via a stubbed spawn seam (a real subprocess round-trip is exercised out-of-band as the section 11 real-claude smoke).",
   "testLevel": "integration",
   "acIds": [
@@ -32,7 +32,7 @@
       "acId": "AC-1601-3",
       "description": "findEvalRefusalAcs and reportHasEvalRefusal read the two EVAL classes off perAcVerdicts[]; composeShipWithoutEvalRecord carries the operator reason and declared per-AC verdicts; nextShipWithoutEvalId increments monotonically",
       "status": "pending",
-      "testPointer": "test/finalise/ship-without-eval.test.js::composeShipWithoutEvalRecord carries the operator reason and the declared AC verdicts"
+      "testPointer": "test/cli/finalise-eval-refusal.test.js::finalise --ship-without-eval \"harness offline\" exits 0 and appends a monotonic swe-* record on manifest.shipWithoutEval[]"
     },
     {
       "id": "TC-045-runonecase-spawns-the-invoker-claude-or",
