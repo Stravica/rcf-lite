@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-120",
+  "path": "../../test/fixtures/probe-pack-application-dashboard/server.js",
+  "implementsAcIds": [
+    "AC-2001-5",
+    "AC-2001-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T22:10:00.000Z",
+  "updatedAt": "2026-09-04T22:10:00.000Z"
+}

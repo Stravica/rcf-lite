@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-04T22:10:00.000Z",
+  "updatedAt": "2026-09-04T22:10:00.000Z",
+  "reqId": "REQ-020",
+  "prdId": "PRD-001",
+  "title": "Application-dashboard v1.0.0 blueprint on the shelf with its packaged design-guidance asset, Playwright probe pack and sample-app fixture",
+  "description": "The rcf-lite shelf ships the application-dashboard v1.0.0 blueprint (blueprints/application-dashboard/) with 18 contributions (5 REQs on the dashboard shell composition, the primary-KPI visual hierarchy, the per-tile four-state contract, the timeframe and filter chrome fan-out, and the export handle with format delegation to charts; 7 USs binding runtime-observable ACs plus one US on packaged-guidance adherence; 3 TACs on the tile grid with CSS Grid position semantics and breakpoint reflow, the filter chrome and timeframe picker with the refetch fan-out contract, and the export handle; 3 ADRs on the primary-KPI kinds enum, the timeframe presets and the export formats). Ships a packaged design-guidance asset at blueprints/application-dashboard/assets/guidance/dashboard-design.md covering primary KPI placement, tile density and count limits, timeframe and filter chrome, loading/empty/error states, colour and contrast, when a table beats a chart with delegation to application-datatable, refresh cadence and staleness, and anti-patterns (five https citations from NN/g, Few, Tufte, GOV.UK, WCAG). Ships a Playwright probe pack under blueprints/application-dashboard/probe-packs/application-dashboard.pack.mjs whose three checks (AC-19102-1 primary-KPI position by DOM order and CSS Grid position at 1440/1024/360, AC-19104-1 timeframe refetch fan-out with same boundary and matching as-of ISO-8601 stamp, AC-19103-1 per-tile four-state contract with role region, aria-live polite and non-colour distinction) are anchored to blueprint AC ids per T-0 AC-1701-3. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-dashboard/ with break switches for the negative runs. Extends the pack-browser seam with a resize(width, height) method (via the pinned Playwright MCP's browser_resize tool on the MCP route and page.setViewportSize on the project route) so probe packs can probe breakpoint reflow honestly. Third shipped consumer of T-0's probe-pack runner extension; consumes application-charts on the chart region and references application-datatable in the packaged guidance.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft"
+}
