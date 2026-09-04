@@ -1,28 +1,108 @@
 {
   "slug": "observability-probe-endpoints",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "observability",
   "contributions": [
-    { "id": "observability-probe-endpoints-REQ-001", "kind": "req", "path": "requirements/observability-probe-endpoints-req-001.json" },
-    { "id": "observability-probe-endpoints-REQ-002", "kind": "req", "path": "requirements/observability-probe-endpoints-req-002.json" },
-    { "id": "observability-probe-endpoints-REQ-003", "kind": "req", "path": "requirements/observability-probe-endpoints-req-003.json" },
-    { "id": "observability-probe-endpoints-REQ-004", "kind": "req", "path": "requirements/observability-probe-endpoints-req-004.json" },
-    { "id": "observability-probe-endpoints-REQ-005", "kind": "req", "path": "requirements/observability-probe-endpoints-req-005.json" },
-    { "id": "observability-probe-endpoints-REQ-006", "kind": "req", "path": "requirements/observability-probe-endpoints-req-006.json" },
-    { "id": "observability-probe-endpoints-REQ-007", "kind": "req", "path": "requirements/observability-probe-endpoints-req-007.json" },
-    { "id": "observability-probe-endpoints-REQ-008", "kind": "req", "path": "requirements/observability-probe-endpoints-req-008.json" },
-    { "id": "observability-probe-endpoints-US-14101", "kind": "us", "path": "user-stories/observability-probe-endpoints-us-14101.json" },
-    { "id": "observability-probe-endpoints-US-14102", "kind": "us", "path": "user-stories/observability-probe-endpoints-us-14102.json" },
-    { "id": "observability-probe-endpoints-US-14103", "kind": "us", "path": "user-stories/observability-probe-endpoints-us-14103.json" },
-    { "id": "observability-probe-endpoints-US-14104", "kind": "us", "path": "user-stories/observability-probe-endpoints-us-14104.json" },
-    { "id": "observability-probe-endpoints-US-14105", "kind": "us", "path": "user-stories/observability-probe-endpoints-us-14105.json" },
-    { "id": "observability-probe-endpoints-US-14106", "kind": "us", "path": "user-stories/observability-probe-endpoints-us-14106.json" },
-    { "id": "observability-probe-endpoints-US-14107", "kind": "us", "path": "user-stories/observability-probe-endpoints-us-14107.json" },
-    { "id": "observability-probe-endpoints-US-14108", "kind": "us", "path": "user-stories/observability-probe-endpoints-us-14108.json" },
-    { "id": "TAC-1501-observability-probe-endpoints-profile-resolver", "kind": "tac", "path": "tacs/tac-1501-observability-probe-endpoints-profile-resolver.json" },
-    { "id": "TAC-1502-observability-probe-endpoints-handler-set", "kind": "tac", "path": "tacs/tac-1502-observability-probe-endpoints-handler-set.json" },
-    { "id": "TAC-1503-observability-probe-endpoints-listener-topology", "kind": "tac", "path": "tacs/tac-1503-observability-probe-endpoints-listener-topology.json" },
-    { "id": "TAC-1504-observability-probe-endpoints-non-http-adapters", "kind": "tac", "path": "tacs/tac-1504-observability-probe-endpoints-non-http-adapters.json" },
+    {
+      "id": "observability-probe-endpoints-REQ-001",
+      "kind": "req",
+      "path": "requirements/observability-probe-endpoints-req-001.json"
+    },
+    {
+      "id": "observability-probe-endpoints-REQ-002",
+      "kind": "req",
+      "path": "requirements/observability-probe-endpoints-req-002.json"
+    },
+    {
+      "id": "observability-probe-endpoints-REQ-003",
+      "kind": "req",
+      "path": "requirements/observability-probe-endpoints-req-003.json"
+    },
+    {
+      "id": "observability-probe-endpoints-REQ-004",
+      "kind": "req",
+      "path": "requirements/observability-probe-endpoints-req-004.json"
+    },
+    {
+      "id": "observability-probe-endpoints-REQ-005",
+      "kind": "req",
+      "path": "requirements/observability-probe-endpoints-req-005.json"
+    },
+    {
+      "id": "observability-probe-endpoints-REQ-006",
+      "kind": "req",
+      "path": "requirements/observability-probe-endpoints-req-006.json"
+    },
+    {
+      "id": "observability-probe-endpoints-REQ-007",
+      "kind": "req",
+      "path": "requirements/observability-probe-endpoints-req-007.json"
+    },
+    {
+      "id": "observability-probe-endpoints-REQ-008",
+      "kind": "req",
+      "path": "requirements/observability-probe-endpoints-req-008.json"
+    },
+    {
+      "id": "observability-probe-endpoints-US-14101",
+      "kind": "us",
+      "path": "user-stories/observability-probe-endpoints-us-14101.json"
+    },
+    {
+      "id": "observability-probe-endpoints-US-14102",
+      "kind": "us",
+      "path": "user-stories/observability-probe-endpoints-us-14102.json"
+    },
+    {
+      "id": "observability-probe-endpoints-US-14103",
+      "kind": "us",
+      "path": "user-stories/observability-probe-endpoints-us-14103.json"
+    },
+    {
+      "id": "observability-probe-endpoints-US-14104",
+      "kind": "us",
+      "path": "user-stories/observability-probe-endpoints-us-14104.json"
+    },
+    {
+      "id": "observability-probe-endpoints-US-14105",
+      "kind": "us",
+      "path": "user-stories/observability-probe-endpoints-us-14105.json"
+    },
+    {
+      "id": "observability-probe-endpoints-US-14106",
+      "kind": "us",
+      "path": "user-stories/observability-probe-endpoints-us-14106.json"
+    },
+    {
+      "id": "observability-probe-endpoints-US-14107",
+      "kind": "us",
+      "path": "user-stories/observability-probe-endpoints-us-14107.json"
+    },
+    {
+      "id": "observability-probe-endpoints-US-14108",
+      "kind": "us",
+      "path": "user-stories/observability-probe-endpoints-us-14108.json"
+    },
+    {
+      "id": "TAC-1501-observability-probe-endpoints-profile-resolver",
+      "kind": "tac",
+      "path": "tacs/tac-1501-observability-probe-endpoints-profile-resolver.json"
+    },
+    {
+      "id": "TAC-1502-observability-probe-endpoints-handler-set",
+      "kind": "tac",
+      "path": "tacs/tac-1502-observability-probe-endpoints-handler-set.json"
+    },
+    {
+      "id": "TAC-1503-observability-probe-endpoints-listener-topology",
+      "kind": "tac",
+      "path": "tacs/tac-1503-observability-probe-endpoints-listener-topology.json"
+    },
+    {
+      "id": "TAC-1504-observability-probe-endpoints-non-http-adapters",
+      "kind": "tac",
+      "path": "tacs/tac-1504-observability-probe-endpoints-non-http-adapters.json"
+    },
     {
       "id": "ADR-1501-observability-probe-endpoints-health-probes",
       "kind": "adr",
@@ -37,8 +117,20 @@
       "scope": "global",
       "topic": "readinessSemantics"
     },
-    { "id": "ADR-1503-observability-probe-endpoints-kubernetes-default", "kind": "adr", "path": "adrs/adr-1503-observability-probe-endpoints-kubernetes-default.json" },
-    { "id": "ADR-1504-observability-probe-endpoints-separate-port-option", "kind": "adr", "path": "adrs/adr-1504-observability-probe-endpoints-separate-port-option.json" },
-    { "id": "ADR-1505-observability-probe-endpoints-external-response-secrecy", "kind": "adr", "path": "adrs/adr-1505-observability-probe-endpoints-external-response-secrecy.json" }
+    {
+      "id": "ADR-1503-observability-probe-endpoints-kubernetes-default",
+      "kind": "adr",
+      "path": "adrs/adr-1503-observability-probe-endpoints-kubernetes-default.json"
+    },
+    {
+      "id": "ADR-1504-observability-probe-endpoints-separate-port-option",
+      "kind": "adr",
+      "path": "adrs/adr-1504-observability-probe-endpoints-separate-port-option.json"
+    },
+    {
+      "id": "ADR-1505-observability-probe-endpoints-external-response-secrecy",
+      "kind": "adr",
+      "path": "adrs/adr-1505-observability-probe-endpoints-external-response-secrecy.json"
+    }
   ]
 }

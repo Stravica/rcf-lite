@@ -2,7 +2,7 @@
   "usId": "observability-probe-endpoints-US-14102",
   "prdId": "PRD-001",
   "reqId": "observability-probe-endpoints-REQ-002",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "approved",
   "title": "A Kubernetes-supervised replica is probed at /live and /ready on the request-traffic listener with no operator configuration",
   "asA": "kubelet running a probing loop against a pod that applied the blueprint with no explicit configuration",
@@ -35,6 +35,15 @@
       "then": "the first response has status 200 and body `{\"status\":\"pass\"}`; the second response has status 503 and body `{\"status\":\"fail\"}`",
       "testable": true,
       "scope": "runtime"
+    },
+    {
+      "id": "AC-14102-4",
+      "description": "When the operator sets probeInterface.options.kubernetes.startup.enabled: true on the shipped Kubernetes profile, the resolver returns a three-path set including the startup path (default /startup) and the handler-set builder generates a startup handler that answers pass once the operator-declared startup predicate returns pass and fail otherwise.",
+      "given": "a process on the shipped kubernetes profile with probeInterface.options.kubernetes.startup.enabled set to true, a startup predicate wired against a stubbed initialisation state, and the paths option left at its default",
+      "when": "the resolver runs at boot, and then GETs are issued against /startup with the stubbed state first fail then pass",
+      "then": "the resolver returns { profile: kubernetes, paths: [/live, /ready, /startup] }; the first GET on /startup returns 503 with body {\"status\":\"fail\"}; the second GET on /startup returns 200 with body {\"status\":\"pass\"}; without the enable flag the resolver returns two paths and no /startup handler is registered",
+      "testable": true,
+      "scope": "runtime"
     }
   ],
   "tacIds": [
@@ -42,5 +51,5 @@
     "TAC-1503-observability-probe-endpoints-listener-topology"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-04T00:00:00Z"
 }

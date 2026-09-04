@@ -34,7 +34,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
 | deploy-cloudflare-workers | 12101-12899 | 13xx | shipped v1.0.0 | `deploymentTarget` |
 | persistence-data-d1 | 13101-13899 | 14xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
-| observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics` |
+| observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.1.0 | `healthProbes`, `readinessSemantics` |
 
 US 9101-9110 sit at the LOW end of the 9101-9899 band on purpose. A project-side story that mechanically derives from a security-auth-clerk REQ id into the number `9110` would collide against security-auth-clerk-US-9110 in this package; the band leaves headroom at the HIGH end (US 9181-9899) so a project's own stories anchored to security-auth-clerk REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 
