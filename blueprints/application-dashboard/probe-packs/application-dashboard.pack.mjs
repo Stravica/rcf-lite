@@ -55,7 +55,7 @@ export default {
           const measurement = await browser.evaluate(() => {
             const tileRow = document.querySelector('[data-region="tile-row"]');
             if (!tileRow) return { error: 'no tile-row region' };
-            const tiles = Array.from(tileRow.querySelectorAll('[data-tile-role]'));
+            const tiles = Array.from(tileRow.querySelectorAll('[data-tile-id]'));
             if (tiles.length === 0) return { error: 'tile row has no tiles' };
             const primary = tiles.find((el) => el.getAttribute('data-tile-role') === 'primary-kpi');
             if (!primary) return { error: 'no primary-kpi tile' };
@@ -70,6 +70,7 @@ export default {
               kpiKind,
               kpiName,
               tileCount: tiles.length,
+              tileIds: tiles.map((el) => el.getAttribute('data-tile-id')),
               viewportWidth: window.innerWidth,
             };
           });
@@ -95,7 +96,7 @@ export default {
         if (kpiKind === 'custom' && !perWidth[0].measurement.kpiName) {
           return { verdict: 'fail', detail: 'primary-KPI kind is custom but data-kpi-name is missing' };
         }
-        return { verdict: 'pass', detail: 'primary-KPI top-left at every breakpoint: ' + JSON.stringify(perWidth.map((r) => ({ width: r.width, kind: r.measurement.kpiKind, domIndex: r.measurement.domIndex, gcs: r.measurement.gridColumnStart, grs: r.measurement.gridRowStart }))) };
+        return { verdict: 'pass', detail: 'primary-KPI top-left at every breakpoint (tiles: ' + perWidth[0].measurement.tileCount + '): ' + JSON.stringify(perWidth.map((r) => ({ width: r.width, kind: r.measurement.kpiKind, domIndex: r.measurement.domIndex, gcs: r.measurement.gridColumnStart, grs: r.measurement.gridRowStart, tiles: r.measurement.tileCount }))) };
       },
     },
     {
@@ -138,7 +139,8 @@ export default {
         const evidence = await browser.evaluate((initialCount) => {
           const root = document.querySelector('[data-region="shell-root"]');
           const fetches = (window.__dashboardFetches || []).slice(initialCount);
-          const tiles = Array.from(document.querySelectorAll('[data-tile-role]'));
+          const tileRow = document.querySelector('[data-region="tile-row"]');
+          const tiles = tileRow ? Array.from(tileRow.querySelectorAll('[data-tile-id]')) : [];
           return {
             fetches,
             tileAsOfs: tiles.map((el) => ({ tileId: el.getAttribute('data-tile-id'), asOf: el.getAttribute('data-as-of') })),
