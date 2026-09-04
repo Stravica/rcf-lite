@@ -179,9 +179,19 @@ export async function runVerification(opts = {}, deps = {}) {
   // (default or overridden) always lands on the report as
   // runStats.playwrightMcpVersion so a report re-render tells the operator
   // which browser tooling this pass ran against (spec 2026-09-03, Q1).
+  // rcf-eval-node spec section 5.3: eval-coverage rollup lands on
+  // runStats so a report re-render surfaces the pass state. Counts
+  // are read off the chain's per-AC evalStatus derivation.
+  const nonDeterministic = chain.acs.filter((a) => a.determinism === 'nonDeterministic');
+  const evalCoverage = {
+    nonDeterministic: nonDeterministic.length,
+    covered: nonDeterministic.filter((a) => a.evalStatus === 'resolving').length,
+    missing: nonDeterministic.filter((a) => a.evalStatus !== 'resolving').length,
+  };
   const runStatsForReport = {
     ...(launchResult?.runStats ?? {}),
     playwrightMcpVersion,
+    evalCoverage,
   };
   const report = buildReport({
     profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo,

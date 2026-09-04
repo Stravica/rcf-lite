@@ -176,6 +176,21 @@ export async function main(argv, deps = {}) {
     return 1;
   }
 
+  // rcf-eval-node spec section 5.3: preflight-style print for EVAL
+  // coverage. Runs on the report because the engine has already read
+  // the chain; a report re-render carries runStats.evalCoverage so the
+  // same line is reconstructable from the report artefact.
+  const ec = report?.run?.runStats?.evalCoverage ?? report?.runStats?.evalCoverage ?? null;
+  if (ec) {
+    if ((ec.nonDeterministic ?? 0) === 0) {
+      stderr.write('EVAL coverage: no nonDeterministic ACs on this chain\n');
+    } else {
+      stderr.write(
+        `EVAL coverage: nonDeterministic=${ec.nonDeterministic}, covered=${ec.covered}, missing=${ec.missing}\n`,
+      );
+    }
+  }
+
   stderr.write(`[rcf-verify] verdict ${report.verdict} [${report.verdictAuthority}] -> ${flags.out}\n`);
 
   // Exit code is the gate (§8.2). NOT-DEPLOYED / BLOCKED always trip.
