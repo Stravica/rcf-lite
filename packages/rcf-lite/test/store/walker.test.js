@@ -42,7 +42,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // camelCase topics).
   assert.equal(tree.adrs.length, 10);
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
-  assert.equal(tree.fbsItems.length, 23);
+  assert.equal(tree.fbsItems.length, 26);
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
@@ -140,10 +140,10 @@ test('walkTree computes parentByChild by inverting child-borne parent fields', a
   assert.equal(tree.parentByChild.get('FBS-001'), 'BS-001');
 });
 
-test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-011)', async () => {
+test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-012)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   const reqChildren = tree.childrenByParent.get('PRD-001') ?? [];
-  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011']);
+  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012']);
   const tadChildren = tree.childrenByParent.get('TAD-001') ?? [];
   // TAD gathers both TAC and ADR children.
   for (const id of ['TAC-001', 'TAC-002', 'TAC-007', 'ADR-001', 'ADR-005']) {

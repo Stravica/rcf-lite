@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-075",
+  "path": "src/cli/doctor.js#runProbePathOwnerCheck",
+  "title": "probe-path-owner doctor check",
+  "description": "Reads rcf/manifest.json, counts scope:global claimants on healthProbes and readinessSemantics; drift on more than one claimant per topic (names the applied blueprints and the remedy line naming the one that would have to drop its opinion, spec section 9). Also flags redundant historical resolutions[] entries on either topic when the current claimant count is <= 1 (a project that resolved the v1.x designed-in conflicts and re-applied to essentials v2.0.0 sees the resolution flagged as redundant, with the rcf define blueprint remove-resolution hint). Added to KNOWN_CHECKS; help text lists the new check. Not gated on browser-facing.",
+  "implementsAcIds": [
+    "AC-1203-2",
+    "AC-1203-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-074",
+  "path": "test/blueprint/probe-path-alignment.test.js",
+  "title": "Three-way probe-path compose test (nine assertions across essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0)",
+  "description": "The compose test file covers the nine assertions ratified in spec section 7 as document-level mechanism invariants over the shipped blueprint contributions and the applied rcf/ tree. Six static-named permutation tests for assertion 1 (the AC-1201-1 test pointer resolves to the first permutation), then one assertion each for one-owner-per-topic in the manifest, no-literal-path in the applied tree with Historical-ADR skip, bare compose defaults + optional startup + loadBalancer /health, essentials-alone required-config + PROBE_INTERFACE_PATHS_MISSING, auth-exempt-list agreement, TAC path-required-no-default, startup binding when enabled, and no dual handler registration. Runs in one process under the shipped node --test runner.",
+  "implementsAcIds": [
+    "AC-1201-1",
+    "AC-1201-2",
+    "AC-1202-1",
+    "AC-1203-1",
+    "AC-1203-2",
+    "AC-1203-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

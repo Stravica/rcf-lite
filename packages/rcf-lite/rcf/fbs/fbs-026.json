@@ -1,0 +1,27 @@
+{
+  "fbsId": "FBS-026",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 26,
+  "executionStatus": "verified",
+  "title": "Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check",
+  "summary": "Add the assertion 4-9 block to packages/rcf-lite/test/blueprint/probe-path-alignment.test.js covering probe-endpoints optional startup + composing section (assertion 4, 8), essentials PROBE_INTERFACE_PATHS_MISSING refuse-boot + no-shipped-default TACs + no-dual-handler (assertions 5, 7, 9), api-rest deferral of the probe paths and auth-exempt-list binding (assertion 6). Add the probe-path-owner check to KNOWN_CHECKS in packages/rcf-lite/src/cli/doctor.js with the runProbePathOwnerCheck implementation reading manifest.blueprints[].contributions[] for scope:global topic multi-claim drift and manifest.resolutions[] for redundant resolutions on healthProbes/readinessSemantics after the alignment.",
+  "acIds": [
+    "AC-1203-1",
+    "AC-1203-2",
+    "AC-1203-3"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-025"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "domain": "blueprints",
+  "estimatedSize": "medium",
+  "riskLevel": "low",
+  "notes": "Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1203 on REQ-012.",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

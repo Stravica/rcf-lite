@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 11,
-    "covered": 11,
+    "requirements": 12,
+    "covered": 12,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -1060,7 +1060,74 @@
           "unresolvedTestCases": []
         }
       ]
+    },
+    {
+      "id": "REQ-012",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1201-1",
+          "covered": true,
+          "testCases": [
+            "TC-034-permutations-no-globaladr-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1201-2",
+          "covered": true,
+          "testCases": [
+            "TC-034-one-owner-per-topic"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1202-1",
+          "covered": false,
+          "testCases": [
+            "TC-035-no-literal-path-in-applied-tree"
+          ],
+          "unresolvedTestCases": [
+            "TC-035-no-literal-path-in-applied-tree"
+          ]
+        },
+        {
+          "id": "AC-1203-1",
+          "covered": true,
+          "testCases": [
+            "TC-036-probe-endpoints-optional-startup"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1203-2",
+          "covered": true,
+          "testCases": [
+            "TC-036-essentials-no-dual-handler",
+            "TC-036-essentials-no-shipped-default",
+            "TC-036-essentials-path-neutral-and-refusal"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1203-3",
+          "covered": true,
+          "testCases": [
+            "TC-036-api-rest-auth-exempt-list",
+            "TC-036-api-rest-startup-consumption"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
     }
   ],
-  "unresolvedTestPointers": []
+  "unresolvedTestPointers": [
+    {
+      "tsId": "TS-035",
+      "tcId": "TC-035-no-literal-path-in-applied-tree",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 3: no literal probe path outside probe-endpoints prose in applied tree",
+      "reason": "test-missing"
+    }
+  ]
 }

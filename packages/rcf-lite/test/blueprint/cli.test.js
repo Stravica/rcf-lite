@@ -406,7 +406,7 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   //    resolutions), reaching co-residence.
   const readd = await runBin(root, ['define', 'blueprint', 'add', shippedRest]);
   assert.equal(readd.code, 0, `re-add rest after supersede pair: ${readd.stderr}\n${readd.stdout}`);
-  assert.match(readd.stdout, /applied 'application-api-rest' at 1\.0\.0/);
+  assert.match(readd.stdout, /applied 'application-api-rest' at 2\.0\.0/);
 
   // Co-residence proven: both blueprint entries in manifest.blueprints[],
   // and manifest.resolutions[] carries the topic strings VERBATIM

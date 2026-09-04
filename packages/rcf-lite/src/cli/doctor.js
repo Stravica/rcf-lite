@@ -76,6 +76,7 @@ const KNOWN_CHECKS = /** @type {const} */ ([
   'browser-present',
   'playwright-mcp-reachable',
   'playwright-mcp-redundant',
+  'probe-path-owner',
 ]);
 
 /** The four Playwright-related checks doctor runs conditionally for
@@ -102,7 +103,7 @@ Options:
                             Values: agent-instructions, gitignore,
                                     knowledge, identity, playwright-present,
                                     browser-present, playwright-mcp-reachable,
-                                    playwright-mcp-redundant.
+                                    playwright-mcp-redundant, probe-path-owner.
   --json                    Emit machine-readable envelope: { ok, drift, writes, notices }.
   --quiet                   Only summary line + first 3 drift items.
   --force                   Accept a legacy-markers --fix on hand-edited
@@ -247,6 +248,11 @@ export async function main(argv, deps = {}) {
       // API-only project even under an explicit --check ask.
       if (!ctx.browserFacing) continue;
       result = await runPlaywrightMcpRedundantCheck(ctx);
+    } else if (check === 'probe-path-owner') {
+      // Fires whenever more than one applied blueprint teaches probe paths.
+      // Runs on every project (not gated on browser-facing). Spec:
+      // projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md section 9.
+      result = await runProbePathOwnerCheck(ctx);
     } else continue;
     for (const d of result.drift) drift.push({ check, ...d });
     for (const w of result.writes) writes.push(w);
@@ -704,6 +710,75 @@ async function runPlaywrightMcpRedundantCheck(ctx) {
   });
   return { drift, writes: [] };
 }
+
+/* ------------------------------------------------------------------ */
+/* Check: probe-path-owner (probe-path alignment spec section 9)      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Fires when more than one applied blueprint teaches probe paths. Reads
+ * `rcf/manifest.json` for the applied-blueprint records; counts how many
+ * carry a scope:global ADR on `healthProbes` (the shelf-wide probe-path
+ * ownership topic). More than one is drift: names the blueprints and the
+ * remedy line naming the one that would have to drop its opinion.
+ *
+ * Also names any resolutions[] entry the alignment removed as redundant
+ * (a project that applied essentials v1.x + probe-endpoints v1.0.0 and
+ * resolved the two topics via supersede will have a resolution entry
+ * pointing at both blueprint ADRs; after re-applying to essentials v2.0.0
+ * the essentials side no longer claims the topic and the resolution is
+ * redundant historical context the operator can remove).
+ */
+async function runProbePathOwnerCheck(ctx) {
+  const drift = [];
+  const manifestPath = join(ctx.projectRoot, 'rcf', 'manifest.json');
+  let manifest = null;
+  try {
+    manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  } catch { return { drift, writes: [] }; }
+  const applied = Array.isArray(manifest?.blueprints) ? manifest.blueprints : [];
+  const claimants = { healthProbes: [], readinessSemantics: [] };
+  for (const b of applied) {
+    for (const c of b?.contributions ?? []) {
+      if (c?.kind === 'adr' && c?.scope === 'global' && (c.topic === 'healthProbes' || c.topic === 'readinessSemantics')) {
+        claimants[c.topic].push({ slug: b.slug, adrId: c.id });
+      }
+    }
+  }
+  for (const topic of ['healthProbes', 'readinessSemantics']) {
+    if (claimants[topic].length > 1) {
+      const slugs = claimants[topic].map((x) => x.slug).join(', ');
+      const owner = claimants[topic].find((x) => x.slug === 'observability-probe-endpoints');
+      const remedy = owner
+        ? `${claimants[topic].filter((x) => x.slug !== 'observability-probe-endpoints').map((x) => x.slug).join(', ')} would have to drop its scope:global claim on ${topic} (observability-probe-endpoints is the shelf canonical owner from probe-endpoints v1.0.0)`
+        : `one of ${slugs} would have to drop its scope:global claim on ${topic}`;
+      drift.push({
+        item: `multiple-${topic}-owners`,
+        file: 'rcf/manifest.json',
+        message: `more than one applied blueprint teaches probe paths on topic '${topic}': ${slugs}. ${remedy}. Spec: projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md section 9.`,
+        refusedByFix: true,
+      });
+    }
+  }
+  // Redundant resolutions: a resolutions[] entry that names both
+  // `healthProbes` or `readinessSemantics` where the current claimant
+  // count is 1 (or 0) is redundant historical context.
+  const resolutions = Array.isArray(manifest?.resolutions) ? manifest.resolutions : [];
+  for (const r of resolutions) {
+    if (r?.topic === 'healthProbes' || r?.topic === 'readinessSemantics') {
+      if (claimants[r.topic].length <= 1) {
+        drift.push({
+          item: `redundant-${r.topic}-resolution`,
+          file: 'rcf/manifest.json',
+          message: `resolution '${r?.resolvedByAdrId ?? '(unnamed)'}' on topic '${r.topic}' is now redundant historical context: only ${claimants[r.topic].length} applied blueprint claims the topic after the probe-path alignment. Consider \`rcf define blueprint remove-resolution ${r?.resolvedByAdrId ?? '<id>'}\` or leave the resolution ADR as historical.`,
+          refusedByFix: true,
+        });
+      }
+    }
+  }
+  return { drift, writes: [] };
+}
+
 
 /**
  * Default reader for the project-root .mcp.json body. Returns the parsed

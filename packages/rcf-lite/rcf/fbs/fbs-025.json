@@ -1,0 +1,25 @@
+{
+  "fbsId": "FBS-025",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 25,
+  "executionStatus": "verified",
+  "title": "Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree",
+  "summary": "Add the assertion 3 block to packages/rcf-lite/test/blueprint/probe-path-alignment.test.js: applies the three amended blueprints, walks the resulting rcf/ tree, greps for the five literal probe-path strings, and skips ADR contribution files whose title begins \"Historical:\" (per spec section 4) or whose adrId names probe-secrecy (context-only ADR).",
+  "acIds": [
+    "AC-1202-1"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-024"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "domain": "blueprints",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1202 on REQ-012.",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

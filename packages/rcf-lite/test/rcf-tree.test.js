@@ -93,14 +93,14 @@ const expectedCounts = {
   // on shipped blueprints).
   adr: 10,
   buildSequence: 1,
-  fbs: 23,
+  fbs: 26,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
   // Phase 1 blueprint mechanism added 11 CNs for the mechanism modules.
   // Phase 3.5 (w-2026-08-19-008) added CN-069 for supersede.js#supersedeBlueprintTopic.
   // e2e contract added CN-070..073 for the four commits' main code paths.
-  codeNode: 73,
+  codeNode: 75,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.

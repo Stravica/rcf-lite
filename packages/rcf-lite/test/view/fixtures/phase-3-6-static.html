@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -4290,6 +4290,298 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-012">
+  <summary><span class="summary-label">REQ-012 - Core shelf: probe-path binding has one owner (observability-probe-endpoints), essentials and api-rest defer</span><span class="status draft">draft</span></summary>
+  <article id="REQ-012" class="doc doc-req">
+  <h3>REQ-012 - Core shelf: probe-path binding has one owner (observability-probe-endpoints), essentials and api-rest defer</h3>
+  
+  <p><strong>Description:</strong> The shipped observability-essentials, observability-probe-endpoints, and application-api-rest blueprints compose on one project without a `globalAdrTopic` conflict on the `healthProbes` or `readinessSemantics` topics; observability-probe-endpoints is the sole shelf-wide `scope: global` claimant on both topics. observability-essentials v2.0.0 drops those claims and restates its two probe REQs and TACs path-neutral, refusing boot with the stable-coded error `PROBE_INTERFACE_PATHS_MISSING` when `probeInterface.paths.liveness` or `probeInterface.paths.readiness` is absent and probe-endpoints is not composed. application-api-rest v2.0.0 drops the literal `/healthz/live`, `/healthz/ready`, and `/healthz/startup` bindings from REQ-006, US-2108 (all eight ACs), TAC-306 and US-2103, deferring to the resolved probe path set (probe-endpoints Kubernetes profile default `/live` and `/ready`, optional `/startup`; loadBalancer profile `/health`; or project-supplied `probeInterface.paths` in the essentials-alone case). observability-probe-endpoints v1.1.0 adds the optional third Kubernetes-profile path `startup` (default `/startup`), off by default and enabled by `probeInterface.options.kubernetes.startup.enabled: true`, with paired ACs on US-14102 and US-14107 and a composing section in its guide. The three-way alignment is verified by the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js` and is the ratified truth for the shelf.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> blueprints</p>
+  <p><strong>Priority:</strong> must</p>
+  <p><strong>Rationale:</strong> The shipped shelf carried three literal probe-path opinions before this alignment (essentials /healthz + /readyz, probe-endpoints /live + /ready, api-rest /healthz/live + /healthz/ready + /healthz/startup). Composing any two of the three on one project either fired a designed-in `globalAdrTopic` conflict on healthProbes/readinessSemantics or silently shipped three disagreeing probe bindings. WSD-012 mandates /live and /ready, which is the probe-endpoints Kubernetes default; Dex&#39;s A4 wsd-service-anatomy binds those two paths as a parameter and required this item as its dependency. Aligning ownership to one blueprint (probe-endpoints) and making the other two defer is the smallest change that closes both the conflict-by-design surface and the silent-disagreement surface without inventing a new composer primitive. Ratified spec: `projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md` (sections 1 through 11).</p>
+  <section class="field-list"><h4>Tags</h4><ul><li>blueprints</li><li>observability</li><li>probe-endpoints</li><li>essentials</li><li>api-rest</li><li>alignment</li></ul></section>
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-012[&quot;REQ-012&lt;br/&gt;Core shelf: probe-path binding has one owner ...&quot;]
+  US-1201[&quot;US-1201&lt;br/&gt;observability-essentials + observability-prob...&quot;]
+  REQ-012 --&gt; US-1201
+  AC-1201-1[&quot;AC-1201-1&quot;]
+  US-1201 --&gt; AC-1201-1
+  FBS-024[&quot;FBS-024&lt;br/&gt;Three-way compose test asserting no globalAdr...&quot;]
+  AC-1201-1 -.-&gt;|delivered by| FBS-024
+  CN-074[&quot;CN-074&lt;br/&gt;Three-way probe-path compose test (nine asser...&quot;]
+  AC-1201-1 -.-&gt;|implemented by| CN-074
+  AC-1201-2[&quot;AC-1201-2&quot;]
+  US-1201 --&gt; AC-1201-2
+  AC-1201-2 -.-&gt;|delivered by| FBS-024
+  AC-1201-2 -.-&gt;|implemented by| CN-074
+  US-1202[&quot;US-1202&lt;br/&gt;The applied tree carries no literal probe pat...&quot;]
+  REQ-012 --&gt; US-1202
+  AC-1202-1[&quot;AC-1202-1&quot;]
+  US-1202 --&gt; AC-1202-1
+  FBS-025[&quot;FBS-025&lt;br/&gt;Compose test assertion 3: greppable no-litera...&quot;]
+  AC-1202-1 -.-&gt;|delivered by| FBS-025
+  AC-1202-1 -.-&gt;|implemented by| CN-074
+  US-1203[&quot;US-1203&lt;br/&gt;Each amended blueprint carries the ratified a...&quot;]
+  REQ-012 --&gt; US-1203
+  AC-1203-1[&quot;AC-1203-1&quot;]
+  US-1203 --&gt; AC-1203-1
+  FBS-026[&quot;FBS-026&lt;br/&gt;Compose test assertions 4-9 covering the per-...&quot;]
+  AC-1203-1 -.-&gt;|delivered by| FBS-026
+  AC-1203-1 -.-&gt;|implemented by| CN-074
+  AC-1203-2[&quot;AC-1203-2&quot;]
+  US-1203 --&gt; AC-1203-2
+  AC-1203-2 -.-&gt;|delivered by| FBS-026
+  AC-1203-2 -.-&gt;|implemented by| CN-074
+  CN-075[&quot;CN-075&lt;br/&gt;probe-path-owner doctor check&quot;]
+  AC-1203-2 -.-&gt;|implemented by| CN-075
+  AC-1203-3[&quot;AC-1203-3&quot;]
+  US-1203 --&gt; AC-1203-3
+  AC-1203-3 -.-&gt;|delivered by| FBS-026
+  AC-1203-3 -.-&gt;|implemented by| CN-074
+  AC-1203-3 -.-&gt;|implemented by| CN-075
+  click REQ-012 &quot;#REQ-012&quot;;
+  click US-1201 &quot;#US-1201&quot;;
+  click AC-1201-1 &quot;#AC-1201-1&quot;;
+  click FBS-024 &quot;#FBS-024&quot;;
+  click CN-074 &quot;#CN-074&quot;;
+  click AC-1201-2 &quot;#AC-1201-2&quot;;
+  click US-1202 &quot;#US-1202&quot;;
+  click AC-1202-1 &quot;#AC-1202-1&quot;;
+  click FBS-025 &quot;#FBS-025&quot;;
+  click US-1203 &quot;#US-1203&quot;;
+  click AC-1203-1 &quot;#AC-1203-1&quot;;
+  click FBS-026 &quot;#FBS-026&quot;;
+  click AC-1203-2 &quot;#AC-1203-2&quot;;
+  click CN-075 &quot;#CN-075&quot;;
+  click AC-1203-3 &quot;#AC-1203-3&quot;;
+  class REQ-012 req;
+  class US-1201 us;
+  class AC-1201-1 ac;
+  class FBS-024 fbs;
+  class CN-074 cn;
+  class AC-1201-2 ac;
+  class US-1202 us;
+  class AC-1202-1 ac;
+  class FBS-025 fbs;
+  class US-1203 us;
+  class AC-1203-1 ac;
+  class FBS-026 fbs;
+  class AC-1203-2 ac;
+  class CN-075 cn;
+  class AC-1203-3 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;reqId&quot;: &quot;REQ-012&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Core shelf: probe-path binding has one owner (observability-probe-endpoints), essentials and api-rest defer&quot;,
+  &quot;description&quot;: &quot;The shipped observability-essentials, observability-probe-endpoints, and application-api-rest blueprints compose on one project without a `globalAdrTopic` conflict on the `healthProbes` or `readinessSemantics` topics; observability-probe-endpoints is the sole shelf-wide `scope: global` claimant on both topics. observability-essentials v2.0.0 drops those claims and restates its two probe REQs and TACs path-neutral, refusing boot with the stable-coded error `PROBE_INTERFACE_PATHS_MISSING` when `probeInterface.paths.liveness` or `probeInterface.paths.readiness` is absent and probe-endpoints is not composed. application-api-rest v2.0.0 drops the literal `/healthz/live`, `/healthz/ready`, and `/healthz/startup` bindings from REQ-006, US-2108 (all eight ACs), TAC-306 and US-2103, deferring to the resolved probe path set (probe-endpoints Kubernetes profile default `/live` and `/ready`, optional `/startup`; loadBalancer profile `/health`; or project-supplied `probeInterface.paths` in the essentials-alone case). observability-probe-endpoints v1.1.0 adds the optional third Kubernetes-profile path `startup` (default `/startup`), off by default and enabled by `probeInterface.options.kubernetes.startup.enabled: true`, with paired ACs on US-14102 and US-14107 and a composing section in its guide. The three-way alignment is verified by the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js` and is the ratified truth for the shelf.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;blueprints&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;rationale&quot;: &quot;The shipped shelf carried three literal probe-path opinions before this alignment (essentials /healthz + /readyz, probe-endpoints /live + /ready, api-rest /healthz/live + /healthz/ready + /healthz/startup). Composing any two of the three on one project either fired a designed-in `globalAdrTopic` conflict on healthProbes/readinessSemantics or silently shipped three disagreeing probe bindings. WSD-012 mandates /live and /ready, which is the probe-endpoints Kubernetes default; Dex&#39;s A4 wsd-service-anatomy binds those two paths as a parameter and required this item as its dependency. Aligning ownership to one blueprint (probe-endpoints) and making the other two defer is the smallest change that closes both the conflict-by-design surface and the silent-disagreement surface without inventing a new composer primitive. Ratified spec: `projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md` (sections 1 through 11).&quot;,
+  &quot;tags&quot;: [
+    &quot;blueprints&quot;,
+    &quot;observability&quot;,
+    &quot;probe-endpoints&quot;,
+    &quot;essentials&quot;,
+    &quot;api-rest&quot;,
+    &quot;alignment&quot;
+  ],
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-1201">
+  <summary><span class="summary-label">US-1201 - observability-essentials + observability-probe-endpoints + application-api-rest compose cleanly in every ordering with no globalAdrTopic conflict on healthProbes or readinessSemantics</span><span class="status draft">draft</span></summary>
+  <article id="US-1201" class="doc doc-us">
+  <h3>US-1201 - observability-essentials + observability-probe-endpoints + application-api-rest compose cleanly in every ordering with no globalAdrTopic conflict on healthProbes or readinessSemantics</h3>
+  
+  <p><strong>As a:</strong> operator applying the three post-alignment observability + api-rest blueprints on one project in any order</p>
+  <p><strong>I want:</strong> the three amended blueprints (essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0) to apply cleanly in every ordering, with observability-probe-endpoints as the sole scope:global claimant of healthProbes and readinessSemantics in the resulting manifest</p>
+  <p><strong>So that:</strong> a project that reaches for all three shipped blueprints inherits a single-owner probe-path surface without an operator-side supersede ADR or a manifest-editing follow-up</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-012">REQ-012</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1201-1" class="ac-item"><strong>AC-1201-1</strong> - Applying the three blueprints in every ordering (six permutations) into a freshly initialised project tree succeeds with no `globalAdrTopic` conflict on `healthProbes` or `readinessSemantics`; the resulting `rcf/manifest.json` carries all three blueprint records.
+<div class="ac-gwt"><p><em>Given</em> a freshly initialised rcf-lite project tree and the three shipped blueprints at essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0</p><p><em>When</em> for each of the six permutations of the three blueprints, applyBlueprint runs three times in that order against a fresh project tree</p><p><em>Then</em> no ordering returns a `globalAdrTopic` conflict on healthProbes or readinessSemantics, and every ordering ends with manifest.blueprints containing observability-essentials, observability-probe-endpoints, and application-api-rest</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-024">FBS-024</a></p></li>
+<li id="AC-1201-2" class="ac-item"><strong>AC-1201-2</strong> - In the applied manifest, exactly one blueprint declares `scope: global` with `topic: healthProbes` (observability-probe-endpoints ADR-1501) and exactly one declares `scope: global` with `topic: readinessSemantics` (observability-probe-endpoints ADR-1502); zero from essentials, zero from api-rest.
+<div class="ac-gwt"><p><em>Given</em> a project with all three amended blueprints applied</p><p><em>When</em> manifest.blueprints[].contributions[] is walked for scope:global ADRs on the two topics</p><p><em>Then</em> the claimant list for healthProbes equals [&quot;observability-probe-endpoints&quot;] and the claimant list for readinessSemantics equals [&quot;observability-probe-endpoints&quot;]</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-024">FBS-024</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-012&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;observability-essentials + observability-probe-endpoints + application-api-rest compose cleanly in every ordering with no globalAdrTopic conflict on healthProbes or readinessSemantics&quot;,
+  &quot;asA&quot;: &quot;operator applying the three post-alignment observability + api-rest blueprints on one project in any order&quot;,
+  &quot;iWant&quot;: &quot;the three amended blueprints (essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0) to apply cleanly in every ordering, with observability-probe-endpoints as the sole scope:global claimant of healthProbes and readinessSemantics in the resulting manifest&quot;,
+  &quot;soThat&quot;: &quot;a project that reaches for all three shipped blueprints inherits a single-owner probe-path surface without an operator-side supersede ADR or a manifest-editing follow-up&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1201-1&quot;,
+      &quot;description&quot;: &quot;Applying the three blueprints in every ordering (six permutations) into a freshly initialised project tree succeeds with no `globalAdrTopic` conflict on `healthProbes` or `readinessSemantics`; the resulting `rcf/manifest.json` carries all three blueprint records.&quot;,
+      &quot;given&quot;: &quot;a freshly initialised rcf-lite project tree and the three shipped blueprints at essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0&quot;,
+      &quot;when&quot;: &quot;for each of the six permutations of the three blueprints, applyBlueprint runs three times in that order against a fresh project tree&quot;,
+      &quot;then&quot;: &quot;no ordering returns a `globalAdrTopic` conflict on healthProbes or readinessSemantics, and every ordering ends with manifest.blueprints containing observability-essentials, observability-probe-endpoints, and application-api-rest&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1201-2&quot;,
+      &quot;description&quot;: &quot;In the applied manifest, exactly one blueprint declares `scope: global` with `topic: healthProbes` (observability-probe-endpoints ADR-1501) and exactly one declares `scope: global` with `topic: readinessSemantics` (observability-probe-endpoints ADR-1502); zero from essentials, zero from api-rest.&quot;,
+      &quot;given&quot;: &quot;a project with all three amended blueprints applied&quot;,
+      &quot;when&quot;: &quot;manifest.blueprints[].contributions[] is walked for scope:global ADRs on the two topics&quot;,
+      &quot;then&quot;: &quot;the claimant list for healthProbes equals [\&quot;observability-probe-endpoints\&quot;] and the claimant list for readinessSemantics equals [\&quot;observability-probe-endpoints\&quot;]&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [],
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1202">
+  <summary><span class="summary-label">US-1202 - The applied tree carries no literal probe path (/healthz, /readyz, /healthz/*) outside observability-probe-endpoints prose</span><span class="status draft">draft</span></summary>
+  <article id="US-1202" class="doc doc-us">
+  <h3>US-1202 - The applied tree carries no literal probe path (/healthz, /readyz, /healthz/*) outside observability-probe-endpoints prose</h3>
+  
+  <p><strong>As a:</strong> operator or reviewer grepping an applied project tree for literal probe paths after re-applying the three amended blueprints</p>
+  <p><strong>I want:</strong> zero matches for /healthz, /readyz, /healthz/live, /healthz/ready or /healthz/startup in the applied `rcf/` tree, so the shelf ships one probe-path opinion (the resolved one) and no rogue literals</p>
+  <p><strong>So that:</strong> a project that composes the three shipped blueprints never inherits a stale literal path binding that disagrees with the resolved probe path set</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-012">REQ-012</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1202-1" class="ac-item"><strong>AC-1202-1</strong> - Grepping the applied `rcf/` tree of a project that has re-applied observability-essentials v2.0.0 + observability-probe-endpoints v1.1.0 + application-api-rest v2.0.0 for the strings `/healthz/live`, `/healthz/ready`, `/healthz/startup`, `/healthz`, and `/readyz` returns zero matches across all contribution JSON files.
+<div class="ac-gwt"><p><em>Given</em> a project with all three amended blueprints applied</p><p><em>When</em> the applied `rcf/` tree is grepped for the five literal probe-path strings above</p><p><em>Then</em> the match count is zero (matches remain only in the source blueprint READMEs and guides for observability-probe-endpoints, never in the applied contribution JSON)</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-025">FBS-025</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1202&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-012&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The applied tree carries no literal probe path (/healthz, /readyz, /healthz/*) outside observability-probe-endpoints prose&quot;,
+  &quot;asA&quot;: &quot;operator or reviewer grepping an applied project tree for literal probe paths after re-applying the three amended blueprints&quot;,
+  &quot;iWant&quot;: &quot;zero matches for /healthz, /readyz, /healthz/live, /healthz/ready or /healthz/startup in the applied `rcf/` tree, so the shelf ships one probe-path opinion (the resolved one) and no rogue literals&quot;,
+  &quot;soThat&quot;: &quot;a project that composes the three shipped blueprints never inherits a stale literal path binding that disagrees with the resolved probe path set&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1202-1&quot;,
+      &quot;description&quot;: &quot;Grepping the applied `rcf/` tree of a project that has re-applied observability-essentials v2.0.0 + observability-probe-endpoints v1.1.0 + application-api-rest v2.0.0 for the strings `/healthz/live`, `/healthz/ready`, `/healthz/startup`, `/healthz`, and `/readyz` returns zero matches across all contribution JSON files.&quot;,
+      &quot;given&quot;: &quot;a project with all three amended blueprints applied&quot;,
+      &quot;when&quot;: &quot;the applied `rcf/` tree is grepped for the five literal probe-path strings above&quot;,
+      &quot;then&quot;: &quot;the match count is zero (matches remain only in the source blueprint READMEs and guides for observability-probe-endpoints, never in the applied contribution JSON)&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [],
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1203">
+  <summary><span class="summary-label">US-1203 - Each amended blueprint carries the ratified alignment facts: probe-endpoints optional startup + composing section; essentials path-neutral REQs/TACs and PROBE_INTERFACE_PATHS_MISSING; api-rest defers all probe paths</span><span class="status draft">draft</span></summary>
+  <article id="US-1203" class="doc doc-us">
+  <h3>US-1203 - Each amended blueprint carries the ratified alignment facts: probe-endpoints optional startup + composing section; essentials path-neutral REQs/TACs and PROBE_INTERFACE_PATHS_MISSING; api-rest defers all probe paths</h3>
+  
+  <p><strong>As a:</strong> reviewer walking the three amended blueprint source directories after the alignment lands</p>
+  <p><strong>I want:</strong> each blueprint to carry the shape the spec ratified: observability-probe-endpoints v1.1.0 adds the optional startup path and a composing section; observability-essentials v2.0.0 restates REQ-001/002 and TAC-801/802 path-neutral and names the PROBE_INTERFACE_PATHS_MISSING boot refusal; application-api-rest v2.0.0 defers probe paths to the resolved set with a matching AC on the auth-exempt list and a startup AC that consumes the optional path</p>
+  <p><strong>So that:</strong> a downstream project (or a gate reviewer walking the shelf) reads the ratified alignment off the source blueprints directly, without needing to reconstruct the intent from the spec</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-012">REQ-012</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1203-1" class="ac-item"><strong>AC-1203-1</strong> - observability-probe-endpoints/blueprint.json declares version 1.1.0. US-14102 carries a new AC-14102-4 naming the three-path resolution (/live, /ready, /startup) and the startup handler when `probeInterface.options.kubernetes.startup.enabled: true`. US-14107 carries a new AC-14107-4 naming the three-entry auth-exempt list when startup is enabled. ADR-1503 decision text names the startup.enabled flag, the same body shape, and the fused topology by default. `guide/observability-probe-endpoints.md` carries a &quot;Composing with observability-essentials and application-api-rest&quot; section naming the deferral pattern and the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js` as the ratified truth.
+<div class="ac-gwt"><p><em>Given</em> the shipped observability-probe-endpoints blueprint source directory at HEAD</p><p><em>When</em> blueprint.json, US-14102, US-14107, ADR-1503, and the guide are read</p><p><em>Then</em> blueprint.json version equals 1.1.0; AC-14102-4 and AC-14107-4 exist and name the startup path; ADR-1503 decision names startup.enabled; the guide carries the composing section naming the compose test path</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-026">FBS-026</a></p></li>
+<li id="AC-1203-2" class="ac-item"><strong>AC-1203-2</strong> - observability-essentials/blueprint.json declares version 2.0.0; the ADR-801 and ADR-802 contribution entries no longer carry `scope: &quot;global&quot;` or `topic`. REQ-001 and REQ-002 restate path-neutral and name `probeInterface.paths.liveness` / `probeInterface.paths.readiness` as the required configuration key. TAC-801 and TAC-802 mark the path as REQUIRED with no shipped default and name the `PROBE_INTERFACE_PATHS_MISSING` stable-coded boot refusal on the responsibilities list. US-7101 gains AC-7101-4 and US-7102 gains AC-7102-4 covering the boot-refusal-on-missing-config semantics. `docs/topics.md` shrinks the global-topics table to `statusPageContract` alone and records `healthProbes` and `readinessSemantics` in a &quot;Historical global topics (dropped in v2.0.0)&quot; section.
+<div class="ac-gwt"><p><em>Given</em> the shipped observability-essentials blueprint source directory at HEAD</p><p><em>When</em> blueprint.json, ADR-801, ADR-802, REQ-001, REQ-002, TAC-801, TAC-802, US-7101, US-7102, and docs/topics.md are read</p><p><em>Then</em> blueprint.json version equals 2.0.0; ADR-801/802 contribution entries carry no scope or topic field; REQ-001/002 name probeInterface.paths and refuses-boot; TAC-801/802 mark path as REQUIRED and name PROBE_INTERFACE_PATHS_MISSING; AC-7101-4 and AC-7102-4 exist; topics.md carries the Historical global topics section</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-026">FBS-026</a></p></li>
+<li id="AC-1203-3" class="ac-item"><strong>AC-1203-3</strong> - application-api-rest/blueprint.json declares version 2.0.0. REQ-006 restates path-neutral naming observability-probe-endpoints as the probe-path owner and probeInterface.paths as the essentials-alone fallback. US-2108 all eight ACs bind to &quot;the resolved liveness path&quot;, &quot;the resolved readiness path&quot;, or &quot;the resolved startup path&quot;; AC-2108-5 binds the auth-exempt assertion to the resolved probe path set (naming `getExemptPathSet` from TAC-1501). TAC-306 responsibilities restate the three probe surfaces at their resolved paths, drop the literal path strings, and name the auth-exempt consumption of the resolved set. US-2103 versioning-exemption AC no longer carries the literal `/healthz/*` and names the resolved probe paths instead.
+<div class="ac-gwt"><p><em>Given</em> the shipped application-api-rest blueprint source directory at HEAD</p><p><em>When</em> blueprint.json, REQ-006, US-2108 (all eight ACs), TAC-306, and US-2103 are read</p><p><em>Then</em> blueprint.json version equals 2.0.0; REQ-006 names probe-endpoints and probeInterface.paths as the two path-resolution sources; every US-2108 AC contains &quot;resolved&quot; and none contains a literal /healthz/* prefix; TAC-306 responsibilities name the resolved probe path set and getExemptPathSet or probeInterface.paths; US-2103 no longer contains /healthz/*</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-026">FBS-026</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1203&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-012&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Each amended blueprint carries the ratified alignment facts: probe-endpoints optional startup + composing section; essentials path-neutral REQs/TACs and PROBE_INTERFACE_PATHS_MISSING; api-rest defers all probe paths&quot;,
+  &quot;asA&quot;: &quot;reviewer walking the three amended blueprint source directories after the alignment lands&quot;,
+  &quot;iWant&quot;: &quot;each blueprint to carry the shape the spec ratified: observability-probe-endpoints v1.1.0 adds the optional startup path and a composing section; observability-essentials v2.0.0 restates REQ-001/002 and TAC-801/802 path-neutral and names the PROBE_INTERFACE_PATHS_MISSING boot refusal; application-api-rest v2.0.0 defers probe paths to the resolved set with a matching AC on the auth-exempt list and a startup AC that consumes the optional path&quot;,
+  &quot;soThat&quot;: &quot;a downstream project (or a gate reviewer walking the shelf) reads the ratified alignment off the source blueprints directly, without needing to reconstruct the intent from the spec&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1203-1&quot;,
+      &quot;description&quot;: &quot;observability-probe-endpoints/blueprint.json declares version 1.1.0. US-14102 carries a new AC-14102-4 naming the three-path resolution (/live, /ready, /startup) and the startup handler when `probeInterface.options.kubernetes.startup.enabled: true`. US-14107 carries a new AC-14107-4 naming the three-entry auth-exempt list when startup is enabled. ADR-1503 decision text names the startup.enabled flag, the same body shape, and the fused topology by default. `guide/observability-probe-endpoints.md` carries a \&quot;Composing with observability-essentials and application-api-rest\&quot; section naming the deferral pattern and the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js` as the ratified truth.&quot;,
+      &quot;given&quot;: &quot;the shipped observability-probe-endpoints blueprint source directory at HEAD&quot;,
+      &quot;when&quot;: &quot;blueprint.json, US-14102, US-14107, ADR-1503, and the guide are read&quot;,
+      &quot;then&quot;: &quot;blueprint.json version equals 1.1.0; AC-14102-4 and AC-14107-4 exist and name the startup path; ADR-1503 decision names startup.enabled; the guide carries the composing section naming the compose test path&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1203-2&quot;,
+      &quot;description&quot;: &quot;observability-essentials/blueprint.json declares version 2.0.0; the ADR-801 and ADR-802 contribution entries no longer carry `scope: \&quot;global\&quot;` or `topic`. REQ-001 and REQ-002 restate path-neutral and name `probeInterface.paths.liveness` / `probeInterface.paths.readiness` as the required configuration key. TAC-801 and TAC-802 mark the path as REQUIRED with no shipped default and name the `PROBE_INTERFACE_PATHS_MISSING` stable-coded boot refusal on the responsibilities list. US-7101 gains AC-7101-4 and US-7102 gains AC-7102-4 covering the boot-refusal-on-missing-config semantics. `docs/topics.md` shrinks the global-topics table to `statusPageContract` alone and records `healthProbes` and `readinessSemantics` in a \&quot;Historical global topics (dropped in v2.0.0)\&quot; section.&quot;,
+      &quot;given&quot;: &quot;the shipped observability-essentials blueprint source directory at HEAD&quot;,
+      &quot;when&quot;: &quot;blueprint.json, ADR-801, ADR-802, REQ-001, REQ-002, TAC-801, TAC-802, US-7101, US-7102, and docs/topics.md are read&quot;,
+      &quot;then&quot;: &quot;blueprint.json version equals 2.0.0; ADR-801/802 contribution entries carry no scope or topic field; REQ-001/002 name probeInterface.paths and refuses-boot; TAC-801/802 mark path as REQUIRED and name PROBE_INTERFACE_PATHS_MISSING; AC-7101-4 and AC-7102-4 exist; topics.md carries the Historical global topics section&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1203-3&quot;,
+      &quot;description&quot;: &quot;application-api-rest/blueprint.json declares version 2.0.0. REQ-006 restates path-neutral naming observability-probe-endpoints as the probe-path owner and probeInterface.paths as the essentials-alone fallback. US-2108 all eight ACs bind to \&quot;the resolved liveness path\&quot;, \&quot;the resolved readiness path\&quot;, or \&quot;the resolved startup path\&quot;; AC-2108-5 binds the auth-exempt assertion to the resolved probe path set (naming `getExemptPathSet` from TAC-1501). TAC-306 responsibilities restate the three probe surfaces at their resolved paths, drop the literal path strings, and name the auth-exempt consumption of the resolved set. US-2103 versioning-exemption AC no longer carries the literal `/healthz/*` and names the resolved probe paths instead.&quot;,
+      &quot;given&quot;: &quot;the shipped application-api-rest blueprint source directory at HEAD&quot;,
+      &quot;when&quot;: &quot;blueprint.json, REQ-006, US-2108 (all eight ACs), TAC-306, and US-2103 are read&quot;,
+      &quot;then&quot;: &quot;blueprint.json version equals 2.0.0; REQ-006 names probe-endpoints and probeInterface.paths as the two path-resolution sources; every US-2108 AC contains \&quot;resolved\&quot; and none contains a literal /healthz/* prefix; TAC-306 responsibilities name the resolved probe path set and getExemptPathSet or probeInterface.paths; US-2103 no longer contains /healthz/*&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [],
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -5394,7 +5686,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -7436,6 +7728,178 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;notes&quot;: &quot;Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1104 on REQ-011.&quot;,
   &quot;createdAt&quot;: &quot;2026-09-03T17:00:00Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-09-03T17:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-024">
+  <summary><span class="summary-label">FBS-024 - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</span><span class="status verified">verified</span></summary>
+  <article id="FBS-024" class="doc doc-fbs">
+  <h3>FBS-024 - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</h3>
+  
+  <p><strong>Summary:</strong> Add packages/rcf-lite/test/blueprint/probe-path-alignment.test.js: six per-permutation tests (assertion 1) covering AC-1201-1 and one applied-manifest walker (assertion 2) covering AC-1201-2. Uses the shipped applyBlueprint + walkTree + initProject seams; runs in one process under the shipped node --test runner.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1201-1">AC-1201-1</a><a class="ac-pill" href="#AC-1201-2">AC-1201-2</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1201-1">AC-1201-1</a></strong> - Applying the three blueprints in every ordering (six permutations) into a freshly initialised project tree succeeds with no `globalAdrTopic` conflict on `healthProbes` or `readinessSemantics`; the resulting `rcf/manifest.json` carries all three blueprint records.</p>
+  <p><em>Given</em> a freshly initialised rcf-lite project tree and the three shipped blueprints at essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0</p>
+  <p><em>When</em> for each of the six permutations of the three blueprints, applyBlueprint runs three times in that order against a fresh project tree</p>
+  <p><em>Then</em> no ordering returns a `globalAdrTopic` conflict on healthProbes or readinessSemantics, and every ordering ends with manifest.blueprints containing observability-essentials, observability-probe-endpoints, and application-api-rest</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1201-2">AC-1201-2</a></strong> - In the applied manifest, exactly one blueprint declares `scope: global` with `topic: healthProbes` (observability-probe-endpoints ADR-1501) and exactly one declares `scope: global` with `topic: readinessSemantics` (observability-probe-endpoints ADR-1502); zero from essentials, zero from api-rest.</p>
+  <p><em>Given</em> a project with all three amended blueprints applied</p>
+  <p><em>When</em> manifest.blueprints[].contributions[] is walked for scope:global ADRs on the two topics</p>
+  <p><em>Then</em> the claimant list for healthProbes equals [&quot;observability-probe-endpoints&quot;] and the claimant list for readinessSemantics equals [&quot;observability-probe-endpoints&quot;]</p>
+</div></section>
+  
+  
+  <p><strong>Estimated size:</strong> small</p>
+  
+  
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 24</p>
+  <p><strong>Execution status:</strong> verified</p>
+  <p><strong>Notes:</strong> Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1201 on REQ-012.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-024&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 24,
+  &quot;executionStatus&quot;: &quot;verified&quot;,
+  &quot;title&quot;: &quot;Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering&quot;,
+  &quot;summary&quot;: &quot;Add packages/rcf-lite/test/blueprint/probe-path-alignment.test.js: six per-permutation tests (assertion 1) covering AC-1201-1 and one applied-manifest walker (assertion 2) covering AC-1201-2. Uses the shipped applyBlueprint + walkTree + initProject seams; runs in one process under the shipped node --test runner.&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1201-1&quot;,
+    &quot;AC-1201-2&quot;
+  ],
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;domain&quot;: &quot;blueprints&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1201 on REQ-012.&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-025">
+  <summary><span class="summary-label">FBS-025 - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</span><span class="status verified">verified</span></summary>
+  <article id="FBS-025" class="doc doc-fbs">
+  <h3>FBS-025 - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</h3>
+  
+  <p><strong>Summary:</strong> Add the assertion 3 block to packages/rcf-lite/test/blueprint/probe-path-alignment.test.js: applies the three amended blueprints, walks the resulting rcf/ tree, greps for the five literal probe-path strings, and skips ADR contribution files whose title begins &quot;Historical:&quot; (per spec section 4) or whose adrId names probe-secrecy (context-only ADR).</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1202-1">AC-1202-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1202-1">AC-1202-1</a></strong> - Grepping the applied `rcf/` tree of a project that has re-applied observability-essentials v2.0.0 + observability-probe-endpoints v1.1.0 + application-api-rest v2.0.0 for the strings `/healthz/live`, `/healthz/ready`, `/healthz/startup`, `/healthz`, and `/readyz` returns zero matches across all contribution JSON files.</p>
+  <p><em>Given</em> a project with all three amended blueprints applied</p>
+  <p><em>When</em> the applied `rcf/` tree is grepped for the five literal probe-path strings above</p>
+  <p><em>Then</em> the match count is zero (matches remain only in the source blueprint READMEs and guides for observability-probe-endpoints, never in the applied contribution JSON)</p>
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-024">FBS-024</a></p></section>
+  <p><strong>Estimated size:</strong> small</p>
+  
+  
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 25</p>
+  <p><strong>Execution status:</strong> verified</p>
+  <p><strong>Notes:</strong> Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1202 on REQ-012.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-025&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 25,
+  &quot;executionStatus&quot;: &quot;verified&quot;,
+  &quot;title&quot;: &quot;Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree&quot;,
+  &quot;summary&quot;: &quot;Add the assertion 3 block to packages/rcf-lite/test/blueprint/probe-path-alignment.test.js: applies the three amended blueprints, walks the resulting rcf/ tree, greps for the five literal probe-path strings, and skips ADR contribution files whose title begins \&quot;Historical:\&quot; (per spec section 4) or whose adrId names probe-secrecy (context-only ADR).&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1202-1&quot;
+  ],
+  &quot;dependsOnFbsIds&quot;: [
+    &quot;FBS-024&quot;
+  ],
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;domain&quot;: &quot;blueprints&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1202 on REQ-012.&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-026">
+  <summary><span class="summary-label">FBS-026 - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</span><span class="status verified">verified</span></summary>
+  <article id="FBS-026" class="doc doc-fbs">
+  <h3>FBS-026 - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</h3>
+  
+  <p><strong>Summary:</strong> Add the assertion 4-9 block to packages/rcf-lite/test/blueprint/probe-path-alignment.test.js covering probe-endpoints optional startup + composing section (assertion 4, 8), essentials PROBE_INTERFACE_PATHS_MISSING refuse-boot + no-shipped-default TACs + no-dual-handler (assertions 5, 7, 9), api-rest deferral of the probe paths and auth-exempt-list binding (assertion 6). Add the probe-path-owner check to KNOWN_CHECKS in packages/rcf-lite/src/cli/doctor.js with the runProbePathOwnerCheck implementation reading manifest.blueprints[].contributions[] for scope:global topic multi-claim drift and manifest.resolutions[] for redundant resolutions on healthProbes/readinessSemantics after the alignment.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1203-1">AC-1203-1</a><a class="ac-pill" href="#AC-1203-2">AC-1203-2</a><a class="ac-pill" href="#AC-1203-3">AC-1203-3</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1203-1">AC-1203-1</a></strong> - observability-probe-endpoints/blueprint.json declares version 1.1.0. US-14102 carries a new AC-14102-4 naming the three-path resolution (/live, /ready, /startup) and the startup handler when `probeInterface.options.kubernetes.startup.enabled: true`. US-14107 carries a new AC-14107-4 naming the three-entry auth-exempt list when startup is enabled. ADR-1503 decision text names the startup.enabled flag, the same body shape, and the fused topology by default. `guide/observability-probe-endpoints.md` carries a &quot;Composing with observability-essentials and application-api-rest&quot; section naming the deferral pattern and the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js` as the ratified truth.</p>
+  <p><em>Given</em> the shipped observability-probe-endpoints blueprint source directory at HEAD</p>
+  <p><em>When</em> blueprint.json, US-14102, US-14107, ADR-1503, and the guide are read</p>
+  <p><em>Then</em> blueprint.json version equals 1.1.0; AC-14102-4 and AC-14107-4 exist and name the startup path; ADR-1503 decision names startup.enabled; the guide carries the composing section naming the compose test path</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1203-2">AC-1203-2</a></strong> - observability-essentials/blueprint.json declares version 2.0.0; the ADR-801 and ADR-802 contribution entries no longer carry `scope: &quot;global&quot;` or `topic`. REQ-001 and REQ-002 restate path-neutral and name `probeInterface.paths.liveness` / `probeInterface.paths.readiness` as the required configuration key. TAC-801 and TAC-802 mark the path as REQUIRED with no shipped default and name the `PROBE_INTERFACE_PATHS_MISSING` stable-coded boot refusal on the responsibilities list. US-7101 gains AC-7101-4 and US-7102 gains AC-7102-4 covering the boot-refusal-on-missing-config semantics. `docs/topics.md` shrinks the global-topics table to `statusPageContract` alone and records `healthProbes` and `readinessSemantics` in a &quot;Historical global topics (dropped in v2.0.0)&quot; section.</p>
+  <p><em>Given</em> the shipped observability-essentials blueprint source directory at HEAD</p>
+  <p><em>When</em> blueprint.json, ADR-801, ADR-802, REQ-001, REQ-002, TAC-801, TAC-802, US-7101, US-7102, and docs/topics.md are read</p>
+  <p><em>Then</em> blueprint.json version equals 2.0.0; ADR-801/802 contribution entries carry no scope or topic field; REQ-001/002 name probeInterface.paths and refuses-boot; TAC-801/802 mark path as REQUIRED and name PROBE_INTERFACE_PATHS_MISSING; AC-7101-4 and AC-7102-4 exist; topics.md carries the Historical global topics section</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1203-3">AC-1203-3</a></strong> - application-api-rest/blueprint.json declares version 2.0.0. REQ-006 restates path-neutral naming observability-probe-endpoints as the probe-path owner and probeInterface.paths as the essentials-alone fallback. US-2108 all eight ACs bind to &quot;the resolved liveness path&quot;, &quot;the resolved readiness path&quot;, or &quot;the resolved startup path&quot;; AC-2108-5 binds the auth-exempt assertion to the resolved probe path set (naming `getExemptPathSet` from TAC-1501). TAC-306 responsibilities restate the three probe surfaces at their resolved paths, drop the literal path strings, and name the auth-exempt consumption of the resolved set. US-2103 versioning-exemption AC no longer carries the literal `/healthz/*` and names the resolved probe paths instead.</p>
+  <p><em>Given</em> the shipped application-api-rest blueprint source directory at HEAD</p>
+  <p><em>When</em> blueprint.json, REQ-006, US-2108 (all eight ACs), TAC-306, and US-2103 are read</p>
+  <p><em>Then</em> blueprint.json version equals 2.0.0; REQ-006 names probe-endpoints and probeInterface.paths as the two path-resolution sources; every US-2108 AC contains &quot;resolved&quot; and none contains a literal /healthz/* prefix; TAC-306 responsibilities name the resolved probe path set and getExemptPathSet or probeInterface.paths; US-2103 no longer contains /healthz/*</p>
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-025">FBS-025</a></p></section>
+  <p><strong>Estimated size:</strong> medium</p>
+  
+  
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 26</p>
+  <p><strong>Execution status:</strong> verified</p>
+  <p><strong>Notes:</strong> Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1203 on REQ-012.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-026&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 26,
+  &quot;executionStatus&quot;: &quot;verified&quot;,
+  &quot;title&quot;: &quot;Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check&quot;,
+  &quot;summary&quot;: &quot;Add the assertion 4-9 block to packages/rcf-lite/test/blueprint/probe-path-alignment.test.js covering probe-endpoints optional startup + composing section (assertion 4, 8), essentials PROBE_INTERFACE_PATHS_MISSING refuse-boot + no-shipped-default TACs + no-dual-handler (assertions 5, 7, 9), api-rest deferral of the probe paths and auth-exempt-list binding (assertion 6). Add the probe-path-owner check to KNOWN_CHECKS in packages/rcf-lite/src/cli/doctor.js with the runProbePathOwnerCheck implementation reading manifest.blueprints[].contributions[] for scope:global topic multi-claim drift and manifest.resolutions[] for redundant resolutions on healthProbes/readinessSemantics after the alignment.&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1203-1&quot;,
+    &quot;AC-1203-2&quot;,
+    &quot;AC-1203-3&quot;
+  ],
+  &quot;dependsOnFbsIds&quot;: [
+    &quot;FBS-025&quot;
+  ],
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;domain&quot;: &quot;blueprints&quot;,
+  &quot;estimatedSize&quot;: &quot;medium&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1203 on REQ-012.&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
 }
 </pre></details>
 </article>
@@ -10089,6 +10553,210 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;status&quot;: &quot;draft&quot;,
   &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-034">
+  <summary><span class="summary-label">TS-034 - Three amended blueprints apply cleanly in every ordering with one-owner-per-topic in the manifest</span><span class="status draft">draft</span></summary>
+  <article id="TS-034" class="doc doc-ts">
+  <h3>TS-034 - Three amended blueprints apply cleanly in every ordering with one-owner-per-topic in the manifest</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1201">US-1201</a></p>
+  <p><strong>Purpose:</strong> Cover the two ACs on US-1201: no globalAdrTopic conflict on healthProbes/readinessSemantics during apply in any of the six permutations, and one-and-only-one probe-endpoints scope:global claimant per topic in the resulting manifest.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1201-1">AC-1201-1</a>, <a href="#AC-1201-2">AC-1201-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-034-permutations-no-globaladr-conflict">
+  <p><strong>TC-034-permutations-no-globaladr-conflict</strong> - covers <a href="#AC-1201-1">AC-1201-1</a> <span class="status pending">pending</span></p>
+  <p>The first of six orderings (essentials -&gt; probe-endpoints -&gt; api-rest) is exercised here as the resolved test-point representative of the parameterised assertion; the other five permutations run in the same suite file (assertion 1 (apply cleanly in every ordering): ...) and share this AC.</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 1 (apply cleanly in every ordering): observability-essentials -&gt; observability-probe-endpoints -&gt; application-api-rest</code></p>
+</div>
+<div class="tc" id="TC-034-one-owner-per-topic">
+  <p><strong>TC-034-one-owner-per-topic</strong> - covers <a href="#AC-1201-2">AC-1201-2</a> <span class="status pending">pending</span></p>
+  <p>After applying all three blueprints into a fresh project tree, exactly one scope:global ADR on healthProbes and one on readinessSemantics are present in the manifest, both owned by observability-probe-endpoints</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 2: one owner per topic across the applied manifest</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-034&quot;,
+  &quot;usId&quot;: &quot;US-1201&quot;,
+  &quot;title&quot;: &quot;Three amended blueprints apply cleanly in every ordering with one-owner-per-topic in the manifest&quot;,
+  &quot;purpose&quot;: &quot;Cover the two ACs on US-1201: no globalAdrTopic conflict on healthProbes/readinessSemantics during apply in any of the six permutations, and one-and-only-one probe-endpoints scope:global claimant per topic in the resulting manifest.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1201-1&quot;,
+    &quot;AC-1201-2&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-034-permutations-no-globaladr-conflict&quot;,
+      &quot;acId&quot;: &quot;AC-1201-1&quot;,
+      &quot;description&quot;: &quot;The first of six orderings (essentials -&gt; probe-endpoints -&gt; api-rest) is exercised here as the resolved test-point representative of the parameterised assertion; the other five permutations run in the same suite file (assertion 1 (apply cleanly in every ordering): ...) and share this AC.&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 1 (apply cleanly in every ordering): observability-essentials -&gt; observability-probe-endpoints -&gt; application-api-rest&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-034-one-owner-per-topic&quot;,
+      &quot;acId&quot;: &quot;AC-1201-2&quot;,
+      &quot;description&quot;: &quot;After applying all three blueprints into a fresh project tree, exactly one scope:global ADR on healthProbes and one on readinessSemantics are present in the manifest, both owned by observability-probe-endpoints&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 2: one owner per topic across the applied manifest&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-035">
+  <summary><span class="summary-label">TS-035 - Applied tree carries no literal /healthz or /readyz path outside probe-endpoints prose</span><span class="status draft">draft</span></summary>
+  <article id="TS-035" class="doc doc-ts">
+  <h3>TS-035 - Applied tree carries no literal /healthz or /readyz path outside probe-endpoints prose</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1202">US-1202</a></p>
+  <p><strong>Purpose:</strong> Cover the one AC on US-1202: greppable proof that /healthz, /readyz, /healthz/live, /healthz/ready and /healthz/startup do not appear in the applied rcf/ contribution JSON tree after re-applying all three amended blueprints.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1202-1">AC-1202-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-035-no-literal-path-in-applied-tree">
+  <p><strong>TC-035-no-literal-path-in-applied-tree</strong> - covers <a href="#AC-1202-1">AC-1202-1</a> <span class="status pending">pending</span></p>
+  <p>Applying all three amended blueprints and grepping the applied rcf/ tree for the five literal path strings returns zero matches</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 3: no literal probe path outside probe-endpoints prose in applied tree</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-035&quot;,
+  &quot;usId&quot;: &quot;US-1202&quot;,
+  &quot;title&quot;: &quot;Applied tree carries no literal /healthz or /readyz path outside probe-endpoints prose&quot;,
+  &quot;purpose&quot;: &quot;Cover the one AC on US-1202: greppable proof that /healthz, /readyz, /healthz/live, /healthz/ready and /healthz/startup do not appear in the applied rcf/ contribution JSON tree after re-applying all three amended blueprints.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1202-1&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-035-no-literal-path-in-applied-tree&quot;,
+      &quot;acId&quot;: &quot;AC-1202-1&quot;,
+      &quot;description&quot;: &quot;Applying all three amended blueprints and grepping the applied rcf/ tree for the five literal path strings returns zero matches&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 3: no literal probe path outside probe-endpoints prose in applied tree&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-036">
+  <summary><span class="summary-label">TS-036 - Each amended blueprint carries the ratified alignment facts (probe-endpoints, essentials, api-rest)</span><span class="status draft">draft</span></summary>
+  <article id="TS-036" class="doc doc-ts">
+  <h3>TS-036 - Each amended blueprint carries the ratified alignment facts (probe-endpoints, essentials, api-rest)</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1203">US-1203</a></p>
+  <p><strong>Purpose:</strong> Cover the three ACs on US-1203: probe-endpoints has the optional startup ACs and composing section; essentials has path-neutral REQs/TACs and boot-refusal ACs; api-rest defers all probe paths to the resolved set.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1203-1">AC-1203-1</a>, <a href="#AC-1203-2">AC-1203-2</a>, <a href="#AC-1203-3">AC-1203-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-036-probe-endpoints-optional-startup">
+  <p><strong>TC-036-probe-endpoints-optional-startup</strong> - covers <a href="#AC-1203-1">AC-1203-1</a> <span class="status pending">pending</span></p>
+  <p>probe-endpoints v1.1.0 declares the optional startup path across ADR-1503, US-14102 AC-14102-4, US-14107 AC-14107-4, and the guide composing section</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 4: bare compose default declares /live and /ready; optional /startup; loadBalancer /health</code></p>
+</div>
+<div class="tc" id="TC-036-essentials-path-neutral-and-refusal">
+  <p><strong>TC-036-essentials-path-neutral-and-refusal</strong> - covers <a href="#AC-1203-2">AC-1203-2</a> <span class="status pending">pending</span></p>
+  <p>essentials v2.0.0 restates REQ-001/002 path-neutral, marks TAC-801/802 path as REQUIRED with no default, and adds AC-7101-4/AC-7102-4 for the PROBE_INTERFACE_PATHS_MISSING boot refusal</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 5: essentials-alone declares required probeInterface.paths and refuses boot when absent</code></p>
+</div>
+<div class="tc" id="TC-036-essentials-no-shipped-default">
+  <p><strong>TC-036-essentials-no-shipped-default</strong> - covers <a href="#AC-1203-2">AC-1203-2</a> <span class="status pending">pending</span></p>
+  <p>TAC-801/802 interfaces carry no literal /healthz or /readyz path defaults and mark the path parameter as REQUIRED</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 7: essentials-alone shape gates on required probeInterface.paths, TACs carry no shipped default</code></p>
+</div>
+<div class="tc" id="TC-036-essentials-no-dual-handler">
+  <p><strong>TC-036-essentials-no-dual-handler</strong> - covers <a href="#AC-1203-2">AC-1203-2</a> <span class="status pending">pending</span></p>
+  <p>essentials TAC-801/802 responsibilities name the no-dual-handler semantics when probe-endpoints is composed</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 9: essentials TAC-801/802 promise no dual handler registration when probe-endpoints is composed</code></p>
+</div>
+<div class="tc" id="TC-036-api-rest-auth-exempt-list">
+  <p><strong>TC-036-api-rest-auth-exempt-list</strong> - covers <a href="#AC-1203-3">AC-1203-3</a> <span class="status pending">pending</span></p>
+  <p>api-rest US-2108 AC-2108-5 binds the auth-exempt assertion to the resolved probe path set naming getExemptPathSet, and TAC-306 responsibilities carry the same binding</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 6: api-rest auth-exempt list equals the probe-endpoints resolved path set</code></p>
+</div>
+<div class="tc" id="TC-036-api-rest-startup-consumption">
+  <p><strong>TC-036-api-rest-startup-consumption</strong> - covers <a href="#AC-1203-3">AC-1203-3</a> <span class="status pending">pending</span></p>
+  <p>api-rest US-2108 AC-2108-4 binds the startup semantics to the resolved startup path and names the startup.enabled flag or probeInterface.paths.startup as the enablement source</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/probe-path-alignment.test.js::assertion 8: startup binding when enabled is declared on probe-endpoints and consumed by api-rest</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-036&quot;,
+  &quot;usId&quot;: &quot;US-1203&quot;,
+  &quot;title&quot;: &quot;Each amended blueprint carries the ratified alignment facts (probe-endpoints, essentials, api-rest)&quot;,
+  &quot;purpose&quot;: &quot;Cover the three ACs on US-1203: probe-endpoints has the optional startup ACs and composing section; essentials has path-neutral REQs/TACs and boot-refusal ACs; api-rest defers all probe paths to the resolved set.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1203-1&quot;,
+    &quot;AC-1203-2&quot;,
+    &quot;AC-1203-3&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-036-probe-endpoints-optional-startup&quot;,
+      &quot;acId&quot;: &quot;AC-1203-1&quot;,
+      &quot;description&quot;: &quot;probe-endpoints v1.1.0 declares the optional startup path across ADR-1503, US-14102 AC-14102-4, US-14107 AC-14107-4, and the guide composing section&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 4: bare compose default declares /live and /ready; optional /startup; loadBalancer /health&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-036-essentials-path-neutral-and-refusal&quot;,
+      &quot;acId&quot;: &quot;AC-1203-2&quot;,
+      &quot;description&quot;: &quot;essentials v2.0.0 restates REQ-001/002 path-neutral, marks TAC-801/802 path as REQUIRED with no default, and adds AC-7101-4/AC-7102-4 for the PROBE_INTERFACE_PATHS_MISSING boot refusal&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 5: essentials-alone declares required probeInterface.paths and refuses boot when absent&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-036-essentials-no-shipped-default&quot;,
+      &quot;acId&quot;: &quot;AC-1203-2&quot;,
+      &quot;description&quot;: &quot;TAC-801/802 interfaces carry no literal /healthz or /readyz path defaults and mark the path parameter as REQUIRED&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 7: essentials-alone shape gates on required probeInterface.paths, TACs carry no shipped default&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-036-essentials-no-dual-handler&quot;,
+      &quot;acId&quot;: &quot;AC-1203-2&quot;,
+      &quot;description&quot;: &quot;essentials TAC-801/802 responsibilities name the no-dual-handler semantics when probe-endpoints is composed&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 9: essentials TAC-801/802 promise no dual handler registration when probe-endpoints is composed&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-036-api-rest-auth-exempt-list&quot;,
+      &quot;acId&quot;: &quot;AC-1203-3&quot;,
+      &quot;description&quot;: &quot;api-rest US-2108 AC-2108-5 binds the auth-exempt assertion to the resolved probe path set naming getExemptPathSet, and TAC-306 responsibilities carry the same binding&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 6: api-rest auth-exempt list equals the probe-endpoints resolved path set&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-036-api-rest-startup-consumption&quot;,
+      &quot;acId&quot;: &quot;AC-1203-3&quot;,
+      &quot;description&quot;: &quot;api-rest US-2108 AC-2108-4 binds the startup semantics to the resolved startup path and names the startup.enabled flag or probeInterface.paths.startup as the enablement source&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 8: startup binding when enabled is declared on probe-endpoints and consumed by api-rest&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
 }
 </pre></details>
 </article>
