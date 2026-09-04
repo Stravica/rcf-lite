@@ -52,6 +52,14 @@ non-technical; the method must be invisible in what they read.
   Library-qualified names like `wsd:auth-oauth2`, the ids each apply
   stamps, and the exact CLI lines belong in files and in `rcf`
   output, not in the conversation.
+- Companion suggestions. When you apply a service blueprint that
+  declares suggested companions, tell the operator the resolved
+  companion set in plain language, name what each companion
+  contributes, and offer the apply command. Do not apply a companion
+  without the operator's explicit go. Where a registered library
+  provides a role, prefer the library over the shelf provider in
+  your suggestion, and say so. The mechanism is suggestion, never
+  compulsion.
 
 Before / after - the same first status after project setup:
 
