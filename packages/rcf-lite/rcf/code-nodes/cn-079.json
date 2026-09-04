@@ -1,6 +1,6 @@
 {
   "cnId": "CN-079",
-  "path": "blueprints/application-error-handling/blueprint.json",
+  "path": "../../blueprints/application-error-handling/blueprint.json",
   "title": "application-error-handling v1.0.0 shipped blueprint metadata (providesRoles errorHandling, ADR-1701 global topic errorHandling)",
   "description": "Anchored by the core companions train (w-2026-09-03-dave-030, d-2026-09-04-022); see the spec at projects/rcf-lite-wsd/specs/rcf-lite-core-companions-spec-2026-09-04.md for the full trace.",
   "implementsAcIds": [
