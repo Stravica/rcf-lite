@@ -2,7 +2,7 @@
   "usId": "observability-essentials-US-7101",
   "prdId": "PRD-001",
   "reqId": "observability-essentials-REQ-001",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "status": "approved",
   "title": "Orchestrator restarts a stuck replica via the liveness probe without external dependency coupling",
   "asA": "orchestrator running the deployed application under a supervising process (Kubernetes kubelet, systemd, or equivalent)",
@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-7101-1",
-      "description": "The application serves the liveness endpoint at a stable HTTP path declared in configuration (default /healthz); a GET returns 200 when the process is running its event loop and returns application/json with a status field equal to pass.",
+      "description": "The application serves the liveness endpoint at a stable HTTP path supplied by project configuration under `probeInterface.paths.liveness` (with no shipped default from v2.0.0); a GET returns 200 when the process is running its event loop and returns application/json with a status field equal to pass. When observability-probe-endpoints v1.1.0 or later is composed on the same project the resolved profile liveness path substitutes for this configuration entry automatically.",
       "given": "the process is running normally with its event loop responsive",
       "when": "an unauthenticated GET is issued against the liveness path",
       "then": "the response status code is 200, the Content-Type is application/json, and the JSON body's status field equals pass",
@@ -35,11 +35,20 @@
       "then": "the response status code is 200 and the JSON body's status field equals pass",
       "testable": true,
       "scope": "runtime"
+    },
+    {
+      "id": "AC-7101-4",
+      "description": "When `probeInterface.paths.liveness` is absent from project configuration AND observability-probe-endpoints is not composed on the same project, the essentials blueprint refuses boot with a stable-coded error `PROBE_INTERFACE_PATHS_MISSING` naming the missing configuration key.",
+      "given": "a project applying essentials v2.0.0 alone with no probeInterface.paths.liveness in configuration",
+      "when": "the process attempts to boot",
+      "then": "the boot fails with the stable-coded error PROBE_INTERFACE_PATHS_MISSING and the error message names probeInterface.paths.liveness as the missing key",
+      "testable": true,
+      "scope": "runtime"
     }
   ],
   "tacIds": [
     "TAC-801-observability-essentials-liveness-probe"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-04T00:00:00Z"
 }
