@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 37,
-    "notStarted": 9,
+    "items": 38,
+    "notStarted": 10,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 7,
+    "actionable": 8,
     "blocked": 2
   },
   "nextActionable": "FBS-013",
@@ -33,7 +33,8 @@
         "FBS-024",
         "FBS-035",
         "FBS-036",
-        "FBS-037"
+        "FBS-037",
+        "FBS-038"
       ]
     },
     {
@@ -529,6 +530,16 @@
       "buildOrder": 37,
       "tier": 0,
       "title": "application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-038",
+      "buildOrder": 38,
+      "tier": 0,
+      "title": "application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",
