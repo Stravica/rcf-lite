@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-09-04
+
 Core companions train. Two new general-enterprise-practice blueprints land on the shipped core shelf, an additive companion-suggestion mechanism baked into the manifest, and the standards-derived-blueprint discipline written into the authoring standard as section 8a.
 
 ### Added

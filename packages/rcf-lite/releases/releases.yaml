@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.18.0"
+latest: "0.19.0"
 releases:
+  - version: "0.19.0"
+    date: "2026-09-04"
+    breaking: false
+    headlines:
+      - "The rcf-lite core shelf gains two new blueprints, observability-logging and application-error-handling, that carry the widely followed rules for structured logging and internal error handling so a service can compose them alongside its own blueprint."
+      - "Service blueprints can now name the roles they want alongside them and rcf define blueprint suggests the most specific provider for each at apply time, preferring an applied provider first, then a project-level pin, then a registered library, then the shipped shelf; the operator still applies each companion by hand."
+      - "The authoring standard grows a written discipline for blueprints that derive from an outside standard, so a must-clause that binds a testable behaviour becomes a test and a choice-shaped clause becomes a recommended default. Rerun rcf init to refresh the agent-instructions block."
+    minAgentAction: "rerun-init"
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.18.0"
     date: "2026-09-04"
     breaking: true
