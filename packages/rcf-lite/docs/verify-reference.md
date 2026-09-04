@@ -22,12 +22,15 @@ Every one of these fails at *run* time, not install time. A missing `claude`, an
 ## Commands
 
 ```
-rcf verify run            Run adversarial verification and emit a report artifact
-rcf verify report <path>  Re-render a prior report artifact
-rcf verify provision      Stand up prerequisite accounts/sandboxes/data standalone
-rcf verify cleanup        Tear down provisioned artefacts (all prefixed 'zzverify-')
-rcf verify mcp            Serve verify over MCP (local stdio)
-rcf help verify           Print help for the verify subcommand
+rcf verify run                    Run adversarial verification and emit a report artifact
+rcf verify report <path>          Re-render a prior report artifact
+rcf verify browser <fbs-id>       Stage 5 browser-verification gate (invariants,
+                                  auth-smoke, blueprint-shipped probe packs);
+                                  writes a browserVerification record on the manifest
+rcf verify provision              Stand up prerequisite accounts/sandboxes/data standalone
+rcf verify cleanup                Tear down provisioned artefacts (all prefixed 'zzverify-')
+rcf verify mcp                    Serve verify over MCP (local stdio)
+rcf help verify                   Print help for the verify subcommand
 ```
 
 `rcf help verify <command>` is the authoritative flag reference for each. The transition-grace `rcf verify <command>` bin accepts the same shapes; every example on this page has an equivalent `rcf verify <command>` form.
@@ -114,6 +117,29 @@ Adversarial testing often needs state: auth accounts, third-party service sandbo
 Verify launches an isolated fresh agent (Claude Code by default) with the isolation environment (`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` + `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`) and browser tooling; that agent drives the running app and returns structured findings.
 
 The launcher is injectable via the `RCF_VERIFY_LAUNCHER` env var (a module exporting `launchAgent`), which is the seam used for integration harnesses and recorded end-to-end runs.
+
+## `browser` - the stage 5 browser-verification gate
+
+```sh
+rcf verify browser <fbs-id> \
+  [--mode operatorSession|agentScreenshotCritique] \
+  [--url <url>] [--profile deployed|ci|local-dev] \
+  [--probe-pack <name>] [--notes "..."] \
+  [--dry-run] [--json] [--quiet] [--ack]
+```
+
+`rcf verify browser` writes a `browserVerification` record on the manifest for a UI-bearing FBS. On `agentScreenshotCritique` mode the runner:
+
+1. drives the injected browser driver over every declared `route x theme` capture and runs the versioned invariant set;
+2. runs the auth-smoke pack when the FBS binds an auth REQ or the `uiBaseline` requires it;
+3. runs the probe-pack pass over every blueprint-shipped pack whose `appliesTo` predicate matches this FBS (visual round T-0, `blueprint-authoring.md` section 8c);
+4. composes an aggregate verdict where `block` fires on any invariant / auth-smoke / pack severity=block failure.
+
+The pack loader discovers `blueprints/<slug>/probe-packs/*.pack.{js,mjs}` for every applied blueprint on `manifest.blueprints[]`. Load-time refusals (exit 2) fire on: an `appliesTo` predicate that references none of route / tacIds / `blueprint:` tag; a check id that names an AC the blueprint does not contribute; a packName that does not start with the blueprint's slug; non-semver `version`; a broken pack module. `--probe-pack <name>` restricts one run to one pack; an unknown name exits 2 with a diagnostic naming the discovered packs.
+
+The composed `browserVerification.probePacks[]` array carries one record per pack. See `blueprint-authoring.md` section 8c for the pack schema, the aggregate verdict rules, and the `preChecks[]` fast-fail slot with `dependsOn` skip semantics.
+
+Exit codes: 0 pass; 1 IO or unexpected runtime failure; 2 usage error (including probe-pack loader refusals); 3 schema or tree validation failure; 4 verdict warn or block (Stage 5 refused; `--ack` clears a warn).
 
 ## MCP mode
 
