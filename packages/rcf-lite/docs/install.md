@@ -121,7 +121,7 @@ Init reads and writes four paths in your project root, and nothing else on disk.
 | Path | If it is absent | If it is already there |
 |---|---|---|
 | `rcf/` | Scaffolded: a manifest plus placeholder PRD, REQ, US, AC, TAD, TAC, ADR, BS and FBS documents. | Left alone entirely, as long as `rcf/manifest.json` is present. Not read, not merged, not migrated, not renumbered. |
-| `.mcp.json` | Created carrying only the `rcf` server entry. | Merged. Your other servers, and any top-level keys init does not recognise, are carried through unchanged. An existing `rcf` entry is kept exactly as it is, even if it points somewhere unusual. |
+| `.mcp.json` | Created carrying the `rcf` server entry and, when no Playwright entry exists at any scope init can see, a distinctly-named `playwright-rcf` fallback (see 8.5). | Merged. Your other servers, and any top-level keys init does not recognise, are carried through unchanged. An existing `rcf` entry is kept exactly as it is, even if it points somewhere unusual. An existing entry whose command tail names `@playwright/mcp` (at any key) is treated as your Playwright wiring and left alone. |
 | `CLAUDE.md` | Created only if you have no `AGENTS.md` either. | The `<!-- rcf:managed:begin -->` / `<!-- rcf:managed:end -->` block is refreshed in place. Anything outside those markers is never touched. A file with no marker block yet gets one appended at the end. |
 | `AGENTS.md` | Created only in a project that has neither instructions file. | Same marker rules as `CLAUDE.md`. |
 
@@ -162,7 +162,18 @@ If `.mcp.json` exists but does not parse, init refuses to modify it and exits 2,
 
 To take the tree and skip the wiring entirely, `rcf init --no-agent-setup` scaffolds only `rcf/` and prints the manual steps ([section 7](#7-wire-into-an-agent-harness)).
 
-### 8.4 What this is not
+### 8.4 The Playwright MCP entry
+
+`rcf verify` drives the deployed app through a Playwright MCP server (see [verify-reference](verify-reference.md) for the pinned version). Init wires that server, conditionally, so the operator's choice at any scope always wins:
+
+- **Existing project-scope entry.** If your `.mcp.json` already carries a Playwright entry (detected by any `mcpServers[<name>].args` string whose command tail matches `@playwright/mcp`; the key name does not matter), init leaves it alone and prints one line naming the key.
+- **User-scope entry in Claude Code.** When init cannot find a project-scope entry, it shells out to `claude mcp list` (5-second timeout) and parses its text output. If it sees a Playwright entry at `user` or `project` scope in the harness, it prints one line naming the scope and writes nothing.
+- **Nothing anywhere init can prove.** Init writes a distinctly-named `playwright-rcf` entry at project scope carrying `npx -y @playwright/mcp@<pinned-version>`. The name is deliberately different from `playwright` (the common user-scope key) so a user-scope entry init cannot see never gets shadowed. The verify pass provisions its own MCP config anyway, so a coexisting duplicate is not a problem.
+- **`--no-playwright-mcp`.** Suppresses the write step entirely. The probe still runs so the print-out remains honest, but no Playwright entry is created or touched. Use this when a user-scope entry is declared in a harness init cannot probe (a non-Claude-Code harness with no non-interactive list command).
+
+The `rcf doctor` `playwright-mcp-redundant` check surfaces a project + user shadow when both scopes carry a Playwright entry on a browser-facing project. `--fix` does not repair it: the remedy is a deliberate operator choice (keep the project entry to ship portable, or drop it so the user entry wins).
+
+### 8.5 What this is not
 
 Safe to run is not the same as a migration. Three boundaries, so nobody arrives expecting the wrong thing:
 

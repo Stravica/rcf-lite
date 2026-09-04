@@ -38,11 +38,11 @@
   <p><strong>Executive summary:</strong> RCF Lite is the tooling product of the RCF suite. It runs the full Requirements Confidence Framework over a project whose RCF documents live in the source repository, alongside the code. It gives a non-engineering product owner deterministic create, read, update and delete operations on every RCF document type, a visual review surface, traceability and query, a build loop that turns build specifications into implementation prompts, and a local MCP surface that exposes all of this to AI tooling.</p>
 <p><strong>Problem statement:</strong> Power vibe-coders build real applications without engineering teams. They cannot read code, so they cannot judge whether what an AI tool produces is trustworthy. The full RCF chain makes output trustworthy without reading code, but authoring that chain by hand is the very effort these users lack the time and discipline for. There is no tool that runs the full RCF method over in-repository documents and surfaces it through structured, deterministic operations.</p>
 <section class="field-list"><h4>Target users</h4><ul><li>Power vibe-coders: product owners, founders and business voices building applications without engineering teams</li><li>AI coding tools that need a structured, deterministic surface over a project&#39;s RCF documents</li><li>Maintainers dogfooding RCF on the Build Lite repository itself</li></ul></section>
-<section class="field-list"><h4>In scope</h4><ul><li>On-disk RCF project structure under a project rcf folder</li><li>Visual review surface rendering the whole RCF tree as a diagram and a browsable page</li><li>Deterministic create, read, update and delete on every RCF document type</li><li>Traceability and query: coverage, trace forward, trace back, impact analysis</li><li>SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge</li><li>Local stdio MCP surface exposing query, CRUD, view and build to AI tooling</li><li>Validation of every document against the published schema package at every boundary</li><li>Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims</li></ul></section>
+<section class="field-list"><h4>In scope</h4><ul><li>On-disk RCF project structure under a project rcf folder</li><li>Visual review surface rendering the whole RCF tree as a diagram and a browsable page</li><li>Deterministic create, read, update and delete on every RCF document type</li><li>Traceability and query: coverage, trace forward, trace back, impact analysis</li><li>SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge</li><li>Local stdio MCP surface exposing query, CRUD, view and build to AI tooling</li><li>Validation of every document against the published schema package at every boundary</li><li>Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims</li><li>End-to-end verification contract: version-pinned Playwright MCP in verify, e2e as a declared test level in the chain (application-spa browserSurface and delivery-ci-workflows e2e CI job), doctor checks for browser-facing projects, and init that writes a Playwright MCP entry only when no scope-visible entry exists</li></ul></section>
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -63,7 +63,8 @@
     &quot;SDD build loop: assemble an implementation prompt from a build specification and mark it done on merge&quot;,
     &quot;Local stdio MCP surface exposing query, CRUD, view and build to AI tooling&quot;,
     &quot;Validation of every document against the published schema package at every boundary&quot;,
-    &quot;Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims&quot;
+    &quot;Deploy-aware, runtime-honest build guidance: a documented local preview as the default build outcome, an early deploy-target question that constrains the stack, and runtime-provenance labels on verification claims&quot;,
+    &quot;End-to-end verification contract: version-pinned Playwright MCP in verify, e2e as a declared test level in the chain (application-spa browserSurface and delivery-ci-workflows e2e CI job), doctor checks for browser-facing projects, and init that writes a Playwright MCP entry only when no scope-visible entry exists&quot;
   ],
   &quot;outOfScope&quot;: [
     &quot;The schema package itself, which is the separately published rcf-schemas contract&quot;,
@@ -88,7 +89,7 @@
     &quot;MCP transport is local stdio only&quot;
   ],
   &quot;createdAt&quot;: &quot;2026-06-25T00:00:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-07-20T17:56:57.237Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-03T16:56:00Z&quot;
 }
 </pre></details>
 </article>
@@ -3740,6 +3741,555 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-011">
+  <summary><span class="summary-label">REQ-011 - e2e verification contract: pinned Playwright MCP, declared e2e test level, doctor and init behaviour</span><span class="status draft">draft</span></summary>
+  <article id="REQ-011" class="doc doc-req">
+  <h3>REQ-011 - e2e verification contract: pinned Playwright MCP, declared e2e test level, doctor and init behaviour</h3>
+  
+  <p><strong>Description:</strong> The rcf-lite verify pass provisions a version-pinned Playwright MCP server instead of @latest, prints the effective pin in preflight, and honours an emergency override. The rcf method exposes e2e as a declared test level: the application-spa blueprint declares a browserSurface, contributes browser-facing acceptance criteria, and cross-links a test-case template to the browser-verify TAC; the delivery-ci-workflows blueprint materialises a distinct e2e CI job when an applied blueprint declares a browserSurface. rcf doctor gains playwright-present, browser-present, playwright-mcp-reachable, and playwright-mcp-redundant checks for browser-facing projects; non-browser projects skip the three with one reason line. rcf init writes a Playwright MCP entry only when a project-scope signature is absent and a user-scope harness probe cannot prove one exists; otherwise it leaves the wiring alone or writes the distinctly named playwright-rcf fallback. All four parts observe the ratified 2026-09-03 e2e contract at projects/rcf-lite-wsd/specs/rcf-lite-e2e-contract-spec-2026-09-03.md.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> verify</p>
+  <p><strong>Priority:</strong> must</p>
+  <p><strong>Rationale:</strong> Verify is the ship gate. A silent runtime change in the browser MCP on the next verify run is the reproducibility hole Baz named on 2026-09-03. Pinning the MCP closes it. Formalising e2e as a declared test level gives browser-facing projects a first-class contract instead of relying on the verify browser stage as a proxy for coverage. Doctor and init together make Playwright the operator&#39;s decision, not rcf-lite&#39;s ambient inheritance.</p>
+  <section class="field-list"><h4>Tags</h4><ul><li>verify</li><li>playwright-mcp</li><li>e2e</li><li>blueprint-library</li><li>doctor</li><li>init</li></ul></section>
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-011[&quot;REQ-011&lt;br/&gt;e2e verification contract: pinned Playwright ...&quot;]
+  US-1101[&quot;US-1101&lt;br/&gt;Verify pins the Playwright MCP version and pr...&quot;]
+  REQ-011 --&gt; US-1101
+  AC-1101-1[&quot;AC-1101-1&quot;]
+  US-1101 --&gt; AC-1101-1
+  FBS-020[&quot;FBS-020&lt;br/&gt;Verify pins the Playwright MCP version&quot;]
+  AC-1101-1 -.-&gt;|delivered by| FBS-020
+  CN-070[&quot;CN-070&lt;br/&gt;Pinned Playwright MCP version + composer&quot;]
+  AC-1101-1 -.-&gt;|implemented by| CN-070
+  AC-1101-2[&quot;AC-1101-2&quot;]
+  US-1101 --&gt; AC-1101-2
+  AC-1101-2 -.-&gt;|delivered by| FBS-020
+  AC-1101-2 -.-&gt;|implemented by| CN-070
+  AC-1101-3[&quot;AC-1101-3&quot;]
+  US-1101 --&gt; AC-1101-3
+  AC-1101-3 -.-&gt;|delivered by| FBS-020
+  AC-1101-3 -.-&gt;|implemented by| CN-070
+  AC-1101-4[&quot;AC-1101-4&quot;]
+  US-1101 --&gt; AC-1101-4
+  AC-1101-4 -.-&gt;|delivered by| FBS-020
+  AC-1101-4 -.-&gt;|implemented by| CN-070
+  US-1102[&quot;US-1102&lt;br/&gt;Application-spa declares browserSurface and d...&quot;]
+  REQ-011 --&gt; US-1102
+  AC-1102-1[&quot;AC-1102-1&quot;]
+  US-1102 --&gt; AC-1102-1
+  FBS-021[&quot;FBS-021&lt;br/&gt;Blueprints amend for e2e as a declared test l...&quot;]
+  AC-1102-1 -.-&gt;|delivered by| FBS-021
+  CN-071[&quot;CN-071&lt;br/&gt;Application-spa v1.4.0 browserSurface + brows...&quot;]
+  AC-1102-1 -.-&gt;|implemented by| CN-071
+  AC-1102-2[&quot;AC-1102-2&quot;]
+  US-1102 --&gt; AC-1102-2
+  AC-1102-2 -.-&gt;|delivered by| FBS-021
+  AC-1102-2 -.-&gt;|implemented by| CN-071
+  AC-1102-3[&quot;AC-1102-3&quot;]
+  US-1102 --&gt; AC-1102-3
+  AC-1102-3 -.-&gt;|delivered by| FBS-021
+  AC-1102-3 -.-&gt;|implemented by| CN-071
+  AC-1102-4[&quot;AC-1102-4&quot;]
+  US-1102 --&gt; AC-1102-4
+  AC-1102-4 -.-&gt;|delivered by| FBS-021
+  AC-1102-4 -.-&gt;|implemented by| CN-071
+  AC-1102-5[&quot;AC-1102-5&quot;]
+  US-1102 --&gt; AC-1102-5
+  AC-1102-5 -.-&gt;|delivered by| FBS-021
+  AC-1102-5 -.-&gt;|implemented by| CN-071
+  US-1103[&quot;US-1103&lt;br/&gt;rcf doctor checks Playwright and a browser on...&quot;]
+  REQ-011 --&gt; US-1103
+  AC-1103-1[&quot;AC-1103-1&quot;]
+  US-1103 --&gt; AC-1103-1
+  FBS-022[&quot;FBS-022&lt;br/&gt;Doctor: playwright-present, browser-present, ...&quot;]
+  AC-1103-1 -.-&gt;|delivered by| FBS-022
+  CN-072[&quot;CN-072&lt;br/&gt;Doctor&#39;s browser-facing projection + four Pla...&quot;]
+  AC-1103-1 -.-&gt;|implemented by| CN-072
+  AC-1103-2[&quot;AC-1103-2&quot;]
+  US-1103 --&gt; AC-1103-2
+  AC-1103-2 -.-&gt;|delivered by| FBS-022
+  AC-1103-2 -.-&gt;|implemented by| CN-072
+  AC-1103-3[&quot;AC-1103-3&quot;]
+  US-1103 --&gt; AC-1103-3
+  AC-1103-3 -.-&gt;|delivered by| FBS-022
+  AC-1103-3 -.-&gt;|implemented by| CN-072
+  AC-1103-4[&quot;AC-1103-4&quot;]
+  US-1103 --&gt; AC-1103-4
+  AC-1103-4 -.-&gt;|delivered by| FBS-022
+  AC-1103-4 -.-&gt;|implemented by| CN-072
+  US-1104[&quot;US-1104&lt;br/&gt;rcf init writes a Playwright MCP entry only w...&quot;]
+  REQ-011 --&gt; US-1104
+  AC-1104-1[&quot;AC-1104-1&quot;]
+  US-1104 --&gt; AC-1104-1
+  FBS-023[&quot;FBS-023&lt;br/&gt;Init: Playwright MCP entry only when no scope...&quot;]
+  AC-1104-1 -.-&gt;|delivered by| FBS-023
+  CN-073[&quot;CN-073&lt;br/&gt;Init&#39;s Playwright MCP pass + probeClaudeCodeM...&quot;]
+  AC-1104-1 -.-&gt;|implemented by| CN-073
+  AC-1104-2[&quot;AC-1104-2&quot;]
+  US-1104 --&gt; AC-1104-2
+  AC-1104-2 -.-&gt;|delivered by| FBS-023
+  AC-1104-2 -.-&gt;|implemented by| CN-073
+  AC-1104-3[&quot;AC-1104-3&quot;]
+  US-1104 --&gt; AC-1104-3
+  AC-1104-3 -.-&gt;|delivered by| FBS-023
+  AC-1104-3 -.-&gt;|implemented by| CN-073
+  AC-1104-4[&quot;AC-1104-4&quot;]
+  US-1104 --&gt; AC-1104-4
+  AC-1104-4 -.-&gt;|delivered by| FBS-023
+  AC-1104-4 -.-&gt;|implemented by| CN-073
+  AC-1104-5[&quot;AC-1104-5&quot;]
+  US-1104 --&gt; AC-1104-5
+  AC-1104-5 -.-&gt;|delivered by| FBS-023
+  AC-1104-5 -.-&gt;|implemented by| CN-073
+  click REQ-011 &quot;#REQ-011&quot;;
+  click US-1101 &quot;#US-1101&quot;;
+  click AC-1101-1 &quot;#AC-1101-1&quot;;
+  click FBS-020 &quot;#FBS-020&quot;;
+  click CN-070 &quot;#CN-070&quot;;
+  click AC-1101-2 &quot;#AC-1101-2&quot;;
+  click AC-1101-3 &quot;#AC-1101-3&quot;;
+  click AC-1101-4 &quot;#AC-1101-4&quot;;
+  click US-1102 &quot;#US-1102&quot;;
+  click AC-1102-1 &quot;#AC-1102-1&quot;;
+  click FBS-021 &quot;#FBS-021&quot;;
+  click CN-071 &quot;#CN-071&quot;;
+  click AC-1102-2 &quot;#AC-1102-2&quot;;
+  click AC-1102-3 &quot;#AC-1102-3&quot;;
+  click AC-1102-4 &quot;#AC-1102-4&quot;;
+  click AC-1102-5 &quot;#AC-1102-5&quot;;
+  click US-1103 &quot;#US-1103&quot;;
+  click AC-1103-1 &quot;#AC-1103-1&quot;;
+  click FBS-022 &quot;#FBS-022&quot;;
+  click CN-072 &quot;#CN-072&quot;;
+  click AC-1103-2 &quot;#AC-1103-2&quot;;
+  click AC-1103-3 &quot;#AC-1103-3&quot;;
+  click AC-1103-4 &quot;#AC-1103-4&quot;;
+  click US-1104 &quot;#US-1104&quot;;
+  click AC-1104-1 &quot;#AC-1104-1&quot;;
+  click FBS-023 &quot;#FBS-023&quot;;
+  click CN-073 &quot;#CN-073&quot;;
+  click AC-1104-2 &quot;#AC-1104-2&quot;;
+  click AC-1104-3 &quot;#AC-1104-3&quot;;
+  click AC-1104-4 &quot;#AC-1104-4&quot;;
+  click AC-1104-5 &quot;#AC-1104-5&quot;;
+  class REQ-011 req;
+  class US-1101 us;
+  class AC-1101-1 ac;
+  class FBS-020 fbs;
+  class CN-070 cn;
+  class AC-1101-2 ac;
+  class AC-1101-3 ac;
+  class AC-1101-4 ac;
+  class US-1102 us;
+  class AC-1102-1 ac;
+  class FBS-021 fbs;
+  class CN-071 cn;
+  class AC-1102-2 ac;
+  class AC-1102-3 ac;
+  class AC-1102-4 ac;
+  class AC-1102-5 ac;
+  class US-1103 us;
+  class AC-1103-1 ac;
+  class FBS-022 fbs;
+  class CN-072 cn;
+  class AC-1103-2 ac;
+  class AC-1103-3 ac;
+  class AC-1103-4 ac;
+  class US-1104 us;
+  class AC-1104-1 ac;
+  class FBS-023 fbs;
+  class CN-073 cn;
+  class AC-1104-2 ac;
+  class AC-1104-3 ac;
+  class AC-1104-4 ac;
+  class AC-1104-5 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;reqId&quot;: &quot;REQ-011&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;e2e verification contract: pinned Playwright MCP, declared e2e test level, doctor and init behaviour&quot;,
+  &quot;description&quot;: &quot;The rcf-lite verify pass provisions a version-pinned Playwright MCP server instead of @latest, prints the effective pin in preflight, and honours an emergency override. The rcf method exposes e2e as a declared test level: the application-spa blueprint declares a browserSurface, contributes browser-facing acceptance criteria, and cross-links a test-case template to the browser-verify TAC; the delivery-ci-workflows blueprint materialises a distinct e2e CI job when an applied blueprint declares a browserSurface. rcf doctor gains playwright-present, browser-present, playwright-mcp-reachable, and playwright-mcp-redundant checks for browser-facing projects; non-browser projects skip the three with one reason line. rcf init writes a Playwright MCP entry only when a project-scope signature is absent and a user-scope harness probe cannot prove one exists; otherwise it leaves the wiring alone or writes the distinctly named playwright-rcf fallback. All four parts observe the ratified 2026-09-03 e2e contract at projects/rcf-lite-wsd/specs/rcf-lite-e2e-contract-spec-2026-09-03.md.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;verify&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;rationale&quot;: &quot;Verify is the ship gate. A silent runtime change in the browser MCP on the next verify run is the reproducibility hole Baz named on 2026-09-03. Pinning the MCP closes it. Formalising e2e as a declared test level gives browser-facing projects a first-class contract instead of relying on the verify browser stage as a proxy for coverage. Doctor and init together make Playwright the operator&#39;s decision, not rcf-lite&#39;s ambient inheritance.&quot;,
+  &quot;tags&quot;: [
+    &quot;verify&quot;,
+    &quot;playwright-mcp&quot;,
+    &quot;e2e&quot;,
+    &quot;blueprint-library&quot;,
+    &quot;doctor&quot;,
+    &quot;init&quot;
+  ],
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T16:56:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T16:56:00Z&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-1101">
+  <summary><span class="summary-label">US-1101 - Verify pins the Playwright MCP version and prints it in preflight</span><span class="status draft">draft</span></summary>
+  <article id="US-1101" class="doc doc-us">
+  <h3>US-1101 - Verify pins the Playwright MCP version and prints it in preflight</h3>
+  
+  <p><strong>As a:</strong> operator running rcf verify as the ship gate</p>
+  <p><strong>I want:</strong> the verify launcher to provision a version-pinned @playwright/mcp instead of @latest, print the effective pin in preflight, record it in the report, and honour an emergency override with a loud stderr notice</p>
+  <p><strong>So that:</strong> a newly published Playwright MCP release cannot become a silent runtime change on the next verify run, and every report artefact carries the exact browser tooling version the pass ran against</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-011">REQ-011</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1101-1" class="ac-item"><strong>AC-1101-1</strong> - packages/rcf-lite/src/verify/engine/launcher.js exports a PLAYWRIGHT_MCP_VERSION constant, and DEFAULT_MCP_CONFIG.args composes @playwright/mcp@&lt;PLAYWRIGHT_MCP_VERSION&gt; instead of @playwright/mcp@latest.
+<div class="ac-gwt"><p><em>Given</em> the rcf-lite source at HEAD</p><p><em>When</em> the launcher module is imported</p><p><em>Then</em> PLAYWRIGHT_MCP_VERSION resolves to a semver string and DEFAULT_MCP_CONFIG.mcpServers.playwright.args contains the exact-pinned @playwright/mcp@&lt;version&gt; token, with no @latest anywhere in the module</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-020">FBS-020</a></p></li>
+<li id="AC-1101-2" class="ac-item"><strong>AC-1101-2</strong> - rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr; the line is not suppressed by --quiet.
+<div class="ac-gwt"><p><em>Given</em> a browser-facing fixture project and a stubbed verify launcher</p><p><em>When</em> rcf verify run is invoked with valid required flags</p><p><em>Then</em> stderr contains one line matching /^Playwright MCP: pinned to @playwright\/mcp@/ carrying the effective pin</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-020">FBS-020</a></p></li>
+<li id="AC-1101-3" class="ac-item"><strong>AC-1101-3</strong> - rcf verify run --playwright-mcp-version &lt;semver&gt; overrides the pinned constant for one run, prints a loud stderr override notice, and records the effective pin on the report as runStats.playwrightMcpVersion. A non-semver value refuses with exit 2.
+<div class="ac-gwt"><p><em>Given</em> the same fixture, run with --playwright-mcp-version 0.0.99</p><p><em>When</em> the run completes</p><p><em>Then</em> stderr carries one line matching /^Playwright MCP: OVERRIDE @playwright\/mcp@0\.0\.99/, the report&#39;s run.runStats.playwrightMcpVersion equals 0.0.99, and rerunning with --playwright-mcp-version notasemver exits 2 with a semver-shape error</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-020">FBS-020</a></p></li>
+<li id="AC-1101-4" class="ac-item"><strong>AC-1101-4</strong> - Even when no override fires, the report records the effective (default) pin as run.runStats.playwrightMcpVersion so a report re-render tells the operator what browser tooling the pass ran against.
+<div class="ac-gwt"><p><em>Given</em> a completed verify run with no override</p><p><em>When</em> the report JSON is inspected</p><p><em>Then</em> report.run.runStats.playwrightMcpVersion equals PLAYWRIGHT_MCP_VERSION</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-020">FBS-020</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-011&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Verify pins the Playwright MCP version and prints it in preflight&quot;,
+  &quot;asA&quot;: &quot;operator running rcf verify as the ship gate&quot;,
+  &quot;iWant&quot;: &quot;the verify launcher to provision a version-pinned @playwright/mcp instead of @latest, print the effective pin in preflight, record it in the report, and honour an emergency override with a loud stderr notice&quot;,
+  &quot;soThat&quot;: &quot;a newly published Playwright MCP release cannot become a silent runtime change on the next verify run, and every report artefact carries the exact browser tooling version the pass ran against&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1101-1&quot;,
+      &quot;description&quot;: &quot;packages/rcf-lite/src/verify/engine/launcher.js exports a PLAYWRIGHT_MCP_VERSION constant, and DEFAULT_MCP_CONFIG.args composes @playwright/mcp@&lt;PLAYWRIGHT_MCP_VERSION&gt; instead of @playwright/mcp@latest.&quot;,
+      &quot;given&quot;: &quot;the rcf-lite source at HEAD&quot;,
+      &quot;when&quot;: &quot;the launcher module is imported&quot;,
+      &quot;then&quot;: &quot;PLAYWRIGHT_MCP_VERSION resolves to a semver string and DEFAULT_MCP_CONFIG.mcpServers.playwright.args contains the exact-pinned @playwright/mcp@&lt;version&gt; token, with no @latest anywhere in the module&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1101-2&quot;,
+      &quot;description&quot;: &quot;rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr; the line is not suppressed by --quiet.&quot;,
+      &quot;given&quot;: &quot;a browser-facing fixture project and a stubbed verify launcher&quot;,
+      &quot;when&quot;: &quot;rcf verify run is invoked with valid required flags&quot;,
+      &quot;then&quot;: &quot;stderr contains one line matching /^Playwright MCP: pinned to @playwright\\/mcp@/ carrying the effective pin&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1101-3&quot;,
+      &quot;description&quot;: &quot;rcf verify run --playwright-mcp-version &lt;semver&gt; overrides the pinned constant for one run, prints a loud stderr override notice, and records the effective pin on the report as runStats.playwrightMcpVersion. A non-semver value refuses with exit 2.&quot;,
+      &quot;given&quot;: &quot;the same fixture, run with --playwright-mcp-version 0.0.99&quot;,
+      &quot;when&quot;: &quot;the run completes&quot;,
+      &quot;then&quot;: &quot;stderr carries one line matching /^Playwright MCP: OVERRIDE @playwright\\/mcp@0\\.0\\.99/, the report&#39;s run.runStats.playwrightMcpVersion equals 0.0.99, and rerunning with --playwright-mcp-version notasemver exits 2 with a semver-shape error&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1101-4&quot;,
+      &quot;description&quot;: &quot;Even when no override fires, the report records the effective (default) pin as run.runStats.playwrightMcpVersion so a report re-render tells the operator what browser tooling the pass ran against.&quot;,
+      &quot;given&quot;: &quot;a completed verify run with no override&quot;,
+      &quot;when&quot;: &quot;the report JSON is inspected&quot;,
+      &quot;then&quot;: &quot;report.run.runStats.playwrightMcpVersion equals PLAYWRIGHT_MCP_VERSION&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;createdAt&quot;: &quot;2026-09-03T16:56:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T16:56:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1102">
+  <summary><span class="summary-label">US-1102 - Application-spa declares browserSurface and delivery-ci-workflows materialises an e2e CI job</span><span class="status draft">draft</span></summary>
+  <article id="US-1102" class="doc doc-us">
+  <h3>US-1102 - Application-spa declares browserSurface and delivery-ci-workflows materialises an e2e CI job</h3>
+  
+  <p><strong>As a:</strong> operator applying the application-spa and delivery-ci-workflows blueprints</p>
+  <p><strong>I want:</strong> the SPA blueprint&#39;s manifest to declare a browserSurface field, its browser-facing acceptance criteria and e2e test-case template to ship, and the delivery-ci-workflows materialiser to wire a distinct e2e CI job when at least one applied blueprint carries a browserSurface</p>
+  <p><strong>So that:</strong> e2e is a first-class declared test level in the chain, and browser-facing projects get a distinct pull-request-checks e2e job while API-only projects keep the existing workflow shape verbatim</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-011">REQ-011</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1102-1" class="ac-item"><strong>AC-1102-1</strong> - blueprints/application-spa/blueprint.json is at version 1.4.0 and carries a top-level browserSurface object with declared: true; the object also carries routes[] and themes[] as reference hint arrays.
+<div class="ac-gwt"><p><em>Given</em> the SPA blueprint at HEAD</p><p><em>When</em> blueprint.json is inspected</p><p><em>Then</em> version equals 1.4.0 and .browserSurface.declared is true</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-021">FBS-021</a></p></li>
+<li id="AC-1102-2" class="ac-item"><strong>AC-1102-2</strong> - The SPA blueprint contributes two new browser-facing acceptance criteria in the 1101 to 1899 band (existing 1131 and 1132 are already occupied by unrelated 1.3.x contributions): US-1134 binds an e2e AC on application-spa-REQ-011 (iconography), US-1135 binds an e2e AC on application-spa-REQ-009 (user arrival and auth surfaces); a paste-in assets/tc-templates/e2e.md test-case template ships and names the browser-verify TAC as its driver seam.
+<div class="ac-gwt"><p><em>Given</em> the SPA blueprint at HEAD</p><p><em>When</em> blueprints/application-spa/contributions/user-stories/ and blueprints/application-spa/assets/tc-templates/ are inspected</p><p><em>Then</em> application-spa-us-1134.json and application-spa-us-1135.json exist, each binds one AC whose scope is deployed and whose description names an e2e observable at a rendered browser surface; assets/tc-templates/e2e.md exists and references TAC-208</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-021">FBS-021</a></p></li>
+<li id="AC-1102-3" class="ac-item"><strong>AC-1102-3</strong> - blueprints/delivery-ci-workflows/blueprint.json is at version 2.2.0 and contributes a new US-6124 whose AC binds the elicited e2e check to a distinct e2e CI job that runs project testLevel: e2e cases against a local preview or --parity-env runtime, uploads browser artefacts, and reports a distinct row in the aggregate pipeline report.
+<div class="ac-gwt"><p><em>Given</em> the delivery-ci-workflows blueprint at HEAD</p><p><em>When</em> blueprint.json and contributions/user-stories/delivery-ci-workflows-us-6124.json are inspected</p><p><em>Then</em> version equals 2.2.0 and the US-6124 record binds an AC-6124-1 whose description names the four points above</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-021">FBS-021</a></p></li>
+<li id="AC-1102-4" class="ac-item"><strong>AC-1102-4</strong> - The illustrative GHA workflow at blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/pull-request-checks.yml carries a documented e2e job, and the alternate-provider notes file at ../notes.md carries one line per provider translating the same four points.
+<div class="ac-gwt"><p><em>Given</em> the delivery-ci-workflows blueprint at HEAD</p><p><em>When</em> the illustrative workflow file is inspected</p><p><em>Then</em> the workflow declares an e2e job as an example, and notes.md contains one line per provider (GitLab CI, CircleCI, Buildkite, Jenkins) naming the four points</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-021">FBS-021</a></p></li>
+<li id="AC-1102-5" class="ac-item"><strong>AC-1102-5</strong> - Applying application-spa v1.4.0 to a scratch project produces a manifest that still validates against rcf-schemas 0.5.1; the applied blueprint record carries no new field, and doctor and the delivery-ci-workflows materialiser both read browserSurface from the applied record&#39;s source blueprint.json via the existing manifest.blueprints[].source reference.
+<div class="ac-gwt"><p><em>Given</em> a scratch project created by rcf init with application-spa v1.4.0 applied</p><p><em>When</em> the resulting rcf/manifest.json is validated against the shipped schemas</p><p><em>Then</em> validation passes and no browserSurface key appears on the applied blueprint record itself</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-021">FBS-021</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1102&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-011&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Application-spa declares browserSurface and delivery-ci-workflows materialises an e2e CI job&quot;,
+  &quot;asA&quot;: &quot;operator applying the application-spa and delivery-ci-workflows blueprints&quot;,
+  &quot;iWant&quot;: &quot;the SPA blueprint&#39;s manifest to declare a browserSurface field, its browser-facing acceptance criteria and e2e test-case template to ship, and the delivery-ci-workflows materialiser to wire a distinct e2e CI job when at least one applied blueprint carries a browserSurface&quot;,
+  &quot;soThat&quot;: &quot;e2e is a first-class declared test level in the chain, and browser-facing projects get a distinct pull-request-checks e2e job while API-only projects keep the existing workflow shape verbatim&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1102-1&quot;,
+      &quot;description&quot;: &quot;blueprints/application-spa/blueprint.json is at version 1.4.0 and carries a top-level browserSurface object with declared: true; the object also carries routes[] and themes[] as reference hint arrays.&quot;,
+      &quot;given&quot;: &quot;the SPA blueprint at HEAD&quot;,
+      &quot;when&quot;: &quot;blueprint.json is inspected&quot;,
+      &quot;then&quot;: &quot;version equals 1.4.0 and .browserSurface.declared is true&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1102-2&quot;,
+      &quot;description&quot;: &quot;The SPA blueprint contributes two new browser-facing acceptance criteria in the 1101 to 1899 band (existing 1131 and 1132 are already occupied by unrelated 1.3.x contributions): US-1134 binds an e2e AC on application-spa-REQ-011 (iconography), US-1135 binds an e2e AC on application-spa-REQ-009 (user arrival and auth surfaces); a paste-in assets/tc-templates/e2e.md test-case template ships and names the browser-verify TAC as its driver seam.&quot;,
+      &quot;given&quot;: &quot;the SPA blueprint at HEAD&quot;,
+      &quot;when&quot;: &quot;blueprints/application-spa/contributions/user-stories/ and blueprints/application-spa/assets/tc-templates/ are inspected&quot;,
+      &quot;then&quot;: &quot;application-spa-us-1134.json and application-spa-us-1135.json exist, each binds one AC whose scope is deployed and whose description names an e2e observable at a rendered browser surface; assets/tc-templates/e2e.md exists and references TAC-208&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1102-3&quot;,
+      &quot;description&quot;: &quot;blueprints/delivery-ci-workflows/blueprint.json is at version 2.2.0 and contributes a new US-6124 whose AC binds the elicited e2e check to a distinct e2e CI job that runs project testLevel: e2e cases against a local preview or --parity-env runtime, uploads browser artefacts, and reports a distinct row in the aggregate pipeline report.&quot;,
+      &quot;given&quot;: &quot;the delivery-ci-workflows blueprint at HEAD&quot;,
+      &quot;when&quot;: &quot;blueprint.json and contributions/user-stories/delivery-ci-workflows-us-6124.json are inspected&quot;,
+      &quot;then&quot;: &quot;version equals 2.2.0 and the US-6124 record binds an AC-6124-1 whose description names the four points above&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1102-4&quot;,
+      &quot;description&quot;: &quot;The illustrative GHA workflow at blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/pull-request-checks.yml carries a documented e2e job, and the alternate-provider notes file at ../notes.md carries one line per provider translating the same four points.&quot;,
+      &quot;given&quot;: &quot;the delivery-ci-workflows blueprint at HEAD&quot;,
+      &quot;when&quot;: &quot;the illustrative workflow file is inspected&quot;,
+      &quot;then&quot;: &quot;the workflow declares an e2e job as an example, and notes.md contains one line per provider (GitLab CI, CircleCI, Buildkite, Jenkins) naming the four points&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1102-5&quot;,
+      &quot;description&quot;: &quot;Applying application-spa v1.4.0 to a scratch project produces a manifest that still validates against rcf-schemas 0.5.1; the applied blueprint record carries no new field, and doctor and the delivery-ci-workflows materialiser both read browserSurface from the applied record&#39;s source blueprint.json via the existing manifest.blueprints[].source reference.&quot;,
+      &quot;given&quot;: &quot;a scratch project created by rcf init with application-spa v1.4.0 applied&quot;,
+      &quot;when&quot;: &quot;the resulting rcf/manifest.json is validated against the shipped schemas&quot;,
+      &quot;then&quot;: &quot;validation passes and no browserSurface key appears on the applied blueprint record itself&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;createdAt&quot;: &quot;2026-09-03T16:56:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T16:56:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1103">
+  <summary><span class="summary-label">US-1103 - rcf doctor checks Playwright and a browser on browser-facing projects and skips them otherwise</span><span class="status draft">draft</span></summary>
+  <article id="US-1103" class="doc doc-us">
+  <h3>US-1103 - rcf doctor checks Playwright and a browser on browser-facing projects and skips them otherwise</h3>
+  
+  <p><strong>As a:</strong> operator running rcf doctor on either a browser-facing or an API-only project</p>
+  <p><strong>I want:</strong> doctor to run playwright-present, browser-present, and playwright-mcp-reachable checks when at least one applied blueprint declares a browserSurface, and to skip all three with one printed reason line otherwise</p>
+  <p><strong>So that:</strong> browser-facing projects surface missing Playwright, missing browser, or an unreachable @playwright/mcp with actionable fix lines, while API-only projects are not asked to install a browser stack they will never use</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-011">REQ-011</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1103-1" class="ac-item"><strong>AC-1103-1</strong> - packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies (peerDependenciesMeta.&lt;pkg&gt;.optional: true). npm and pnpm do not fail install when the peers are absent.
+<div class="ac-gwt"><p><em>Given</em> packages/rcf-lite at HEAD</p><p><em>When</em> package.json is inspected</p><p><em>Then</em> .peerDependencies[&#39;@playwright/mcp&#39;] and .peerDependencies.playwright are declared and .peerDependenciesMeta.&lt;pkg&gt;.optional is true for both</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-022">FBS-022</a></p></li>
+<li id="AC-1103-2" class="ac-item"><strong>AC-1103-2</strong> - On a browser-facing fixture project (application-spa v1.4.0 applied), rcf doctor runs playwright-present, browser-present, and playwright-mcp-reachable; each check emits at most one fix line naming the exact remedy per the spec&#39;s fix-line table.
+<div class="ac-gwt"><p><em>Given</em> a browser-facing fixture with no @playwright/mcp installed</p><p><em>When</em> rcf doctor is run</p><p><em>Then</em> the three checks appear in the drift output and their fix lines match the spec&#39;s fix-line strings</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-022">FBS-022</a></p></li>
+<li id="AC-1103-3" class="ac-item"><strong>AC-1103-3</strong> - On an API-only fixture project (application-api-rest applied, no browser-facing blueprint), rcf doctor prints one line naming the three skipped checks and their skip reason. The line is not suppressed by --quiet.
+<div class="ac-gwt"><p><em>Given</em> an API-only fixture project</p><p><em>When</em> rcf doctor is run</p><p><em>Then</em> stdout contains exactly one line &#39;rcf doctor: skipping playwright-present, browser-present, playwright-mcp-reachable (no applied blueprint declares a browser surface).&#39;</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-022">FBS-022</a></p></li>
+<li id="AC-1103-4" class="ac-item"><strong>AC-1103-4</strong> - The three checks are legal values of --check &lt;check&gt;[,check]; passing one explicitly on a non-browser project overrides the skip and runs it.
+<div class="ac-gwt"><p><em>Given</em> an API-only fixture project</p><p><em>When</em> rcf doctor --check playwright-present is run</p><p><em>Then</em> the playwright-present check runs and reports its result rather than being skipped</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-022">FBS-022</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1103&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-011&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;rcf doctor checks Playwright and a browser on browser-facing projects and skips them otherwise&quot;,
+  &quot;asA&quot;: &quot;operator running rcf doctor on either a browser-facing or an API-only project&quot;,
+  &quot;iWant&quot;: &quot;doctor to run playwright-present, browser-present, and playwright-mcp-reachable checks when at least one applied blueprint declares a browserSurface, and to skip all three with one printed reason line otherwise&quot;,
+  &quot;soThat&quot;: &quot;browser-facing projects surface missing Playwright, missing browser, or an unreachable @playwright/mcp with actionable fix lines, while API-only projects are not asked to install a browser stack they will never use&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1103-1&quot;,
+      &quot;description&quot;: &quot;packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies (peerDependenciesMeta.&lt;pkg&gt;.optional: true). npm and pnpm do not fail install when the peers are absent.&quot;,
+      &quot;given&quot;: &quot;packages/rcf-lite at HEAD&quot;,
+      &quot;when&quot;: &quot;package.json is inspected&quot;,
+      &quot;then&quot;: &quot;.peerDependencies[&#39;@playwright/mcp&#39;] and .peerDependencies.playwright are declared and .peerDependenciesMeta.&lt;pkg&gt;.optional is true for both&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1103-2&quot;,
+      &quot;description&quot;: &quot;On a browser-facing fixture project (application-spa v1.4.0 applied), rcf doctor runs playwright-present, browser-present, and playwright-mcp-reachable; each check emits at most one fix line naming the exact remedy per the spec&#39;s fix-line table.&quot;,
+      &quot;given&quot;: &quot;a browser-facing fixture with no @playwright/mcp installed&quot;,
+      &quot;when&quot;: &quot;rcf doctor is run&quot;,
+      &quot;then&quot;: &quot;the three checks appear in the drift output and their fix lines match the spec&#39;s fix-line strings&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1103-3&quot;,
+      &quot;description&quot;: &quot;On an API-only fixture project (application-api-rest applied, no browser-facing blueprint), rcf doctor prints one line naming the three skipped checks and their skip reason. The line is not suppressed by --quiet.&quot;,
+      &quot;given&quot;: &quot;an API-only fixture project&quot;,
+      &quot;when&quot;: &quot;rcf doctor is run&quot;,
+      &quot;then&quot;: &quot;stdout contains exactly one line &#39;rcf doctor: skipping playwright-present, browser-present, playwright-mcp-reachable (no applied blueprint declares a browser surface).&#39;&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1103-4&quot;,
+      &quot;description&quot;: &quot;The three checks are legal values of --check &lt;check&gt;[,check]; passing one explicitly on a non-browser project overrides the skip and runs it.&quot;,
+      &quot;given&quot;: &quot;an API-only fixture project&quot;,
+      &quot;when&quot;: &quot;rcf doctor --check playwright-present is run&quot;,
+      &quot;then&quot;: &quot;the playwright-present check runs and reports its result rather than being skipped&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;createdAt&quot;: &quot;2026-09-03T16:56:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T16:56:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1104">
+  <summary><span class="summary-label">US-1104 - rcf init writes a Playwright MCP entry only when no scope-visible entry exists</span><span class="status draft">draft</span></summary>
+  <article id="US-1104" class="doc doc-us">
+  <h3>US-1104 - rcf init writes a Playwright MCP entry only when no scope-visible entry exists</h3>
+  
+  <p><strong>As a:</strong> operator running rcf init on a project with or without an ambient Playwright MCP entry</p>
+  <p><strong>I want:</strong> init to detect a project-scope Playwright signature by command-tail matching, probe user scope via claude mcp list where the Claude Code harness is on PATH, write a distinctly named playwright-rcf project-scope entry only when it cannot prove any Playwright entry exists at any scope, and honour --no-playwright-mcp</p>
+  <p><strong>So that:</strong> an operator with a user-scope Playwright MCP entry in Claude Code keeps it (init never shadows it) and an operator with none gets a working project-scope entry that shadows nothing at any scope by naming convention</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-011">REQ-011</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1104-1" class="ac-item"><strong>AC-1104-1</strong> - When the project-scope .mcp.json carries a Playwright signature (any entry key whose args contain a string matching /^@playwright\/mcp(@|$)/), rcf init writes no Playwright entry and prints the &#39;left alone&#39; line naming the key.
+<div class="ac-gwt"><p><em>Given</em> a fixture project with a pre-existing mcpServers entry whose args include @playwright/mcp</p><p><em>When</em> rcf init is run</p><p><em>Then</em> the .mcp.json keys are unchanged and stdout carries the line &#39;Playwright MCP: already registered in .mcp.json under key &#39;&lt;name&gt;&#39; at project scope, left alone.&#39;</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-023">FBS-023</a></p></li>
+<li id="AC-1104-2" class="ac-item"><strong>AC-1104-2</strong> - When the project-scope .mcp.json carries no Playwright signature, init probes the harness via an injectable seam (default: claude mcp list; 5 second timeout; text output parsed for the signature). Probe results &#39;entry found at user scope&#39;, &#39;no entry anywhere&#39;, &#39;CLI absent or non-zero&#39;, and &#39;output unparseable&#39; each drive the correct downstream branch.
+<div class="ac-gwt"><p><em>Given</em> a fixture project and a stubbed probe returning each of the four probe results in turn</p><p><em>When</em> rcf init runs against each probe result</p><p><em>Then</em> &#39;entry found&#39; leaves .mcp.json untouched and prints the &#39;already registered at &lt;scope&gt; scope in Claude Code&#39; line; &#39;no entry anywhere&#39; writes the distinct playwright-rcf project-scope entry; both &#39;CLI absent or non-zero&#39; and &#39;output unparseable&#39; treat the probe as inconclusive and write the distinct playwright-rcf entry with the &#39;could not probe&#39; notice</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-023">FBS-023</a></p></li>
+<li id="AC-1104-3" class="ac-item"><strong>AC-1104-3</strong> - The playwright-rcf entry, when written, has key &#39;playwright-rcf&#39; distinct from &#39;playwright&#39;, command &#39;npx&#39;, args [&#39;-y&#39;, &#39;@playwright/mcp@&lt;PLAYWRIGHT_MCP_VERSION&gt;&#39;] and empty env.
+<div class="ac-gwt"><p><em>Given</em> a fixture project with no ambient Playwright entry anywhere</p><p><em>When</em> rcf init runs with the probe stubbed inconclusive</p><p><em>Then</em> .mcp.json.mcpServers[&#39;playwright-rcf&#39;] equals { type: &#39;stdio&#39;, command: &#39;npx&#39;, args: [&#39;-y&#39;, &#39;@playwright/mcp@&lt;version&gt;&#39;], env: {} }</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-023">FBS-023</a></p></li>
+<li id="AC-1104-4" class="ac-item"><strong>AC-1104-4</strong> - rcf init --no-playwright-mcp suppresses the write step for the Playwright entry entirely; the probe still runs so the print-out remains honest, but no .mcp.json Playwright entry is created and no existing one is touched.
+<div class="ac-gwt"><p><em>Given</em> a fixture project with no ambient Playwright entry anywhere</p><p><em>When</em> rcf init --no-playwright-mcp is run</p><p><em>Then</em> .mcp.json.mcpServers contains no key matching a Playwright signature</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-023">FBS-023</a></p></li>
+<li id="AC-1104-5" class="ac-item"><strong>AC-1104-5</strong> - rcf doctor&#39;s playwright-mcp-redundant check fires only on browser-facing projects; when the project-scope .mcp.json carries a Playwright signature AND the probe reports a Playwright signature at user scope, doctor reports drift with the removal line naming --no-playwright-mcp and the hand-edit path. --fix does not repair this drift.
+<div class="ac-gwt"><p><em>Given</em> a browser-facing fixture with a project-scope playwright entry and a stubbed probe reporting user-scope</p><p><em>When</em> rcf doctor is run</p><p><em>Then</em> the drift output contains one &#39;playwright-mcp-redundant&#39; entry naming the two remedies and no --fix action is applied</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-023">FBS-023</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1104&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-011&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;rcf init writes a Playwright MCP entry only when no scope-visible entry exists&quot;,
+  &quot;asA&quot;: &quot;operator running rcf init on a project with or without an ambient Playwright MCP entry&quot;,
+  &quot;iWant&quot;: &quot;init to detect a project-scope Playwright signature by command-tail matching, probe user scope via claude mcp list where the Claude Code harness is on PATH, write a distinctly named playwright-rcf project-scope entry only when it cannot prove any Playwright entry exists at any scope, and honour --no-playwright-mcp&quot;,
+  &quot;soThat&quot;: &quot;an operator with a user-scope Playwright MCP entry in Claude Code keeps it (init never shadows it) and an operator with none gets a working project-scope entry that shadows nothing at any scope by naming convention&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1104-1&quot;,
+      &quot;description&quot;: &quot;When the project-scope .mcp.json carries a Playwright signature (any entry key whose args contain a string matching /^@playwright\\/mcp(@|$)/), rcf init writes no Playwright entry and prints the &#39;left alone&#39; line naming the key.&quot;,
+      &quot;given&quot;: &quot;a fixture project with a pre-existing mcpServers entry whose args include @playwright/mcp&quot;,
+      &quot;when&quot;: &quot;rcf init is run&quot;,
+      &quot;then&quot;: &quot;the .mcp.json keys are unchanged and stdout carries the line &#39;Playwright MCP: already registered in .mcp.json under key &#39;&lt;name&gt;&#39; at project scope, left alone.&#39;&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1104-2&quot;,
+      &quot;description&quot;: &quot;When the project-scope .mcp.json carries no Playwright signature, init probes the harness via an injectable seam (default: claude mcp list; 5 second timeout; text output parsed for the signature). Probe results &#39;entry found at user scope&#39;, &#39;no entry anywhere&#39;, &#39;CLI absent or non-zero&#39;, and &#39;output unparseable&#39; each drive the correct downstream branch.&quot;,
+      &quot;given&quot;: &quot;a fixture project and a stubbed probe returning each of the four probe results in turn&quot;,
+      &quot;when&quot;: &quot;rcf init runs against each probe result&quot;,
+      &quot;then&quot;: &quot;&#39;entry found&#39; leaves .mcp.json untouched and prints the &#39;already registered at &lt;scope&gt; scope in Claude Code&#39; line; &#39;no entry anywhere&#39; writes the distinct playwright-rcf project-scope entry; both &#39;CLI absent or non-zero&#39; and &#39;output unparseable&#39; treat the probe as inconclusive and write the distinct playwright-rcf entry with the &#39;could not probe&#39; notice&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1104-3&quot;,
+      &quot;description&quot;: &quot;The playwright-rcf entry, when written, has key &#39;playwright-rcf&#39; distinct from &#39;playwright&#39;, command &#39;npx&#39;, args [&#39;-y&#39;, &#39;@playwright/mcp@&lt;PLAYWRIGHT_MCP_VERSION&gt;&#39;] and empty env.&quot;,
+      &quot;given&quot;: &quot;a fixture project with no ambient Playwright entry anywhere&quot;,
+      &quot;when&quot;: &quot;rcf init runs with the probe stubbed inconclusive&quot;,
+      &quot;then&quot;: &quot;.mcp.json.mcpServers[&#39;playwright-rcf&#39;] equals { type: &#39;stdio&#39;, command: &#39;npx&#39;, args: [&#39;-y&#39;, &#39;@playwright/mcp@&lt;version&gt;&#39;], env: {} }&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1104-4&quot;,
+      &quot;description&quot;: &quot;rcf init --no-playwright-mcp suppresses the write step for the Playwright entry entirely; the probe still runs so the print-out remains honest, but no .mcp.json Playwright entry is created and no existing one is touched.&quot;,
+      &quot;given&quot;: &quot;a fixture project with no ambient Playwright entry anywhere&quot;,
+      &quot;when&quot;: &quot;rcf init --no-playwright-mcp is run&quot;,
+      &quot;then&quot;: &quot;.mcp.json.mcpServers contains no key matching a Playwright signature&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-1104-5&quot;,
+      &quot;description&quot;: &quot;rcf doctor&#39;s playwright-mcp-redundant check fires only on browser-facing projects; when the project-scope .mcp.json carries a Playwright signature AND the probe reports a Playwright signature at user scope, doctor reports drift with the removal line naming --no-playwright-mcp and the hand-edit path. --fix does not repair this drift.&quot;,
+      &quot;given&quot;: &quot;a browser-facing fixture with a project-scope playwright entry and a stubbed probe reporting user-scope&quot;,
+      &quot;when&quot;: &quot;rcf doctor is run&quot;,
+      &quot;then&quot;: &quot;the drift output contains one &#39;playwright-mcp-redundant&#39; entry naming the two remedies and no --fix action is applied&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;createdAt&quot;: &quot;2026-09-03T16:56:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T16:56:00Z&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -4844,7 +5394,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -6626,6 +7176,266 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;notes&quot;: &quot;Ratified decision 4 (agentic at bundle-assembly time, operator override supported). Heuristic-tag selector satisfies the deterministic ACs; a smarter selector plugs into the same seam without touching the bundle assembler.&quot;,
   &quot;createdAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-08-18T22:56:02.353Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-020">
+  <summary><span class="summary-label">FBS-020 - Verify pins the Playwright MCP version</span><span class="status verified">verified</span></summary>
+  <article id="FBS-020" class="doc doc-fbs">
+  <h3>FBS-020 - Verify pins the Playwright MCP version</h3>
+  
+  <p><strong>Summary:</strong> Extend packages/rcf-lite/src/verify/engine/launcher.js with an exported PLAYWRIGHT_MCP_VERSION constant and a playwrightMcpConfig(version) composer; DEFAULT_MCP_CONFIG composes @playwright/mcp@&lt;version&gt; not @latest. Extend the CLI (src/verify/cli/run.js) with a --playwright-mcp-version override, a loud stderr override notice, and preflight-print of the pinned default. Stamp the effective pin on report.run.runStats.playwrightMcpVersion.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1101-1">AC-1101-1</a><a class="ac-pill" href="#AC-1101-2">AC-1101-2</a><a class="ac-pill" href="#AC-1101-3">AC-1101-3</a><a class="ac-pill" href="#AC-1101-4">AC-1101-4</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1101-1">AC-1101-1</a></strong> - packages/rcf-lite/src/verify/engine/launcher.js exports a PLAYWRIGHT_MCP_VERSION constant, and DEFAULT_MCP_CONFIG.args composes @playwright/mcp@&lt;PLAYWRIGHT_MCP_VERSION&gt; instead of @playwright/mcp@latest.</p>
+  <p><em>Given</em> the rcf-lite source at HEAD</p>
+  <p><em>When</em> the launcher module is imported</p>
+  <p><em>Then</em> PLAYWRIGHT_MCP_VERSION resolves to a semver string and DEFAULT_MCP_CONFIG.mcpServers.playwright.args contains the exact-pinned @playwright/mcp@&lt;version&gt; token, with no @latest anywhere in the module</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1101-2">AC-1101-2</a></strong> - rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr; the line is not suppressed by --quiet.</p>
+  <p><em>Given</em> a browser-facing fixture project and a stubbed verify launcher</p>
+  <p><em>When</em> rcf verify run is invoked with valid required flags</p>
+  <p><em>Then</em> stderr contains one line matching /^Playwright MCP: pinned to @playwright\/mcp@/ carrying the effective pin</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1101-3">AC-1101-3</a></strong> - rcf verify run --playwright-mcp-version &lt;semver&gt; overrides the pinned constant for one run, prints a loud stderr override notice, and records the effective pin on the report as runStats.playwrightMcpVersion. A non-semver value refuses with exit 2.</p>
+  <p><em>Given</em> the same fixture, run with --playwright-mcp-version 0.0.99</p>
+  <p><em>When</em> the run completes</p>
+  <p><em>Then</em> stderr carries one line matching /^Playwright MCP: OVERRIDE @playwright\/mcp@0\.0\.99/, the report&#39;s run.runStats.playwrightMcpVersion equals 0.0.99, and rerunning with --playwright-mcp-version notasemver exits 2 with a semver-shape error</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1101-4">AC-1101-4</a></strong> - Even when no override fires, the report records the effective (default) pin as run.runStats.playwrightMcpVersion so a report re-render tells the operator what browser tooling the pass ran against.</p>
+  <p><em>Given</em> a completed verify run with no override</p>
+  <p><em>When</em> the report JSON is inspected</p>
+  <p><em>Then</em> report.run.runStats.playwrightMcpVersion equals PLAYWRIGHT_MCP_VERSION</p>
+</div></section>
+  
+  
+  <p><strong>Estimated size:</strong> small</p>
+  
+  
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 20</p>
+  <p><strong>Execution status:</strong> verified</p>
+  <p><strong>Notes:</strong> Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1101 on REQ-011.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-020&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 20,
+  &quot;executionStatus&quot;: &quot;verified&quot;,
+  &quot;title&quot;: &quot;Verify pins the Playwright MCP version&quot;,
+  &quot;summary&quot;: &quot;Extend packages/rcf-lite/src/verify/engine/launcher.js with an exported PLAYWRIGHT_MCP_VERSION constant and a playwrightMcpConfig(version) composer; DEFAULT_MCP_CONFIG composes @playwright/mcp@&lt;version&gt; not @latest. Extend the CLI (src/verify/cli/run.js) with a --playwright-mcp-version override, a loud stderr override notice, and preflight-print of the pinned default. Stamp the effective pin on report.run.runStats.playwrightMcpVersion.&quot;,
+  &quot;acIds&quot;: [&quot;AC-1101-1&quot;,&quot;AC-1101-2&quot;,&quot;AC-1101-3&quot;,&quot;AC-1101-4&quot;],
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;contextRequirements&quot;: { &quot;tacIds&quot;: [], &quot;adrIds&quot;: [] },
+  &quot;domain&quot;: &quot;verify&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1101 on REQ-011.&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T17:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T17:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-021">
+  <summary><span class="summary-label">FBS-021 - Blueprints amend for e2e as a declared test level</span><span class="status verified">verified</span></summary>
+  <article id="FBS-021" class="doc doc-fbs">
+  <h3>FBS-021 - Blueprints amend for e2e as a declared test level</h3>
+  
+  <p><strong>Summary:</strong> Bump application-spa to 1.4.0, add top-level browserSurface object, add US-1134 (icon) and US-1135 (auth) as new browser-facing acceptance criteria, and ship assets/tc-templates/e2e.md as the paste-in template. Bump delivery-ci-workflows to 2.2.0, add US-6124 with AC-6124-1 for the elicited e2e check, add the illustrative e2e job in pull-request-checks.yml, and add the alternate-provider notes for the e2e job. Prove the applied SPA v1.4.0 manifest validates against rcf-schemas 0.5.1 with no browserSurface field on the applied blueprint record.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1102-1">AC-1102-1</a><a class="ac-pill" href="#AC-1102-2">AC-1102-2</a><a class="ac-pill" href="#AC-1102-3">AC-1102-3</a><a class="ac-pill" href="#AC-1102-4">AC-1102-4</a><a class="ac-pill" href="#AC-1102-5">AC-1102-5</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1102-1">AC-1102-1</a></strong> - blueprints/application-spa/blueprint.json is at version 1.4.0 and carries a top-level browserSurface object with declared: true; the object also carries routes[] and themes[] as reference hint arrays.</p>
+  <p><em>Given</em> the SPA blueprint at HEAD</p>
+  <p><em>When</em> blueprint.json is inspected</p>
+  <p><em>Then</em> version equals 1.4.0 and .browserSurface.declared is true</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1102-2">AC-1102-2</a></strong> - The SPA blueprint contributes two new browser-facing acceptance criteria in the 1101 to 1899 band (existing 1131 and 1132 are already occupied by unrelated 1.3.x contributions): US-1134 binds an e2e AC on application-spa-REQ-011 (iconography), US-1135 binds an e2e AC on application-spa-REQ-009 (user arrival and auth surfaces); a paste-in assets/tc-templates/e2e.md test-case template ships and names the browser-verify TAC as its driver seam.</p>
+  <p><em>Given</em> the SPA blueprint at HEAD</p>
+  <p><em>When</em> blueprints/application-spa/contributions/user-stories/ and blueprints/application-spa/assets/tc-templates/ are inspected</p>
+  <p><em>Then</em> application-spa-us-1134.json and application-spa-us-1135.json exist, each binds one AC whose scope is deployed and whose description names an e2e observable at a rendered browser surface; assets/tc-templates/e2e.md exists and references TAC-208</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1102-3">AC-1102-3</a></strong> - blueprints/delivery-ci-workflows/blueprint.json is at version 2.2.0 and contributes a new US-6124 whose AC binds the elicited e2e check to a distinct e2e CI job that runs project testLevel: e2e cases against a local preview or --parity-env runtime, uploads browser artefacts, and reports a distinct row in the aggregate pipeline report.</p>
+  <p><em>Given</em> the delivery-ci-workflows blueprint at HEAD</p>
+  <p><em>When</em> blueprint.json and contributions/user-stories/delivery-ci-workflows-us-6124.json are inspected</p>
+  <p><em>Then</em> version equals 2.2.0 and the US-6124 record binds an AC-6124-1 whose description names the four points above</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1102-4">AC-1102-4</a></strong> - The illustrative GHA workflow at blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/pull-request-checks.yml carries a documented e2e job, and the alternate-provider notes file at ../notes.md carries one line per provider translating the same four points.</p>
+  <p><em>Given</em> the delivery-ci-workflows blueprint at HEAD</p>
+  <p><em>When</em> the illustrative workflow file is inspected</p>
+  <p><em>Then</em> the workflow declares an e2e job as an example, and notes.md contains one line per provider (GitLab CI, CircleCI, Buildkite, Jenkins) naming the four points</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1102-5">AC-1102-5</a></strong> - Applying application-spa v1.4.0 to a scratch project produces a manifest that still validates against rcf-schemas 0.5.1; the applied blueprint record carries no new field, and doctor and the delivery-ci-workflows materialiser both read browserSurface from the applied record&#39;s source blueprint.json via the existing manifest.blueprints[].source reference.</p>
+  <p><em>Given</em> a scratch project created by rcf init with application-spa v1.4.0 applied</p>
+  <p><em>When</em> the resulting rcf/manifest.json is validated against the shipped schemas</p>
+  <p><em>Then</em> validation passes and no browserSurface key appears on the applied blueprint record itself</p>
+</div></section>
+  
+  
+  <p><strong>Estimated size:</strong> small</p>
+  
+  
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 21</p>
+  <p><strong>Execution status:</strong> verified</p>
+  <p><strong>Notes:</strong> Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1102 on REQ-011.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-021&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 21,
+  &quot;executionStatus&quot;: &quot;verified&quot;,
+  &quot;title&quot;: &quot;Blueprints amend for e2e as a declared test level&quot;,
+  &quot;summary&quot;: &quot;Bump application-spa to 1.4.0, add top-level browserSurface object, add US-1134 (icon) and US-1135 (auth) as new browser-facing acceptance criteria, and ship assets/tc-templates/e2e.md as the paste-in template. Bump delivery-ci-workflows to 2.2.0, add US-6124 with AC-6124-1 for the elicited e2e check, add the illustrative e2e job in pull-request-checks.yml, and add the alternate-provider notes for the e2e job. Prove the applied SPA v1.4.0 manifest validates against rcf-schemas 0.5.1 with no browserSurface field on the applied blueprint record.&quot;,
+  &quot;acIds&quot;: [&quot;AC-1102-1&quot;,&quot;AC-1102-2&quot;,&quot;AC-1102-3&quot;,&quot;AC-1102-4&quot;,&quot;AC-1102-5&quot;],
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;contextRequirements&quot;: { &quot;tacIds&quot;: [], &quot;adrIds&quot;: [] },
+  &quot;domain&quot;: &quot;verify&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1102 on REQ-011.&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T17:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T17:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-022">
+  <summary><span class="summary-label">FBS-022 - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</span><span class="status verified">verified</span></summary>
+  <article id="FBS-022" class="doc doc-fbs">
+  <h3>FBS-022 - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</h3>
+  
+  <p><strong>Summary:</strong> Declare @playwright/mcp and playwright as optional peer dependencies. Add src/setup/playwright-checks.js with the four checks and the loadBrowserFacingSources projection over manifest.blueprints. Wire the four checks into src/cli/doctor.js: run the three probes iff at least one applied blueprint declares a browserSurface OR the operator explicitly asks by --check; print the skip line otherwise; playwright-mcp-redundant fires only on browser-facing projects.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1103-1">AC-1103-1</a><a class="ac-pill" href="#AC-1103-2">AC-1103-2</a><a class="ac-pill" href="#AC-1103-3">AC-1103-3</a><a class="ac-pill" href="#AC-1103-4">AC-1103-4</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1103-1">AC-1103-1</a></strong> - packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies (peerDependenciesMeta.&lt;pkg&gt;.optional: true). npm and pnpm do not fail install when the peers are absent.</p>
+  <p><em>Given</em> packages/rcf-lite at HEAD</p>
+  <p><em>When</em> package.json is inspected</p>
+  <p><em>Then</em> .peerDependencies[&#39;@playwright/mcp&#39;] and .peerDependencies.playwright are declared and .peerDependenciesMeta.&lt;pkg&gt;.optional is true for both</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1103-2">AC-1103-2</a></strong> - On a browser-facing fixture project (application-spa v1.4.0 applied), rcf doctor runs playwright-present, browser-present, and playwright-mcp-reachable; each check emits at most one fix line naming the exact remedy per the spec&#39;s fix-line table.</p>
+  <p><em>Given</em> a browser-facing fixture with no @playwright/mcp installed</p>
+  <p><em>When</em> rcf doctor is run</p>
+  <p><em>Then</em> the three checks appear in the drift output and their fix lines match the spec&#39;s fix-line strings</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1103-3">AC-1103-3</a></strong> - On an API-only fixture project (application-api-rest applied, no browser-facing blueprint), rcf doctor prints one line naming the three skipped checks and their skip reason. The line is not suppressed by --quiet.</p>
+  <p><em>Given</em> an API-only fixture project</p>
+  <p><em>When</em> rcf doctor is run</p>
+  <p><em>Then</em> stdout contains exactly one line &#39;rcf doctor: skipping playwright-present, browser-present, playwright-mcp-reachable (no applied blueprint declares a browser surface).&#39;</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1103-4">AC-1103-4</a></strong> - The three checks are legal values of --check &lt;check&gt;[,check]; passing one explicitly on a non-browser project overrides the skip and runs it.</p>
+  <p><em>Given</em> an API-only fixture project</p>
+  <p><em>When</em> rcf doctor --check playwright-present is run</p>
+  <p><em>Then</em> the playwright-present check runs and reports its result rather than being skipped</p>
+</div></section>
+  
+  
+  <p><strong>Estimated size:</strong> small</p>
+  
+  
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 22</p>
+  <p><strong>Execution status:</strong> verified</p>
+  <p><strong>Notes:</strong> Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1103 on REQ-011.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-022&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 22,
+  &quot;executionStatus&quot;: &quot;verified&quot;,
+  &quot;title&quot;: &quot;Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant&quot;,
+  &quot;summary&quot;: &quot;Declare @playwright/mcp and playwright as optional peer dependencies. Add src/setup/playwright-checks.js with the four checks and the loadBrowserFacingSources projection over manifest.blueprints. Wire the four checks into src/cli/doctor.js: run the three probes iff at least one applied blueprint declares a browserSurface OR the operator explicitly asks by --check; print the skip line otherwise; playwright-mcp-redundant fires only on browser-facing projects.&quot;,
+  &quot;acIds&quot;: [&quot;AC-1103-1&quot;,&quot;AC-1103-2&quot;,&quot;AC-1103-3&quot;,&quot;AC-1103-4&quot;],
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;contextRequirements&quot;: { &quot;tacIds&quot;: [], &quot;adrIds&quot;: [] },
+  &quot;domain&quot;: &quot;verify&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1103 on REQ-011.&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T17:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T17:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-023">
+  <summary><span class="summary-label">FBS-023 - Init: Playwright MCP entry only when no scope-visible entry exists</span><span class="status verified">verified</span></summary>
+  <article id="FBS-023" class="doc doc-fbs">
+  <h3>FBS-023 - Init: Playwright MCP entry only when no scope-visible entry exists</h3>
+  
+  <p><strong>Summary:</strong> Add a --no-playwright-mcp flag. After the rcf mcp entry write, detect a project-scope Playwright signature (any args string matching /^@playwright/mcp(@|$)/) and leave it alone if present. Otherwise probe the harness (claude mcp list + claude mcp get &lt;name&gt;) and, on &#39;none&#39; or &#39;inconclusive&#39;, write a distinctly named playwright-rcf project-scope entry. --no-playwright-mcp suppresses the write step entirely; the probe still runs so the print-out remains honest.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1104-1">AC-1104-1</a><a class="ac-pill" href="#AC-1104-2">AC-1104-2</a><a class="ac-pill" href="#AC-1104-3">AC-1104-3</a><a class="ac-pill" href="#AC-1104-4">AC-1104-4</a><a class="ac-pill" href="#AC-1104-5">AC-1104-5</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1104-1">AC-1104-1</a></strong> - When the project-scope .mcp.json carries a Playwright signature (any entry key whose args contain a string matching /^@playwright\/mcp(@|$)/), rcf init writes no Playwright entry and prints the &#39;left alone&#39; line naming the key.</p>
+  <p><em>Given</em> a fixture project with a pre-existing mcpServers entry whose args include @playwright/mcp</p>
+  <p><em>When</em> rcf init is run</p>
+  <p><em>Then</em> the .mcp.json keys are unchanged and stdout carries the line &#39;Playwright MCP: already registered in .mcp.json under key &#39;&lt;name&gt;&#39; at project scope, left alone.&#39;</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1104-2">AC-1104-2</a></strong> - When the project-scope .mcp.json carries no Playwright signature, init probes the harness via an injectable seam (default: claude mcp list; 5 second timeout; text output parsed for the signature). Probe results &#39;entry found at user scope&#39;, &#39;no entry anywhere&#39;, &#39;CLI absent or non-zero&#39;, and &#39;output unparseable&#39; each drive the correct downstream branch.</p>
+  <p><em>Given</em> a fixture project and a stubbed probe returning each of the four probe results in turn</p>
+  <p><em>When</em> rcf init runs against each probe result</p>
+  <p><em>Then</em> &#39;entry found&#39; leaves .mcp.json untouched and prints the &#39;already registered at &lt;scope&gt; scope in Claude Code&#39; line; &#39;no entry anywhere&#39; writes the distinct playwright-rcf project-scope entry; both &#39;CLI absent or non-zero&#39; and &#39;output unparseable&#39; treat the probe as inconclusive and write the distinct playwright-rcf entry with the &#39;could not probe&#39; notice</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1104-3">AC-1104-3</a></strong> - The playwright-rcf entry, when written, has key &#39;playwright-rcf&#39; distinct from &#39;playwright&#39;, command &#39;npx&#39;, args [&#39;-y&#39;, &#39;@playwright/mcp@&lt;PLAYWRIGHT_MCP_VERSION&gt;&#39;] and empty env.</p>
+  <p><em>Given</em> a fixture project with no ambient Playwright entry anywhere</p>
+  <p><em>When</em> rcf init runs with the probe stubbed inconclusive</p>
+  <p><em>Then</em> .mcp.json.mcpServers[&#39;playwright-rcf&#39;] equals { type: &#39;stdio&#39;, command: &#39;npx&#39;, args: [&#39;-y&#39;, &#39;@playwright/mcp@&lt;version&gt;&#39;], env: {} }</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1104-4">AC-1104-4</a></strong> - rcf init --no-playwright-mcp suppresses the write step for the Playwright entry entirely; the probe still runs so the print-out remains honest, but no .mcp.json Playwright entry is created and no existing one is touched.</p>
+  <p><em>Given</em> a fixture project with no ambient Playwright entry anywhere</p>
+  <p><em>When</em> rcf init --no-playwright-mcp is run</p>
+  <p><em>Then</em> .mcp.json.mcpServers contains no key matching a Playwright signature</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1104-5">AC-1104-5</a></strong> - rcf doctor&#39;s playwright-mcp-redundant check fires only on browser-facing projects; when the project-scope .mcp.json carries a Playwright signature AND the probe reports a Playwright signature at user scope, doctor reports drift with the removal line naming --no-playwright-mcp and the hand-edit path. --fix does not repair this drift.</p>
+  <p><em>Given</em> a browser-facing fixture with a project-scope playwright entry and a stubbed probe reporting user-scope</p>
+  <p><em>When</em> rcf doctor is run</p>
+  <p><em>Then</em> the drift output contains one &#39;playwright-mcp-redundant&#39; entry naming the two remedies and no --fix action is applied</p>
+</div></section>
+  
+  
+  <p><strong>Estimated size:</strong> small</p>
+  
+  
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 23</p>
+  <p><strong>Execution status:</strong> verified</p>
+  <p><strong>Notes:</strong> Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1104 on REQ-011.</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-023&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 23,
+  &quot;executionStatus&quot;: &quot;verified&quot;,
+  &quot;title&quot;: &quot;Init: Playwright MCP entry only when no scope-visible entry exists&quot;,
+  &quot;summary&quot;: &quot;Add a --no-playwright-mcp flag. After the rcf mcp entry write, detect a project-scope Playwright signature (any args string matching /^@playwright\/mcp(@|$)/) and leave it alone if present. Otherwise probe the harness (claude mcp list + claude mcp get &lt;name&gt;) and, on &#39;none&#39; or &#39;inconclusive&#39;, write a distinctly named playwright-rcf project-scope entry. --no-playwright-mcp suppresses the write step entirely; the probe still runs so the print-out remains honest.&quot;,
+  &quot;acIds&quot;: [&quot;AC-1104-1&quot;,&quot;AC-1104-2&quot;,&quot;AC-1104-3&quot;,&quot;AC-1104-4&quot;,&quot;AC-1104-5&quot;],
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;contextRequirements&quot;: { &quot;tacIds&quot;: [], &quot;adrIds&quot;: [] },
+  &quot;domain&quot;: &quot;verify&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Landed in the ratified 2026-09-03 e2e-contract train. Covers US-1104 on REQ-011.&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T17:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T17:00:00Z&quot;
 }
 </pre></details>
 </article>
@@ -8854,6 +9664,431 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;status&quot;: &quot;draft&quot;,
   &quot;createdAt&quot;: &quot;2026-08-19T00:00:00Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-08-19T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-030">
+  <summary><span class="summary-label">TS-030 - Verify pins the Playwright MCP version, prints it in preflight, honours the override</span><span class="status draft">draft</span></summary>
+  <article id="TS-030" class="doc doc-ts">
+  <h3>TS-030 - Verify pins the Playwright MCP version, prints it in preflight, honours the override</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1101">US-1101</a></p>
+  <p><strong>Purpose:</strong> Cover the four ACs on US-1101: the pinned constant + composed default MCP config, the preflight stderr line, the override notice + non-semver refusal, and the default pin lands on the report as runStats.playwrightMcpVersion.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1101-1">AC-1101-1</a>, <a href="#AC-1101-2">AC-1101-2</a>, <a href="#AC-1101-3">AC-1101-3</a>, <a href="#AC-1101-4">AC-1101-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-030-pin-constant-exported">
+  <p><strong>TC-030-pin-constant-exported</strong> - covers <a href="#AC-1101-1">AC-1101-1</a> <span class="status pending">pending</span></p>
+  <p>PLAYWRIGHT_MCP_VERSION is exported as a semver string, not @latest</p>
+  <p><em>Test pointer:</em> <code>test/verify/engine/launcher.test.js::PLAYWRIGHT_MCP_VERSION is exported as a semver string and is NOT @latest</code></p>
+</div>
+<div class="tc" id="TC-030-default-config-uses-pin">
+  <p><strong>TC-030-default-config-uses-pin</strong> - covers <a href="#AC-1101-1">AC-1101-1</a> <span class="status pending">pending</span></p>
+  <p>DEFAULT_MCP_CONFIG.args composes @playwright/mcp with the pinned version and never @latest</p>
+  <p><em>Test pointer:</em> <code>test/verify/engine/launcher.test.js::DEFAULT_MCP_CONFIG composes @playwright/mcp with the pinned version (never @latest)</code></p>
+</div>
+<div class="tc" id="TC-030-preflight-line">
+  <p><strong>TC-030-preflight-line</strong> - covers <a href="#AC-1101-2">AC-1101-2</a> <span class="status pending">pending</span></p>
+  <p>rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr</p>
+  <p><em>Test pointer:</em> <code>test/verify/cli/run.test.js::run: preflight prints the pinned Playwright MCP version to stderr</code></p>
+</div>
+<div class="tc" id="TC-030-override-notice">
+  <p><strong>TC-030-override-notice</strong> - covers <a href="#AC-1101-3">AC-1101-3</a> <span class="status pending">pending</span></p>
+  <p>--playwright-mcp-version fires the loud stderr override notice and records the effective pin on the report</p>
+  <p><em>Test pointer:</em> <code>test/verify/cli/run.test.js::run: --playwright-mcp-version fires the loud override notice AND lands on the report</code></p>
+</div>
+<div class="tc" id="TC-030-override-non-semver-refused">
+  <p><strong>TC-030-override-non-semver-refused</strong> - covers <a href="#AC-1101-3">AC-1101-3</a> <span class="status pending">pending</span></p>
+  <p>--playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message</p>
+  <p><em>Test pointer:</em> <code>test/verify/cli/run.test.js::run: --playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message</code></p>
+</div>
+<div class="tc" id="TC-030-default-pin-on-report">
+  <p><strong>TC-030-default-pin-on-report</strong> - covers <a href="#AC-1101-4">AC-1101-4</a> <span class="status pending">pending</span></p>
+  <p>Even with no override the report records the default pin as runStats.playwrightMcpVersion</p>
+  <p><em>Test pointer:</em> <code>test/verify/cli/run.test.js::run: default pin lands on the report as runStats.playwrightMcpVersion even with no override</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-030&quot;,
+  &quot;usId&quot;: &quot;US-1101&quot;,
+  &quot;title&quot;: &quot;Verify pins the Playwright MCP version, prints it in preflight, honours the override&quot;,
+  &quot;purpose&quot;: &quot;Cover the four ACs on US-1101: the pinned constant + composed default MCP config, the preflight stderr line, the override notice + non-semver refusal, and the default pin lands on the report as runStats.playwrightMcpVersion.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1101-1&quot;,
+    &quot;AC-1101-2&quot;,
+    &quot;AC-1101-3&quot;,
+    &quot;AC-1101-4&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-030-pin-constant-exported&quot;,
+      &quot;acId&quot;: &quot;AC-1101-1&quot;,
+      &quot;description&quot;: &quot;PLAYWRIGHT_MCP_VERSION is exported as a semver string, not @latest&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/engine/launcher.test.js::PLAYWRIGHT_MCP_VERSION is exported as a semver string and is NOT @latest&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-default-config-uses-pin&quot;,
+      &quot;acId&quot;: &quot;AC-1101-1&quot;,
+      &quot;description&quot;: &quot;DEFAULT_MCP_CONFIG.args composes @playwright/mcp with the pinned version and never @latest&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/engine/launcher.test.js::DEFAULT_MCP_CONFIG composes @playwright/mcp with the pinned version (never @latest)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-preflight-line&quot;,
+      &quot;acId&quot;: &quot;AC-1101-2&quot;,
+      &quot;description&quot;: &quot;rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/cli/run.test.js::run: preflight prints the pinned Playwright MCP version to stderr&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-override-notice&quot;,
+      &quot;acId&quot;: &quot;AC-1101-3&quot;,
+      &quot;description&quot;: &quot;--playwright-mcp-version fires the loud stderr override notice and records the effective pin on the report&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/cli/run.test.js::run: --playwright-mcp-version fires the loud override notice AND lands on the report&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-override-non-semver-refused&quot;,
+      &quot;acId&quot;: &quot;AC-1101-3&quot;,
+      &quot;description&quot;: &quot;--playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/cli/run.test.js::run: --playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-030-default-pin-on-report&quot;,
+      &quot;acId&quot;: &quot;AC-1101-4&quot;,
+      &quot;description&quot;: &quot;Even with no override the report records the default pin as runStats.playwrightMcpVersion&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/cli/run.test.js::run: default pin lands on the report as runStats.playwrightMcpVersion even with no override&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-031">
+  <summary><span class="summary-label">TS-031 - application-spa v1.4.0 declares browserSurface, delivery-ci-workflows v2.2.0 documents the e2e job</span><span class="status draft">draft</span></summary>
+  <article id="TS-031" class="doc doc-ts">
+  <h3>TS-031 - application-spa v1.4.0 declares browserSurface, delivery-ci-workflows v2.2.0 documents the e2e job</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1102">US-1102</a></p>
+  <p><strong>Purpose:</strong> Cover the five ACs on US-1102: SPA blueprint at 1.4.0 with browserSurface.declared, the two new e2e user stories plus the e2e.md template, delivery-ci-workflows v2.2.0 US-6124 binding the four e2e-job points, the illustrative GHA workflow + per-provider notes, and the applied manifest validating with no browserSurface on the applied record.</p>
+  <p><strong>Test level:</strong> contract</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1102-1">AC-1102-1</a>, <a href="#AC-1102-2">AC-1102-2</a>, <a href="#AC-1102-3">AC-1102-3</a>, <a href="#AC-1102-4">AC-1102-4</a>, <a href="#AC-1102-5">AC-1102-5</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-031-spa-version-and-flag">
+  <p><strong>TC-031-spa-version-and-flag</strong> - covers <a href="#AC-1102-1">AC-1102-1</a> <span class="status pending">pending</span></p>
+  <p>SPA blueprint.json is at version 1.4.0 and browserSurface.declared is true</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -&gt; manifest still validates + no browserSurface on the applied record</code></p>
+</div>
+<div class="tc" id="TC-031-spa-us-and-template">
+  <p><strong>TC-031-spa-us-and-template</strong> - covers <a href="#AC-1102-2">AC-1102-2</a> <span class="status pending">pending</span></p>
+  <p>SPA contributes US-1134 and US-1135 as browser-facing e2e stories, and ships assets/tc-templates/e2e.md naming the browser-verify driver seam</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-2: application-spa ships US-1134 and US-1135 as browser-facing (scope: deployed) e2e stories, plus the e2e.md template</code></p>
+</div>
+<div class="tc" id="TC-031-ci-us-6124">
+  <p><strong>TC-031-ci-us-6124</strong> - covers <a href="#AC-1102-3">AC-1102-3</a> <span class="status pending">pending</span></p>
+  <p>delivery-ci-workflows v2.2.0 contributes US-6124 whose AC-6124-1 names the four e2e-job points</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-3: delivery-ci-workflows v2.2.0 US-6124 binds an AC naming the four e2e-job points</code></p>
+</div>
+<div class="tc" id="TC-031-illustrative-workflow-and-notes">
+  <p><strong>TC-031-illustrative-workflow-and-notes</strong> - covers <a href="#AC-1102-4">AC-1102-4</a> <span class="status pending">pending</span></p>
+  <p>Illustrative GHA pull-request-checks.yml carries the e2e job block and notes.md translates it per provider</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-4: illustrative GHA pull-request-checks.yml carries the e2e job and notes.md translates the four points per provider</code></p>
+</div>
+<div class="tc" id="TC-031-manifest-validates">
+  <p><strong>TC-031-manifest-validates</strong> - covers <a href="#AC-1102-5">AC-1102-5</a> <span class="status pending">pending</span></p>
+  <p>Applying SPA v1.4.0 produces a manifest that still validates against rcf-schemas 0.5.1 and the applied record carries no browserSurface field</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -&gt; manifest still validates + no browserSurface on the applied record</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-031&quot;,
+  &quot;usId&quot;: &quot;US-1102&quot;,
+  &quot;title&quot;: &quot;application-spa v1.4.0 declares browserSurface, delivery-ci-workflows v2.2.0 documents the e2e job&quot;,
+  &quot;purpose&quot;: &quot;Cover the five ACs on US-1102: SPA blueprint at 1.4.0 with browserSurface.declared, the two new e2e user stories plus the e2e.md template, delivery-ci-workflows v2.2.0 US-6124 binding the four e2e-job points, the illustrative GHA workflow + per-provider notes, and the applied manifest validating with no browserSurface on the applied record.&quot;,
+  &quot;testLevel&quot;: &quot;contract&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1102-1&quot;,
+    &quot;AC-1102-2&quot;,
+    &quot;AC-1102-3&quot;,
+    &quot;AC-1102-4&quot;,
+    &quot;AC-1102-5&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-031-spa-version-and-flag&quot;,
+      &quot;acId&quot;: &quot;AC-1102-1&quot;,
+      &quot;description&quot;: &quot;SPA blueprint.json is at version 1.4.0 and browserSurface.declared is true&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -&gt; manifest still validates + no browserSurface on the applied record&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-031-spa-us-and-template&quot;,
+      &quot;acId&quot;: &quot;AC-1102-2&quot;,
+      &quot;description&quot;: &quot;SPA contributes US-1134 and US-1135 as browser-facing e2e stories, and ships assets/tc-templates/e2e.md naming the browser-verify driver seam&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-2: application-spa ships US-1134 and US-1135 as browser-facing (scope: deployed) e2e stories, plus the e2e.md template&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-031-ci-us-6124&quot;,
+      &quot;acId&quot;: &quot;AC-1102-3&quot;,
+      &quot;description&quot;: &quot;delivery-ci-workflows v2.2.0 contributes US-6124 whose AC-6124-1 names the four e2e-job points&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-3: delivery-ci-workflows v2.2.0 US-6124 binds an AC naming the four e2e-job points&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-031-illustrative-workflow-and-notes&quot;,
+      &quot;acId&quot;: &quot;AC-1102-4&quot;,
+      &quot;description&quot;: &quot;Illustrative GHA pull-request-checks.yml carries the e2e job block and notes.md translates it per provider&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-4: illustrative GHA pull-request-checks.yml carries the e2e job and notes.md translates the four points per provider&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-031-manifest-validates&quot;,
+      &quot;acId&quot;: &quot;AC-1102-5&quot;,
+      &quot;description&quot;: &quot;Applying SPA v1.4.0 produces a manifest that still validates against rcf-schemas 0.5.1 and the applied record carries no browserSurface field&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -&gt; manifest still validates + no browserSurface on the applied record&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-032">
+  <summary><span class="summary-label">TS-032 - rcf doctor Playwright + browser checks on browser-facing projects</span><span class="status draft">draft</span></summary>
+  <article id="TS-032" class="doc doc-ts">
+  <h3>TS-032 - rcf doctor Playwright + browser checks on browser-facing projects</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1103">US-1103</a></p>
+  <p><strong>Purpose:</strong> Cover the four ACs on US-1103: peer-dependency declaration for @playwright/mcp and playwright as optional peers, the three doctor checks reporting fix lines on a browser-facing project, the skip line on an API-only project, and the --check override running one of the three checks on demand.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1103-1">AC-1103-1</a>, <a href="#AC-1103-2">AC-1103-2</a>, <a href="#AC-1103-3">AC-1103-3</a>, <a href="#AC-1103-4">AC-1103-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-032-peer-deps-optional">
+  <p><strong>TC-032-peer-deps-optional</strong> - covers <a href="#AC-1103-1">AC-1103-1</a> <span class="status pending">pending</span></p>
+  <p>packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies</p>
+  <p><em>Test pointer:</em> <code>test/pkg/peer-deps-playwright.test.js::AC-1103-1: @playwright/mcp and playwright are declared as optional peer dependencies</code></p>
+</div>
+<div class="tc" id="TC-032-fix-lines">
+  <p><strong>TC-032-fix-lines</strong> - covers <a href="#AC-1103-2">AC-1103-2</a> <span class="status pending">pending</span></p>
+  <p>A browser-facing project with the three items missing reports all three fix lines exactly per the spec</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor: browser-facing project with everything missing reports all three fix lines</code></p>
+</div>
+<div class="tc" id="TC-032-skip-line">
+  <p><strong>TC-032-skip-line</strong> - covers <a href="#AC-1103-3">AC-1103-3</a> <span class="status pending">pending</span></p>
+  <p>An API-only project prints the skip line and does not run the three checks</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor: API-only project prints the skip line and does NOT run the three checks</code></p>
+</div>
+<div class="tc" id="TC-032-check-override">
+  <p><strong>TC-032-check-override</strong> - covers <a href="#AC-1103-4">AC-1103-4</a> <span class="status pending">pending</span></p>
+  <p>--check playwright-present on an API-only project overrides the skip and runs the check</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor --check playwright-present on an API-only project runs the check anyway (spec 3.5)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-032&quot;,
+  &quot;usId&quot;: &quot;US-1103&quot;,
+  &quot;title&quot;: &quot;rcf doctor Playwright + browser checks on browser-facing projects&quot;,
+  &quot;purpose&quot;: &quot;Cover the four ACs on US-1103: peer-dependency declaration for @playwright/mcp and playwright as optional peers, the three doctor checks reporting fix lines on a browser-facing project, the skip line on an API-only project, and the --check override running one of the three checks on demand.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1103-1&quot;,
+    &quot;AC-1103-2&quot;,
+    &quot;AC-1103-3&quot;,
+    &quot;AC-1103-4&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-032-peer-deps-optional&quot;,
+      &quot;acId&quot;: &quot;AC-1103-1&quot;,
+      &quot;description&quot;: &quot;packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies&quot;,
+      &quot;testPointer&quot;: &quot;test/pkg/peer-deps-playwright.test.js::AC-1103-1: @playwright/mcp and playwright are declared as optional peer dependencies&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-032-fix-lines&quot;,
+      &quot;acId&quot;: &quot;AC-1103-2&quot;,
+      &quot;description&quot;: &quot;A browser-facing project with the three items missing reports all three fix lines exactly per the spec&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor: browser-facing project with everything missing reports all three fix lines&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-032-skip-line&quot;,
+      &quot;acId&quot;: &quot;AC-1103-3&quot;,
+      &quot;description&quot;: &quot;An API-only project prints the skip line and does not run the three checks&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor: API-only project prints the skip line and does NOT run the three checks&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-032-check-override&quot;,
+      &quot;acId&quot;: &quot;AC-1103-4&quot;,
+      &quot;description&quot;: &quot;--check playwright-present on an API-only project overrides the skip and runs the check&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor --check playwright-present on an API-only project runs the check anyway (spec 3.5)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-033">
+  <summary><span class="summary-label">TS-033 - rcf init Playwright MCP entry write only when no scope-visible entry exists</span><span class="status draft">draft</span></summary>
+  <article id="TS-033" class="doc doc-ts">
+  <h3>TS-033 - rcf init Playwright MCP entry write only when no scope-visible entry exists</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1104">US-1104</a></p>
+  <p><strong>Purpose:</strong> Cover the five ACs on US-1104: signature-based project-scope detection leaves a pre-existing entry alone, the injected probe drives the four downstream branches (none/found/inconclusive/CLI-absent), the distinct &#39;playwright-rcf&#39; entry has the exact shape, --no-playwright-mcp suppresses the write, and doctor&#39;s redundant-entry probe fires only on browser-facing projects.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1104-1">AC-1104-1</a>, <a href="#AC-1104-2">AC-1104-2</a>, <a href="#AC-1104-3">AC-1104-3</a>, <a href="#AC-1104-4">AC-1104-4</a>, <a href="#AC-1104-5">AC-1104-5</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-033-project-scope-signature-left-alone">
+  <p><strong>TC-033-project-scope-signature-left-alone</strong> - covers <a href="#AC-1104-1">AC-1104-1</a> <span class="status pending">pending</span></p>
+  <p>A pre-existing project-scope Playwright signature leaves .mcp.json untouched and prints the &#39;left alone&#39; line</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: existing project-scope Playwright signature -&gt; left alone (spec 4.1)</code></p>
+</div>
+<div class="tc" id="TC-033-probe-none-writes-distinct">
+  <p><strong>TC-033-probe-none-writes-distinct</strong> - covers <a href="#AC-1104-2">AC-1104-2</a> <span class="status pending">pending</span></p>
+  <p>Probe returning &#39;none&#39; drives the distinct playwright-rcf project-scope write branch</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: fresh project + probe=none -&gt; writes distinctly named playwright-rcf entry</code></p>
+</div>
+<div class="tc" id="TC-033-probe-found-leaves-alone">
+  <p><strong>TC-033-probe-found-leaves-alone</strong> - covers <a href="#AC-1104-2">AC-1104-2</a> <span class="status pending">pending</span></p>
+  <p>Probe returning &#39;found&#39; at user scope leaves .mcp.json alone with the &#39;already registered ... in Claude Code&#39; line</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: probe=found at user scope -&gt; left alone; no project entry written (spec 4.2)</code></p>
+</div>
+<div class="tc" id="TC-033-probe-inconclusive-writes-with-notice">
+  <p><strong>TC-033-probe-inconclusive-writes-with-notice</strong> - covers <a href="#AC-1104-2">AC-1104-2</a> <span class="status pending">pending</span></p>
+  <p>Probe returning &#39;inconclusive&#39; writes the distinct entry and prints the could-not-probe notice (covers both CLI-absent and unparseable branches via the injected probe result)</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: probe=inconclusive -&gt; writes playwright-rcf entry AND prints the could-not-probe notice (spec 4.3)</code></p>
+</div>
+<div class="tc" id="TC-033-distinct-entry-shape">
+  <p><strong>TC-033-distinct-entry-shape</strong> - covers <a href="#AC-1104-3">AC-1104-3</a> <span class="status pending">pending</span></p>
+  <p>The written playwright-rcf entry equals { type:&#39;stdio&#39;, command:&#39;npx&#39;, args:[&#39;-y&#39;, &#39;@playwright/mcp@&lt;version&gt;&#39;], env:{} }</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init: fresh project + probe=none -&gt; writes distinctly named playwright-rcf entry</code></p>
+</div>
+<div class="tc" id="TC-033-no-playwright-mcp-suppresses-write">
+  <p><strong>TC-033-no-playwright-mcp-suppresses-write</strong> - covers <a href="#AC-1104-4">AC-1104-4</a> <span class="status pending">pending</span></p>
+  <p>--no-playwright-mcp suppresses the write; the probe still runs but no Playwright entry is created</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-playwright.test.js::init --no-playwright-mcp: probe still runs, but no Playwright entry is written</code></p>
+</div>
+<div class="tc" id="TC-033-redundant-fires-browser-facing">
+  <p><strong>TC-033-redundant-fires-browser-facing</strong> - covers <a href="#AC-1104-5">AC-1104-5</a> <span class="status pending">pending</span></p>
+  <p>playwright-mcp-redundant fires when project + user both declare Playwright on a browser-facing project</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant fires when project + user both declare Playwright (browser-facing only)</code></p>
+</div>
+<div class="tc" id="TC-033-redundant-quiet-on-api-only">
+  <p><strong>TC-033-redundant-quiet-on-api-only</strong> - covers <a href="#AC-1104-5">AC-1104-5</a> <span class="status pending">pending</span></p>
+  <p>playwright-mcp-redundant does NOT fire on an API-only project</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant does NOT fire on an API-only project (spec 4.5)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-033&quot;,
+  &quot;usId&quot;: &quot;US-1104&quot;,
+  &quot;title&quot;: &quot;rcf init Playwright MCP entry write only when no scope-visible entry exists&quot;,
+  &quot;purpose&quot;: &quot;Cover the five ACs on US-1104: signature-based project-scope detection leaves a pre-existing entry alone, the injected probe drives the four downstream branches (none/found/inconclusive/CLI-absent), the distinct &#39;playwright-rcf&#39; entry has the exact shape, --no-playwright-mcp suppresses the write, and doctor&#39;s redundant-entry probe fires only on browser-facing projects.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1104-1&quot;,
+    &quot;AC-1104-2&quot;,
+    &quot;AC-1104-3&quot;,
+    &quot;AC-1104-4&quot;,
+    &quot;AC-1104-5&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-033-project-scope-signature-left-alone&quot;,
+      &quot;acId&quot;: &quot;AC-1104-1&quot;,
+      &quot;description&quot;: &quot;A pre-existing project-scope Playwright signature leaves .mcp.json untouched and prints the &#39;left alone&#39; line&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: existing project-scope Playwright signature -&gt; left alone (spec 4.1)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-probe-none-writes-distinct&quot;,
+      &quot;acId&quot;: &quot;AC-1104-2&quot;,
+      &quot;description&quot;: &quot;Probe returning &#39;none&#39; drives the distinct playwright-rcf project-scope write branch&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: fresh project + probe=none -&gt; writes distinctly named playwright-rcf entry&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-probe-found-leaves-alone&quot;,
+      &quot;acId&quot;: &quot;AC-1104-2&quot;,
+      &quot;description&quot;: &quot;Probe returning &#39;found&#39; at user scope leaves .mcp.json alone with the &#39;already registered ... in Claude Code&#39; line&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: probe=found at user scope -&gt; left alone; no project entry written (spec 4.2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-probe-inconclusive-writes-with-notice&quot;,
+      &quot;acId&quot;: &quot;AC-1104-2&quot;,
+      &quot;description&quot;: &quot;Probe returning &#39;inconclusive&#39; writes the distinct entry and prints the could-not-probe notice (covers both CLI-absent and unparseable branches via the injected probe result)&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: probe=inconclusive -&gt; writes playwright-rcf entry AND prints the could-not-probe notice (spec 4.3)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-distinct-entry-shape&quot;,
+      &quot;acId&quot;: &quot;AC-1104-3&quot;,
+      &quot;description&quot;: &quot;The written playwright-rcf entry equals { type:&#39;stdio&#39;, command:&#39;npx&#39;, args:[&#39;-y&#39;, &#39;@playwright/mcp@&lt;version&gt;&#39;], env:{} }&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init: fresh project + probe=none -&gt; writes distinctly named playwright-rcf entry&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-no-playwright-mcp-suppresses-write&quot;,
+      &quot;acId&quot;: &quot;AC-1104-4&quot;,
+      &quot;description&quot;: &quot;--no-playwright-mcp suppresses the write; the probe still runs but no Playwright entry is created&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-playwright.test.js::init --no-playwright-mcp: probe still runs, but no Playwright entry is written&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-redundant-fires-browser-facing&quot;,
+      &quot;acId&quot;: &quot;AC-1104-5&quot;,
+      &quot;description&quot;: &quot;playwright-mcp-redundant fires when project + user both declare Playwright on a browser-facing project&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant fires when project + user both declare Playwright (browser-facing only)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-033-redundant-quiet-on-api-only&quot;,
+      &quot;acId&quot;: &quot;AC-1104-5&quot;,
+      &quot;description&quot;: &quot;playwright-mcp-redundant does NOT fire on an API-only project&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-playwright.test.js::doctor: playwright-mcp-redundant does NOT fire on an API-only project (spec 4.5)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-03T18:30:50Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-03T18:30:50Z&quot;
 }
 </pre></details>
 </article>

@@ -299,7 +299,7 @@ test('supersede: --incoming with a library-qualified source uses effectiveSlug f
   // Build a fresh scaffold with a bare-id ADR in the incoming
   // blueprint so the stamper actually applies the effectiveSlug as a
   // suffix (an ADR id that already carries a suffix would be trusted
-  // verbatim by stampId — that is by-design and shared with apply.js).
+  // verbatim by stampId; that is by-design and shared with apply.js).
   const root = await scaffoldProject();
   const spa = await writeBlueprint(root, 'blueprint-spa', {
     slug: 'spa',

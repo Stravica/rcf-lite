@@ -13,8 +13,8 @@ Verify launches a separate agent and gives it a browser; the machine running `rc
 | Node.js >= 24 | `"engines": { "node": ">=24.0.0" }` | [nodejs.org](https://nodejs.org) |
 | `claude` on `PATH` | the verifier agent is Claude Code, spawned by bare name | [Claude Code](https://docs.claude.com/en/docs/claude-code/setup), or override with `RCF_VERIFY_LAUNCHER` |
 | A local Claude Code login | verify passes its own env to the agent; it holds no credential of its own | `claude` once interactively; authenticate CI runners the same way |
-| `npx` on `PATH` | browser tooling is provisioned as `npx -y @playwright/mcp@latest` | ships with Node |
-| Network egress | npm registry (`@playwright/mcp@latest` re-resolves per run), Anthropic's API, and your app's URL | allow all three in restricted CI |
+| `npx` on `PATH` | browser tooling is provisioned as `npx -y @playwright/mcp@<PLAYWRIGHT_MCP_VERSION>` (the pinned version rcf-lite ships with) | ships with Node |
+| Network egress | npm registry (`@playwright/mcp` at the pinned version), Anthropic's API, and your app's URL | allow all three in restricted CI |
 | A browser | `@playwright/mcp` drives a real browser; **nothing in the install chain downloads one** | system Google Chrome by default, else `npx @playwright/mcp install-browser <name>` |
 
 Every one of these fails at *run* time, not install time. A missing `claude`, an unauthenticated machine, or no browser all surface as a verifier-agent launch failure (exit code 1).
@@ -41,10 +41,27 @@ rcf verify run \
   --url <running-app-url> \
   --out report.json \
   [--parity-env] [--provision creds.json] \
-  [--severity-gate BROKEN] [--provision-mode run|skip] [--persona name]
+  [--severity-gate BROKEN] [--provision-mode run|skip] [--persona name] \
+  [--playwright-mcp-version <semver>]
 ```
 
 The verifier agent receives only the RCF chain (the acceptance contract) and the URL. It never reads the source tree, the test suite, or the builder's self-report; that information disjointness is what makes the verdict independent.
+
+### Pinned Playwright MCP version
+
+`rcf-lite` pins the `@playwright/mcp` version verify runs against; the pinned value lives as `PLAYWRIGHT_MCP_VERSION` in `packages/rcf-lite/src/verify/engine/launcher.js` and every `rcf verify run` composes `npx -y @playwright/mcp@<PLAYWRIGHT_MCP_VERSION>` from it. The pin closes the reproducibility hole that `@latest` opened (a Playwright MCP release could otherwise become a silent runtime change on the next verify run). The preflight prints one line naming the effective pin:
+
+```
+Playwright MCP: pinned to @playwright/mcp@<version>
+```
+
+`--playwright-mcp-version <semver>` overrides the pin for one run. It exists for a specific emergency: a pinned Playwright MCP release is discovered broken and the fix ships at a later version before rcf-lite can cut a patch bump. The override fires a loud stderr notice that is not silenceable by any quiet flag:
+
+```
+Playwright MCP: OVERRIDE @playwright/mcp@<override> (pinned default: <pin>)
+```
+
+A non-semver value refuses with exit 2 and the message `--playwright-mcp-version expects a semver string, got '<value>'`. The report artefact always records the effective pin (default or overridden) as `run.runStats.playwrightMcpVersion` so a later `rcf verify report <path>` re-render tells the operator exactly which browser tooling this pass ran against.
 
 ## Runtime profiles and verdict authority
 

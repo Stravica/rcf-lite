@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-070",
+  "path": "src/verify/engine/launcher.js#PLAYWRIGHT_MCP_VERSION",
+  "title": "Pinned Playwright MCP version + composer",
+  "description": "Exports the PLAYWRIGHT_MCP_VERSION constant, the playwrightMcpConfig(version) composer, and the isSemverString(value) guard the CLI's override uses. DEFAULT_MCP_CONFIG is composed from PLAYWRIGHT_MCP_VERSION so nothing in the module surfaces @playwright/mcp@latest. The exported constant + composer are what src/verify/cli/run.js reuses when --playwright-mcp-version fires, and what src/verify/engine/index.js reads when it threads the effective pin into report.run.runStats.playwrightMcpVersion.",
+  "implementsAcIds": ["AC-1101-1", "AC-1101-2", "AC-1101-3", "AC-1101-4"],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

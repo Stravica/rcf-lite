@@ -1,0 +1,24 @@
+{
+  "usId": "application-spa-US-1135",
+  "prdId": "PRD-001",
+  "reqId": "application-spa-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Unauthenticated visit to a protected route lands on the sign-in page in a browser (e2e)",
+  "asA": "operator relying on the auth-surface discipline the application-spa blueprint declares",
+  "iWant": "an end-to-end test that a real browser making an unauthenticated request against a protected route in the shipped application lands on the sign-in page rather than the protected surface",
+  "soThat": "the arrival-and-auth discipline (application-spa-REQ-009: landing, sign-in, sign-out, expiry, recovery, onboarding, deep-link redirects) is verified end-to-end at a user-observable surface. Verify's auth-smoke pass is adversarial and complementary; this e2e case is the coverage anchor.",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1135-1",
+      "description": "An unauthenticated visit to a protected route lands on the sign-in page in a browser. Verification navigates a real browser (fresh context, no persisted session, no injected cookies) to a protected route the blueprint declares under browserSurface.routes, and asserts the browser's final URL path is the sign-in route rather than the protected route. The check drives the same server construction the production entry point boots (no header-stripping harness, no app.inject substitute). A landing path equal to the requested route, or to any other page, refuses ship with a diagnostic naming the requested, landed and expected sign-in paths.",
+      "given": "the application booted through its production entry point with a protected route and a sign-in route both registered",
+      "when": "a real browser with no session state navigates to the protected route",
+      "then": "the browser's final URL path equals the sign-in route path; any other landing (protected route rendered without auth, arbitrary other page, error page) refuses ship with a diagnostic naming requested, landed and expected paths",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "createdAt": "2026-09-03T17:00:00Z",
+  "updatedAt": "2026-09-03T17:00:00Z"
+}

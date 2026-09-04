@@ -2,6 +2,24 @@
 
 The blueprint ships one illustrative provider example (GitHub Actions, four workflow files under `github-actions/`). Every mainstream provider hosts the same workflow set by translating four points per workflow and keeping the Node entry-point invocations unchanged. These notes are read alongside `guide/delivery-ci-workflows.md`, not instead of it.
 
+## The e2e job (v2.2.0)
+
+When a project applies at least one blueprint declaring `.browserSurface.declared: true` on its source `blueprint.json` (for example `application-spa` v1.4.0), the workflow-materialiser adds an `e2e` job to `pull-request-checks`. The GitHub Actions shape ships in `github-actions/pull-request-checks.yml`. Every provider hosts the same job by translating four points:
+
+1. **Trigger.** Same trigger as the check-set job on the same workflow; the e2e job is a peer, not a separate workflow.
+2. **Browser tooling install.** After Node + package-manager setup, install a Playwright browser: `npx playwright install chromium --with-deps` (or the provider's equivalent). rcf-lite pins `@playwright/mcp` for `rcf verify`; the same browser installation drives the project's e2e suite.
+3. **Runner invocation.** `node scripts/rcf-ci-e2e.js` (the project-owned e2e runner; writes `.rcf/reports/ci/e2e.json` with `checkKind: "e2e"`).
+4. **Browser-artefact upload.** Upload screenshots and HTML captures alongside the per-gate report so a failing run has visible evidence.
+
+The four provider translations follow the same substitution shape as the check-set job:
+
+- **GitLab CI.** Add an `e2e` job in `.gitlab-ci.yml`; `image: mcr.microsoft.com/playwright:v1.50.0-noble` or install chromium via `apt-get` then `npx playwright install`; invoke `node scripts/rcf-ci-e2e.js`; upload with `artifacts: { when: always, paths: [.rcf/reports/ci/e2e.json, playwright-report/, test-results/] }`.
+- **CircleCI.** Add an `e2e` job in `.circleci/config.yml`; `- browser-tools/install-browser-tools` orb + `npx playwright install chromium`; invoke as above; `store_artifacts: { path: playwright-report }` plus `store_artifacts: { path: .rcf/reports/ci/e2e.json }`.
+- **Buildkite.** Add an `e2e` step; install chromium via the pipeline setup hook or a Docker plugin (`docker#v5.0.0`); invoke as above; `artifact_paths: [".rcf/reports/ci/e2e.json", "playwright-report/**", "test-results/**"]`.
+- **Jenkins.** Add an `e2e` stage; install chromium via `sh 'npx playwright install chromium --with-deps'`; invoke as above; `archiveArtifacts artifacts: '.rcf/reports/ci/e2e.json, playwright-report/**, test-results/**', allowEmptyArchive: true`.
+
+Projects that apply no browser-facing blueprint delete the `e2e` job from the workflow (or the materialiser omits it on regeneration); the workflow reads byte-identical to a 2.1 project in that case.
+
 ## The workflow set the matrix materialises
 
 Which workflow files exist depends on `workflowShape`:

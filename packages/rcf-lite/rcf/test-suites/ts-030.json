@@ -1,0 +1,66 @@
+{
+  "id": "TS-030",
+  "usId": "US-1101",
+  "title": "Verify pins the Playwright MCP version, prints it in preflight, honours the override",
+  "purpose": "Cover the four ACs on US-1101: the pinned constant + composed default MCP config, the preflight stderr line, the override notice + non-semver refusal, and the default pin lands on the report as runStats.playwrightMcpVersion.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1101-1",
+    "AC-1101-2",
+    "AC-1101-3",
+    "AC-1101-4"
+  ],
+  "testCases": [
+    {
+      "id": "TC-030-pin-constant-exported",
+      "acId": "AC-1101-1",
+      "description": "PLAYWRIGHT_MCP_VERSION is exported as a semver string, not @latest",
+      "testPointer": "test/verify/engine/launcher.test.js::PLAYWRIGHT_MCP_VERSION is exported as a semver string and is NOT @latest",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-030-default-config-uses-pin",
+      "acId": "AC-1101-1",
+      "description": "DEFAULT_MCP_CONFIG.args composes @playwright/mcp with the pinned version and never @latest",
+      "testPointer": "test/verify/engine/launcher.test.js::DEFAULT_MCP_CONFIG composes @playwright/mcp with the pinned version (never @latest)",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-030-preflight-line",
+      "acId": "AC-1101-2",
+      "description": "rcf verify run prints one preflight line naming the effective @playwright/mcp pin on stderr",
+      "testPointer": "test/verify/cli/run.test.js::run: preflight prints the pinned Playwright MCP version to stderr",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-030-override-notice",
+      "acId": "AC-1101-3",
+      "description": "--playwright-mcp-version fires the loud stderr override notice and records the effective pin on the report",
+      "testPointer": "test/verify/cli/run.test.js::run: --playwright-mcp-version fires the loud override notice AND lands on the report",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-030-override-non-semver-refused",
+      "acId": "AC-1101-3",
+      "description": "--playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message",
+      "testPointer": "test/verify/cli/run.test.js::run: --playwright-mcp-version with a non-semver value refuses exit 2 with the spec-named message",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-030-default-pin-on-report",
+      "acId": "AC-1101-4",
+      "description": "Even with no override the report records the default pin as runStats.playwrightMcpVersion",
+      "testPointer": "test/verify/cli/run.test.js::run: default pin lands on the report as runStats.playwrightMcpVersion even with no override",
+      "status": "pending",
+      "scope": "runtime"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-03T18:30:50Z",
+  "updatedAt": "2026-09-03T18:30:50Z"
+}

@@ -47,6 +47,16 @@ import {
 } from '../setup/managed-gitignore.js';
 import { identityProfilePath } from '../setup/identity-seed.js';
 import { knowledgePaths } from '../setup/knowledge-seed.js';
+import {
+  checkBrowserPresent,
+  checkPlaywrightMcpReachable,
+  checkPlaywrightPresent,
+  findProjectPlaywrightKey,
+  FIX_LINES,
+  loadBrowserFacingSources,
+  probeClaudeCodeMcp,
+  SKIP_LINE_NON_BROWSER_FACING,
+} from '../setup/playwright-checks.js';
 
 const OPTION_SPEC = {
   fix: { type: 'boolean' },
@@ -57,7 +67,24 @@ const OPTION_SPEC = {
   help: { type: 'boolean' },
 };
 
-const KNOWN_CHECKS = /** @type {const} */ (['agent-instructions', 'gitignore', 'knowledge', 'identity']);
+const KNOWN_CHECKS = /** @type {const} */ ([
+  'agent-instructions',
+  'gitignore',
+  'knowledge',
+  'identity',
+  'playwright-present',
+  'browser-present',
+  'playwright-mcp-reachable',
+  'playwright-mcp-redundant',
+]);
+
+/** The four Playwright-related checks doctor runs conditionally for
+ * browser-facing projects (spec 2026-09-03, section 3). */
+const PLAYWRIGHT_CHECKS = /** @type {const} */ ([
+  'playwright-present',
+  'browser-present',
+  'playwright-mcp-reachable',
+]);
 
 export const HELP = `Usage: rcf doctor [--fix] [--check <check>[,check]] [--json] [--quiet] [--help]
 
@@ -73,8 +100,10 @@ Options:
                             removing the corrupted region.
   --check <check>[,check]   Run only the named checks. Default: all.
                             Values: agent-instructions, gitignore,
-                                    knowledge, identity.
-  --json                    Emit machine-readable envelope: { ok, drift[] }.
+                                    knowledge, identity, playwright-present,
+                                    browser-present, playwright-mcp-reachable,
+                                    playwright-mcp-redundant.
+  --json                    Emit machine-readable envelope: { ok, drift, writes, notices }.
   --quiet                   Only summary line + first 3 drift items.
   --force                   Accept a legacy-markers --fix on hand-edited
                             content that a non-interactive run would
@@ -155,12 +184,48 @@ export async function main(argv, deps = {}) {
     force: Boolean(flags.force),
     // isTty is deps-injectable for tests; falls back to real stdout.
     isTty: deps.isTty ?? Boolean(stdout.isTTY),
+    // Doctor's Playwright-check seams (spec 2026-09-03, section 3). Every
+    // probe is injectable so the unit suite runs with none of these tools
+    // installed on the runner.
+    checkPlaywrightPresentImpl: deps.checkPlaywrightPresent ?? checkPlaywrightPresent,
+    checkBrowserPresentImpl: deps.checkBrowserPresent ?? checkBrowserPresent,
+    checkPlaywrightMcpReachableImpl:
+      deps.checkPlaywrightMcpReachable ?? checkPlaywrightMcpReachable,
+    probeClaudeCodeMcpImpl: deps.probeClaudeCodeMcp ?? probeClaudeCodeMcp,
+    loadBrowserFacingSourcesImpl:
+      deps.loadBrowserFacingSources ?? loadBrowserFacingSources,
+    readMcpJsonImpl: deps.readMcpJson ?? defaultReadMcpJson,
   };
+
+  // Section 3.1: browser-facing projection. Computed once; every Playwright
+  // check reads the result from ctx rather than re-walking the manifest.
+  const browserFacingResult = await ctx.loadBrowserFacingSourcesImpl(cwd);
+  ctx.browserFacing = Boolean(browserFacingResult.browserFacing);
+  ctx.browserFacingSources = browserFacingResult.sources ?? [];
 
   /** @type {Array<{check: string, item: string, file: string, message: string, refusedByFix: boolean}>} */
   const drift = [];
   /** @type {Array<{file: string, action: string}>} */
   const writes = [];
+  /** @type {string[]} */
+  const notices = [];
+
+  // Section 3.4: skip line for the three Playwright checks on non-browser-
+  // facing projects. Emitted when at least one of the three is enabled but
+  // the project is not browser-facing AND the operator did not explicitly ask
+  // for that check by name (spec 3.5). We honour the --check filter by
+  // detecting whether the operator explicitly named any playwright check.
+  const explicitlyPickedPlaywrightChecks = new Set(
+    enabled.filter((c) => PLAYWRIGHT_CHECKS.includes(c)),
+  );
+  const anyPlaywrightCheckEnabled = explicitlyPickedPlaywrightChecks.size > 0;
+  const operatorAskedByName =
+    typeof flags.check === 'string'
+    && flags.check.length > 0
+    && explicitlyPickedPlaywrightChecks.size > 0;
+  if (anyPlaywrightCheckEnabled && !ctx.browserFacing && !operatorAskedByName) {
+    notices.push(SKIP_LINE_NON_BROWSER_FACING);
+  }
 
   for (const check of enabled) {
     let result;
@@ -168,7 +233,21 @@ export async function main(argv, deps = {}) {
     else if (check === 'gitignore') result = await runGitignoreCheck(ctx);
     else if (check === 'knowledge') result = await runKnowledgeCheck(ctx);
     else if (check === 'identity') result = await runIdentityCheck(ctx);
-    else continue;
+    else if (PLAYWRIGHT_CHECKS.includes(check)) {
+      // Skip the check on non-browser-facing projects unless the operator
+      // explicitly asked for this check by name (--check filter): the skip
+      // line above is the ground-truth diagnostic in that case (spec 3.4/3.5).
+      if (!ctx.browserFacing && !operatorAskedByName) continue;
+      if (check === 'playwright-present') result = await runPlaywrightPresentCheck(ctx);
+      else if (check === 'browser-present') result = await runBrowserPresentCheck(ctx);
+      else if (check === 'playwright-mcp-reachable') result = await runPlaywrightMcpReachableCheck(ctx);
+      else continue;
+    } else if (check === 'playwright-mcp-redundant') {
+      // Fires only on browser-facing projects (spec 4.5). Never runs on an
+      // API-only project even under an explicit --check ask.
+      if (!ctx.browserFacing) continue;
+      result = await runPlaywrightMcpRedundantCheck(ctx);
+    } else continue;
     for (const d of result.drift) drift.push({ check, ...d });
     for (const w of result.writes) writes.push(w);
   }
@@ -183,10 +262,15 @@ export async function main(argv, deps = {}) {
   const exitCode = ok ? 0 : 3;
 
   if (flags.json) {
-    stdout.write(`${JSON.stringify({ ok, drift, writes }, null, 2)}\n`);
+    stdout.write(`${JSON.stringify({ ok, drift, writes, notices }, null, 2)}\n`);
     return exitCode;
   }
 
+  // Notices (spec 3.4 skip line) are diagnostic ground truth. Emitted BEFORE
+  // the summary so an operator scanning the top of the output sees why the
+  // three checks did not fire on a non-browser-facing project. Not
+  // suppressed by --quiet.
+  for (const notice of notices) stdout.write(`${notice}\n`);
   writeHumanSummary({ stdout, ok, drift, writes, fixed: ctx.fix, quiet: Boolean(flags.quiet) });
   return exitCode;
 }
@@ -546,3 +630,96 @@ async function isPathIgnored(projectRoot) {
 
 // Silence unused-import warnings for values consumed only via names.
 void composeGitignoreInner;
+
+/* ------------------------------------------------------------------ */
+/* Check: playwright-present (spec 3.3)                               */
+/* ------------------------------------------------------------------ */
+
+async function runPlaywrightPresentCheck(ctx) {
+  const drift = [];
+  const result = ctx.checkPlaywrightPresentImpl(ctx.projectRoot);
+  if (!result.ok) {
+    drift.push({
+      item: 'missing-peer',
+      file: 'package.json',
+      message: FIX_LINES['playwright-present'],
+      refusedByFix: true,
+    });
+  }
+  return { drift, writes: [] };
+}
+
+/* ------------------------------------------------------------------ */
+/* Check: browser-present (spec 3.3)                                  */
+/* ------------------------------------------------------------------ */
+
+async function runBrowserPresentCheck(ctx) {
+  const drift = [];
+  const result = await ctx.checkBrowserPresentImpl();
+  if (!result.ok) {
+    drift.push({
+      item: 'no-browser',
+      file: '(system)',
+      message: FIX_LINES['browser-present'],
+      refusedByFix: true,
+    });
+  }
+  return { drift, writes: [] };
+}
+
+/* ------------------------------------------------------------------ */
+/* Check: playwright-mcp-reachable (spec 3.3)                         */
+/* ------------------------------------------------------------------ */
+
+async function runPlaywrightMcpReachableCheck(ctx) {
+  const drift = [];
+  const result = await ctx.checkPlaywrightMcpReachableImpl();
+  if (!result.ok) {
+    drift.push({
+      item: result.timedOut ? 'unreachable-timeout' : 'unreachable',
+      file: '(npx @playwright/mcp)',
+      message: FIX_LINES['playwright-mcp-reachable'],
+      refusedByFix: true,
+    });
+  }
+  return { drift, writes: [] };
+}
+
+/* ------------------------------------------------------------------ */
+/* Check: playwright-mcp-redundant (spec 4.5)                         */
+/* ------------------------------------------------------------------ */
+
+async function runPlaywrightMcpRedundantCheck(ctx) {
+  const drift = [];
+  const mcpJson = await ctx.readMcpJsonImpl(ctx.projectRoot);
+  const projectKey = mcpJson ? findProjectPlaywrightKey(mcpJson) : null;
+  if (!projectKey) return { drift, writes: [] };
+  const probeResult = await ctx.probeClaudeCodeMcpImpl();
+  if (probeResult.kind !== 'found') return { drift, writes: [] };
+  drift.push({
+    item: 'redundant-entry',
+    file: '.mcp.json',
+    message: `project-scope .mcp.json carries a Playwright MCP entry ('${projectKey}') that is also declared at ${probeResult.scope} scope. The project entry shadows the user entry. Remove the project entry with \`rcf init --no-playwright-mcp\` (which re-runs init without writing it), or delete the '${projectKey}' entry from .mcp.json by hand.`,
+    refusedByFix: true,
+  });
+  return { drift, writes: [] };
+}
+
+/**
+ * Default reader for the project-root .mcp.json body. Returns the parsed
+ * object, or null on missing / unparseable (doctor treats an unparseable
+ * .mcp.json as "no signature findable" rather than a hard refusal here; the
+ * merge path in agent-setup already refuses unparseable with exit 2 on write).
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<object|null>}
+ */
+async function defaultReadMcpJson(projectRoot) {
+  const file = join(projectRoot, '.mcp.json');
+  try {
+    const raw = await readFile(file, 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}

@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 10,
-    "covered": 10,
+    "requirements": 11,
+    "covered": 11,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -900,6 +900,162 @@
           "covered": true,
           "testCases": [
             "TC-029-deterministic"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-011",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1101-1",
+          "covered": true,
+          "testCases": [
+            "TC-030-default-config-uses-pin",
+            "TC-030-pin-constant-exported"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1101-2",
+          "covered": true,
+          "testCases": [
+            "TC-030-preflight-line"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1101-3",
+          "covered": true,
+          "testCases": [
+            "TC-030-override-non-semver-refused",
+            "TC-030-override-notice"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1101-4",
+          "covered": true,
+          "testCases": [
+            "TC-030-default-pin-on-report"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-1",
+          "covered": true,
+          "testCases": [
+            "TC-031-spa-version-and-flag"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-2",
+          "covered": true,
+          "testCases": [
+            "TC-031-spa-us-and-template"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-3",
+          "covered": true,
+          "testCases": [
+            "TC-031-ci-us-6124"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-4",
+          "covered": true,
+          "testCases": [
+            "TC-031-illustrative-workflow-and-notes"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1102-5",
+          "covered": true,
+          "testCases": [
+            "TC-031-manifest-validates"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1103-1",
+          "covered": true,
+          "testCases": [
+            "TC-032-peer-deps-optional"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1103-2",
+          "covered": true,
+          "testCases": [
+            "TC-032-fix-lines"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1103-3",
+          "covered": true,
+          "testCases": [
+            "TC-032-skip-line"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1103-4",
+          "covered": true,
+          "testCases": [
+            "TC-032-check-override"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-1",
+          "covered": true,
+          "testCases": [
+            "TC-033-project-scope-signature-left-alone"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-2",
+          "covered": true,
+          "testCases": [
+            "TC-033-probe-found-leaves-alone",
+            "TC-033-probe-inconclusive-writes-with-notice",
+            "TC-033-probe-none-writes-distinct"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-3",
+          "covered": true,
+          "testCases": [
+            "TC-033-distinct-entry-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-4",
+          "covered": true,
+          "testCases": [
+            "TC-033-no-playwright-mcp-suppresses-write"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1104-5",
+          "covered": true,
+          "testCases": [
+            "TC-033-redundant-fires-browser-facing",
+            "TC-033-redundant-quiet-on-api-only"
           ],
           "unresolvedTestCases": []
         }

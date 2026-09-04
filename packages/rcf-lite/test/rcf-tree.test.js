@@ -70,26 +70,41 @@ const expectedCounts = {
   // routing) with US-901, TS-025, FBS-015 and CN-055..057.
   // Phase 1 blueprint mechanism (w-2026-08-18-016) added REQ-010 with
   // US-1001..1004, TS-026..029, FBS-016..019 and CN-058..068.
-  req: 10,
-  userStory: 29,
+  // e2e contract (w-2026-09-03-dave-020) added REQ-011 with US-1101..1104
+  // (four USs binding the four ratified commits of the e2e verification
+  // contract spec). The USs deliberately ship without paired TS entries in
+  // this train; the ACs are runtime-scope and covered by the shipped
+  // code paths' own suites. See test/store/walker.test.js's expected-count
+  // comment for the full rationale.
+  req: 11,
+  userStory: 33,
   tad: 1,
   tac: 8,
+  // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
+  // AC sets. See test/store/walker.test.js's expected-count comment.
+  //
+  // codeNode bumps 69 -> 73 for CN-070..073 anchoring:
+  //   CN-070: src/verify/engine/launcher.js#PLAYWRIGHT_MCP_VERSION
+  //   CN-071: test/blueprint/apply-spa-v1-4-0-schema.test.js (test-anchor)
+  //   CN-072: src/setup/playwright-checks.js#loadBrowserFacingSources
+  //   CN-073: src/cli/init.js#runPlaywrightMcpPass
   // Phase 3.5 rev-3 (w-2026-08-19-008): ADR-010 records the topic-
   // as-free-label-lookup-key decision (Baz ruling, camelCase canonical
   // on shipped blueprints).
   adr: 10,
   buildSequence: 1,
-  fbs: 19,
+  fbs: 23,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
   // Phase 1 blueprint mechanism added 11 CNs for the mechanism modules.
   // Phase 3.5 (w-2026-08-19-008) added CN-069 for supersede.js#supersedeBlueprintTopic.
-  codeNode: 69,
+  // e2e contract added CN-070..073 for the four commits' main code paths.
+  codeNode: 73,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
-  testSuite: 29,
+  testSuite: 33,
 };
 
 test('expected file counts by category', () => {

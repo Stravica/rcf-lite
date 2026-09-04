@@ -72,3 +72,72 @@ jobs:
           path: .rcf/reports/ci/
           if-no-files-found: warn
           retention-days: 30
+
+  # e2e job (delivery-ci-workflows v2.2.0, application-spa v1.4.0):
+  # documentation contract per spec 2026-09-03 amendment A2. rcf-lite ships
+  # no workflow-materialiser at this train, so this block is copy-paste
+  # documentation for browser-facing projects, not runtime output. A
+  # non-browser project deletes this whole `e2e:` block (from the comment
+  # above down to the last step of the job) before committing; a browser
+  # project keeps it. The runtime iff wiring, which will add or omit this
+  # job based on `manifest.blueprints[].source.browserSurface.declared` on
+  # any applied blueprint AND
+  # `.rcf/config/delivery-ci-workflows.json:checkSet.e2e` not being
+  # explicitly false, lands in a follow-up train with its own TS entry.
+  #
+  # The job runs the project's testLevel: e2e cases against a local preview
+  # (or a --parity-env runtime) driven through the same Playwright
+  # installation `rcf verify browser` uses, uploads screenshots and HTML
+  # captures as workflow artefacts, and writes .rcf/reports/ci/e2e.json with
+  # `checkKind: "e2e"` so the aggregate pipeline report renders the e2e row
+  # separately from unit and integration.
+  e2e:
+    if: ${{ true }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      # @@RCF-SUB-PKG-MGR-SETUP-BEGIN@@
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      # @@RCF-SUB-PKG-MGR-SETUP-END@@
+
+      # @@RCF-SUB-PKG-MGR-INSTALL-BEGIN@@
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+      # @@RCF-SUB-PKG-MGR-INSTALL-END@@
+
+      # rcf-lite pins @playwright/mcp so the same browser tooling drives the
+      # e2e suite and `rcf verify browser`. Install the browser locally.
+      - name: install playwright browser
+        run: pnpm exec playwright install chromium --with-deps
+
+      # The project-owned e2e runner. It spawns whichever runner the project
+      # realises (Playwright test, Node --test with the browser-verify seam,
+      # Cypress, etc.), writes .rcf/reports/ci/e2e.json with checkKind:
+      # "e2e", and exits non-zero on any failing case.
+      - name: run e2e suite
+        run: node scripts/rcf-ci-e2e.js
+
+      - name: upload e2e browser artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pull-request-checks-e2e-artefacts
+          path: |
+            .rcf/reports/ci/e2e.json
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,50 @@
+{
+  "id": "TS-032",
+  "usId": "US-1103",
+  "title": "rcf doctor Playwright + browser checks on browser-facing projects",
+  "purpose": "Cover the four ACs on US-1103: peer-dependency declaration for @playwright/mcp and playwright as optional peers, the three doctor checks reporting fix lines on a browser-facing project, the skip line on an API-only project, and the --check override running one of the three checks on demand.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-1103-1",
+    "AC-1103-2",
+    "AC-1103-3",
+    "AC-1103-4"
+  ],
+  "testCases": [
+    {
+      "id": "TC-032-peer-deps-optional",
+      "acId": "AC-1103-1",
+      "description": "packages/rcf-lite/package.json declares @playwright/mcp and playwright as optional peer dependencies",
+      "testPointer": "test/pkg/peer-deps-playwright.test.js::AC-1103-1: @playwright/mcp and playwright are declared as optional peer dependencies",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-032-fix-lines",
+      "acId": "AC-1103-2",
+      "description": "A browser-facing project with the three items missing reports all three fix lines exactly per the spec",
+      "testPointer": "test/cli/doctor-playwright.test.js::doctor: browser-facing project with everything missing reports all three fix lines",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-032-skip-line",
+      "acId": "AC-1103-3",
+      "description": "An API-only project prints the skip line and does not run the three checks",
+      "testPointer": "test/cli/doctor-playwright.test.js::doctor: API-only project prints the skip line and does NOT run the three checks",
+      "status": "pending",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-032-check-override",
+      "acId": "AC-1103-4",
+      "description": "--check playwright-present on an API-only project overrides the skip and runs the check",
+      "testPointer": "test/cli/doctor-playwright.test.js::doctor --check playwright-present on an API-only project runs the check anyway (spec 3.5)",
+      "status": "pending",
+      "scope": "runtime"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-03T18:30:50Z",
+  "updatedAt": "2026-09-03T18:30:50Z"
+}

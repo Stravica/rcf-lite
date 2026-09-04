@@ -1,0 +1,60 @@
+{
+  "usId": "US-1104",
+  "prdId": "PRD-001",
+  "reqId": "REQ-011",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "rcf init writes a Playwright MCP entry only when no scope-visible entry exists",
+  "asA": "operator running rcf init on a project with or without an ambient Playwright MCP entry",
+  "iWant": "init to detect a project-scope Playwright signature by command-tail matching, probe user scope via claude mcp list where the Claude Code harness is on PATH, write a distinctly named playwright-rcf project-scope entry only when it cannot prove any Playwright entry exists at any scope, and honour --no-playwright-mcp",
+  "soThat": "an operator with a user-scope Playwright MCP entry in Claude Code keeps it (init never shadows it) and an operator with none gets a working project-scope entry that shadows nothing at any scope by naming convention",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1104-1",
+      "description": "When the project-scope .mcp.json carries a Playwright signature (any entry key whose args contain a string matching /^@playwright\\/mcp(@|$)/), rcf init writes no Playwright entry and prints the 'left alone' line naming the key.",
+      "given": "a fixture project with a pre-existing mcpServers entry whose args include @playwright/mcp",
+      "when": "rcf init is run",
+      "then": "the .mcp.json keys are unchanged and stdout carries the line 'Playwright MCP: already registered in .mcp.json under key '<name>' at project scope, left alone.'",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1104-2",
+      "description": "When the project-scope .mcp.json carries no Playwright signature, init probes the harness via an injectable seam (default: claude mcp list; 5 second timeout; text output parsed for the signature). Probe results 'entry found at user scope', 'no entry anywhere', 'CLI absent or non-zero', and 'output unparseable' each drive the correct downstream branch.",
+      "given": "a fixture project and a stubbed probe returning each of the four probe results in turn",
+      "when": "rcf init runs against each probe result",
+      "then": "'entry found' leaves .mcp.json untouched and prints the 'already registered at <scope> scope in Claude Code' line; 'no entry anywhere' writes the distinct playwright-rcf project-scope entry; both 'CLI absent or non-zero' and 'output unparseable' treat the probe as inconclusive and write the distinct playwright-rcf entry with the 'could not probe' notice",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1104-3",
+      "description": "The playwright-rcf entry, when written, has key 'playwright-rcf' distinct from 'playwright', command 'npx', args ['-y', '@playwright/mcp@<PLAYWRIGHT_MCP_VERSION>'] and empty env.",
+      "given": "a fixture project with no ambient Playwright entry anywhere",
+      "when": "rcf init runs with the probe stubbed inconclusive",
+      "then": ".mcp.json.mcpServers['playwright-rcf'] equals { type: 'stdio', command: 'npx', args: ['-y', '@playwright/mcp@<version>'], env: {} }",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1104-4",
+      "description": "rcf init --no-playwright-mcp suppresses the write step for the Playwright entry entirely; the probe still runs so the print-out remains honest, but no .mcp.json Playwright entry is created and no existing one is touched.",
+      "given": "a fixture project with no ambient Playwright entry anywhere",
+      "when": "rcf init --no-playwright-mcp is run",
+      "then": ".mcp.json.mcpServers contains no key matching a Playwright signature",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1104-5",
+      "description": "rcf doctor's playwright-mcp-redundant check fires only on browser-facing projects; when the project-scope .mcp.json carries a Playwright signature AND the probe reports a Playwright signature at user scope, doctor reports drift with the removal line naming --no-playwright-mcp and the hand-edit path. --fix does not repair this drift.",
+      "given": "a browser-facing fixture with a project-scope playwright entry and a stubbed probe reporting user-scope",
+      "when": "rcf doctor is run",
+      "then": "the drift output contains one 'playwright-mcp-redundant' entry naming the two remedies and no --fix action is applied",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-03T16:56:00Z",
+  "updatedAt": "2026-09-03T16:56:00Z"
+}

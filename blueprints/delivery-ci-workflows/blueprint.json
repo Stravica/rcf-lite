@@ -1,60 +1,273 @@
 {
   "slug": "delivery-ci-workflows",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "category": "delivery",
   "contributions": [
-    { "id": "delivery-ci-workflows-REQ-001", "kind": "req", "path": "requirements/delivery-ci-workflows-req-001.json" },
-    { "id": "delivery-ci-workflows-REQ-002", "kind": "req", "path": "requirements/delivery-ci-workflows-req-002.json" },
-    { "id": "delivery-ci-workflows-REQ-003", "kind": "req", "path": "requirements/delivery-ci-workflows-req-003.json" },
-    { "id": "delivery-ci-workflows-REQ-004", "kind": "req", "path": "requirements/delivery-ci-workflows-req-004.json" },
-    { "id": "delivery-ci-workflows-REQ-005", "kind": "req", "path": "requirements/delivery-ci-workflows-req-005.json" },
-    { "id": "delivery-ci-workflows-REQ-006", "kind": "req", "path": "requirements/delivery-ci-workflows-req-006.json" },
-    { "id": "delivery-ci-workflows-REQ-007", "kind": "req", "path": "requirements/delivery-ci-workflows-req-007.json" },
-    { "id": "delivery-ci-workflows-REQ-008", "kind": "req", "path": "requirements/delivery-ci-workflows-req-008.json" },
-    { "id": "delivery-ci-workflows-REQ-009", "kind": "req", "path": "requirements/delivery-ci-workflows-req-009.json" },
-    { "id": "delivery-ci-workflows-REQ-010", "kind": "req", "path": "requirements/delivery-ci-workflows-req-010.json" },
-    { "id": "delivery-ci-workflows-REQ-011", "kind": "req", "path": "requirements/delivery-ci-workflows-req-011.json" },
-    { "id": "delivery-ci-workflows-REQ-012", "kind": "req", "path": "requirements/delivery-ci-workflows-req-012.json" },
-    { "id": "delivery-ci-workflows-REQ-013", "kind": "req", "path": "requirements/delivery-ci-workflows-req-013.json" },
-    { "id": "delivery-ci-workflows-REQ-014", "kind": "req", "path": "requirements/delivery-ci-workflows-req-014.json" },
-    { "id": "delivery-ci-workflows-REQ-015", "kind": "req", "path": "requirements/delivery-ci-workflows-req-015.json" },
-    { "id": "delivery-ci-workflows-REQ-016", "kind": "req", "path": "requirements/delivery-ci-workflows-req-016.json" },
-    { "id": "delivery-ci-workflows-REQ-017", "kind": "req", "path": "requirements/delivery-ci-workflows-req-017.json" },
-    { "id": "delivery-ci-workflows-REQ-018", "kind": "req", "path": "requirements/delivery-ci-workflows-req-018.json" },
-    { "id": "delivery-ci-workflows-REQ-019", "kind": "req", "path": "requirements/delivery-ci-workflows-req-019.json" },
-    { "id": "delivery-ci-workflows-REQ-020", "kind": "req", "path": "requirements/delivery-ci-workflows-req-020.json" },
-    { "id": "delivery-ci-workflows-REQ-021", "kind": "req", "path": "requirements/delivery-ci-workflows-req-021.json" },
-    { "id": "delivery-ci-workflows-REQ-022", "kind": "req", "path": "requirements/delivery-ci-workflows-req-022.json" },
-    { "id": "delivery-ci-workflows-REQ-023", "kind": "req", "path": "requirements/delivery-ci-workflows-req-023.json" },
-    { "id": "delivery-ci-workflows-US-6101", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6101.json" },
-    { "id": "delivery-ci-workflows-US-6102", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6102.json" },
-    { "id": "delivery-ci-workflows-US-6103", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6103.json" },
-    { "id": "delivery-ci-workflows-US-6104", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6104.json" },
-    { "id": "delivery-ci-workflows-US-6105", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6105.json" },
-    { "id": "delivery-ci-workflows-US-6106", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6106.json" },
-    { "id": "delivery-ci-workflows-US-6107", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6107.json" },
-    { "id": "delivery-ci-workflows-US-6108", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6108.json" },
-    { "id": "delivery-ci-workflows-US-6109", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6109.json" },
-    { "id": "delivery-ci-workflows-US-6110", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6110.json" },
-    { "id": "delivery-ci-workflows-US-6111", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6111.json" },
-    { "id": "delivery-ci-workflows-US-6112", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6112.json" },
-    { "id": "delivery-ci-workflows-US-6113", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6113.json" },
-    { "id": "delivery-ci-workflows-US-6114", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6114.json" },
-    { "id": "delivery-ci-workflows-US-6115", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6115.json" },
-    { "id": "delivery-ci-workflows-US-6116", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6116.json" },
-    { "id": "delivery-ci-workflows-US-6117", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6117.json" },
-    { "id": "delivery-ci-workflows-US-6118", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6118.json" },
-    { "id": "delivery-ci-workflows-US-6119", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6119.json" },
-    { "id": "delivery-ci-workflows-US-6120", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6120.json" },
-    { "id": "delivery-ci-workflows-US-6121", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6121.json" },
-    { "id": "delivery-ci-workflows-US-6122", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6122.json" },
-    { "id": "delivery-ci-workflows-US-6123", "kind": "us", "path": "user-stories/delivery-ci-workflows-us-6123.json" },
-    { "id": "TAC-701-delivery-ci-workflows-gate-runner", "kind": "tac", "path": "tacs/tac-701-delivery-ci-workflows-gate-runner.json" },
-    { "id": "TAC-702-delivery-ci-workflows-gate-report", "kind": "tac", "path": "tacs/tac-702-delivery-ci-workflows-gate-report.json" },
-    { "id": "TAC-703-delivery-ci-workflows-aggregate-report", "kind": "tac", "path": "tacs/tac-703-delivery-ci-workflows-aggregate-report.json" },
-    { "id": "TAC-704-delivery-ci-workflows-workflow-materialiser", "kind": "tac", "path": "tacs/tac-704-delivery-ci-workflows-workflow-materialiser.json" },
-    { "id": "TAC-705-delivery-ci-workflows-release-workflow", "kind": "tac", "path": "tacs/tac-705-delivery-ci-workflows-release-workflow.json" },
-    { "id": "TAC-706-delivery-ci-workflows-scheduled-audit", "kind": "tac", "path": "tacs/tac-706-delivery-ci-workflows-scheduled-audit.json" },
+    {
+      "id": "delivery-ci-workflows-REQ-001",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-001.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-002",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-002.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-003",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-003.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-004",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-004.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-005",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-005.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-006",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-006.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-007",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-007.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-008",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-008.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-009",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-009.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-010",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-010.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-011",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-011.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-012",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-012.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-013",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-013.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-014",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-014.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-015",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-015.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-016",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-016.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-017",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-017.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-018",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-018.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-019",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-019.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-020",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-020.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-021",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-021.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-022",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-022.json"
+    },
+    {
+      "id": "delivery-ci-workflows-REQ-023",
+      "kind": "req",
+      "path": "requirements/delivery-ci-workflows-req-023.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6101",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6101.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6102",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6102.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6103",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6103.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6104",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6104.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6105",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6105.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6106",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6106.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6107",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6107.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6108",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6108.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6109",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6109.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6110",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6110.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6111",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6111.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6112",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6112.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6113",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6113.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6114",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6114.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6115",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6115.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6116",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6116.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6117",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6117.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6118",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6118.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6119",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6119.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6120",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6120.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6121",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6121.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6122",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6122.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6123",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6123.json"
+    },
+    {
+      "id": "delivery-ci-workflows-US-6124",
+      "kind": "us",
+      "path": "user-stories/delivery-ci-workflows-us-6124.json"
+    },
+    {
+      "id": "TAC-701-delivery-ci-workflows-gate-runner",
+      "kind": "tac",
+      "path": "tacs/tac-701-delivery-ci-workflows-gate-runner.json"
+    },
+    {
+      "id": "TAC-702-delivery-ci-workflows-gate-report",
+      "kind": "tac",
+      "path": "tacs/tac-702-delivery-ci-workflows-gate-report.json"
+    },
+    {
+      "id": "TAC-703-delivery-ci-workflows-aggregate-report",
+      "kind": "tac",
+      "path": "tacs/tac-703-delivery-ci-workflows-aggregate-report.json"
+    },
+    {
+      "id": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+      "kind": "tac",
+      "path": "tacs/tac-704-delivery-ci-workflows-workflow-materialiser.json"
+    },
+    {
+      "id": "TAC-705-delivery-ci-workflows-release-workflow",
+      "kind": "tac",
+      "path": "tacs/tac-705-delivery-ci-workflows-release-workflow.json"
+    },
+    {
+      "id": "TAC-706-delivery-ci-workflows-scheduled-audit",
+      "kind": "tac",
+      "path": "tacs/tac-706-delivery-ci-workflows-scheduled-audit.json"
+    },
     {
       "id": "ADR-701-delivery-ci-workflows-ci-gates",
       "kind": "adr",
@@ -69,12 +282,36 @@
       "scope": "global",
       "topic": "strictCoverageGate"
     },
-    { "id": "ADR-703-delivery-ci-workflows-node-only-runner", "kind": "adr", "path": "adrs/adr-703-delivery-ci-workflows-node-only-runner.json" },
-    { "id": "ADR-704-delivery-ci-workflows-report-shape", "kind": "adr", "path": "adrs/adr-704-delivery-ci-workflows-report-shape.json" },
-    { "id": "ADR-705-delivery-ci-workflows-elicitation-surface", "kind": "adr", "path": "adrs/adr-705-delivery-ci-workflows-elicitation-surface.json" },
-    { "id": "ADR-706-delivery-ci-workflows-branch-model-defaults", "kind": "adr", "path": "adrs/adr-706-delivery-ci-workflows-branch-model-defaults.json" },
-    { "id": "ADR-707-delivery-ci-workflows-release-workflow-shape", "kind": "adr", "path": "adrs/adr-707-delivery-ci-workflows-release-workflow-shape.json" },
-    { "id": "ADR-708-delivery-ci-workflows-provider-hint-shape", "kind": "adr", "path": "adrs/adr-708-delivery-ci-workflows-provider-hint-shape.json" },
+    {
+      "id": "ADR-703-delivery-ci-workflows-node-only-runner",
+      "kind": "adr",
+      "path": "adrs/adr-703-delivery-ci-workflows-node-only-runner.json"
+    },
+    {
+      "id": "ADR-704-delivery-ci-workflows-report-shape",
+      "kind": "adr",
+      "path": "adrs/adr-704-delivery-ci-workflows-report-shape.json"
+    },
+    {
+      "id": "ADR-705-delivery-ci-workflows-elicitation-surface",
+      "kind": "adr",
+      "path": "adrs/adr-705-delivery-ci-workflows-elicitation-surface.json"
+    },
+    {
+      "id": "ADR-706-delivery-ci-workflows-branch-model-defaults",
+      "kind": "adr",
+      "path": "adrs/adr-706-delivery-ci-workflows-branch-model-defaults.json"
+    },
+    {
+      "id": "ADR-707-delivery-ci-workflows-release-workflow-shape",
+      "kind": "adr",
+      "path": "adrs/adr-707-delivery-ci-workflows-release-workflow-shape.json"
+    },
+    {
+      "id": "ADR-708-delivery-ci-workflows-provider-hint-shape",
+      "kind": "adr",
+      "path": "adrs/adr-708-delivery-ci-workflows-provider-hint-shape.json"
+    },
     {
       "id": "ADR-709-delivery-ci-workflows-release-artefacts",
       "kind": "adr",
@@ -82,6 +319,10 @@
       "scope": "global",
       "topic": "releaseArtefacts"
     },
-    { "id": "ADR-710-delivery-ci-workflows-scheduled-audit", "kind": "adr", "path": "adrs/adr-710-delivery-ci-workflows-scheduled-audit.json" }
+    {
+      "id": "ADR-710-delivery-ci-workflows-scheduled-audit",
+      "kind": "adr",
+      "path": "adrs/adr-710-delivery-ci-workflows-scheduled-audit.json"
+    }
   ]
 }

@@ -1,0 +1,59 @@
+{
+  "id": "TS-031",
+  "usId": "US-1102",
+  "title": "application-spa v1.4.0 declares browserSurface, delivery-ci-workflows v2.2.0 documents the e2e job",
+  "purpose": "Cover the five ACs on US-1102: SPA blueprint at 1.4.0 with browserSurface.declared, the two new e2e user stories plus the e2e.md template, delivery-ci-workflows v2.2.0 US-6124 binding the four e2e-job points, the illustrative GHA workflow + per-provider notes, and the applied manifest validating with no browserSurface on the applied record.",
+  "testLevel": "contract",
+  "acIds": [
+    "AC-1102-1",
+    "AC-1102-2",
+    "AC-1102-3",
+    "AC-1102-4",
+    "AC-1102-5"
+  ],
+  "testCases": [
+    {
+      "id": "TC-031-spa-version-and-flag",
+      "acId": "AC-1102-1",
+      "description": "SPA blueprint.json is at version 1.4.0 and browserSurface.declared is true",
+      "testPointer": "test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -> manifest still validates + no browserSurface on the applied record",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-031-spa-us-and-template",
+      "acId": "AC-1102-2",
+      "description": "SPA contributes US-1134 and US-1135 as browser-facing e2e stories, and ships assets/tc-templates/e2e.md naming the browser-verify driver seam",
+      "testPointer": "test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-2: application-spa ships US-1134 and US-1135 as browser-facing (scope: deployed) e2e stories, plus the e2e.md template",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-031-ci-us-6124",
+      "acId": "AC-1102-3",
+      "description": "delivery-ci-workflows v2.2.0 contributes US-6124 whose AC-6124-1 names the four e2e-job points",
+      "testPointer": "test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-3: delivery-ci-workflows v2.2.0 US-6124 binds an AC naming the four e2e-job points",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-031-illustrative-workflow-and-notes",
+      "acId": "AC-1102-4",
+      "description": "Illustrative GHA pull-request-checks.yml carries the e2e job block and notes.md translates it per provider",
+      "testPointer": "test/blueprint/e2e-contract-blueprint-facts.test.js::AC-1102-4: illustrative GHA pull-request-checks.yml carries the e2e job and notes.md translates the four points per provider",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-031-manifest-validates",
+      "acId": "AC-1102-5",
+      "description": "Applying SPA v1.4.0 produces a manifest that still validates against rcf-schemas 0.5.1 and the applied record carries no browserSurface field",
+      "testPointer": "test/blueprint/apply-spa-v1-4-0-schema.test.js::AC-1102-5: apply application-spa v1.4.0 -> manifest still validates + no browserSurface on the applied record",
+      "status": "pending",
+      "scope": "runtime"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-03T18:30:50Z",
+  "updatedAt": "2026-09-03T18:30:50Z"
+}
