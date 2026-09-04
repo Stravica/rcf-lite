@@ -86,14 +86,17 @@ const expectedCounts = {
   // (15 -> 16).
   // visual round T-0 (w-2026-09-04-dave-016) added REQ-017 for the
   // blueprint-shipped probe-pack runner extension (16 -> 17).
-  req: 17,
+  // visual round T-1 (w-2026-09-04-dave-011) added REQ-018 for the
+  // application-datatable v1.0.0 blueprint on the shelf (17 -> 18).
+  req: 18,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
   // (37 -> 44).
   // rcf-eval-node train added US-1601 (44 -> 45).
   // visual round T-0 added US-1701 (45 -> 46).
-  userStory: 46,
+  // visual round T-1 added US-1801 (46 -> 47).
+  userStory: 47,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -113,7 +116,8 @@ const expectedCounts = {
   // train added FBS-028..034 (7 FBSs, one per US on REQ-013/014/015).
   // rcf-eval-node train added FBS-035 (34 -> 35).
   // visual round T-0 added FBS-036 (35 -> 36).
-  fbs: 36,
+  // visual round T-1 added FBS-037 (36 -> 37).
+  fbs: 37,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -138,7 +142,11 @@ const expectedCounts = {
   // (pack-browser.js#createPackBrowser) and the boot fallback
   // (boot.js#bootIfNeeded) that consumes pack.boot when the runtime
   // URL is unreachable (110 -> 112).
-  codeNode: 112,
+  // Visual round T-1 (w-2026-09-04-dave-011) added CN-113..115 (3
+  // code nodes) anchoring the sample-app fixture's startServer, the
+  // shipped application-datatable blueprint.json, and the shipped
+  // probe pack file (112 -> 115).
+  codeNode: 115,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -146,7 +154,8 @@ const expectedCounts = {
   // companions train added TS-038..044 paired with US-1301..1501 (37 -> 44).
   // rcf-eval-node train added TS-045 (44 -> 45).
   // visual round T-0 added TS-046 paired with US-1701 (45 -> 46).
-  testSuite: 46,
+  // visual round T-1 added TS-047 paired with US-1801 (46 -> 47).
+  testSuite: 47,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

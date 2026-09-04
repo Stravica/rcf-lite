@@ -170,7 +170,15 @@ function renderShell(state, initialPayload) {
           var confirm = document.getElementById('bulkConfirm');
           var cancel = document.getElementById('bulkCancel');
           if (!dialog) return;
-          dialog.dataset.trigger = String(document.activeElement && document.activeElement.tagName === 'INPUT' ? document.activeElement.getAttribute('data-id') : '');
+          // Origin row for focus return on close: the first selected
+          // row's checkbox (WCAG 2.4.3, ARIA APG dialog-modal). The
+          // bulk action button itself is not row-scoped, so restoring
+          // focus there would leave the operator outside the table.
+          var firstSelected = null;
+          selected.forEach(function (id) {
+            if (firstSelected === null) firstSelected = id;
+          });
+          dialog.dataset.trigger = firstSelected !== null ? String(firstSelected) : '';
           dialog.hidden = false;
           dialog.setAttribute('aria-hidden', 'false');
           if (confirm) confirm.focus();

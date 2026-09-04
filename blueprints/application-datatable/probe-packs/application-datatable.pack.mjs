@@ -27,7 +27,7 @@ export default {
   // (route / tacIds / blueprint: tag) sees the two legal seams.
   appliesTo: ({ fbs }) => {
     const routes = fbs?.designStage?.navModel?.routes ?? [];
-    const tacIds = fbs?.designStage?.tacIds ?? [];
+    const tacIds = fbs?.contextRequirements?.tacIds ?? [];
     if (tacIds.includes('TAC-1801-application-datatable-shell')) return true;
     return routes.some((r) => typeof r?.path === 'string' && /datatable-shell|\/dt(\/|$)/.test(r.path));
   },
