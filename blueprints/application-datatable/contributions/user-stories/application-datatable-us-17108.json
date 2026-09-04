@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17108",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "URL state serialisation preserves sort, filter and page across reload and share",
+  "asA": "operator sharing a specific datatable view with a colleague",
+  "iWant": "the sort, filter and page state to serialise into the URL so a reload or a shared link lands on the same view",
+  "soThat": "the surface is deep-linkable and reload-stable (ADR-1802's recommended default)",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17108-1",
+      "description": "Given a rendered datatable where the operator applied a sort, a filter and advanced past page 1, the current URL carries the state as query parameters (`sort`, `q`, `page`) per ADR-1802's recommended default; reloading the URL rerenders the same view.",
+      "given": "a rendered datatable with an applied sort, filter and non-first page",
+      "when": "the operator reloads the URL",
+      "then": "the reloaded surface renders the same sort, filter and page",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17108-2",
+      "description": "Given the elicited client-side sort alternative (ADR-1802 elicited variant) applied to a small in-memory collection, the sort direction still writes to the URL so reload stability is preserved; the client-side branch never invents a URL state divergent from the server-side default.",
+      "given": "a rendered datatable applying the client-side sort alternative",
+      "when": "the operator activates a sort control",
+      "then": "the URL query parameters update with `sort=<column>:<direction>` in the same shape as the server-side default",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17108-3",
+      "description": "Given a rendered datatable, the default page size on the recommended default (ADR-1803) applies when no `pageSize` is present in the URL; the operator's elicited page-size override at apply time changes the default without changing the URL contract.",
+      "given": "a rendered datatable landed at the shell route without a `pageSize` query parameter",
+      "when": "the initial render fetches the first page",
+      "then": "the fetch carries `pageSize=<applied-default>` and the URL is left untouched",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1802-application-datatable-query-adapter"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

@@ -1,0 +1,15 @@
+{
+  "reqId": "application-datatable-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Selection and bulk actions carry a per-row, per-page and cross-page selection model with a confirmation dialog per bulk operation",
+  "description": "The selection model (TAC-1803) exposes per-row toggles, a page-level toggle that flips the visible page, and (elicited per ADR-1804) an optional cross-page persistence that stays across pagination. Every bulk operation opens a confirmation dialog under the ARIA APG dialog-modal pattern (`role=\"dialog\"`, `aria-modal=\"true\"`, `aria-labelledby`, `aria-describedby`, focus trap, focus return on close). The dialog returns focus to the control that opened it, per WCAG 2.4.3 and ARIA APG.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Bulk actions on a datatable are where destructive operations sit. The confirmation dialog's focus return is the single biggest keyboard-usability defect the surface produces if the project scaffolds one from scratch. Anchoring the dialog and the focus-return contract makes both testable at ship.",
+  "tags": ["blueprint:application-datatable", "category:04-selection"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

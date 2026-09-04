@@ -1,0 +1,50 @@
+{
+  "tacId": "TAC-1801-application-datatable-shell",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Datatable shell",
+  "purpose": "Owns the rendered datatable surface: the ARIA APG pattern choice (table vs grid per interactivity, ADR-1801), the header cell binding, the pagination controls with the polite live status region, the four-state distinction (empty, loading, error, no-results), the sort control per column with the aria-sort attribute, the filter chrome, the selection column, the bulk action controls, and the non-drag column reorder / visibility / resize path. The shell is the substitutable interface every AC in this blueprint anchors on.",
+  "responsibilities": [
+    "Render the ARIA APG pattern matching the surface's interactivity (AC-17107-1, AC-17107-3): plain table for read-only rows, grid once cells become interactive controls (ADR-1801).",
+    "Expose a keyboard-reachable sort control per sortable column and update `aria-sort` on activation (AC-17101-1, AC-17101-2, AC-17101-3).",
+    "Expose a text filter input and per-column dropdown filters that read into the query adapter with `q` and column filter values (AC-17102-1, AC-17102-3) and reset pagination on change (AC-17102-2).",
+    "Render pagination controls with an `aria-live=\"polite\"` region reading `Page N of M` and updating on advance (AC-17103-2, AC-17103-3), and drive the query adapter with `page` and `pageSize` on next / previous (AC-17103-1).",
+    "Render each of the four states (empty, loading, error, no-results) inside its own `role=\"region\"` element with `aria-live=\"polite\"` and non-colour distinction (AC-17105-1, AC-17105-2, AC-17105-3).",
+    "Render a bulk-action confirmation dialog under ARIA APG dialog-modal with `role=\"dialog\"`, `aria-modal=\"true\"`, `aria-labelledby`, `aria-describedby`, initial focus on confirm and focus return to the originating row on close (AC-17104-2, AC-17104-3).",
+    "Expose non-drag keyboard paths for column reorder, column visibility and column resize (WCAG 2.5.7, AC-17106-1, AC-17106-2, AC-17106-3).",
+    "Preserve sort, filter and page state in the URL per ADR-1802 and honour the applied default page size per ADR-1803 (AC-17108-1, AC-17108-2, AC-17108-3)."
+  ],
+  "internalStructure": "One shell module that mounts the surface, plus small internal helpers per interaction family (sort binder, filter binder, pagination binder, selection binder, column reorder binder). Every family reads from the same state container and writes back through the query adapter (TAC-1802) or the selection model (TAC-1803). The framework is not prescribed; the shell interfaces are what the project realises against React, Vue, Svelte or vanilla DOM.",
+  "interfaces": [
+    {
+      "name": "renderShell",
+      "kind": "factory",
+      "description": "renderShell({ queryAdapter, selectionModel, columns, initialState }) -> { mount(rootElement), unmount() }. The project supplies the queryAdapter (TAC-1802) and the selectionModel (TAC-1803); the shell owns the DOM plumbing, the accessibility patterns, and the four-state render."
+    },
+    {
+      "name": "columnsSpec",
+      "kind": "shape",
+      "description": "Every column declares `{ key, headerLabel, sortable?, filterable?, filterKind?, visibilityToggleable?, reorderable?, resizable? }`; the shell reads the spec to decide which controls render per column."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Query adapter",
+      "kind": "tac",
+      "tacId": "TAC-1802-application-datatable-query-adapter",
+      "description": "The shell reads sort, filter and pagination through the adapter."
+    },
+    {
+      "name": "Selection model",
+      "kind": "tac",
+      "tacId": "TAC-1803-application-datatable-selection-model",
+      "description": "The shell reads and writes selection state through the model; bulk actions read the selected set."
+    }
+  ],
+  "tradeoffs": "The shell is framework-agnostic; a project that wants a specific framework's data-table component (MUI DataGrid, TanStack Table) supplies an implementation that satisfies the shell contract rather than replacing it. The four-state contract is opinionated; a project that ships only three (no distinct loading region) fails the AC and the probe pack refuses. The shell owns the accessibility patterns; a project that ships a custom-role table (`role=\"treegrid\"` for a hierarchical data set) supersedes the shell TAC in its own realisation and names the residual as a known gap.",
+  "notes": "Known mechanism-reach gap: the shell contract cannot prove keyboard focus does not escape the surface in every framework's rendering; project-side smoke tests supplement the pack. See README `Known mechanism-reach gaps`.",
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

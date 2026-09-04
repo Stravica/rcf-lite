@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17107",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The rendered table shell uses the ARIA APG pattern that matches the surface's interactivity",
+  "asA": "assistive-tech user reading the datatable",
+  "iWant": "the shell to render as an ARIA APG table for read-only rows and as an ARIA APG grid once cells contain interactive controls",
+  "soThat": "the assistive-tech pattern matches the interactivity of the surface (ADR-1801)",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17107-1",
+      "description": "Given a datatable shell that renders interactive per-row controls (sort buttons, selection checkboxes, inline actions), the rendered element is a `<table role=\"grid\">` with `<th>` cells scoped to `col`; a read-only variant that renders no per-row interactive controls stays on the plain `<table>` pattern. The check reads the accessibility tree at the shell route and asserts the presence of the grid role when the shell ships interactive controls.",
+      "given": "a datatable route that ships interactive per-row controls",
+      "when": "the shell renders",
+      "then": "the rendered table has `role=\"grid\"` and header cells scoped to `col`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17107-2",
+      "description": "Given a rendered datatable, every per-row inline action (edit, delete, resend) has an accessible name that includes the acted-on row's identifier or a semantically equivalent noun (not `Edit` alone); the accessible name is readable by assistive tech per WCAG 4.1.2.",
+      "given": "a rendered datatable with per-row inline actions",
+      "when": "assistive tech reads the action controls",
+      "then": "each action's accessible name identifies the acted-on row",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17107-3",
+      "description": "Given a rendered datatable, the header row exposes each column's role (`<th scope=\"col\">` or `role=\"columnheader\"`) and every data cell resolves to a column header for row-and-column readouts on assistive tech (WCAG 1.3.1).",
+      "given": "a rendered datatable",
+      "when": "assistive tech traverses a data cell",
+      "then": "the announced context includes the column header the cell resolves to",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1801-application-datatable-shell"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

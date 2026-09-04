@@ -1,0 +1,39 @@
+{
+  "tacId": "TAC-1802-application-datatable-query-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Datatable query adapter",
+  "purpose": "Owns the sort, filter and pagination wire contract between the shell (TAC-1801) and the project's data source (a REST endpoint on application-api-rest, a GraphQL query, or an in-memory collection). Ships two shapes: a server-side default (elicited endpoint, receives `q`, `sort`, `page`, `pageSize`, returns `{ rows, total, page, pageSize, sort, q }`) and a client-side in-memory adapter for small collections (elicited ADR-1802 alternative).",
+  "responsibilities": [
+    "Serialise sort, filter and pagination into the request the data source reads (AC-17101-1, AC-17102-1, AC-17103-1) with a documented parameter grammar (`sort=<column>:<asc|desc>`, `q=<string>`, `page=<int>`, `pageSize=<int>`).",
+    "Return a page envelope the shell can render without knowing whether the source is server-side or client-side (AC-17102-1, AC-17103-2).",
+    "Preserve sort, filter and page state in the URL per ADR-1802 recommended default (AC-17108-1, AC-17108-2).",
+    "Read the applied default page size from ADR-1803 when no `pageSize` is present in the URL (AC-17108-3)."
+  ],
+  "internalStructure": "One factory `createQueryAdapter({ mode, endpoint, initialState })` returning an object with `query({ sort, q, page, pageSize })` returning `Promise<{ rows, total, page, pageSize, sort, q }>`. Mode `serverSide` issues `fetch(endpoint + '?' + params)`; mode `clientSide` runs the sort and filter against the in-memory collection the operator supplied at construction time. Both modes expose the same page envelope.",
+  "interfaces": [
+    {
+      "name": "createQueryAdapter",
+      "kind": "factory",
+      "description": "createQueryAdapter({ mode: 'serverSide' | 'clientSide', endpoint?, rows?, initialState? }) -> { query({ sort?, q?, page, pageSize }): Promise<{ rows, total, page, pageSize, sort, q }> }"
+    },
+    {
+      "name": "queryEnvelope",
+      "kind": "shape",
+      "description": "The response envelope the shell renders: `{ rows: Row[], total: number, page: number, pageSize: number, sort: string | null, q: string | null }`."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "application-api-rest",
+      "kind": "external",
+      "description": "The server-side default targets a REST endpoint the api-rest blueprint's contract shapes; the adapter carries no api-rest dependency at runtime and does not require the api-rest blueprint to be applied."
+    }
+  ],
+  "tradeoffs": "The wire grammar is opinionated (`sort=<col>:<dir>` rather than `orderBy=<col>&direction=<dir>`); a project with an existing endpoint that reads a different grammar supplies its own adapter satisfying the shell interface, and the shell reads through it unchanged. GraphQL projects supply an adapter that maps the same envelope through the GraphQL query and mutation as the server-side default reads.",
+  "notes": "Known mechanism-reach gap: request-cancellation on rapid filter typing is a project-side concern; the adapter names debouncing as an operator-owned decision in the guide and does not ship debouncing in v1.0.0.",
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

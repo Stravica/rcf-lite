@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17104",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Bulk actions on selected rows open a confirmation dialog and return focus to the originating row on close",
+  "asA": "operator applying an action to multiple rows",
+  "iWant": "each bulk action to open a confirmation dialog under the ARIA APG dialog-modal pattern and return focus to the row that opened it when the dialog closes",
+  "soThat": "the destructive step never runs by accident and keyboard-only users are not stranded at the top of the surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17104-1",
+      "description": "Given a rendered datatable with row-level checkboxes and a bulk action, when the operator toggles a row checkbox, the selection model records the row id and the bulk-action control reflects the new selection count in its accessible label or an adjacent status element.",
+      "given": "a rendered datatable with row-selection checkboxes",
+      "when": "the operator toggles a row checkbox",
+      "then": "the accessible selection count updates by one",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17104-2",
+      "description": "Given selected rows and a bulk-action control, when the operator activates the bulk action, a dialog opens with `role=\"dialog\"`, `aria-modal=\"true\"`, `aria-labelledby` naming the action, and `aria-describedby` naming the affected count; the confirm control receives initial focus.",
+      "given": "one or more rows selected in a rendered datatable",
+      "when": "the operator activates the bulk action",
+      "then": "the dialog opens with `role=\"dialog\"`, `aria-modal=\"true\"`, `aria-labelledby` and `aria-describedby` set, and the confirm control receives initial focus",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17104-3",
+      "description": "Given an open bulk-action confirmation dialog, when the operator closes it (confirm or cancel), focus returns to the row control (the row's selection checkbox or an equivalent row-scoped focus target) that originated the bulk action, per WCAG 2.4.3 and ARIA APG dialog-modal. The check selects a row, opens the dialog, cancels, and asserts the focused element is the originating row's checkbox. Probed by pack check AC-17104-3.",
+      "given": "an open bulk-action confirmation dialog that originated on a specific row",
+      "when": "the operator closes the dialog (confirm or cancel)",
+      "then": "focus returns to the originating row's control (the row-scoped focus target), not to the document body or an unrelated element",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1803-application-datatable-selection-model"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

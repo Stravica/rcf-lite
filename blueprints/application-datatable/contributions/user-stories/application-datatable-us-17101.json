@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17101",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sort activation reorders rendered rows to match the query adapter and announces the direction",
+  "asA": "operator scanning a table for a top or bottom row",
+  "iWant": "the sort control on a column header to reorder the rendered rows to match the query adapter's response and announce the sort direction to assistive tech",
+  "soThat": "keyboard-only users and screen-reader users perceive the same sort result sighted users see",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17101-1",
+      "description": "Given a rendered datatable route with a sortable column, when the operator activates the column's sort control, the DOM rendered row order matches the server-side sort response for that column and direction. The check drives the browser to the shell route, records the initial row order, clicks the sort control, and compares the rerendered row order to the /api/rows response for the same sort key. Probed by the `application-datatable` pack under check id AC-17101-1.",
+      "given": "a rendered datatable route and a sortable column with an accessible sort control",
+      "when": "the operator activates the sort control (mouse or keyboard)",
+      "then": "the rendered row order matches the server-side sort response for the same column and direction",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17101-2",
+      "description": "Given a rendered datatable route, when the operator focuses a sortable column header, the header carries a keyboard-reachable sort control (a `<button>` or `role=\"button\"` element) reachable in tab order without a pointer.",
+      "given": "a rendered datatable route",
+      "when": "the operator tabs into the table header",
+      "then": "each sortable column exposes a focusable sort control",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17101-3",
+      "description": "Given a sort activation on a column, the surface updates the column header's `aria-sort` attribute to `ascending` or `descending` matching the applied direction; subsequent activations flip the direction and the attribute together (ARIA APG table + grid patterns).",
+      "given": "a rendered datatable with an initial `aria-sort` of `none` on every column",
+      "when": "the operator activates the sort control on a column",
+      "then": "the activated column's `aria-sort` reads `ascending` or `descending` matching the new direction and every other column stays at `none`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1802-application-datatable-query-adapter"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

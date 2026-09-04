@@ -1,0 +1,15 @@
+{
+  "reqId": "application-datatable-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Filter chrome ships a text search and per-column dropdowns that read into the query adapter",
+  "description": "The chrome exposes a text search input (WCAG 2.4.6 labelled) that issues the query adapter's search request (`q=<value>` on the server-side default, or an equivalent in-memory filter under the elicited client-side alternative) and per-column dropdown filters where the column exposes a bounded value set. Filter changes reset the pagination cursor and rerender through the same path a sort change takes. Combined filter and sort compose deterministically at the query adapter (TAC-1802).",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Filter and sort share the same query surface. Naming them together stops projects from realising two divergent request shapes that then desync on the composition case.",
+  "tags": ["blueprint:application-datatable", "category:03-filter"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

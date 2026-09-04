@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17106",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Column visibility, reorder and resize each expose a keyboard-reachable alternative to any drag pointer path",
+  "asA": "operator who cannot drag with a pointer",
+  "iWant": "column visibility, reorder and resize to expose a non-drag path so the column layout is fully operable from the keyboard",
+  "soThat": "WCAG 2.5.7 Dragging Movements is met and the surface stays operable on assistive input devices",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17106-1",
+      "description": "Given a rendered datatable, the surface exposes a non-drag path to reorder columns: a paired move-left / move-right button per column, or a menu ordering. The check reads the initial header order, activates a move-left control on a middle column, and asserts the header order changed. Probed by pack check AC-17106-1.",
+      "given": "a rendered datatable with more than one column",
+      "when": "the operator activates a keyboard-reachable move control on a column",
+      "then": "the header order changes to reflect the move",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17106-2",
+      "description": "Given a rendered datatable, the column visibility toggle exposes a keyboard-reachable control (a checkbox or menu item) per toggleable column; activating the control hides or shows that column and its header cell without a page reload.",
+      "given": "a rendered datatable with toggleable columns",
+      "when": "the operator activates a column visibility control",
+      "then": "the target column's header and body cells hide or show accordingly",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17106-3",
+      "description": "Given a rendered datatable that supports column resize, the surface exposes a keyboard-reachable resize path (an increment or decrement control per column, or an equivalent menu option) so the width is operable without a pointer drag.",
+      "given": "a rendered datatable that supports column resize",
+      "when": "the operator activates the keyboard resize path on a column",
+      "then": "the column width changes by the declared increment without a pointer drag",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1801-application-datatable-shell"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

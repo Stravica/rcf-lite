@@ -1,0 +1,28 @@
+{
+  "tacId": "TAC-1803-application-datatable-selection-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Datatable selection model",
+  "purpose": "Owns the per-row, per-page and (elicited) cross-page selection state, plus the accessible count the shell renders adjacent to the bulk action controls. Substitutable interface so tests can drive selection without mounting the shell.",
+  "responsibilities": [
+    "Track the selected row-id set across shell mount / unmount cycles (AC-17109-1, AC-17109-2).",
+    "Expose a keyboard-reachable per-row toggle and a page-level toggle that flips the visible page (AC-17104-1).",
+    "Expose the running count the shell renders adjacent to the bulk-action controls (AC-17109-2).",
+    "Reset selection on advance when the operator did not elicit cross-page persistence (AC-17109-3)."
+  ],
+  "internalStructure": "One factory `createSelectionModel({ persistence: 'perPage' | 'crossPage' })` returning `{ toggle(rowId), togglePage(rowIds), selectedIds(), size(), reset(), onChange(listener) }`. The shell (TAC-1801) reads selectedIds() to render checkbox state and size() to render the running count.",
+  "interfaces": [
+    {
+      "name": "createSelectionModel",
+      "kind": "factory",
+      "description": "createSelectionModel({ persistence: 'perPage' | 'crossPage' }) -> { toggle(rowId), togglePage(rowIds), selectedIds(): number[]|string[], size(): number, reset(), onChange((event) => void) }"
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "A project on cross-page persistence pays the cost of a growing selection state; the recommendedDefault (per-page reset) keeps the surface predictable for large datasets. Elicited cross-page persistence names the operator's choice; the shell surfaces the choice in the accessible copy near the bulk action so operators know which mode applies.",
+  "notes": "Known mechanism-reach gap: selection state does not survive a full page reload in v1.0.0; a project that wants that persistence writes through the URL contract (ADR-1802) or supplies its own model. Named in the guide.",
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}
