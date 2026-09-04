@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T16:22:49.426Z",
-  "updatedAt": "2026-09-04T16:22:49.426Z",
+  "updatedAt": "2026-09-04T17:20:42.095Z",
   "acIds": [
     "AC-1601-1",
     "AC-1601-2",
@@ -13,6 +13,6 @@
   "buildOrder": 35,
   "executionStatus": "notStarted",
   "title": "rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)",
-  "summary": "TODO: describe the build session",
+  "summary": "Consumer wiring for the rcf-schemas 0.6.0 EVAL node across four tracks: L1 audits EVAL coverage on the tree, L2 folds EVAL-MISSING and EVAL-BELOW-THRESHOLD into per-AC verdicts on the verify report, L3 gates finalise on EVAL refusals with an opt-out via --ship-without-eval, and L4 lands rcf define --determinism plus the judge invocation module.",
   "dependsOnFbsIds": []
 }
