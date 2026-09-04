@@ -1,6 +1,6 @@
 {
   "name": "rcf-lite",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "type": "module",
   "description": "One-install tooling for the Requirements Confidence Framework (RCF): the unified `rcf` CLI grouped into the five RCF tool groups (discover, define, build, verify, audit) plus a small core set (init, doctor, guidance, mcp), an MCP server, the live tree viewer and the fresh-context adversarial ship-gate verifier. Consumes @stravica-ai/rcf-schemas.",
   "license": "Apache-2.0",

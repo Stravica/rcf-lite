@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.16.0"
+latest: "0.17.0"
 releases:
+  - version: "0.17.0"
+    date: "2026-09-04"
+    breaking: false
+    headlines:
+      - "rcf verify now pins the Playwright MCP browser tooling to a specific version, prints the effective pin on preflight and lands it on the run report, and takes a one-run override for emergency use."
+      - "rcf doctor grows four checks for browser-facing projects (Playwright installed, a browser available, the Playwright MCP reachable, and no shadowed duplicate entry), routed by an applied blueprint declaring a browser surface; API-only projects see one skip line."
+      - "rcf init writes a Playwright MCP entry only when no scope-visible one exists; when it cannot prove absence it writes a distinctly named playwright-rcf project-scope entry, and --no-playwright-mcp opts out entirely. application-spa v1.4.0 and delivery-ci-workflows v2.2.0 ship the paired browser stories and the illustrative e2e job as a documentation contract."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.16.0"
     date: "2026-09-03"
     breaking: false
