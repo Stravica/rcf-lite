@@ -158,3 +158,30 @@ export function findScopeMismatchAcs(report) {
 export function reportHasScopeMismatch(report) {
   return findScopeMismatchAcs(report).length > 0;
 }
+
+/**
+ * rcf-eval-node spec 2026-09-04 sections 5.2 + 8: extract per-AC
+ * verdicts in {EVAL-MISSING, EVAL-BELOW-THRESHOLD} from a verify
+ * report. Both refuse `rcf finalise` promotion to `verified` unless
+ * the operator opts out via `--ship-without-eval "<reason>"`.
+ *
+ * @param {object} report
+ * @returns {Array<{ acId: string, verdict: string, reason?: string }>}
+ */
+export function findEvalRefusalAcs(report) {
+  const perAc = Array.isArray(report?.perAcVerdicts) ? report.perAcVerdicts : [];
+  return perAc
+    .filter((e) => e && (e.verdict === 'EVAL-MISSING' || e.verdict === 'EVAL-BELOW-THRESHOLD'))
+    .map((e) => ({ acId: e.acId, verdict: e.verdict, reason: e.reason }));
+}
+
+/**
+ * True when a verify report carries at least one EVAL-MISSING or
+ * EVAL-BELOW-THRESHOLD verdict.
+ *
+ * @param {object} report
+ * @returns {boolean}
+ */
+export function reportHasEvalRefusal(report) {
+  return findEvalRefusalAcs(report).length > 0;
+}

@@ -22,9 +22,17 @@ export {
   // 0.8.0 slug-train car 4: NV-BL-GATE-01 pull-in of the profile-vs-AC
   // scope-mismatch check into REVIEW.
   findScopeMismatchAcs, reportHasScopeMismatch,
+  // rcf-eval-node spec 2026-09-04 sections 5.2 + 8: EVAL-MISSING and
+  // EVAL-BELOW-THRESHOLD refusal on `rcf finalise`.
+  findEvalRefusalAcs, reportHasEvalRefusal,
 } from './ingest.js';
 export {
   composeShipWithoutVerifiedRecord,
   nextShipWithoutVerifiedId,
   writeShipWithoutVerifiedRecord,
 } from './ship-without-verified.js';
+export {
+  composeShipWithoutEvalRecord,
+  nextShipWithoutEvalId,
+  writeShipWithoutEvalRecord,
+} from './ship-without-eval.js';

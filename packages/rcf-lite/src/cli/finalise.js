@@ -37,13 +37,17 @@ import { kindOf } from '../query/index.js';
 import {
   buildVerifyArgs,
   composeShipWithoutVerifiedRecord,
+  composeShipWithoutEvalRecord,
   detectVerify,
+  findEvalRefusalAcs,
   findMockOnlyDeclaredAcs,
   loadReport,
+  reportHasEvalRefusal,
   reportHasMockOnlyDeclared,
   resolveAbsentVerify,
   spawnVerify,
   summariseReport,
+  writeShipWithoutEvalRecord,
   writeShipWithoutVerifiedRecord,
 } from '../finalise/index.js';
 
@@ -74,6 +78,11 @@ const OPTION_SPEC = {
   // ship the FBS 'complete' without promoting to 'verified'. Records
   // the operator's ack on the manifest.
   'ship-without-verified': { type: 'boolean' },
+  // rcf-eval-node spec 2026-09-04 sections 5.2 + 8: sister opt-out for
+  // EVAL-MISSING / EVAL-BELOW-THRESHOLD. Takes a mandatory reason
+  // string (spec section 8: missing reason exits 2). Shape mirrors
+  // `--provision`: a value that looks like a flag is refused.
+  'ship-without-eval': { type: 'string' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
 };
@@ -123,6 +132,13 @@ Options:
                             'complete'. Without this flag, the gate
                             refuses to promote when any AC lands in
                             those verdicts.
+  --ship-without-eval "..."  Acknowledge EVAL-MISSING /
+                            EVAL-BELOW-THRESHOLD per-AC verdicts and
+                            proceed with an audit-log entry
+                            (rcf-eval-node spec section 5.2). Reason
+                            string is mandatory; a missing reason exits
+                            2. The ack lands on the manifest under
+                            shipWithoutEval[] with a monotonic id.
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
@@ -341,6 +357,54 @@ export async function main(argv, deps = {}) {
       }
       stderr.write(`[finalise] gate NOT promoted: ${declared.length} AC(s) came back MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION on the report; ${fbsId} left '${currentStatus}'.\n`);
       stderr.write('Only a run where every service-bound AC verifies with a live-attested profile promotes to verified. To ship the FBS at complete anyway, re-run with --ship-without-verified (the ack lands on the record).\n');
+      stderr.write(summariseReport(passLoaded.report));
+      stderr.write(`Report: ${outPath}\n`);
+      return 4;
+    }
+    // rcf-eval-node spec section 5.2: EVAL-MISSING / EVAL-BELOW-THRESHOLD
+    // refusal, sister of the mock-only refusal above. Opt-out via
+    // --ship-without-eval "<reason>"; missing reason exits 2, matching
+    // the ship-without-verified argv-shape lesson.
+    if (passLoaded.ok && reportHasEvalRefusal(passLoaded.report)) {
+      const evalDeclared = findEvalRefusalAcs(passLoaded.report);
+      const missingAcIds = evalDeclared.filter((e) => e.verdict === 'EVAL-MISSING').map((e) => e.acId);
+      const belowAcIds = evalDeclared.filter((e) => e.verdict === 'EVAL-BELOW-THRESHOLD').map((e) => e.acId);
+      const swe = flags['ship-without-eval'];
+      if (swe !== undefined) {
+        // A --ship-without-eval that looks like a flag is a swallowed
+        // next option; refuse it (parallel to the --provision guard).
+        if (typeof swe !== 'string' || swe.startsWith('-') || swe.trim().length === 0) {
+          stderr.write('[error] usage finalise: --ship-without-eval requires a reason string\n');
+          return 2;
+        }
+        const evalAck = composeShipWithoutEvalRecord({
+          manifest: tree.manifest,
+          fbsId,
+          reason: swe,
+          declaredAcs: evalDeclared,
+          reportPath: outPath,
+        });
+        const evalAckResult = await writeShipWithoutEvalRecord({
+          projectRoot, tree, record: evalAck,
+        });
+        if (isRcfError(evalAckResult)) {
+          if (evalAckResult.kind === 'ioFailure') { writeUnexpectedFailure(evalAckResult, stderr); return 1; }
+          stderr.write(`[error] ${evalAckResult.kind} ${evalAckResult.message}\n`);
+          if (evalAckResult.kind === 'validation' || evalAckResult.kind === 'brokenReference') return 3;
+          return 1;
+        }
+        if (!quiet) {
+          stdout.write(`[finalise] gate passed and ${evalDeclared.length} AC(s) came back with EVAL refusals; --ship-without-eval acknowledged (${evalAck.id} on rcf/manifest.json, reason: ${swe}); ${fbsId} left '${currentStatus}'. Report: ${outPath}\n`);
+          stdout.write(summariseReport(passLoaded.report));
+        }
+        return 0;
+      }
+      if (missingAcIds.length > 0) {
+        stderr.write(`finalise refused: EVAL missing on AC(s) ${missingAcIds.join(', ')}; author an EVAL or --ship-without-eval "reason"\n`);
+      }
+      if (belowAcIds.length > 0) {
+        stderr.write(`finalise refused: EVAL below threshold on AC(s) ${belowAcIds.join(', ')}; investigate the run record or --ship-without-eval "reason"\n`);
+      }
       stderr.write(summariseReport(passLoaded.report));
       stderr.write(`Report: ${outPath}\n`);
       return 4;
