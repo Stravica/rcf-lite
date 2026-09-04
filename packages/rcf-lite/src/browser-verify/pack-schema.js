@@ -70,8 +70,8 @@ export function validatePackModule({ mod, blueprintSlug, packAbsPath }) {
     }
   }
 
-  if (pack.boot !== undefined && (pack.boot === null || typeof pack.boot !== 'object')) {
-    errors.push({ field: 'boot', message: `pack ${packAbsPath}: boot must be an object when present (fields bootCommand, waitForUrl, waitForSelector are optional)` });
+  if (pack.boot !== undefined && pack.boot !== null && typeof pack.boot !== 'object') {
+    errors.push({ field: 'boot', message: `pack ${packAbsPath}: boot must be an object or null when present (fields bootCommand, waitForUrl, waitForSelector are optional)` });
   }
 
   if (!Array.isArray(pack.checks) || pack.checks.length === 0) {
