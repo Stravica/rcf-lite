@@ -125,10 +125,7 @@ REQ-011      yes      AC-1101-1   yes         TC-030-default-config-uses-pin, TC
                       AC-1104-5   yes         TC-033-redundant-fires-browser-facing, TC-033-redundant-q...
 REQ-012      yes      AC-1201-1   yes         TC-034-permutations-no-globaladr-conflict
                       AC-1201-2   yes         TC-034-one-owner-per-topic
-                      AC-1202-1   unresolved  TC-035-no-literal-path-in-applied-tree[unresolved]
+                      AC-1202-1   yes         TC-035-no-literal-path-in-applied-tree
                       AC-1203-1   yes         TC-036-probe-endpoints-optional-startup
                       AC-1203-2   yes         TC-036-essentials-no-dual-handler, TC-036-essentials-no-s...
                       AC-1203-3   yes         TC-036-api-rest-auth-exempt-list, TC-036-api-rest-startup...
-
-Unresolved test pointers (never counted as coverage):
-  TC-035-no-literal-path-in-applied-tree (TS-035): test/blueprint/probe-path-alignment.test.js::assertion 3: no literal probe path outside probe-endpoints prose in applied tree - test-missing

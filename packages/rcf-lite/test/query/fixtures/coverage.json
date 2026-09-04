@@ -1084,13 +1084,11 @@
         },
         {
           "id": "AC-1202-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-035-no-literal-path-in-applied-tree"
           ],
-          "unresolvedTestCases": [
-            "TC-035-no-literal-path-in-applied-tree"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-1203-1",
@@ -1122,12 +1120,5 @@
       ]
     }
   ],
-  "unresolvedTestPointers": [
-    {
-      "tsId": "TS-035",
-      "tcId": "TC-035-no-literal-path-in-applied-tree",
-      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 3: no literal probe path outside probe-endpoints prose in applied tree",
-      "reason": "test-missing"
-    }
-  ]
+  "unresolvedTestPointers": []
 }
