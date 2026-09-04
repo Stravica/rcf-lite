@@ -47,7 +47,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
   // above.
-  assert.equal(tree.testSuites.length, 29);
+  assert.equal(tree.testSuites.length, 33);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');

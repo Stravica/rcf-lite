@@ -104,7 +104,7 @@ const expectedCounts = {
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
-  testSuite: 29,
+  testSuite: 33,
 };
 
 test('expected file counts by category', () => {
