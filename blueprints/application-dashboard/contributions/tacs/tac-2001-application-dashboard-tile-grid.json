@@ -36,7 +36,7 @@
     {
       "name": "Timeframe and filter fan-out",
       "kind": "tac",
-      "tacId": "TAC-2002-application-dashboard-timeframe-filter-fanout",
+      "tacId": "TAC-2002-application-dashboard-filter-chrome",
       "description": "The tile grid delegates refetch fan-out to TAC-2002 on timeframe change and filter change; every tile re-renders through the shell factory on refetch."
     }
   ],

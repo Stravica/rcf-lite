@@ -1,5 +1,5 @@
 {
-  "adrId": "ADR-2001-application-dashboard-primary-kpi-kinds",
+  "adrId": "ADR-2001-application-dashboard-primary-kpi-enum",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
   "version": "1.0.0",

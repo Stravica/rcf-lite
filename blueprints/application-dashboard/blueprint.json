@@ -20,9 +20,9 @@
     { "id": "application-dashboard-US-19106", "kind": "us", "path": "user-stories/application-dashboard-us-19106.json" },
     { "id": "application-dashboard-US-19107", "kind": "us", "path": "user-stories/application-dashboard-us-19107.json" },
     { "id": "TAC-2001-application-dashboard-tile-grid", "kind": "tac", "path": "tacs/tac-2001-application-dashboard-tile-grid.json" },
-    { "id": "TAC-2002-application-dashboard-timeframe-filter-fanout", "kind": "tac", "path": "tacs/tac-2002-application-dashboard-timeframe-filter-fanout.json" },
+    { "id": "TAC-2002-application-dashboard-filter-chrome", "kind": "tac", "path": "tacs/tac-2002-application-dashboard-filter-chrome.json" },
     { "id": "TAC-2003-application-dashboard-export-handle", "kind": "tac", "path": "tacs/tac-2003-application-dashboard-export-handle.json" },
-    { "id": "ADR-2001-application-dashboard-primary-kpi-kinds", "kind": "adr", "path": "adrs/adr-2001-application-dashboard-primary-kpi-kinds.json", "elicited": true, "standardsTraceClause": "NN/g F-scan; Gestalt proximity" },
+    { "id": "ADR-2001-application-dashboard-primary-kpi-enum", "kind": "adr", "path": "adrs/adr-2001-application-dashboard-primary-kpi-enum.json", "recommendedDefault": false, "elicited": true, "standardsTraceClause": "NN/g F-scan; Gestalt proximity" },
     { "id": "ADR-2002-application-dashboard-timeframe-presets", "kind": "adr", "path": "adrs/adr-2002-application-dashboard-timeframe-presets.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "NN/g dashboard design (timeframe defaults)" },
     { "id": "ADR-2003-application-dashboard-export-formats", "kind": "adr", "path": "adrs/adr-2003-application-dashboard-export-formats.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "GOV.UK Design System (download patterns); WCAG 1.3.1 (info and relationships)" }
   ]
