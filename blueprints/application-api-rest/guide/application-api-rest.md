@@ -26,7 +26,7 @@ Any project whose primary surface is an HTTP API meant to be consumed by clients
 
 ## What a good outcome looks like
 
-Attack the finished service from the outside and try to catch it lying: fetch /docs and call an endpoint straight from the spec, send garbage JSON, reuse an idempotency key with a different body, hammer a public endpoint past its limit, kill the database and watch /healthz/ready tell the truth while /healthz/live stays up, grep the logs for the bearer token you just used. A build that honours this doc set answers every one of those correctly. That is the measure: what an integrating client and an on-call engineer get out of the box.
+Attack the finished service from the outside and try to catch it lying: fetch /docs and call an endpoint straight from the spec, send garbage JSON, reuse an idempotency key with a different body, hammer a public endpoint past its limit, kill the database and watch the resolved readiness path tell the truth while the resolved liveness path stays up, grep the logs for the bearer token you just used. A build that honours this doc set answers every one of those correctly. That is the measure: what an integrating client and an on-call engineer get out of the box.
 
 ## Your decisions that remain open
 
@@ -39,3 +39,7 @@ Attack the finished service from the outside and try to catch it lying: fetch /d
 ## Cost honesty
 
 This doc set makes an API slower to declare done, on purpose: 117 criteria is the price of "no endpoint ships undocumented, unmeasured, or unguarded". If you are prototyping a throwaway integration, that price is wrong; skip the blueprint rather than opting out of half of it. If other people's code will call this service, the price is the product.
+
+## Composing with observability-probe-endpoints and observability-essentials (v2.0.0)
+
+From v2.0.0 this blueprint no longer binds literal probe path strings. The three probe surfaces (liveness, readiness, startup) are served at the RESOLVED paths supplied by either the composed observability-probe-endpoints blueprint (Kubernetes profile default `/live`, `/ready`, and, when enabled, `/startup`; `loadBalancer` profile default `/health`) or by project configuration under `probeInterface.paths` in the essentials-alone case. The auth-middleware installer consumes exactly the exempt path set that observability-probe-endpoints emits via TAC-1501 `getExemptPathSet` (or the exact set derived from `probeInterface.paths` in the essentials-alone case); adjacent routes never fall under the same exemption. The generated OpenAPI document names each probe surface and its resolved path at documentation-generation time. The three-way composition invariants live in `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js`.
