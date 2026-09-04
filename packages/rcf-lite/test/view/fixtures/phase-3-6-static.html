@@ -9562,7 +9562,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <article id="FBS-035" class="doc doc-fbs">
   <h3>FBS-035 - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</h3>
   
-  <p><strong>Summary:</strong> TODO: describe the build session</p>
+  <p><strong>Summary:</strong> Consumer wiring for the rcf-schemas 0.6.0 EVAL node across four tracks: L1 audits EVAL coverage on the tree, L2 folds EVAL-MISSING and EVAL-BELOW-THRESHOLD into per-AC verdicts on the verify report, L3 gates finalise on EVAL refusals with an opt-out via --ship-without-eval, and L4 lands rcf define --determinism plus the judge invocation module.</p>
   
   <div class="ac-pills"><a class="ac-pill" href="#AC-1601-1">AC-1601-1</a><a class="ac-pill" href="#AC-1601-2">AC-1601-2</a><a class="ac-pill" href="#AC-1601-3">AC-1601-3</a><a class="ac-pill" href="#AC-1601-4">AC-1601-4</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
@@ -9600,7 +9600,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-04T16:22:49.426Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-04T16:22:49.426Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T17:20:42.095Z&quot;,
   &quot;acIds&quot;: [
     &quot;AC-1601-1&quot;,
     &quot;AC-1601-2&quot;,
@@ -9613,7 +9613,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;buildOrder&quot;: 35,
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)&quot;,
-  &quot;summary&quot;: &quot;TODO: describe the build session&quot;,
+  &quot;summary&quot;: &quot;Consumer wiring for the rcf-schemas 0.6.0 EVAL node across four tracks: L1 audits EVAL coverage on the tree, L2 folds EVAL-MISSING and EVAL-BELOW-THRESHOLD into per-AC verdicts on the verify report, L3 gates finalise on EVAL refusals with an opt-out via --ship-without-eval, and L4 lands rcf define --determinism plus the judge invocation module.&quot;,
   &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
@@ -13166,7 +13166,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <div class="tc" id="TC-045-findevalrefusalacs-and">
   <p><strong>TC-045-findevalrefusalacs-and</strong> - covers <a href="#AC-1601-3">AC-1601-3</a> <span class="status pending">pending</span></p>
   <p>findEvalRefusalAcs and reportHasEvalRefusal read the two EVAL classes off perAcVerdicts[]; composeShipWithoutEvalRecord carries the operator reason and declared per-AC verdicts; nextShipWithoutEvalId increments monotonically</p>
-  <p><em>Test pointer:</em> <code>test/finalise/ship-without-eval.test.js::composeShipWithoutEvalRecord carries the operator reason and the declared AC verdicts</code></p>
+  <p><em>Test pointer:</em> <code>test/cli/finalise-eval-refusal.test.js::finalise --ship-without-eval &quot;harness offline&quot; exits 0 and appends a monotonic swe-* record on manifest.shipWithoutEval[]</code></p>
 </div>
 <div class="tc" id="TC-045-runonecase-spawns-the-invoker-claude-or">
   <p><strong>TC-045-runonecase-spawns-the-invoker-claude-or</strong> - covers <a href="#AC-1601-4">AC-1601-4</a> <span class="status pending">pending</span></p>
@@ -13175,7 +13175,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-04T16:22:23.766Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-04T16:22:37.368Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T17:21:35.618Z&quot;,
   &quot;purpose&quot;: &quot;Cover the four ACs on US-1601 via the unit and integration suites landed in this train. L1 through L3 are deterministic tests over pure or seam-injected code paths; L4 tests the judge invocation shape via a stubbed spawn seam (a real subprocess round-trip is exercised out-of-band as the section 11 real-claude smoke).&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
@@ -13207,7 +13207,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-1601-3&quot;,
       &quot;description&quot;: &quot;findEvalRefusalAcs and reportHasEvalRefusal read the two EVAL classes off perAcVerdicts[]; composeShipWithoutEvalRecord carries the operator reason and declared per-AC verdicts; nextShipWithoutEvalId increments monotonically&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/finalise/ship-without-eval.test.js::composeShipWithoutEvalRecord carries the operator reason and the declared AC verdicts&quot;
+      &quot;testPointer&quot;: &quot;test/cli/finalise-eval-refusal.test.js::finalise --ship-without-eval \&quot;harness offline\&quot; exits 0 and appends a monotonic swe-* record on manifest.shipWithoutEval[]&quot;
     },
     {
       &quot;id&quot;: &quot;TC-045-runonecase-spawns-the-invoker-claude-or&quot;,
