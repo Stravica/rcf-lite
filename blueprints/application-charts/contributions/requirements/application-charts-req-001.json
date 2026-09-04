@@ -1,0 +1,15 @@
+{
+  "reqId": "application-charts-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The application ships the small set of chart forms an operator SaaS actually shows",
+  "description": "The application realises the chart-form set the shelf's spec commits: bar, line, area, pie or donut, single-value with sparkline, and heatmap. Every rendered chart on the shipped surface picks one of these forms and honours the render-shell contract (TAC-1901). A form outside this set is refused at project-side review; a specialised form the applying project needs (a candlestick, a Sankey) supersedes this REQ with a project-authored REQ and is documented as a known deviation.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The form set is where teams reach for a chart library and pick the wrong tool. Enumerating the forms in the contract closes the ambiguity at ship: every rendered chart on the surface names one of the six forms and inherits its rendering discipline, its accessibility affordances and its text-alternative shape from the shell.",
+  "tags": ["blueprint:application-charts", "category:01-form-set"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

@@ -1,0 +1,26 @@
+{
+  "slug": "application-charts",
+  "version": "1.0.0",
+  "category": "application",
+  "suggestedCompanions": [
+    { "role": "logging", "reason": "Chart rendering telemetry (data-point activation, keyboard traversal) rides the same log surface as the rest of the client; a logging companion supplies the factory the client-side telemetry uses." },
+    { "role": "errorHandling", "reason": "A chart that fails to load surfaces a client-side error record; an error-handling companion supplies the boundary and the record factory." }
+  ],
+  "contributions": [
+    { "id": "application-charts-REQ-001", "kind": "req", "path": "requirements/application-charts-req-001.json" },
+    { "id": "application-charts-REQ-002", "kind": "req", "path": "requirements/application-charts-req-002.json" },
+    { "id": "application-charts-REQ-003", "kind": "req", "path": "requirements/application-charts-req-003.json" },
+    { "id": "application-charts-REQ-004", "kind": "req", "path": "requirements/application-charts-req-004.json" },
+    { "id": "application-charts-US-18101", "kind": "us", "path": "user-stories/application-charts-us-18101.json" },
+    { "id": "application-charts-US-18102", "kind": "us", "path": "user-stories/application-charts-us-18102.json" },
+    { "id": "application-charts-US-18103", "kind": "us", "path": "user-stories/application-charts-us-18103.json" },
+    { "id": "application-charts-US-18104", "kind": "us", "path": "user-stories/application-charts-us-18104.json" },
+    { "id": "application-charts-US-18105", "kind": "us", "path": "user-stories/application-charts-us-18105.json" },
+    { "id": "application-charts-US-18106", "kind": "us", "path": "user-stories/application-charts-us-18106.json" },
+    { "id": "TAC-1901-application-charts-render-shell", "kind": "tac", "path": "tacs/tac-1901-application-charts-render-shell.json" },
+    { "id": "TAC-1902-application-charts-keyboard-traversal", "kind": "tac", "path": "tacs/tac-1902-application-charts-keyboard-traversal.json" },
+    { "id": "ADR-1901-application-charts-engine-choice", "kind": "adr", "path": "adrs/adr-1901-application-charts-engine-choice.json", "elicited": true, "standardsTraceClause": "WCAG 1.4.1 / WCAG 2.1.1" },
+    { "id": "ADR-1902-application-charts-accessible-palette", "kind": "adr", "path": "adrs/adr-1902-application-charts-accessible-palette.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "WCAG 1.4.3 / WCAG 1.4.11" },
+    { "id": "ADR-1903-application-charts-motion", "kind": "adr", "path": "adrs/adr-1903-application-charts-motion.json", "recommendedDefault": true, "standardsTraceClause": "WCAG 2.3.3" }
+  ]
+}

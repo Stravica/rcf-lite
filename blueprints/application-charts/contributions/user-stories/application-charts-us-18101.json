@@ -1,0 +1,35 @@
+{
+  "usId": "application-charts-US-18101",
+  "prdId": "PRD-001",
+  "reqId": "application-charts-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every chart on the shipped surface names one of the six committed forms and honours the render-shell contract",
+  "asA": "product owner responsible for the shipped surface's data affordances",
+  "iWant": "every chart the surface renders to pick one of the six committed forms and route through the render-shell contract",
+  "soThat": "the accessibility, palette and text-alternative discipline the shell owns applies to every chart on the surface without a per-chart negotiation",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18101-1",
+      "description": "Given a rendered chart on the surface, the chart's declared form matches one of {bar, line, area, pie, donut, single-value, sparkline, heatmap}; a form outside this set is refused at project-side review or documented on the blueprint's README as a project-authored deviation.",
+      "given": "a rendered chart on the shipped surface",
+      "when": "the surface is reviewed against the shelf",
+      "then": "the chart's declared form is one of the six committed forms or a documented project deviation",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-18101-2",
+      "description": "Given a rendered chart, the chart mounts through the render-shell contract (TAC-1901): the shell exposes the accessible-defaults palette hook (ADR-1902) and the text-alternative slot; a chart that skips the shell contract (renders through a raw chart-library mount) is refused at project-side review.",
+      "given": "a rendered chart",
+      "when": "the mount seam is inspected",
+      "then": "the chart is mounted through TAC-1901's render shell",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": ["TAC-1901-application-charts-render-shell"],
+  "tags": ["blueprint:application-charts"],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

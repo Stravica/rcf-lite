@@ -1,0 +1,35 @@
+{
+  "usId": "application-charts-US-18106",
+  "prdId": "PRD-001",
+  "reqId": "application-charts-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A chart engine that refuses text-alternative access is refused on the applying project",
+  "asA": "shelf reviewer gating an applying project's chart engine choice",
+  "iWant": "the blueprint to refuse a chart engine choice that renders canvas-only surfaces with no text-alternative path",
+  "soThat": "the text-alternative REQ-003 and the keyboard-traversal REQ-004 stay reachable through the render shell's contract regardless of the chosen engine (ADR-1901)",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18106-1",
+      "description": "Given ADR-1901's engine choice (Recharts, ECharts, Chart.js, D3 primitives or another operator-elicited engine), the applying project's manifest records the engine and the text-alternative reach: the engine's rendered chart is paired with a `<table>` element the pack asserts (AC-18103-1). An engine that renders exclusively to a `<canvas>` and does not offer a text-alternative surface is refused at project-side review; the refusal is documented in the blueprint's README under the engine-refusal rule.",
+      "given": "an ADR-1901 engine choice",
+      "when": "the applying project's chart mount is reviewed",
+      "then": "the engine is refused if it renders canvas-only surfaces with no text-alternative path",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-18106-2",
+      "description": "Given a compliant engine choice, the applying project's rendered chart carries a `data-chart-engine` attribute or an equivalent DOM marker naming the engine (Recharts, ECharts, Chart.js, D3 or the elicited name). This is a project-side observation, not a pack check; the README names it under known mechanism-reach gaps as a documentation contract on the applying project.",
+      "given": "a compliant chart engine on the applying project",
+      "when": "the rendered chart is inspected",
+      "then": "the engine name is discoverable on the rendered DOM through a stable attribute",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": ["TAC-1901-application-charts-render-shell"],
+  "tags": ["blueprint:application-charts"],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

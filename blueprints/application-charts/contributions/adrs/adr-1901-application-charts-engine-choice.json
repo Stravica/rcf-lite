@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1901-application-charts-engine-choice",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Elicit the chart engine at apply, and refuse a canvas-only engine that offers no text-alternative surface",
+  "context": "Chart engines have wildly different accessibility postures. Recharts and ECharts render to SVG with keyboard-focusable data points and a DOM the shell can read; Chart.js renders to canvas and needs a paired data-table to reach a screen reader; D3 primitives leave the accessibility contract to the author. A blueprint that hard-picks one engine locks the applying project into that engine's accessibility posture; a blueprint that leaves it wide open lets the project ship a canvas-only chart with no text-alternative path.",
+  "decision": "The chart engine is elicited at apply (Recharts, ECharts, Chart.js, D3 primitives or an operator-named alternative). The shell contract stands regardless of engine (a paired text-alternative table in the same landmark; a keyboard traversal path on interactive charts; a colour-plus-pattern-plus-label series distinction). A chart engine that renders exclusively to a `<canvas>` and offers no text-alternative surface is refused at project-side review; the refusal is documented on the blueprint's README under the engine-refusal rule.",
+  "consequences": "Applying projects pick the engine that fits their existing stack (a Chart.js-heavy project keeps Chart.js and pairs every chart with the text-alternative table the shell renders). A canvas-only engine is refused with a clear reason; the applying project either replaces the engine or supersedes the blueprint with a project-authored engine contract naming the residuals.",
+  "alternativesConsidered": [
+    {
+      "name": "Hard-pick Recharts",
+      "summary": "The blueprint commits Recharts as the shipped engine.",
+      "reasonNotChosen": "React-only, and it locks projects with a Vue or Svelte surface into a foreign runtime. The shell contract is engine-agnostic; there is no reason to pick one at the shelf."
+    },
+    {
+      "name": "Allow any engine including canvas-only with no text-alternative",
+      "summary": "The blueprint accepts any engine choice with no refusal path.",
+      "reasonNotChosen": "The text-alternative REQ-003 is unreachable on a canvas-only engine; the blueprint would ship an AC that cannot be enforced on a compliant apply."
+    }
+  ],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}
