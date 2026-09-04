@@ -5777,6 +5777,16 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-1701 --&gt; AC-1701-6
   AC-1701-6 -.-&gt;|delivered by| FBS-036
   AC-1701-6 -.-&gt;|implemented by| CN-108
+  AC-1701-7[&quot;AC-1701-7&quot;]
+  US-1701 --&gt; AC-1701-7
+  AC-1701-7 -.-&gt;|delivered by| FBS-036
+  CN-111[&quot;CN-111&lt;br/&gt;src/browser-verify/pack-browser.js#createPack...&quot;]
+  AC-1701-7 -.-&gt;|implemented by| CN-111
+  AC-1701-8[&quot;AC-1701-8&quot;]
+  US-1701 --&gt; AC-1701-8
+  AC-1701-8 -.-&gt;|delivered by| FBS-036
+  CN-112[&quot;CN-112&lt;br/&gt;src/browser-verify/boot.js#bootIfNeeded&quot;]
+  AC-1701-8 -.-&gt;|implemented by| CN-112
   click REQ-017 &quot;#REQ-017&quot;;
   click US-1701 &quot;#US-1701&quot;;
   click AC-1701-1 &quot;#AC-1701-1&quot;;
@@ -5791,6 +5801,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click AC-1701-5 &quot;#AC-1701-5&quot;;
   click CN-110 &quot;#CN-110&quot;;
   click AC-1701-6 &quot;#AC-1701-6&quot;;
+  click AC-1701-7 &quot;#AC-1701-7&quot;;
+  click CN-111 &quot;#CN-111&quot;;
+  click AC-1701-8 &quot;#AC-1701-8&quot;;
+  click CN-112 &quot;#CN-112&quot;;
   class REQ-017 req;
   class US-1701 us;
   class AC-1701-1 ac;
@@ -5805,6 +5819,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class AC-1701-5 ac;
   class CN-110 cn;
   class AC-1701-6 ac;
+  class AC-1701-7 ac;
+  class CN-111 cn;
+  class AC-1701-8 ac;
+  class CN-112 cn;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
@@ -5863,11 +5881,15 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-036">FBS-036</a></p></li>
 <li id="AC-1701-6" class="ac-item"><strong>AC-1701-6</strong> - A pack MAY declare `preChecks[]`: an array of `{ id, description, run: async () =&gt; ({ verdict, detail? }) }` Node build-scan fast-fail checks that the runner invokes before any browser check on the same pack. A pre-check with verdict `fail` records on the pack record and every browser check that names it under `dependsOn` records verdict `skipped` with detail `skipped-by-pre-check:&lt;preCheckId&gt;`; browser checks with no `dependsOn` on a failing pre-check still run. Pre-check verdicts fold into the aggregate the same way pack checks do (a `fail` at `severity: block` blocks ship).
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-036">FBS-036</a></p></li>
+<li id="AC-1701-7" class="ac-item"><strong>AC-1701-7</strong> - The `packBrowser` seam the runner injects into every pack check is a real headless browser provisioned through the pinned Playwright MCP server (`PLAYWRIGHT_MCP_VERSION` in `src/verify/engine/launcher.js`, spawned as `npx -y @playwright/mcp@&lt;pin&gt;` over stdio) via a thin in-package JSON-RPC 2.0 client (zero new npm dependencies in rcf-lite; no LLM call). Every check receives a stable API: `goto(url)`, `snapshot()` returning accessibility-tree text, `evaluate(fn, arg?)` returning a parsed value, `click(selector, hint?)`, `type(selector, text, hint?)`, `press(key)`, `screenshot(filename?)`, `close()`. When the consuming project already resolves `playwright` from its own `node_modules`, the runner MAY take that cheaper direct route and expose the identical API; the pinned MCP version remains the source of the browser otherwise. The CLI provisions the browser only when at least one applicable pack is loaded and `--no-browser` was not passed; `deps.packBrowser` on the CLI handler overrides the provisioning for tests.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-036">FBS-036</a></p></li>
+<li id="AC-1701-8" class="ac-item"><strong>AC-1701-8</strong> - A pack MAY declare a `boot: { bootCommand, waitForUrl, waitForSelector }` object. Before running the pack pass, the CLI probes the runtime URL; when it responds with any HTTP status the boot is skipped and the running server is used unchanged. When the runtime is not answering AND `boot.bootCommand` is a non-empty string, the CLI spawns `bootCommand` from the project root (Node.js child_process, cwd=projectRoot, no shell), polls `waitForUrl` at a bounded interval until a timeout, and when the URL responds runs the packs; when `waitForSelector` is set and a browser is available, the CLI navigates the browser to `waitForUrl` and polls the accessibility snapshot for a substring match on the selector until a bounded timeout (soft-failure only, packs still run). The CLI stops any process it started in reverse order after the pack pass completes (SIGTERM then SIGKILL fallback after 3s). `--no-boot` disables the fallback and forces packs to run against whatever the runtime URL currently answers. When the runtime is unreachable AND no `bootCommand` is declared, the CLI records the note and proceeds; the pack&#39;s own runtime checks then surface the failure.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-036">FBS-036</a></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-04T17:59:40.838Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-04T18:00:11.401Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T18:51:45.216Z&quot;,
   &quot;usId&quot;: &quot;US-1701&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;reqId&quot;: &quot;REQ-017&quot;,
@@ -5906,6 +5928,16 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     {
       &quot;id&quot;: &quot;AC-1701-6&quot;,
       &quot;description&quot;: &quot;A pack MAY declare `preChecks[]`: an array of `{ id, description, run: async () =&gt; ({ verdict, detail? }) }` Node build-scan fast-fail checks that the runner invokes before any browser check on the same pack. A pre-check with verdict `fail` records on the pack record and every browser check that names it under `dependsOn` records verdict `skipped` with detail `skipped-by-pre-check:&lt;preCheckId&gt;`; browser checks with no `dependsOn` on a failing pre-check still run. Pre-check verdicts fold into the aggregate the same way pack checks do (a `fail` at `severity: block` blocks ship).&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1701-7&quot;,
+      &quot;description&quot;: &quot;The `packBrowser` seam the runner injects into every pack check is a real headless browser provisioned through the pinned Playwright MCP server (`PLAYWRIGHT_MCP_VERSION` in `src/verify/engine/launcher.js`, spawned as `npx -y @playwright/mcp@&lt;pin&gt;` over stdio) via a thin in-package JSON-RPC 2.0 client (zero new npm dependencies in rcf-lite; no LLM call). Every check receives a stable API: `goto(url)`, `snapshot()` returning accessibility-tree text, `evaluate(fn, arg?)` returning a parsed value, `click(selector, hint?)`, `type(selector, text, hint?)`, `press(key)`, `screenshot(filename?)`, `close()`. When the consuming project already resolves `playwright` from its own `node_modules`, the runner MAY take that cheaper direct route and expose the identical API; the pinned MCP version remains the source of the browser otherwise. The CLI provisions the browser only when at least one applicable pack is loaded and `--no-browser` was not passed; `deps.packBrowser` on the CLI handler overrides the provisioning for tests.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1701-8&quot;,
+      &quot;description&quot;: &quot;A pack MAY declare a `boot: { bootCommand, waitForUrl, waitForSelector }` object. Before running the pack pass, the CLI probes the runtime URL; when it responds with any HTTP status the boot is skipped and the running server is used unchanged. When the runtime is not answering AND `boot.bootCommand` is a non-empty string, the CLI spawns `bootCommand` from the project root (Node.js child_process, cwd=projectRoot, no shell), polls `waitForUrl` at a bounded interval until a timeout, and when the URL responds runs the packs; when `waitForSelector` is set and a browser is available, the CLI navigates the browser to `waitForUrl` and polls the accessibility snapshot for a substring match on the selector until a bounded timeout (soft-failure only, packs still run). The CLI stops any process it started in reverse order after the pack pass completes (SIGTERM then SIGKILL fallback after 3s). `--no-boot` disables the fallback and forces packs to run against whatever the runtime URL currently answers. When the runtime is unreachable AND no `bootCommand` is declared, the CLI records the note and proceeds; the pack&#39;s own runtime checks then surface the failure.&quot;,
       &quot;testable&quot;: true
     }
   ],
@@ -9812,7 +9844,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Summary:</strong> T-0 of the ratified visual round (spec 2026-09-04, section 2.1): the browser-verify runner extension that lets a blueprint ship a Playwright probe pack under `blueprints/&lt;slug&gt;/probe-packs/` and have `rcf verify browser` discover, scope-check and run it as a required ship gate. Six ACs span the loader (schema + `.pack.js` and `.pack.mjs`), the applicability predicate (source-scan for one of the three legal scoping seams: route, tacIds or `blueprint:` tag), the check-id cross-check against the shipping blueprint&#39;s contributed AC ids, the runner pass (after invariants and auth-smoke, packs receive an injected browser and fetch), the aggregate verdict extension (block on any `severity: block` pack fail), the `--probe-pack &lt;name&gt;` CLI restriction, and the optional `preChecks[]` fast-fail slot with `dependsOn` skip semantics. Zero new npm dependencies; the pinned Playwright MCP the launcher provisions is the browser access seam. Unblocks T-1..T-5 (datatable, charts, dashboard, notifications-in-app, admin-console).</p>
   
-  <div class="ac-pills"><a class="ac-pill" href="#AC-1701-1">AC-1701-1</a><a class="ac-pill" href="#AC-1701-2">AC-1701-2</a><a class="ac-pill" href="#AC-1701-3">AC-1701-3</a><a class="ac-pill" href="#AC-1701-4">AC-1701-4</a><a class="ac-pill" href="#AC-1701-5">AC-1701-5</a><a class="ac-pill" href="#AC-1701-6">AC-1701-6</a></div>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1701-1">AC-1701-1</a><a class="ac-pill" href="#AC-1701-2">AC-1701-2</a><a class="ac-pill" href="#AC-1701-3">AC-1701-3</a><a class="ac-pill" href="#AC-1701-4">AC-1701-4</a><a class="ac-pill" href="#AC-1701-5">AC-1701-5</a><a class="ac-pill" href="#AC-1701-6">AC-1701-6</a><a class="ac-pill" href="#AC-1701-7">AC-1701-7</a><a class="ac-pill" href="#AC-1701-8">AC-1701-8</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
   <p><strong><a href="#AC-1701-1">AC-1701-1</a></strong> - The pack loader discovers `.pack.js` and `.pack.mjs` modules under `blueprints/&lt;slug&gt;/probe-packs/` for every applied blueprint, imports each with a dynamic ESM import, validates the exported default object against the pack schema (`packName` starts with the owning blueprint&#39;s slug and matches `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`, `version` semver, `blueprintSlug` matches the directory, `checks[]` non-empty with each entry carrying `id`, `severity` in {block, warn, advisory}, `description` and async `run`), and refuses at load (exit 2) with a diagnostic that names the pack path and the offending field on any violation. A valid pack registers on the run.</p>
   
@@ -9848,6 +9880,18 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   
   
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1701-7">AC-1701-7</a></strong> - The `packBrowser` seam the runner injects into every pack check is a real headless browser provisioned through the pinned Playwright MCP server (`PLAYWRIGHT_MCP_VERSION` in `src/verify/engine/launcher.js`, spawned as `npx -y @playwright/mcp@&lt;pin&gt;` over stdio) via a thin in-package JSON-RPC 2.0 client (zero new npm dependencies in rcf-lite; no LLM call). Every check receives a stable API: `goto(url)`, `snapshot()` returning accessibility-tree text, `evaluate(fn, arg?)` returning a parsed value, `click(selector, hint?)`, `type(selector, text, hint?)`, `press(key)`, `screenshot(filename?)`, `close()`. When the consuming project already resolves `playwright` from its own `node_modules`, the runner MAY take that cheaper direct route and expose the identical API; the pinned MCP version remains the source of the browser otherwise. The CLI provisions the browser only when at least one applicable pack is loaded and `--no-browser` was not passed; `deps.packBrowser` on the CLI handler overrides the provisioning for tests.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1701-8">AC-1701-8</a></strong> - A pack MAY declare a `boot: { bootCommand, waitForUrl, waitForSelector }` object. Before running the pack pass, the CLI probes the runtime URL; when it responds with any HTTP status the boot is skipped and the running server is used unchanged. When the runtime is not answering AND `boot.bootCommand` is a non-empty string, the CLI spawns `bootCommand` from the project root (Node.js child_process, cwd=projectRoot, no shell), polls `waitForUrl` at a bounded interval until a timeout, and when the URL responds runs the packs; when `waitForSelector` is set and a browser is available, the CLI navigates the browser to `waitForUrl` and polls the accessibility snapshot for a substring match on the selector until a bounded timeout (soft-failure only, packs still run). The CLI stops any process it started in reverse order after the pack pass completes (SIGTERM then SIGKILL fallback after 3s). `--no-boot` disables the fallback and forces packs to run against whatever the runtime URL currently answers. When the runtime is unreachable AND no `bootCommand` is declared, the CLI records the note and proceeds; the pack&#39;s own runtime checks then surface the failure.</p>
+  
+  
+  
 </div></section>
   
   
@@ -9860,14 +9904,16 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-04T18:00:20.529Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-04T18:00:32.290Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T18:51:45.216Z&quot;,
   &quot;acIds&quot;: [
     &quot;AC-1701-1&quot;,
     &quot;AC-1701-2&quot;,
     &quot;AC-1701-3&quot;,
     &quot;AC-1701-4&quot;,
     &quot;AC-1701-5&quot;,
-    &quot;AC-1701-6&quot;
+    &quot;AC-1701-6&quot;,
+    &quot;AC-1701-7&quot;,
+    &quot;AC-1701-8&quot;
   ],
   &quot;fbsId&quot;: &quot;FBS-036&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -13490,9 +13536,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <h3>TS-046 - Blueprint-shipped probe pack loader, scoping, cross-check, runner pass and CLI --probe-pack</h3>
   
   <p><strong>Verifies user story:</strong> <a href="#US-1701">US-1701</a></p>
-  <p><strong>Purpose:</strong> Cover AC-1701-1..6 via unit tests over the pack schema validator, the pack loader (both extensions, cross-check, applicability seams), the runner pack pass (aggregate verdict extension, browser and fetch injection, preChecks with dependsOn), and the CLI --probe-pack option (unknown-name refusal, pack restriction, applicable=false record path).</p>
+  <p><strong>Purpose:</strong> Cover AC-1701-1..8 via unit tests over the pack schema validator, the pack loader (both extensions, cross-check, applicability seams), the runner pack pass (aggregate verdict extension, browser and fetch injection, preChecks with dependsOn), the CLI --probe-pack option (unknown-name refusal, pack restriction, applicable=false record path), the Playwright-MCP pack-browser stdio client (evaluate-result parsing), and the boot fallback (reachability probe, spawn-and-wait, waitForSelector soft-timeout, cleanup on completion).</p>
   <p><strong>Test level:</strong> unit</p>
-  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1701-1">AC-1701-1</a>, <a href="#AC-1701-2">AC-1701-2</a>, <a href="#AC-1701-3">AC-1701-3</a>, <a href="#AC-1701-4">AC-1701-4</a>, <a href="#AC-1701-5">AC-1701-5</a>, <a href="#AC-1701-6">AC-1701-6</a></p></section>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1701-1">AC-1701-1</a>, <a href="#AC-1701-2">AC-1701-2</a>, <a href="#AC-1701-3">AC-1701-3</a>, <a href="#AC-1701-4">AC-1701-4</a>, <a href="#AC-1701-5">AC-1701-5</a>, <a href="#AC-1701-6">AC-1701-6</a>, <a href="#AC-1701-7">AC-1701-7</a>, <a href="#AC-1701-8">AC-1701-8</a></p></section>
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-046-pack-loader-loads-both-pack-js-and-pack">
   <p><strong>TC-046-pack-loader-loads-both-pack-js-and-pack</strong> - covers <a href="#AC-1701-1">AC-1701-1</a> <span class="status pending">pending</span></p>
@@ -13523,11 +13569,21 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>TC-046-prechecks-runs-before-browser-checks-a</strong> - covers <a href="#AC-1701-6">AC-1701-6</a> <span class="status pending">pending</span></p>
   <p>preChecks[] runs before browser checks; a failing pre-check skips only browser checks that name it under dependsOn with verdict skipped and detail skipped-by-pre-check; other checks still run</p>
   <p><em>Test pointer:</em> <code>test/browser-verify/pack-runner.test.js::preChecks fast-fail skips browser checks that dependsOn a failing pre-check</code></p>
+</div>
+<div class="tc" id="TC-046-pack-browser-evaluate-parser">
+  <p><strong>TC-046-pack-browser-evaluate-parser</strong> - covers <a href="#AC-1701-7">AC-1701-7</a> <span class="status pending">pending</span></p>
+  <p>The Playwright-MCP stdio client parses browser_evaluate result blocks (both the &#39;### Result&#39; fenced form used by MCP 0.0.80+ and the legacy &#39;Result:&#39; trailer) into typed JS values so a pack&#39;s check can assert on the value directly</p>
+  <p><em>Test pointer:</em> <code>test/browser-verify/pack-browser.test.js::parseEvaluateResult returns a parsed JSON value when the MCP block ends with Result: &lt;json&gt;</code></p>
+</div>
+<div class="tc" id="TC-046-boot-skips-when-runtime-reachable">
+  <p><strong>TC-046-boot-skips-when-runtime-reachable</strong> - covers <a href="#AC-1701-8">AC-1701-8</a> <span class="status pending">pending</span></p>
+  <p>bootIfNeeded returns already-up when the runtime URL responds with any HTTP status; returns no-boot / no-boot-command when the pack declares no boot / no bootCommand; spawns bootCommand and reports started when the URL flips to reachable; SIGTERMs the child on stop()</p>
+  <p><em>Test pointer:</em> <code>test/browser-verify/boot.test.js::bootIfNeeded spawns bootCommand, polls until waitForUrl responds, then reports started</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-04T18:00:42.492Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-04T18:01:10.506Z&quot;,
-  &quot;purpose&quot;: &quot;Cover AC-1701-1..6 via unit tests over the pack schema validator, the pack loader (both extensions, cross-check, applicability seams), the runner pack pass (aggregate verdict extension, browser and fetch injection, preChecks with dependsOn), and the CLI --probe-pack option (unknown-name refusal, pack restriction, applicable=false record path).&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T18:51:45.216Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-1701-1..8 via unit tests over the pack schema validator, the pack loader (both extensions, cross-check, applicability seams), the runner pack pass (aggregate verdict extension, browser and fetch injection, preChecks with dependsOn), the CLI --probe-pack option (unknown-name refusal, pack restriction, applicable=false record path), the Playwright-MCP pack-browser stdio client (evaluate-result parsing), and the boot fallback (reachability probe, spawn-and-wait, waitForSelector soft-timeout, cleanup on completion).&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
     &quot;AC-1701-1&quot;,
@@ -13535,7 +13591,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     &quot;AC-1701-3&quot;,
     &quot;AC-1701-4&quot;,
     &quot;AC-1701-5&quot;,
-    &quot;AC-1701-6&quot;
+    &quot;AC-1701-6&quot;,
+    &quot;AC-1701-7&quot;,
+    &quot;AC-1701-8&quot;
   ],
   &quot;id&quot;: &quot;TS-046&quot;,
   &quot;usId&quot;: &quot;US-1701&quot;,
@@ -13582,6 +13640,20 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;preChecks[] runs before browser checks; a failing pre-check skips only browser checks that name it under dependsOn with verdict skipped and detail skipped-by-pre-check; other checks still run&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/browser-verify/pack-runner.test.js::preChecks fast-fail skips browser checks that dependsOn a failing pre-check&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-046-pack-browser-evaluate-parser&quot;,
+      &quot;acId&quot;: &quot;AC-1701-7&quot;,
+      &quot;description&quot;: &quot;The Playwright-MCP stdio client parses browser_evaluate result blocks (both the &#39;### Result&#39; fenced form used by MCP 0.0.80+ and the legacy &#39;Result:&#39; trailer) into typed JS values so a pack&#39;s check can assert on the value directly&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/browser-verify/pack-browser.test.js::parseEvaluateResult returns a parsed JSON value when the MCP block ends with Result: &lt;json&gt;&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-046-boot-skips-when-runtime-reachable&quot;,
+      &quot;acId&quot;: &quot;AC-1701-8&quot;,
+      &quot;description&quot;: &quot;bootIfNeeded returns already-up when the runtime URL responds with any HTTP status; returns no-boot / no-boot-command when the pack declares no boot / no bootCommand; spawns bootCommand and reports started when the URL flips to reachable; SIGTERMs the child on stop()&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/browser-verify/boot.test.js::bootIfNeeded spawns bootCommand, polls until waitForUrl responds, then reports started&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

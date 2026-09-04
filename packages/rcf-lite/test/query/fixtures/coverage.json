@@ -1418,6 +1418,22 @@
             "TC-046-prechecks-runs-before-browser-checks-a"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1701-7",
+          "covered": true,
+          "testCases": [
+            "TC-046-pack-browser-evaluate-parser"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1701-8",
+          "covered": true,
+          "testCases": [
+            "TC-046-boot-skips-when-runtime-reachable"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     }

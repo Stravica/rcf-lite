@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T17:59:40.838Z",
-  "updatedAt": "2026-09-04T18:00:11.401Z",
+  "updatedAt": "2026-09-04T18:51:45.216Z",
   "usId": "US-1701",
   "prdId": "PRD-001",
   "reqId": "REQ-017",
@@ -39,6 +39,16 @@
     {
       "id": "AC-1701-6",
       "description": "A pack MAY declare `preChecks[]`: an array of `{ id, description, run: async () => ({ verdict, detail? }) }` Node build-scan fast-fail checks that the runner invokes before any browser check on the same pack. A pre-check with verdict `fail` records on the pack record and every browser check that names it under `dependsOn` records verdict `skipped` with detail `skipped-by-pre-check:<preCheckId>`; browser checks with no `dependsOn` on a failing pre-check still run. Pre-check verdicts fold into the aggregate the same way pack checks do (a `fail` at `severity: block` blocks ship).",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-7",
+      "description": "The `packBrowser` seam the runner injects into every pack check is a real headless browser provisioned through the pinned Playwright MCP server (`PLAYWRIGHT_MCP_VERSION` in `src/verify/engine/launcher.js`, spawned as `npx -y @playwright/mcp@<pin>` over stdio) via a thin in-package JSON-RPC 2.0 client (zero new npm dependencies in rcf-lite; no LLM call). Every check receives a stable API: `goto(url)`, `snapshot()` returning accessibility-tree text, `evaluate(fn, arg?)` returning a parsed value, `click(selector, hint?)`, `type(selector, text, hint?)`, `press(key)`, `screenshot(filename?)`, `close()`. When the consuming project already resolves `playwright` from its own `node_modules`, the runner MAY take that cheaper direct route and expose the identical API; the pinned MCP version remains the source of the browser otherwise. The CLI provisions the browser only when at least one applicable pack is loaded and `--no-browser` was not passed; `deps.packBrowser` on the CLI handler overrides the provisioning for tests.",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-8",
+      "description": "A pack MAY declare a `boot: { bootCommand, waitForUrl, waitForSelector }` object. Before running the pack pass, the CLI probes the runtime URL; when it responds with any HTTP status the boot is skipped and the running server is used unchanged. When the runtime is not answering AND `boot.bootCommand` is a non-empty string, the CLI spawns `bootCommand` from the project root (Node.js child_process, cwd=projectRoot, no shell), polls `waitForUrl` at a bounded interval until a timeout, and when the URL responds runs the packs; when `waitForSelector` is set and a browser is available, the CLI navigates the browser to `waitForUrl` and polls the accessibility snapshot for a substring match on the selector until a bounded timeout (soft-failure only, packs still run). The CLI stops any process it started in reverse order after the pack pass completes (SIGTERM then SIGKILL fallback after 3s). `--no-boot` disables the fallback and forces packs to run against whatever the runtime URL currently answers. When the runtime is unreachable AND no `bootCommand` is declared, the CLI records the note and proceeds; the pack's own runtime checks then surface the failure.",
       "testable": true
     }
   ],

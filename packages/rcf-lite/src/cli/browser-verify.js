@@ -25,8 +25,11 @@ import { writeUnexpectedFailure, rcfError } from '#core/errors';
 
 import { findProjectRoot } from '../view/index.js';
 import {
+  bootIfNeeded,
   composeOperatorSessionRecord,
+  createPackBrowser,
   loadProbePacks,
+  pickBootFromPacks,
   runAgentScreenshotCritique,
   stubBrowserDriver,
   writeBrowserVerificationAck,
@@ -43,6 +46,8 @@ const OPTION_SPEC = {
   ack: { type: 'boolean' },
   notes: { type: 'string' },
   'probe-pack': { type: 'string' },
+  'no-boot': { type: 'boolean' },
+  'no-browser': { type: 'boolean' },
   help: { type: 'boolean' },
 };
 
@@ -69,6 +74,17 @@ Options:
                             discovered pack whose appliesTo() matches
                             this FBS runs. Refuses (exit 2) when the
                             name resolves to no discovered pack.
+  --no-browser              Skip the real headless browser (probe packs
+                            that call browser.* will see browser=null).
+                            Default: provision a headless browser via
+                            the pinned Playwright MCP so packs can drive
+                            real DOM interactions.
+  --no-boot                 Do not run a pack's declared bootCommand
+                            when the runtime URL is unreachable. Default:
+                            when any pack declares a boot block and the
+                            runtime is not answering, spawn bootCommand
+                            from the project root, wait for waitForUrl
+                            then waitForSelector, then run packs.
   --help                    Print this help.
 
 Exit codes:
@@ -187,17 +203,60 @@ export async function main(argv, deps = {}) {
         stderr.write(`[error] usage browser-verify: --probe-pack '${packNameFilter}' resolves to no discovered pack. Discovered packs: ${discovered.length === 0 ? '(none)' : discovered.join(', ')}.\n`);
         return 2;
       }
-      const packBrowser = deps.packBrowser ?? null;
-      record = await runAgentScreenshotCritique({
-        tree, fbs, runtimeUrl, runtimeProfile: profile,
-        browserDriver, fetch: fetchFn,
-        artefactDir: `.rcf/artefacts/${fbsId.toLowerCase()}`,
-        critiqueNotes: flags.notes,
-        probePacks: packs,
-        packBrowser,
-        packNameFilter,
-        now,
-      });
+
+      const filteredPacks = packNameFilter
+        ? packs.filter((p) => p.packName === packNameFilter)
+        : packs;
+      const provisionBrowser = deps.createPackBrowser ?? createPackBrowser;
+      const bootProbe = deps.bootIfNeeded ?? bootIfNeeded;
+
+      let packBrowser = deps.packBrowser ?? null;
+      const cleanups = [];
+      try {
+        if (packBrowser === null && filteredPacks.length > 0 && !flags['no-browser']) {
+          packBrowser = await provisionBrowser({
+            projectRoot,
+            logger: (line) => { if (!flags.quiet) stderr.write(`${line}\n`); },
+          });
+          cleanups.push(async () => { try { await packBrowser.close(); } catch { /* fine */ } });
+        }
+
+        if (!flags['no-boot'] && filteredPacks.length > 0) {
+          const boot = pickBootFromPacks(filteredPacks);
+          if (boot) {
+            const bootOutcome = await bootProbe({
+              boot,
+              runtimeUrl,
+              projectRoot,
+              fetch: fetchFn,
+              browser: packBrowser,
+              logger: (line) => { if (!flags.quiet) stderr.write(`${line}\n`); },
+            });
+            for (const n of bootOutcome.notes) if (!flags.quiet) stderr.write(`[boot] ${n}\n`);
+            if (bootOutcome.started) {
+              cleanups.push(async () => { try { await bootOutcome.stop(); } catch { /* fine */ } });
+            }
+          }
+        }
+
+        record = await runAgentScreenshotCritique({
+          tree, fbs, runtimeUrl, runtimeProfile: profile,
+          browserDriver, fetch: fetchFn,
+          artefactDir: `.rcf/artefacts/${fbsId.toLowerCase()}`,
+          critiqueNotes: flags.notes,
+          probePacks: packs,
+          packBrowser,
+          packNameFilter,
+          now,
+        });
+      } finally {
+        // LIFO cleanup: close browser before stopping the server so a
+        // page.close talking to a killed server never hangs the CLI.
+        while (cleanups.length > 0) {
+          const step = cleanups.pop();
+          try { await step(); } catch { /* fine */ }
+        }
+      }
     }
   } catch (err) {
     writeUnexpectedFailure(

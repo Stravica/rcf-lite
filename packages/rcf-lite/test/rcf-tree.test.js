@@ -133,7 +133,12 @@ const expectedCounts = {
   // probe-pack schema validator, loader (with contribution AC id
   // cross-check), pack pass runner, manifest-writer aggregate verdict
   // extension, and the CLI --probe-pack option handler (105 -> 110).
-  codeNode: 110,
+  // Visual round T-0 follow-up added CN-111..112 (2 code nodes)
+  // anchoring the Playwright-MCP stdio pack-browser client
+  // (pack-browser.js#createPackBrowser) and the boot fallback
+  // (boot.js#bootIfNeeded) that consumes pack.boot when the runtime
+  // URL is unreachable (110 -> 112).
+  codeNode: 112,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.

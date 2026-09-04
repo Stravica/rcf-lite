@@ -81,7 +81,7 @@ export async function runProbePacksForFbs({
       let verdict = 'pass';
       let detail;
       try {
-        const outcome = await pre.run({ fbs, uiBaseline, manifest, runtimeUrl });
+        const outcome = await pre.run({ fbs, uiBaseline, manifest, runtimeUrl, fetch, browser });
         verdict = outcome?.verdict ?? 'pass';
         detail = outcome?.detail;
       } catch (err) {

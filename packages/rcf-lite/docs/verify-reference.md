@@ -125,6 +125,7 @@ rcf verify browser <fbs-id> \
   [--mode operatorSession|agentScreenshotCritique] \
   [--url <url>] [--profile deployed|ci|local-dev] \
   [--probe-pack <name>] [--notes "..."] \
+  [--no-browser] [--no-boot] \
   [--dry-run] [--json] [--quiet] [--ack]
 ```
 
@@ -138,6 +139,39 @@ rcf verify browser <fbs-id> \
 The pack loader discovers `blueprints/<slug>/probe-packs/*.pack.{js,mjs}` for every applied blueprint on `manifest.blueprints[]`. Load-time refusals (exit 2) fire on: an `appliesTo` predicate that references none of route / tacIds / `blueprint:` tag; a check id that names an AC the blueprint does not contribute; a packName that does not start with the blueprint's slug; non-semver `version`; a broken pack module. `--probe-pack <name>` restricts one run to one pack; an unknown name exits 2 with a diagnostic naming the discovered packs.
 
 The composed `browserVerification.probePacks[]` array carries one record per pack. See `blueprint-authoring.md` section 8c for the pack schema, the aggregate verdict rules, and the `preChecks[]` fast-fail slot with `dependsOn` skip semantics.
+
+### Real headless browser (packBrowser)
+
+Every applicable pack check receives a `browser` argument that is a real headless Playwright browser, provisioned by the runner through the pinned Playwright MCP server (`PLAYWRIGHT_MCP_VERSION` in `src/verify/engine/launcher.js`, spawned as `npx -y @playwright/mcp@<pin>` over stdio) via a thin in-package JSON-RPC 2.0 stdio client. No new npm dependencies are added to rcf-lite; no LLM call is made. When the consuming project already resolves `playwright` from its own `node_modules`, the runner takes that cheaper direct route and exposes the identical API; the pinned MCP version otherwise remains the source of the browser.
+
+The API a pack receives:
+
+| Method | Description |
+| --- | --- |
+| `goto(url)` | navigate to a URL |
+| `snapshot()` | accessibility-tree text (searchable) |
+| `evaluate(fn, arg?)` | run a function in page context; returns a parsed value |
+| `click(selector, hint?)` | click by CSS selector or a11y ref |
+| `type(selector, text, hint?)` | type into an editable element |
+| `press(key)` | press a keyboard key |
+| `screenshot(filename?)` | capture a PNG |
+| `close()` | reserved for the runner; a pack MUST NOT call `close()` |
+
+`--no-browser` disables provisioning entirely (packs that need a browser see `browser === null` and fail on that condition); the mode is intended for CI slots where no browser binary is available.
+
+Operator step for a fresh machine: the pinned MCP package brings its own `playwright`, but the browser binary is not part of that install. When Chromium is missing, run `npx @playwright/mcp@<PLAYWRIGHT_MCP_VERSION> install-browser chromium` once. `rcf verify` never runs this for you.
+
+### Boot fallback (`--no-boot`)
+
+Packs may declare a `boot: { bootCommand, waitForUrl, waitForSelector }` object. The normal path is a dev server already running at `--url`; when that URL responds with any HTTP status the boot block is skipped. When the runtime is unreachable AND `boot.bootCommand` is present:
+
+1. The CLI spawns `bootCommand` from the project root (Node `child_process.spawn`, cwd = project root, no shell).
+2. The CLI polls `waitForUrl` every 500ms until `waitForUrl` responds (default cap: 60s).
+3. When `waitForSelector` is set and a browser is available, the CLI navigates to `waitForUrl` and polls the accessibility snapshot for the selector text (default cap: 10s, soft-failure only).
+4. The pack pass runs.
+5. The CLI stops any process it started (SIGTERM, then SIGKILL after 3s).
+
+`--no-boot` disables the fallback entirely; packs run against whatever the runtime URL currently answers. When the runtime is unreachable and no `bootCommand` is declared, the CLI logs the note and proceeds; the pack's own runtime checks then surface the failure. The boot fallback is intentionally a fallback, not a per-blueprint dev-server harness: a running dev server (SPA session already up on `--url`) is the expected path.
 
 Exit codes: 0 pass; 1 IO or unexpected runtime failure; 2 usage error (including probe-pack loader refusals); 3 schema or tree validation failure; 4 verdict warn or block (Stage 5 refused; `--ack` clears a warn).
 
