@@ -307,6 +307,14 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
     slug: appliedSlug,
     version: blueprint.version,
     contributions: writtenContributions,
+    // Companion-suggestion mechanism (spec 2.6). Bubble the source
+    // blueprint's `suggestedCompanions[]` up on the result so the CLI
+    // can render the resolved-suggestion block after a successful
+    // apply. Unresolved here (the CLI holds the tree + libraries to
+    // run the resolver); apply owns only the raw copy.
+    ...(Array.isArray(blueprint.suggestedCompanions) && blueprint.suggestedCompanions.length > 0
+      ? { suggestedCompanions: blueprint.suggestedCompanions }
+      : {}),
     ...(duplicateResolveTopics.length > 0 ? { warnings: [{ kind: 'duplicateResolveTopic', topics: duplicateResolveTopics }] } : {}),
   };
 }

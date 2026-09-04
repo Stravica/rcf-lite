@@ -34,7 +34,7 @@ test('AC-1102-5: apply application-spa v1.4.0 -> manifest still validates + no b
   // browserSurface on its blueprint.json (the two facts spec section 9
   // asserts on the source).
   const bp = await loadBlueprint(spaSource);
-  assert.equal(bp.version, '1.4.0');
+  assert.equal(bp.version, '1.5.0');
   const meta = JSON.parse(await readFile(join(spaSource, 'blueprint.json'), 'utf8'));
   assert.equal(meta.browserSurface?.declared, true);
 
@@ -59,7 +59,7 @@ test('AC-1102-5: apply application-spa v1.4.0 -> manifest still validates + no b
   const manifest = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
   const record = manifest.blueprints.find((b) => b.slug === 'application-spa');
   assert.ok(record, 'applied blueprint record present');
-  assert.equal(record.version, '1.4.0');
+  assert.equal(record.version, '1.5.0');
   assert.ok(typeof record.source === 'string' && record.source.length > 0);
   assert.equal(record.browserSurface, undefined,
     'browserSurface must NOT land on the applied record (spec CONCERNS: rcf-schemas 0.5.1 forbids it via additionalProperties:false; doctor reads it off the source manifest)');

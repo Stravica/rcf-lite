@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1602-observability-logging-correlation-id-header",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Correlation identifier header name is X-Correlation-Id by recommended default; operator elicits an alternative at apply",
+  "context": "Inbound requests may arrive with correlation identifiers under different header names depending on the surrounding platform: X-Correlation-Id in generic HTTP tooling, X-Request-Id in reverse proxies, traceparent in W3C Trace Context clients. Picking one at the code level forces every applying project to align; making it operator-elicited lets the applying platform's convention win.",
+  "decision": "The recommended default correlation header is X-Correlation-Id. The applying operator elicits an alternative at apply time; the elicited value is recorded on the applied ADR. The application accepts the elicited header on inbound requests and reflects it as the SAME header name on outbound requests.",
+  "consequences": "A project sitting behind a reverse proxy that already stamps X-Request-Id sets the elicited value to X-Request-Id and inherits the proxy's identifier without a code change. A project with no upstream stamping keeps the recommended default and mints v4 UUIDs. The header name is fixed for the process lifetime; changing it is a re-apply.",
+  "alternativesConsidered": [
+    {
+      "name": "Hard-code X-Correlation-Id",
+      "summary": "The application accepts only X-Correlation-Id and no elicited alternative.",
+      "reasonNotChosen": "Projects sitting behind a proxy that stamps a different header lose the upstream identifier and mint a new one on every request; the whole point of the mechanism is to inherit an existing identifier when one is present."
+    },
+    {
+      "name": "Adopt W3C Trace Context traceparent as the sole surface",
+      "summary": "The application requires the traceparent header for correlation, following the W3C Trace Context standard.",
+      "reasonNotChosen": "The applying tier for this blueprint is small greenfield applications; requiring a Trace Context client on every calling service would force upstream tooling the tier does not otherwise need. A project that operates in a Trace Context ecosystem elicits traceparent as the header name and inherits the standard."
+    }
+  ],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

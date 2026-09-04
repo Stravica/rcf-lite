@@ -1,0 +1,15 @@
+{
+  "reqId": "observability-logging-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Every environment has an operator-elicited minimum log level; the factory refuses to emit below it",
+  "description": "The logger factory reads a minimum level per environment (ADR-1604 recommended default vocabulary: trace, debug, info, warn, error, fatal; the minimum level per environment is elicited at apply). Emissions below the minimum are dropped before serialisation; emissions at or above the minimum land on stdout. The environment name is supplied at boot (REQ-005) and the level filter is applied per line, not batched. Changing the minimum level mid-run through a documented hook (SIGHUP re-read, admin endpoint, config reload) is out of scope for v1; the minimum is fixed for the process lifetime.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "Production log volume is dominated by debug and trace lines; enabling them everywhere buries the signal. Development wants them; production does not. A per-environment operator-elicited minimum keeps the discipline explicit at apply time and lets the same code path serve both environments with the same call sites.",
+  "tags": ["blueprint:observability-logging", "category:04-level-vocabulary"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

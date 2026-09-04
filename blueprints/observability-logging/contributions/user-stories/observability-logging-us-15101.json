@@ -1,0 +1,34 @@
+{
+  "usId": "observability-logging-US-15101",
+  "prdId": "PRD-001",
+  "reqId": "observability-logging-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every log emission lands as one JSON object per line on stdout with the ratified minimum field set",
+  "asA": "operator running the application and consuming its stdout through a log ingestion pipeline",
+  "iWant": "every log emission to arrive as one JSON object on one line, carrying the shared minimum field set the pipeline expects",
+  "soThat": "the ingestion pipeline parses every line without special cases and no emission escapes as unstructured text",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15101-1",
+      "description": "A log emission at any level from any call site produces exactly one line on stdout, that line parses as valid JSON, and the parsed object carries every field of the shared minimum set: message, level, timestamp, correlationId, environment, serviceName, serviceVersion.",
+      "given": "a running application with the logger factory constructed and an ambient correlation context",
+      "when": "any call site emits at any level",
+      "then": "one stdout line results, JSON.parse succeeds, and the object has all seven minimum fields present with the correct types",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15101-2",
+      "description": "A log emission whose payload contains a non-JSON-representable value (a BigInt, a function reference, a circular object) is caught at the boundary, dropped with one stderr notice naming the offending field, and the calling code path returns as if the emission had succeeded; the service does not crash.",
+      "given": "a running application and a caller passing a BigInt or a circular object as part of a log payload",
+      "when": "the emission is attempted",
+      "then": "stdout carries no line for this emission, stderr carries one notice naming the offending field, and the caller's next line of code executes without throwing",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

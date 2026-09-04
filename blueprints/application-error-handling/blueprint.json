@@ -1,0 +1,27 @@
+{
+  "slug": "application-error-handling",
+  "version": "1.0.0",
+  "category": "application",
+  "providesRoles": ["errorHandling"],
+  "suggestedCompanions": [
+    { "role": "logging", "reason": "The internal error record emits through the logging companion, not direct stdout or stderr writes; a logging companion supplies the factory the boundary calls." }
+  ],
+  "contributions": [
+    { "id": "application-error-handling-REQ-001", "kind": "req", "path": "requirements/application-error-handling-req-001.json" },
+    { "id": "application-error-handling-REQ-002", "kind": "req", "path": "requirements/application-error-handling-req-002.json" },
+    { "id": "application-error-handling-REQ-003", "kind": "req", "path": "requirements/application-error-handling-req-003.json" },
+    { "id": "application-error-handling-REQ-004", "kind": "req", "path": "requirements/application-error-handling-req-004.json" },
+    { "id": "application-error-handling-US-16101", "kind": "us", "path": "user-stories/application-error-handling-us-16101.json" },
+    { "id": "application-error-handling-US-16102", "kind": "us", "path": "user-stories/application-error-handling-us-16102.json" },
+    { "id": "application-error-handling-US-16103", "kind": "us", "path": "user-stories/application-error-handling-us-16103.json" },
+    { "id": "application-error-handling-US-16104", "kind": "us", "path": "user-stories/application-error-handling-us-16104.json" },
+    { "id": "application-error-handling-US-16105", "kind": "us", "path": "user-stories/application-error-handling-us-16105.json" },
+    { "id": "application-error-handling-US-16106", "kind": "us", "path": "user-stories/application-error-handling-us-16106.json" },
+    { "id": "application-error-handling-US-16107", "kind": "us", "path": "user-stories/application-error-handling-us-16107.json" },
+    { "id": "TAC-1701-application-error-handling-boundary", "kind": "tac", "path": "tacs/tac-1701-application-error-handling-boundary.json" },
+    { "id": "TAC-1702-application-error-handling-record-factory", "kind": "tac", "path": "tacs/tac-1702-application-error-handling-record-factory.json" },
+    { "id": "ADR-1701-application-error-handling-record-shape", "kind": "adr", "path": "adrs/adr-1701-application-error-handling-record-shape.json", "scope": "global", "topic": "errorHandling" },
+    { "id": "ADR-1702-application-error-handling-classification-vocabulary", "kind": "adr", "path": "adrs/adr-1702-application-error-handling-classification-vocabulary.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "generic enterprise practice" },
+    { "id": "ADR-1703-application-error-handling-transport-mapping", "kind": "adr", "path": "adrs/adr-1703-application-error-handling-transport-mapping.json", "recommendedDefault": true, "elicited": false, "standardsTraceClause": "generic enterprise practice" }
+  ]
+}

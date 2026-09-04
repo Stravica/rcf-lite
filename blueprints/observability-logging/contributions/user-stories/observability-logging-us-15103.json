@@ -1,0 +1,34 @@
+{
+  "usId": "observability-logging-US-15103",
+  "prdId": "PRD-001",
+  "reqId": "observability-logging-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Fields named or path-labelled with a PII category are redacted at the boundary regardless of call-site discipline",
+  "asA": "operator concerned that PII leaks through logs",
+  "iWant": "the emission boundary to redact fields with named PII categories automatically",
+  "soThat": "a rogue caller that forgets to redact does not leak PII to the log destination",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15103-1",
+      "description": "A log payload containing a field named or path-tagged with any of the recommended-default categories (credential, pii.email, pii.name, pii.address, token, bearer) is replaced with the literal string [REDACTED:<category>] in the emitted line; the caller's original object is not mutated (a subsequent read of the same object still shows the original value).",
+      "given": "an emission at any level whose payload includes a field tagged as pii.email",
+      "when": "the emission passes through the boundary",
+      "then": "the stdout line's field value equals [REDACTED:pii.email] and the caller-side object still holds the original address",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15103-2",
+      "description": "A project may add its own redaction categories at apply through the ADR-1603 elicited-additions parameter; a new category name (kebab or dotted-namespace) is accepted and applied by the boundary in the same round.",
+      "given": "a project that elicited an additional category ssn on ADR-1603",
+      "when": "an emission includes a field tagged ssn",
+      "then": "the stdout line's field value equals [REDACTED:ssn]",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1602-observability-logging-redaction-boundary"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

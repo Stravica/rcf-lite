@@ -118,6 +118,8 @@ The shelf-wide band registry (recorded at ship, never predicted; kept in sync ac
 | deploy-cloudflare-workers | 12101-12899 | 13xx | shipped v1.0.0 | `deploymentTarget` |
 | persistence-data-d1 | 13101-13899 | 14xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics` |
+| observability-logging | 15101-15899 | 16xx | shipped v1.0.0 | `logging` |
+| application-error-handling | 16101-16899 | 17xx | shipped v1.0.0 | `errorHandling` |
 
 Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (`14xxx` US band, `15xx` suffix block) and appends its row here after ship.
 
@@ -163,6 +165,17 @@ Only `adr` kind contributions can declare `scope: "global"`. A global ADR carrie
 - Table your blueprint's id band and any bands your composition is designed to reuse.
 - Name topics you deliberately did not claim so a future blueprint can pick them up cleanly. The application-api-rest blueprint's `docs/topics.md` names `messageSerialisation`, `deliverySemantics`, and `caching` as unclaimed for exactly this reason.
 
+### 6a. Companion-suggestion roles registry
+
+Roles named on `providesRoles[]` and `suggestedCompanions[]` (see section 8b) are lower camelCase strings that double as global-topic strings on the paired ADR. New roles land in this table the same way new categories land: a chunk-zero-style edit at ratification time, no loader change (the loader validates SHAPE, not vocabulary). Ratified 2026-09-04.
+
+| Role | Meaning | Shelf provider |
+|---|---|---|
+| `logging` | Structured log emission, correlation identifier propagation, PII redaction boundary, level filter, environment / service-name / service-version stamping. | `observability-logging` |
+| `errorHandling` | Uncaught-exception boundary (process and framework), internal error record shape (code, category, message, correlationId, cause chain, redacted context), classification vocabulary (transient / permanent / unknown). | `application-error-handling` |
+
+Where a library ships a role that this table does not yet name (a library-side role the shelf has not adopted), the resolution rule still works and the review-on-add card names the unknown role for the operator's judgement.
+
 ## 7. Adherence ACs and the mechanism-reach principle
 
 Adherence to a blueprint is expressed as ACs; the blueprint ships no test files (design-brief decision 5). This is the mechanism's biggest teaching load: the AC binds a CLASS, but the mechanism does not itself compel a project's runtime surface to satisfy the class. Watchpost run4 caught two flagship classes failing exactly here.
@@ -194,6 +207,84 @@ Version bumps that add or change contributions:
 - **Major** for any change to the `scope: "global"` topic set (adding, renaming, removing a global ADR topic), any AC id band shift, any breaking removal of a contribution.
 
 Do not delete a contribution in a minor bump: a project that references the id in its own docs will break at `rcf define validate` after re-apply. A removal is a major and the blueprint's changelog names the referring-doc migration path.
+
+## 8a. Standards-derived-blueprint discipline
+
+The rule is the shelf standard for any blueprint that composes on an organisational or industry standard (WSD, RFC, ISO, OWASP, PCI DSS, HIPAA, a project's own internal standard). It formalises how the standard's clauses map onto RCF contribution kinds. Ratified 2026-09-04 (spec `projects/rcf-lite-wsd/specs/rcf-lite-core-companions-spec-2026-09-04.md` section 3, amendment A2).
+
+### 8a.1 Clause-to-kind mapping
+
+- **MUST clauses become ACs where the clause binds a testable runtime or artefact behaviour.** The AC binds the runtime observation of the clause, per the mechanism-reach principle in section 7. The AC's `description` references the standard clause identifier verbatim (`WSD-001 clause 3.1`, `RFC 7807 section 3.1`) so the trace is one string search away.
+- **MUST clauses may land as `recommendedDefault: true` ADRs when the clause is choice-shaped** (per amendment A2, Baz 2026-09-04T12:20:31Z). A choice-shaped MUST is one where the standard fixes an outcome the operator picks between named alternatives at apply (a MUST from a policy that says "select one of the following identity providers"). The ADR carries `standardsTraceClause` set to the clause identifier; the alternative is documented in the ADR's consequences.
+- **SHOULD clauses become recommended ADR defaults.** The ADR contribution carries `recommendedDefault: true` and the `consequences` block names the elicited-parameter alternative (the operator overrides the default at apply). The AC pattern for a SHOULD is "the applied ADR records a value for `<parameter>`" (the value the operator chose or the recommended default the apply stamped), not "the value is `<recommended default>`".
+- **MAY clauses become elicited ADR choices.** The ADR contribution carries `elicited: true` and no `recommendedDefault`. The apply prompts the operator; the applied ADR records the chosen value and the operator's rationale line.
+- **Not-carried clauses stay allowed with a named reason.** A clause the blueprint intentionally does not carry (out of scope, deferred to a companion blueprint, superseded by a shipped project-level pattern) is named in the blueprint's `standards-trace.md` (or equivalent) with the reason. The discipline is honest about what the blueprint reaches and what it does not.
+
+### 8a.2 Additive `blueprint.json` fields
+
+Three additive ADR-contribution fields land on `blueprint.json`:
+
+```json
+{
+  "id": "ADR-1602-observability-logging-correlation-id-header",
+  "kind": "adr",
+  "path": "adrs/adr-1602-observability-logging-correlation-id-header.json",
+  "recommendedDefault": true,
+  "elicited": true,
+  "standardsTraceClause": "generic enterprise practice"
+}
+```
+
+- `recommendedDefault: true` marks the ADR as a SHOULD (or a choice-shaped MUST).
+- `elicited: true` marks the ADR as taking an operator-supplied value at apply.
+- `standardsTraceClause` records the standard clause identifier (a free-form string) or the sentinel `"generic enterprise practice"` for the neutral shelf blueprints. Non-null on every ADR contribution in a blueprint that declares `standardsTrace[]`.
+
+One additive blueprint-level field:
+
+```json
+{
+  "slug": "wsd-logging",
+  "standardsTrace": [
+    { "id": "WSD-001", "version": "2026-05" },
+    { "id": "WSD-004", "version": "2026-05" }
+  ]
+}
+```
+
+`standardsTrace[]` is optional. A blueprint that ships without it is a general-enterprise-practice blueprint by default (the two new core shelf blueprints `observability-logging` and `application-error-handling` at v1.0.0 both fit this shape).
+
+### 8a.3 Load-time validation
+
+`packages/rcf-lite/src/blueprint/loader.js` runs one validation pass after the contribution list validates:
+
+- If `standardsTrace[]` is set, every ADR contribution MUST carry a non-null `standardsTraceClause`. Refusal shape: `blueprint '<slug>' declares standardsTrace but ADR contribution '<id>' has no standardsTraceClause; every ADR must reference a standard clause or the sentinel 'generic enterprise practice'.`.
+- `recommendedDefault` and `elicited` are mutually independent (a SHOULD may be elicited, a MAY need not have a recommended default). The loader does NOT cross-check which kind a clause severity landed on (per amendment A2): the discipline in section 8a.1 is prose, not code, so a choice-shaped MUST-to-ADR mapping is not refused.
+- The refusal fires at the CLI edge as exit 2 (`validation` kind).
+
+### 8a.4 What this changes on the shelf today
+
+Zero shelf blueprints declare `standardsTrace[]` today. The two new core-companion blueprints (`observability-logging`, `application-error-handling`) do not declare it either (both are general enterprise practice; the recommended-default and elicited fields land on their ADRs with the sentinel `standardsTraceClause`). The discipline lands the moment a blueprint declares `standardsTrace[]`. Dex's WSD library at 0.9.1 ships standards-trace tables that this discipline formalises; adoption is a minor bump on that library.
+
+## 8b. Companion suggestion mechanism
+
+The mechanism lets a service blueprint recommend companion blueprints by role, and lets the applying project resolve those recommendations deterministically. Ratified 2026-09-04 (spec section 2).
+
+### 8b.1 Two additive `blueprint.json` fields
+
+- `providesRoles: [<role>, ...]` (optional): the roles a blueprint provides. Lower camelCase (`^[a-z][a-zA-Z0-9]*$`). A blueprint declaring a role MUST also carry a `scope: "global"` ADR whose `topic` equals the role name (the loader refuses otherwise).
+- `suggestedCompanions: [{ role, reason }, ...]` (optional): the roles a service blueprint recommends alongside it. `role` is lower camelCase; `reason` is a one-sentence operator-facing string (no em-dashes, no emojis; the loader refuses).
+
+### 8b.2 Deterministic resolution
+
+For each suggested role the resolver walks a tier ladder (spec 2.3): (1) an applied blueprint whose `providesRoles[]` contains the role wins immediately; (2) otherwise a single registered library blueprint providing the role wins; (3) otherwise the single core-shelf provider wins. A pin in `rcf/companions.json` overrides steps (2) and (3). Two library candidates for one role with no pin refuses at both `rcf define blueprint add` and `rcf define blueprint companions <slug>` with exit 3 and a three-path resolution message.
+
+### 8b.3 Where the suggestion surfaces
+
+Three surfaces, one resolution rule (spec 2.6): the apply-time suggestion block printed after a successful `rcf define blueprint add` (suppressible with `--no-companion-suggestions`); the `rcf define blueprint companions <slug>` verb (`--json` machine envelope); the managed agent-instructions block's `How to talk to your operator` section (regenerated via `scripts/gen-managed-artefacts.mjs`, hash checked at ship).
+
+### 8b.4 Where pins live
+
+`rcf/companions.json` (schemaVersion 1) records role-to-provider pins, current pin only per role, `pinnedAt` ISO-8601. `--companion <role>=<slug>` on `rcf define blueprint add` writes a pin at apply. `rcf define blueprint companions set <role> <slug>` and `rcf define blueprint companions unset <role>` write and remove pins outside the apply flow. `rcf define validate` refuses exit 3 when a pin names no known provider.
 
 ## 9. What blueprints must not contribute
 

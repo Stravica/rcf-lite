@@ -1,0 +1,21 @@
+{
+  "reqId": "REQ-015",
+  "prdId": "PRD-001",
+  "title": "Standards-derived-blueprint discipline: authoring standard section 8a, additive contribution fields, load-time validation",
+  "description": "The blueprint-authoring standard gains a section 8a that names the standards-derived discipline for any blueprint that composes on an organisational or industry standard: MUST clauses become ACs where the clause binds a testable runtime or artefact behaviour; a MUST that binds an operator choice (choice-shaped) may land as a `recommendedDefault: true` ADR carrying the clause id on `standardsTraceClause`; not-carried rows stay allowed with a named reason (per amendment A2, Baz 2026-09-04T12:20:31Z). SHOULD clauses become recommended ADR defaults (`recommendedDefault: true`) with the elicited-parameter alternative documented in the ADR's consequences. MAY clauses become elicited ADR choices (`elicited: true`) that the applying operator supplies at apply. Three additive optional ADR-contribution fields on `blueprint.json`: `recommendedDefault: true` marks the ADR as a SHOULD (or a choice-shaped MUST); `elicited: true` marks the ADR as taking an operator-supplied value at apply; `standardsTraceClause` records the standard clause identifier verbatim (`WSD-001 clause 3.1`, `RFC 7807 section 3.1`) or the sentinel `\"generic enterprise practice\"` for the neutral shelf blueprints. `recommendedDefault` and `elicited` are mutually independent. One additive blueprint-level field: `standardsTrace[]` is a list of `{id, version}` objects naming the standards the blueprint composes; optional; a blueprint that ships without it is a general-enterprise-practice blueprint by default. Load-time validation: if `standardsTrace[]` is set, every ADR contribution MUST carry a non-null `standardsTraceClause` (refusal shape: `blueprint '<slug>' declares standardsTrace but ADR contribution '<id>' has no standardsTraceClause; every ADR must reference a standard clause or the sentinel 'generic enterprise practice'.`); no cross-check on clause severity to kind mapping (that discipline is prose, not code). The discipline lands the moment a blueprint declares `standardsTrace[]`; zero shelf blueprints declare it today (the two new core blueprints in REQ-013 are general enterprise practice). Dex's WSD library at 0.9.1 already ships standards-trace tables that this discipline formalises.",
+  "category": "functional",
+  "domain": "blueprints",
+  "priority": "must",
+  "rationale": "Dex's WSD library composes on the WSD-001 through WSD-012 standards with clause-level trace tables under `docs/standards-trace.md`. Before this train, the trace lived in prose only, and a library blueprint's ADR could omit any standard reference without the loader noticing. Baz on 2026-09-03 during the WSD blueprint round review ratified the discipline as `really good idea` and made it the shelf standard for any future library or shipped blueprint that composes on named standards. Baz amendment A2 (2026-09-04T12:20:31Z) refined the MUST-to-kind mapping to admit choice-shaped MUSTs as ADRs so the WSD library's 41 MUSTs (27 to AC, 8 to ADR, 8 not-carried per Dex's tables) fit under the discipline without renumbering. The additive fields and load-time validation give machine-checkable adherence without changing any existing blueprint (zero shelf blueprints declare `standardsTrace[]` today).",
+  "tags": [
+    "blueprints",
+    "authoring",
+    "standards",
+    "traceability",
+    "loader"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

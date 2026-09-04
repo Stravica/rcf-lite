@@ -1,0 +1,43 @@
+{
+  "usId": "US-1402",
+  "prdId": "PRD-001",
+  "reqId": "REQ-014",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "`rcf define blueprint add` prints resolved companion suggestions and accepts --companion selectors that persist to rcf/companions.json",
+  "asA": "operator running rcf define blueprint add on a service blueprint that declares suggestedCompanions[]",
+  "iWant": "the apply to print the resolved companion set as a suggestion block after a successful apply, and to accept `--companion <role>=<slug>` selectors that record my choice to rcf/companions.json for future runs",
+  "soThat": "the mechanism surfaces the suggestion at the moment of the apply, my explicit selection at apply time survives to future re-runs without repeating the flag, and the apply itself never adopts a companion on my behalf",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1402-1",
+      "description": "After `rcf define blueprint add <service-slug>` succeeds and the service blueprint declares `suggestedCompanions[]`, stdout carries a block: a header line `Suggested companions this blueprint recommends alongside it:` followed by one line per suggested role in the shape `  <role>          -> <resolved-provider> (<origin>)`, where origin reads `registered library '<prefix>'` or `shelf fallback` or `already applied`, and a footer line `Apply either with: rcf define blueprint add <slug>`. The apply itself does not adopt any companion (`manifest.blueprints[]` contains only the service blueprint and any prior applies). `--no-companion-suggestions` suppresses the block entirely and every other apply behaviour is unchanged.",
+      "given": "a fixture project with application-api-rest v2.1.0 (or later) applied cleanly and no core companions applied",
+      "when": "the operator runs `rcf define blueprint add <path-to>/blueprints/application-api-rest`",
+      "then": "the suggestion block prints for `logging` and `errorHandling` roles, manifest.blueprints[] carries only application-api-rest, and passing `--no-companion-suggestions` on the same command produces no suggestion block",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1402-2",
+      "description": "`rcf define blueprint add <service-slug> --companion <role>=<slug>` (repeatable) accepts `<libraryPrefix>:<slug>` for a library provider or a bare kebab slug for a shelf provider, validates that the named provider blueprint's `providesRoles[]` contains the role, refuses with exit 2 (`--companion <role>=<slug>: blueprint '<slug>' does not declare providesRoles containing '<role>'.`) when it does not, and writes the accepted choices to `rcf/companions.json` under `roles.<role>.provider` with a `pinnedAt` ISO-8601 timestamp.",
+      "given": "a fixture project with application-api-rest applying and the shelf observability-logging blueprint available",
+      "when": "the operator runs `rcf define blueprint add <path-to>/blueprints/application-api-rest --companion logging=observability-logging --companion errorHandling=application-error-handling`",
+      "then": "the exit code is 0, `rcf/companions.json` exists with `roles.logging.provider = \"observability-logging\"` and `roles.errorHandling.provider = \"application-error-handling\"`, and `--companion logging=observability-essentials` (a non-provider) refuses exit 2 with the specified message",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1402-3",
+      "description": "`rcf/companions.json` is created lazily on the first pin (no file when no pins exist), rides git, is human-readable JSON with `schemaVersion: 1`, and carries only the current pin per role (no per-apply history per amendment A1). A re-run of the same `rcf define blueprint add ... --companion ...` command overwrites the pin's `pinnedAt` timestamp but keeps the same provider; a `--companion` naming a different provider than the current pin overwrites the pin and prints one stderr line `[blueprint] companion pin for role '<role>' updated: '<old>' -> '<new>'`.",
+      "given": "a fixture project with an existing companions.json pin",
+      "when": "the operator re-runs the apply with the same or a different --companion selector",
+      "then": "the pin file schema stays valid, the shape matches the spec section 2.4 example (schemaVersion + roles + pinnedAt), and the pin overwrite prints the transition line",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

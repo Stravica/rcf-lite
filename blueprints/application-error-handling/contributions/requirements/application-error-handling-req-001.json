@@ -1,0 +1,15 @@
+{
+  "reqId": "application-error-handling-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The application registers an uncaught-exception boundary at process AND framework level",
+  "description": "The application registers TWO boundaries: (1) a process-level handler on uncaughtException / unhandledRejection (Node runtime) or equivalent (browser runtime) that constructs the internal error record via TAC-1702, emits it through the logging companion, and terminates the process cleanly (exit 1); (2) a framework-level handler on the request pipeline (Express-style middleware, Fastify hook, or transport-layer equivalent) that catches exceptions thrown from handler code, constructs the internal error record, and hands it to the transport's response writer (ADR-1703). No exception escapes either boundary silently.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The most common source of production outages in unchecked applications is an uncaught exception that terminates the process with no diagnostic, or a framework-level exception that produces a mis-shaped response the caller cannot interpret. The two boundaries close both classes at the earliest possible surface.",
+  "tags": ["blueprint:application-error-handling", "category:01-boundary"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

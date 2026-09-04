@@ -1,0 +1,43 @@
+{
+  "usId": "US-1401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-014",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Loader accepts and validates providesRoles[] and suggestedCompanions[] on blueprint.json (shape + camelCase + paired-ADR + reason-string)",
+  "asA": "blueprint author declaring a companion suggestion or a role provided on a shipped blueprint",
+  "iWant": "the loader to accept two additive top-level fields on blueprint.json, validate their shape at load time, and refuse a mis-authored file before the tree is touched",
+  "soThat": "a service blueprint can name the roles it recommends and a provider blueprint can name the roles it provides, and mis-shaped or unpaired declarations never reach apply",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1401-1",
+      "description": "The loader accepts optional top-level `providesRoles` (non-empty array of lower camelCase strings on the pattern `^[a-z][a-zA-Z0-9]*$`) and optional top-level `suggestedCompanions` (non-empty array of `{role, reason}` objects; `role` is a lower camelCase string; `reason` is a non-empty string with no em-dashes and no emojis). Both fields are independent (a blueprint may provide a role AND suggest another; a blueprint may declare neither). Existing shelf blueprints (application-spa v1.4.0 baseline, observability-essentials v2.0.0, etc.) that declare neither still load clean.",
+      "given": "a blueprint.json declaring `providesRoles: [\"logging\"]` and `suggestedCompanions: [{role: \"logging\", reason: \"...\"}]`",
+      "when": "the loader parses the file",
+      "then": "the LoadedBlueprint object carries both fields verbatim and returns no rcfError; a blueprint declaring neither loads clean",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1401-2",
+      "description": "The loader refuses (rcfError kind `validation`, exit 2 at the CLI edge) each of: a `providesRoles` value that fails the lower camelCase pattern (message names the offending index and value); a `suggestedCompanions` entry with a non-string or empty `role`; a `suggestedCompanions` entry with a missing, empty, or whitespace-only `reason`; a `suggestedCompanions` entry whose `reason` contains an em-dash (U+2014) or an emoji.",
+      "given": "four separate mis-authored blueprint.json fixtures, one per refusal shape",
+      "when": "the loader parses each",
+      "then": "each returns an rcfError of kind `validation` with a message naming the offending field and (for arrays) the index",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1401-3",
+      "description": "A blueprint that declares a role in `providesRoles[]` MUST also carry a `scope: \"global\"` ADR contribution whose `topic` string equals the role name; the loader refuses otherwise with `providesRoles[] names '<role>' but no scope:global ADR carries topic '<role>'.` and exits 2 at the CLI edge.",
+      "given": "a fixture blueprint with `providesRoles: [\"logging\"]` and no ADR contribution carrying `scope: \"global\", topic: \"logging\"`",
+      "when": "the loader parses the file",
+      "then": "the loader returns an rcfError of kind `validation` with the paired-ADR message exactly as specified",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

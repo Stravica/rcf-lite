@@ -1,0 +1,27 @@
+{
+  "tacId": "TAC-1602-observability-logging-redaction-boundary",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Redaction boundary",
+  "purpose": "Owns the redaction pass every emission passes through before the line lands on the sink. Encapsulates the category vocabulary from ADR-1603 (recommended defaults plus elicited additions) and the field-name matching rule; a payload field whose name or path label matches a category is replaced with the literal string [REDACTED:<category>] in the SERIALISED line, never in the caller's original object.",
+  "responsibilities": [
+    "Apply the redaction rule on a deep-cloned copy of the emission payload so the caller's original object is not mutated (AC-15103-1).",
+    "Accept elicited additional category names at boot (kebab or dotted-namespace grammar) and apply them alongside the recommended defaults (AC-15103-2).",
+    "Refuse construction when an elicited category name fails the accepted grammar (AC-15108-1)."
+  ],
+  "internalStructure": "One module exporting createRedactionBoundary({ categories }) -> { redact(payload) -> payload }. Categories is a Set of strings; matching walks payload keys (dot-path in nested objects) and replaces the value on the returned clone when the key equals or ends in a category name. The clone is a structuredClone unless the payload includes non-cloneable values, in which case the boundary falls back to a JSON round-trip clone with the serialisation-refused fold from TAC-1601.",
+  "interfaces": [
+    {
+      "name": "createRedactionBoundary",
+      "kind": "factory",
+      "description": "createRedactionBoundary({ categories: string[] }) -> { redact(payload: object): object }. Called once at boot from the logger factory; the factory holds the returned redact function and applies it on every emission."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "Redaction runs at the serialisation boundary and therefore only redacts fields the payload declares under a category-named key. Free-text redaction in the message string (an email pasted into a warning message) is out of scope for v1: the mechanism reach is field-level, not text-level. A project that needs text-level redaction wires a project-side wrapper around the logger call sites; the blueprint's guide names this gap.",
+  "notes": "",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

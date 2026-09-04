@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-1703-application-error-handling-transport-mapping",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The transport blueprint's error-envelope ADR writes the wire shape from the internal record; delegation via TAC-1701 writeErrorResponse",
+  "context": "The internal record shape (ADR-1701) is transport-agnostic; the wire envelope is a transport-specific decision. For REST, application-api-rest owns 'errorEnvelope' with an RFC 7807-style body plus code/correlationId fields. For gRPC or message-consumer transports, a future transport blueprint claims its own errorEnvelope-family topic. The boundary must delegate the mapping so this blueprint does not have to know every transport.",
+  "decision": "TAC-1701 exposes a substitutable transportWriter interface the framework binds. The transport blueprint's errorEnvelope ADR governs the mapping from the internal record to the wire body/headers; the transport writer reads record.code, record.category, record.correlationId and record.context and produces the wire response the transport ADR specifies. This blueprint contributes no writer of its own; it only names the delegation contract.",
+  "consequences": "A REST project applies application-api-rest 2.1.0 or later and gets the RFC 7807-shaped response body from the record. A gRPC project supplies its own writer against the same interface. This blueprint remains a companion to whichever transport the project applies; the classification and cause chain travel cleanly across every transport that respects the interface.",
+  "alternativesConsidered": [
+    {
+      "name": "This blueprint ships a REST-shaped default writer",
+      "summary": "Provide a default writer that produces a REST envelope; projects override for other transports.",
+      "reasonNotChosen": "The blueprint would then have to declare a REST-specific dependency and claim (or conflict on) the errorEnvelope global topic, which application-api-rest already owns. Delegation via a substitutable interface keeps this blueprint transport-agnostic."
+    }
+  ],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

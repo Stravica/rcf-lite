@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1701-application-error-handling-record-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Internal error record shape: code, category, message, correlationId, cause chain, redacted context",
+  "context": "Without a shared record shape, every consumer of error data (log ingestion pipelines, alerting rules, wire-response mappers, retry policies) invents its own view. The record loses information at each hop and downstream tools reconstruct it from string parsing. The 'errorHandling' global topic is minted here (distinct from 'errorEnvelope', which stays with application-api-rest as the REST wire shape): errorHandling is the internal record shape and the uncaught-exception boundary; errorEnvelope is the wire format one transport chooses to translate the record into.",
+  "decision": "The internal error record has exactly six fields: code (string, machine-readable identifier the project elicits at record creation; the vocabulary is project-side), category (one of the ADR-1702 classification vocabulary), message (human-readable string, no PII), correlationId (stamped from the ambient logging context at construction time; may be null), cause (nested record for the wrapped cause, or null), context (redacted object per the applied logging companion's redaction categories). Records are constructed only through TAC-1702's factory; the factory refuses code or category missing.",
+  "consequences": "Log-side queries by code, category or correlationId all work off the shared field names. The wire-response mapper (ADR-1703) writes one envelope from the record without a per-project mapping table. The retry policy reads category at one place. The cause chain is preserved across wrappings without any consumer's per-layer knowledge. A future transport blueprint (gRPC, message consumer) claims its OWN transport-specific errorEnvelope topic; the internal record shape stays one project decision above.",
+  "alternativesConsidered": [
+    {
+      "name": "Free-form record with a message-plus-metadata bag",
+      "summary": "The record has message and a metadata object; every consumer looks up its own fields.",
+      "reasonNotChosen": "Loses the shared vocabulary and forces every consumer to invent field names; the failure mode is a per-consumer view that drifts silently."
+    },
+    {
+      "name": "Merge errorHandling and errorEnvelope into one global topic",
+      "summary": "One topic governs both the internal record and the wire envelope.",
+      "reasonNotChosen": "Conflates two decisions the mechanism gets to make separately: the internal record shape is one decision (this blueprint owns it); the wire envelope is a transport-specific decision (application-api-rest owns errorEnvelope for REST). Merging them forces a project to change the wire when it changes the internal record and vice versa."
+    }
+  ],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

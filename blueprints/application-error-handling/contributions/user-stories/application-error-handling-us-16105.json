@@ -1,0 +1,25 @@
+{
+  "usId": "application-error-handling-US-16105",
+  "prdId": "PRD-001",
+  "reqId": "application-error-handling-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The record's classification drives the transport response's retry hint",
+  "asA": "caller of an application endpoint that failed",
+  "iWant": "the transport response to reflect whether the failure is retryable",
+  "soThat": "my retry policy honours the origin's judgement instead of guessing from the status code alone",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16105-1",
+      "description": "A record with category transient produces a wire response the transport ADR maps to a retryable envelope (HTTP: a 5xx or a 429 with a Retry-After hint when the origin supplied one on the record); a record with category permanent produces a non-retryable envelope with no Retry-After (HTTP: a 4xx); a record with category unknown is treated as permanent by the wire but logged at error level.",
+      "given": "three failing handler paths that construct records with category transient, permanent and unknown respectively",
+      "when": "each request runs",
+      "then": "the transport response bodies and headers reflect the per-class contract above",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

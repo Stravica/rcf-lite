@@ -1,0 +1,43 @@
+{
+  "usId": "US-1301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-013",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Core shelf ships observability-logging v1.0.0 with providesRoles logging and the shelf-canonical logging global topic",
+  "asA": "operator running rcf define blueprint add on a fresh project that needs a general-enterprise-practice logging contract",
+  "iWant": "the shipped core shelf to carry an observability-logging blueprint (v1.0.0) that provides the logging role, mints the logging global topic on ADR-1601, and applies cleanly into a fixture project alongside every other shipped shelf blueprint",
+  "soThat": "a project falls back to a sensible logging contract without registering any library, the mechanism in REQ-014 has a shelf provider to resolve to, and the logging global topic has one owner on the shelf",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1301-1",
+      "description": "`blueprints/observability-logging/blueprint.json` exists with `slug: \"observability-logging\"`, `version: \"1.0.0\"`, `category: \"observability\"`, `providesRoles: [\"logging\"]`, and a contributions list carrying five REQs (`observability-logging-REQ-001` through `-REQ-005`), user stories in the 15101-15899 band (at least `-US-15101` through `-US-15108`), TACs `TAC-1601-observability-logging-logger-factory` and `TAC-1602-observability-logging-redaction-boundary`, and ADRs `ADR-1601` through `ADR-1604` including `ADR-1601-observability-logging-line-shape` with `scope: \"global\", topic: \"logging\"`.",
+      "given": "the shipped core shelf at packages/rcf-lite/blueprints/observability-logging (staged from the top-level blueprints/ directory)",
+      "when": "the loader reads blueprint.json and enumerates contributions[]",
+      "then": "the fields resolve to the values above and jq queries against blueprint.json return them verbatim",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1301-2",
+      "description": "`rcf define blueprint add <path>/blueprints/observability-logging` applied into a fresh fixture project with no prior applied blueprints succeeds (exit 0), writes `manifest.blueprints[]` with slug `observability-logging`, and copies the namespaced contribution files under `rcf/req/`, `rcf/userStory/`, `rcf/tac/` and `rcf/adr/`.",
+      "given": "a fresh fixture project initialised via `rcf init` with no applied blueprints",
+      "when": "the operator runs `rcf define blueprint add <path-to>/blueprints/observability-logging`",
+      "then": "the exit code is 0, `manifest.blueprints[]` lists observability-logging at version 1.0.0, and `rcf/adr/adr-1601-observability-logging-line-shape.json` exists on disk",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1301-3",
+      "description": "The blueprint anatomy is complete: `README.md`, `guide/observability-logging.md`, `docs/topics.md` and `assets/` are present at the blueprint root; the README carries an `Apply` block and a `Known mechanism-reach gaps` section; `docs/topics.md` names the `logging` global topic string with the shelf band 15101-15899 and 16xx suffix block recorded.",
+      "given": "the blueprint source directory on disk",
+      "when": "the reviewer walks the anatomy",
+      "then": "every named file exists, the docs/topics.md table includes the observability-logging row, and the README carries the two required sections",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

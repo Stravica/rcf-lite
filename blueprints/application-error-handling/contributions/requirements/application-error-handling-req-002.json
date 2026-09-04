@@ -1,0 +1,15 @@
+{
+  "reqId": "application-error-handling-REQ-002",
+  "prdId": "PRD-001",
+  "title": "The internal error record has a stable shape: code, category, message, correlationId, cause chain, redacted context",
+  "description": "Every constructed error record carries the fields governed by ADR-1701: code (string, project-elicited machine-readable identifier), category (one of the ADR-1702 classification vocabulary), message (human-readable string, no PII), correlationId (from the ambient logging context), cause (nested record for the wrapped cause, may be null), context (redacted object per the logging blueprint's redaction categories). Records are constructed only through TAC-1702's factory; a construction that omits code or category is refused at the factory boundary.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "A stable record shape lets one log-side query find every error by category, one transport-side handler write the wire envelope by category, and one alerting rule filter by code. Without a shared shape, every consumer invents its own view, and the record becomes lossy at each hop.",
+  "tags": ["blueprint:application-error-handling", "category:02-record-shape"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

@@ -1,0 +1,43 @@
+{
+  "usId": "US-1302",
+  "prdId": "PRD-001",
+  "reqId": "REQ-013",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Core shelf ships application-error-handling v1.0.0 with providesRoles errorHandling and mints the errorHandling global topic",
+  "asA": "operator running rcf define blueprint add on a fresh project that needs a transport-agnostic error-handling contract",
+  "iWant": "the shipped core shelf to carry an application-error-handling blueprint (v1.0.0) that provides the errorHandling role, mints the errorHandling global topic on ADR-1701 (distinct from errorEnvelope), and applies cleanly into a fixture project",
+  "soThat": "a project falls back to a sensible error-handling contract without registering any library, and the internal error record shape sits one project decision above any transport-specific error-envelope decision",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1302-1",
+      "description": "`blueprints/application-error-handling/blueprint.json` exists with `slug: \"application-error-handling\"`, `version: \"1.0.0\"`, `category: \"application\"`, `providesRoles: [\"errorHandling\"]`, and a contributions list carrying four REQs (`application-error-handling-REQ-001` through `-REQ-004`), user stories in the 16101-16899 band (at least `-US-16101` through `-US-16107`), TACs `TAC-1701-application-error-handling-boundary` and `TAC-1702-application-error-handling-record-factory`, and ADRs `ADR-1701` through `ADR-1703` including `ADR-1701-application-error-handling-record-shape` with `scope: \"global\", topic: \"errorHandling\"`.",
+      "given": "the shipped core shelf at packages/rcf-lite/blueprints/application-error-handling (staged from the top-level blueprints/ directory)",
+      "when": "the loader reads blueprint.json and enumerates contributions[]",
+      "then": "the fields resolve to the values above and jq queries return them verbatim",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1302-2",
+      "description": "`rcf define blueprint add <path>/blueprints/application-error-handling` applied into a fresh fixture project with no prior applied blueprints succeeds (exit 0), writes `manifest.blueprints[]` with slug `application-error-handling`, and copies the namespaced contribution files.",
+      "given": "a fresh fixture project initialised via `rcf init` with no applied blueprints",
+      "when": "the operator runs `rcf define blueprint add <path-to>/blueprints/application-error-handling`",
+      "then": "the exit code is 0, `manifest.blueprints[]` lists application-error-handling at version 1.0.0, and `rcf/adr/adr-1701-application-error-handling-record-shape.json` exists on disk",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1302-3",
+      "description": "The `errorHandling` topic is DISTINCT from `errorEnvelope`; the blueprint's docs/topics.md names both, distinguishes them (errorHandling is the internal record shape and uncaught-exception boundary; errorEnvelope stays with application-api-rest as the REST wire shape), and reserves the 16101-16899 band and 17xx suffix block for the shelf-wide registry.",
+      "given": "the blueprint's docs/topics.md file",
+      "when": "the reviewer reads the topic table",
+      "then": "the errorHandling and errorEnvelope rows are both present, distinct, and the band registry row is recorded",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

@@ -1,0 +1,43 @@
+{
+  "usId": "US-1403",
+  "prdId": "PRD-001",
+  "reqId": "REQ-014",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "`rcf define blueprint companions` verb: three sub-verbs (print resolution, set pin, unset pin) with --json on all three",
+  "asA": "operator inspecting or pinning companion suggestions on an applied service blueprint outside the apply flow",
+  "iWant": "a `rcf define blueprint companions <slug>` sub-verb that prints the resolved companion set for one applied service blueprint, `rcf define blueprint companions set <role> <slug>` that writes a project-level pin to rcf/companions.json, and `rcf define blueprint companions unset <role>` that removes a pin",
+  "soThat": "I can read the current resolution without re-applying, pin a decision the operator makes outside the apply, and lift a pin cleanly",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1403-1",
+      "description": "`rcf define blueprint companions <slug>` (three positionals: `blueprint`, `companions`, `<slug>`) with `<slug>` naming an applied service blueprint that declares `suggestedCompanions[]` prints on stdout: header `<slug> suggests companions:` and one line per role in the shape `  <role>          -> <resolved-provider> (<origin-note>)`, where the origin note reads `already applied` / `pinned via rcf/companions.json` / `registered library '<prefix>' (overrides shelf provider <shelf-slug>)` / `shelf fallback (no registered library provides this role)`. Exit 0. Refuses with exit 2 when `<slug>` names no applied blueprint or the applied blueprint declares no `suggestedCompanions[]`.",
+      "given": "a fixture project with application-api-rest v2.1.0 applied and observability-logging applied",
+      "when": "the operator runs `rcf define blueprint companions application-api-rest`",
+      "then": "stdout carries the header and one line per role with `already applied` on `logging` and `shelf fallback` (or similar) on `errorHandling`; a slug that is not applied refuses exit 2",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1403-2",
+      "description": "`rcf define blueprint companions set <role> <slug>` writes `rcf/companions.json` under `roles.<role>.provider` with `pinnedAt` ISO-8601 (or updates it if present); refuses exit 2 when `<slug>` names no blueprint or the named blueprint does not declare `providesRoles` containing `<role>`. `rcf define blueprint companions unset <role>` removes the `roles.<role>` entry (leaves the rest of the file intact); refuses exit 2 when no pin exists for `<role>`. Both sub-verbs honour `--json` (emit `{ok: true, role, provider, pinnedAt}` on success; `{ok: false, error: {...}}` on refusal).",
+      "given": "a fixture project with no existing pin",
+      "when": "the operator runs `rcf define blueprint companions set logging observability-logging`, then `rcf define blueprint companions unset logging`",
+      "then": "the first run writes companions.json with the pin (exit 0); the second run removes the pin and prints `[blueprint] companion pin for role 'logging' removed` on stdout (exit 0); an unset on a role without a pin refuses exit 2",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1403-3",
+      "description": "`--json` on `rcf define blueprint companions <slug>` emits a machine-readable object: `{slug, suggestions: [{role, provider, origin, notes}]}`, exit 0. The suggestions array preserves the order of the applied blueprint's `suggestedCompanions[]`.",
+      "given": "a fixture project with application-api-rest applied and both companions applied",
+      "when": "the operator runs `rcf define blueprint companions application-api-rest --json`",
+      "then": "stdout carries a JSON object of the shape above and jq queries against it return the resolved provider per role",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

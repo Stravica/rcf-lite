@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-1604-observability-logging-level-vocabulary",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Level vocabulary is trace, debug, info, warn, error, fatal; operator elicits the minimum level per environment",
+  "context": "The industry has settled on a six-level vocabulary (trace, debug, info, warn, error, fatal); most log tooling (structured or otherwise) already understands these strings without translation. Production and development want different minimum levels; hard-coding info-and-above helps neither.",
+  "decision": "The recommended default vocabulary is exactly trace, debug, info, warn, error, fatal, in that severity order. The applying operator elicits a minimum level per environment at apply; the applied ADR records the elicited value. The factory refuses to construct with an unknown level string and drops emissions below the minimum before serialisation.",
+  "consequences": "The vocabulary is stable across every applying project; log tooling wires its level filter once. Per-environment minimums honour the production-development split without changing call sites. A future project that wants a different vocabulary (Apache-style FATAL/ERROR/WARN/INFO/DEBUG/TRACE) supersedes this ADR at project level; the vocabulary transfer is a mechanical string rename in call sites.",
+  "alternativesConsidered": [
+    {
+      "name": "Adopt Apache log4j-style ALL/TRACE/DEBUG/INFO/WARN/ERROR/FATAL/OFF vocabulary",
+      "summary": "The blueprint ships the historically-familiar seven-plus-two vocabulary from log4j.",
+      "reasonNotChosen": "ALL and OFF are configuration meta-levels, not emission levels; conflating them with severities has produced enough confusion that modern structured-logging tools omit them. The six emission levels above match what today's tools accept out of the box."
+    }
+  ],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

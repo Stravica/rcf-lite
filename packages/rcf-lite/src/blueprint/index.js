@@ -14,6 +14,22 @@ export { diffBlueprintTopic, renderDiff } from './diff.js';
 export { resolveBlueprintSource, knownShelfSlugs, packagedShelfPath } from './shelf-resolver.js';
 export { loadLibrary } from './library-loader.js';
 export {
+  COMPANIONS_PATH,
+  COMPANIONS_SCHEMA_VERSION,
+  readCompanionsFile,
+  validateCompanionsFile,
+  setCompanionPin,
+  unsetCompanionPin,
+  enumerateShelfProviders,
+  enumerateLibraryProviders,
+  enumerateAppliedProviders,
+  resolveCompanionRole,
+  resolveCompanions,
+  renderCompanionLines,
+  renderAmbiguousLibraryRefusal,
+  validateCompanionPinsResolvable,
+} from './companions.js';
+export {
   REGISTRY_PATH,
   REGISTRY_VERSION,
   readLibraryRegistry,

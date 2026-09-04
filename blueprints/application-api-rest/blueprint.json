@@ -1,6 +1,6 @@
 {
   "slug": "application-api-rest",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "category": "application",
   "contributions": [
     {
@@ -237,9 +237,7 @@
     {
       "id": "ADR-304-application-api-rest-logging",
       "kind": "adr",
-      "path": "adrs/adr-304-application-api-rest-logging.json",
-      "scope": "global",
-      "topic": "logging"
+      "path": "adrs/adr-304-application-api-rest-logging.json"
     },
     {
       "id": "ADR-305-application-api-rest-pagination",
@@ -260,6 +258,16 @@
       "id": "ADR-308-application-api-rest-rate-limiting",
       "kind": "adr",
       "path": "adrs/adr-308-application-api-rest-rate-limiting.json"
+    }
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every request pipeline pass writes a request-scoped log line; a logging companion supplies the factory the pipeline calls, and the shelf logging blueprint (observability-logging) is the fallback when no library provider is registered."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "The error translator writes the wire envelope from the internal record; an error-handling companion supplies the record factory and the boundary that constructs it, and the shelf application-error-handling blueprint is the fallback when no library provider is registered."
     }
   ]
 }

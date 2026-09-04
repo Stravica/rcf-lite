@@ -2,12 +2,12 @@
   "adrId": "ADR-304-application-api-rest-logging",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "status": "accepted",
-  "title": "Structured JSON lines with request-scoped correlation as the project's primary logging shape",
+  "title": "Historical: structured JSON lines with request-scoped correlation as the project's primary logging shape (superseded by observability-logging-ADR-1601 as the shelf-canonical logging global-topic owner from api-rest v2.1.0)",
   "context": "A project has one primary logging shape; aggregation, alerting, retention, and redaction tooling are all built against it, and mixed shapes halve the value of every query. The decision covers the line format, the mandatory fields, and where correlation ids live.",
   "decision": "Logs are single-line JSON objects. Mandatory base fields: timestamp, level, message, service name. Every request-scoped line additionally carries the request id, and the trace id when a trace context exists. Request completion lines carry method, path template, status, duration, and auth class at the class's declared level. Redaction (application-api-rest-REQ-016) applies before emission. Prose, multi-line, and printf-style lines are not emitted by application code (application-api-rest-REQ-012, application-api-rest-US-2114).",
-  "consequences": "Every operational question that logs can answer becomes a structured query keyed on the same ids the metrics and traces carry. The cost is log discipline in code review (no stray console prose) and marginally larger lines; both are prices the observability requirements already commit to. Any blueprint contributing log-emitting components to the same project joins this shape or the operator supersedes it project-wide.",
+  "consequences": "Every operational question that logs can answer becomes a structured query keyed on the same ids the metrics and traces carry. The cost is log discipline in code review (no stray console prose) and marginally larger lines; both are prices the observability requirements already commit to. Any blueprint contributing log-emitting components to the same project joins this shape or the operator supersedes it project-wide. From api-rest v2.1.0 the shelf-wide `logging` global topic is claimed only by `observability-logging` (ADR-1601-observability-logging-line-shape). The structured-JSON-with-correlation intent recorded here remains the intent for api-rest's server-side emission; the shelf-canonical topic owner is elsewhere. Projects that had superseded `logging` at project level in v1.x retain their supersede as historical context (see rcf define blueprint remove-resolution for the drop path when the resolution is genuinely redundant).",
   "alternativesConsidered": [
     {
       "name": "Human-readable prose lines",

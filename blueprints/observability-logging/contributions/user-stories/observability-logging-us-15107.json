@@ -1,0 +1,25 @@
+{
+  "usId": "observability-logging-US-15107",
+  "prdId": "PRD-001",
+  "reqId": "observability-logging-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A test double captures emitted lines for assertion without touching stdout",
+  "asA": "test author verifying that the application emits the expected log lines during a test",
+  "iWant": "a test double the factory produces that captures emitted lines in memory instead of writing to stdout",
+  "soThat": "assertions on log emissions do not depend on stdout capture and do not pollute test output",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15107-1",
+      "description": "The blueprint's guide names an in-memory capture mode of the factory contract that returns an ordered array of the emitted structured objects; the capture mode is a documented API of TAC-1601 and can be constructed in a test without any stdout redirection.",
+      "given": "a test that constructs the factory in capture mode",
+      "when": "the code under test emits any number of log lines",
+      "then": "the returned array contains one entry per emission with the same object shape the runtime writes to stdout, and stdout carries no line",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

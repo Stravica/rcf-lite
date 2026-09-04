@@ -1,0 +1,25 @@
+{
+  "usId": "observability-logging-US-15104",
+  "prdId": "PRD-001",
+  "reqId": "observability-logging-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Emissions below the operator-elicited minimum level are dropped before serialisation",
+  "asA": "operator sizing log volume for a production environment",
+  "iWant": "emissions below the minimum level to be dropped without serialising them",
+  "soThat": "log volume matches the operator's chosen signal budget and the level filter is honoured line-by-line",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15104-1",
+      "description": "With the elicited minimum level set to info, an emission at trace or debug produces no stdout line; an emission at info, warn, error or fatal produces one stdout line each.",
+      "given": "a running application with minimum level set to info",
+      "when": "one emission is issued at each of the six levels",
+      "then": "the stdout line count equals 4 (info, warn, error, fatal), and no line at trace or debug appears",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

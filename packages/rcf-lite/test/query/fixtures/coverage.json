@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 12,
-    "covered": 12,
+    "requirements": 15,
+    "covered": 15,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -1126,6 +1126,202 @@
             "TC-037-refuse-malformed-adr-id",
             "TC-037-refuse-unknown-adr-id",
             "TC-037-remove-drops-entry-and-prints-line"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-013",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1301-1",
+          "covered": true,
+          "testCases": [
+            "TC-038-blueprint-json-fields"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1301-2",
+          "covered": true,
+          "testCases": [
+            "TC-038-clean-apply"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1301-3",
+          "covered": true,
+          "testCases": [
+            "TC-038-anatomy-and-topics"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1302-1",
+          "covered": true,
+          "testCases": [
+            "TC-039-blueprint-json-fields"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1302-2",
+          "covered": true,
+          "testCases": [
+            "TC-039-clean-apply"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1302-3",
+          "covered": true,
+          "testCases": [
+            "TC-039-topics-distinct"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-014",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1401-1",
+          "covered": true,
+          "testCases": [
+            "TC-040-loader-accepts-both"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1401-2",
+          "covered": true,
+          "testCases": [
+            "TC-040-refuse-bad-camelcase",
+            "TC-040-refuse-em-dash-and-emoji",
+            "TC-040-refuse-empty-reason"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1401-3",
+          "covered": true,
+          "testCases": [
+            "TC-040-paired-adr-required"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1402-1",
+          "covered": true,
+          "testCases": [
+            "TC-041-no-suggestions-flag",
+            "TC-041-suggestion-block"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1402-2",
+          "covered": true,
+          "testCases": [
+            "TC-041-companion-flag-non-provider",
+            "TC-041-companion-flag-writes-pin"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1402-3",
+          "covered": true,
+          "testCases": [
+            "TC-041-pin-file-shape-and-overwrite"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1403-1",
+          "covered": true,
+          "testCases": [
+            "TC-042-companions-slug-not-applied",
+            "TC-042-companions-slug-text"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1403-2",
+          "covered": true,
+          "testCases": [
+            "TC-042-companions-set-refuses-non-provider",
+            "TC-042-companions-set-unset-round-trip"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1403-3",
+          "covered": true,
+          "testCases": [
+            "TC-042-companions-json-envelope"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1404-1",
+          "covered": true,
+          "testCases": [
+            "TC-043-resolver-tier-ladder"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1404-2",
+          "covered": true,
+          "testCases": [
+            "TC-043-two-libraries-on-companions-verb",
+            "TC-043-two-libraries-refuse-exit-3"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1404-3",
+          "covered": true,
+          "testCases": [
+            "TC-043-validate-refuses-unresolvable-pin"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-015",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1501-1",
+          "covered": true,
+          "testCases": [
+            "TC-044-loader-accepts-standards-fields"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1501-2",
+          "covered": true,
+          "testCases": [
+            "TC-044-loader-refuses-missing-clause"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1501-3",
+          "covered": true,
+          "testCases": [
+            "TC-044-no-cross-check-and-sentinel"
           ],
           "unresolvedTestCases": []
         }

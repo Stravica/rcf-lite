@@ -1,0 +1,43 @@
+{
+  "usId": "US-1501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-015",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Loader accepts standardsTrace[], recommendedDefault, elicited and standardsTraceClause; refuses a declared standardsTrace missing a clause reference on any ADR contribution",
+  "asA": "library author writing a standards-derived blueprint (e.g. wsd-logging composing on WSD-001)",
+  "iWant": "the loader to accept a blueprint-level standardsTrace[] and per-ADR-contribution recommendedDefault, elicited and standardsTraceClause fields, and refuse the load when standardsTrace[] is declared but any ADR contribution has no standardsTraceClause",
+  "soThat": "the standards-derived discipline is machine-checkable at load time and a mis-authored library blueprint fails fast, before an apply lands into the tree",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1501-1",
+      "description": "The loader accepts optional top-level `standardsTrace[]` (array of `{id: string, version: string}` objects; `id` is a non-empty string; `version` is a non-empty string), optional ADR-contribution fields `recommendedDefault: true|false`, `elicited: true|false` and `standardsTraceClause: string`. `recommendedDefault` and `elicited` are mutually independent (a SHOULD may be elicited; a MAY need not have a recommended default). The loader does NOT cross-check clause severity against kind (no refusal for a MUST clause mapped to an ADR; the discipline is prose in section 8a, not code, per amendment A2 Baz 2026-09-04T12:20:31Z).",
+      "given": "a blueprint fixture declaring standardsTrace with WSD-001 v2026-05, and one ADR contribution with recommendedDefault: true, elicited: false and standardsTraceClause: 'WSD-001 clause 3.1'",
+      "when": "the loader parses the file",
+      "then": "the LoadedBlueprint object carries the fields verbatim and returns no rcfError",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1501-2",
+      "description": "The loader refuses (rcfError kind `validation`) when `standardsTrace[]` is set but any ADR contribution has no `standardsTraceClause` (or has it set to an empty or whitespace-only string). Refusal message shape: `blueprint '<slug>' declares standardsTrace but ADR contribution '<id>' has no standardsTraceClause; every ADR must reference a standard clause or the sentinel 'generic enterprise practice'.`. At the CLI edge the exit code is 2.",
+      "given": "a fixture blueprint with standardsTrace declared and one ADR contribution missing standardsTraceClause",
+      "when": "the loader parses the file",
+      "then": "the loader returns an rcfError of kind `validation` with the exact refusal message shape",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1501-3",
+      "description": "A blueprint that DOES NOT declare `standardsTrace[]` (every core shelf blueprint today, including the two new core-companion blueprints in REQ-013) loads clean regardless of whether ADR contributions carry `standardsTraceClause` (the discipline lands only when standardsTrace[] is present). The sentinel string `\"generic enterprise practice\"` is accepted as a standardsTraceClause value; the discipline documented in section 8a of blueprint-authoring.md names it explicitly.",
+      "given": "the two new core companion blueprints (observability-logging, application-error-handling) with no standardsTrace declared, and a fixture that declares standardsTrace and uses 'generic enterprise practice' on every ADR",
+      "when": "the loader parses each",
+      "then": "the core blueprints load clean; the fixture with the sentinel on every ADR loads clean",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}
