@@ -1,0 +1,41 @@
+{
+  "id": "TS-038",
+  "usId": "US-1301",
+  "title": "observability-logging v1.0.0 ships on the core shelf with the ratified anatomy and applies clean",
+  "purpose": "Cover the three ACs on US-1301: shipped anatomy (blueprint.json + contributions + README + guide + docs/topics.md + assets), clean apply into a fresh fixture, and shelf-canonical logging global topic on ADR-1601 with providesRoles logging.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-1301-1",
+    "AC-1301-2",
+    "AC-1301-3"
+  ],
+  "testCases": [
+    {
+      "id": "TC-038-blueprint-json-fields",
+      "acId": "AC-1301-1",
+      "description": "blueprints/observability-logging/blueprint.json declares slug, version 1.0.0, category observability, providesRoles [\"logging\"], and includes contributions for REQ-001..005, US-15101..15108, TAC-1601, TAC-1602 and ADR-1601..1604 with ADR-1601 carrying scope global and topic logging.",
+      "testPointer": "test/blueprint/observability-logging-anatomy.test.js::blueprint.json declares the ratified shape",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-038-clean-apply",
+      "acId": "AC-1301-2",
+      "description": "rcf define blueprint add against a fresh fixture applies observability-logging cleanly (exit 0), records manifest.blueprints[] with slug observability-logging at 1.0.0, and writes rcf/adr/adr-1601-observability-logging-line-shape.json.",
+      "testPointer": "test/blueprint/observability-logging-anatomy.test.js::apply into a fresh fixture succeeds and writes the namespaced contributions",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-038-anatomy-and-topics",
+      "acId": "AC-1301-3",
+      "description": "The blueprint anatomy is complete: README.md carries the Apply block and Known mechanism-reach gaps section; docs/topics.md names the logging global topic string and records the 15101-15899 band with 16xx suffix block; guide/observability-logging.md exists.",
+      "testPointer": "test/blueprint/observability-logging-anatomy.test.js::anatomy files exist with the required sections",
+      "status": "pending",
+      "scope": "library"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

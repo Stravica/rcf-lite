@@ -1,0 +1,43 @@
+{
+  "usId": "US-1404",
+  "prdId": "PRD-001",
+  "reqId": "REQ-014",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Resolution rule prefers applied > registered library > core shelf; two libraries on one role refuse exit 3; validate refuses an unresolvable pin exit 3",
+  "asA": "operator resolving a companion suggestion on a project with a registered library that provides the same role as the shelf",
+  "iWant": "the deterministic tier ladder (applied provider wins, single library candidate wins over shelf, two library candidates refuse with the explicit three-path resolution message, shelf provider is the terminal fallback) and validate to refuse a pin that names no known provider",
+  "soThat": "the operator's opt-in to a library is honoured over the shelf, ambiguity refuses with the explicit remedy paths rather than picking silently, and a stale pin cannot silently drift after a library is removed",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1404-1",
+      "description": "For each role suggested by an applied service blueprint, the resolver walks the tier ladder in order: (1) any applied blueprint whose `providesRoles[]` contains the role wins immediately with origin `already applied`; (2) otherwise, any registered library blueprint (from `rcf/blueprint-libraries.json` + each library's `library.json:blueprints[]`) whose source `providesRoles[]` contains the role wins with origin `registered library '<prefix>'`; (3) otherwise, the single core-shelf blueprint whose `providesRoles[]` contains the role wins with origin `shelf fallback`; (4) otherwise the role is unresolved (origin `unresolved`, provider null). A pin in `rcf/companions.json` overrides steps (2) and (3) with origin `pinned via rcf/companions.json` when the pin names a known provider.",
+      "given": "three fixture projects: (a) core-only; (b) one registered library providing logging + the core provider; (c) an already-applied library-side logging provider",
+      "when": "the resolver runs on the same suggestedCompanions[] from application-api-rest",
+      "then": "(a) resolves logging to observability-logging with `shelf fallback`; (b) resolves logging to the library provider with `registered library '<prefix>'`; (c) resolves logging to the applied library provider with `already applied`",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1404-2",
+      "description": "When two or more registered libraries each carry a `providesRoles[]` containing the same role and no explicit selector or pin is set, the resolver refuses with exit 3 and prints (on `rcf define blueprint add` and on `rcf define blueprint companions <slug>`, both) a message naming the ambiguous role, both library-qualified slugs, and three resolution paths verbatim per spec section 2.4: (1) `rcf define blueprint add <service-slug> --companion <role>=<lib>:<slug>` at apply; (2) `rcf define blueprint companions set <role> <lib>:<slug>` to pin at project level; (3) `rcf define blueprint library remove <prefix>` to remove one library.",
+      "given": "a fixture project with two registered libraries both providing role `logging`, no pin",
+      "when": "the operator runs `rcf define blueprint add <path>/application-api-rest`",
+      "then": "the exit code is 3 and stderr carries the refusal message with both library slugs and the three resolution paths verbatim",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1404-3",
+      "description": "`rcf define validate` refuses exit 3 when `rcf/companions.json` pins a role to a slug that no applied blueprint, no registered library and no shelf blueprint provides; message shape `rcf/companions.json pins role '<role>' to '<slug>' but no such provider is applied, registered or on the shelf.`. The check runs on every validate pass alongside the existing schema and referential-integrity checks; a missing `rcf/companions.json` file is not itself a validation error.",
+      "given": "a fixture project whose companions.json pins `logging` to `nope:nope`",
+      "when": "the operator runs `rcf define validate`",
+      "then": "the exit code is 3 and stderr carries the unresolvable-pin refusal message with the exact quoted role and slug",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

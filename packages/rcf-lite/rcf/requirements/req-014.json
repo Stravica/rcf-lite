@@ -1,0 +1,22 @@
+{
+  "reqId": "REQ-014",
+  "prdId": "PRD-001",
+  "title": "Companion-suggestion mechanism: additive manifest fields, deterministic resolution rule, `rcf define blueprint companions` verb, refusal shapes, project-level pin file, agent-facing paragraph",
+  "description": "The blueprint mechanism gains a suggestion channel that a service blueprint uses to name the companion roles it recommends alongside itself, and the loader resolves each role deterministically. Two additive optional top-level fields land on `blueprint.json`: `providesRoles[]` names the roles a blueprint provides (lower camelCase strings on `^[a-z][a-zA-Z0-9]*$`); a blueprint declaring a role MUST also carry the paired `scope: global` ADR on the topic string the role names (a `logging` role carries a `scope: global, topic: logging` ADR; a `errorHandling` role carries `scope: global, topic: errorHandling`). `suggestedCompanions[]` is a non-empty array of `{role, reason}` objects the service blueprint recommends. The resolution rule walks a deterministic tier ladder for each suggested role: applied provider wins first (already resolved at apply time), then registered library provider (`rcf/blueprint-libraries.json`), then core-shelf provider. A single library candidate wins over the shelf candidate; two library candidates for one role refuses at apply and at `rcf define blueprint companions` with exit 3 and a three-path resolution message (explicit `--companion` selector, project-level pin, or removing one library). A `--companion <role>=<slug>` selector on `rcf define blueprint add` accepts `<libraryPrefix>:<slug>` or a bare shelf slug and writes the choice to `rcf/companions.json`; naming a slug that does not declare the role refuses exit 2. A project-level `rcf/companions.json` (schemaVersion 1, current pin only per amendment A1, no per-apply history, no severity field) records role-to-provider pinnings; `rcf define blueprint companions set|unset` writes and removes pins; the file rides git. `rcf define validate` refuses exit 3 when a pinned role names an unresolvable provider. The apply-time suggestion block prints after `rcf define blueprint add` succeeds and is suppressible with `--no-companion-suggestions`. The three surfaces (apply-time block, `rcf define blueprint companions <slug>` verb, `rcf define blueprint list` annotation for suggested-but-not-applied companions) render the same resolution through a single loader function. A paragraph on the managed agent-instructions block's `How to talk to your operator` section (regenerated via `scripts/gen-managed-artefacts.mjs`) tells the agent to surface resolved companions verbally without picking. The mechanism is suggestion, never compulsion: a blueprint that declares `suggestedCompanions: [\"logging\"]` still applies cleanly with no logging blueprint present. Backward-compatible: a blueprint that does not declare `suggestedCompanions[]` produces an empty resolution and prints no block.",
+  "category": "functional",
+  "domain": "blueprints",
+  "priority": "must",
+  "rationale": "Before this train, service blueprints named their companion suggestions in prose in each README and each guide, and the machine could not act on them: `rcf define blueprint add` could not print a suggestion, `rcf define blueprint list` could not annotate an outstanding one, the agent could not know which library provider to prefer, and the operator had no place to record a project-level choice that outlived any single apply. Baz on 2026-09-03 during the WSD blueprint round review ratified the mechanism in the same clause as the two new core blueprints: the mechanism surfaces the suggestion three ways from one resolution rule, the agent surfaces the resolved companions verbally, and the operator adopts explicitly. Suggestion by role (not by slug) is the load-bearing choice: a service blueprint ships once and works with every library that provides the role; the operator's opt-in to a library IS the choice the resolution rule records.",
+  "tags": [
+    "blueprints",
+    "companions",
+    "provides-roles",
+    "suggested-companions",
+    "resolution",
+    "pin"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

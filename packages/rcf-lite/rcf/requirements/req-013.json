@@ -1,0 +1,22 @@
+{
+  "reqId": "REQ-013",
+  "prdId": "PRD-001",
+  "title": "Core shelf gains two general-enterprise-practice companion blueprints: observability-logging and application-error-handling",
+  "description": "The shipped core shelf carries two new blueprints written to general enterprise practice, not to any one organisation's standards. `observability-logging` v1.0.0 (category `observability`, US band 15101-15899, ADR/TAC suffix block 16xx) contributes REQs, USs, TACs and ADRs for a structured single-line JSON emission surface with a correlation-identifier propagation contract, a redaction boundary anchored to named PII categories, an operator-elicited level vocabulary, and an environment/service-name/service-version stamping contract. Its `providesRoles` field carries `[\"logging\"]` and its ADR-1601 mints the shelf-wide `logging` global topic (transferred from `application-api-rest-ADR-304`, retained there as a superseded record per version-rule discipline). `application-error-handling` v1.0.0 (category `application`, US band 16101-16899, ADR/TAC suffix block 17xx) contributes REQs, USs, TACs and ADRs for the uncaught-exception boundary, the internal error record shape (code, category, message, correlation identifier, cause chain, redacted context), a transient/permanent/unknown classification vocabulary, and error emission delegated through the logging companion. Its `providesRoles` carries `[\"errorHandling\"]` and its ADR-1701 mints the `errorHandling` global topic (distinct from `errorEnvelope`, which stays with `application-api-rest` as the REST wire shape). Both blueprints ship the same anatomy every shipped shelf blueprint teaches: `blueprint.json` + `contributions/` + `README.md` + `guide/<slug>.md` + `docs/topics.md` + `assets/`; every AC is runtime-observable through a stdout capture, a filesystem-write observer, or a stubbed transport.",
+  "category": "functional",
+  "domain": "blueprints",
+  "priority": "must",
+  "rationale": "The core shelf carried no logging or error-handling blueprint before this train; every WSD-facing service blueprint (Dex's `wsd-api-rest`) stated its companion suggestions in prose only, with no core fallback for projects that had not registered the WSD library. Baz on 2026-09-03 during the WSD blueprint round review ratified two decisions in one clause: the core shelf carries a `logging` and an `error-handling` blueprint written to general enterprise practice (not to any one organisation's standards), and a companion-suggestion mechanism (REQ-014) surfaces them at apply time. Shipping the two blueprints as general-enterprise-practice siblings of the WSD library halves means every project falls back to a sensible logging and error-handling contract without adopting a library, and the WSD library becomes a specialisation (adds `standardsTrace[]`, adds WSD-specific ADR clauses) that the mechanism resolves in preference to the core when the library is registered.",
+  "tags": [
+    "blueprints",
+    "observability",
+    "logging",
+    "error-handling",
+    "companions",
+    "shelf"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

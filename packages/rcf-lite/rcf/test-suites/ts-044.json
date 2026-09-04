@@ -1,0 +1,41 @@
+{
+  "id": "TS-044",
+  "usId": "US-1501",
+  "title": "Loader validates standardsTrace with the standardsTraceClause discipline; refuses missing clause without cross-checking severity",
+  "purpose": "Cover the three ACs on US-1501: loader acceptance of standardsTrace/recommendedDefault/elicited/standardsTraceClause, refusal message shape when standardsTrace is declared and any ADR lacks a standardsTraceClause, and no-cross-check on MUST-to-kind mapping.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1501-1",
+    "AC-1501-2",
+    "AC-1501-3"
+  ],
+  "testCases": [
+    {
+      "id": "TC-044-loader-accepts-standards-fields",
+      "acId": "AC-1501-1",
+      "description": "loadBlueprint on a fixture with standardsTrace [{id: WSD-001, version: 2026-05}] and one ADR contribution carrying recommendedDefault true and standardsTraceClause 'WSD-001 clause 3.1' returns the fields on the LoadedBlueprint object; no rcfError.",
+      "testPointer": "test/blueprint/loader-standards-trace.test.js::loader accepts standardsTrace and recommendedDefault/elicited/standardsTraceClause",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-044-loader-refuses-missing-clause",
+      "acId": "AC-1501-2",
+      "description": "loadBlueprint refuses a fixture declaring standardsTrace but with one ADR contribution missing standardsTraceClause; rcfError kind validation with the exact refusal message shape.",
+      "testPointer": "test/blueprint/loader-standards-trace.test.js::loader refuses missing standardsTraceClause when standardsTrace is declared",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-044-no-cross-check-and-sentinel",
+      "acId": "AC-1501-3",
+      "description": "The two new core companion blueprints (observability-logging, application-error-handling), which declare NO standardsTrace, load clean regardless of standardsTraceClause presence; a fixture with standardsTrace declared and every ADR carrying 'generic enterprise practice' loads clean; the loader does not refuse a MUST-marked ADR (no cross-check of clause severity to kind, per amendment A2).",
+      "testPointer": "test/blueprint/loader-standards-trace.test.js::no cross-check on severity; sentinel and no-standardsTrace baseline both load clean",
+      "status": "pending",
+      "scope": "library"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}
