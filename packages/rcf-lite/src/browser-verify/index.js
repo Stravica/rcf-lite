@@ -27,3 +27,7 @@ export {
   runAgentScreenshotCritique,
   stubBrowserDriver,
 } from './runner.js';
+
+export { validatePackModule, PACK_SCHEMA_INTERNALS } from './pack-schema.js';
+export { loadProbePacks, readContributedAcIds } from './pack-loader.js';
+export { runProbePacksForFbs } from './pack-runner.js';

@@ -20,6 +20,7 @@
 import { runInvariantsForCapture, foldInvariantsForRecord, compareTopLevelStructure } from './invariants.js';
 import { runAuthSmokeChecks, shouldRunAuthSmokeChecks } from './auth-smoke.js';
 import { composeBrowserVerificationRecord } from './manifest-writer.js';
+import { runProbePacksForFbs } from './pack-runner.js';
 
 /**
  * @typedef {object} BrowserCapture
@@ -63,7 +64,8 @@ export const stubBrowserDriver = Object.freeze({
  * @returns {Promise<object>}  the composed browserVerification record
  */
 export async function runAgentScreenshotCritique({
-  tree, fbs, runtimeUrl, runtimeProfile, browserDriver, fetch, artefactDir, critiqueNotes, now = new Date(),
+  tree, fbs, runtimeUrl, runtimeProfile, browserDriver, fetch, artefactDir, critiqueNotes,
+  probePacks = [], packBrowser = null, packNameFilter, now = new Date(),
 }) {
   const routes = fbs?.designStage?.navModel?.routes ?? [];
   const themes = readThemesFromBaseline(tree.manifest?.uiBaseline);
@@ -124,6 +126,25 @@ export async function runAgentScreenshotCritique({
     authSmokeChecks = await runAuthSmokeChecks({ fetch, runtimeUrl });
   }
 
+  // Probe-pack pass: runs after invariants and auth-smoke
+  // (visual-round-spec-2026-09-04 §3.4).
+  let packRecords = [];
+  if (Array.isArray(probePacks) && probePacks.length > 0) {
+    const result = await runProbePacksForFbs({
+      packs: probePacks,
+      fbs,
+      uiBaseline: tree.manifest?.uiBaseline ?? null,
+      manifest: tree.manifest ?? null,
+      browser: packBrowser,
+      fetch,
+      runtimeUrl,
+      routes,
+      themes,
+      packNameFilter,
+    });
+    packRecords = result.probePacks;
+  }
+
   return composeBrowserVerificationRecord({
     manifest: tree.manifest,
     fbsId: fbs.fbsId,
@@ -133,6 +154,7 @@ export async function runAgentScreenshotCritique({
     routesChecked,
     invariantChecks,
     authSmokeChecks,
+    probePacks: packRecords,
     notes,
     now,
   });

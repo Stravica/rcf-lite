@@ -27,24 +27,48 @@ export function nextBrowserVerificationId(manifest, fbsId) {
 }
 
 /**
- * Aggregate the record verdict per spec §8.5:
- *   block if any invariant severity=block verdict=fail, OR any auth smoke fail;
- *   warn if any invariant severity=warn verdict=fail (and no block);
+ * Aggregate the record verdict per spec §8.5, extended for the visual
+ * round T-0 probe-pack pass (visual-round-spec-2026-09-04 §3.4):
+ *   block if any invariant severity=block verdict=fail, OR any auth smoke fail,
+ *          OR any pack check / pre-check severity=block verdict=fail;
+ *   warn  if any invariant severity=warn verdict=fail (and no block),
+ *          OR any pack check / pre-check severity=warn verdict=fail (and no block);
  *   pass otherwise.
+ *
+ * `probePacks` is optional so pre-T-0 callers keep the old signature.
  *
  * @param {Array<{ invariant: string, verdict: 'pass'|'warn'|'fail', severity: 'block'|'warn'|'advisory' }>} invariantChecks
  * @param {Array<{ verdict: 'pass'|'warn'|'fail' }>} authSmokeChecks
+ * @param {Array<{ applicable?: boolean, checks?: Array<{ verdict: 'pass'|'warn'|'fail'|'skipped', severity?: 'block'|'warn'|'advisory' }>, preChecks?: Array<{ verdict: 'pass'|'warn'|'fail'|'skipped', severity?: 'block'|'warn'|'advisory' }> }>} [probePacks]
  * @returns {'pass'|'warn'|'block'}
  */
-export function aggregateVerdict(invariantChecks, authSmokeChecks) {
+export function aggregateVerdict(invariantChecks, authSmokeChecks, probePacks) {
   for (const check of invariantChecks) {
     if (check.severity === 'block' && check.verdict === 'fail') return 'block';
   }
   for (const check of authSmokeChecks ?? []) {
     if (check.verdict === 'fail') return 'block';
   }
+  for (const pack of probePacks ?? []) {
+    if (pack?.applicable === false) continue;
+    for (const c of pack?.checks ?? []) {
+      if (c?.severity === 'block' && c?.verdict === 'fail') return 'block';
+    }
+    for (const c of pack?.preChecks ?? []) {
+      if (c?.severity === 'block' && c?.verdict === 'fail') return 'block';
+    }
+  }
   for (const check of invariantChecks) {
     if (check.severity === 'warn' && (check.verdict === 'fail' || check.verdict === 'warn')) return 'warn';
+  }
+  for (const pack of probePacks ?? []) {
+    if (pack?.applicable === false) continue;
+    for (const c of pack?.checks ?? []) {
+      if (c?.severity === 'warn' && c?.verdict === 'fail') return 'warn';
+    }
+    for (const c of pack?.preChecks ?? []) {
+      if (c?.severity === 'warn' && c?.verdict === 'fail') return 'warn';
+    }
   }
   return 'pass';
 }
@@ -67,10 +91,10 @@ export function aggregateVerdict(invariantChecks, authSmokeChecks) {
  */
 export function composeBrowserVerificationRecord({
   manifest, fbsId, mode, runtimeProfile, runtimeUrl, routesChecked,
-  invariantChecks, authSmokeChecks = [], notes, now = new Date(),
+  invariantChecks, authSmokeChecks = [], probePacks = [], notes, now = new Date(),
 }) {
   const id = nextBrowserVerificationId(manifest, fbsId);
-  const verdict = aggregateVerdict(invariantChecks, authSmokeChecks);
+  const verdict = aggregateVerdict(invariantChecks, authSmokeChecks, probePacks);
   const record = {
     id,
     fbsId,
@@ -83,6 +107,7 @@ export function composeBrowserVerificationRecord({
     verdict,
   };
   if (authSmokeChecks && authSmokeChecks.length > 0) record.authSmokeChecks = authSmokeChecks;
+  if (Array.isArray(probePacks) && probePacks.length > 0) record.probePacks = probePacks;
   if (typeof notes === 'string' && notes.length > 0) record.notes = notes;
   return record;
 }

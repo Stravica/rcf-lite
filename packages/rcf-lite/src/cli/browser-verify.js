@@ -18,6 +18,7 @@
 
 import { parseArgs } from 'node:util';
 import process from 'node:process';
+import { isAbsolute, resolve } from 'node:path';
 
 import { walkTree } from '#core/store';
 import { writeUnexpectedFailure, rcfError } from '#core/errors';
@@ -25,6 +26,7 @@ import { writeUnexpectedFailure, rcfError } from '#core/errors';
 import { findProjectRoot } from '../view/index.js';
 import {
   composeOperatorSessionRecord,
+  loadProbePacks,
   runAgentScreenshotCritique,
   stubBrowserDriver,
   writeBrowserVerificationAck,
@@ -40,6 +42,7 @@ const OPTION_SPEC = {
   quiet: { type: 'boolean' },
   ack: { type: 'boolean' },
   notes: { type: 'string' },
+  'probe-pack': { type: 'string' },
   help: { type: 'boolean' },
 };
 
@@ -61,6 +64,11 @@ Options:
   --quiet                   Suppress non-error confirmations.
   --ack                     Mark operatorAckAt on the latest record for
                             this FBS (used to clear a warn verdict).
+  --probe-pack <name>       Restrict this run to one blueprint-shipped
+                            probe pack by packName. When omitted, every
+                            discovered pack whose appliesTo() matches
+                            this FBS runs. Refuses (exit 2) when the
+                            name resolves to no discovered pack.
   --help                    Print this help.
 
 Exit codes:
@@ -163,11 +171,31 @@ export async function main(argv, deps = {}) {
         stderr.write('[error] usage browser-verify: no fetch available in the runtime; supply deps.fetch\n');
         return 2;
       }
+      // Probe-pack discovery: gather packs from every applied blueprint
+      // on the manifest, then apply --probe-pack filter if any.
+      const appliedBlueprints = readAppliedBlueprints({ manifest: tree.manifest, projectRoot });
+      const { packs, errors: packErrors } = await loadProbePacks({ appliedBlueprints, projectRoot });
+      if (packErrors.length > 0) {
+        for (const e of packErrors) stderr.write(`[error] usage browser-verify: probe-pack loader refused ${e.packAbsPath}: ${e.message}\n`);
+        return 2;
+      }
+      const packNameFilter = typeof flags['probe-pack'] === 'string' && flags['probe-pack'].length > 0
+        ? flags['probe-pack']
+        : undefined;
+      if (packNameFilter && !packs.some((p) => p.packName === packNameFilter)) {
+        const discovered = packs.map((p) => p.packName).sort();
+        stderr.write(`[error] usage browser-verify: --probe-pack '${packNameFilter}' resolves to no discovered pack. Discovered packs: ${discovered.length === 0 ? '(none)' : discovered.join(', ')}.\n`);
+        return 2;
+      }
+      const packBrowser = deps.packBrowser ?? null;
       record = await runAgentScreenshotCritique({
         tree, fbs, runtimeUrl, runtimeProfile: profile,
         browserDriver, fetch: fetchFn,
         artefactDir: `.rcf/artefacts/${fbsId.toLowerCase()}`,
         critiqueNotes: flags.notes,
+        probePacks: packs,
+        packBrowser,
+        packNameFilter,
         now,
       });
     }
@@ -203,6 +231,41 @@ export async function main(argv, deps = {}) {
   return record.verdict === 'pass' ? 0 : 4;
 }
 
+/**
+ * Read applied blueprints off the manifest as an array of
+ * `{ slug, absPath }` suitable for `loadProbePacks`.
+ *
+ * The applied-blueprint record carries a `source` field (see
+ * `src/blueprint/apply.js`). For a shelf apply the source is the
+ * shelf-relative slug; for a local-path apply it is an absolute
+ * path; for a library apply it is `<library>:<slug>`. We resolve
+ * to the shelf path shipped alongside the CLI package or, in the
+ * monorepo, the repo-root shelf. Missing directories are skipped
+ * without error (the CLI later checks discovered vs. requested).
+ */
+function readAppliedBlueprints({ manifest, projectRoot }) {
+  const list = Array.isArray(manifest?.blueprints) ? manifest.blueprints : [];
+  const out = [];
+  for (const entry of list) {
+    if (!entry || typeof entry.slug !== 'string' || entry.slug.length === 0) continue;
+    const absPath = resolveBlueprintAbsPath({ entry, projectRoot });
+    if (absPath) out.push({ slug: entry.slug, absPath });
+  }
+  return out;
+}
+
+function resolveBlueprintAbsPath({ entry, projectRoot }) {
+  const { slug, source } = entry;
+  if (typeof source === 'string' && source.length > 0) {
+    if (isAbsolute(source)) return source;
+    if (source.startsWith('./') || source.startsWith('../')) {
+      return resolve(projectRoot, source);
+    }
+  }
+  const cwd = resolve(projectRoot, 'blueprints', slug);
+  return cwd;
+}
+
 function defaultUrlForProfile(profile) {
   if (profile === 'ci') return 'http://127.0.0.1:3000';
   if (profile === 'deployed') return '';
@@ -225,6 +288,23 @@ function renderSummary({ stdout, record }) {
     for (const c of record.authSmokeChecks) {
       const detail = c.detail ? ` - ${c.detail}` : '';
       stdout.write(`    [${c.verdict}] ${c.check} (status=${c.status ?? 'n/a'})${detail}\n`);
+    }
+  }
+  if (Array.isArray(record.probePacks) && record.probePacks.length > 0) {
+    stdout.write('  probe packs:\n');
+    for (const p of record.probePacks) {
+      if (p.applicable === false) {
+        stdout.write(`    [skip] ${p.packName} (${p.blueprintSlug}): ${p.detail ?? 'not applicable to this FBS'}\n`);
+        continue;
+      }
+      for (const pc of p.preChecks ?? []) {
+        const detail = pc.detail ? ` - ${pc.detail}` : '';
+        stdout.write(`    [${pc.verdict}] ${p.packName} pre-check ${pc.id}${detail}\n`);
+      }
+      for (const c of p.checks ?? []) {
+        const detail = c.detail ? ` - ${c.detail}` : '';
+        stdout.write(`    [${c.verdict}] ${p.packName} ${c.id}${detail}\n`);
+      }
     }
   }
   stdout.write(`  verdict: ${record.verdict}\n\n`);
