@@ -758,6 +758,35 @@ flowchart LR
   REQ-019 --> AC-1901-5
   TC-048-negative-runs["TC-048-negative-runs"]
   AC-1901-5 -.-> TC-048-negative-runs
+  REQ-020["REQ-020"]
+  AC-2001-1["AC-2001-1"]
+  REQ-020 --> AC-2001-1
+  TC-049-blueprint-json-shape["TC-049-blueprint-json-shape"]
+  AC-2001-1 -.-> TC-049-blueprint-json-shape
+  AC-2001-2["AC-2001-2"]
+  REQ-020 --> AC-2001-2
+  TC-049-applies-clean["TC-049-applies-clean"]
+  AC-2001-2 -.-> TC-049-applies-clean
+  AC-2001-3["AC-2001-3"]
+  REQ-020 --> AC-2001-3
+  TC-049-guidance-asset["TC-049-guidance-asset"]
+  AC-2001-3 -.-> TC-049-guidance-asset
+  AC-2001-4["AC-2001-4"]
+  REQ-020 --> AC-2001-4
+  TC-049-pack-checks-cross-check["TC-049-pack-checks-cross-check"]
+  AC-2001-4 -.-> TC-049-pack-checks-cross-check
+  AC-2001-5["AC-2001-5"]
+  REQ-020 --> AC-2001-5
+  TC-049-fixture-dashboard-render["TC-049-fixture-dashboard-render"]
+  AC-2001-5 -.-> TC-049-fixture-dashboard-render
+  AC-2001-6["AC-2001-6"]
+  REQ-020 --> AC-2001-6
+  TC-049-negative-runs["TC-049-negative-runs"]
+  AC-2001-6 -.-> TC-049-negative-runs
+  AC-2001-7["AC-2001-7"]
+  REQ-020 --> AC-2001-7
+  TC-049-resize-seam["TC-049-resize-seam"]
+  AC-2001-7 -.-> TC-049-resize-seam
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1147,6 +1176,21 @@ flowchart LR
   class TC-048-fixture-charts-render tc;
   class AC-1901-5 ac;
   class TC-048-negative-runs tc;
+  class REQ-020 req;
+  class AC-2001-1 ac;
+  class TC-049-blueprint-json-shape tc;
+  class AC-2001-2 ac;
+  class TC-049-applies-clean tc;
+  class AC-2001-3 ac;
+  class TC-049-guidance-asset tc;
+  class AC-2001-4 ac;
+  class TC-049-pack-checks-cross-check tc;
+  class AC-2001-5 ac;
+  class TC-049-fixture-dashboard-render tc;
+  class AC-2001-6 ac;
+  class TC-049-negative-runs tc;
+  class AC-2001-7 ac;
+  class TC-049-resize-seam tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

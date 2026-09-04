@@ -158,12 +158,12 @@ const expectedCounts = {
   // code nodes) anchoring the application-charts sample-app fixture's
   // startServer, the shipped application-charts blueprint.json, and
   // the shipped probe pack file (115 -> 118).
-  // Visual round T-3 (w-2026-09-04-dave-012) added CN-119..122 (4
+  // Visual round T-3 (w-2026-09-04-dave-012) added CN-119..123 (5
   // code nodes) anchoring the application-dashboard shipped probe
   // pack file, the sample-app fixture's startServer, the packaged
-  // design-guidance asset, and the pack-browser resize seam
-  // (118 -> 122).
-  codeNode: 122,
+  // design-guidance asset, the pack-browser resize seam, and the
+  // shipped blueprint.json (118 -> 123).
+  codeNode: 123,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.

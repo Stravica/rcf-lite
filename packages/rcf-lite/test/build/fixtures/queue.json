@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 38,
-    "notStarted": 10,
+    "items": 39,
+    "notStarted": 11,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 8,
+    "actionable": 9,
     "blocked": 2
   },
   "nextActionable": "FBS-013",
@@ -34,7 +34,8 @@
         "FBS-035",
         "FBS-036",
         "FBS-037",
-        "FBS-038"
+        "FBS-038",
+        "FBS-039"
       ]
     },
     {
@@ -540,6 +541,16 @@
       "buildOrder": 38,
       "tier": 0,
       "title": "application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-039",
+      "buildOrder": 39,
+      "tier": 0,
+      "title": "application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",
