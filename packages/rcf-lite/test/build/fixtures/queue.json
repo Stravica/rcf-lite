@@ -7,11 +7,11 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 26,
+    "items": 27,
     "notStarted": 6,
     "inProgress": 0,
     "complete": 13,
-    "verified": 7,
+    "verified": 8,
     "actionable": 4,
     "blocked": 2
   },
@@ -57,7 +57,8 @@
       "fbsIds": [
         "FBS-006",
         "FBS-009",
-        "FBS-010"
+        "FBS-010",
+        "FBS-027"
       ]
     },
     {
@@ -363,6 +364,18 @@
       "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-025"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-027",
+      "buildOrder": 27,
+      "tier": 3,
+      "title": "`rcf define blueprint remove-resolution <adr-id>` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-026"
       ],
       "state": "verified",
       "blockedBy": []

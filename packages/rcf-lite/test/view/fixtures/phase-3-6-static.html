@@ -4340,6 +4340,14 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   AC-1203-3 -.-&gt;|delivered by| FBS-026
   AC-1203-3 -.-&gt;|implemented by| CN-074
   AC-1203-3 -.-&gt;|implemented by| CN-075
+  US-1204[&quot;US-1204&lt;br/&gt;Operator running `rcf define blueprint remove...&quot;]
+  REQ-012 --&gt; US-1204
+  AC-1204-1[&quot;AC-1204-1&quot;]
+  US-1204 --&gt; AC-1204-1
+  FBS-027[&quot;FBS-027&lt;br/&gt;`rcf define blueprint remove-resolution &lt;adr-...&quot;]
+  AC-1204-1 -.-&gt;|delivered by| FBS-027
+  CN-076[&quot;CN-076&lt;br/&gt;`rcf define blueprint remove-resolution` verb...&quot;]
+  AC-1204-1 -.-&gt;|implemented by| CN-076
   click REQ-012 &quot;#REQ-012&quot;;
   click US-1201 &quot;#US-1201&quot;;
   click AC-1201-1 &quot;#AC-1201-1&quot;;
@@ -4355,6 +4363,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click AC-1203-2 &quot;#AC-1203-2&quot;;
   click CN-075 &quot;#CN-075&quot;;
   click AC-1203-3 &quot;#AC-1203-3&quot;;
+  click US-1204 &quot;#US-1204&quot;;
+  click AC-1204-1 &quot;#AC-1204-1&quot;;
+  click FBS-027 &quot;#FBS-027&quot;;
+  click CN-076 &quot;#CN-076&quot;;
   class REQ-012 req;
   class US-1201 us;
   class AC-1201-1 ac;
@@ -4370,6 +4382,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class AC-1203-2 ac;
   class CN-075 cn;
   class AC-1203-3 ac;
+  class US-1204 us;
+  class AC-1204-1 ac;
+  class FBS-027 fbs;
+  class CN-076 cn;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
@@ -4570,6 +4586,52 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;given&quot;: &quot;the shipped application-api-rest blueprint source directory at HEAD&quot;,
       &quot;when&quot;: &quot;blueprint.json, REQ-006, US-2108 (all eight ACs), TAC-306, and US-2103 are read&quot;,
       &quot;then&quot;: &quot;blueprint.json version equals 2.0.0; REQ-006 names probe-endpoints and probeInterface.paths as the two path-resolution sources; every US-2108 AC contains \&quot;resolved\&quot; and none contains a literal /healthz/* prefix; TAC-306 responsibilities name the resolved probe path set and getExemptPathSet or probeInterface.paths; US-2103 no longer contains /healthz/*&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [],
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-1204">
+  <summary><span class="summary-label">US-1204 - Operator running `rcf define blueprint remove-resolution &lt;adr-id&gt;` drops a redundant historical resolutions[] entry cleanly (spec section 9 remedy)</span><span class="status draft">draft</span></summary>
+  <article id="US-1204" class="doc doc-us">
+  <h3>US-1204 - Operator running `rcf define blueprint remove-resolution &lt;adr-id&gt;` drops a redundant historical resolutions[] entry cleanly (spec section 9 remedy)</h3>
+  
+  <p><strong>As a:</strong> operator running `rcf doctor --check probe-path-owner` on a project that upgraded to observability-essentials v2.0.0 + observability-probe-endpoints v1.1.0 and now sees a redundant-&lt;topic&gt;-resolution drift line</p>
+  <p><strong>I want:</strong> the `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb the drift line and section 9 name to actually exist, drop the named manifest.resolutions[] entry (and nothing else), refuse exit 2 when the id is not a resolution entry, and be idempotent on a second run</p>
+  <p><strong>So that:</strong> the section 9 migration remedy printed by the doctor is executable verbatim, and re-running the same command after a successful pass is a no-op rather than a refusal</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-012">REQ-012</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1204-1" class="ac-item"><strong>AC-1204-1</strong> - The `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb exists on the blueprint CLI (advertised in `rcf help define blueprint`), matches the `&lt;adr-id&gt;` argument against `manifest.resolutions[].resolvedByAdrId`, and exhibits three ratified behaviours: (a) when an entry matches, drop that entry and only that entry from `manifest.resolutions[]` (every other manifest section byte-identical, and the project-level ADR file at `rcf/adrs/&lt;adr-id&gt;.json` untouched), print one result line naming the id, the topic, and the dropped resolution id, and exit 0; (b) when the `&lt;adr-id&gt;` is a well-formed ADR id that still names an ADR present on the project tree but is no longer on any `resolutions[]` entry, print `[blueprint] nothing to remove: &#39;&lt;adr-id&gt;&#39; is not on manifest.resolutions[]` and exit 0 (idempotent on re-run of the same operation); (c) when the `&lt;adr-id&gt;` is malformed against the ADR id grammar, or is well-formed but names no ADR on the tree and no resolutions[] entry, print `[error] blueprint remove-resolution: ...` on stderr and exit 2.
+<div class="ac-gwt"><p><em>Given</em> a project whose manifest.resolutions[] carries one globalAdrTopic entry on healthProbes with resolvedByAdrId = &#39;ADR-011-health-probes&#39; and the ADR file present at rcf/adrs/adr-011-health-probes.json</p><p><em>When</em> the operator runs `rcf define blueprint remove-resolution ADR-011-health-probes` once, then a second time, then with &#39;not-an-adr&#39; and with &#39;ADR-999-nowhere&#39;</p><p><em>Then</em> the first run exits 0 with the removal line and drops the single resolutions[] entry (project-ADR file untouched, every other manifest section byte-identical); the second run exits 0 with the &#39;nothing to remove&#39; line and does not write; &#39;not-an-adr&#39; exits 2 with &#39;is not a well-formed ADR id&#39;; &#39;ADR-999-nowhere&#39; exits 2 with &#39;is not a resolution entry on this manifest&#39;; and `rcf help define blueprint` output contains the `remove-resolution &lt;adr-id&gt;` verb block</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-027">FBS-027</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;usId&quot;: &quot;US-1204&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-012&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;Operator running `rcf define blueprint remove-resolution &lt;adr-id&gt;` drops a redundant historical resolutions[] entry cleanly (spec section 9 remedy)&quot;,
+  &quot;asA&quot;: &quot;operator running `rcf doctor --check probe-path-owner` on a project that upgraded to observability-essentials v2.0.0 + observability-probe-endpoints v1.1.0 and now sees a redundant-&lt;topic&gt;-resolution drift line&quot;,
+  &quot;iWant&quot;: &quot;the `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb the drift line and section 9 name to actually exist, drop the named manifest.resolutions[] entry (and nothing else), refuse exit 2 when the id is not a resolution entry, and be idempotent on a second run&quot;,
+  &quot;soThat&quot;: &quot;the section 9 migration remedy printed by the doctor is executable verbatim, and re-running the same command after a successful pass is a no-op rather than a refusal&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1204-1&quot;,
+      &quot;description&quot;: &quot;The `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb exists on the blueprint CLI (advertised in `rcf help define blueprint`), matches the `&lt;adr-id&gt;` argument against `manifest.resolutions[].resolvedByAdrId`, and exhibits three ratified behaviours: (a) when an entry matches, drop that entry and only that entry from `manifest.resolutions[]` (every other manifest section byte-identical, and the project-level ADR file at `rcf/adrs/&lt;adr-id&gt;.json` untouched), print one result line naming the id, the topic, and the dropped resolution id, and exit 0; (b) when the `&lt;adr-id&gt;` is a well-formed ADR id that still names an ADR present on the project tree but is no longer on any `resolutions[]` entry, print `[blueprint] nothing to remove: &#39;&lt;adr-id&gt;&#39; is not on manifest.resolutions[]` and exit 0 (idempotent on re-run of the same operation); (c) when the `&lt;adr-id&gt;` is malformed against the ADR id grammar, or is well-formed but names no ADR on the tree and no resolutions[] entry, print `[error] blueprint remove-resolution: ...` on stderr and exit 2.&quot;,
+      &quot;given&quot;: &quot;a project whose manifest.resolutions[] carries one globalAdrTopic entry on healthProbes with resolvedByAdrId = &#39;ADR-011-health-probes&#39; and the ADR file present at rcf/adrs/adr-011-health-probes.json&quot;,
+      &quot;when&quot;: &quot;the operator runs `rcf define blueprint remove-resolution ADR-011-health-probes` once, then a second time, then with &#39;not-an-adr&#39; and with &#39;ADR-999-nowhere&#39;&quot;,
+      &quot;then&quot;: &quot;the first run exits 0 with the removal line and drops the single resolutions[] entry (project-ADR file untouched, every other manifest section byte-identical); the second run exits 0 with the &#39;nothing to remove&#39; line and does not write; &#39;not-an-adr&#39; exits 2 with &#39;is not a well-formed ADR id&#39;; &#39;ADR-999-nowhere&#39; exits 2 with &#39;is not a resolution entry on this manifest&#39;; and `rcf help define blueprint` output contains the `remove-resolution &lt;adr-id&gt;` verb block&quot;,
       &quot;testable&quot;: true,
       &quot;scope&quot;: &quot;library&quot;
     }
@@ -5686,7 +5748,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -7898,6 +7960,57 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;estimatedSize&quot;: &quot;medium&quot;,
   &quot;riskLevel&quot;: &quot;low&quot;,
   &quot;notes&quot;: &quot;Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1203 on REQ-012.&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-027">
+  <summary><span class="summary-label">FBS-027 - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</span><span class="status verified">verified</span></summary>
+  <article id="FBS-027" class="doc doc-fbs">
+  <h3>FBS-027 - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</h3>
+  
+  <p><strong>Summary:</strong> Add packages/rcf-lite/src/blueprint/remove-resolution.js implementing removeResolution({ projectRoot, tree, resolvedByAdrId }) with the three ratified behaviours (remove + idempotent + refuse), export it from packages/rcf-lite/src/blueprint/index.js, wire the `remove-resolution` verb into packages/rcf-lite/src/cli/blueprint.js&#39;s HELP block and dispatch, and cover the surface with packages/rcf-lite/test/blueprint/remove-resolution.test.js (module) and remove-resolution cases appended to packages/rcf-lite/test/blueprint/cli.test.js (CLI edge). No changes to the doctor hint text (it names the verb already); no changes to project ADR files (the verb is scoped to manifest.resolutions[]).</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1204-1">AC-1204-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1204-1">AC-1204-1</a></strong> - The `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb exists on the blueprint CLI (advertised in `rcf help define blueprint`), matches the `&lt;adr-id&gt;` argument against `manifest.resolutions[].resolvedByAdrId`, and exhibits three ratified behaviours: (a) when an entry matches, drop that entry and only that entry from `manifest.resolutions[]` (every other manifest section byte-identical, and the project-level ADR file at `rcf/adrs/&lt;adr-id&gt;.json` untouched), print one result line naming the id, the topic, and the dropped resolution id, and exit 0; (b) when the `&lt;adr-id&gt;` is a well-formed ADR id that still names an ADR present on the project tree but is no longer on any `resolutions[]` entry, print `[blueprint] nothing to remove: &#39;&lt;adr-id&gt;&#39; is not on manifest.resolutions[]` and exit 0 (idempotent on re-run of the same operation); (c) when the `&lt;adr-id&gt;` is malformed against the ADR id grammar, or is well-formed but names no ADR on the tree and no resolutions[] entry, print `[error] blueprint remove-resolution: ...` on stderr and exit 2.</p>
+  <p><em>Given</em> a project whose manifest.resolutions[] carries one globalAdrTopic entry on healthProbes with resolvedByAdrId = &#39;ADR-011-health-probes&#39; and the ADR file present at rcf/adrs/adr-011-health-probes.json</p>
+  <p><em>When</em> the operator runs `rcf define blueprint remove-resolution ADR-011-health-probes` once, then a second time, then with &#39;not-an-adr&#39; and with &#39;ADR-999-nowhere&#39;</p>
+  <p><em>Then</em> the first run exits 0 with the removal line and drops the single resolutions[] entry (project-ADR file untouched, every other manifest section byte-identical); the second run exits 0 with the &#39;nothing to remove&#39; line and does not write; &#39;not-an-adr&#39; exits 2 with &#39;is not a well-formed ADR id&#39;; &#39;ADR-999-nowhere&#39; exits 2 with &#39;is not a resolution entry on this manifest&#39;; and `rcf help define blueprint` output contains the `remove-resolution &lt;adr-id&gt;` verb block</p>
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-026">FBS-026</a></p></section>
+  <p><strong>Estimated size:</strong> small</p>
+  
+  
+  <p><strong>Risk level:</strong> low</p>
+  <p><strong>Build order:</strong> 27</p>
+  <p><strong>Execution status:</strong> verified</p>
+  <p><strong>Notes:</strong> Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1204 on REQ-012. Spec amendment A2, added under the envelope 2026-09-04 after gate d-2026-09-04-016 finding 1 (the doctor and spec section 9 named the verb before it existed).</p>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;fbsId&quot;: &quot;FBS-027&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 27,
+  &quot;executionStatus&quot;: &quot;verified&quot;,
+  &quot;title&quot;: &quot;`rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)&quot;,
+  &quot;summary&quot;: &quot;Add packages/rcf-lite/src/blueprint/remove-resolution.js implementing removeResolution({ projectRoot, tree, resolvedByAdrId }) with the three ratified behaviours (remove + idempotent + refuse), export it from packages/rcf-lite/src/blueprint/index.js, wire the `remove-resolution` verb into packages/rcf-lite/src/cli/blueprint.js&#39;s HELP block and dispatch, and cover the surface with packages/rcf-lite/test/blueprint/remove-resolution.test.js (module) and remove-resolution cases appended to packages/rcf-lite/test/blueprint/cli.test.js (CLI edge). No changes to the doctor hint text (it names the verb already); no changes to project ADR files (the verb is scoped to manifest.resolutions[]).&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1204-1&quot;
+  ],
+  &quot;dependsOnFbsIds&quot;: [
+    &quot;FBS-026&quot;
+  ],
+  &quot;contextRequirements&quot;: {
+    &quot;tacIds&quot;: [],
+    &quot;adrIds&quot;: []
+  },
+  &quot;domain&quot;: &quot;blueprints&quot;,
+  &quot;estimatedSize&quot;: &quot;small&quot;,
+  &quot;riskLevel&quot;: &quot;low&quot;,
+  &quot;notes&quot;: &quot;Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1204 on REQ-012. Spec amendment A2, added under the envelope 2026-09-04 after gate d-2026-09-04-016 finding 1 (the doctor and spec section 9 named the verb before it existed).&quot;,
   &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
 }
@@ -10750,6 +10863,99 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-1203-3&quot;,
       &quot;description&quot;: &quot;api-rest US-2108 AC-2108-4 binds the startup semantics to the resolved startup path and names the startup.enabled flag or probeInterface.paths.startup as the enablement source&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/probe-path-alignment.test.js::assertion 8: startup binding when enabled is declared on probe-endpoints and consumed by api-rest&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;createdAt&quot;: &quot;2026-09-04T00:00:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T00:00:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-037">
+  <summary><span class="summary-label">TS-037 - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb: remove + idempotent + refuse behaviours</span><span class="status draft">draft</span></summary>
+  <article id="TS-037" class="doc doc-ts">
+  <h3>TS-037 - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb: remove + idempotent + refuse behaviours</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1204">US-1204</a></p>
+  <p><strong>Purpose:</strong> Cover the single AC on US-1204: the ratified three-behaviour surface (remove entry, idempotent re-run, refuse-exit-2 on malformed or unknown id) end-to-end through the CLI, plus the help block advertising the verb.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1204-1">AC-1204-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-037-remove-drops-entry-and-prints-line">
+  <p><strong>TC-037-remove-drops-entry-and-prints-line</strong> - covers <a href="#AC-1204-1">AC-1204-1</a> <span class="status pending">pending</span></p>
+  <p>One resolutions[] entry seeded with resolvedByAdrId &#39;ADR-011-health-probes&#39;; the verb prints the removal line naming the id, topic &#39;healthProbes&#39; and resolution id, exits 0, drops the single entry from manifest.resolutions[], and leaves every other manifest section and the ruling ADR file on disk unchanged.</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf blueprint remove-resolution drops the resolutions[] entry and prints one result line (spec A2)</code></p>
+</div>
+<div class="tc" id="TC-037-idempotent-second-run">
+  <p><strong>TC-037-idempotent-second-run</strong> - covers <a href="#AC-1204-1">AC-1204-1</a> <span class="status pending">pending</span></p>
+  <p>After a successful remove, a second run of the same command exits 0 and prints the &#39;nothing to remove&#39; line without writing the manifest.</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf blueprint remove-resolution is idempotent on re-run when the ruling ADR still exists on the tree</code></p>
+</div>
+<div class="tc" id="TC-037-refuse-malformed-adr-id">
+  <p><strong>TC-037-refuse-malformed-adr-id</strong> - covers <a href="#AC-1204-1">AC-1204-1</a> <span class="status pending">pending</span></p>
+  <p>A malformed id &#39;not-an-adr&#39; exits 2 with the well-formed-ADR-id error on stderr.</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf blueprint remove-resolution refuses exit 2 on a malformed &lt;adr-id&gt;</code></p>
+</div>
+<div class="tc" id="TC-037-refuse-unknown-adr-id">
+  <p><strong>TC-037-refuse-unknown-adr-id</strong> - covers <a href="#AC-1204-1">AC-1204-1</a> <span class="status pending">pending</span></p>
+  <p>A well-formed id (&#39;ADR-999-nowhere&#39;) that names no ADR on the tree and no resolutions[] entry exits 2 with the &#39;is not a resolution entry&#39; error on stderr.</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf blueprint remove-resolution refuses exit 2 when &lt;adr-id&gt; is well-formed but names no ADR anywhere on the tree</code></p>
+</div>
+<div class="tc" id="TC-037-help-lists-verb">
+  <p><strong>TC-037-help-lists-verb</strong> - covers <a href="#AC-1204-1">AC-1204-1</a> <span class="status pending">pending</span></p>
+  <p>`rcf help define blueprint` output contains the `remove-resolution &lt;adr-id&gt;` verb block including the idempotent-on-re-run line.</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/cli.test.js::rcf help define blueprint prints the remove-resolution verb</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;id&quot;: &quot;TS-037&quot;,
+  &quot;usId&quot;: &quot;US-1204&quot;,
+  &quot;title&quot;: &quot;`rcf define blueprint remove-resolution &lt;adr-id&gt;` verb: remove + idempotent + refuse behaviours&quot;,
+  &quot;purpose&quot;: &quot;Cover the single AC on US-1204: the ratified three-behaviour surface (remove entry, idempotent re-run, refuse-exit-2 on malformed or unknown id) end-to-end through the CLI, plus the help block advertising the verb.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1204-1&quot;
+  ],
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-037-remove-drops-entry-and-prints-line&quot;,
+      &quot;acId&quot;: &quot;AC-1204-1&quot;,
+      &quot;description&quot;: &quot;One resolutions[] entry seeded with resolvedByAdrId &#39;ADR-011-health-probes&#39;; the verb prints the removal line naming the id, topic &#39;healthProbes&#39; and resolution id, exits 0, drops the single entry from manifest.resolutions[], and leaves every other manifest section and the ruling ADR file on disk unchanged.&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf blueprint remove-resolution drops the resolutions[] entry and prints one result line (spec A2)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-037-idempotent-second-run&quot;,
+      &quot;acId&quot;: &quot;AC-1204-1&quot;,
+      &quot;description&quot;: &quot;After a successful remove, a second run of the same command exits 0 and prints the &#39;nothing to remove&#39; line without writing the manifest.&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf blueprint remove-resolution is idempotent on re-run when the ruling ADR still exists on the tree&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-037-refuse-malformed-adr-id&quot;,
+      &quot;acId&quot;: &quot;AC-1204-1&quot;,
+      &quot;description&quot;: &quot;A malformed id &#39;not-an-adr&#39; exits 2 with the well-formed-ADR-id error on stderr.&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf blueprint remove-resolution refuses exit 2 on a malformed &lt;adr-id&gt;&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-037-refuse-unknown-adr-id&quot;,
+      &quot;acId&quot;: &quot;AC-1204-1&quot;,
+      &quot;description&quot;: &quot;A well-formed id (&#39;ADR-999-nowhere&#39;) that names no ADR on the tree and no resolutions[] entry exits 2 with the &#39;is not a resolution entry&#39; error on stderr.&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf blueprint remove-resolution refuses exit 2 when &lt;adr-id&gt; is well-formed but names no ADR anywhere on the tree&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-037-help-lists-verb&quot;,
+      &quot;acId&quot;: &quot;AC-1204-1&quot;,
+      &quot;description&quot;: &quot;`rcf help define blueprint` output contains the `remove-resolution &lt;adr-id&gt;` verb block including the idempotent-on-re-run line.&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/cli.test.js::rcf help define blueprint prints the remove-resolution verb&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;scope&quot;: &quot;library&quot;
     }

@@ -1116,6 +1116,18 @@
             "TC-036-api-rest-startup-consumption"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1204-1",
+          "covered": true,
+          "testCases": [
+            "TC-037-help-lists-verb",
+            "TC-037-idempotent-second-run",
+            "TC-037-refuse-malformed-adr-id",
+            "TC-037-refuse-unknown-adr-id",
+            "TC-037-remove-drops-entry-and-prints-line"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     }
