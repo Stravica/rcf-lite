@@ -27,14 +27,18 @@ Generation strategy: dependencyFirst
 | 21 | 0 | FBS-021 | Blueprints amend for e2e as a declared test level | verified | verified |  |
 | 22 | 0 | FBS-022 | Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant | verified | verified |  |
 | 23 | 0 | FBS-023 | Init: Playwright MCP entry only when no scope-visible entry exists | verified | verified |  |
+| 24 | 0 | FBS-024 | Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering | verified | verified |  |
+| 25 | 1 | FBS-025 | Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree | verified | verified |  |
+| 26 | 2 | FBS-026 | Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check | verified | verified |  |
+| 27 | 3 | FBS-027 | `rcf define blueprint remove-resolution <adr-id>` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id) | verified | verified |  |
 
-Totals: items 23 | notStarted 6 | inProgress 0 | complete 13 | verified 4 | actionable 4 | blocked 2
+Totals: items 27 | notStarted 6 | inProgress 0 | complete 13 | verified 8 | actionable 4 | blocked 2
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023
-- tier 1: FBS-002, FBS-017, FBS-019
-- tier 2: FBS-003, FBS-004, FBS-005, FBS-008
-- tier 3: FBS-006, FBS-009, FBS-010
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024
+- tier 1: FBS-002, FBS-017, FBS-019, FBS-025
+- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026
+- tier 3: FBS-006, FBS-009, FBS-010, FBS-027
 - tier 4: FBS-007, FBS-011, FBS-012
 
 Next actionable: FBS-013

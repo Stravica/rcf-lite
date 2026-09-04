@@ -1,8 +1,8 @@
 {
   "reqId": "application-api-rest-REQ-006",
   "prdId": "PRD-001",
-  "title": "Kubernetes probe endpoints: liveness, readiness, and startup with specified schemas and exclusions",
-  "description": "The service exposes three probe endpoints. GET /healthz/live returns 200 whenever the process can serve any request and performs no dependency checks. GET /healthz/ready returns 200 only when declared downstream dependencies (database, cache, queues) are reachable, and 503 with a body listing the failed checks otherwise. GET /healthz/startup returns 200 once initialisation (migrations, cache warm, config load) is complete. Each probe has a specified response schema, sits outside the auth middleware, is excluded from info-level metrics and log noise, and has a documented failure mode.",
+  "title": "Probe endpoints: liveness, readiness, and startup with specified schemas and exclusions (paths resolved by the composed observability-probe-endpoints blueprint or by project configuration)",
+  "description": "The service exposes three probe endpoints: liveness, readiness, and startup, with specified response schemas and exclusions. The liveness probe returns 200 whenever the process can serve any request and performs no dependency checks. The readiness probe returns 200 only when declared downstream dependencies (database, cache, queues) are reachable, and 503 with a body listing the failed checks otherwise. The startup probe returns 200 once initialisation (migrations, cache warm, config load) is complete and a non-200 with the pending steps before that. Each probe has a specified response schema, sits outside the auth middleware and rate limiter, is excluded from info-level metrics and log noise, and has a documented failure mode. The probe PATHS are supplied by the composed `observability-probe-endpoints` blueprint (Kubernetes profile default: `/live`, `/ready`, and, when enabled, `/startup`), or by project-level configuration under `probeInterface.paths` in the essentials-alone case; this blueprint does not bind literal paths. When probe-endpoints is composed the auth-middleware installer consumes the exempt path set that probe-endpoints emits and no other, so the auth-exempt entries exactly match the resolved probe path set.",
   "category": "functional",
   "domain": "operability",
   "priority": "must",
@@ -11,8 +11,8 @@
     "blueprint:application-api-rest",
     "category:06-probe-endpoints"
   ],
-  "version": "1.0.0",
+  "version": "2.0.0",
   "status": "approved",
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-04T00:00:00Z"
 }

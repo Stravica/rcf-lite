@@ -522,6 +522,49 @@ flowchart LR
   AC-1104-5 -.-> TC-033-redundant-fires-browser-facing
   TC-033-redundant-quiet-on-api-only["TC-033-redundant-quiet-on-api-only"]
   AC-1104-5 -.-> TC-033-redundant-quiet-on-api-only
+  REQ-012["REQ-012"]
+  AC-1201-1["AC-1201-1"]
+  REQ-012 --> AC-1201-1
+  TC-034-permutations-no-globaladr-conflict["TC-034-permutations-no-globaladr-conflict"]
+  AC-1201-1 -.-> TC-034-permutations-no-globaladr-conflict
+  AC-1201-2["AC-1201-2"]
+  REQ-012 --> AC-1201-2
+  TC-034-one-owner-per-topic["TC-034-one-owner-per-topic"]
+  AC-1201-2 -.-> TC-034-one-owner-per-topic
+  AC-1202-1["AC-1202-1"]
+  REQ-012 --> AC-1202-1
+  TC-035-no-literal-path-in-applied-tree["TC-035-no-literal-path-in-applied-tree"]
+  AC-1202-1 -.-> TC-035-no-literal-path-in-applied-tree
+  AC-1203-1["AC-1203-1"]
+  REQ-012 --> AC-1203-1
+  TC-036-probe-endpoints-optional-startup["TC-036-probe-endpoints-optional-startup"]
+  AC-1203-1 -.-> TC-036-probe-endpoints-optional-startup
+  AC-1203-2["AC-1203-2"]
+  REQ-012 --> AC-1203-2
+  TC-036-essentials-no-dual-handler["TC-036-essentials-no-dual-handler"]
+  AC-1203-2 -.-> TC-036-essentials-no-dual-handler
+  TC-036-essentials-no-shipped-default["TC-036-essentials-no-shipped-default"]
+  AC-1203-2 -.-> TC-036-essentials-no-shipped-default
+  TC-036-essentials-path-neutral-and-refusal["TC-036-essentials-path-neutral-and-refusal"]
+  AC-1203-2 -.-> TC-036-essentials-path-neutral-and-refusal
+  AC-1203-3["AC-1203-3"]
+  REQ-012 --> AC-1203-3
+  TC-036-api-rest-auth-exempt-list["TC-036-api-rest-auth-exempt-list"]
+  AC-1203-3 -.-> TC-036-api-rest-auth-exempt-list
+  TC-036-api-rest-startup-consumption["TC-036-api-rest-startup-consumption"]
+  AC-1203-3 -.-> TC-036-api-rest-startup-consumption
+  AC-1204-1["AC-1204-1"]
+  REQ-012 --> AC-1204-1
+  TC-037-help-lists-verb["TC-037-help-lists-verb"]
+  AC-1204-1 -.-> TC-037-help-lists-verb
+  TC-037-idempotent-second-run["TC-037-idempotent-second-run"]
+  AC-1204-1 -.-> TC-037-idempotent-second-run
+  TC-037-refuse-malformed-adr-id["TC-037-refuse-malformed-adr-id"]
+  AC-1204-1 -.-> TC-037-refuse-malformed-adr-id
+  TC-037-refuse-unknown-adr-id["TC-037-refuse-unknown-adr-id"]
+  AC-1204-1 -.-> TC-037-refuse-unknown-adr-id
+  TC-037-remove-drops-entry-and-prints-line["TC-037-remove-drops-entry-and-prints-line"]
+  AC-1204-1 -.-> TC-037-remove-drops-entry-and-prints-line
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -789,6 +832,28 @@ flowchart LR
   class AC-1104-5 ac;
   class TC-033-redundant-fires-browser-facing tc;
   class TC-033-redundant-quiet-on-api-only tc;
+  class REQ-012 req;
+  class AC-1201-1 ac;
+  class TC-034-permutations-no-globaladr-conflict tc;
+  class AC-1201-2 ac;
+  class TC-034-one-owner-per-topic tc;
+  class AC-1202-1 ac;
+  class TC-035-no-literal-path-in-applied-tree tc;
+  class AC-1203-1 ac;
+  class TC-036-probe-endpoints-optional-startup tc;
+  class AC-1203-2 ac;
+  class TC-036-essentials-no-dual-handler tc;
+  class TC-036-essentials-no-shipped-default tc;
+  class TC-036-essentials-path-neutral-and-refusal tc;
+  class AC-1203-3 ac;
+  class TC-036-api-rest-auth-exempt-list tc;
+  class TC-036-api-rest-startup-consumption tc;
+  class AC-1204-1 ac;
+  class TC-037-help-lists-verb tc;
+  class TC-037-idempotent-second-run tc;
+  class TC-037-refuse-malformed-adr-id tc;
+  class TC-037-refuse-unknown-adr-id tc;
+  class TC-037-remove-drops-entry-and-prints-line tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

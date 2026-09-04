@@ -1,6 +1,10 @@
-# Observability blueprint (v1.0.0)
+# Observability blueprint (v2.0.0)
 
-The fifth content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified; Phase 5 of the blueprint programme). Scope: two HTTP health probes (liveness /healthz answering strictly on in-process state, readiness /readyz aggregating over an explicit boot-time-declared dependency set with strict-any-fail semantics), a public status page rendering a declared component list plus stable-fielded incident notices, and a durable notification-outcome sink recording every attempt's outcome for later query by recipient and window. Targeted at small greenfield rcf-lite projects. Historical uptime charts, metrics export, and distributed tracing are documented future variants; the v1.0.0 blueprint ships the current-state contract only.
+The fifth content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified; Phase 5 of the blueprint programme). Scope: two HTTP health probes (liveness and readiness, path-neutral from v2.0.0: liveness answering strictly on in-process state, readiness aggregating over an explicit boot-time-declared dependency set with strict-any-fail semantics), a public status page rendering a declared component list plus stable-fielded incident notices, and a durable notification-outcome sink recording every attempt's outcome for later query by recipient and window. Targeted at small greenfield rcf-lite projects. Historical uptime charts, metrics export, and distributed tracing are documented future variants; the v2.0.0 blueprint ships the current-state contract only.
+
+## Breaking change in v2.0.0 (2026-09-04)
+
+This blueprint no longer claims the shelf-wide `healthProbes` or `readinessSemantics` global topics. Path binding moved to `observability-probe-endpoints` (spec `projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md`, section 4). Essentials-alone projects now supply `probeInterface.paths.liveness` and `probeInterface.paths.readiness` at boot (a one-line configuration change per environment). Projects that compose `observability-probe-endpoints` v1.1.0 or later inherit its resolved path set automatically and see no functional change beyond the topic ownership. See CHANGELOG.md for the full migration checklist.
 
 ## Apply
 

@@ -1,0 +1,65 @@
+{
+  "id": "TS-036",
+  "usId": "US-1203",
+  "title": "Each amended blueprint carries the ratified alignment facts (probe-endpoints, essentials, api-rest)",
+  "purpose": "Cover the three ACs on US-1203: probe-endpoints has the optional startup ACs and composing section; essentials has path-neutral REQs/TACs and boot-refusal ACs; api-rest defers all probe paths to the resolved set.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-1203-1",
+    "AC-1203-2",
+    "AC-1203-3"
+  ],
+  "testCases": [
+    {
+      "id": "TC-036-probe-endpoints-optional-startup",
+      "acId": "AC-1203-1",
+      "description": "probe-endpoints v1.1.0 declares the optional startup path across ADR-1503, US-14102 AC-14102-4, US-14107 AC-14107-4, and the guide composing section",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 4: bare compose default declares /live and /ready; optional /startup; loadBalancer /health",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-036-essentials-path-neutral-and-refusal",
+      "acId": "AC-1203-2",
+      "description": "essentials v2.0.0 restates REQ-001/002 path-neutral, marks TAC-801/802 path as REQUIRED with no default, and adds AC-7101-4/AC-7102-4 for the PROBE_INTERFACE_PATHS_MISSING boot refusal",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 5: essentials-alone declares required probeInterface.paths and refuses boot when absent",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-036-essentials-no-shipped-default",
+      "acId": "AC-1203-2",
+      "description": "TAC-801/802 interfaces carry no literal /healthz or /readyz path defaults and mark the path parameter as REQUIRED",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 7: essentials-alone shape gates on required probeInterface.paths, TACs carry no shipped default",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-036-essentials-no-dual-handler",
+      "acId": "AC-1203-2",
+      "description": "essentials TAC-801/802 responsibilities name the no-dual-handler semantics when probe-endpoints is composed",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 9: essentials TAC-801/802 promise no dual handler registration when probe-endpoints is composed",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-036-api-rest-auth-exempt-list",
+      "acId": "AC-1203-3",
+      "description": "api-rest US-2108 AC-2108-5 binds the auth-exempt assertion to the resolved probe path set naming getExemptPathSet, and TAC-306 responsibilities carry the same binding",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 6: api-rest auth-exempt list equals the probe-endpoints resolved path set",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-036-api-rest-startup-consumption",
+      "acId": "AC-1203-3",
+      "description": "api-rest US-2108 AC-2108-4 binds the startup semantics to the resolved startup path and names the startup.enabled flag or probeInterface.paths.startup as the enablement source",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 8: startup binding when enabled is declared on probe-endpoints and consumed by api-rest",
+      "status": "pending",
+      "scope": "library"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

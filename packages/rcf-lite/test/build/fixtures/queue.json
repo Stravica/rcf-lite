@@ -7,11 +7,11 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 23,
+    "items": 27,
     "notStarted": 6,
     "inProgress": 0,
     "complete": 13,
-    "verified": 4,
+    "verified": 8,
     "actionable": 4,
     "blocked": 2
   },
@@ -29,7 +29,8 @@
         "FBS-020",
         "FBS-021",
         "FBS-022",
-        "FBS-023"
+        "FBS-023",
+        "FBS-024"
       ]
     },
     {
@@ -37,7 +38,8 @@
       "fbsIds": [
         "FBS-002",
         "FBS-017",
-        "FBS-019"
+        "FBS-019",
+        "FBS-025"
       ]
     },
     {
@@ -46,7 +48,8 @@
         "FBS-003",
         "FBS-004",
         "FBS-005",
-        "FBS-008"
+        "FBS-008",
+        "FBS-026"
       ]
     },
     {
@@ -54,7 +57,8 @@
       "fbsIds": [
         "FBS-006",
         "FBS-009",
-        "FBS-010"
+        "FBS-010",
+        "FBS-027"
       ]
     },
     {
@@ -327,6 +331,52 @@
       "title": "Init: Playwright MCP entry only when no scope-visible entry exists",
       "executionStatus": "verified",
       "dependsOnFbsIds": [],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-024",
+      "buildOrder": 24,
+      "tier": 0,
+      "title": "Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-025",
+      "buildOrder": 25,
+      "tier": 1,
+      "title": "Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-024"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-026",
+      "buildOrder": 26,
+      "tier": 2,
+      "title": "Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-025"
+      ],
+      "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-027",
+      "buildOrder": 27,
+      "tier": 3,
+      "title": "`rcf define blueprint remove-resolution <adr-id>` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [
+        "FBS-026"
+      ],
       "state": "verified",
       "blockedBy": []
     }

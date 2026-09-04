@@ -1,0 +1,34 @@
+{
+  "usId": "US-1201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-012",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "observability-essentials + observability-probe-endpoints + application-api-rest compose cleanly in every ordering with no globalAdrTopic conflict on healthProbes or readinessSemantics",
+  "asA": "operator applying the three post-alignment observability + api-rest blueprints on one project in any order",
+  "iWant": "the three amended blueprints (essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0) to apply cleanly in every ordering, with observability-probe-endpoints as the sole scope:global claimant of healthProbes and readinessSemantics in the resulting manifest",
+  "soThat": "a project that reaches for all three shipped blueprints inherits a single-owner probe-path surface without an operator-side supersede ADR or a manifest-editing follow-up",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1201-1",
+      "description": "Applying the three blueprints in every ordering (six permutations) into a freshly initialised project tree succeeds with no `globalAdrTopic` conflict on `healthProbes` or `readinessSemantics`; the resulting `rcf/manifest.json` carries all three blueprint records.",
+      "given": "a freshly initialised rcf-lite project tree and the three shipped blueprints at essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0",
+      "when": "for each of the six permutations of the three blueprints, applyBlueprint runs three times in that order against a fresh project tree",
+      "then": "no ordering returns a `globalAdrTopic` conflict on healthProbes or readinessSemantics, and every ordering ends with manifest.blueprints containing observability-essentials, observability-probe-endpoints, and application-api-rest",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1201-2",
+      "description": "In the applied manifest, exactly one blueprint declares `scope: global` with `topic: healthProbes` (observability-probe-endpoints ADR-1501) and exactly one declares `scope: global` with `topic: readinessSemantics` (observability-probe-endpoints ADR-1502); zero from essentials, zero from api-rest.",
+      "given": "a project with all three amended blueprints applied",
+      "when": "manifest.blueprints[].contributions[] is walked for scope:global ADRs on the two topics",
+      "then": "the claimant list for healthProbes equals [\"observability-probe-endpoints\"] and the claimant list for readinessSemantics equals [\"observability-probe-endpoints\"]",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

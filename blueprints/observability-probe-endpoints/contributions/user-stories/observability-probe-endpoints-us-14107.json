@@ -2,7 +2,7 @@
   "usId": "observability-probe-endpoints-US-14107",
   "prdId": "PRD-001",
   "reqId": "observability-probe-endpoints-REQ-007",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "approved",
   "title": "The probe paths sit on the project's auth-exempt list scoped exactly to the resolved set on the resolved listener",
   "asA": "operator running the service behind an auth middleware that rejects unauthenticated requests by default",
@@ -35,11 +35,20 @@
       "then": "the list contains exactly the strings `/live` and `/ready` and their exact-match matcher rule; any injected entry containing `*` or a trailing slash to imply a prefix causes the emitter to refuse with a stable-coded error",
       "testable": true,
       "scope": "runtime"
+    },
+    {
+      "id": "AC-14107-4",
+      "description": "When the optional startup path is enabled on the Kubernetes profile, the exemption list produced by the profile at boot enumerates exactly three exact-match entries /live, /ready and /startup on the resolved listener; a wildcard or prefix entry (a trailing slash implying prefix, an entry containing *) causes the emitter to refuse with the same stable-coded error as AC-14107-3.",
+      "given": "the exemption list produced by the profile resolver on the Kubernetes profile with probeInterface.options.kubernetes.startup.enabled set to true",
+      "when": "the exemption-list emitter runs and the produced entries are inspected, and separately an injected entry containing */ or * is presented",
+      "then": "the list contains exactly the three strings /live, /ready and /startup and their exact-match matcher rule; any wildcard-shaped entry is refused with a stable-coded error",
+      "testable": true,
+      "scope": "runtime"
     }
   ],
   "tacIds": [
     "TAC-1503-observability-probe-endpoints-listener-topology"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-04T00:00:00Z"
 }

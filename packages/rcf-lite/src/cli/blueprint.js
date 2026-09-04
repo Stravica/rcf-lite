@@ -20,6 +20,7 @@ import {
   groupRowsByCategory,
   listBlueprints,
   removeBlueprint,
+  removeResolution,
   renderDiff,
   resolveBlueprintSource,
   supersedeBlueprintTopic,
@@ -66,6 +67,20 @@ Verbs:
   diff <topic>           Side-by-side view of every applied blueprint's
                          scope:global ADR on <topic>: id, path, title,
                          status, decision. Read-only.
+  remove-resolution <adr-id>
+                         Remove a single manifest.resolutions[] entry by
+                         its resolvedByAdrId (the id the doctor's
+                         probe-path-owner check names when a historical
+                         resolution has become redundant after a
+                         blueprint upgrade). Writes nothing else: the
+                         project-level ADR file at rcf/adrs/<adr-id>.json
+                         is left in place as historical context. Refuses
+                         exit 2 when <adr-id> is malformed or names no
+                         ADR on the project tree. Idempotent on re-run:
+                         when <adr-id> is a well-formed ADR id that
+                         names an ADR present on the tree but is no
+                         longer on any resolutions[] entry, prints
+                         "nothing to remove" and exits 0.
   library <verb>         Manage external blueprint libraries. Sub-verbs:
                          add, list, remove, refresh. See
                          'rcf define blueprint library --help' for the
@@ -361,6 +376,32 @@ export async function main(argv, deps = {}) {
     const topic = rest[0];
     const result = diffBlueprintTopic({ tree, topic });
     stdout.write(renderDiff(result));
+    return 0;
+  }
+
+  if (verb === 'remove-resolution') {
+    if (rest.length === 0) {
+      stderr.write('[error] blueprint remove-resolution: missing <adr-id>\n');
+      return 2;
+    }
+    const adrId = rest[0];
+    const result = await removeResolution({
+      projectRoot, tree, resolvedByAdrId: adrId,
+      dryRun: parsed.values['dry-run'] === true,
+    });
+    if (isRcfError(result)) {
+      stderr.write(`[error] blueprint remove-resolution: ${result.message}\n`);
+      return 2;
+    }
+    if (result.alreadyAbsent) {
+      if (!parsed.values.quiet) stdout.write(`[blueprint] nothing to remove: '${adrId}' is not on manifest.resolutions[].\n`);
+      return 0;
+    }
+    if (!parsed.values.quiet) {
+      const topicSuffix = result.topic ? ` (topic '${result.topic}')` : '';
+      const idSuffix = result.resolutionId ? `; dropped resolution ${result.resolutionId}` : '';
+      stdout.write(`[blueprint] removed resolution for '${adrId}'${topicSuffix}${idSuffix}.\n`);
+    }
     return 0;
   }
 

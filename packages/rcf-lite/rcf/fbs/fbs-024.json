@@ -1,0 +1,24 @@
+{
+  "fbsId": "FBS-024",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 24,
+  "executionStatus": "verified",
+  "title": "Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering",
+  "summary": "Add packages/rcf-lite/test/blueprint/probe-path-alignment.test.js: six per-permutation tests (assertion 1) covering AC-1201-1 and one applied-manifest walker (assertion 2) covering AC-1201-2. Uses the shipped applyBlueprint + walkTree + initProject seams; runs in one process under the shipped node --test runner.",
+  "acIds": [
+    "AC-1201-1",
+    "AC-1201-2"
+  ],
+  "dependsOnFbsIds": [],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "domain": "blueprints",
+  "estimatedSize": "small",
+  "riskLevel": "low",
+  "notes": "Part of the ratified 2026-09-04 probe-path alignment train (w-2026-09-03-dave-021). Covers US-1201 on REQ-012.",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 11  covered: 11  covered-unresolved: 0  uncovered: 0
+Requirements: 12  covered: 12  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -123,3 +123,10 @@ REQ-011      yes      AC-1101-1   yes         TC-030-default-config-uses-pin, TC
                       AC-1104-3   yes         TC-033-distinct-entry-shape
                       AC-1104-4   yes         TC-033-no-playwright-mcp-suppresses-write
                       AC-1104-5   yes         TC-033-redundant-fires-browser-facing, TC-033-redundant-q...
+REQ-012      yes      AC-1201-1   yes         TC-034-permutations-no-globaladr-conflict
+                      AC-1201-2   yes         TC-034-one-owner-per-topic
+                      AC-1202-1   yes         TC-035-no-literal-path-in-applied-tree
+                      AC-1203-1   yes         TC-036-probe-endpoints-optional-startup
+                      AC-1203-2   yes         TC-036-essentials-no-dual-handler, TC-036-essentials-no-s...
+                      AC-1203-3   yes         TC-036-api-rest-auth-exempt-list, TC-036-api-rest-startup...
+                      AC-1204-1   yes         TC-037-help-lists-verb, TC-037-idempotent-second-run, TC-...

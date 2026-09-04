@@ -1,0 +1,22 @@
+{
+  "reqId": "REQ-012",
+  "prdId": "PRD-001",
+  "title": "Core shelf: probe-path binding has one owner (observability-probe-endpoints), essentials and api-rest defer",
+  "description": "The shipped observability-essentials, observability-probe-endpoints, and application-api-rest blueprints compose on one project without a `globalAdrTopic` conflict on the `healthProbes` or `readinessSemantics` topics; observability-probe-endpoints is the sole shelf-wide `scope: global` claimant on both topics. observability-essentials v2.0.0 drops those claims and restates its two probe REQs and TACs path-neutral, refusing boot with the stable-coded error `PROBE_INTERFACE_PATHS_MISSING` when `probeInterface.paths.liveness` or `probeInterface.paths.readiness` is absent and probe-endpoints is not composed. application-api-rest v2.0.0 drops the literal `/healthz/live`, `/healthz/ready`, and `/healthz/startup` bindings from REQ-006, US-2108 (all eight ACs), TAC-306 and US-2103, deferring to the resolved probe path set (probe-endpoints Kubernetes profile default `/live` and `/ready`, optional `/startup`; loadBalancer profile `/health`; or project-supplied `probeInterface.paths` in the essentials-alone case). observability-probe-endpoints v1.1.0 adds the optional third Kubernetes-profile path `startup` (default `/startup`), off by default and enabled by `probeInterface.options.kubernetes.startup.enabled: true`, with paired ACs on US-14102 and US-14107 and a composing section in its guide. The three-way alignment is verified by the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js` and is the ratified truth for the shelf.",
+  "category": "functional",
+  "domain": "blueprints",
+  "priority": "must",
+  "rationale": "The shipped shelf carried three literal probe-path opinions before this alignment (essentials /healthz + /readyz, probe-endpoints /live + /ready, api-rest /healthz/live + /healthz/ready + /healthz/startup). Composing any two of the three on one project either fired a designed-in `globalAdrTopic` conflict on healthProbes/readinessSemantics or silently shipped three disagreeing probe bindings. WSD-012 mandates /live and /ready, which is the probe-endpoints Kubernetes default; Dex's A4 wsd-service-anatomy binds those two paths as a parameter and required this item as its dependency. Aligning ownership to one blueprint (probe-endpoints) and making the other two defer is the smallest change that closes both the conflict-by-design surface and the silent-disagreement surface without inventing a new composer primitive. Ratified spec: `projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md` (sections 1 through 11).",
+  "tags": [
+    "blueprints",
+    "observability",
+    "probe-endpoints",
+    "essentials",
+    "api-rest",
+    "alignment"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

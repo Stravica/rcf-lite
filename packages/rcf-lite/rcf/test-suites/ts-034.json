@@ -1,0 +1,32 @@
+{
+  "id": "TS-034",
+  "usId": "US-1201",
+  "title": "Three amended blueprints apply cleanly in every ordering with one-owner-per-topic in the manifest",
+  "purpose": "Cover the two ACs on US-1201: no globalAdrTopic conflict on healthProbes/readinessSemantics during apply in any of the six permutations, and one-and-only-one probe-endpoints scope:global claimant per topic in the resulting manifest.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-1201-1",
+    "AC-1201-2"
+  ],
+  "testCases": [
+    {
+      "id": "TC-034-permutations-no-globaladr-conflict",
+      "acId": "AC-1201-1",
+      "description": "The first of six orderings (essentials -> probe-endpoints -> api-rest) is exercised here as the resolved test-point representative of the parameterised assertion; the other five permutations run in the same suite file (assertion 1 (apply cleanly in every ordering): ...) and share this AC.",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 1 (apply cleanly in every ordering): observability-essentials -> observability-probe-endpoints -> application-api-rest",
+      "status": "pending",
+      "scope": "library"
+    },
+    {
+      "id": "TC-034-one-owner-per-topic",
+      "acId": "AC-1201-2",
+      "description": "After applying all three blueprints into a fresh project tree, exactly one scope:global ADR on healthProbes and one on readinessSemantics are present in the manifest, both owned by observability-probe-endpoints",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 2: one owner per topic across the applied manifest",
+      "status": "pending",
+      "scope": "library"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

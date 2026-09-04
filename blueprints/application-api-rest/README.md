@@ -1,4 +1,4 @@
-# REST API blueprint (v1.0.0)
+# application-api-rest blueprint (v2.0.0)
 
 The second content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified; Phase 3 of the blueprint programme). Scope: a REST service, single deployable, versioned wire contract, no UI in scope. Composes with the application-spa blueprint by design, including two deliberate scope:global conflicts.
 
@@ -38,3 +38,7 @@ ADR-301 errorEnvelope, ADR-302 authModel, ADR-303 apiVersioning, ADR-304 logging
 ## Quality bar
 
 OpenAPI 3.1 generated from source with three-axis drift validation in the build; three k8s probes with specified schemas, security-auth-magic-link and log-noise exclusions, and documented failure modes; four auth classes enforced in middleware with x-auth-class contract validation; RFC 7807 on every failure path including pre-routing ones; cursor pagination with write-stability; strict unknown-parameter rejection; idempotency-key replay semantics with declared TTL; per-class rate limits with honest Retry-After; structured JSON logs, RED metrics, and OpenTelemetry spans off one shared request context; forward-only migrations with named reverts and a live /v1/_meta report; secrets never logged, PII redacted by stated policy, TLS outside development, CORS deny-by-default. Every bar is carried by ACs in the doc set, not by this README.
+
+## Breaking change in v2.0.0 (2026-09-04)
+
+This blueprint no longer binds literal probe path strings. The three probe surfaces (liveness, readiness, startup) are served at the RESOLVED paths supplied by either the composed observability-probe-endpoints blueprint (Kubernetes profile default `/live`, `/ready`, and, when enabled, `/startup`; loadBalancer profile default `/health`) or by project configuration under `probeInterface.paths` in the essentials-alone case. REQ-006, US-2108 (all eight ACs), TAC-306, and US-2103 (versioning-exemption AC) were reshaped. Spec: `projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md` section 5. Migration: project FBSes and TCs that bind literal `/healthz/live`, `/healthz/ready`, or `/healthz/startup` strings become one edit each to bind the resolved path set; `rcf audit coverage --strict` catches project-side TCs that still hold the literal strings after re-apply. See CHANGELOG.md.

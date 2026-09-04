@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 11,
-    "covered": 11,
+    "requirements": 12,
+    "covered": 12,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -1056,6 +1056,76 @@
           "testCases": [
             "TC-033-redundant-fires-browser-facing",
             "TC-033-redundant-quiet-on-api-only"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-012",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1201-1",
+          "covered": true,
+          "testCases": [
+            "TC-034-permutations-no-globaladr-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1201-2",
+          "covered": true,
+          "testCases": [
+            "TC-034-one-owner-per-topic"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1202-1",
+          "covered": true,
+          "testCases": [
+            "TC-035-no-literal-path-in-applied-tree"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1203-1",
+          "covered": true,
+          "testCases": [
+            "TC-036-probe-endpoints-optional-startup"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1203-2",
+          "covered": true,
+          "testCases": [
+            "TC-036-essentials-no-dual-handler",
+            "TC-036-essentials-no-shipped-default",
+            "TC-036-essentials-path-neutral-and-refusal"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1203-3",
+          "covered": true,
+          "testCases": [
+            "TC-036-api-rest-auth-exempt-list",
+            "TC-036-api-rest-startup-consumption"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1204-1",
+          "covered": true,
+          "testCases": [
+            "TC-037-help-lists-verb",
+            "TC-037-idempotent-second-run",
+            "TC-037-refuse-malformed-adr-id",
+            "TC-037-refuse-unknown-adr-id",
+            "TC-037-remove-drops-entry-and-prints-line"
           ],
           "unresolvedTestCases": []
         }

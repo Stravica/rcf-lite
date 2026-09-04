@@ -27,14 +27,14 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | hello-panel (walkthrough exemplar) | 4101-4899 | 4xx | doc-reserved; teaching exemplar in `packages/rcf-lite/docs/blueprint-authoring-walkthrough.md`, not shipped as a blueprint directory | `operatorPanel` |
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
-| observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
+| observability-essentials | 7101-7899 | 8xx | shipped v2.0.0 | `statusPageContract` |
 | security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
 | security-auth-oauth2 | 10101-10899 | 11xx | shipped v1.0.0 | `authModel` |
 | security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
 | deploy-cloudflare-workers | 12101-12899 | 13xx | shipped v1.0.0 | `deploymentTarget` |
 | persistence-data-d1 | 13101-13899 | 14xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
-| observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics` |
+| observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.1.0 | `healthProbes`, `readinessSemantics` |
 
 US 8101-8110 sit at the LOW end of the 8101-8899 band on purpose. A project-side story that mechanically derives from a security-secrets-management REQ id into the number `8110` would collide against security-secrets-management-US-8110 in this package; the band leaves headroom at the HIGH end (US 8181-8899) so a project's own stories anchored to security-secrets-management REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

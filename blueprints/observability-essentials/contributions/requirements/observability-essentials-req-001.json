@@ -1,8 +1,8 @@
 {
   "reqId": "observability-essentials-REQ-001",
   "prdId": "PRD-001",
-  "title": "The application exposes a liveness probe endpoint that answers whether the process is stuck",
-  "description": "The application serves a liveness probe at a stable HTTP path. A 2xx response from the endpoint means the process is running its event loop and is not wedged; a 5xx response means the process is stuck and the orchestrator should restart it. The endpoint's answer never depends on the health of any external dependency: a database outage, a broker outage, or a partner API outage never turns liveness red on its own. The endpoint runs entirely inside the process boundary.",
+  "title": "The application exposes a liveness probe endpoint at a configured HTTP path",
+  "description": "The application serves a liveness probe endpoint at a project-supplied HTTP path. A 2xx response means the process is running its event loop and is not wedged; a 5xx response means the process is stuck and the orchestrator should restart it. The endpoint answer never depends on any external dependency: a database outage, a broker outage or a partner API outage never turns liveness red on its own. The endpoint runs entirely inside the process boundary. The liveness path is supplied by project configuration under probeInterface.paths.liveness; when observability-probe-endpoints is composed on the same project the resolved profile liveness path binds automatically (Kubernetes profile default /live). Essentials-alone projects supply the one config line at boot and the blueprint refuses boot with a stable-coded error when it is missing.",
   "category": "functional",
   "domain": "observability",
   "priority": "must",
@@ -11,8 +11,8 @@
     "blueprint:observability-essentials",
     "category:01-liveness-probe"
   ],
-  "version": "1.0.0",
+  "version": "2.0.0",
   "status": "approved",
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-04T00:00:00Z"
 }

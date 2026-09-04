@@ -1,0 +1,25 @@
+{
+  "usId": "US-1202",
+  "prdId": "PRD-001",
+  "reqId": "REQ-012",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The applied tree carries no literal probe path (/healthz, /readyz, /healthz/*) outside observability-probe-endpoints prose",
+  "asA": "operator or reviewer grepping an applied project tree for literal probe paths after re-applying the three amended blueprints",
+  "iWant": "zero matches for /healthz, /readyz, /healthz/live, /healthz/ready or /healthz/startup in the applied `rcf/` tree, so the shelf ships one probe-path opinion (the resolved one) and no rogue literals",
+  "soThat": "a project that composes the three shipped blueprints never inherits a stale literal path binding that disagrees with the resolved probe path set",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1202-1",
+      "description": "Grepping the applied `rcf/` tree of a project that has re-applied observability-essentials v2.0.0 + observability-probe-endpoints v1.1.0 + application-api-rest v2.0.0 for the strings `/healthz/live`, `/healthz/ready`, `/healthz/startup`, `/healthz`, and `/readyz` returns zero matches across all contribution JSON files.",
+      "given": "a project with all three amended blueprints applied",
+      "when": "the applied `rcf/` tree is grepped for the five literal probe-path strings above",
+      "then": "the match count is zero (matches remain only in the source blueprint READMEs and guides for observability-probe-endpoints, never in the applied contribution JSON)",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

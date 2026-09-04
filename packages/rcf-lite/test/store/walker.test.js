@@ -34,20 +34,24 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // add TS-030..033 for the four USs if the ratified test-axis discipline
   // wants a paired TS per US on the dogfood tree; call recorded in the
   // shipping PR under Calls made.
-  assert.equal(tree.requirements.length, 11);
-  assert.equal(tree.userStories.length, 33);
+  assert.equal(tree.requirements.length, 12);
+  // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
+  // `rcf define blueprint remove-resolution` verb the doctor and spec
+  // section 9 name as the redundant-resolution remedy.
+  assert.equal(tree.userStories.length, 37);
   assert.equal(tree.tacs.length, 8);
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
   // camelCase topics).
   assert.equal(tree.adrs.length, 10);
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
-  assert.equal(tree.fbsItems.length, 23);
+  // FBS-027 was added for the remove-resolution verb (US-1204).
+  assert.equal(tree.fbsItems.length, 27);
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
-  // above.
-  assert.equal(tree.testSuites.length, 33);
+  // above. TS-037 pairs with US-1204 for the remove-resolution verb.
+  assert.equal(tree.testSuites.length, 37);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');
@@ -140,10 +144,10 @@ test('walkTree computes parentByChild by inverting child-borne parent fields', a
   assert.equal(tree.parentByChild.get('FBS-001'), 'BS-001');
 });
 
-test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-011)', async () => {
+test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-012)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   const reqChildren = tree.childrenByParent.get('PRD-001') ?? [];
-  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011']);
+  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012']);
   const tadChildren = tree.childrenByParent.get('TAD-001') ?? [];
   // TAD gathers both TAC and ADR children.
   for (const id of ['TAC-001', 'TAC-002', 'TAC-007', 'ADR-001', 'ADR-005']) {

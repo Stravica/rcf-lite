@@ -1,0 +1,43 @@
+{
+  "usId": "US-1203",
+  "prdId": "PRD-001",
+  "reqId": "REQ-012",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Each amended blueprint carries the ratified alignment facts: probe-endpoints optional startup + composing section; essentials path-neutral REQs/TACs and PROBE_INTERFACE_PATHS_MISSING; api-rest defers all probe paths",
+  "asA": "reviewer walking the three amended blueprint source directories after the alignment lands",
+  "iWant": "each blueprint to carry the shape the spec ratified: observability-probe-endpoints v1.1.0 adds the optional startup path and a composing section; observability-essentials v2.0.0 restates REQ-001/002 and TAC-801/802 path-neutral and names the PROBE_INTERFACE_PATHS_MISSING boot refusal; application-api-rest v2.0.0 defers probe paths to the resolved set with a matching AC on the auth-exempt list and a startup AC that consumes the optional path",
+  "soThat": "a downstream project (or a gate reviewer walking the shelf) reads the ratified alignment off the source blueprints directly, without needing to reconstruct the intent from the spec",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1203-1",
+      "description": "observability-probe-endpoints/blueprint.json declares version 1.1.0. US-14102 carries a new AC-14102-4 naming the three-path resolution (/live, /ready, /startup) and the startup handler when `probeInterface.options.kubernetes.startup.enabled: true`. US-14107 carries a new AC-14107-4 naming the three-entry auth-exempt list when startup is enabled. ADR-1503 decision text names the startup.enabled flag, the same body shape, and the fused topology by default. `guide/observability-probe-endpoints.md` carries a \"Composing with observability-essentials and application-api-rest\" section naming the deferral pattern and the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js` as the ratified truth.",
+      "given": "the shipped observability-probe-endpoints blueprint source directory at HEAD",
+      "when": "blueprint.json, US-14102, US-14107, ADR-1503, and the guide are read",
+      "then": "blueprint.json version equals 1.1.0; AC-14102-4 and AC-14107-4 exist and name the startup path; ADR-1503 decision names startup.enabled; the guide carries the composing section naming the compose test path",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1203-2",
+      "description": "observability-essentials/blueprint.json declares version 2.0.0; the ADR-801 and ADR-802 contribution entries no longer carry `scope: \"global\"` or `topic`. REQ-001 and REQ-002 restate path-neutral and name `probeInterface.paths.liveness` / `probeInterface.paths.readiness` as the required configuration key. TAC-801 and TAC-802 mark the path as REQUIRED with no shipped default and name the `PROBE_INTERFACE_PATHS_MISSING` stable-coded boot refusal on the responsibilities list. US-7101 gains AC-7101-4 and US-7102 gains AC-7102-4 covering the boot-refusal-on-missing-config semantics. `docs/topics.md` shrinks the global-topics table to `statusPageContract` alone and records `healthProbes` and `readinessSemantics` in a \"Historical global topics (dropped in v2.0.0)\" section.",
+      "given": "the shipped observability-essentials blueprint source directory at HEAD",
+      "when": "blueprint.json, ADR-801, ADR-802, REQ-001, REQ-002, TAC-801, TAC-802, US-7101, US-7102, and docs/topics.md are read",
+      "then": "blueprint.json version equals 2.0.0; ADR-801/802 contribution entries carry no scope or topic field; REQ-001/002 name probeInterface.paths and refuses-boot; TAC-801/802 mark path as REQUIRED and name PROBE_INTERFACE_PATHS_MISSING; AC-7101-4 and AC-7102-4 exist; topics.md carries the Historical global topics section",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-1203-3",
+      "description": "application-api-rest/blueprint.json declares version 2.0.0. REQ-006 restates path-neutral naming observability-probe-endpoints as the probe-path owner and probeInterface.paths as the essentials-alone fallback. US-2108 all eight ACs bind to \"the resolved liveness path\", \"the resolved readiness path\", or \"the resolved startup path\"; AC-2108-5 binds the auth-exempt assertion to the resolved probe path set (naming `getExemptPathSet` from TAC-1501). TAC-306 responsibilities restate the three probe surfaces at their resolved paths, drop the literal path strings, and name the auth-exempt consumption of the resolved set. US-2103 versioning-exemption AC no longer carries the literal `/healthz/*` and names the resolved probe paths instead.",
+      "given": "the shipped application-api-rest blueprint source directory at HEAD",
+      "when": "blueprint.json, REQ-006, US-2108 (all eight ACs), TAC-306, and US-2103 are read",
+      "then": "blueprint.json version equals 2.0.0; REQ-006 names probe-endpoints and probeInterface.paths as the two path-resolution sources; every US-2108 AC contains \"resolved\" and none contains a literal /healthz/* prefix; TAC-306 responsibilities name the resolved probe path set and getExemptPathSet or probeInterface.paths; US-2103 no longer contains /healthz/*",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [],
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}
