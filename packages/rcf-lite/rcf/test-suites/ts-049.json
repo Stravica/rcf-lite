@@ -63,7 +63,7 @@
       "acId": "AC-2001-7",
       "description": "pack-browser exposes resize(width, height); the project-route handle drives page.setViewportSize with the given dimensions and the same handle can be re-queried through window.innerWidth after a resize call",
       "status": "pending",
-      "testPointer": "test/browser-verify/pack-browser-resize.test.js::pack-browser: resize seam drives viewport size on the project route (TC-049-resize-seam)"
+      "testPointer": "test/browser-verify/pack-browser-resize.test.js::pack-browser: resize dimension normalisation rounds finite positive numbers (TC-049-resize-seam)"
     }
   ],
   "status": "draft"

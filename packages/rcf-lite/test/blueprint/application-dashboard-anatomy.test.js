@@ -30,7 +30,7 @@ test('application-dashboard: blueprint.json declares the ratified shape (TC-049-
   assert.equal(doc.slug, 'application-dashboard');
   assert.equal(doc.version, '1.0.0');
   assert.equal(doc.category, 'application');
-  assert.deepEqual(doc.providesRoles, []);
+  assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec; loader refuses empty array when set)');
   assert.equal(doc.suggestedCompanions.length, 2);
   const roles = doc.suggestedCompanions.map((c) => c.role).sort();
   assert.deepEqual(roles, ['errorHandling', 'logging']);

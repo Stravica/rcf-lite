@@ -13,7 +13,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-2001-1",
-      "description": "The shelf carries blueprints/application-dashboard/blueprint.json declaring slug application-dashboard, version 1.0.0, category application, and 18 contributions (5 REQs, 7 USs, 3 TACs, 3 ADRs); the suggestedCompanions array declares logging and errorHandling with reasons from the ratified spec section 5.3; providesRoles is present as an empty array (leaf blueprint per spec).",
+      "description": "The shelf carries blueprints/application-dashboard/blueprint.json declaring slug application-dashboard, version 1.0.0, category application, and 18 contributions (5 REQs, 7 USs, 3 TACs, 3 ADRs); the suggestedCompanions array declares logging and errorHandling with reasons from the ratified spec section 5.3; providesRoles is absent (leaf blueprint per spec; the loader refuses an empty providesRoles array when set, so the leaf-blueprint intent is expressed by omitting the field).",
       "testable": true
     },
     {

@@ -2,7 +2,6 @@
   "slug": "application-dashboard",
   "version": "1.0.0",
   "category": "application",
-  "providesRoles": [],
   "suggestedCompanions": [
     { "role": "logging", "reason": "Dashboard tile refresh, timeframe change and export activation are the surface's most-touched instrumentation points; a logging companion supplies the factory the tiles and the chart region write records against." },
     { "role": "errorHandling", "reason": "A tile whose fetch fails renders the error-state visual per REQ-003; the error-state contract needs a project-side error-record factory the application-error-handling companion provides." }

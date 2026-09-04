@@ -1,6 +1,6 @@
 {
   "cnId": "CN-122",
-  "path": "../../src/browser-verify/pack-browser.js",
+  "path": "src/browser-verify/pack-browser.js#createPackBrowser",
   "implementsAcIds": [
     "AC-2001-7"
   ],

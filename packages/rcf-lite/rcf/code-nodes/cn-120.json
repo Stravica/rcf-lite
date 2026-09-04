@@ -1,6 +1,6 @@
 {
   "cnId": "CN-120",
-  "path": "../../test/fixtures/probe-pack-application-dashboard/server.js",
+  "path": "test/fixtures/probe-pack-application-dashboard/server.js#startServer",
   "implementsAcIds": [
     "AC-2001-5",
     "AC-2001-6"
