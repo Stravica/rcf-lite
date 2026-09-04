@@ -40,8 +40,17 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.19.0"
+latest: "0.20.0"
 releases:
+  - version: "0.20.0"
+    date: "2026-09-04"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.20.0 adds an optional evaluation step to the chain for the acceptance criteria whose outcome cannot be checked deterministically. You mark such a criterion when you define it, attach an evaluation with its own pass threshold, and the audit, verify and finalise steps refuse to ship while it is missing, with an explicit opt-out that records its reason."
+      - "The schema floor moves to rcf-schemas 0.6.0."
+    minAgentAction: "rerun-init"
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.19.0"
     date: "2026-09-04"
     breaking: false
