@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-09-04
+
+Optional evaluation node in the RCF chain. An acceptance criterion whose outcome cannot be checked deterministically is marked at define time, an evaluation is attached with its own pass threshold, and audit, verify and finalise refuse to ship while it is missing. An explicit opt-out records its reason on the manifest. The schema floor moves to rcf-schemas 0.6.0.
+
 ### Added
 
 - **rcf-eval-node train: optional EVAL node in the RCF chain and the audit / verdict / finalise wiring around it (spec 2026-09-04).** rcf-schemas is pinned to 0.6.0, which lands the EVAL document type and an AC-level `determinism: "deterministic" | "nonDeterministic"` marker. rcf-lite consumes both. The story, one line per level:
