@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-104",
+  "path": "src/eval/judge.js#runOneCase",
+  "title": "eval/judge.js: runOneCase spawns claude (or codex) with -p system-prompt, sends per-case payload on stdin, validates response, returns graded envelope",
+  "implementsAcIds": [
+    "AC-1601-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T16:25:43.873Z",
+  "updatedAt": "2026-09-04T16:25:43.873Z"
+}

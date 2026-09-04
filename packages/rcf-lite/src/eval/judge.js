@@ -224,7 +224,9 @@ export function composeRunRecord({ evalDoc, cases, runner, now = new Date() }) {
       }
     }
     const caseAggregate = caseWeight > 0 ? caseSum / caseWeight : 0;
-    perCaseScores.push({ caseId: c.caseId, aggregate: caseAggregate });
+    // rcf-schemas 0.6.0 perCaseScore shape: { caseId, score } with
+    // additionalProperties false. Score is the weighted aggregate 0..1.
+    perCaseScores.push({ caseId: c.caseId, score: caseAggregate });
     totalWeight += caseWeight;
     weightedSum += caseSum;
   }

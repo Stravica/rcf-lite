@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-09-04T16:22:23.766Z",
+  "updatedAt": "2026-09-04T16:22:37.368Z",
+  "purpose": "Cover the four ACs on US-1601 via the unit and integration suites landed in this train. L1 through L3 are deterministic tests over pure or seam-injected code paths; L4 tests the judge invocation shape via a stubbed spawn seam (a real subprocess round-trip is exercised out-of-band as the section 11 real-claude smoke).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-1601-1",
+    "AC-1601-2",
+    "AC-1601-3",
+    "AC-1601-4"
+  ],
+  "id": "TS-045",
+  "usId": "US-1601",
+  "title": "rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node",
+  "testCases": [
+    {
+      "id": "TC-045-computeevalcoverage-across-the-four",
+      "acId": "AC-1601-1",
+      "description": "computeEvalCoverage across the four outcome buckets (covered, covered-optional, missing, not-required) and the classifyEvalDoc pending/superseded/resolving classification",
+      "status": "pending",
+      "testPointer": "test/query/eval-coverage.test.js::nonDeterministic AC without a bound EVAL reports missing and fails the gate"
+    },
+    {
+      "id": "TC-045-per-ac-verdicts-carries-the-two-new-eval",
+      "acId": "AC-1601-2",
+      "description": "PER_AC_VERDICTS carries the two new EVAL classes; evalPerAcVerdict returns null for deterministic ACs; fires EVAL-MISSING when nonDeterministic AC has no resolving EVAL; fires EVAL-BELOW-THRESHOLD on a failing run",
+      "status": "pending",
+      "testPointer": "test/verify/verdict/eval-per-ac.test.js::derivePerAcVerdicts folds EVAL classes alongside the pre-existing per-AC verdicts"
+    },
+    {
+      "id": "TC-045-findevalrefusalacs-and",
+      "acId": "AC-1601-3",
+      "description": "findEvalRefusalAcs and reportHasEvalRefusal read the two EVAL classes off perAcVerdicts[]; composeShipWithoutEvalRecord carries the operator reason and declared per-AC verdicts; nextShipWithoutEvalId increments monotonically",
+      "status": "pending",
+      "testPointer": "test/finalise/ship-without-eval.test.js::composeShipWithoutEvalRecord carries the operator reason and the declared AC verdicts"
+    },
+    {
+      "id": "TC-045-runonecase-spawns-the-invoker-claude-or",
+      "acId": "AC-1601-4",
+      "description": "runOneCase spawns the invoker (claude or codex) via the seam, validates response against the declared schema, composeRunRecord verdict resolves to pass on met threshold and fail on critical criterion failure",
+      "status": "pending",
+      "testPointer": "test/eval/judge.test.js::runOneCase returns the parsed graded envelope on a valid response"
+    }
+  ],
+  "status": "draft"
+}

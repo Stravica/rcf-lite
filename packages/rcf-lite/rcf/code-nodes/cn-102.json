@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-102",
+  "path": "src/finalise/ship-without-eval.js#composeShipWithoutEvalRecord",
+  "title": "ship-without-eval.js: composeShipWithoutEvalRecord builds the ack record with monotonic id, reason, declared per-AC verdicts, reportPath",
+  "implementsAcIds": [
+    "AC-1601-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T16:25:43.546Z",
+  "updatedAt": "2026-09-04T16:25:43.546Z"
+}

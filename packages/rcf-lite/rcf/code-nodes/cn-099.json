@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-099",
+  "path": "src/query/eval-coverage.js#computeEvalCoverage",
+  "title": "eval-coverage.js: computeEvalCoverage pure function classifies each AC into covered/covered-optional/missing/not-required",
+  "implementsAcIds": [
+    "AC-1601-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T16:25:43.056Z",
+  "updatedAt": "2026-09-04T16:25:43.056Z"
+}
