@@ -52,6 +52,7 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
 - [ ] `rcf audit coverage --strict` on a scratch project that applied your blueprint reports every blueprint AC as `uncovered` (no project TC binds it), NOT as passed. A blueprint AC that passes without a project TC binding it is a false-positive on shipped floors. (The distinct class `covered-unresolved` is reserved for the case where a TC is authored to claim coverage but its testPointer does not resolve to a real test in the working tree.)
 - [ ] Every TAC the blueprint ships names its interfaces and its dependencies, and the responsibilities table cross-references the AC ids each responsibility satisfies.
 - [ ] Known mechanism-reach gaps (categories the AC binds but no project-side gate enforces) are listed in the blueprint's `README.md` under "Known mechanism-reach gaps". The watchpost run4 icon/token/component-library gap is the cautionary example.
+- [ ] Every runtime-observable AC either binds a check in a shipped probe pack under `probe-packs/`, or explicitly names in the blueprint's `README.md` under "Known mechanism-reach gaps" that no probe pack reaches it yet with a v1.1 minor bump candidate. The default is a shipped pack; the exception is documented. See section 8c of `blueprint-authoring.md` for the pack schema, the `appliesTo` scoping rule (one of route, tacIds, or `blueprint:` tag; the unqualified `() => true` predicate is refused at load), and the check-id cross-check against the blueprint's contributions.
 
 ## 7. Documentation
 

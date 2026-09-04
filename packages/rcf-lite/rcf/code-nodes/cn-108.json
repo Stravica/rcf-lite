@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-108",
+  "path": "src/browser-verify/pack-runner.js#runProbePacksForFbs",
+  "implementsAcIds": [
+    "AC-1701-4",
+    "AC-1701-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T18:01:22.584Z",
+  "updatedAt": "2026-09-04T18:01:22.584Z"
+}

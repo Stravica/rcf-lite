@@ -84,13 +84,16 @@ const expectedCounts = {
   // rcf-eval-node train (w-2026-09-03-dave-005) added REQ-016 for the
   // rcf-lite consumer wiring around the rcf-schemas 0.6.0 EVAL node
   // (15 -> 16).
-  req: 16,
+  // visual round T-0 (w-2026-09-04-dave-016) added REQ-017 for the
+  // blueprint-shipped probe-pack runner extension (16 -> 17).
+  req: 17,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
   // (37 -> 44).
   // rcf-eval-node train added US-1601 (44 -> 45).
-  userStory: 45,
+  // visual round T-0 added US-1701 (45 -> 46).
+  userStory: 46,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -109,7 +112,8 @@ const expectedCounts = {
   // FBS-027 covers the remove-resolution verb (US-1204). Core companions
   // train added FBS-028..034 (7 FBSs, one per US on REQ-013/014/015).
   // rcf-eval-node train added FBS-035 (34 -> 35).
-  fbs: 35,
+  // visual round T-0 added FBS-036 (35 -> 36).
+  fbs: 36,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -125,14 +129,24 @@ const expectedCounts = {
   // L1 audit-eval verb + compute, L2 verdict + chain evalBindingFor,
   // L3 ship-without-eval writer + ingest refusal readers, and L4
   // judge runOneCase + composeRunRecord (97 -> 105).
-  codeNode: 105,
+  // visual round T-0 added CN-106..110 (5 code nodes) anchoring the
+  // probe-pack schema validator, loader (with contribution AC id
+  // cross-check), pack pass runner, manifest-writer aggregate verdict
+  // extension, and the CLI --probe-pack option handler (105 -> 110).
+  // Visual round T-0 follow-up added CN-111..112 (2 code nodes)
+  // anchoring the Playwright-MCP stdio pack-browser client
+  // (pack-browser.js#createPackBrowser) and the boot fallback
+  // (boot.js#bootIfNeeded) that consumes pack.boot when the runtime
+  // URL is unreachable (110 -> 112).
+  codeNode: 112,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
   // TS-037 pairs with US-1204 for the remove-resolution verb. Core
   // companions train added TS-038..044 paired with US-1301..1501 (37 -> 44).
   // rcf-eval-node train added TS-045 (44 -> 45).
-  testSuite: 45,
+  // visual round T-0 added TS-046 paired with US-1701 (45 -> 46).
+  testSuite: 46,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

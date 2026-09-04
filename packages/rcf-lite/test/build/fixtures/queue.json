@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 35,
-    "notStarted": 7,
+    "items": 36,
+    "notStarted": 8,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 5,
+    "actionable": 6,
     "blocked": 2
   },
   "nextActionable": "FBS-013",
@@ -31,7 +31,8 @@
         "FBS-022",
         "FBS-023",
         "FBS-024",
-        "FBS-035"
+        "FBS-035",
+        "FBS-036"
       ]
     },
     {
@@ -507,6 +508,16 @@
       "buildOrder": 35,
       "tier": 0,
       "title": "rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-036",
+      "buildOrder": 36,
+      "tier": 0,
+      "title": "Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

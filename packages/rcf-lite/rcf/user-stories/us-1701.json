@@ -1,0 +1,56 @@
+{
+  "createdAt": "2026-09-04T17:59:40.838Z",
+  "updatedAt": "2026-09-04T18:51:45.216Z",
+  "usId": "US-1701",
+  "prdId": "PRD-001",
+  "reqId": "REQ-017",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Blueprint-shipped browser-verify probe packs load, scope to real surfaces, and gate ship on runtime failure",
+  "asA": "blueprint author shipping runtime-observable visual ACs alongside contributions",
+  "iWant": "the browser-verify runner to discover, scope and run my blueprint's probe pack, and record each check against the AC it names",
+  "soThat": "a runtime-observable AC that a Node build-scan cannot see (grid announcements, keyboard traversal, live-region text after a synthetic event) is compelled at ship the same way an invariant or an auth-smoke fail is compelled, and the run-4 pack-fires-on-every-FBS residual is cured at load time",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1701-1",
+      "description": "The pack loader discovers `.pack.js` and `.pack.mjs` modules under `blueprints/<slug>/probe-packs/` for every applied blueprint, imports each with a dynamic ESM import, validates the exported default object against the pack schema (`packName` starts with the owning blueprint's slug and matches `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`, `version` semver, `blueprintSlug` matches the directory, `checks[]` non-empty with each entry carrying `id`, `severity` in {block, warn, advisory}, `description` and async `run`), and refuses at load (exit 2) with a diagnostic that names the pack path and the offending field on any violation. A valid pack registers on the run.",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-2",
+      "description": "The applicability predicate `appliesTo({ fbs, uiBaseline, manifest })` is a required top-level field on every pack; its source (`appliesTo.toString()`) MUST reference at least one of `route`, `tacIds`, or the `blueprint:` US-tag prefix, and an unqualified predicate (a body that references none of the three, including the default `() => true`) is refused at load with exit 2 and a diagnostic that names the pack, the requirement and the three legal scoping seams. A pack whose `appliesTo` returns `false` for an FBS records `applicable: false` on the record for that FBS with a one-line reason drawn from the predicate context and no `run` function is invoked.",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-3",
+      "description": "The loader cross-checks every `checks[].id` against the AC ids the pack's blueprint contributes through `blueprint.json:contributions[]` (reading each US contribution file and enumerating `acceptanceCriteria[].id`). A pack whose check names an AC id the blueprint does not contribute is refused at load (exit 2) with a diagnostic that names the pack, the offending check id and the AC ids the blueprint actually contributes.",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-4",
+      "description": "The runner runs the pack pass after invariants and after auth-smoke on `agentScreenshotCritique` mode. For each applicable pack the runner invokes every check's `run({ browser, fetch, runtimeUrl, route, theme })` (browser and fetch injected by the runner), records `{ id, verdict, severity, detail? }` on the pack record, and appends the pack record to `browserVerification.probePacks[]` on the composed record. The aggregate verdict extends the existing rule: `block` on any pack check whose severity is `block` and verdict is `fail`; `warn` on any pack check whose severity is `warn` and verdict is `fail` (and no block from invariants, auth-smoke or pack); `pass` otherwise.",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-5",
+      "description": "`rcf verify browser <fbs-id> --probe-pack <name>` restricts one run to one pack by name; a `--probe-pack` value that resolves to no discovered pack (nothing loaded under any applied blueprint's `probe-packs/` matches the name) exits 2 with a diagnostic that names the value and the packs that were discovered. When omitted, every discovered and applicable pack runs; when a pack's `appliesTo` returns false for the FBS, the pack record carries `applicable: false` and no browser check runs against it.",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-6",
+      "description": "A pack MAY declare `preChecks[]`: an array of `{ id, description, run: async () => ({ verdict, detail? }) }` Node build-scan fast-fail checks that the runner invokes before any browser check on the same pack. A pre-check with verdict `fail` records on the pack record and every browser check that names it under `dependsOn` records verdict `skipped` with detail `skipped-by-pre-check:<preCheckId>`; browser checks with no `dependsOn` on a failing pre-check still run. Pre-check verdicts fold into the aggregate the same way pack checks do (a `fail` at `severity: block` blocks ship).",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-7",
+      "description": "The `packBrowser` seam the runner injects into every pack check is a real headless browser provisioned through the pinned Playwright MCP server (`PLAYWRIGHT_MCP_VERSION` in `src/verify/engine/launcher.js`, spawned as `npx -y @playwright/mcp@<pin>` over stdio) via a thin in-package JSON-RPC 2.0 client (zero new npm dependencies in rcf-lite; no LLM call). Every check receives a stable API: `goto(url)`, `snapshot()` returning accessibility-tree text, `evaluate(fn, arg?)` returning a parsed value, `click(selector, hint?)`, `type(selector, text, hint?)`, `press(key)`, `screenshot(filename?)`, `close()`. When the consuming project already resolves `playwright` from its own `node_modules`, the runner MAY take that cheaper direct route and expose the identical API; the pinned MCP version remains the source of the browser otherwise. The CLI provisions the browser only when at least one applicable pack is loaded and `--no-browser` was not passed; `deps.packBrowser` on the CLI handler overrides the provisioning for tests.",
+      "testable": true
+    },
+    {
+      "id": "AC-1701-8",
+      "description": "A pack MAY declare a `boot: { bootCommand, waitForUrl, waitForSelector }` object. Before running the pack pass, the CLI probes the runtime URL; when it responds with any HTTP status the boot is skipped and the running server is used unchanged. When the runtime is not answering AND `boot.bootCommand` is a non-empty string, the CLI spawns `bootCommand` from the project root (Node.js child_process, cwd=projectRoot, no shell), polls `waitForUrl` at a bounded interval until a timeout, and when the URL responds runs the packs; when `waitForSelector` is set and a browser is available, the CLI navigates the browser to `waitForUrl` and polls the accessibility snapshot for a substring match on the selector until a bounded timeout (soft-failure only, packs still run). The CLI stops any process it started in reverse order after the pack pass completes (SIGTERM then SIGKILL fallback after 3s). `--no-boot` disables the fallback and forces packs to run against whatever the runtime URL currently answers. When the runtime is unreachable AND no `bootCommand` is declared, the CLI records the note and proceeds; the pack's own runtime checks then surface the failure.",
+      "testable": true
+    }
+  ],
+  "description": "As a blueprint author shipping a runtime-observable visual surface (row order after sort, live-region announcement text, focus return after dialog close, refetch on timeframe change), I want to ship a Playwright probe pack alongside my blueprint contributions and have `rcf verify browser` load and run it as a required ship gate on any FBS whose surface realises what the pack scopes, so that runtime failures refuse ship the same way invariants and auth-smoke already do, and a pack never fires on an FBS whose surface does not exist."
+}

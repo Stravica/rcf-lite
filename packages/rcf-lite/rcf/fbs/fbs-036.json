@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-04T18:00:20.529Z",
+  "updatedAt": "2026-09-04T18:51:45.216Z",
+  "acIds": [
+    "AC-1701-1",
+    "AC-1701-2",
+    "AC-1701-3",
+    "AC-1701-4",
+    "AC-1701-5",
+    "AC-1701-6",
+    "AC-1701-7",
+    "AC-1701-8"
+  ],
+  "fbsId": "FBS-036",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 36,
+  "executionStatus": "notStarted",
+  "title": "Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI",
+  "summary": "T-0 of the ratified visual round (spec 2026-09-04, section 2.1): the browser-verify runner extension that lets a blueprint ship a Playwright probe pack under `blueprints/<slug>/probe-packs/` and have `rcf verify browser` discover, scope-check and run it as a required ship gate. Six ACs span the loader (schema + `.pack.js` and `.pack.mjs`), the applicability predicate (source-scan for one of the three legal scoping seams: route, tacIds or `blueprint:` tag), the check-id cross-check against the shipping blueprint's contributed AC ids, the runner pass (after invariants and auth-smoke, packs receive an injected browser and fetch), the aggregate verdict extension (block on any `severity: block` pack fail), the `--probe-pack <name>` CLI restriction, and the optional `preChecks[]` fast-fail slot with `dependsOn` skip semantics. Zero new npm dependencies; the pinned Playwright MCP the launcher provisions is the browser access seam. Unblocks T-1..T-5 (datatable, charts, dashboard, notifications-in-app, admin-console).",
+  "dependsOnFbsIds": []
+}

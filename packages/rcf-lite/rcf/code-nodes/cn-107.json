@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-107",
+  "path": "src/browser-verify/pack-loader.js#loadProbePacks",
+  "implementsAcIds": [
+    "AC-1701-1",
+    "AC-1701-2",
+    "AC-1701-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T18:01:22.423Z",
+  "updatedAt": "2026-09-04T18:01:22.423Z"
+}

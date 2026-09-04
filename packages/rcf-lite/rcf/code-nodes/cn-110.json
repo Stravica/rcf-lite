@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-110",
+  "path": "src/cli/browser-verify.js#main",
+  "implementsAcIds": [
+    "AC-1701-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T18:01:22.906Z",
+  "updatedAt": "2026-09-04T18:01:22.906Z"
+}

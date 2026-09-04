@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-09-04T18:00:42.492Z",
+  "updatedAt": "2026-09-04T18:51:45.216Z",
+  "purpose": "Cover AC-1701-1..8 via unit tests over the pack schema validator, the pack loader (both extensions, cross-check, applicability seams), the runner pack pass (aggregate verdict extension, browser and fetch injection, preChecks with dependsOn), the CLI --probe-pack option (unknown-name refusal, pack restriction, applicable=false record path), the Playwright-MCP pack-browser stdio client (evaluate-result parsing), and the boot fallback (reachability probe, spawn-and-wait, waitForSelector soft-timeout, cleanup on completion).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1701-1",
+    "AC-1701-2",
+    "AC-1701-3",
+    "AC-1701-4",
+    "AC-1701-5",
+    "AC-1701-6",
+    "AC-1701-7",
+    "AC-1701-8"
+  ],
+  "id": "TS-046",
+  "usId": "US-1701",
+  "title": "Blueprint-shipped probe pack loader, scoping, cross-check, runner pass and CLI --probe-pack",
+  "testCases": [
+    {
+      "id": "TC-046-pack-loader-loads-both-pack-js-and-pack",
+      "acId": "AC-1701-1",
+      "description": "Pack loader loads both .pack.js and .pack.mjs; validates packName pattern and blueprint-slug prefix; refuses non-array checks[] with exit 2 diagnostic",
+      "status": "pending",
+      "testPointer": "test/browser-verify/pack-loader.test.js::loadProbePacks accepts .pack.js and .pack.mjs and reports one loaded pack per legal module"
+    },
+    {
+      "id": "TC-046-applicability-predicate-source-scan",
+      "acId": "AC-1701-2",
+      "description": "Applicability predicate source-scan refuses unqualified predicate () => true and refuses a predicate that references none of route, tacIds, blueprint:; appliesTo returning false records applicable=false",
+      "status": "pending",
+      "testPointer": "test/browser-verify/pack-loader.test.js::applicability predicate refuses unqualified default and records applicable=false when appliesTo returns false"
+    },
+    {
+      "id": "TC-046-loader-refuses-at-exit-2-a-pack-whose",
+      "acId": "AC-1701-3",
+      "description": "Loader refuses at exit 2 a pack whose checks[].id names an AC id the blueprint does not contribute; the diagnostic names the offending id and the contributed AC ids",
+      "status": "pending",
+      "testPointer": "test/browser-verify/pack-loader.test.js::loader refuses a pack whose check id names an AC the blueprint does not contribute"
+    },
+    {
+      "id": "TC-046-runner-pack-pass-invokes-each-check-s",
+      "acId": "AC-1701-4",
+      "description": "Runner pack pass invokes each check's run with injected browser and fetch, folds results into probePacks[], and aggregate verdict extension blocks on severity block fail and warns on severity warn fail",
+      "status": "pending",
+      "testPointer": "test/browser-verify/pack-runner.test.js::runProbePacksForFbs folds probePacks[] onto the record and the aggregate verdict extension blocks on a block-severity pack fail"
+    },
+    {
+      "id": "TC-046-cli-probe-pack-option-restricts-to-one",
+      "acId": "AC-1701-5",
+      "description": "CLI --probe-pack option restricts to one pack by name; unknown name exits 2 with a diagnostic naming the discovered packs; when omitted every discovered pack runs",
+      "status": "pending",
+      "testPointer": "test/cli/browser-verify-probe-pack.test.js::rcf verify browser --probe-pack restricts to one pack and exits 2 on unknown pack name"
+    },
+    {
+      "id": "TC-046-prechecks-runs-before-browser-checks-a",
+      "acId": "AC-1701-6",
+      "description": "preChecks[] runs before browser checks; a failing pre-check skips only browser checks that name it under dependsOn with verdict skipped and detail skipped-by-pre-check; other checks still run",
+      "status": "pending",
+      "testPointer": "test/browser-verify/pack-runner.test.js::preChecks fast-fail skips browser checks that dependsOn a failing pre-check"
+    },
+    {
+      "id": "TC-046-pack-browser-evaluate-parser",
+      "acId": "AC-1701-7",
+      "description": "The Playwright-MCP stdio client parses browser_evaluate result blocks (both the '### Result' fenced form used by MCP 0.0.80+ and the legacy 'Result:' trailer) into typed JS values so a pack's check can assert on the value directly",
+      "status": "pending",
+      "testPointer": "test/browser-verify/pack-browser.test.js::parseEvaluateResult returns a parsed JSON value when the MCP block ends with Result: <json>"
+    },
+    {
+      "id": "TC-046-boot-skips-when-runtime-reachable",
+      "acId": "AC-1701-8",
+      "description": "bootIfNeeded returns already-up when the runtime URL responds with any HTTP status; returns no-boot / no-boot-command when the pack declares no boot / no bootCommand; spawns bootCommand and reports started when the URL flips to reachable; SIGTERMs the child on stop()",
+      "status": "pending",
+      "testPointer": "test/browser-verify/boot.test.js::bootIfNeeded spawns bootCommand, polls until waitForUrl responds, then reports started"
+    }
+  ],
+  "status": "draft"
+}

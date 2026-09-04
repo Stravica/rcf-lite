@@ -27,3 +27,16 @@ export {
   runAgentScreenshotCritique,
   stubBrowserDriver,
 } from './runner.js';
+
+export { validatePackModule, PACK_SCHEMA_INTERNALS } from './pack-schema.js';
+export { loadProbePacks, readContributedAcIds } from './pack-loader.js';
+export { runProbePacksForFbs } from './pack-runner.js';
+export { createPackBrowser, parseEvaluateResult } from './pack-browser.js';
+export {
+  bootIfNeeded,
+  isReachable,
+  matchesSnapshot,
+  pickBootFromPacks,
+  DEFAULT_URL_TIMEOUT_MS,
+  DEFAULT_SELECTOR_TIMEOUT_MS,
+} from './boot.js';

@@ -286,6 +286,70 @@ Three surfaces, one resolution rule (spec 2.6): the apply-time suggestion block 
 
 `rcf/companions.json` (schemaVersion 1) records role-to-provider pins, current pin only per role, `pinnedAt` ISO-8601. `--companion <role>=<slug>` on `rcf define blueprint add` writes a pin at apply. `rcf define blueprint companions set <role> <slug>` and `rcf define blueprint companions unset <role>` write and remove pins outside the apply flow. `rcf define validate` refuses exit 3 when a pin names no known provider.
 
+## 8c. Visual-surface probe packs
+
+For any AC that constrains a runtime-observable visual surface (row order after sort, live-region announcement text, focus return after dialog close, refetch on a timeframe change), the blueprint SHIPS a browser-verify probe pack that `rcf verify browser` invokes as a required gate. The AC is anchored to a pack check by check id; a pack failure refuses ship through the existing `browserVerification` aggregate verdict. A blueprint MAY ALSO ship a Node build-scan probe for surfaces observable at build time (the TAC-207 / TAC-208 pattern in application-spa v1.1.0); when both exist, the build-scan probe is a fast-fail pre-check inside the same `browserVerification` record, and the browser pack is the ship gate.
+
+Packs live at `blueprints/<slug>/probe-packs/<pack-name>.pack.js` (or `.pack.mjs`; both extensions load the same way). Each pack module exports a default object whose fields the loader enforces at load time (refusal exit 2, one diagnostic per fault):
+
+```js
+export default {
+  packName: 'application-datatable-grid-shell',
+  version: '1.0.0',
+  blueprintSlug: 'application-datatable',
+  appliesTo: ({ fbs, uiBaseline, manifest }) => Boolean,
+  boot: { bootCommand: null, waitForUrl: null, waitForSelector: null },
+  preChecks: [
+    { id: 'no-inline-style', severity: 'block', description: '...', run: async () => ({ verdict: 'pass' }) },
+  ],
+  checks: [
+    {
+      id: 'AC-17101-1',
+      severity: 'block',
+      description: 'Sort click reorders rows',
+      dependsOn: 'no-inline-style',
+      run: async ({ browser, fetch, runtimeUrl, route, theme }) => ({ verdict: 'pass' }),
+    },
+  ],
+};
+```
+
+Field-level rules the loader enforces:
+
+- `packName` matches `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$` and MUST equal the owning blueprint's slug or start with `<slug>-`.
+- `version` is semver; `blueprintSlug` matches the enclosing directory.
+- `appliesTo` is a required function. Its source (`appliesTo.toString()`) MUST reference at least one of `route` (or `navModel`/`path`), `tacIds`, or the `blueprint:` US-tag prefix. The default `() => true` predicate is refused so a pack cannot fire on an FBS whose surface does not exist (run-4 residual cure).
+- Every `checks[].id` MUST match an AC id contributed by the same blueprint through `blueprint.json:contributions[]`. A pack whose check names an AC the blueprint does not contribute is refused with a diagnostic that lists the contributed AC ids.
+- `checks[]` is a non-empty array; each check carries id / severity in {block, warn, advisory} / description / async `run`. Duplicate ids on the same pack are refused.
+- Optional `preChecks[]` carries Node build-scan fast-fail checks. A failing pre-check skips every browser check that names it under `dependsOn` (verdict `skipped`, detail `skipped-by-pre-check:<preCheckId>`); browser checks with no `dependsOn` on the failed pre-check still run.
+
+The runner runs the pack pass after invariants and after auth-smoke on `agentScreenshotCritique` mode. Each applicable pack contributes one record to `browserVerification.probePacks[]`:
+
+```json
+{
+  "probePacks": [
+    {
+      "packName": "application-datatable-grid-shell",
+      "packVersion": "1.0.0",
+      "blueprintSlug": "application-datatable",
+      "applicable": true,
+      "checks": [
+        { "id": "AC-17101-1", "verdict": "pass", "severity": "block" },
+        { "id": "AC-17101-2", "verdict": "fail", "detail": "row order after sort did not match server order", "severity": "block" }
+      ]
+    }
+  ]
+}
+```
+
+The aggregate verdict extends the existing rule in `manifest-writer.js:aggregateVerdict`: `block` on any invariant / auth-smoke / pack-check / pre-check severity=block fail; `warn` on any warn-severity fail when no block fires; `pass` otherwise. A pack whose `appliesTo` returns false is recorded with `applicable: false`, contributes no checks, and does not affect the verdict.
+
+The `rcf verify browser <fbs-id> --probe-pack <name>` option restricts one run to one pack by packName; an unknown value exits 2 with a diagnostic that names the discovered packs. Omitting `--probe-pack` runs every discovered pack whose `appliesTo` matches this FBS.
+
+Packs receive `browser` and `fetch` through the runner's injected dependencies. The `browser` seam is a real headless Playwright browser provisioned by the runner through the pinned Playwright MCP server (`src/verify/engine/launcher.js`, spawned as `npx -y @playwright/mcp@<pin>`) via a thin in-package JSON-RPC 2.0 stdio client. Zero new npm dependencies land in rcf-lite for this. When the consuming project already resolves `playwright` from its own `node_modules`, the runner takes that cheaper direct route and exposes the same API. See `verify-reference.md` for the full method list; a pack MUST NOT call `close()` (the runner owns lifetime). `run` functions are expected to be pure with respect to the runtime state they leave behind; a check that mutates persistent state on the app under test without a cleanup path is refused at author-side review.
+
+The dev server is expected to be running when packs execute. If `boot: { bootCommand, waitForUrl, waitForSelector }` is declared on the pack AND the runtime URL is unreachable, the CLI spawns `bootCommand` from the project root (cwd = project root, no shell), polls `waitForUrl` (bounded, default 60s) until it responds, and optionally polls the browser snapshot for `waitForSelector` (bounded, default 10s, soft-failure); packs then run and the CLI stops the process it started when the pass completes. When the runtime is already answering, the boot block is skipped and the running server is used unchanged. The boot fallback is intentionally a fallback, never a per-blueprint dev-server harness: a blueprint that ships a boot block designed to run every time the pack runs fails author-side review. `rcf verify browser --no-boot` disables the fallback for one run.
+
 ## 9. What blueprints must not contribute
 
 The loader refuses these at load time; do not attempt to author them.

@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-04T17:59:20.149Z",
+  "updatedAt": "2026-09-04T17:59:34.348Z",
+  "reqId": "REQ-017",
+  "prdId": "PRD-001",
+  "title": "Blueprint-shipped browser-verify probe packs with FBS-scoped applicability",
+  "description": "The rcf-lite browser-verify runner extension that lets a blueprint SHIP a Playwright probe pack under its own `probe-packs/` directory and have `rcf verify browser` load, scope and execute it as a required ship gate. The extension adds a pack loader (schema validation, applicability predicate, check-id cross-check against the blueprint's contributed AC ids), a runner pass that runs after invariants and auth-smoke, an aggregate verdict extension that blocks on any `severity: block` pack fail, a `probePacks[]` field on the composed browserVerification record, and one CLI option (`--probe-pack <name>`) that restricts one run to one pack. Enables the visual round T-1..T-5 blueprints (datatable, charts, dashboard, notifications-in-app, admin-console) to declare runtime-observable ACs and ship the browser checks that prove them, without adding any npm dependencies and without letting a pack fire on an FBS whose surface does not exist.",
+  "category": "functional",
+  "domain": "browser-verify",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-04T17:59:20.168Z"
+  }
+}

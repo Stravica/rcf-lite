@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-109",
+  "path": "src/browser-verify/manifest-writer.js#aggregateVerdict",
+  "implementsAcIds": [
+    "AC-1701-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T18:01:22.744Z",
+  "updatedAt": "2026-09-04T18:01:22.744Z"
+}

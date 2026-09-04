@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-112",
+  "path": "src/browser-verify/boot.js#bootIfNeeded",
+  "implementsAcIds": [
+    "AC-1701-8"
+  ],
+  "dependencies": [
+    "CN-110"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T18:51:45.216Z",
+  "updatedAt": "2026-09-04T18:51:45.216Z"
+}
