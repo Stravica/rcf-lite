@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-114",
+  "path": "../../blueprints/application-datatable/blueprint.json",
+  "implementsAcIds": [
+    "AC-1801-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T20:06:14.475Z",
+  "updatedAt": "2026-09-04T20:06:14.475Z"
+}

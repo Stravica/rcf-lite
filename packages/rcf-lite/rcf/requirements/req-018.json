@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-04T20:05:06.758Z",
+  "updatedAt": "2026-09-04T20:05:16.473Z",
+  "reqId": "REQ-018",
+  "prdId": "PRD-001",
+  "title": "Application-datatable v1.0.0 blueprint on the shelf with its Playwright probe pack and sample-app fixture",
+  "description": "The rcf-lite shelf ships the application-datatable v1.0.0 blueprint (blueprints/application-datatable/) with 22 contributions (6 REQs, 9 USs with 27 runtime-observable ACs, 3 TACs, 4 ADRs), a shipped Playwright probe pack (blueprints/application-datatable/probe-packs/application-datatable.pack.js) whose six checks (AC-17101-1 sort click, AC-17102-1 filter q request, AC-17103-2 pagination aria-live announcement, AC-17104-3 bulk-action confirmation focus return, AC-17105-1 four-state distinctness, AC-17106-1 column reorder keyboard alternative) are anchored to blueprint AC ids, and a dependency-free sample-app fixture (packages/rcf-lite/test/fixtures/probe-pack-application-datatable/) the pack probes at the shelf's own gate. The blueprint is the first ratification of the ratified visual round T-1 (spec 2026-09-04 section 5.1) and the first shipped consumer of T-0's probe-pack runner extension.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-04T20:05:06.779Z"
+  }
+}
