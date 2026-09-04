@@ -34,8 +34,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // add TS-030..033 for the four USs if the ratified test-axis discipline
   // wants a paired TS per US on the dogfood tree; call recorded in the
   // shipping PR under Calls made.
-  assert.equal(tree.requirements.length, 11);
-  assert.equal(tree.userStories.length, 33);
+  assert.equal(tree.requirements.length, 12);
+  assert.equal(tree.userStories.length, 36);
   assert.equal(tree.tacs.length, 8);
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -47,7 +47,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
   // above.
-  assert.equal(tree.testSuites.length, 33);
+  assert.equal(tree.testSuites.length, 36);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');

@@ -76,8 +76,8 @@ const expectedCounts = {
   // this train; the ACs are runtime-scope and covered by the shipped
   // code paths' own suites. See test/store/walker.test.js's expected-count
   // comment for the full rationale.
-  req: 11,
-  userStory: 33,
+  req: 12,
+  userStory: 36,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -104,7 +104,7 @@ const expectedCounts = {
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
-  testSuite: 33,
+  testSuite: 36,
 };
 
 test('expected file counts by category', () => {

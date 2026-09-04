@@ -1,0 +1,23 @@
+{
+  "id": "TS-035",
+  "usId": "US-1202",
+  "title": "Applied tree carries no literal /healthz or /readyz path outside probe-endpoints prose",
+  "purpose": "Cover the one AC on US-1202: greppable proof that /healthz, /readyz, /healthz/live, /healthz/ready and /healthz/startup do not appear in the applied rcf/ contribution JSON tree after re-applying all three amended blueprints.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-1202-1"
+  ],
+  "testCases": [
+    {
+      "id": "TC-035-no-literal-path-in-applied-tree",
+      "acId": "AC-1202-1",
+      "description": "Applying all three amended blueprints and grepping the applied rcf/ tree for the five literal path strings returns zero matches",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 3: no literal probe path outside probe-endpoints prose in applied tree",
+      "status": "pending",
+      "scope": "library"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}
