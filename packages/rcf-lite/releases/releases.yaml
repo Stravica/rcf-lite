@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.17.0"
+latest: "0.18.0"
 releases:
+  - version: "0.18.0"
+    date: "2026-09-04"
+    breaking: true
+    headlines:
+      - "The rcf-lite blueprint shelf now names a single owner for probe paths across the observability, API and Kubernetes surfaces, so a project that composes more than one of these blueprints no longer has to reconcile duplicate claims by hand."
+      - "observability-essentials v2.0.0 and application-api-rest v2.0.0 drop their shipped literal /healthz and /readyz path defaults and defer to the resolved path set from observability-probe-endpoints v1.1.0, which also adds an optional Kubernetes /startup path (off by default, on per project via probeInterface.options.kubernetes.startup.enabled)."
+      - "rcf doctor grows a probe-path-owner check that flags a project applying more than one blueprint on the probe-path topic; rcf define blueprint remove-resolution <adr-id> is the paired remedy verb that drops a single manifest resolutions entry. Migration: a project on essentials v1.x alone needs one probeInterface.paths line per environment on re-apply unless it also composes probe-endpoints v1.1.0 or later; a project that applied both essentials v1.x and probe-endpoints v1.0.0 with a superseding project-level ADR will see the new doctor check flag those resolutions as redundant with the remove-resolution verb as the hint."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.17.0"
     date: "2026-09-04"
     breaking: false
