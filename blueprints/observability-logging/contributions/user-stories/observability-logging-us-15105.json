@@ -1,0 +1,34 @@
+{
+  "usId": "observability-logging-US-15105",
+  "prdId": "PRD-001",
+  "reqId": "observability-logging-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every log line reflects the operator-elicited environment, serviceName and serviceVersion",
+  "asA": "operator debugging in a shared log destination",
+  "iWant": "every log line to carry the environment, serviceName and serviceVersion the operator set at boot",
+  "soThat": "log queries partition by those three fields without prose parsing on the message string",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15105-1",
+      "description": "The logger factory refuses to construct when environment, serviceName or serviceVersion is missing or blank; construction failure throws with a message naming the missing field.",
+      "given": "an application booting with one of the three fields absent",
+      "when": "the logger factory is constructed",
+      "then": "the construction throws, the error message names the missing field, and the process exits before any emission is possible",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15105-2",
+      "description": "Every emitted line carries environment, serviceName and serviceVersion at fixed field names and equal to the values the operator supplied at boot.",
+      "given": "a running application constructed with the three fields set",
+      "when": "any emission is issued",
+      "then": "the stdout line's three fields equal the operator-supplied values verbatim",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

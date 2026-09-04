@@ -1,0 +1,15 @@
+{
+  "reqId": "application-error-handling-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Error emission goes through the logging companion factory, never direct stdout or stderr writes",
+  "description": "The uncaught-exception boundary and the framework-level handler both emit the constructed record through the logging companion's factory (the logging role provider the project has applied). Direct process.stderr.write or console.error calls for error emission are refused by the boundary contract. When no logging companion is applied the boundary falls back to a one-line JSON emission on stderr with a documented warning; the applying project's guide names the gap.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The logging companion owns the redaction boundary, the correlation identifier propagation, the environment/service/version stamping and the level filter. Bypassing it for error emission produces lines that ingestion pipelines cannot parse alongside the rest of the logs and PII the redaction pass would have caught. The fallback stderr path exists so a project that has not applied a logging companion still gets a diagnostic.",
+  "tags": ["blueprint:application-error-handling", "category:04-emission-through-logging"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

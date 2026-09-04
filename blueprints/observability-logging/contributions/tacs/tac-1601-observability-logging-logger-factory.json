@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-1601-observability-logging-logger-factory",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Logger factory",
+  "purpose": "Owns the construction of every logger the application uses. Threads the operator-elicited boot fields (environment, serviceName, serviceVersion, minimum level, correlation header name, redaction categories) into a shared factory contract; every call site takes a logger from the factory and never constructs one directly. Provides a hermetic in-memory capture mode for tests.",
+  "responsibilities": [
+    "Construct a logger from operator-elicited boot fields; refuse construction when environment, serviceName or serviceVersion is missing or blank (AC-15105-1), and refuse when the minimum level is not one of the recommended-default vocabulary (AC-15106-1).",
+    "Emit each log call as one JSON line to standard output carrying the shared minimum field set (AC-15101-1), applying the level filter per line (AC-15104-1).",
+    "Expose an in-memory capture mode returning an ordered array of the structured objects the same emission would have written to stdout (AC-15107-1), with zero stdout side effects.",
+    "Catch serialisation failures (BigInt, function reference, circular object) at the boundary, drop the emission with one stderr notice naming the offending field, and return without throwing to the caller (AC-15101-2).",
+    "Read the ambient correlation context per emission and thread it onto the correlationId field (AC-15102-1), or null when no context is active (AC-15102-3)."
+  ],
+  "internalStructure": "One module exporting createLoggerFactory({ environment, serviceName, serviceVersion, minimumLevel, correlationHeader, redactionCategories, now, sink }) -> { getLogger(name) -> Logger, capturedLines() }. The factory closes over boot fields, a now() clock (default () -> new Date()) and a pluggable sink (default process.stdout; test-mode sink is an in-memory array). Loggers are lightweight wrappers around the sink. Serialisation is JSON.stringify with a replacer function that folds BigInt to string and short-circuits on circularity via a WeakSet, throwing a controlled SerializationRefusedError caught at the boundary.",
+  "interfaces": [
+    {
+      "name": "createLoggerFactory",
+      "kind": "factory",
+      "description": "createLoggerFactory({ environment, serviceName, serviceVersion, minimumLevel, correlationHeader, redactionCategories, now, sink }) -> { getLogger(name), capturedLines() }. The factory is constructed exactly once at boot; getLogger returns a per-module logger with .trace/.debug/.info/.warn/.error/.fatal methods each taking (message, payload?)."
+    },
+    {
+      "name": "Logger",
+      "kind": "interface",
+      "description": "One method per level; each takes (message: string, payload?: object). Emits one JSON line carrying message, level, timestamp, correlationId, environment, serviceName, serviceVersion, and every payload field folded onto the top level."
+    },
+    {
+      "name": "correlationHeader",
+      "kind": "config",
+      "description": "Operator-elicited inbound header name governing the correlation identifier acceptance and outbound propagation; recommended default X-Correlation-Id per ADR-1602."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Redaction boundary",
+      "kind": "tac",
+      "tacId": "TAC-1602-observability-logging-redaction-boundary",
+      "description": "The factory calls the redaction boundary on every serialised payload before the line is written to the sink; the boundary encapsulates the category vocabulary and the [REDACTED:<category>] rewriting."
+    }
+  ],
+  "tradeoffs": "The factory owns the field vocabulary; a project that wants an additional top-level field beyond the shared minimum authors it as a payload field (which appears on the line) rather than as a factory-side hook. Capture mode is a first-class interface, not a test-only afterthought: the runtime sink is one strategy the same interface serves, so the capture path exercises the same serialisation logic as the runtime path. The v1 blueprint does not ship a dynamic level-change interface; the level is fixed for the process lifetime (REQ-004).",
+  "notes": "Known mechanism-reach gap: the blueprint cannot prove every emission call site uses the factory. A project-side grep gate ('every log call is a factory-returned logger method, not a bare console.log') or a lint rule closes the class; the blueprint's guide names this gap.",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

@@ -26,6 +26,24 @@ const CONTRIBUTABLE_KINDS = new Set(['req', 'us', 'tac', 'adr', 'ts', 'cn']);
 const ROOT_SINGLETON_KINDS = new Set(['prd', 'tad', 'bs']);
 const EXCLUDED_KINDS = new Set(['fbs']);
 
+// Role name grammar for providesRoles[] and suggestedCompanions[].role.
+// Lower camelCase: starts with a lowercase letter, contains only letters
+// and digits, no separators. Same shape as global-topic strings by
+// design (a role name IS the topic name the paired ADR claims, per
+// core-companions spec section 2.2), so `providesRoles: ["logging"]`
+// and the ADR contribution `{"scope":"global","topic":"logging"}`
+// co-locate the two facts on one string.
+const ROLE_NAME_RE = /^[a-z][a-zA-Z0-9]*$/;
+
+// Em-dash sentinel + emoji-ish detection for the suggestedCompanions
+// reason string, per the estate-wide banned-tells baseline. Em-dash
+// (U+2014) is refused outright; emojis approximated by a broad
+// symbols / pictographs range. Reason is operator-facing prose, so the
+// same discipline that applies to READMEs and guides applies here.
+// Refused shapes surface as a validation rcfError before apply.
+const EM_DASH = /—/;
+const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]/u;
+
 /**
  * @typedef {object} BlueprintContribution
  * @property {string} id           canonical id (bare or already namespaced)
@@ -33,6 +51,32 @@ const EXCLUDED_KINDS = new Set(['fbs']);
  * @property {string} path         relative to the blueprint's contributions/
  * @property {'global'} [scope]    ADR only; marks whole-project decisions
  * @property {string}   [topic]    ADR only when scope=global; conflict key
+ * @property {boolean}  [recommendedDefault] ADR only. Standards-derived
+ *                                  discipline (spec 3.2): marks a SHOULD
+ *                                  clause, or a choice-shaped MUST per
+ *                                  amendment A2 (Baz 2026-09-04T12:20:31Z).
+ * @property {boolean}  [elicited] ADR only. Marks a MAY clause: the
+ *                                  applying operator supplies the value
+ *                                  at apply.
+ * @property {string}   [standardsTraceClause] ADR only. Standard clause
+ *                                  identifier verbatim (`WSD-001 clause 3.1`,
+ *                                  `RFC 7807 section 3.1`) or the sentinel
+ *                                  `"generic enterprise practice"`. Required
+ *                                  on every ADR contribution when the
+ *                                  blueprint declares standardsTrace[].
+ */
+
+/**
+ * @typedef {object} SuggestedCompanion
+ * @property {string} role     lower camelCase role name
+ * @property {string} reason   one-sentence operator-facing reason string
+ *                             (no em-dashes, no emojis)
+ */
+
+/**
+ * @typedef {object} StandardsTraceEntry
+ * @property {string} id       standard identifier (e.g. `WSD-001`)
+ * @property {string} version  standard version (free-form)
  */
 
 /**
@@ -51,6 +95,12 @@ const EXCLUDED_KINDS = new Set(['fbs']);
  *                                  vocabulary, so a new category can be
  *                                  minted by adding it to the standard
  *                                  without a code change.
+ * @property {string[]} [providesRoles]        core-companions spec 2.1
+ * @property {SuggestedCompanion[]} [suggestedCompanions] core-companions spec 2.1
+ * @property {StandardsTraceEntry[]} [standardsTrace] standards-derived
+ *                                  discipline (spec 3.2). When set, every
+ *                                  ADR contribution MUST carry a non-null
+ *                                  standardsTraceClause.
  * @property {BlueprintContribution[]} contributions
  */
 
@@ -94,8 +144,31 @@ export async function loadBlueprint(source) {
     version: doc.version,
     source: root,
     ...(typeof doc.category === 'string' ? { category: doc.category } : {}),
-    contributions: Array.isArray(doc.contributions) ? doc.contributions : [],
+    ...(Array.isArray(doc.providesRoles) ? { providesRoles: doc.providesRoles.slice() } : {}),
+    ...(Array.isArray(doc.suggestedCompanions)
+      ? { suggestedCompanions: doc.suggestedCompanions.map((s) => ({ role: s.role, reason: s.reason })) }
+      : {}),
+    ...(Array.isArray(doc.standardsTrace)
+      ? { standardsTrace: doc.standardsTrace.map((s) => ({ id: s.id, version: s.version })) }
+      : {}),
+    contributions: Array.isArray(doc.contributions) ? doc.contributions.map(preserveAdrDisciplineFields) : [],
   };
+}
+
+// Copy the standards-derived-discipline ADR fields (recommendedDefault,
+// elicited, standardsTraceClause) onto the returned contribution shape
+// verbatim so consumers (apply, tests, tooling) can read them without
+// re-loading the blueprint.json. Non-ADR contributions ignore these
+// fields; the loader does not enforce a kind gate on them because a
+// blueprint author can meaningfully attach recommendedDefault to any
+// ADR-flavoured contribution (the discipline is prose in section 8a,
+// not code, per amendment A2).
+function preserveAdrDisciplineFields(c) {
+  const out = { ...c };
+  if (out.recommendedDefault !== undefined) out.recommendedDefault = c.recommendedDefault === true;
+  if (out.elicited !== undefined) out.elicited = c.elicited === true;
+  if (typeof c.standardsTraceClause === 'string') out.standardsTraceClause = c.standardsTraceClause;
+  return out;
 }
 
 function validateMetadata(doc, metaPath) {
@@ -168,6 +241,175 @@ function validateMetadata(doc, metaPath) {
     }
     if (c.scope === 'global' && typeof c.topic !== 'string') {
       return rcfError({ kind: 'validation', message: `blueprint.json: scope=global contribution ${c.id} requires a topic`, filePath: metaPath });
+    }
+    // Standards-derived discipline (spec 3.2) per-ADR fields. Shape
+    // gates only; whether a MUST clause landed on an AC vs an ADR is
+    // prose in blueprint-authoring.md section 8a, not code (amendment
+    // A2 Baz 2026-09-04T12:20:31Z).
+    if (c.recommendedDefault !== undefined && typeof c.recommendedDefault !== 'boolean') {
+      return rcfError({ kind: 'validation', message: `blueprint.json: contribution ${c.id} recommendedDefault must be a boolean when set`, filePath: metaPath });
+    }
+    if (c.elicited !== undefined && typeof c.elicited !== 'boolean') {
+      return rcfError({ kind: 'validation', message: `blueprint.json: contribution ${c.id} elicited must be a boolean when set`, filePath: metaPath });
+    }
+    if (c.standardsTraceClause !== undefined) {
+      if (typeof c.standardsTraceClause !== 'string' || c.standardsTraceClause.trim().length === 0) {
+        return rcfError({ kind: 'validation', message: `blueprint.json: contribution ${c.id} standardsTraceClause must be a non-empty string when set`, filePath: metaPath });
+      }
+    }
+  }
+  // Companion-suggestion mechanism fields (core-companions spec 2.1).
+  const rolesError = validateProvidesRoles(doc, metaPath);
+  if (rolesError) return rolesError;
+  const suggestedError = validateSuggestedCompanions(doc, metaPath);
+  if (suggestedError) return suggestedError;
+  // Paired-ADR gate (spec 2.1): a blueprint declaring a role in
+  // providesRoles[] MUST carry a scope:global ADR whose topic string
+  // equals the role name. Enforced after per-contribution validation
+  // so a mis-authored contribution fails first with the more specific
+  // shape error.
+  const pairedError = validateProvidesRolesPairedAdrs(doc, metaPath);
+  if (pairedError) return pairedError;
+  // Standards-derived discipline (spec 3.3): if standardsTrace[] is
+  // set, every ADR contribution MUST carry a non-null
+  // standardsTraceClause. The loader does NOT cross-check clause
+  // severity to kind (per amendment A2); the discipline is prose.
+  const stError = validateStandardsTrace(doc, metaPath);
+  if (stError) return stError;
+  return null;
+}
+
+/**
+ * Validate providesRoles[] shape (spec 2.1). Optional; when present
+ * must be a non-empty array of lower camelCase strings on the pattern
+ * ^[a-z][a-zA-Z0-9]*$.
+ */
+function validateProvidesRoles(doc, metaPath) {
+  if (doc.providesRoles === undefined) return null;
+  if (!Array.isArray(doc.providesRoles) || doc.providesRoles.length === 0) {
+    return rcfError({ kind: 'validation', message: 'blueprint.json: providesRoles must be a non-empty array when set', filePath: metaPath });
+  }
+  for (let i = 0; i < doc.providesRoles.length; i += 1) {
+    const role = doc.providesRoles[i];
+    if (typeof role !== 'string' || !ROLE_NAME_RE.test(role)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: providesRoles[${i}] '${role}' is not lower camelCase (^[a-z][a-zA-Z0-9]*$).`,
+        filePath: metaPath,
+      });
+    }
+  }
+  return null;
+}
+
+/**
+ * Validate suggestedCompanions[] shape (spec 2.1). Optional; when
+ * present must be a non-empty array of `{role, reason}` objects; role
+ * is a lower camelCase string; reason is a non-empty string with no
+ * em-dashes and no emojis (banned-tells baseline applies to operator-
+ * facing prose).
+ */
+function validateSuggestedCompanions(doc, metaPath) {
+  if (doc.suggestedCompanions === undefined) return null;
+  if (!Array.isArray(doc.suggestedCompanions) || doc.suggestedCompanions.length === 0) {
+    return rcfError({ kind: 'validation', message: 'blueprint.json: suggestedCompanions must be a non-empty array when set', filePath: metaPath });
+  }
+  for (let i = 0; i < doc.suggestedCompanions.length; i += 1) {
+    const entry = doc.suggestedCompanions[i];
+    if (typeof entry !== 'object' || entry === null) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: suggestedCompanions[${i}] must be an object with role and reason`, filePath: metaPath });
+    }
+    if (typeof entry.role !== 'string' || !ROLE_NAME_RE.test(entry.role)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: suggestedCompanions[${i}].role '${entry.role}' is not lower camelCase (^[a-z][a-zA-Z0-9]*$).`,
+        filePath: metaPath,
+      });
+    }
+    if (typeof entry.reason !== 'string' || entry.reason.trim().length === 0) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: suggestedCompanions[${i}].reason for role '${entry.role}' must be a non-empty string.`,
+        filePath: metaPath,
+      });
+    }
+    if (EM_DASH.test(entry.reason)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: suggestedCompanions[${i}].reason for role '${entry.role}' contains an em-dash; use a comma, a full stop, or a colon.`,
+        filePath: metaPath,
+      });
+    }
+    if (EMOJI_RE.test(entry.reason)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: suggestedCompanions[${i}].reason for role '${entry.role}' contains an emoji; operator-facing prose must be plain text.`,
+        filePath: metaPath,
+      });
+    }
+  }
+  return null;
+}
+
+/**
+ * Paired-ADR gate for providesRoles (spec 2.1). A blueprint that
+ * declares a role MUST also carry a scope:global ADR whose topic
+ * string equals the role name. The check runs after per-contribution
+ * shape validation so the more specific per-contribution message
+ * fires first on a mis-authored file.
+ */
+function validateProvidesRolesPairedAdrs(doc, metaPath) {
+  if (!Array.isArray(doc.providesRoles) || doc.providesRoles.length === 0) return null;
+  const globalTopics = new Set(
+    (doc.contributions ?? [])
+      .filter((c) => c.kind === 'adr' && c.scope === 'global' && typeof c.topic === 'string')
+      .map((c) => c.topic),
+  );
+  for (const role of doc.providesRoles) {
+    if (!globalTopics.has(role)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: providesRoles[] names '${role}' but no scope:global ADR carries topic '${role}'.`,
+        filePath: metaPath,
+      });
+    }
+  }
+  return null;
+}
+
+/**
+ * Standards-derived-discipline gate (spec 3.3). If standardsTrace[]
+ * is declared, every ADR contribution MUST carry a non-null
+ * standardsTraceClause. No cross-check on severity-to-kind mapping
+ * (amendment A2 Baz 2026-09-04T12:20:31Z): the discipline is prose in
+ * blueprint-authoring.md section 8a, not code.
+ */
+function validateStandardsTrace(doc, metaPath) {
+  if (doc.standardsTrace === undefined) return null;
+  if (!Array.isArray(doc.standardsTrace)) {
+    return rcfError({ kind: 'validation', message: 'blueprint.json: standardsTrace must be an array when set', filePath: metaPath });
+  }
+  for (let i = 0; i < doc.standardsTrace.length; i += 1) {
+    const entry = doc.standardsTrace[i];
+    if (typeof entry !== 'object' || entry === null) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: standardsTrace[${i}] must be an object with id and version`, filePath: metaPath });
+    }
+    if (typeof entry.id !== 'string' || entry.id.trim().length === 0) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: standardsTrace[${i}].id must be a non-empty string`, filePath: metaPath });
+    }
+    if (typeof entry.version !== 'string' || entry.version.trim().length === 0) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: standardsTrace[${i}].version must be a non-empty string`, filePath: metaPath });
+    }
+  }
+  const slug = doc.slug;
+  for (const c of doc.contributions ?? []) {
+    if (c.kind !== 'adr') continue;
+    if (typeof c.standardsTraceClause !== 'string' || c.standardsTraceClause.trim().length === 0) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint '${slug}' declares standardsTrace but ADR contribution '${c.id}' has no standardsTraceClause; every ADR must reference a standard clause or the sentinel 'generic enterprise practice'.`,
+        filePath: metaPath,
+      });
     }
   }
   return null;

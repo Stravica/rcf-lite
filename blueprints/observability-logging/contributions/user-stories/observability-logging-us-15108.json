@@ -1,0 +1,25 @@
+{
+  "usId": "observability-logging-US-15108",
+  "prdId": "PRD-001",
+  "reqId": "observability-logging-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A redaction category unknown to the boundary is refused at configuration time rather than silently ignored",
+  "asA": "operator elicited into ADR-1603 with a mis-spelled additional category name",
+  "iWant": "the factory to refuse the redaction category at configuration time with a message naming the offending value",
+  "soThat": "a typo in an added category does not silently disable redaction for that field pattern",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15108-1",
+      "description": "The factory's redaction configuration accepts kebab-cased or dotted-namespace category names (matching the ADR-1603 recommended-default shape) and refuses any other shape with a message naming the offending value and the accepted grammar.",
+      "given": "an application configured with a redaction categories list including 'PII Email' (space, mixed case)",
+      "when": "the factory is constructed",
+      "then": "construction throws with a message naming 'PII Email' as the offending value",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1602-observability-logging-redaction-boundary"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

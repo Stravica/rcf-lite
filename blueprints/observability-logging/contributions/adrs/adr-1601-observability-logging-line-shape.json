@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1601-observability-logging-line-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Structured single-line JSON to standard output with the shared minimum field set",
+  "context": "Every log ingestion pipeline the applying project's operator might reach for (Elastic Common Schema pipelines, Loki, Datadog, Splunk) parses one JSON object per line. Emissions that break this shape (multi-line stack traces, unstructured text, non-JSON) either drop from the pipeline silently or produce a per-service special case the operator maintains forever. The core shelf owned the 'logging' topic on application-api-rest-ADR-304 through the 0.18.0 line; from this blueprint the topic transfers to observability-logging so a shelf project without api-rest still gets a logging contract, and api-rest becomes a consumer.",
+  "decision": "Every log emission from the applying application lands as exactly one JSON object per line on process stdout. Every line carries the shared minimum field set: message (string), level (one string from the ADR-1604 vocabulary), timestamp (ISO-8601 with millisecond precision), correlationId (string or null), environment (string), serviceName (string), serviceVersion (string). Payload fields fold onto the top level of the object. A JSON serialisation failure at the boundary drops the emission with one stderr notice and returns to the caller without throwing.",
+  "consequences": "Any log ingestion pipeline that parses one JSON object per line consumes the applying application's stdout without a service-specific parser. Message search, level filtering, environment partitioning and service-version debugging all become one-field queries. The shared minimum field set is stable across every applying project; a project cannot silently rename or drop one of the seven without a major version bump. This ADR is the shelf-canonical owner of the 'logging' topic; the previously superseded application-api-rest-ADR-304 defers to it. Composing blueprints that want a different logging surface (structured multi-line, per-service special format, non-JSON) conflict on the 'logging' topic and the operator resolves at project level.",
+  "alternativesConsidered": [
+    {
+      "name": "Free-form text emission",
+      "summary": "The application writes plain text log messages with no structural discipline.",
+      "reasonNotChosen": "Every ingestion pipeline needs a per-service parser, and every parser breaks the moment a caller changes a phrase. The industry-standard shape for the tier this blueprint targets is one JSON object per line."
+    },
+    {
+      "name": "Multi-line JSON with pretty-printing",
+      "summary": "One JSON object per emission but pretty-printed across multiple lines for human readability.",
+      "reasonNotChosen": "Breaks the one-line assumption every log pipeline holds. Pretty printing is a rendering concern of the consuming tool, not of the emitter."
+    }
+  ],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

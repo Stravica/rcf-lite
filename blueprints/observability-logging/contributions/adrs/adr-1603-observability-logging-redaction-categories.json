@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1603-observability-logging-redaction-categories",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Redaction categories: credential, pii.email, pii.name, pii.address, token, bearer by recommended default; operator elicits additions",
+  "context": "PII redaction in logs is one of the most common compliance surfaces (GDPR, PCI DSS, HIPAA); a blueprint that ships no default vocabulary forces every applying project to invent its own on day one, which reliably produces a coverage gap. A vocabulary that pretends to be exhaustive fights every project's actual field surface. Splitting recommended defaults from elicited additions gets both.",
+  "decision": "The recommended default category set is credential, pii.email, pii.name, pii.address, token, bearer. A field whose name equals or path-tail-matches any of these categories is redacted at the emission boundary. The applying operator elicits additional category names at apply (kebab or dotted-namespace grammar; refused with a boot error otherwise); elicited additions apply alongside the defaults. The applied ADR records the final category list the applying project uses.",
+  "consequences": "A project's logs never emit a field named 'credential', 'pii.email', 'pii.name', 'pii.address', 'token' or 'bearer' with a real value out of the box, before the operator has thought about redaction. Additional per-domain categories (ssn, iban, jwt) land through the elicited additions at apply without a code change. Free-text redaction inside the message string (an email pasted into an error message) is out of scope; the mechanism reach is field-level, not text-level.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship no default vocabulary",
+      "summary": "The blueprint ships a redaction contract but no default category list; every applying project supplies its own from scratch.",
+      "reasonNotChosen": "Reliably produces a coverage gap on day one because the operator has not yet enumerated the field surface. Recommended defaults with elicited additions give a working floor and a project-side extension path in the same round."
+    },
+    {
+      "name": "Redact by field-value pattern rather than field-name category",
+      "summary": "The boundary walks every value and redacts against pattern lists (regex for emails, credit cards, tokens).",
+      "reasonNotChosen": "Pattern-matching every value on every emission is expensive at scale and produces false positives that make logs unusable. Field-name category matching is fast and predictable; the trade-off is that a field with an unrelated name that holds a PII value is not redacted, which is what the field-name grammar exists to catch."
+    }
+  ],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

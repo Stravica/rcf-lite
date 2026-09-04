@@ -1,0 +1,25 @@
+{
+  "usId": "application-error-handling-US-16106",
+  "prdId": "PRD-001",
+  "reqId": "application-error-handling-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Records emit through the logging companion; the fallback stderr path fires only when no companion is applied",
+  "asA": "operator debugging why an error record did not appear in the log ingestion pipeline",
+  "iWant": "records to emit exclusively through the applied logging companion's factory (never direct stderr) when a companion is applied",
+  "soThat": "records land in the same pipeline as every other log line and inherit the companion's redaction, correlation and stamping discipline",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16106-1",
+      "description": "When a logging companion is applied on the project, the record emission path calls the companion factory's error() method; process.stderr.write and console.error carry no line from the boundary. When no logging companion is applied, the boundary falls back to a single-line JSON emission on stderr with a documented warning line ('no logging companion applied; emitting error record on stderr').",
+      "given": "two fixture applications: one with a logging companion applied, one without",
+      "when": "an error is emitted from the boundary",
+      "then": "the first case emits via the logging companion (nothing on stderr from the boundary itself); the second case emits one JSON line on stderr with the warning",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

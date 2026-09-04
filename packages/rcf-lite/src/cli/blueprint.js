@@ -19,11 +19,20 @@ import {
   enrichRowsWithCategories,
   groupRowsByCategory,
   listBlueprints,
+  loadBlueprint,
   removeBlueprint,
   removeResolution,
   renderDiff,
   resolveBlueprintSource,
   supersedeBlueprintTopic,
+  readCompanionsFile,
+  setCompanionPin,
+  unsetCompanionPin,
+  resolveCompanions,
+  renderCompanionLines,
+  renderAmbiguousLibraryRefusal,
+  enumerateShelfProviders,
+  enumerateLibraryProviders,
 } from '../blueprint/index.js';
 import { conflictReportJson, renderConflictReport } from '../blueprint/conflicts.js';
 import { handleLibraryVerb, LIBRARY_HELP } from './blueprint-library.js';
@@ -81,6 +90,26 @@ Verbs:
                          names an ADR present on the tree but is no
                          longer on any resolutions[] entry, prints
                          "nothing to remove" and exits 0.
+  companions <slug>      Print the resolved companion set for the
+                         named applied service blueprint. Reads its
+                         source blueprint.json's suggestedCompanions[],
+                         walks the deterministic tier ladder (applied
+                         > registered library > core shelf, with
+                         rcf/companions.json pin overriding library +
+                         shelf), and prints one line per role. Refuses
+                         exit 3 when two or more registered libraries
+                         provide the same role with no pin. \`--json\`
+                         emits a machine-readable envelope.
+  companions set <role> <slug>
+                         Write a project-level pin to rcf/companions.json
+                         under roles.<role>.provider. <slug> accepts
+                         \`<libraryPrefix>:<slug>\` for a library provider
+                         or a bare kebab slug for a shelf provider.
+                         Refuses exit 2 when the named provider does
+                         not declare providesRoles containing <role>.
+  companions unset <role>
+                         Remove a pin from rcf/companions.json. Refuses
+                         exit 2 when no pin exists for <role>.
   library <verb>         Manage external blueprint libraries. Sub-verbs:
                          add, list, remove, refresh. See
                          'rcf define blueprint library --help' for the
@@ -102,6 +131,21 @@ Options:
   --reason <text>        (supersede, add --resolve) Optional operator
                          note attached to the manifest.resolutions[]
                          record.
+  --companion <role>=<slug>
+                         (add only, repeatable) Pin a companion
+                         provider at apply time; writes the pin to
+                         rcf/companions.json (schemaVersion 1, current
+                         pin per role) with pinnedAt. <slug> is
+                         \`<libraryPrefix>:<slug>\` for a library
+                         provider or a bare kebab slug for a shelf
+                         provider. Refuses exit 2 when the named
+                         provider does not declare providesRoles
+                         containing <role>.
+  --no-companion-suggestions
+                         (add only) Suppress both the --companion pin
+                         phase and the post-apply resolved suggestion
+                         block; every other apply behaviour is
+                         unchanged.
   --json                 (add only) Emit the result (or conflict
                          report) as a machine-readable JSON object.
                          Exit code is unchanged (0 on apply, 3 on
@@ -137,6 +181,9 @@ const OPTION_SPEC = {
   'dry-run': { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
+  // Companion-suggestion mechanism (core-companions spec section 2).
+  companion: { type: 'string', multiple: true },
+  'no-companion-suggestions': { type: 'boolean' },
 };
 
 /**
@@ -220,6 +267,25 @@ export async function main(argv, deps = {}) {
       stderr.write(`[error] blueprint add: ${resolveDeclarations.error}\n`);
       return 2;
     }
+    // Pre-flight --companion selectors (core-companions spec section
+    // 5). Validate BEFORE the apply so a bad selector refuses without
+    // side effects (the pin write and the applied contributions both
+    // stay untouched). --no-companion-suggestions suppresses the
+    // pre-flight too.
+    const companionSelectorsPre = parseCompanionOptions(parsed.values.companion);
+    if (companionSelectorsPre.error) {
+      stderr.write(`[error] blueprint add: ${companionSelectorsPre.error}\n`);
+      return 2;
+    }
+    if (!parsed.values['no-companion-suggestions']) {
+      for (const sel of companionSelectorsPre.value) {
+        const providerCheck = await validateCompanionProvider({ selector: sel, projectRoot, tree });
+        if (providerCheck.error) {
+          stderr.write(`[error] blueprint add: ${providerCheck.error}\n`);
+          return 2;
+        }
+      }
+    }
     const result = await applyBlueprint({
       projectRoot, tree, source,
       namespaceOverride: parsed.values.namespace,
@@ -287,6 +353,57 @@ export async function main(argv, deps = {}) {
     }
     if (!parsed.values.quiet) {
       stdout.write(`[blueprint] applied '${result.slug}' at ${result.version} (${result.contributions.length} contribution(s)).\n`);
+    }
+    // Companion-suggestion mechanism (spec 2.6). Runs AFTER the apply
+    // writes so a failed apply never produces a suggestion block.
+    // Composed of two phases: (a) --companion selectors record pins to
+    // rcf/companions.json (spec 2.4); (b) print the resolved
+    // suggestion block using the current tree + pins + libraries + shelf.
+    // Both phases are suppressed by --no-companion-suggestions.
+    if (!parsed.values['no-companion-suggestions']) {
+      // Re-walk the tree so applied writes are visible to the resolver.
+      const { tree: postTree } = await walkTree({ projectRoot });
+      // Phase (a): --companion selectors. Pre-flight validated the
+      // shape and provider gate before the apply; here we only write
+      // the pins.
+      for (const sel of companionSelectorsPre.value) {
+        const pinRes = await setCompanionPin({ projectRoot, role: sel.role, provider: sel.provider, now });
+        if (pinRes.kind) {
+          stderr.write(`[error] blueprint add: ${pinRes.message}\n`);
+          return 2;
+        }
+        if (pinRes.previousProvider && pinRes.previousProvider !== sel.provider) {
+          stderr.write(`[blueprint] companion pin for role '${sel.role}' updated: '${pinRes.previousProvider}' -> '${sel.provider}'\n`);
+        }
+      }
+      // Phase (b): print the resolved suggestion block for the just-
+      // applied service blueprint. Skipped if the applied blueprint
+      // declared no suggestedCompanions[].
+      if (Array.isArray(result.suggestedCompanions) && result.suggestedCompanions.length > 0) {
+        const pins = await readCompanionsFile(projectRoot);
+        const pinsClean = pins && pins.kind ? null : pins;
+        const resolved = await resolveCompanions({
+          projectRoot,
+          tree: postTree,
+          suggestedCompanions: result.suggestedCompanions,
+          pins: pinsClean,
+        });
+        // Surface ambiguous refusal as a hard exit-3 (spec 2.4).
+        const ambiguous = resolved.find((r) => r.origin === 'ambiguousLibraries');
+        if (ambiguous) {
+          stderr.write(renderAmbiguousLibraryRefusal({
+            role: ambiguous.role,
+            providers: ambiguous.ambiguousProviders,
+            serviceSlug: result.slug,
+          }));
+          return 3;
+        }
+        if (!parsed.values.quiet) {
+          stdout.write(`\nSuggested companions this blueprint recommends alongside it:\n`);
+          stdout.write(`${renderCompanionLines(resolved)}\n`);
+          stdout.write(`Apply either with: rcf define blueprint add <slug>\n`);
+        }
+      }
     }
     return 0;
   }
@@ -405,9 +522,201 @@ export async function main(argv, deps = {}) {
     return 0;
   }
 
+  if (verb === 'companions') {
+    return handleCompanionsVerb({
+      rest,
+      parsed,
+      projectRoot,
+      tree,
+      now,
+      stdout,
+      stderr,
+    });
+  }
+
   stderr.write(`[error] blueprint: unknown verb '${verb}'\n`);
   stderr.write(HELP);
   return 2;
+}
+
+/**
+ * Parse `--companion <role>=<providerSlug>` occurrences. Slug accepts
+ * either `<libraryPrefix>:<slug>` for a library-qualified provider or a
+ * bare kebab slug for a shelf provider. Returns { value: [{role,
+ * provider}] } on success or { error: string }.
+ */
+function parseCompanionOptions(rawList) {
+  if (!Array.isArray(rawList) || rawList.length === 0) return { value: [] };
+  const out = [];
+  for (const raw of rawList) {
+    if (typeof raw !== 'string' || raw.length === 0) {
+      return { error: `--companion expects <role>=<slug>, got '${raw}'` };
+    }
+    const eq = raw.indexOf('=');
+    if (eq === -1) {
+      return { error: `--companion expects <role>=<slug>, got '${raw}' (missing '=')` };
+    }
+    const role = raw.slice(0, eq);
+    const provider = raw.slice(eq + 1);
+    if (!/^[a-z][a-zA-Z0-9]*$/.test(role)) {
+      return { error: `--companion role '${role}' is not lower camelCase (^[a-z][a-zA-Z0-9]*$).` };
+    }
+    if (provider.length === 0) {
+      return { error: `--companion provider slug is empty for role '${role}'` };
+    }
+    out.push({ role, provider });
+  }
+  return { value: out };
+}
+
+/**
+ * Validate a --companion selector: locate the named provider blueprint
+ * (library-qualified or shelf), load it, and refuse when its
+ * `providesRoles[]` does not contain the requested role. Message shape
+ * per spec 5.
+ */
+async function validateCompanionProvider({ selector, projectRoot, tree }) {
+  const { role, provider } = selector;
+  // Applied?
+  const applied = (tree?.manifest?.blueprints ?? []).find((bp) => bp.slug === provider);
+  if (applied && typeof applied.source === 'string' && !applied.source.includes(':')) {
+    const bp = await loadBlueprint(applied.source);
+    if (bp.kind) return { error: `--companion ${role}=${provider}: source blueprint failed to load: ${bp.message}` };
+    if (Array.isArray(bp.providesRoles) && bp.providesRoles.includes(role)) return { ok: true };
+    return { error: `--companion ${role}=${provider}: blueprint '${provider}' does not declare providesRoles containing '${role}'.` };
+  }
+  // Library-qualified?
+  if (provider.includes(':')) {
+    const libraries = await enumerateLibraryProviders({ projectRoot, role });
+    if (libraries.some((l) => `${l.libraryPrefix}:${l.slug}` === provider)) return { ok: true };
+    // Additional diagnostic: check if the library exists but the blueprint does not declare the role
+    return { error: `--companion ${role}=${provider}: blueprint '${provider}' does not declare providesRoles containing '${role}'.` };
+  }
+  // Shelf?
+  const shelfProviders = await enumerateShelfProviders(role);
+  if (shelfProviders.includes(provider)) return { ok: true };
+  return { error: `--companion ${role}=${provider}: blueprint '${provider}' does not declare providesRoles containing '${role}'.` };
+}
+
+/**
+ * `rcf define blueprint companions <slug>|set|unset` sub-verb
+ * dispatcher (spec 2.5). Read-only against the blueprint tree; set /
+ * unset only touch rcf/companions.json.
+ */
+async function handleCompanionsVerb({ rest, parsed, projectRoot, tree, now, stdout, stderr }) {
+  const asJson = parsed.values.json === true;
+  const quiet = parsed.values.quiet === true;
+  if (rest.length === 0) {
+    stderr.write('[error] blueprint companions: missing <slug> or sub-verb (set|unset)\n');
+    return 2;
+  }
+  const head = rest[0];
+  // set / unset sub-verbs.
+  if (head === 'set') {
+    if (rest.length < 3) {
+      stderr.write('[error] blueprint companions set: expected <role> <slug>\n');
+      return 2;
+    }
+    const role = rest[1];
+    const provider = rest[2];
+    const validation = await validateCompanionProvider({ selector: { role, provider }, projectRoot, tree });
+    if (validation.error) {
+      stderr.write(`[error] blueprint companions set: ${validation.error}\n`);
+      return 2;
+    }
+    const res = await setCompanionPin({ projectRoot, role, provider, now });
+    if (res.kind) {
+      stderr.write(`[error] blueprint companions set: ${res.message}\n`);
+      return 2;
+    }
+    if (asJson) {
+      stdout.write(`${JSON.stringify({ ok: true, role, provider, previousProvider: res.previousProvider, pinnedAt: now.toISOString() })}\n`);
+    } else if (!quiet) {
+      if (res.previousProvider && res.previousProvider !== provider) {
+        stdout.write(`[blueprint] companion pin for role '${role}' updated: '${res.previousProvider}' -> '${provider}'\n`);
+      } else {
+        stdout.write(`[blueprint] companion pin for role '${role}' set to '${provider}'\n`);
+      }
+    }
+    return 0;
+  }
+  if (head === 'unset') {
+    if (rest.length < 2) {
+      stderr.write('[error] blueprint companions unset: expected <role>\n');
+      return 2;
+    }
+    const role = rest[1];
+    const res = await unsetCompanionPin({ projectRoot, role });
+    if (res.kind) {
+      stderr.write(`[error] blueprint companions unset: ${res.message}\n`);
+      return 2;
+    }
+    if (asJson) {
+      stdout.write(`${JSON.stringify({ ok: true, role, removed: true })}\n`);
+    } else if (!quiet) {
+      stdout.write(`[blueprint] companion pin for role '${role}' removed\n`);
+    }
+    return 0;
+  }
+  // <slug> form: print the resolved companion set for an applied
+  // service blueprint (spec 2.5 first form).
+  const slug = head;
+  const applied = (tree?.manifest?.blueprints ?? []).find((bp) => bp.slug === slug);
+  if (!applied) {
+    stderr.write(`[error] blueprint companions: no applied blueprint with slug '${slug}' on this project.\n`);
+    return 2;
+  }
+  if (typeof applied.source !== 'string' || applied.source.length === 0) {
+    stderr.write(`[error] blueprint companions: applied blueprint '${slug}' has no readable source.\n`);
+    return 2;
+  }
+  if (applied.source.includes(':') && !applied.source.startsWith('/')) {
+    stderr.write(`[error] blueprint companions: applied blueprint '${slug}' has a library-qualified source '${applied.source}' the companions reader cannot resolve directly; refresh the library and retry, or supply the source path.\n`);
+    return 2;
+  }
+  const bp = await loadBlueprint(applied.source);
+  if (bp.kind) {
+    stderr.write(`[error] blueprint companions: applied blueprint '${slug}' source failed to load: ${bp.message}\n`);
+    return 2;
+  }
+  if (!Array.isArray(bp.suggestedCompanions) || bp.suggestedCompanions.length === 0) {
+    stderr.write(`[error] blueprint companions: applied blueprint '${slug}' declares no suggestedCompanions[].\n`);
+    return 2;
+  }
+  const pins = await readCompanionsFile(projectRoot);
+  const pinsClean = pins && pins.kind ? null : pins;
+  const resolved = await resolveCompanions({
+    projectRoot,
+    tree,
+    suggestedCompanions: bp.suggestedCompanions,
+    pins: pinsClean,
+  });
+  const ambiguous = resolved.find((r) => r.origin === 'ambiguousLibraries');
+  if (ambiguous && !asJson) {
+    stderr.write(renderAmbiguousLibraryRefusal({
+      role: ambiguous.role,
+      providers: ambiguous.ambiguousProviders,
+      serviceSlug: slug,
+    }));
+    return 3;
+  }
+  if (asJson) {
+    stdout.write(`${JSON.stringify({
+      slug,
+      suggestions: resolved.map((r) => ({
+        role: r.role,
+        reason: r.reason,
+        provider: r.provider,
+        origin: r.origin,
+        notes: r.notes,
+        ...(r.ambiguousProviders ? { ambiguousProviders: r.ambiguousProviders } : {}),
+      })),
+    }, null, 2)}\n`);
+    return ambiguous ? 3 : 0;
+  }
+  stdout.write(`${slug} suggests companions:\n`);
+  stdout.write(`${renderCompanionLines(resolved)}\n`);
+  return 0;
 }
 
 /**

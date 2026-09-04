@@ -1,6 +1,6 @@
 {
   "slug": "application-spa",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "category": "application",
   "contributions": [
     {
@@ -405,5 +405,15 @@
       "light",
       "dark"
     ]
-  }
+  },
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "The client console emits structured lines through the same contract the server side uses; a logging companion supplies the factory and the client tier composes on top through its own boundary."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "The browser-facing error boundary constructs the internal record from a client-side exception and hands it to the applied transport writer; an error-handling companion supplies the boundary and the record factory the SPA composes on."
+    }
+  ]
 }

@@ -1,0 +1,27 @@
+{
+  "slug": "observability-logging",
+  "version": "1.0.0",
+  "category": "observability",
+  "providesRoles": ["logging"],
+  "contributions": [
+    { "id": "observability-logging-REQ-001", "kind": "req", "path": "requirements/observability-logging-req-001.json" },
+    { "id": "observability-logging-REQ-002", "kind": "req", "path": "requirements/observability-logging-req-002.json" },
+    { "id": "observability-logging-REQ-003", "kind": "req", "path": "requirements/observability-logging-req-003.json" },
+    { "id": "observability-logging-REQ-004", "kind": "req", "path": "requirements/observability-logging-req-004.json" },
+    { "id": "observability-logging-REQ-005", "kind": "req", "path": "requirements/observability-logging-req-005.json" },
+    { "id": "observability-logging-US-15101", "kind": "us", "path": "user-stories/observability-logging-us-15101.json" },
+    { "id": "observability-logging-US-15102", "kind": "us", "path": "user-stories/observability-logging-us-15102.json" },
+    { "id": "observability-logging-US-15103", "kind": "us", "path": "user-stories/observability-logging-us-15103.json" },
+    { "id": "observability-logging-US-15104", "kind": "us", "path": "user-stories/observability-logging-us-15104.json" },
+    { "id": "observability-logging-US-15105", "kind": "us", "path": "user-stories/observability-logging-us-15105.json" },
+    { "id": "observability-logging-US-15106", "kind": "us", "path": "user-stories/observability-logging-us-15106.json" },
+    { "id": "observability-logging-US-15107", "kind": "us", "path": "user-stories/observability-logging-us-15107.json" },
+    { "id": "observability-logging-US-15108", "kind": "us", "path": "user-stories/observability-logging-us-15108.json" },
+    { "id": "TAC-1601-observability-logging-logger-factory", "kind": "tac", "path": "tacs/tac-1601-observability-logging-logger-factory.json" },
+    { "id": "TAC-1602-observability-logging-redaction-boundary", "kind": "tac", "path": "tacs/tac-1602-observability-logging-redaction-boundary.json" },
+    { "id": "ADR-1601-observability-logging-line-shape", "kind": "adr", "path": "adrs/adr-1601-observability-logging-line-shape.json", "scope": "global", "topic": "logging" },
+    { "id": "ADR-1602-observability-logging-correlation-id-header", "kind": "adr", "path": "adrs/adr-1602-observability-logging-correlation-id-header.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "generic enterprise practice" },
+    { "id": "ADR-1603-observability-logging-redaction-categories", "kind": "adr", "path": "adrs/adr-1603-observability-logging-redaction-categories.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "generic enterprise practice" },
+    { "id": "ADR-1604-observability-logging-level-vocabulary", "kind": "adr", "path": "adrs/adr-1604-observability-logging-level-vocabulary.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "generic enterprise practice" }
+  ]
+}

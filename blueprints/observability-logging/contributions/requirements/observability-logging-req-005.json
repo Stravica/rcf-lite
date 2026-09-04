@@ -1,0 +1,15 @@
+{
+  "reqId": "observability-logging-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Every log line carries environment, service name and service version, all operator-elicited at boot",
+  "description": "The three fields (environment, serviceName, serviceVersion) are supplied to the logger factory at boot from operator-elicited configuration (environment variables, config file, deployment manifest); the factory refuses to construct a logger when any of the three is missing or blank. Every emitted line carries all three at fixed field names so log ingestion can partition by environment and service without prose parsing.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "A shared log destination sees lines from every environment and every service. Without machine-readable partitioning fields, filtering by environment or service requires string search on the message field, which is fragile and prone to false positives. Requiring the three fields at boot puts the discipline at the earliest possible surface.",
+  "tags": ["blueprint:observability-logging", "category:05-boot-fields"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

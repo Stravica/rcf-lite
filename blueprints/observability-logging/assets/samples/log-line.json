@@ -1,0 +1,13 @@
+{
+  "message": "request completed",
+  "level": "info",
+  "timestamp": "2026-09-04T12:20:00.123Z",
+  "correlationId": "c3b8d0f1-4a2e-4a6f-9c1a-1234567890ab",
+  "environment": "production",
+  "serviceName": "orders-api",
+  "serviceVersion": "1.4.2",
+  "httpStatus": 200,
+  "requestPath": "/orders/42",
+  "durationMs": 37,
+  "userId": "[REDACTED:pii.name]"
+}

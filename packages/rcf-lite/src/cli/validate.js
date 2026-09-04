@@ -6,6 +6,7 @@ import { parseArgs } from 'node:util';
 
 import { formatErrors } from '#core/errors';
 import { checkCodeNodeResolution, walkTree } from '#core/store';
+import { validateCompanionPinsResolvable } from '../blueprint/companions.js';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {
@@ -126,6 +127,12 @@ export async function main(argv, deps = {}) {
     const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
     errors.push(...staleErrors);
   }
+  // Core-companions spec section 5: rcf/companions.json refusals ride
+  // the same exit path as schema / referential-integrity errors. An
+  // absent companions.json is not itself an error; a malformed file or
+  // a pin that names no known provider is exit 3.
+  const companionsErrors = await validateCompanionPinsResolvable({ projectRoot, tree });
+  errors.push(...companionsErrors);
   if (flags.json) {
     const issues = errors.map((e) => ({
       id: e.documentId ?? null,

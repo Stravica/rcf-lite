@@ -1,0 +1,34 @@
+{
+  "usId": "application-error-handling-US-16103",
+  "prdId": "PRD-001",
+  "reqId": "application-error-handling-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The record factory refuses to construct a record without code and category, and preserves the cause chain across nested wrappings",
+  "asA": "developer wrapping a low-level exception into a higher-level record",
+  "iWant": "TAC-1702's factory to refuse a construction without code or category and to preserve the wrapped cause chain across every level",
+  "soThat": "every record has the minimum debug information and the chain of causes is intact when the record is emitted",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16103-1",
+      "description": "createErrorRecord({code, category, message, cause, context}) refuses (throws a controlled error) when code is missing or blank OR category is missing or blank; the thrown error names the missing field.",
+      "given": "a caller invoking the factory without code or without category",
+      "when": "the factory is called",
+      "then": "the factory throws with a message naming the missing field",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16103-2",
+      "description": "A record whose cause is itself a record has both records' code, category and message reachable through record.cause.cause chain traversal.",
+      "given": "a record wrapping a record wrapping a low-level exception",
+      "when": "the outermost record is emitted",
+      "then": "the emitted JSON carries the full cause chain in the same shape as the top-level record fields, nested under cause",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1702-application-error-handling-record-factory"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

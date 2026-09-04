@@ -1,0 +1,25 @@
+{
+  "usId": "application-error-handling-US-16102",
+  "prdId": "PRD-001",
+  "reqId": "application-error-handling-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A framework-level exception thrown from handler code is caught, mapped to the wire, and never leaks a raw stack trace",
+  "asA": "consumer of an application endpoint",
+  "iWant": "a framework-level exception to produce a mapped wire response, not a raw stack trace or a truncated connection",
+  "soThat": "callers can act on the error without inspecting server logs and no internal detail leaks",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16102-1",
+      "description": "A handler that throws produces a wire response written by ADR-1703's transport mapping; the response body carries the fields the transport blueprint's errorEnvelope ADR requires (no raw stack, no PII, code present, message present); the server does not truncate the connection.",
+      "given": "an application handler that throws",
+      "when": "a request hits the handler",
+      "then": "the response arrives cleanly with the mapped wire body, and no raw stack trace or internal path appears in the body",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

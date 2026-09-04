@@ -1,0 +1,15 @@
+{
+  "reqId": "application-error-handling-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Every error class is classified transient, permanent or unknown; the boundary honours the class in its handling",
+  "description": "Every constructed record carries a category from the ADR-1702 vocabulary (recommended defaults: transient, permanent, unknown; elicited additions per project). The transport handler (ADR-1703) reads the category and applies the per-class contract: transient errors may include a Retry-After hint if the origin knows one; permanent errors do not; unknown errors are logged at error level and treated as permanent by the wire response. The classification is a property the constructing code declares at record creation, not a property inferred from the exception message.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Retry policies are the difference between a self-healing system and a burning one. Classifying errors at the source (where the code knows whether the failure was a transient network blip or a permanent authorisation refusal) puts the decision where the information is; classifying downstream on the wire message is the source of most retry-storm outages.",
+  "tags": ["blueprint:application-error-handling", "category:03-classification"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

@@ -1,0 +1,15 @@
+{
+  "reqId": "observability-logging-REQ-003",
+  "prdId": "PRD-001",
+  "title": "PII fields are redacted by named category at the emission boundary, not at the call site",
+  "description": "The logger factory exposes a redaction contract (ADR-1603 recommended-default categories: credential, pii.email, pii.name, pii.address, token, bearer; elicited additions per project). A field named or path-labelled with a category is replaced with the string [REDACTED:<category>] before the line is serialised, whether the log call site remembered to redact or not. Redaction happens at the emission boundary (TAC-1602): a rogue field name in a caller-supplied object is redacted by rule, not by hope. The redaction pass never mutates the caller's original object; the emission pipeline copies the object first.",
+  "category": "nonFunctional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "PII leaks through logs are one of the most common data-exposure defects in production systems. Placing the redaction responsibility at the call site produces a coverage gap the size of the codebase; placing it at the boundary is the only scalable enforcement. Named categories keep the vocabulary auditable and let a project add its own categories at apply time.",
+  "tags": ["blueprint:observability-logging", "category:03-pii-redaction"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

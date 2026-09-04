@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-1702-application-error-handling-record-factory",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Error record factory",
+  "purpose": "Owns the construction of every internal error record. Threads the operator-elicited redaction categories (from the applied logging companion) into a shared factory that gates the record shape (code + category required per ADR-1701), redacts the context field at construction (AC-16104-1), preserves the cause chain across nested wrappings (AC-16103-2), and returns an immutable record every downstream consumer can trust.",
+  "responsibilities": [
+    "Refuse to construct a record without code or category (AC-16103-1); throw a controlled error naming the missing field.",
+    "Redact the context object at construction using the redaction category set the applied logging companion supplied at boot (AC-16104-1); the caller's original context object is not mutated.",
+    "Preserve the cause chain by accepting a nested record as cause and threading it verbatim onto the returned record (AC-16103-2).",
+    "Stamp the record with the ambient correlationId at construction time so the record carries the identifier even if the emitter loses the ambient context between construction and emission."
+  ],
+  "internalStructure": "One module exporting createErrorRecordFactory({ redactionBoundary, correlationContext }) -> { createErrorRecord({code, category, message, cause, context}) -> Record }. The factory closes over the redaction boundary (from TAC-1602 of the logging companion, when applied) and the correlation-context reader (from the logging companion or a project fallback). The returned record is Object.freeze'd so downstream consumers cannot mutate it.",
+  "interfaces": [
+    {
+      "name": "createErrorRecordFactory",
+      "kind": "factory",
+      "description": "createErrorRecordFactory({ redactionBoundary, correlationContext }) -> { createErrorRecord({code, category, message, cause, context}) }. Constructed once at boot alongside the logger factory."
+    },
+    {
+      "name": "Record",
+      "kind": "interface",
+      "description": "Frozen object with fields code (string), category (string), message (string), correlationId (string or null), cause (Record | null), context (redacted object)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Redaction boundary",
+      "kind": "tac",
+      "tacId": "TAC-1602-observability-logging-redaction-boundary",
+      "description": "The factory calls the redaction boundary on the context object at construction; when the logging companion is not applied, the factory uses a pass-through boundary (documented in the guide as the fallback)."
+    }
+  ],
+  "tradeoffs": "The factory owns the shape gate; a project that wants an additional record field (severity, retryHint) authors it as part of context rather than at the top level. Freezing the record has a small runtime cost; it is intentional so downstream mutation cannot silently drift the emitted line from the record the caller reasoned about. The v1 factory does not attempt to normalise message strings; the caller supplies the message verbatim.",
+  "notes": "",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

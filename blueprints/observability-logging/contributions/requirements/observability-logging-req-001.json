@@ -1,0 +1,15 @@
+{
+  "reqId": "observability-logging-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Every service surface emits structured single-line JSON log lines through the shared factory",
+  "description": "Every log emission from the applying application passes through the logger factory contract TAC-1601 produces, writes one JSON object per line to standard output, and includes at minimum the fields message (string), level (one of the level vocabulary in ADR-1604), timestamp (ISO-8601 with millisecond precision), correlationId (string, may be null when no ambient context), environment (string), serviceName (string) and serviceVersion (string). A log emission that fails to serialise (a value that is not JSON-representable, a circular reference) is caught, dropped with a one-time stderr notice, and the calling code path continues; a serialisation failure never crashes the service.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "Downstream log ingestion tooling (Elastic Common Schema pipelines, Loki, Datadog, Splunk) parses one JSON object per line. Multi-line stack traces or unstructured text break the pipeline and produce silent data loss. Threading every emission through one factory closes the drift class where a stray console.log lands unstructured text alongside structured lines.",
+  "tags": ["blueprint:observability-logging", "category:01-structured-emission"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

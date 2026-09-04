@@ -1,0 +1,25 @@
+{
+  "usId": "application-error-handling-US-16101",
+  "prdId": "PRD-001",
+  "reqId": "application-error-handling-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A process-level uncaught exception constructs the record, emits it, and terminates cleanly with exit 1",
+  "asA": "operator running the application under a supervising process",
+  "iWant": "an uncaught exception to construct the internal record via TAC-1702, emit it through the logging companion at error level, and terminate with exit 1",
+  "soThat": "the crash is diagnosable from one log line and the supervisor knows to restart the process",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16101-1",
+      "description": "An uncaughtException on the Node runtime (or an equivalent unhandled error on another runtime) causes the process-level boundary to construct the internal record with category unknown when no code path set one, emit it as one JSON line at error level with the stack trace on cause, and exit the process with code 1.",
+      "given": "a running application with the process-level boundary registered",
+      "when": "an uncaught exception is thrown from any code path",
+      "then": "one log line is emitted at error level with the record shape (code, category unknown, message, correlationId, cause, context), and process.exitCode equals 1",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

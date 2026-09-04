@@ -1,0 +1,15 @@
+{
+  "reqId": "observability-logging-REQ-002",
+  "prdId": "PRD-001",
+  "title": "The application accepts, propagates and reflects a correlation identifier on every log line",
+  "description": "The application reads a correlation identifier from an inbound request header (name governed by ADR-1602; default X-Correlation-Id, elicited per project), threads it through the request-scoped context using the mechanism the TAC exposes, includes it on every log line emitted during that request, and reflects it on any outbound request initiated inside the same context. When no inbound identifier is present, the application mints a v4 UUID and treats it as the ambient value. Requests processed with no ambient context (a scheduled task boot, a background worker startup line) log with correlationId equal to null; the field is always present.",
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "Correlation identifiers are the mechanism that stitches together the log lines of a single logical request across multiple services and multiple retries. Without acceptance-and-reflection at every hop, log search cannot follow the chain. Present-but-null is a legitimate ambient state (boot-time logs, cron); refusing to log without an identifier fights the operator when they need the emission most.",
+  "tags": ["blueprint:observability-logging", "category:02-correlation-id"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

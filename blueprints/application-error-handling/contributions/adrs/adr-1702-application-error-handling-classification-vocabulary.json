@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-1702-application-error-handling-classification-vocabulary",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Classification vocabulary: transient, permanent, unknown by recommended default; operator elicits additions",
+  "context": "Retry policies are the difference between a self-healing system and a burning one. Classification at the source (where the code knows whether the failure was a transient network blip or a permanent authorisation refusal) puts the decision where the information is; classifying downstream on the wire is the source of most retry-storm outages. The recommended default set is deliberately small; per-domain additions land through elicited additions.",
+  "decision": "The recommended default classification vocabulary is transient, permanent, unknown. Every constructed record carries one string from this set. The applying operator elicits additional categories at apply (kebab or dotted-namespace grammar; refused with a boot error otherwise); elicited additions apply alongside the defaults. The transport response mapper reads the category and applies the per-class contract.",
+  "consequences": "Retry policies wire once against the shared vocabulary; per-project additions (rate-limited, quota-exceeded, dependency-degraded) fit in the same mechanism. The three defaults cover the majority of real-world classification decisions; a project that finds itself using unknown for everything has a diagnostic gap the classification is meant to catch.",
+  "alternativesConsidered": [
+    {
+      "name": "Enumerate an exhaustive vocabulary",
+      "summary": "The blueprint ships every possible category (auth, timeout, dependency, quota, ...) as recommended defaults.",
+      "reasonNotChosen": "Reliably fights every project's domain vocabulary; the three defaults plus elicited additions gives a working floor and a project-side extension path in the same round."
+    }
+  ],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

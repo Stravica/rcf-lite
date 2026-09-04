@@ -1,0 +1,45 @@
+{
+  "tacId": "TAC-1701-application-error-handling-boundary",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Error-handling boundary",
+  "purpose": "Owns the two boundaries a application error-handling contract requires: the process-level uncaught-exception boundary and the framework-level request-pipeline boundary. Both accept a runtime exception, invoke the record factory (TAC-1702), emit the record through the applied logging companion factory, and hand the record to the transport response writer per ADR-1703. Substitutable interface for hermetic tests.",
+  "responsibilities": [
+    "Register the process-level handler on uncaughtException / unhandledRejection (Node) or equivalent (browser) that constructs the record, emits it and exits the process with code 1 (AC-16101-1).",
+    "Register a framework-level handler on the request pipeline that catches thrown exceptions, constructs the record, hands it to the transport writer, and never lets a raw stack trace or truncated connection surface (AC-16102-1).",
+    "Read the record's classification per ADR-1702 and honour the per-class contract in the transport response (AC-16105-1).",
+    "Route error emission through the applied logging companion factory when one is present; fall back to a documented single-line stderr JSON when no companion is applied (AC-16106-1)."
+  ],
+  "internalStructure": "One module exporting boundaryFor({ loggerFactory, transportWriter }) -> { handle(err, context) }, plus a registerProcess({ loggerFactory }) function the boot code calls once. The handler is a stateless async function; the transport writer is a substitutable interface the framework binds (Express: res.status().json(); Fastify: reply.send(); other transports supply their own writer). The boundary owns the classification-to-wire-envelope mapping delegated to ADR-1703.",
+  "interfaces": [
+    {
+      "name": "boundaryFor",
+      "kind": "factory",
+      "description": "boundaryFor({ loggerFactory, transportWriter }) -> { handle(err, context) }. The factory constructs the framework-level boundary; the framework calls handle on every caught exception. Tests substitute stub loggerFactory and transportWriter."
+    },
+    {
+      "name": "registerProcess",
+      "kind": "hook",
+      "description": "registerProcess({ loggerFactory }): void. Called once at boot; wires the process-level uncaughtException / unhandledRejection handlers to route through the same record factory."
+    },
+    {
+      "name": "transportWriter",
+      "kind": "interface",
+      "description": "The framework-supplied writer that turns a record + wire envelope into the on-the-wire response. Substitutable per transport blueprint (REST envelope, gRPC status, message-consumer nack)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Record factory",
+      "kind": "tac",
+      "tacId": "TAC-1702-application-error-handling-record-factory",
+      "description": "The boundary constructs every record through the factory; the factory owns the record shape gate and the context redaction pass."
+    }
+  ],
+  "tradeoffs": "The boundary owns the runtime interception surface; a project that wants a different framework's hook (a custom router, an application-code-first middleware chain) supplies its own transportWriter and reuses everything else. The v1 boundary does not attempt to recover from an uncaught exception; termination with exit 1 is the intentional contract (recovery is the supervisor's job). The optional logging-companion fallback exists so a project without a logging companion still sees the record on stderr; the guide names the fallback as documented behaviour and points at the observability-logging companion as the recommended fix.",
+  "notes": "Known mechanism-reach gap: the blueprint cannot prove every code path routes through the boundary. A project-side grep gate ('no bare console.error, no bare process.exit outside boundary') closes the class.",
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}

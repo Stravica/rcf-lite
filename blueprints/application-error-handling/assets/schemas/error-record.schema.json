@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rcf-lite/blueprints/application-error-handling/schemas/error-record.schema.json",
+  "title": "Internal error record",
+  "description": "The shape TAC-1702's factory returns and every downstream consumer reads. Frozen; see ADR-1701.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["code", "category", "message", "correlationId", "context"],
+  "properties": {
+    "code": { "type": "string", "minLength": 1, "description": "Project-elicited machine-readable identifier." },
+    "category": { "type": "string", "minLength": 1, "description": "One of the ADR-1702 classification vocabulary." },
+    "message": { "type": "string", "minLength": 1, "description": "Human-readable message; no PII." },
+    "correlationId": { "type": ["string", "null"], "description": "Stamped from the ambient logging context at construction." },
+    "cause": { "anyOf": [ { "type": "null" }, { "$ref": "#" } ], "description": "Nested record for the wrapped cause, or null." },
+    "context": { "type": "object", "description": "Redacted at construction using the applied logging companion's redaction categories." }
+  }
+}

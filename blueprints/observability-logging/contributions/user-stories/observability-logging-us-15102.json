@@ -1,0 +1,43 @@
+{
+  "usId": "observability-logging-US-15102",
+  "prdId": "PRD-001",
+  "reqId": "observability-logging-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A correlation identifier read from the inbound request header rides every log line and every outbound request until the request ends",
+  "asA": "operator debugging a request path that spans multiple services",
+  "iWant": "the correlation identifier from the inbound request to appear on every log line the application emits during the request AND on every outbound request the application initiates within the same context",
+  "soThat": "log search returns the whole chain of a logical request across services from one string query",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15102-1",
+      "description": "A request arriving with the elicited correlation header (default X-Correlation-Id per ADR-1602) causes every log line emitted during the handler and its callees to carry correlationId equal to the header value; a request arriving without the header causes the application to mint a v4 UUID and the same value appears on every log line for the request.",
+      "given": "a running application with the correlation header configured and an inbound request",
+      "when": "the request is processed (with or without the header set)",
+      "then": "every log line emitted during the request carries the same correlationId value; header value wins when present; a v4 UUID is minted otherwise",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15102-2",
+      "description": "An outbound HTTP request initiated from within a request-scoped handler carries the ambient correlationId as the same elicited header name.",
+      "given": "an inbound request handler that issues an outbound HTTP call",
+      "when": "the outbound request is sent",
+      "then": "the outbound request headers include the correlation header with the ambient value",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15102-3",
+      "description": "A log emission with no ambient correlation context (boot line, scheduled task, background worker startup) carries correlationId equal to null; the field is present.",
+      "given": "a running application with no ambient request context",
+      "when": "a boot-time or background emission occurs",
+      "then": "the line carries correlationId: null",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "createdAt": "2026-09-04T12:20:00Z",
+  "updatedAt": "2026-09-04T12:20:00Z"
+}
