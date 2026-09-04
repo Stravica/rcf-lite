@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1801-application-datatable-pattern-choice",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Choose ARIA APG table for read-only rows and ARIA APG grid once any cell becomes an interactive control",
+  "context": "The ARIA APG names two distinct patterns for tabular surfaces: `table` for a read-only presentation of tabular data, and `grid` for a two-dimensional widget where cells can hold interactive controls (buttons, links, editable fields). Assistive-tech behaviour differs between the two: a grid announces row and column position on focus, supports two-dimensional keyboard navigation, and expects `role=\"gridcell\"` on data cells; a table announces cell contents in reading order and does not expect grid navigation. Picking one pattern per the interactivity of the surface prevents the shipped datatable from advertising grid affordances the surface does not implement (a common defect).",
+  "decision": "The blueprint's shell picks the `table` pattern when the rows carry no interactive controls, and the `grid` pattern once any per-row control ships (sort activation on header, selection checkboxes, inline row actions). The decision is per-shell (a project can ship a read-only detail table and an interactive datatable in the same app); the choice is exposed on the shell factory input.",
+  "consequences": "Assistive tech reads the intended pattern; the sort control on a header always renders as an interactive control regardless of pattern; the grid pattern's two-dimensional keyboard navigation is only expected when the shell renders `role=\"grid\"`. A project that wants the grid pattern for a read-only surface (a stock listing with per-row cell focus) elects it explicitly on the shell factory input.",
+  "alternativesConsidered": [
+    {
+      "name": "Always render `role=\"grid\"`",
+      "summary": "The shell always renders the grid pattern, regardless of interactivity.",
+      "reasonNotChosen": "Read-only surfaces that render the grid pattern advertise two-dimensional keyboard navigation and cell focus their surface does not implement, so assistive-tech users hit dead ends."
+    },
+    {
+      "name": "Always render plain `<table>`",
+      "summary": "The shell never renders the grid pattern.",
+      "reasonNotChosen": "Interactive datatables reads worse on assistive tech than they should because the grid pattern's cell announcements are not fired."
+    }
+  ],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

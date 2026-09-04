@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17105",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Empty, loading, error and no-results states each render a distinct region with a polite live announcement",
+  "asA": "screen-reader user or keyboard-only user navigating a datatable that has no rows to show",
+  "iWant": "each of the four states to render inside its own `role=\"region\"` element with `aria-live=\"polite\"` and a distinct visual so the reason no rows show is announced and readable",
+  "soThat": "the state is unambiguous and not confused with stale content",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17105-1",
+      "description": "Given a datatable route in each of the four states (empty, loading, error, no-results), the rendered DOM carries a `role=\"region\"` element with `aria-live=\"polite\"` per state; the no-results state is distinguished from empty by the presence of a non-empty active filter (`q`). The check drives the shell to each state via query parameter, reads the accessibility tree, and asserts the region and live values. Probed by pack check AC-17105-1.",
+      "given": "the datatable route driven to each of the four states",
+      "when": "the state region renders",
+      "then": "each state carries a `role=\"region\"` element with `aria-live=\"polite\"` and a distinct heading",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17105-2",
+      "description": "Given a datatable route in each of the four states, no state relies on colour alone to convey its meaning (WCAG 1.4.1): each state includes text content that names the state (empty, loading, error, or no results).",
+      "given": "the datatable route driven to each of the four states",
+      "when": "the state region renders",
+      "then": "each state region includes text content that names the state without relying on colour",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17105-3",
+      "description": "Given a rendered datatable in the loading state, when the fetch resolves and rows arrive, the loading region is removed from the accessibility tree and the populated data region replaces it (never overlaid). The check drives the surface into loading, waits for resolution, and asserts the loading region is gone.",
+      "given": "a datatable in the loading state",
+      "when": "the fetch resolves and rows arrive",
+      "then": "the loading region is removed and the populated data region renders without the loading region present",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1801-application-datatable-shell"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

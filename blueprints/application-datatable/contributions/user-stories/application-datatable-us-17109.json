@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17109",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Selection persistence across pages holds the elicited contract and announces the running count",
+  "asA": "operator selecting rows across several pages before running a bulk action",
+  "iWant": "the selection model to persist my row selections across pagination and announce the running count",
+  "soThat": "cross-page bulk operations are visible and reversible",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17109-1",
+      "description": "Given an operator elicited `selectionPersistence=cross-page` (ADR-1804), when the operator selects rows on page 1 and advances to page 2, the previously selected row ids remain in the selection model; a return to page 1 re-renders the checkboxes as checked. The check clicks a row checkbox, advances the page, returns, and asserts the checkbox is still checked.",
+      "given": "a rendered datatable with elicited cross-page selection persistence",
+      "when": "the operator selects rows on page 1 and paginates away and back",
+      "then": "the row checkboxes on page 1 remain in the selected state on return",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17109-2",
+      "description": "Given a running row selection, the surface renders the current count in an accessible location adjacent to the bulk action controls; the count updates when a row is toggled without a full re-render of the surface.",
+      "given": "a rendered datatable with at least one row selected",
+      "when": "the operator toggles a second row",
+      "then": "the accessible selection count updates by one without a full page re-render",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17109-3",
+      "description": "Given the operator did not elicit cross-page persistence (ADR-1804's non-elicited default), the selection resets on pagination; the surface names this behaviour in the accessible copy near the bulk action control so operators are not surprised on advance.",
+      "given": "a rendered datatable without cross-page persistence elicited",
+      "when": "the operator selects rows and paginates away",
+      "then": "the selection clears on advance and the accessible copy on the bulk-action region names the per-page-only behaviour",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1803-application-datatable-selection-model"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

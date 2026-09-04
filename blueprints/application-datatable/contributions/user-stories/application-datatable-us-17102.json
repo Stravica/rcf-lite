@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17102",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Filter chrome text search issues a q request and narrows rendered rows to the response",
+  "asA": "operator looking for a subset of rows by keyword",
+  "iWant": "the text filter to issue a request the query adapter reads as `q` and rerender the rows the response returned",
+  "soThat": "the sighted, keyboard and screen-reader paths all see the same filtered set",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17102-1",
+      "description": "Given a rendered datatable route with a text filter input, when the operator types a value, the client issues a request to the query adapter carrying `q=<value>`; the server (server-side default) or the in-memory adapter (elicited client-side alternative) reads `q` and returns rows matching the filter; the rendered rows equal the returned rows. The check types into the filter, awaits the fetch, reads the rendered names, and compares against a direct `/api/rows?q=<value>` fetch. Probed by pack check AC-17102-1.",
+      "given": "a rendered datatable route with a filter input",
+      "when": "the operator types a value into the filter",
+      "then": "the query adapter receives a `q` value equal to the typed string and the rendered rows equal the returned rows",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17102-2",
+      "description": "Given a filter change, the pagination cursor resets to page 1 so the operator does not see an out-of-range empty page after narrowing. The check reads the pagination status region before and after typing into the filter and asserts the current page reads 1.",
+      "given": "a rendered datatable route where the operator advanced past page 1",
+      "when": "the operator types a filter value",
+      "then": "the pagination status region reads `Page 1 of M` for the filtered result set",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17102-3",
+      "description": "Given a per-column filter dropdown on a bounded-value column, when the operator selects a value, the query adapter receives a filter on that column and the rendered rows narrow to the matching subset; combined with a text search on `q`, both filters compose deterministically at the adapter.",
+      "given": "a rendered datatable route with at least one per-column dropdown filter",
+      "when": "the operator selects a value and (independently) types a `q`",
+      "then": "the query adapter receives both filters and the rendered rows are the intersection",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1802-application-datatable-query-adapter"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

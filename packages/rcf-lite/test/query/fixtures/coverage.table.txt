@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 17  covered: 17  covered-unresolved: 0  uncovered: 0
+Requirements: 18  covered: 18  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -163,3 +163,8 @@ REQ-017      yes      AC-1701-1   yes         TC-046-pack-loader-loads-both-pack
                       AC-1701-6   yes         TC-046-prechecks-runs-before-browser-checks-a
                       AC-1701-7   yes         TC-046-pack-browser-evaluate-parser
                       AC-1701-8   yes         TC-046-boot-skips-when-runtime-reachable
+REQ-018      yes      AC-1801-1   yes         TC-047-blueprint-json-declares-slug-application
+                      AC-1801-2   yes         TC-047-fresh-init-project-applies-the-blueprint
+                      AC-1801-3   yes         TC-047-every-pack-check-id-resolves-to-an-ac-id
+                      AC-1801-4   yes         TC-047-sample-app-fixture-startserver-serves
+                      AC-1801-5   yes         TC-047-pack-loader-against-blueprint-discovers

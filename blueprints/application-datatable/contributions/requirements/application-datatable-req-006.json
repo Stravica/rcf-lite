@@ -1,0 +1,15 @@
+{
+  "reqId": "application-datatable-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Column visibility, reorder and resize each expose a keyboard-reachable alternative to any drag pointer path",
+  "description": "Column visibility toggles are keyboard-reachable controls (checkboxes or menu items) that hide or show columns; column reorder exposes a non-drag path (paired move-left / move-right controls or a menu ordering); column resize exposes a keyboard-alternative to any pointer drag, per WCAG 2.5.7 Dragging Movements. A drag-only reorder or resize is refused at author-side review.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "WCAG 2.5.7 makes drag-only interactions non-conformant. Naming the keyboard alternative for each of the three column controls prevents the shipped surface from failing the standard at the last moment.",
+  "tags": ["blueprint:application-datatable", "category:06-columns"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

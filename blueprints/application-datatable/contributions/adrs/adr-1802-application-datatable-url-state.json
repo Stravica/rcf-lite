@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-1802-application-datatable-url-state",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Serialise sort, filter and page state into the URL by recommended default; elicited overrides for a session-scoped alternative",
+  "context": "Deep-linkable, reload-stable views are the tabular surface's expected posture in production. A datatable that resets sort, filter and page on reload forces operators to recreate their view every session and prevents them from sharing a specific view with a colleague. Some surfaces (an internal admin panel where a session-scoped view is preferable for auditability) elect the alternative.",
+  "decision": "The recommended default is to serialise `sort`, `q` and `page` into the URL query parameters as `sort=<column>:<asc|desc>`, `q=<string>`, `page=<int>`. The URL is written back on every state change via `history.replaceState` (no navigation entry per micro-change). The elicited alternative is a session-scoped state kept in memory; the operator elicits this at apply time and the shell suppresses URL writes.",
+  "consequences": "Reload rerenders the same view; a shared link reproduces the same view for another operator (subject to any RBAC filter on the underlying data). The client-side sort alternative (used on small in-memory collections) still writes the sort direction to the URL so reload stability is preserved. A project that elects the session-scoped alternative pays the reload-loss cost knowingly.",
+  "alternativesConsidered": [
+    {
+      "name": "Serialise state to sessionStorage",
+      "summary": "State reads and writes from sessionStorage; the URL stays clean.",
+      "reasonNotChosen": "Loses the shareability the URL contract provides; a shared link no longer reproduces the same view."
+    }
+  ],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

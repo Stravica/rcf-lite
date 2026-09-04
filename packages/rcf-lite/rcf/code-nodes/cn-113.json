@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-113",
+  "path": "test/fixtures/probe-pack-application-datatable/server.js#startServer",
+  "implementsAcIds": [
+    "AC-1801-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T20:06:14.310Z",
+  "updatedAt": "2026-09-04T20:06:14.310Z"
+}

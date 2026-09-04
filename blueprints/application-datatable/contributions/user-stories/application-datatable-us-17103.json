@@ -1,0 +1,44 @@
+{
+  "usId": "application-datatable-US-17103",
+  "prdId": "PRD-001",
+  "reqId": "application-datatable-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Pagination advances the page and announces the current position through an aria-live region",
+  "asA": "operator paging through a long result set",
+  "iWant": "the pagination control to advance the page, refetch the correct page from the query adapter, and announce the new position to assistive tech",
+  "soThat": "screen-reader users know which page they are on without having to scan the whole surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17103-1",
+      "description": "Given a rendered datatable with server-side pagination, when the operator activates the next-page control, the client issues a request carrying `page` and `pageSize` and rerenders the returned rows. Probed indirectly through AC-17103-2 which asserts the announced position; direct request assertions carry via the `application-api-rest` contract.",
+      "given": "a rendered datatable with a next-page control",
+      "when": "the operator activates the next-page control",
+      "then": "the query adapter receives `page` and `pageSize` and the rendered rows equal the returned rows",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17103-2",
+      "description": "Given a rendered datatable, an `aria-live=\"polite\"` region renders the current position as `Page N of M`; when the operator advances the pagination, the region text updates to the new N. The check reads the region before and after clicking the next-page control, asserts the initial text matches `Page N of M`, and asserts the next click updates N. Probed by pack check AC-17103-2.",
+      "given": "a rendered datatable with a pagination control and an aria-live status region",
+      "when": "the operator activates the pagination control",
+      "then": "the aria-live region text updates from `Page N of M` to `Page N+1 of M`",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-17103-3",
+      "description": "Given a rendered datatable, the pagination controls (previous, next, page number links where present) are reachable in tab order and activate on `Enter` or `Space` without pointer input.",
+      "given": "a rendered datatable with a pagination control",
+      "when": "the operator tabs into the pagination region",
+      "then": "each pagination control receives focus and activates on `Enter` or `Space`",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1802-application-datatable-query-adapter"],
+  "tags": ["blueprint:application-datatable"],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

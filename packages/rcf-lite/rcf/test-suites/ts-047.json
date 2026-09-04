@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-09-04T20:05:51.932Z",
+  "updatedAt": "2026-09-04T20:09:33.956Z",
+  "purpose": "Cover AC-1801-1..5 via unit tests over the shipped application-datatable blueprint's contribution counts (six REQs, nine USs, three TACs, four ADRs, 27 ACs total), the pack-loader accepting the shipped pack file with every check id cross-checked against the blueprint's contributed AC ids, the pack schema accepting the pack's applicability predicate (references route and tacIds), and the sample-app fixture's exported startServer plus /api/rows shape.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1801-1",
+    "AC-1801-2",
+    "AC-1801-3",
+    "AC-1801-4",
+    "AC-1801-5"
+  ],
+  "id": "TS-047",
+  "usId": "US-1801",
+  "title": "application-datatable v1.0.0 shelf shape and probe pack cross-check",
+  "testCases": [
+    {
+      "id": "TC-047-blueprint-json-declares-slug-application",
+      "acId": "AC-1801-1",
+      "description": "blueprint.json declares slug application-datatable, version 1.0.0, category application, 22 contributions in 6 REQ / 9 US / 3 TAC / 4 ADR groups, and suggestedCompanions declares logging and errorHandling",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-datatable-anatomy.test.js::application-datatable: blueprint.json declares the ratified shape (TC-047-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-047-fresh-init-project-applies-the-blueprint",
+      "acId": "AC-1801-2",
+      "description": "Fresh init project applies the blueprint cleanly; walkTree produces zero errors; 6 REQs and 9 USs land under the application-datatable prefix",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-datatable-anatomy.test.js::application-datatable: applies cleanly on a fresh init project and adds 22 documents to the tree (TC-047-applies-clean)"
+    },
+    {
+      "id": "TC-047-every-pack-check-id-resolves-to-an-ac-id",
+      "acId": "AC-1801-3",
+      "description": "Every pack check id resolves to an AC id contributed by the blueprint; expected six check ids in the same order as the spec",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-datatable-anatomy.test.js::application-datatable: every AC id in each contributed US matches the pack check ids and vice versa where anchored (TC-047-pack-checks-cross-check)"
+    },
+    {
+      "id": "TC-047-sample-app-fixture-startserver-serves",
+      "acId": "AC-1801-4",
+      "description": "Sample-app fixture startServer serves /api/rows honouring sort, q, page and pageSize; loaders discovery finds the shipped pack against an applied scratch project",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-datatable-anatomy.test.js::application-datatable sample-app fixture: startServer returns rows on /api/rows with sort, q, page and pageSize (TC-047-fixture-api-rows)"
+    },
+    {
+      "id": "TC-047-pack-loader-against-blueprint-discovers",
+      "acId": "AC-1801-5",
+      "description": "pack loader against blueprint discovers exactly one pack with six checks; the pack cross-check test proves the pack refuses ship on broken fixture at the section 9 T-1 row 3 gate the reviewer runs against a live server",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-datatable-anatomy.test.js::application-datatable: pack loader discovers the shipped pack against an applied scratch project (TC-047-pack-loader-discovers)"
+    }
+  ],
+  "status": "draft"
+}

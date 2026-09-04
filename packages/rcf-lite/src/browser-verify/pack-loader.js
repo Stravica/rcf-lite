@@ -129,13 +129,32 @@ export async function readContributedAcIds({ blueprintAbsPath }) {
   const acIds = new Set();
   for (const c of contributions) {
     if (c?.kind !== 'us' || typeof c.path !== 'string') continue;
-    const usAbs = resolve(blueprintAbsPath, c.path);
+    // blueprint.json contribution paths are relative to the blueprint's
+    // `contributions/` subdirectory (see src/blueprint/loader.js). Older
+    // tests supplied paths that included `contributions/` at the root
+    // instead; probe for both shapes so shelf blueprints and hand-rolled
+    // fixtures both load without a per-caller convention.
+    const insideContributions = resolve(blueprintAbsPath, 'contributions', c.path);
+    const legacyRootRelative = resolve(blueprintAbsPath, c.path);
+    let usAbs = insideContributions;
+    let usRaw;
+    try {
+      usRaw = await readFile(insideContributions, 'utf8');
+    } catch (primaryErr) {
+      try {
+        usRaw = await readFile(legacyRootRelative, 'utf8');
+        usAbs = legacyRootRelative;
+      } catch {
+        throw new Error(`cannot read US contribution ${c.path}: ${primaryErr.message}`);
+      }
+    }
     let usJson;
     try {
-      usJson = JSON.parse(await readFile(usAbs, 'utf8'));
+      usJson = JSON.parse(usRaw);
     } catch (err) {
       throw new Error(`cannot read US contribution ${c.path}: ${err.message}`);
     }
+    void usAbs;
     const inlineAcs = Array.isArray(usJson?.acceptanceCriteria) ? usJson.acceptanceCriteria : [];
     for (const ac of inlineAcs) {
       if (typeof ac?.id === 'string') acIds.add(ac.id);

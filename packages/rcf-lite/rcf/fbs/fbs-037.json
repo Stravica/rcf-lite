@@ -1,0 +1,19 @@
+{
+  "createdAt": "2026-09-04T20:05:58.214Z",
+  "updatedAt": "2026-09-04T20:06:06.900Z",
+  "acIds": [
+    "AC-1801-1",
+    "AC-1801-2",
+    "AC-1801-3",
+    "AC-1801-4",
+    "AC-1801-5"
+  ],
+  "fbsId": "FBS-037",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 37,
+  "executionStatus": "notStarted",
+  "title": "application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture",
+  "summary": "T-1 of the ratified visual round (spec 2026-09-04, section 5.1): the application-datatable v1.0.0 blueprint on the shelf. Ships 22 contributions (six REQs, nine USs, three TACs, four ADRs), a Playwright probe pack under blueprints/application-datatable/probe-packs/application-datatable.pack.js whose six checks (AC-17101-1 sort click, AC-17102-1 filter q, AC-17103-2 pagination aria-live, AC-17104-3 bulk-action focus return, AC-17105-1 four-state distinctness, AC-17106-1 column reorder keyboard) are anchored to blueprint AC ids per T-0 AC-1701-3, and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-datatable/ the pack probes for real. Applies cleanly (validate 0, coverage strict 0, eval strict 0 on a scratch project). Consumes T-0's runner extension.",
+  "dependsOnFbsIds": []
+}

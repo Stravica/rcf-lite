@@ -1,0 +1,15 @@
+{
+  "reqId": "application-datatable-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The application ships a datatable shell with rows, columns, header cells and per-page navigation",
+  "description": "The application realises a datatable surface honouring the ARIA APG table pattern for read-only rows and the ARIA APG grid pattern once any cell becomes an interactive control (per ADR-1801). Header cells associate with column data through `<th scope=\"col\">` or an equivalent grid `role=\"columnheader\"` binding; per-page navigation renders a pagination control that fetches subsequent pages against the query adapter (TAC-1802). The shell is the base surface the other five REQs elaborate on.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The shell decision closes two families of failure at once: the accessibility mode picked (table vs grid), and the pagination contract the query adapter feeds. Without this, projects reinvent both per surface and every downstream discipline (state contract, selection, sort) rides on ad-hoc assumptions.",
+  "tags": ["blueprint:application-datatable", "category:01-shell"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

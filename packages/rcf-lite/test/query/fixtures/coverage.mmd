@@ -716,6 +716,27 @@ flowchart LR
   REQ-017 --> AC-1701-8
   TC-046-boot-skips-when-runtime-reachable["TC-046-boot-skips-when-runtime-reachable"]
   AC-1701-8 -.-> TC-046-boot-skips-when-runtime-reachable
+  REQ-018["REQ-018"]
+  AC-1801-1["AC-1801-1"]
+  REQ-018 --> AC-1801-1
+  TC-047-blueprint-json-declares-slug-application["TC-047-blueprint-json-declares-slug-application"]
+  AC-1801-1 -.-> TC-047-blueprint-json-declares-slug-application
+  AC-1801-2["AC-1801-2"]
+  REQ-018 --> AC-1801-2
+  TC-047-fresh-init-project-applies-the-blueprint["TC-047-fresh-init-project-applies-the-blueprint"]
+  AC-1801-2 -.-> TC-047-fresh-init-project-applies-the-blueprint
+  AC-1801-3["AC-1801-3"]
+  REQ-018 --> AC-1801-3
+  TC-047-every-pack-check-id-resolves-to-an-ac-id["TC-047-every-pack-check-id-resolves-to-an-ac-id"]
+  AC-1801-3 -.-> TC-047-every-pack-check-id-resolves-to-an-ac-id
+  AC-1801-4["AC-1801-4"]
+  REQ-018 --> AC-1801-4
+  TC-047-sample-app-fixture-startserver-serves["TC-047-sample-app-fixture-startserver-serves"]
+  AC-1801-4 -.-> TC-047-sample-app-fixture-startserver-serves
+  AC-1801-5["AC-1801-5"]
+  REQ-018 --> AC-1801-5
+  TC-047-pack-loader-against-blueprint-discovers["TC-047-pack-loader-against-blueprint-discovers"]
+  AC-1801-5 -.-> TC-047-pack-loader-against-blueprint-discovers
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1083,6 +1104,17 @@ flowchart LR
   class TC-046-pack-browser-evaluate-parser tc;
   class AC-1701-8 ac;
   class TC-046-boot-skips-when-runtime-reachable tc;
+  class REQ-018 req;
+  class AC-1801-1 ac;
+  class TC-047-blueprint-json-declares-slug-application tc;
+  class AC-1801-2 ac;
+  class TC-047-fresh-init-project-applies-the-blueprint tc;
+  class AC-1801-3 ac;
+  class TC-047-every-pack-check-id-resolves-to-an-ac-id tc;
+  class AC-1801-4 ac;
+  class TC-047-sample-app-fixture-startserver-serves tc;
+  class AC-1801-5 ac;
+  class TC-047-pack-loader-against-blueprint-discovers tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

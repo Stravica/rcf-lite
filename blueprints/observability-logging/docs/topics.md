@@ -17,5 +17,6 @@
 | Blueprint | US band | ADR/TAC suffix block | Status | Global topics |
 |---|---|---|---|---|
 | observability-logging | 15101-15899 | 16xx | shipped v1.0.0 | `logging` |
+| application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 
 The shelf-wide band registry lives in `packages/rcf-lite/docs/blueprint-authoring.md` section 5.

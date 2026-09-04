@@ -1,0 +1,33 @@
+{
+  "slug": "application-datatable",
+  "version": "1.0.0",
+  "category": "application",
+  "suggestedCompanions": [
+    { "role": "logging", "reason": "Every server-side query pass writes a request-scoped log line; a logging companion supplies the factory the pipeline calls." },
+    { "role": "errorHandling", "reason": "A partial-load failure or a bulk-action refusal constructs an internal error record; an error-handling companion supplies the factory and the boundary." }
+  ],
+  "contributions": [
+    { "id": "application-datatable-REQ-001", "kind": "req", "path": "requirements/application-datatable-req-001.json" },
+    { "id": "application-datatable-REQ-002", "kind": "req", "path": "requirements/application-datatable-req-002.json" },
+    { "id": "application-datatable-REQ-003", "kind": "req", "path": "requirements/application-datatable-req-003.json" },
+    { "id": "application-datatable-REQ-004", "kind": "req", "path": "requirements/application-datatable-req-004.json" },
+    { "id": "application-datatable-REQ-005", "kind": "req", "path": "requirements/application-datatable-req-005.json" },
+    { "id": "application-datatable-REQ-006", "kind": "req", "path": "requirements/application-datatable-req-006.json" },
+    { "id": "application-datatable-US-17101", "kind": "us", "path": "user-stories/application-datatable-us-17101.json" },
+    { "id": "application-datatable-US-17102", "kind": "us", "path": "user-stories/application-datatable-us-17102.json" },
+    { "id": "application-datatable-US-17103", "kind": "us", "path": "user-stories/application-datatable-us-17103.json" },
+    { "id": "application-datatable-US-17104", "kind": "us", "path": "user-stories/application-datatable-us-17104.json" },
+    { "id": "application-datatable-US-17105", "kind": "us", "path": "user-stories/application-datatable-us-17105.json" },
+    { "id": "application-datatable-US-17106", "kind": "us", "path": "user-stories/application-datatable-us-17106.json" },
+    { "id": "application-datatable-US-17107", "kind": "us", "path": "user-stories/application-datatable-us-17107.json" },
+    { "id": "application-datatable-US-17108", "kind": "us", "path": "user-stories/application-datatable-us-17108.json" },
+    { "id": "application-datatable-US-17109", "kind": "us", "path": "user-stories/application-datatable-us-17109.json" },
+    { "id": "TAC-1801-application-datatable-shell", "kind": "tac", "path": "tacs/tac-1801-application-datatable-shell.json" },
+    { "id": "TAC-1802-application-datatable-query-adapter", "kind": "tac", "path": "tacs/tac-1802-application-datatable-query-adapter.json" },
+    { "id": "TAC-1803-application-datatable-selection-model", "kind": "tac", "path": "tacs/tac-1803-application-datatable-selection-model.json" },
+    { "id": "ADR-1801-application-datatable-pattern-choice", "kind": "adr", "path": "adrs/adr-1801-application-datatable-pattern-choice.json", "standardsTraceClause": "ARIA APG table pattern / ARIA APG grid pattern" },
+    { "id": "ADR-1802-application-datatable-url-state", "kind": "adr", "path": "adrs/adr-1802-application-datatable-url-state.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "generic enterprise practice" },
+    { "id": "ADR-1803-application-datatable-page-size", "kind": "adr", "path": "adrs/adr-1803-application-datatable-page-size.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "generic enterprise practice" },
+    { "id": "ADR-1804-application-datatable-selection-persistence", "kind": "adr", "path": "adrs/adr-1804-application-datatable-selection-persistence.json", "recommendedDefault": false, "elicited": true, "standardsTraceClause": "generic enterprise practice" }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-1803-application-datatable-page-size",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Default page size 25; elicited overrides on apply",
+  "context": "Page size shapes the pagination behaviour and the initial fetch cost. Too small a default forces excessive pagination; too large a default renders a slow first paint on a large dataset. The middle ground for most tabular surfaces (users, orders, records) sits between 20 and 50 rows; the shelf picks a stable default the guide names.",
+  "decision": "The default page size is 25 when the applying project does not elicit a value. The operator overrides at apply time (`--elicit pageSize=<int>` or the interactive equivalent); the elicited value replaces the default without changing the URL contract (a `pageSize` in the URL still overrides for one view).",
+  "consequences": "New projects render 25 rows on the first page without any operator decision. Projects with large rows (dense records) elicit a smaller value; projects with small rows (order summaries) elicit a larger one. The URL contract still permits an operator to view an ad-hoc page size for one session.",
+  "alternativesConsidered": [
+    {
+      "name": "No default; elicit on every apply",
+      "summary": "The blueprint refuses to apply without an elicited pageSize.",
+      "reasonNotChosen": "Adds friction on the common case; a working default costs nothing and every operator that cares overrides."
+    }
+  ],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

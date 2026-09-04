@@ -38,6 +38,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | deploy-cloudflare-workers | 12101-12899 | 13xx | shipped v1.0.0 | `deploymentTarget` |
 | persistence-data-d1 | 13101-13899 | 14xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.1.0 | `healthProbes`, `readinessSemantics` |
+| application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 
 US 5101-5111 sit at the LOW end of the 5101-5899 band on purpose. A project-side story that mechanically derives from `persistence-data-sqlite-REQ-011` into the number `5111` would collide against persistence-data-sqlite-US-5111 in this package; the band leaves headroom at the HIGH end (US 5181-5899) so a project's own stories anchored to persistence-data-sqlite REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

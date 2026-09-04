@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 36,
-    "notStarted": 8,
+    "items": 37,
+    "notStarted": 9,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 6,
+    "actionable": 7,
     "blocked": 2
   },
   "nextActionable": "FBS-013",
@@ -32,7 +32,8 @@
         "FBS-023",
         "FBS-024",
         "FBS-035",
-        "FBS-036"
+        "FBS-036",
+        "FBS-037"
       ]
     },
     {
@@ -518,6 +519,16 @@
       "buildOrder": 36,
       "tier": 0,
       "title": "Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-037",
+      "buildOrder": 37,
+      "tier": 0,
+      "title": "application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

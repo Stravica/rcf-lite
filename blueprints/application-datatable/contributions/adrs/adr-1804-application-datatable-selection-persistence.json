@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-1804-application-datatable-selection-persistence",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Selection persistence is elicited: per-page reset by default, cross-page persistence when the operator opts in",
+  "context": "Cross-page selection persistence is a powerful primitive for bulk operations across a large dataset; it also increases the surface area for confusing behaviour (an unexpected bulk operation on rows the operator forgot they selected two pages ago). The default preserves predictability; the operator opts into persistence when the surface's task shape warrants it.",
+  "decision": "Selection persistence is elicited at apply time. The default is `perPage`: selection resets on pagination advance and the shell surfaces this in the accessible copy near the bulk action controls. The elicited alternative is `crossPage`: selection persists across pagination for the shell mount's lifetime.",
+  "consequences": "Datatables on high-cardinality surfaces (records to be exported, notifications to be marked read across days) elicit `crossPage`. Datatables on transactional per-page workflows keep the default. The shell's accessible copy names the mode so operators are never surprised by the behaviour.",
+  "alternativesConsidered": [
+    {
+      "name": "Cross-page persistence as the recommended default",
+      "summary": "The blueprint recommends cross-page persistence for every applied surface.",
+      "reasonNotChosen": "Increases the surprise footprint on the common per-page workflow; a per-page default is safer to inherit and the elicited override is fast to change."
+    }
+  ],
+  "createdAt": "2026-09-04T19:45:00Z",
+  "updatedAt": "2026-09-04T19:45:00Z"
+}

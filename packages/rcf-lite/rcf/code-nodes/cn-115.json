@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-115",
+  "path": "../../blueprints/application-datatable/probe-packs/application-datatable.pack.mjs",
+  "implementsAcIds": [
+    "AC-1801-3",
+    "AC-1801-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T20:06:14.637Z",
+  "updatedAt": "2026-09-04T20:09:17.342Z"
+}

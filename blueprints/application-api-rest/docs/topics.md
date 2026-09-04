@@ -38,6 +38,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.1.0 | `healthProbes`, `readinessSemantics` |
 | observability-logging | 15101-15899 | 16xx | shipped v1.0.0 | `logging` |
 | application-error-handling | 16101-16899 | 17xx | shipped v1.0.0 | `errorHandling` |
+| application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 
 Suffix-family ids (ADR, TAC): SPA numbers in the 2xx range, this package takes 3xx (ADR-301 to ADR-308, TAC-301 to TAC-306); the next blueprint should take 4xx.
 
