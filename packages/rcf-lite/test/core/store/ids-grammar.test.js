@@ -152,7 +152,8 @@ test('familyLocation: AC and TC (inline families) return null', () => {
 });
 
 test('family enumerations expose the same shape rcf-schemas 0.4.4 defines', () => {
-  assert.deepEqual([...PREFIX_FAMILIES].sort(), ['BS', 'PRD', 'REQ', 'TAD', 'TS', 'US']);
+  // rcf-schemas 0.6.0: EVAL joined the prefix families (peer of TS).
+  assert.deepEqual([...PREFIX_FAMILIES].sort(), ['BS', 'EVAL', 'PRD', 'REQ', 'TAD', 'TS', 'US']);
   assert.deepEqual([...SUFFIX_FAMILIES].sort(), ['ADR', 'CN', 'FBS', 'TAC']);
   assert.deepEqual([...UNNAMESPACED_FAMILIES].sort(), ['AC', 'TC']);
 });

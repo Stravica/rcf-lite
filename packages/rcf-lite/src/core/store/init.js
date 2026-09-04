@@ -231,6 +231,10 @@ export async function initProject({ projectRoot, projectName = 'New RCF Project'
     'rcf/adrs',
     'rcf/fbs',
     'rcf/test-suites',
+    // rcf-schemas 0.6.0: EVAL doc subdir. Empty by default; created so
+    // `rcf audit eval coverage` can find the subdir when the walker
+    // enumerates children even before any EVAL has been authored.
+    'rcf/evals',
   ];
   for (const d of dirs) {
     await mkdir(join(projectRoot, d), { recursive: true });

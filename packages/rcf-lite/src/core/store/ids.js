@@ -34,7 +34,10 @@
 // Family membership (the single source for downstream re-exports)
 // ---------------------------------------------------------------------------
 
-export const PREFIX_FAMILIES = Object.freeze(['REQ', 'US', 'PRD', 'BS', 'TAD', 'TS']);
+// EVAL joins the prefix families in rcf-schemas 0.6.0 (evalId shape mirrors
+// tsId: three-digit minimum with an optional lowercase kebab-slug prefix).
+// EVAL is a peer of a Test Suite; it grades non-deterministic behaviour.
+export const PREFIX_FAMILIES = Object.freeze(['REQ', 'US', 'PRD', 'BS', 'TAD', 'TS', 'EVAL']);
 export const SUFFIX_FAMILIES = Object.freeze(['ADR', 'TAC', 'FBS', 'CN']);
 export const UNNAMESPACED_FAMILIES = Object.freeze(['AC', 'TC']);
 
@@ -85,6 +88,7 @@ const FAMILY_TO_LOCATION = new Map([
   ['FBS', { kind: 'fbs', subdir: 'fbs', rootFile: null }],
   ['TS', { kind: 'testSuite', subdir: 'test-suites', rootFile: null }],
   ['CN', { kind: 'codeNode', subdir: 'code-nodes', rootFile: null }],
+  ['EVAL', { kind: 'evalDoc', subdir: 'evals', rootFile: null }],
   ['PRD', { kind: 'prd', subdir: null, rootFile: 'prd.json' }],
   ['TAD', { kind: 'tad', subdir: null, rootFile: 'tad.json' }],
   ['BS', { kind: 'buildSequence', subdir: null, rootFile: 'build-sequence.json' }],

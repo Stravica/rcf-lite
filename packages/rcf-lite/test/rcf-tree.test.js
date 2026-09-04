@@ -41,6 +41,8 @@ function classify(relPath) {
   if (relPath.startsWith('test-suites/')) return 'testSuite';
   // Phase 10 (X2 CodeNode bridge): 11th document kind.
   if (relPath.startsWith('code-nodes/')) return 'codeNode';
+  // rcf-schemas 0.6.0: EVAL doc subdir. Peer of test-suites/.
+  if (relPath.startsWith('evals/')) return 'evalDoc';
   return null;
 }
 

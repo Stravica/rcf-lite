@@ -28,6 +28,9 @@ import testSuiteSchema from '@stravica-ai/rcf-schemas/schemas/test-suite.schema.
 // Phase 10 (X2 CodeNode bridge): 11th document kind, delivered in
 // @stravica-ai/rcf-schemas@0.3.0.
 import cnSchema from '@stravica-ai/rcf-schemas/schemas/cn.schema.json' with { type: 'json' };
+// rcf-schemas 0.6.0: the EVAL doc type. Optional peer of a Test Suite,
+// used to grade nonDeterministic acceptance criteria.
+import evalSchema from '@stravica-ai/rcf-schemas/schemas/eval.schema.json' with { type: 'json' };
 
 import { rcfError } from '../errors/index.js';
 
@@ -39,7 +42,7 @@ import { rcfError } from '../errors/index.js';
 // schema, unmodified.
 
 /**
- * @typedef {('manifest'|'prd'|'req'|'userStory'|'tad'|'tac'|'adr'|'buildSequence'|'fbs'|'testSuite'|'codeNode')} DocKind
+ * @typedef {('manifest'|'prd'|'req'|'userStory'|'tad'|'tac'|'adr'|'buildSequence'|'fbs'|'testSuite'|'codeNode'|'evalDoc')} DocKind
  */
 
 const SCHEMAS = {
@@ -55,6 +58,8 @@ const SCHEMAS = {
   testSuite: testSuiteSchema,
   // Phase 10: Code Node.
   codeNode: cnSchema,
+  // rcf-schemas 0.6.0: EVAL doc.
+  evalDoc: evalSchema,
 };
 
 const ID_FIELD = {
@@ -72,6 +77,8 @@ const ID_FIELD = {
   testSuite: 'id',
   // Phase 10: Code Node.
   codeNode: 'cnId',
+  // rcf-schemas 0.6.0: EVAL doc uses the plain `id` field (mirrors TS).
+  evalDoc: 'id',
 };
 
 let cachedAjv = null;
