@@ -39,11 +39,12 @@ Generation strategy: dependencyFirst
 | 33 | 9 | FBS-033 | Deterministic tier ladder resolver (applied > pinned > registered library > shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3 | verified | verified |  |
 | 34 | 10 | FBS-034 | Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2) | verified | verified |  |
 | 35 | 0 | FBS-035 | rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge) | notStarted | actionable |  |
+| 36 | 0 | FBS-036 | Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI | notStarted | actionable |  |
 
-Totals: items 35 | notStarted 7 | inProgress 0 | complete 13 | verified 15 | actionable 5 | blocked 2
+Totals: items 36 | notStarted 8 | inProgress 0 | complete 13 | verified 15 | actionable 6 | blocked 2
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027
