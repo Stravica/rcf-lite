@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 18,
-    "covered": 18,
+    "requirements": 19,
+    "covered": 19,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -1479,6 +1479,53 @@
           "covered": true,
           "testCases": [
             "TC-047-pack-loader-against-blueprint-discovers"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-019",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1901-1",
+          "covered": true,
+          "testCases": [
+            "TC-048-blueprint-json-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1901-2",
+          "covered": true,
+          "testCases": [
+            "TC-048-applies-clean"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1901-3",
+          "covered": true,
+          "testCases": [
+            "TC-048-pack-checks-cross-check"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1901-4",
+          "covered": true,
+          "testCases": [
+            "TC-048-fixture-charts-render"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1901-5",
+          "covered": true,
+          "testCases": [
+            "TC-048-negative-runs"
           ],
           "unresolvedTestCases": []
         }
