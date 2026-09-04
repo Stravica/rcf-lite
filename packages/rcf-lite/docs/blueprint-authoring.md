@@ -120,8 +120,9 @@ The shelf-wide band registry (recorded at ship, never predicted; kept in sync ac
 | observability-probe-endpoints | 14101-14899 | 15xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics` |
 | observability-logging | 15101-15899 | 16xx | shipped v1.0.0 | `logging` |
 | application-error-handling | 16101-16899 | 17xx | shipped v1.0.0 | `errorHandling` |
+| application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 
-Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (`14xxx` US band, `15xx` suffix block) and appends its row here after ship.
+Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (visual round T-2 is up next at 18101-18899 / 19xx for `application-charts`) and appends its row here after ship.
 
 A composing blueprint takes a fresh band rather than proposing namespaced AC ids. A US id numeric like `1101` gets its ACs as `AC-1101-1`, `AC-1101-2`, and so on; the US id anchors the band.
 
