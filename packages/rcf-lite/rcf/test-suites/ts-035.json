@@ -12,7 +12,7 @@
       "id": "TC-035-no-literal-path-in-applied-tree",
       "acId": "AC-1202-1",
       "description": "Applying all three amended blueprints and grepping the applied rcf/ tree for the five literal path strings returns zero matches",
-      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 3: no literal probe path outside probe-endpoints prose in applied tree",
+      "testPointer": "test/blueprint/probe-path-alignment.test.js::assertion 3: no literal probe path outside probe-endpoints prose or Historical ADRs in applied tree",
       "status": "pending",
       "scope": "library"
     }
