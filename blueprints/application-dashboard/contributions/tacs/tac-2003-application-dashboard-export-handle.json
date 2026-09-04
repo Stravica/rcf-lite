@@ -1,0 +1,35 @@
+{
+  "tacId": "TAC-2003-application-dashboard-export-handle",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Export handle with format list and delegation to the charts render shell",
+  "purpose": "Owns the shell's export handle: a labelled `<button>` that on activation opens an accessible list of formats (CSV, PDF, PNG-of-chart by default; ADR-2003 elicits overrides), and delegates PNG-of-chart generation to the application-charts render shell (TAC-1901). The handle is the substitutable interface the shell exposes to export tooling; the PNG-of-chart delegation stops the dashboard shell from carrying its own PNG generator.",
+  "responsibilities": [
+    "Render the export handle region as a labelled `<button>` element with accessible name reading `Export` or an operator-configured equivalent (AC-19106-1).",
+    "On activation, open an accessible format list (a menu, a listbox or a set of `<button>` elements) that is keyboard-reachable in reading order and closes on Escape without losing focus on the export button (AC-19106-1).",
+    "Render each format entry with a `data-export-format` attribute whose value is one of `csv`, `pdf`, `png-chart` or ADR-2003's elicited override; the shipped default set is CSV, PDF and PNG-of-chart (AC-19106-1).",
+    "Delegate PNG-of-chart generation to the application-charts render shell (TAC-1901): the export handle references the chosen chart through a `data-chart-id` attribute (or a runtime prompt) and the charts shell owns the PNG output (AC-19106-2)."
+  ],
+  "internalStructure": "One export-handle button plus one format-list component (a menu or listbox pattern per the WAI-ARIA APG). The button owns the open and close semantics and the focus contract; the format list owns the reading-order navigation and the delegation to the charts shell.",
+  "interfaces": [
+    {
+      "name": "onExportRequest",
+      "kind": "function",
+      "description": "onExportRequest({ format, chartId? }) -> Promise<{ blobRef, filename }>. Called by the format list on activation; for `png-chart` the shell resolves through the application-charts render shell."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Chart render shell",
+      "kind": "tac",
+      "tacId": "TAC-1901-application-charts-render-shell",
+      "description": "PNG-of-chart export generation delegates to the charts shell; the dashboard export handle carries no PNG generator of its own."
+    }
+  ],
+  "tradeoffs": "The three shipped formats (CSV, PDF, PNG-of-chart) cover the common dashboard export cases; ADR-2003's elicited override handles SVG, XLSX and any operator-specific format. The delegation to the charts shell means a project that ships a bespoke chart engine outside the render shell needs a PNG output path of its own; the export handle names the residual under project-side review.",
+  "notes": "Known mechanism-reach gap: the pack browser has no download-capture seam today, so AC-19106-2 (PNG delegation) is proven at project-side review, not through the shipped pack. The README names it individually.",
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

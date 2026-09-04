@@ -1,0 +1,47 @@
+{
+  "tacId": "TAC-2001-application-dashboard-tile-grid",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Dashboard tile grid, primary KPI placement, and breakpoint reflow",
+  "purpose": "Owns the dashboard shell's tile row and tile grid: the CSS Grid definition every tile lives on, the primary KPI placement top-left, the four-state region contract on every tile, and the breakpoint reflow to one column at 360. The shell mounts the chart region through the application-charts render shell (TAC-1901's dependency here) and delegates chart rendering to that shell; the tile grid is the substitutable interface the pack asserts on.",
+  "responsibilities": [
+    "Mount the tile row region as a CSS Grid container whose primary tile carries `data-tile-role=\"primary-kpi\"` and lives at grid-column-start 1, grid-row-start 1 at 1440 and 1024, and grid-row-start 1 with a one-column reflow at 360 (AC-19102-1).",
+    "Render every tile with a `role=\"region\"` wrapper, an `aria-live=\"polite\"` announcer, a `data-tile-state` attribute naming the current state, and a non-colour visual cue for each state (skeleton or spinner for loading, labelled block for empty, labelled block with recorded reason for error, metric value for populated) (AC-19103-1).",
+    "Announce state transitions on the aria-live region as `<tile title>, <new state>` (AC-19103-2).",
+    "Mount the chart region through the application-charts render shell (TAC-1901): the chart region contains at least one `section.chartRegion[role=\"region\"]` element carrying the shape the application-charts pack asserts on (AC-19101-2).",
+    "Expose a `data-kpi-kind` attribute on the primary tile whose value is one of ADR-2001's enum (revenue, active-users, error-rate, throughput, custom); a custom value carries a `data-kpi-name` attribute with the operator-elicited name (AC-19102-1)."
+  ],
+  "internalStructure": "One shell module that renders the five labelled regions on the surface, plus small internal helpers per state (loading, empty, error, populated) that render the state's DOM shape into the same region wrapper. The tile grid is a CSS Grid definition with breakpoint-scoped `grid-template-columns` rules; the primary tile carries an explicit `grid-column-start: 1; grid-row-start: 1` at every breakpoint.",
+  "interfaces": [
+    {
+      "name": "renderDashboardShell",
+      "kind": "factory",
+      "description": "renderDashboardShell({ tiles, chartRegion, filters, timeframe, exportHandle, refreshInterval, asOf }) -> { mount(rootElement), unmount() }. The project supplies the tile inventory (elicited at apply per ADR-2001), the chart region declarations, the filter chrome, the timeframe picker (elicited from ADR-2002's presets), the export handle (elicited from ADR-2003's formats), and the optional refresh interval; the shell owns the CSS Grid DOM plumbing, the region wrapping, the aria-live announcers and the state routing."
+    },
+    {
+      "name": "tileStateContract",
+      "kind": "shape",
+      "description": "A tile in each of four states carries `data-tile-state=\"loading|empty|error|populated\"` on its wrapping `role=\"region\"` element; the accessible name reads `<tile title>, <state>`; the state's visual cue is not colour-only."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Chart render shell",
+      "kind": "tac",
+      "tacId": "TAC-1901-application-charts-render-shell",
+      "description": "The dashboard's chart region mounts every chart through the application-charts render shell. The dashboard blueprint does not duplicate the chart accessibility ACs; the charts pack fires on the dashboard's chart route through its own applicability predicate."
+    },
+    {
+      "name": "Timeframe and filter fan-out",
+      "kind": "tac",
+      "tacId": "TAC-2002-application-dashboard-timeframe-filter-fanout",
+      "description": "The tile grid delegates refetch fan-out to TAC-2002 on timeframe change and filter change; every tile re-renders through the shell factory on refetch."
+    }
+  ],
+  "tradeoffs": "The primary KPI top-left placement is opinionated on a 360 phone layout: the F-scan does not directly apply to a single-column stack, and a project with a very different information hierarchy at mobile may want the primary KPI second (below a sticky header). The reflow rule here favours consistency with the desktop reading position; a project that supersedes it authors its own REQ and names the residual. The shell is framework-agnostic; a project applying it picks React, Vue, Svelte or hand-authored DOM and writes the mount function against the same DOM contract.",
+  "notes": "Known mechanism-reach gap: the shell contract cannot itself prove the applying project's tile factory emits the DOM markers the pack asserts on (`data-tile-role`, `data-kpi-kind`, `data-tile-state`). A build-scan supplement in a v1.1 minor bump would close the class.",
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

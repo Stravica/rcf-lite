@@ -1,0 +1,35 @@
+{
+  "usId": "application-dashboard-US-19103",
+  "prdId": "PRD-001",
+  "reqId": "application-dashboard-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every tile honours the four-state contract with distinct visuals, role region, aria-live polite and non-colour distinction",
+  "asA": "screen-reader user and colour-blind reader on the shipped dashboard",
+  "iWant": "every tile state (loading, empty, error, populated) to carry a distinct visual, a labelled region, an aria-live polite announcer and a non-colour distinction",
+  "soThat": "the tile's current state is reachable regardless of assistive tech and legible regardless of colour perception",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19103-1",
+      "description": "Given a rendered tile in each of the four states (loading, empty, error, populated), the tile wraps its content in a `role=\"region\"` element carrying `aria-live=\"polite\"` and a labelled state descriptor (`data-tile-state=\"<state>\"`). The state's visual cue is not colour-only: loading carries a skeleton stripe or spinner element, empty carries a labelled empty-state block, error carries a labelled error block with the recorded reason, populated carries the metric value. Every state exposes its accessible name as `<tile title>, <state>` on the wrapping region. Probed by the application-dashboard pack check AC-19103-1 (Playwright drives to `?tile=<id>&state=<state>` for each of the four states on each of two tiles, reads the accessibility tree and the DOM, and asserts every state carries the role region, the aria-live polite, the data-tile-state attribute, and a non-colour visual cue).",
+      "given": "a tile switched into each of the four states",
+      "when": "the DOM and the accessibility tree are read",
+      "then": "each state carries role region, aria-live polite, data-tile-state, a non-colour visual cue and the announced name",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-19103-2",
+      "description": "Given a tile transitioning between states (loading to populated, populated to error) at runtime, the tile's `aria-live=\"polite\"` region announces the new state's accessible name to the assistive tech; the announcement text reads `<tile title>, <new state>` and the visual cue changes in the same paint. This AC is a runtime-observable behaviour on state transition; the pack does not simulate the transition today (the runner has no synthetic-event seam beyond click/type/press), so the AC is proven at project-side review and the README names the transition-observation gap under known mechanism-reach gaps.",
+      "given": "a tile transitioning between states",
+      "when": "the transition renders",
+      "then": "the aria-live polite region announces the new state's accessible name and the visual cue changes",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2001-application-dashboard-tile-grid"],
+  "tags": ["blueprint:application-dashboard"],
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

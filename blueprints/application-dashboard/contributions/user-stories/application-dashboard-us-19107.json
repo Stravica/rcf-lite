@@ -1,0 +1,35 @@
+{
+  "usId": "application-dashboard-US-19107",
+  "prdId": "PRD-001",
+  "reqId": "application-dashboard-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The applying agent reads the packaged design-guidance asset and honours its ratified surface rules",
+  "asA": "agent applying the application-dashboard blueprint on a shipped surface",
+  "iWant": "a packaged design-guidance asset shipped with the blueprint that names what a good dashboard looks like",
+  "soThat": "the operator-facing design choices (primary KPI kind, tile count, when a table beats a chart, refresh cadence, anti-patterns) are documented in one place I read at apply time",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19107-1",
+      "description": "The blueprint ships an operator-and-agent-readable design-guidance file at `assets/guidance/dashboard-design.md` covering the eight sections named in spec 5.3.1 (primary KPI placement; tile density and count limits; timeframe and filter chrome; loading, empty and error states; colour and contrast; when a table beats a chart, delegating to application-datatable; refresh cadence and staleness; anti-patterns). Each section names whether the rule hardens into an AC on this blueprint (the section names the AC id) or stays operator guidance the applying agent honours at project-side review. The file cites at least five https:// sources from the five named source families (NN/g dashboard design, Few, Tufte, GOV.UK Design System patterns, WCAG 2.2 Understanding docs).",
+      "given": "the shipped blueprint",
+      "when": "the applying agent reads assets/guidance/dashboard-design.md",
+      "then": "the eight sections and the five https citations are present and each section names AC or guidance",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-19107-2",
+      "description": "The dashboard shell's runtime shape reflects the rules the guidance hardens into ACs: the primary-KPI kind is one of the ADR-2001 enum values (asserted through `data-kpi-kind` on the primary tile; guidance section 1 hardens into AC-19102-1); the shell renders an `as of <ISO-8601>` stamp (guidance section 7 hardens into AC-19104-1); auto-refresh is off unless the elicited interval is set (guidance section 7 hardens into AC-19104-2). A shipped surface that violates any of these rules fails the corresponding pack check or project-side review.",
+      "given": "a rendered dashboard shell",
+      "when": "the shell is inspected against the guidance's hardened rules",
+      "then": "the shape honours the primary-KPI kind, the as-of stamp and the auto-refresh default",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2001-application-dashboard-tile-grid"],
+  "tags": ["blueprint:application-dashboard"],
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

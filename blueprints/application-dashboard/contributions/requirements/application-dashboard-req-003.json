@@ -1,0 +1,15 @@
+{
+  "reqId": "application-dashboard-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Every tile honours a four-state contract with distinct visuals, role region, aria-live polite, and non-colour distinction",
+  "description": "Every tile on the shell renders one of four states at any moment: loading, empty, error, populated. Each state carries a distinct visual (a skeleton stripe or spinner for loading, a labelled empty-state block for empty, a labelled error block with the recorded reason for error, and the actual metric for populated). Each tile wraps its content in `role=\"region\"` with an `aria-live=\"polite\"` announcer that reads the state transition on change. The state distinction combines a visual cue and a text label (non-colour distinction, WCAG 1.4.1): the state's visual is not colour-only, and the state's accessible name reads `<tile title>, <state>` on entry. A tile that renders no visible state (a blank tile) fails REQ-003 at project-side review; a tile that carries state-only through colour fails the pack check AC-19103-1.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The four-state contract is the shelf's most-repeated data-region pattern (see application-datatable REQ-005 for the same shape on the table shell); giving the dashboard tile its own explicit ACs is what stops the state contract from silently drifting between the two surfaces. The aria-live announcer is what makes a tile's state change reachable to a screen-reader user; the non-colour distinction is what makes the state legible to a colour-blind reader.",
+  "tags": ["blueprint:application-dashboard", "category:03-tile-four-state"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

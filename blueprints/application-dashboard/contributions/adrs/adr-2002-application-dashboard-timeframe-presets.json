@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2002-application-dashboard-timeframe-presets",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Ship three timeframe presets by recommendedDefault with elicited overrides and auto-refresh off unless elicited",
+  "context": "Timeframe presets on a dashboard are the single most-touched control; the wrong default (a rolling 24-hour window on a monthly-cycle business) produces a dashboard that is silently wrong at every open. Operators often want their own presets (a fiscal-year window, a shift window). Auto-refresh is one of the most common accessibility and cost defects on shipped dashboards: an unattended refresh runs the fan-out on a hidden tab all day.",
+  "decision": "The blueprint ships three timeframe presets by recommendedDefault: `last-7-days`, `last-30-days`, and `quarter-to-date`. `last-7-days` is the ship default unless the operator elicits an override at apply. Operators supply their own preset set through the elicited override; missing presets are ignored, extra presets append to the shipped set. Auto-refresh is OFF by default: `data-auto-refresh` on the shell root reads `off`; an operator-elicited refresh interval sets it to the elicited seconds and the shell refetches on the same fan-out contract at that interval. A shell that ships auto-refresh on by default fails project-side review.",
+  "consequences": "The applying project gets a safe timeframe default that matches the most common dashboard-glance case; operators with an unusual cycle (a fiscal-year business) elicit their own set. Auto-refresh stays off unless the operator explicitly turns it on with an interval, and the pack asserts the default state through `data-auto-refresh`.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship five timeframe presets",
+      "summary": "Add `today` and `this-week` to the shipped set.",
+      "reasonNotChosen": "`today` produces an early-morning dashboard that is mostly empty; `this-week` overlaps with `last-7-days` without adding a clear read. The three-preset set is what the shipped surfaces need."
+    },
+    {
+      "name": "Auto-refresh on by default",
+      "summary": "Every dashboard refreshes on a 60-second interval.",
+      "reasonNotChosen": "Unattended refresh is a cost and accessibility defect; the elicited-opt-in path keeps the shell honest."
+    }
+  ],
+  "createdAt": "2026-09-04T22:10:00Z",
+  "updatedAt": "2026-09-04T22:10:00Z"
+}

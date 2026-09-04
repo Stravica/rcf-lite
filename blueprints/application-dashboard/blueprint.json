@@ -1,0 +1,30 @@
+{
+  "slug": "application-dashboard",
+  "version": "1.0.0",
+  "category": "application",
+  "providesRoles": [],
+  "suggestedCompanions": [
+    { "role": "logging", "reason": "Dashboard tile refresh, timeframe change and export activation are the surface's most-touched instrumentation points; a logging companion supplies the factory the tiles and the chart region write records against." },
+    { "role": "errorHandling", "reason": "A tile whose fetch fails renders the error-state visual per REQ-003; the error-state contract needs a project-side error-record factory the application-error-handling companion provides." }
+  ],
+  "contributions": [
+    { "id": "application-dashboard-REQ-001", "kind": "req", "path": "requirements/application-dashboard-req-001.json" },
+    { "id": "application-dashboard-REQ-002", "kind": "req", "path": "requirements/application-dashboard-req-002.json" },
+    { "id": "application-dashboard-REQ-003", "kind": "req", "path": "requirements/application-dashboard-req-003.json" },
+    { "id": "application-dashboard-REQ-004", "kind": "req", "path": "requirements/application-dashboard-req-004.json" },
+    { "id": "application-dashboard-REQ-005", "kind": "req", "path": "requirements/application-dashboard-req-005.json" },
+    { "id": "application-dashboard-US-19101", "kind": "us", "path": "user-stories/application-dashboard-us-19101.json" },
+    { "id": "application-dashboard-US-19102", "kind": "us", "path": "user-stories/application-dashboard-us-19102.json" },
+    { "id": "application-dashboard-US-19103", "kind": "us", "path": "user-stories/application-dashboard-us-19103.json" },
+    { "id": "application-dashboard-US-19104", "kind": "us", "path": "user-stories/application-dashboard-us-19104.json" },
+    { "id": "application-dashboard-US-19105", "kind": "us", "path": "user-stories/application-dashboard-us-19105.json" },
+    { "id": "application-dashboard-US-19106", "kind": "us", "path": "user-stories/application-dashboard-us-19106.json" },
+    { "id": "application-dashboard-US-19107", "kind": "us", "path": "user-stories/application-dashboard-us-19107.json" },
+    { "id": "TAC-2001-application-dashboard-tile-grid", "kind": "tac", "path": "tacs/tac-2001-application-dashboard-tile-grid.json" },
+    { "id": "TAC-2002-application-dashboard-timeframe-filter-fanout", "kind": "tac", "path": "tacs/tac-2002-application-dashboard-timeframe-filter-fanout.json" },
+    { "id": "TAC-2003-application-dashboard-export-handle", "kind": "tac", "path": "tacs/tac-2003-application-dashboard-export-handle.json" },
+    { "id": "ADR-2001-application-dashboard-primary-kpi-kinds", "kind": "adr", "path": "adrs/adr-2001-application-dashboard-primary-kpi-kinds.json", "elicited": true, "standardsTraceClause": "NN/g F-scan; Gestalt proximity" },
+    { "id": "ADR-2002-application-dashboard-timeframe-presets", "kind": "adr", "path": "adrs/adr-2002-application-dashboard-timeframe-presets.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "NN/g dashboard design (timeframe defaults)" },
+    { "id": "ADR-2003-application-dashboard-export-formats", "kind": "adr", "path": "adrs/adr-2003-application-dashboard-export-formats.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "GOV.UK Design System (download patterns); WCAG 1.3.1 (info and relationships)" }
+  ]
+}
