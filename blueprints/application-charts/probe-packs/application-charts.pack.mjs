@@ -41,7 +41,7 @@ export default {
       description: 'Non-colour distinction: every series carries a non-colour cue (data-pattern, stroke-dasharray, hatched fill or marker) plus a direct label at the series',
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
-        await browser.goto(runtimeUrl + '/');
+        await browser.goto(new URL('', runtimeUrl).toString());
         const seriesShape = await browser.evaluate(() => {
           const svgs = Array.from(document.querySelectorAll('svg.chartSvg'));
           const seriesReports = [];
@@ -80,7 +80,7 @@ export default {
       description: 'Text-alternative table: every chart landmark contains a table carrying the same values cell-per-value, focus-reachable through a labelled control',
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
-        await browser.goto(runtimeUrl + '/');
+        await browser.goto(new URL('', runtimeUrl).toString());
         const report = await browser.evaluate(() => {
           const regions = Array.from(document.querySelectorAll('section.chartRegion[role="region"]'));
           return regions.map((region) => {
@@ -146,7 +146,7 @@ export default {
       description: 'Keyboard traversal: every data point is tab-focusable, the announced string matches "series, x, y unit", and prefers-reduced-motion suppresses transitions',
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
-        await browser.goto(runtimeUrl + '/');
+        await browser.goto(new URL('', runtimeUrl).toString());
         const report = await browser.evaluate(() => {
           const dataPoints = Array.from(document.querySelectorAll('.chartDataPoint'));
           const focusable = dataPoints.filter((el) => el.getAttribute('tabindex') === '0');
