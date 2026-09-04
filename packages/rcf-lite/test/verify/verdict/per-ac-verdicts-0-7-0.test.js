@@ -18,7 +18,7 @@ import {
   uiPerAcVerdict,
 } from '../../../src/verify/verdict/index.js';
 
-test('PER_AC_VERDICTS enumerates the four 0.7.0 per-AC verdict classes plus SCOPE-MISMATCH (0.8.0 slug-train car 4)', () => {
+test('PER_AC_VERDICTS enumerates the four 0.7.0 per-AC verdict classes plus SCOPE-MISMATCH (0.8.0 slug-train car 4) and the two EVAL classes (rcf-eval-node train)', () => {
   assert.deepEqual([...PER_AC_VERDICTS], [
     'MOCK-ONLY-DECLARED',
     'BLOCKED-BY-DECLARATION',
@@ -28,6 +28,10 @@ test('PER_AC_VERDICTS enumerates the four 0.7.0 per-AC verdict classes plus SCOP
     // scope-mismatch check into REVIEW. The verdict flows on the same
     // perAcVerdicts[] array as the four 0.7.0 classes.
     'SCOPE-MISMATCH',
+    // rcf-eval-node train (2026-09-04): nonDeterministic AC has no
+    // resolving EVAL / bound EVAL failed its most recent run.
+    'EVAL-MISSING',
+    'EVAL-BELOW-THRESHOLD',
   ]);
 });
 

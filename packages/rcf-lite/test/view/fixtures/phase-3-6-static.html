@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -5539,6 +5539,196 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-016">
+  <summary><span class="summary-label">REQ-016 - rcf-schemas 0.6.0 EVAL node: consumer wiring in rcf-lite (audit / verify / finalise / define)</span><span class="status draft">draft</span></summary>
+  <article id="REQ-016" class="doc doc-req">
+  <h3>REQ-016 - rcf-schemas 0.6.0 EVAL node: consumer wiring in rcf-lite (audit / verify / finalise / define)</h3>
+  
+  <p><strong>Description:</strong> rcf-schemas 0.6.0 lands the EVAL doc type and the AC-level determinism marker. rcf-lite consumes both: rcf audit eval coverage as a sibling of rcf audit coverage, EVAL-MISSING and EVAL-BELOW-THRESHOLD as per-AC verdicts on the verify report, finalise refusal with a mandatory-reason ship-without-eval opt-out, and a determinism flag on rcf define create ac plus the LLM-as-judge subprocess spawn wired to a runRecord entry on the EVAL doc. The eval-node discipline lives in the schema tier; rcf-lite is the first consumer to make it observable at every stage of the build cycle.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> schemas</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-016[&quot;REQ-016&lt;br/&gt;rcf-schemas 0.6.0 EVAL node: consumer wiring ...&quot;]
+  US-1601[&quot;US-1601&lt;br/&gt;The four-track eval-node surface (audit / ver...&quot;]
+  REQ-016 --&gt; US-1601
+  AC-1601-1[&quot;AC-1601-1&quot;]
+  US-1601 --&gt; AC-1601-1
+  FBS-035[&quot;FBS-035&lt;br/&gt;rcf-lite consumer wiring for the rcf-schemas ...&quot;]
+  AC-1601-1 -.-&gt;|delivered by| FBS-035
+  CN-098[&quot;CN-098&lt;br/&gt;eval-coverage.js: rcf audit eval coverage mai...&quot;]
+  AC-1601-1 -.-&gt;|implemented by| CN-098
+  CN-099[&quot;CN-099&lt;br/&gt;eval-coverage.js: computeEvalCoverage pure fu...&quot;]
+  AC-1601-1 -.-&gt;|implemented by| CN-099
+  AC-1601-2[&quot;AC-1601-2&quot;]
+  US-1601 --&gt; AC-1601-2
+  AC-1601-2 -.-&gt;|delivered by| FBS-035
+  CN-100[&quot;CN-100&lt;br/&gt;verdict/index.js: evalPerAcVerdict emits EVAL...&quot;]
+  AC-1601-2 -.-&gt;|implemented by| CN-100
+  CN-101[&quot;CN-101&lt;br/&gt;chain/index.js: evalBindingFor aggregates eva...&quot;]
+  AC-1601-2 -.-&gt;|implemented by| CN-101
+  AC-1601-3[&quot;AC-1601-3&quot;]
+  US-1601 --&gt; AC-1601-3
+  AC-1601-3 -.-&gt;|delivered by| FBS-035
+  CN-102[&quot;CN-102&lt;br/&gt;ship-without-eval.js: composeShipWithoutEvalR...&quot;]
+  AC-1601-3 -.-&gt;|implemented by| CN-102
+  CN-103[&quot;CN-103&lt;br/&gt;ingest.js: reportHasEvalRefusal / findEvalRef...&quot;]
+  AC-1601-3 -.-&gt;|implemented by| CN-103
+  AC-1601-4[&quot;AC-1601-4&quot;]
+  US-1601 --&gt; AC-1601-4
+  AC-1601-4 -.-&gt;|delivered by| FBS-035
+  CN-104[&quot;CN-104&lt;br/&gt;eval/judge.js: runOneCase spawns claude (or c...&quot;]
+  AC-1601-4 -.-&gt;|implemented by| CN-104
+  CN-105[&quot;CN-105&lt;br/&gt;eval/judge.js: composeRunRecord aggregates pe...&quot;]
+  AC-1601-4 -.-&gt;|implemented by| CN-105
+  click REQ-016 &quot;#REQ-016&quot;;
+  click US-1601 &quot;#US-1601&quot;;
+  click AC-1601-1 &quot;#AC-1601-1&quot;;
+  click FBS-035 &quot;#FBS-035&quot;;
+  click CN-098 &quot;#CN-098&quot;;
+  click CN-099 &quot;#CN-099&quot;;
+  click AC-1601-2 &quot;#AC-1601-2&quot;;
+  click CN-100 &quot;#CN-100&quot;;
+  click CN-101 &quot;#CN-101&quot;;
+  click AC-1601-3 &quot;#AC-1601-3&quot;;
+  click CN-102 &quot;#CN-102&quot;;
+  click CN-103 &quot;#CN-103&quot;;
+  click AC-1601-4 &quot;#AC-1601-4&quot;;
+  click CN-104 &quot;#CN-104&quot;;
+  click CN-105 &quot;#CN-105&quot;;
+  class REQ-016 req;
+  class US-1601 us;
+  class AC-1601-1 ac;
+  class FBS-035 fbs;
+  class CN-098 cn;
+  class CN-099 cn;
+  class AC-1601-2 ac;
+  class CN-100 cn;
+  class CN-101 cn;
+  class AC-1601-3 ac;
+  class CN-102 cn;
+  class CN-103 cn;
+  class AC-1601-4 ac;
+  class CN-104 cn;
+  class CN-105 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-04T16:21:15.850Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T16:22:11.909Z&quot;,
+  &quot;description&quot;: &quot;rcf-schemas 0.6.0 lands the EVAL doc type and the AC-level determinism marker. rcf-lite consumes both: rcf audit eval coverage as a sibling of rcf audit coverage, EVAL-MISSING and EVAL-BELOW-THRESHOLD as per-AC verdicts on the verify report, finalise refusal with a mandatory-reason ship-without-eval opt-out, and a determinism flag on rcf define create ac plus the LLM-as-judge subprocess spawn wired to a runRecord entry on the EVAL doc. The eval-node discipline lives in the schema tier; rcf-lite is the first consumer to make it observable at every stage of the build cycle.&quot;,
+  &quot;reqId&quot;: &quot;REQ-016&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;rcf-schemas 0.6.0 EVAL node: consumer wiring in rcf-lite (audit / verify / finalise / define)&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;schemas&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;persistence&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-04T16:21:15.868Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;schema&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;schema&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;schema&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-1601">
+  <summary><span class="summary-label">US-1601 - The four-track eval-node surface (audit / verdict / finalise / define) reads a single spec across four independent consumers</span><span class="status draft">draft</span></summary>
+  <article id="US-1601" class="doc doc-us">
+  <h3>US-1601 - The four-track eval-node surface (audit / verdict / finalise / define) reads a single spec across four independent consumers</h3>
+  
+  <p><strong>As a:</strong> project owner shipping non-deterministic behaviour on an rcf-lite project</p>
+  <p><strong>I want:</strong> rcf-lite to speak the eval-node surface at every stage of the build cycle</p>
+  <p><strong>So that:</strong> a non-deterministic AC is graded, audited, verdict-annotated and merge-gated without me holding four disconnected mental models</p>
+  <p><strong>Description:</strong> As a project owner shipping non-deterministic behaviour, I want rcf-lite to speak the eval-node surface at every stage of the build cycle so that a non-deterministic AC is graded, audited, verdict-annotated and merge-gated without me holding four disconnected mental models. The surface is one train: audit reports coverage, verify annotates per-AC verdicts, finalise refuses on missing / failing evals with an opt-out, and define authors the determinism flag.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-016">REQ-016</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-1601-1" class="ac-item"><strong>AC-1601-1</strong> - `rcf audit eval coverage --strict` exits 0 on a chain with zero nonDeterministic ACs and exits 4 on any nonDeterministic AC without a resolving EVAL (a non-superseded EVAL whose most recent runRecord entry is not pending). Non-strict runs always exit 0; the mermaid format colours the AC glyph green (deterministic), amber (covered) or red (missing).
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-035">FBS-035</a></p></li>
+<li id="AC-1601-2" class="ac-item"><strong>AC-1601-2</strong> - The verify verdict layer emits EVAL-MISSING on any nonDeterministic AC without a resolving EVAL and EVAL-BELOW-THRESHOLD on any nonDeterministic AC whose bound EVAL last ran with verdict fail. Deterministic ACs never emit either verdict. Both entries ride report.perAcVerdicts[] without expanding the top-level VERDICTS set (backward compatibility on validateReportShape). runStats.evalCoverage rolls up the counts and the CLI prints the preflight line on stderr.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-035">FBS-035</a></p></li>
+<li id="AC-1601-3" class="ac-item"><strong>AC-1601-3</strong> - rcf finalise refuses (exit 4) with the spec-verbatim message when the verify report carries EVAL-MISSING or EVAL-BELOW-THRESHOLD, and accepts --ship-without-eval &lt;reason&gt; (mandatory reason string; exit 2 without one, refused when the value looks like a flag). The acknowledgement lands on the manifest under shipWithoutEval[] with a monotonic id, the reason, the declared per-AC verdicts and the report path.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-035">FBS-035</a></p></li>
+<li id="AC-1601-4" class="ac-item"><strong>AC-1601-4</strong> - The LLM-as-judge run path spawns claude (or codex) on PATH, passes the per-case payload on stdin, captures stdout, validates against the declared response schema and composes a runRecord[] entry (aggregateScore, criticalFailures, verdict). No API keys or HTTP APIs enter rcf-lite; the estate subscription-only rule holds. The grader&#39;s aggregate verdict is a non-deterministic judgement over graded output, which is the correct home for an EVAL contract on the dogfood tree.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-035">FBS-035</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-04T16:21:28.205Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T16:22:01.527Z&quot;,
+  &quot;description&quot;: &quot;As a project owner shipping non-deterministic behaviour, I want rcf-lite to speak the eval-node surface at every stage of the build cycle so that a non-deterministic AC is graded, audited, verdict-annotated and merge-gated without me holding four disconnected mental models. The surface is one train: audit reports coverage, verify annotates per-AC verdicts, finalise refuses on missing / failing evals with an opt-out, and define authors the determinism flag.&quot;,
+  &quot;usId&quot;: &quot;US-1601&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-016&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The four-track eval-node surface (audit / verdict / finalise / define) reads a single spec across four independent consumers&quot;,
+  &quot;asA&quot;: &quot;project owner shipping non-deterministic behaviour on an rcf-lite project&quot;,
+  &quot;iWant&quot;: &quot;rcf-lite to speak the eval-node surface at every stage of the build cycle&quot;,
+  &quot;soThat&quot;: &quot;a non-deterministic AC is graded, audited, verdict-annotated and merge-gated without me holding four disconnected mental models&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-1601-1&quot;,
+      &quot;description&quot;: &quot;`rcf audit eval coverage --strict` exits 0 on a chain with zero nonDeterministic ACs and exits 4 on any nonDeterministic AC without a resolving EVAL (a non-superseded EVAL whose most recent runRecord entry is not pending). Non-strict runs always exit 0; the mermaid format colours the AC glyph green (deterministic), amber (covered) or red (missing).&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1601-2&quot;,
+      &quot;description&quot;: &quot;The verify verdict layer emits EVAL-MISSING on any nonDeterministic AC without a resolving EVAL and EVAL-BELOW-THRESHOLD on any nonDeterministic AC whose bound EVAL last ran with verdict fail. Deterministic ACs never emit either verdict. Both entries ride report.perAcVerdicts[] without expanding the top-level VERDICTS set (backward compatibility on validateReportShape). runStats.evalCoverage rolls up the counts and the CLI prints the preflight line on stderr.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1601-3&quot;,
+      &quot;description&quot;: &quot;rcf finalise refuses (exit 4) with the spec-verbatim message when the verify report carries EVAL-MISSING or EVAL-BELOW-THRESHOLD, and accepts --ship-without-eval &lt;reason&gt; (mandatory reason string; exit 2 without one, refused when the value looks like a flag). The acknowledgement lands on the manifest under shipWithoutEval[] with a monotonic id, the reason, the declared per-AC verdicts and the report path.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-1601-4&quot;,
+      &quot;description&quot;: &quot;The LLM-as-judge run path spawns claude (or codex) on PATH, passes the per-case payload on stdin, captures stdout, validates against the declared response schema and composes a runRecord[] entry (aggregateScore, criticalFailures, verdict). No API keys or HTTP APIs enter rcf-lite; the estate subscription-only rule holds. The grader&#39;s aggregate verdict is a non-deterministic judgement over graded output, which is the correct home for an EVAL contract on the dogfood tree.&quot;,
+      &quot;testable&quot;: true,
+      &quot;determinism&quot;: &quot;nonDeterministic&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -6643,7 +6833,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -9363,6 +9553,68 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;notes&quot;: &quot;Part of the core companions train (w-2026-09-03-dave-030, d-2026-09-04-022). One FBS per US on REQ-013/014/015.&quot;,
   &quot;createdAt&quot;: &quot;2026-09-04T12:20:00Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-09-04T12:20:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-035">
+  <summary><span class="summary-label">FBS-035 - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-035" class="doc doc-fbs">
+  <h3>FBS-035 - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</h3>
+  
+  <p><strong>Summary:</strong> TODO: describe the build session</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-1601-1">AC-1601-1</a><a class="ac-pill" href="#AC-1601-2">AC-1601-2</a><a class="ac-pill" href="#AC-1601-3">AC-1601-3</a><a class="ac-pill" href="#AC-1601-4">AC-1601-4</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-1601-1">AC-1601-1</a></strong> - `rcf audit eval coverage --strict` exits 0 on a chain with zero nonDeterministic ACs and exits 4 on any nonDeterministic AC without a resolving EVAL (a non-superseded EVAL whose most recent runRecord entry is not pending). Non-strict runs always exit 0; the mermaid format colours the AC glyph green (deterministic), amber (covered) or red (missing).</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1601-2">AC-1601-2</a></strong> - The verify verdict layer emits EVAL-MISSING on any nonDeterministic AC without a resolving EVAL and EVAL-BELOW-THRESHOLD on any nonDeterministic AC whose bound EVAL last ran with verdict fail. Deterministic ACs never emit either verdict. Both entries ride report.perAcVerdicts[] without expanding the top-level VERDICTS set (backward compatibility on validateReportShape). runStats.evalCoverage rolls up the counts and the CLI prints the preflight line on stderr.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1601-3">AC-1601-3</a></strong> - rcf finalise refuses (exit 4) with the spec-verbatim message when the verify report carries EVAL-MISSING or EVAL-BELOW-THRESHOLD, and accepts --ship-without-eval &lt;reason&gt; (mandatory reason string; exit 2 without one, refused when the value looks like a flag). The acknowledgement lands on the manifest under shipWithoutEval[] with a monotonic id, the reason, the declared per-AC verdicts and the report path.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-1601-4">AC-1601-4</a></strong> - The LLM-as-judge run path spawns claude (or codex) on PATH, passes the per-case payload on stdin, captures stdout, validates against the declared response schema and composes a runRecord[] entry (aggregateScore, criticalFailures, verdict). No API keys or HTTP APIs enter rcf-lite; the estate subscription-only rule holds. The grader&#39;s aggregate verdict is a non-deterministic judgement over graded output, which is the correct home for an EVAL contract on the dogfood tree.</p>
+  
+  
+  
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 35</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-04T16:22:49.426Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T16:22:49.426Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1601-1&quot;,
+    &quot;AC-1601-2&quot;,
+    &quot;AC-1601-3&quot;,
+    &quot;AC-1601-4&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-035&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 35,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)&quot;,
+  &quot;summary&quot;: &quot;TODO: describe the build session&quot;,
+  &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
 </article>
@@ -12887,6 +13139,85 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;status&quot;: &quot;draft&quot;,
   &quot;createdAt&quot;: &quot;2026-09-04T12:20:00Z&quot;,
   &quot;updatedAt&quot;: &quot;2026-09-04T12:20:00Z&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-045">
+  <summary><span class="summary-label">TS-045 - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node</span><span class="status draft">draft</span></summary>
+  <article id="TS-045" class="doc doc-ts">
+  <h3>TS-045 - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-1601">US-1601</a></p>
+  <p><strong>Purpose:</strong> Cover the four ACs on US-1601 via the unit and integration suites landed in this train. L1 through L3 are deterministic tests over pure or seam-injected code paths; L4 tests the judge invocation shape via a stubbed spawn seam (a real subprocess round-trip is exercised out-of-band as the section 11 real-claude smoke).</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-1601-1">AC-1601-1</a>, <a href="#AC-1601-2">AC-1601-2</a>, <a href="#AC-1601-3">AC-1601-3</a>, <a href="#AC-1601-4">AC-1601-4</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-045-computeevalcoverage-across-the-four">
+  <p><strong>TC-045-computeevalcoverage-across-the-four</strong> - covers <a href="#AC-1601-1">AC-1601-1</a> <span class="status pending">pending</span></p>
+  <p>computeEvalCoverage across the four outcome buckets (covered, covered-optional, missing, not-required) and the classifyEvalDoc pending/superseded/resolving classification</p>
+  <p><em>Test pointer:</em> <code>test/query/eval-coverage.test.js::nonDeterministic AC without a bound EVAL reports missing and fails the gate</code></p>
+</div>
+<div class="tc" id="TC-045-per-ac-verdicts-carries-the-two-new-eval">
+  <p><strong>TC-045-per-ac-verdicts-carries-the-two-new-eval</strong> - covers <a href="#AC-1601-2">AC-1601-2</a> <span class="status pending">pending</span></p>
+  <p>PER_AC_VERDICTS carries the two new EVAL classes; evalPerAcVerdict returns null for deterministic ACs; fires EVAL-MISSING when nonDeterministic AC has no resolving EVAL; fires EVAL-BELOW-THRESHOLD on a failing run</p>
+  <p><em>Test pointer:</em> <code>test/verify/verdict/eval-per-ac.test.js::derivePerAcVerdicts folds EVAL classes alongside the pre-existing per-AC verdicts</code></p>
+</div>
+<div class="tc" id="TC-045-findevalrefusalacs-and">
+  <p><strong>TC-045-findevalrefusalacs-and</strong> - covers <a href="#AC-1601-3">AC-1601-3</a> <span class="status pending">pending</span></p>
+  <p>findEvalRefusalAcs and reportHasEvalRefusal read the two EVAL classes off perAcVerdicts[]; composeShipWithoutEvalRecord carries the operator reason and declared per-AC verdicts; nextShipWithoutEvalId increments monotonically</p>
+  <p><em>Test pointer:</em> <code>test/finalise/ship-without-eval.test.js::composeShipWithoutEvalRecord carries the operator reason and the declared AC verdicts</code></p>
+</div>
+<div class="tc" id="TC-045-runonecase-spawns-the-invoker-claude-or">
+  <p><strong>TC-045-runonecase-spawns-the-invoker-claude-or</strong> - covers <a href="#AC-1601-4">AC-1601-4</a> <span class="status pending">pending</span></p>
+  <p>runOneCase spawns the invoker (claude or codex) via the seam, validates response against the declared schema, composeRunRecord verdict resolves to pass on met threshold and fail on critical criterion failure</p>
+  <p><em>Test pointer:</em> <code>test/eval/judge.test.js::runOneCase returns the parsed graded envelope on a valid response</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-04T16:22:23.766Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-04T16:22:37.368Z&quot;,
+  &quot;purpose&quot;: &quot;Cover the four ACs on US-1601 via the unit and integration suites landed in this train. L1 through L3 are deterministic tests over pure or seam-injected code paths; L4 tests the judge invocation shape via a stubbed spawn seam (a real subprocess round-trip is exercised out-of-band as the section 11 real-claude smoke).&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-1601-1&quot;,
+    &quot;AC-1601-2&quot;,
+    &quot;AC-1601-3&quot;,
+    &quot;AC-1601-4&quot;
+  ],
+  &quot;id&quot;: &quot;TS-045&quot;,
+  &quot;usId&quot;: &quot;US-1601&quot;,
+  &quot;title&quot;: &quot;rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-045-computeevalcoverage-across-the-four&quot;,
+      &quot;acId&quot;: &quot;AC-1601-1&quot;,
+      &quot;description&quot;: &quot;computeEvalCoverage across the four outcome buckets (covered, covered-optional, missing, not-required) and the classifyEvalDoc pending/superseded/resolving classification&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/eval-coverage.test.js::nonDeterministic AC without a bound EVAL reports missing and fails the gate&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-045-per-ac-verdicts-carries-the-two-new-eval&quot;,
+      &quot;acId&quot;: &quot;AC-1601-2&quot;,
+      &quot;description&quot;: &quot;PER_AC_VERDICTS carries the two new EVAL classes; evalPerAcVerdict returns null for deterministic ACs; fires EVAL-MISSING when nonDeterministic AC has no resolving EVAL; fires EVAL-BELOW-THRESHOLD on a failing run&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/verify/verdict/eval-per-ac.test.js::derivePerAcVerdicts folds EVAL classes alongside the pre-existing per-AC verdicts&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-045-findevalrefusalacs-and&quot;,
+      &quot;acId&quot;: &quot;AC-1601-3&quot;,
+      &quot;description&quot;: &quot;findEvalRefusalAcs and reportHasEvalRefusal read the two EVAL classes off perAcVerdicts[]; composeShipWithoutEvalRecord carries the operator reason and declared per-AC verdicts; nextShipWithoutEvalId increments monotonically&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/finalise/ship-without-eval.test.js::composeShipWithoutEvalRecord carries the operator reason and the declared AC verdicts&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-045-runonecase-spawns-the-invoker-claude-or&quot;,
+      &quot;acId&quot;: &quot;AC-1601-4&quot;,
+      &quot;description&quot;: &quot;runOneCase spawns the invoker (claude or codex) via the seam, validates response against the declared schema, composeRunRecord verdict resolves to pass on met threshold and fail on critical criterion failure&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/eval/judge.test.js::runOneCase returns the parsed graded envelope on a valid response&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
 }
 </pre></details>
 </article>

@@ -114,7 +114,7 @@ Thirty subcommands under the single `rcf` bin, grouped by job:
 | Scaffold | `init` |
 | Author | `create`, `update`, `delete`, `link`, `unlink`, `fbs`, `test-suite` |
 | Inspect | `read`, `view` |
-| Trust | `validate`, `coverage`, `eval coverage`, `trace`, `impact`, `doctor`, `review` |
+| Trust | `validate`, `coverage`, `eval` (`coverage`), `trace`, `impact`, `doctor`, `review` |
 | Build | `build`, `preflight`, `finalise` |
 | Design | `ui-classify`, `ui-baseline`, `design`, `browser-verify` |
 | Elicit | `intake`, `req-classify`, `req-baseline` |
