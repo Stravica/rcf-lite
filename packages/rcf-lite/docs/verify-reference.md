@@ -87,6 +87,22 @@ Every verdict is stamped with the runtime profile it ran against. Authority is c
 
 The exit code is the machine-readable gate: `rcf build finalise` (also part of [rcf-lite](https://www.npmjs.com/package/rcf-lite)) promotes a build spec to `verified` only on exit 0.
 
+## EVAL coverage preflight (rcf-schemas 0.6.0)
+
+`rcf verify run` prints a preflight-style line summarising EVAL coverage for the chain:
+
+```
+EVAL coverage: nonDeterministic=<n>, covered=<k>, missing=<n-k>
+```
+
+or, on chains with no non-deterministic ACs:
+
+```
+EVAL coverage: no nonDeterministic ACs on this chain
+```
+
+An AC declared `determinism: "nonDeterministic"` without a resolving EVAL surfaces on `report.perAcVerdicts[]` as `EVAL-MISSING`; an AC whose bound EVAL's freshest run failed surfaces as `EVAL-BELOW-THRESHOLD`. Both refuse `rcf build finalise` promotion to `verified` unless the operator opts out with `--ship-without-eval "<reason>"` (the acknowledgement lands on the manifest under `shipWithoutEval[]`). Deterministic ACs are never subject to either verdict; TS/TC coverage remains the sole contract for them. `report.run.runStats.evalCoverage` mirrors the counts for report re-render.
+
 ## Prerequisite provisioning (app state)
 
 Not to be confused with [Runtime requirements](#runtime-requirements) above: this section is about state your *app under test* needs, not about what you need installed to run verify.
