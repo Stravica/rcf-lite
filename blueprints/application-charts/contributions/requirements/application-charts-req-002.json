@@ -1,0 +1,15 @@
+{
+  "reqId": "application-charts-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Every chart series distinguishes on colour plus pattern plus direct label (non-colour distinction, WCAG 1.4.1)",
+  "description": "Every rendered chart with two or more series distinguishes the series through more than colour alone: colour is paired with a pattern (a dashed line, a hatched fill, a marker shape) and a direct label placed at the series (a legend entry alone does not satisfy the AC). A vision-deficiency simulation (deuteranopia is the shelf's default screen) still reads the series distinction. The blueprint's accessible palette (ADR-1902) is the colour default; the pattern and label rules apply regardless of palette.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Colour blindness is the most common visual disability and colour-only series distinction is the most common accessibility defect on chart libraries; the tri-cue (colour, pattern, label) is what WCAG 1.4.1 asks for and what a build-scan or runtime check can prove at the DOM level.",
+  "tags": ["blueprint:application-charts", "category:02-non-colour-distinction"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

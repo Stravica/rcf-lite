@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-09-04T21:08:44.011Z",
+  "updatedAt": "2026-09-04T21:09:34.444Z",
+  "purpose": "Cover AC-1901-1..5 via unit tests over the shipped application-charts blueprint's contribution counts (four REQs, six USs, two TACs, three ADRs, 15 contributions total), the pack-loader accepting the shipped pack file with every check id cross-checked against the blueprint's contributed AC ids and every check carrying a description, the pack schema accepting the pack's applicability predicate (references route and tacIds), the sample-app fixture exporting startServer serving a chart route with two-series bar and line charts (colour plus pattern plus direct label) and a text-alternative table with keyboard focus and reduced-motion suppression, and the negative-run behaviour on the ?break=table, ?break=pattern and ?break=keyboard switches.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-1901-1",
+    "AC-1901-2",
+    "AC-1901-3",
+    "AC-1901-4",
+    "AC-1901-5"
+  ],
+  "id": "TS-048",
+  "usId": "US-1901",
+  "title": "application-charts v1.0.0 shelf shape and probe pack cross-check",
+  "testCases": [
+    {
+      "id": "TC-048-blueprint-json-shape",
+      "acId": "AC-1901-1",
+      "description": "blueprint.json declares slug application-charts, version 1.0.0, category application, 15 contributions in 4 REQ / 6 US / 2 TAC / 3 ADR groups, and suggestedCompanions declares logging and errorHandling",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-charts-anatomy.test.js::application-charts: blueprint.json declares the ratified shape (TC-048-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-048-applies-clean",
+      "acId": "AC-1901-2",
+      "description": "Fresh init project applies the blueprint cleanly; walkTree produces zero errors; 4 REQs and 6 USs land under the application-charts prefix",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-charts-anatomy.test.js::application-charts: applies cleanly on a fresh init project and adds 15 documents to the tree (TC-048-applies-clean)"
+    },
+    {
+      "id": "TC-048-pack-checks-cross-check",
+      "acId": "AC-1901-3",
+      "description": "Every pack check id resolves to an AC id contributed by the blueprint; expected three check ids in the same order as the spec (AC-18102-1, AC-18103-1, AC-18104-1) and every check carries a description field",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-charts-anatomy.test.js::application-charts: every AC id in each contributed US matches the pack check ids and every check carries a description (TC-048-pack-checks-cross-check)"
+    },
+    {
+      "id": "TC-048-fixture-charts-render",
+      "acId": "AC-1901-4",
+      "description": "Sample-app fixture startServer renders a chart route with two-series bar and line charts (colour plus pattern plus direct label), a visually-hidden focus-reachable table, keyboard-focusable data points and a reduced-motion CSS rule; loader discovery finds the shipped pack against an applied scratch project",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-charts-anatomy.test.js::application-charts sample-app fixture: startServer renders the chart shell (TC-048-fixture-charts-render)"
+    },
+    {
+      "id": "TC-048-negative-runs",
+      "acId": "AC-1901-5",
+      "description": "The pack refuses ship on each broken variant: ?break=table triggers verdict fail on AC-18103-1; ?break=pattern triggers verdict fail on AC-18102-1; ?break=keyboard triggers verdict fail on AC-18104-1; every failure records severity block and the aggregate verdict is block",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-charts-anatomy.test.js::application-charts sample-app fixture: break switches refuse ship on each surface (TC-048-negative-runs)"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,35 @@
+{
+  "usId": "application-charts-US-18105",
+  "prdId": "PRD-001",
+  "reqId": "application-charts-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The shell exposes the accessible-defaults palette hook (light and dark) and accepts elicited operator overrides",
+  "asA": "operator applying the blueprint",
+  "iWant": "the render shell to ship a light and dark categorical palette matched against WCAG contrast and to accept my brand tokens as overrides",
+  "soThat": "the ratified palette is the recommended default and brand overrides remain contrast-safe when I feed them in (ADR-1902)",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18105-1",
+      "description": "Given a rendered chart on a light background, every series colour and every axis text carries a contrast ratio of at least 4.5:1 against its background (WCAG 1.4.3 for text; the 3:1 non-text contrast under WCAG 1.4.11 for series marks). The shell ships light and dark palettes matched against these ratios; the shell's palette accessor returns the applied palette by name and version. This AC is a build-scan surface (palette values readable from the applied blueprint's palette module); the pack has no dedicated check for it and the README names the gap under known mechanism-reach gaps as a build-scan opportunity for a v1.1 minor bump.",
+      "given": "a rendered chart under either the light or dark palette",
+      "when": "the palette is inspected",
+      "then": "series colours meet WCAG 1.4.11 (3:1 non-text contrast) and axis text meets WCAG 1.4.3 (4.5:1) against the applied background",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-18105-2",
+      "description": "Given the shell's palette API, an operator supplies brand tokens (a palette override object keyed by series index or role) and the shell renders the operator palette; when the operator palette misses a token the shell falls back to the accessible-defaults palette at the same index and records a warning on the render log. The API surface (`renderShell({ palette, chart })`) is a project-side contract; the fallback behaviour is exercised by the applying project's own tests, not this blueprint's pack.",
+      "given": "an operator palette with missing tokens",
+      "when": "the shell renders",
+      "then": "missing tokens fall back to the accessible-defaults palette and a warning is recorded",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": ["TAC-1901-application-charts-render-shell"],
+  "tags": ["blueprint:application-charts"],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-1902-application-charts-keyboard-traversal",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Chart keyboard traversal contract",
+  "purpose": "Owns the keyboard traversal contract for interactive charts: each data point receives focus in reading order, the announced string carries the series name, x-value, y-value and unit, and the traversal path composes cleanly with the shell's text-alternative table so a keyboard-only user reaches every value through either surface.",
+  "responsibilities": [
+    "Bind a keyboard traversal handler to the interactive chart's mount that walks data points in reading order (left-to-right, top-to-bottom for single-series; series-by-series for multi-series) via Tab and Shift+Tab, and arrow keys within a series (AC-18104-1).",
+    "Compose the announced string per data point as `<seriesName>, <xValue>, <yValue> <unit>` (comma-separated, unit is the operator-configured unit string or `unitless`) and set the string on the focused element's `aria-label` (AC-18104-1).",
+    "Route reduced-motion respect through the shell (TAC-1901): the traversal handler does not itself animate transitions on focus change when `prefers-reduced-motion: reduce` is set (ADR-1903).",
+    "Refuse to bind on a non-interactive chart declaration; the mount still exposes the chart landmark as one focusable element with an accessible name."
+  ],
+  "internalStructure": "One handler module that binds Tab, Shift+Tab and arrow key listeners to the interactive chart's data points, plus a small announcer helper that composes the aria-label string from the chart's data model. The handler reads the chart's declared interactivity flag from the shell factory input.",
+  "interfaces": [
+    {
+      "name": "bindTraversal",
+      "kind": "function",
+      "description": "bindTraversal({ chartRoot, dataPoints, unit, announcerFactory }) -> { unbind() }. The shell calls it on interactive-chart mount; the traversal handler installs the listeners and returns an unbind for teardown."
+    },
+    {
+      "name": "announcerFormat",
+      "kind": "shape",
+      "description": "The announced-string contract: `<seriesName>, <xValue>, <yValue> <unit>`, comma-separated, unit is the operator-configured string or `unitless`. Overriding the format is a project-side decision that supersedes AC-18104-1 in its own realisation and names the residual."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Render shell",
+      "kind": "tac",
+      "tacId": "TAC-1901-application-charts-render-shell",
+      "description": "The shell drives the traversal binder on interactive-chart mount and passes the chart's data-point model."
+    }
+  ],
+  "tradeoffs": "The single announced-string format is opinionated; a project with a non-numeric x-axis (a category name) may want a different format string. Overriding is a project-side decision; the pack's announced-string check reads the shipped format and reports a warning on a non-matching format.",
+  "notes": "Known mechanism-reach gap: the announcer does not measure assistive-tech verbalisation; the pack asserts the aria-label string is present and matches the format, but a screen reader may still verbalise it differently. A project-side smoke supplement per assistive-tech target closes the class.",
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

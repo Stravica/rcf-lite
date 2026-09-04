@@ -1,0 +1,35 @@
+{
+  "usId": "application-charts-US-18103",
+  "prdId": "PRD-001",
+  "reqId": "application-charts-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every chart ships a paired text-alternative table with the same data, focus-reachable in the same landmark",
+  "asA": "screen-reader user using the shipped surface",
+  "iWant": "every chart to ship a text-alternative table carrying the same data as the chart, in the same landmark, cell-per-value, focus-reachable",
+  "soThat": "the chart's information is available in a form assistive tech traverses cell-by-cell (WCAG 1.1.1 the shelf inherits through TAC-1901)",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18103-1",
+      "description": "Given a rendered chart, a `<table>` element carrying the same data lives in the same landmark (`role=\"region\"` wrapping both the chart and the table, or the same `<section>` element), with a row per x-axis value or category and a column per series (cell-per-value contract). The table is either visible under the chart or visually-hidden and focus-reachable through a labelled control the shell renders (a `<button>` or a skip link). Assistive tech traverses the table cell-by-cell and every cell text matches the corresponding chart value. Probed by the application-charts pack check AC-18103-1 (Playwright drives to the route, reads the accessibility tree, asserts the table is present in the chart's landmark and the cell texts match the chart's rendered values).",
+      "given": "a rendered chart",
+      "when": "the accessibility tree is read",
+      "then": "a `<table>` in the same landmark carries the same values cell-by-cell and is focus-reachable",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-18103-2",
+      "description": "Given a rendered chart whose text-alternative table is visually-hidden, the shell renders a labelled control (a `<button>` or an anchor link) that moves focus to the table's first cell; the control's accessible name reads `Show data table` or an equivalent operator-configured label. The control is keyboard-reachable in reading order before the chart's own interactive controls.",
+      "given": "a rendered chart with a visually-hidden text-alternative table",
+      "when": "the operator tabs into the chart's landmark",
+      "then": "a labelled control appears before the chart's data-point controls and moves focus to the table on activation",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1901-application-charts-render-shell"],
+  "tags": ["blueprint:application-charts"],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

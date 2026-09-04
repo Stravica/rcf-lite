@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1903-application-charts-motion",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Honour prefers-reduced-motion via the application-spa motion tokens on every chart transition",
+  "context": "Chart libraries default to animated entry and update transitions (bars grow from zero, lines sweep left-to-right). `prefers-reduced-motion: reduce` is the WCAG 2.3.3 signal the operator's platform preferences carry; failing to honour it is a common accessibility defect on chart libraries and a hard-to-diagnose vestibular trigger.",
+  "decision": "Every rendered chart on the shipped surface honours the `prefers-reduced-motion: reduce` media query by setting `transition-duration: 0` and `animation-duration: 0` on the animated chart elements (bars, lines, sweep animations, tooltip fades) through a media rule the shell attaches on mount. The rule composes with the application-spa motion tokens (the applying project's shared motion baseline). The pack asserts the media rule is present and effective on the rendered surface (computed style on an animated element under an emulated reduced-motion preference); a chart that ships a transition and misses the media rule fails AC-18104-1.",
+  "consequences": "Every chart on the shipped surface is safe for users who set the reduced-motion preference. The shell owns the CSS attachment; the applying project's engine-specific transitions inherit the rule without a per-engine override.",
+  "alternativesConsidered": [
+    {
+      "name": "Leave motion to the engine",
+      "summary": "Each engine's own reduced-motion handling.",
+      "reasonNotChosen": "Chart.js and D3 primitives do not honour `prefers-reduced-motion` by default; the shell has to do it or the AC is unreachable."
+    },
+    {
+      "name": "Disable all chart transitions unconditionally",
+      "summary": "No chart animates at all, regardless of preference.",
+      "reasonNotChosen": "Motion is a legitimate affordance for operators who want it; the preference gate is the honest shape."
+    }
+  ],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

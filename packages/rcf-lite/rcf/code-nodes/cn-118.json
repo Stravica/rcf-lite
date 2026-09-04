@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-118",
+  "path": "../../blueprints/application-charts/probe-packs/application-charts.pack.mjs",
+  "implementsAcIds": [
+    "AC-1901-3",
+    "AC-1901-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T21:09:14.269Z",
+  "updatedAt": "2026-09-04T21:09:14.269Z"
+}

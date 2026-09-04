@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-09-04T21:08:30.292Z",
+  "updatedAt": "2026-09-04T21:08:30.292Z",
+  "asA": "shelf consumer applying the application-charts v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files, its Playwright probe pack anchoring non-colour distinction, text-alternative table and keyboard traversal, and a sample-app fixture proving both to load, apply and gate ship the way the T-0 runner extension expects",
+  "soThat": "a project consuming rcf-lite gets the chart-accessibility ACs, the pack that runs them, and a golden fixture the pack refuses on a chart surface that drops the text-alternative table or the non-colour pattern.",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1901-1",
+      "description": "The shelf carries blueprints/application-charts/blueprint.json declaring slug application-charts, version 1.0.0, category application, and 15 contributions (4 REQs, 6 USs, 2 TACs, 3 ADRs); the suggestedCompanions array declares logging and errorHandling with reasons from the ratified spec section 5.2; providesRoles is absent (leaf blueprint per spec).",
+      "testable": true
+    },
+    {
+      "id": "AC-1901-2",
+      "description": "rcf define blueprint add ./blueprints/application-charts applies the 15 contributions cleanly on a fresh init project; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.",
+      "testable": true
+    },
+    {
+      "id": "AC-1901-3",
+      "description": "The shipped probe pack blueprints/application-charts/probe-packs/application-charts.pack.mjs loads via T-0's pack-loader against a scratch project with the blueprint applied; each of its three check ids (AC-18102-1 non-colour distinction, AC-18103-1 text-alternative table, AC-18104-1 keyboard traversal with reduced motion) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9.",
+      "testable": true
+    },
+    {
+      "id": "AC-1901-4",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-charts/ ships a dependency-free Node HTTP server (server.js) with a start script; when started, its chart route renders at least one bar chart and one line chart with two series each (colour plus pattern plus direct label), a visually-hidden focus-reachable table carrying the same values, keyboard-focusable data points announcing series x y unit, and a prefers-reduced-motion media rule; running the pack against the fixture returns verdict pass on every check (severity block, aggregate pass).",
+      "testable": true
+    },
+    {
+      "id": "AC-1901-5",
+      "description": "The probe pack refuses ship on a broken fixture: with the text-alternative table removed via the ?break=table switch, running the pack returns verdict fail on AC-18103-1 at severity block and the aggregate verdict is block; with the pattern attributes removed via the ?break=pattern switch, verdict fail on AC-18102-1 at severity block; with keyboard focus removed via the ?break=keyboard switch, verdict fail on AC-18104-1 at severity block.",
+      "testable": true
+    }
+  ],
+  "usId": "US-1901",
+  "prdId": "PRD-001",
+  "reqId": "REQ-019",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The application-charts blueprint ships on the shelf and its probe pack refuses ship on a broken chart surface"
+}

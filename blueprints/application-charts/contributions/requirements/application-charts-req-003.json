@@ -1,0 +1,15 @@
+{
+  "reqId": "application-charts-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Every chart ships a text-alternative table carrying the same data, focus-reachable in the same landmark",
+  "description": "Every rendered chart on the shipped surface ships a paired `<table>` element in the same landmark as the chart, carrying the same values, cell-per-value: rows for the x-axis or category dimension and columns for each series. The table is either visible under the chart or visually-hidden and focus-reachable through a labelled control (a link or a button). Assistive tech traverses the table cell-by-cell; the values in the table match the values the chart renders.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "A chart is a visual encoding of data; a text-alternative table is the only assistive-tech-reachable form of the same data that fits the existing table-navigation vocabulary. Screen-reader users receive the same information; a canvas-only chart with no text-alternative is inaccessible.",
+  "tags": ["blueprint:application-charts", "category:03-text-alternative"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

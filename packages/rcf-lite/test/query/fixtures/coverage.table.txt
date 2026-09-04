@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 18  covered: 18  covered-unresolved: 0  uncovered: 0
+Requirements: 19  covered: 19  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -168,3 +168,8 @@ REQ-018      yes      AC-1801-1   yes         TC-047-blueprint-json-declares-slu
                       AC-1801-3   yes         TC-047-every-pack-check-id-resolves-to-an-ac-id
                       AC-1801-4   yes         TC-047-sample-app-fixture-startserver-serves
                       AC-1801-5   yes         TC-047-pack-loader-against-blueprint-discovers
+REQ-019      yes      AC-1901-1   yes         TC-048-blueprint-json-shape
+                      AC-1901-2   yes         TC-048-applies-clean
+                      AC-1901-3   yes         TC-048-pack-checks-cross-check
+                      AC-1901-4   yes         TC-048-fixture-charts-render
+                      AC-1901-5   yes         TC-048-negative-runs

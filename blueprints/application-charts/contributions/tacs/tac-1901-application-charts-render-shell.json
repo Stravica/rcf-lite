@@ -1,0 +1,42 @@
+{
+  "tacId": "TAC-1901-application-charts-render-shell",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Chart render shell",
+  "purpose": "Owns the rendered chart surface: the mount seam every chart on the shipped surface routes through, the accessible-defaults palette hook (ADR-1902), the text-alternative slot (a `<table>` in the same landmark as the chart), and the reduced-motion respect via the application-spa motion tokens (ADR-1903). The shell is the substitutable interface every AC in this blueprint anchors on, and the applying project's chosen chart engine (ADR-1901) mounts against this contract.",
+  "responsibilities": [
+    "Mount every chart on the surface through one factory that binds a chart form (bar, line, area, pie, donut, single-value, sparkline, heatmap), a data source, a palette and an accessible-name (AC-18101-2).",
+    "Render every series with colour AND a distinguishing non-colour pattern (data-pattern attribute, stroke-dasharray, hatched SVG pattern fill or a marker shape) AND a direct label at the series (AC-18102-1).",
+    "Render a paired `<table>` element in the same landmark as the chart (`role=\"region\"` wrapping both, or the same `<section>`), with a row per x-value or category and a column per series (AC-18103-1), and expose a labelled control that moves focus to the table when the table is visually-hidden (AC-18103-2).",
+    "Expose the accessible-defaults palette (light and dark) as the recommended default and accept operator brand tokens as overrides with a fallback to the defaults on missing tokens (AC-18105-1, AC-18105-2).",
+    "Honour `prefers-reduced-motion: reduce` by suppressing entry and update transitions on the chart surface (AC-18104-1, ADR-1903).",
+    "Route text-alternative refusals: a chart engine that renders canvas-only with no text-alternative path is refused at mount (AC-18106-1) and the shell writes a warning to the render log."
+  ],
+  "internalStructure": "One shell module that mounts the surface, plus small internal helpers per chart form (form binders that translate the chart declaration into engine-specific mount calls). Every form binder writes to the same DOM landmark shape and reads from the same palette API. The framework is not prescribed; the shell interfaces are what the project realises against Recharts, ECharts, Chart.js, D3 primitives or a hand-authored SVG.",
+  "interfaces": [
+    {
+      "name": "renderChart",
+      "kind": "factory",
+      "description": "renderChart({ form, data, palette, accessibleName, textAlternative, interactive }) -> { mount(rootElement), unmount() }. The project supplies the chart declaration; the shell owns the DOM plumbing, the palette hook, the text-alternative slot and the reduced-motion CSS attachment."
+    },
+    {
+      "name": "paletteAccessor",
+      "kind": "shape",
+      "description": "`palette.get(seriesIndex, { role? })` returns a colour token with a non-colour cue (`{ colour, pattern, marker }`); the shell composes the three cues into the rendered series. Operator overrides pass through the same accessor."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Keyboard traversal",
+      "kind": "tac",
+      "tacId": "TAC-1902-application-charts-keyboard-traversal",
+      "description": "The shell delegates the keyboard traversal contract to TAC-1902 on interactive charts; a non-interactive chart's shell renders without the traversal bindings."
+    }
+  ],
+  "tradeoffs": "The shell is engine-agnostic; the applying project picks a chart engine (Recharts, ECharts, Chart.js, D3, custom SVG) and writes a form binder for it. A project that ships a canvas-only engine with no text-alternative surface fails the AC and is refused at review. The shell owns the palette hook; a project that ships a bespoke palette module supersedes ADR-1902 and names the residual on its own README.",
+  "notes": "Known mechanism-reach gap: the shell contract cannot prove the applying project's chosen engine emits the DOM markers the pack asserts on (data-pattern, direct label); a build-scan supplement in a v1.1 minor bump would close the class for the shipped engines.",
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

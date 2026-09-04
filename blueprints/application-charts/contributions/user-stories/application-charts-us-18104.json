@@ -1,0 +1,35 @@
+{
+  "usId": "application-charts-US-18104",
+  "prdId": "PRD-001",
+  "reqId": "application-charts-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Interactive charts expose a keyboard traversal path with a stable announced-string contract",
+  "asA": "keyboard-only user reading an interactive chart",
+  "iWant": "each data point to be focus-reachable in reading order with a stable announced string carrying series name, x-value, y-value and unit",
+  "soThat": "the pointer-only granular data-point access is available to a keyboard user (WCAG 2.1.1)",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18104-1",
+      "description": "Given an interactive chart (data points are clickable or hoverable and trigger a callback), keyboard focus reaches each data point in reading order (left-to-right, top-to-bottom for single-series; series-by-series for multi-series), and the announced string on focus matches the format `<seriesName>, <xValue>, <yValue> <unit>` (comma-separated, unit is the operator-configured unit or `unitless`). A `prefers-reduced-motion: reduce` media query on the rendered surface suppresses chart entry and update transitions (`transition-duration: 0` or `animation-duration: 0` on the affected elements). Probed by the application-charts pack check AC-18104-1 (Playwright drives the browser, tabs through the chart, asserts every data point receives focus, the announced string matches the format, and the reduced-motion CSS rule applies).",
+      "given": "an interactive chart with reduced-motion respect",
+      "when": "the operator tabs through the chart with prefers-reduced-motion set",
+      "then": "each data point receives focus in reading order, the announced string matches the format, and transitions are suppressed",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-18104-2",
+      "description": "Given a non-interactive chart (no data-point activation), the keyboard-traversal AC does not apply; the chart is still tab-reachable as one focusable landmark exposing an accessible name (the chart's title or aria-label). The pack records applicable false for AC-18104-1 on a non-interactive chart; the reduced-motion rule still applies and is a separate observation on the pack record when the surface exposes any transition.",
+      "given": "a non-interactive chart",
+      "when": "the pack runs",
+      "then": "the AC-18104-1 keyboard-traversal rule does not apply and the pack records applicable false",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1901-application-charts-render-shell", "TAC-1902-application-charts-keyboard-traversal"],
+  "tags": ["blueprint:application-charts"],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

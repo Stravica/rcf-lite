@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1902-application-charts-accessible-palette",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Ship an accessible-defaults categorical palette (light and dark) with elicited operator overrides",
+  "context": "Categorical palettes are the most common source of colour-blindness defects on chart libraries: many popular defaults (rainbow gradients, the classic ten-colour categorical from d3-scale v1) fail deuteranopia readability at the second and third series. Operators bring brand tokens they want to see on the shipped surface; the tension between brand palette and accessible palette is real.",
+  "decision": "The blueprint ships a light and a dark accessible-defaults categorical palette matched against WCAG 1.4.3 (4.5:1 text contrast) and WCAG 1.4.11 (3:1 non-text contrast) against the applied theme's background. The palettes are the recommended default. Operators supply brand tokens through the shell's palette accessor; missing tokens fall back to the accessible-defaults palette at the same index and the render log records a warning. The applying project verifies contrast on the shipped surface as a build-scan supplement; the pack does not check contrast today.",
+  "consequences": "Applying projects get a contrast-safe palette out of the box and can override with brand tokens without losing the fallback. Contrast checking on the operator palette is the applying project's responsibility; the blueprint's README names it under known mechanism-reach gaps as a v1.1 minor bump candidate for the pack.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship no default palette",
+      "summary": "The blueprint requires the operator to supply a palette at apply.",
+      "reasonNotChosen": "Every applying project would ship the first-pass palette their designer picked, and the accessibility posture would move with the designer's brief. The default carries the shelf's discipline."
+    },
+    {
+      "name": "Ship one palette across light and dark",
+      "summary": "Same series colours in both themes.",
+      "reasonNotChosen": "A colour with 4.5:1 contrast against a white background often reads at 2:1 against a black background; two palettes is the honest shape."
+    }
+  ],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

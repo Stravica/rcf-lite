@@ -1,0 +1,35 @@
+{
+  "usId": "application-charts-US-18102",
+  "prdId": "PRD-001",
+  "reqId": "application-charts-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Series distinction combines colour, pattern and direct label so a colour-blind reader reads the same distinction",
+  "asA": "reader with a colour-vision deficiency using the shipped surface",
+  "iWant": "each series on a multi-series chart to carry colour, a distinguishing pattern and a direct label at the series",
+  "soThat": "the series distinction is legible without relying on colour perception alone (WCAG 1.4.1)",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18102-1",
+      "description": "Given a rendered chart with N series, the series distinction combines colour, pattern (dashed line, hatched fill or a marker shape) and a direct label at the series; every series in the DOM carries a data-pattern attribute or a stroke-dasharray or an SVG pattern fill reference and a labelled text node adjacent to the series. Probed by the application-charts pack check AC-18102-1 (Playwright drives the browser to the chart route, reads the accessibility tree and the DOM, and asserts every series carries at least one non-colour attribute plus a direct label). The runner has no vision-deficiency emulation seam today, so the check is proven at the DOM level (colour is only one of the three cues); the README names the vision-deficiency simulation gap under known mechanism-reach gaps.",
+      "given": "a rendered multi-series chart",
+      "when": "the DOM is inspected",
+      "then": "every series carries colour plus a non-colour pattern attribute plus a direct label",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-18102-2",
+      "description": "Given a rendered single-series chart, the AC-18102-1 rule does not apply (single-series distinction is not a WCAG 1.4.1 concern); the pack records applicable false for the check on the surface and no browser assertion runs. The blueprint's README names the single-series exemption under known mechanism-reach gaps.",
+      "given": "a rendered single-series chart",
+      "when": "the pack runs",
+      "then": "the AC-18102-1 rule does not apply and the pack records applicable false",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-1901-application-charts-render-shell"],
+  "tags": ["blueprint:application-charts"],
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

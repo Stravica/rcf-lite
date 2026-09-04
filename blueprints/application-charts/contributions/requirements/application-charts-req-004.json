@@ -1,0 +1,15 @@
+{
+  "reqId": "application-charts-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Interactive charts honour a keyboard traversal contract and reduced-motion preference (WCAG 2.1.1, WCAG 2.3.3)",
+  "description": "An interactive chart (a chart whose data points are clickable, hoverable or filterable) exposes a keyboard traversal path: each data point receives focus in reading order (left-to-right, top-to-bottom for a single-series chart; series-by-series for a multi-series chart), and the announced string on focus carries the series name, the x-value, the y-value and the unit. `prefers-reduced-motion` suppresses chart transitions on entry and update. A non-interactive chart (a rendered surface with no data-point activation) is exempt from the keyboard traversal AC; the reduced-motion rule applies regardless.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Keyboard-only users need the same data-point granularity a pointer user has, and the announced string is the assistive-tech-visible surface. Reduced-motion respect is the WCAG 2.3.3 clause the shelf inherits from application-spa's motion tokens; a chart that does not honour it fails the same clause.",
+  "tags": ["blueprint:application-charts", "category:04-keyboard-traversal"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T21:00:00Z",
+  "updatedAt": "2026-09-04T21:00:00Z"
+}

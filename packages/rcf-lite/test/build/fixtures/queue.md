@@ -41,11 +41,12 @@ Generation strategy: dependencyFirst
 | 35 | 0 | FBS-035 | rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge) | notStarted | actionable |  |
 | 36 | 0 | FBS-036 | Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI | notStarted | actionable |  |
 | 37 | 0 | FBS-037 | application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture | notStarted | actionable |  |
+| 38 | 0 | FBS-038 | application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches | notStarted | actionable |  |
 
-Totals: items 37 | notStarted 9 | inProgress 0 | complete 13 | verified 15 | actionable 7 | blocked 2
+Totals: items 38 | notStarted 10 | inProgress 0 | complete 13 | verified 15 | actionable 8 | blocked 2
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027
