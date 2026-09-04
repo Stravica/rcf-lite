@@ -11,6 +11,7 @@
 //   click(selectorOrRef, hint) click an element by CSS selector or a11y ref
 //   type(selectorOrRef, text)  type into an editable element
 //   press(key)                 press a keyboard key
+//   resize(width, height)      set viewport dimensions (breakpoint reflow probes)
 //   screenshot(filename?)      capture a PNG; returns descriptor / path
 //   close()                    close the page + terminate the browser process
 //
@@ -92,6 +93,11 @@ async function createProjectPlaywrightHandle({ projectRoot, logger }) {
       async click(selector) { await page.click(selector); },
       async type(selector, text) { await page.fill(selector, text); },
       async press(key) { await page.keyboard.press(key); },
+      async resize(width, height) {
+        const w = normaliseDim(width, 'width');
+        const h = normaliseDim(height, 'height');
+        await page.setViewportSize({ width: w, height: h });
+      },
       async screenshot(filename) {
         const target = filename ? { path: filename } : undefined;
         const buf = await page.screenshot(target);
@@ -216,6 +222,11 @@ async function createMcpPackBrowser({ playwrightMcpVersion, logger, env, timeout
     async press(key) {
       await tool('browser_press_key', { key });
     },
+    async resize(width, height) {
+      const w = normaliseDim(width, 'width');
+      const h = normaliseDim(height, 'height');
+      await tool('browser_resize', { width: w, height: h });
+    },
     async screenshot(filename) {
       const args = filename ? { filename } : {};
       return textOf(await tool('browser_take_screenshot', args));
@@ -231,6 +242,18 @@ async function createMcpPackBrowser({ playwrightMcpVersion, logger, env, timeout
       });
     },
   });
+}
+
+/**
+ * Coerce a viewport dimension argument to a positive integer.
+ * Exposed for unit tests through resize() call sites.
+ */
+function normaliseDim(value, label) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`packBrowser.resize: ${label} must be a positive number (got ${JSON.stringify(value)})`);
+  }
+  return Math.round(n);
 }
 
 function textOf(result) {
@@ -263,3 +286,9 @@ export function parseEvaluateResult(text) {
   const stripped = tail.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
   try { return JSON.parse(stripped); } catch { return stripped; }
 }
+
+/**
+ * Internals exposed to unit tests. Not part of the public seam a
+ * probe pack sees; do not import from a pack.
+ */
+export const PACK_BROWSER_INTERNALS = Object.freeze({ normaliseDim });
