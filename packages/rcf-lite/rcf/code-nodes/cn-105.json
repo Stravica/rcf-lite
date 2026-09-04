@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-105",
+  "path": "src/eval/judge.js#composeRunRecord",
+  "title": "eval/judge.js: composeRunRecord aggregates perCriterion scores, applies criticalMustPass, resolves pass/fail verdict",
+  "implementsAcIds": [
+    "AC-1601-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T16:25:44.037Z",
+  "updatedAt": "2026-09-04T16:25:44.037Z"
+}

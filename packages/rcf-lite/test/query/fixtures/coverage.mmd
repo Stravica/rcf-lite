@@ -666,6 +666,23 @@ flowchart LR
   REQ-015 --> AC-1501-3
   TC-044-no-cross-check-and-sentinel["TC-044-no-cross-check-and-sentinel"]
   AC-1501-3 -.-> TC-044-no-cross-check-and-sentinel
+  REQ-016["REQ-016"]
+  AC-1601-1["AC-1601-1"]
+  REQ-016 --> AC-1601-1
+  TC-045-computeevalcoverage-across-the-four["TC-045-computeevalcoverage-across-the-four"]
+  AC-1601-1 -.-> TC-045-computeevalcoverage-across-the-four
+  AC-1601-2["AC-1601-2"]
+  REQ-016 --> AC-1601-2
+  TC-045-per-ac-verdicts-carries-the-two-new-eval["TC-045-per-ac-verdicts-carries-the-two-new-eval"]
+  AC-1601-2 -.-> TC-045-per-ac-verdicts-carries-the-two-new-eval
+  AC-1601-3["AC-1601-3"]
+  REQ-016 --> AC-1601-3
+  TC-045-findevalrefusalacs-and["TC-045-findevalrefusalacs-and"]
+  AC-1601-3 -.-> TC-045-findevalrefusalacs-and
+  AC-1601-4["AC-1601-4"]
+  REQ-016 --> AC-1601-4
+  TC-045-runonecase-spawns-the-invoker-claude-or["TC-045-runonecase-spawns-the-invoker-claude-or"]
+  AC-1601-4 -.-> TC-045-runonecase-spawns-the-invoker-claude-or
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1007,6 +1024,15 @@ flowchart LR
   class TC-044-loader-refuses-missing-clause tc;
   class AC-1501-3 ac;
   class TC-044-no-cross-check-and-sentinel tc;
+  class REQ-016 req;
+  class AC-1601-1 ac;
+  class TC-045-computeevalcoverage-across-the-four tc;
+  class AC-1601-2 ac;
+  class TC-045-per-ac-verdicts-carries-the-two-new-eval tc;
+  class AC-1601-3 ac;
+  class TC-045-findevalrefusalacs-and tc;
+  class AC-1601-4 ac;
+  class TC-045-runonecase-spawns-the-invoker-claude-or tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

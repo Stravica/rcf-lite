@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 34,
-    "notStarted": 6,
+    "items": 35,
+    "notStarted": 7,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 4,
+    "actionable": 5,
     "blocked": 2
   },
   "nextActionable": "FBS-013",
@@ -30,7 +30,8 @@
         "FBS-021",
         "FBS-022",
         "FBS-023",
-        "FBS-024"
+        "FBS-024",
+        "FBS-035"
       ]
     },
     {
@@ -499,6 +500,16 @@
         "FBS-033"
       ],
       "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-035",
+      "buildOrder": 35,
+      "tier": 0,
+      "title": "rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
       "blockedBy": []
     }
   ]

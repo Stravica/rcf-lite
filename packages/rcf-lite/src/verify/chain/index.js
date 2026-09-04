@@ -143,6 +143,63 @@ function boundTcsFor(testSuites, acId) {
 }
 
 /**
+ * rcf-eval-node spec 2026-09-04 sections 3 + 5. Aggregate the EVAL
+ * binding state for one AC. Reads:
+ *   - `evalIds`: every EVAL under the parent US whose acIds[] names
+ *     this AC.
+ *   - `evalStatus`: `resolving` | `pending` | `superseded` | `absent`.
+ *     `resolving` = at least one bound EVAL is not superseded AND has
+ *     at least one runRecord[] entry whose verdict is not `pending`.
+ *   - `evalRunVerdict`: the freshest runRecord[] verdict on the
+ *     resolving EVAL: `pass` | `fail` | `pending` | null.
+ *
+ * The consumer (verdict derivation) uses these to decide whether
+ * EVAL-MISSING or EVAL-BELOW-THRESHOLD applies.
+ *
+ * @param {object[]} evals - walker's tree.evals[]
+ * @param {string} usId
+ * @param {string} acId
+ * @returns {{ evalIds: string[], evalStatus: 'resolving'|'pending'|'superseded'|'absent', evalRunVerdict: string|null }}
+ */
+function evalBindingFor(evals, usId, acId) {
+  const bound = (evals ?? []).filter(
+    (e) => e?.usId === usId && Array.isArray(e?.acIds) && e.acIds.includes(acId),
+  );
+  const evalIds = bound.map((e) => e.id);
+  if (bound.length === 0) {
+    return { evalIds: [], evalStatus: 'absent', evalRunVerdict: null };
+  }
+  // Pick the best status: resolving beats pending beats superseded.
+  let bestRank = -1;
+  let bestStatus = 'absent';
+  let bestRunVerdict = null;
+  for (const evalDoc of bound) {
+    let status;
+    let runVerdict = null;
+    if (evalDoc.status === 'superseded') {
+      status = 'superseded';
+    } else {
+      const records = Array.isArray(evalDoc.runRecord) ? evalDoc.runRecord : [];
+      if (records.length === 0) {
+        status = 'pending';
+      } else {
+        const sorted = [...records].sort((a, b) => (a?.runAt ?? '').localeCompare(b?.runAt ?? ''));
+        const latest = sorted[sorted.length - 1];
+        runVerdict = latest?.verdict ?? null;
+        status = runVerdict === 'pending' ? 'pending' : 'resolving';
+      }
+    }
+    const rank = status === 'resolving' ? 3 : status === 'pending' ? 2 : 1;
+    if (rank > bestRank) {
+      bestRank = rank;
+      bestStatus = status;
+      bestRunVerdict = runVerdict;
+    }
+  }
+  return { evalIds, evalStatus: bestStatus, evalRunVerdict: bestRunVerdict };
+}
+
+/**
  * Read the acceptance contract from the chain. Returns the flattened list of
  * acceptance criteria (each mapped back to its user story + requirement — the
  * chain-node addressing the report carries), plus the resolved chainRef and
@@ -181,6 +238,7 @@ export async function readChain({ repo, chainRef } = {}) {
   const resolvedRef = chainRef ?? tree.prd?.prdId ?? 'PRD-UNKNOWN';
   const fbsItems = tree.fbsItems ?? [];
   const testSuites = tree.testSuites ?? [];
+  const evals = tree.evals ?? [];
   const acs = [];
   for (const us of tree.userStories ?? []) {
     for (const ac of us.acceptanceCriteria ?? []) {
@@ -194,6 +252,15 @@ export async function readChain({ repo, chainRef } = {}) {
         when: ac.when ?? '',
         then: ac.then ?? '',
         testable: ac.testable !== false,
+        // rcf-eval-node spec section 2: `determinism` classification on
+        // each AC (schema-optional; absence resolves to 'deterministic').
+        // Consumed by the eval-coverage derivation below.
+        determinism: ac.determinism ?? 'deterministic',
+        // rcf-eval-node spec sections 5.1 / 5.2: per-AC EVAL binding
+        // aggregate. `evalStatus` is 'resolving' | 'pending' |
+        // 'superseded' | 'absent'; `evalRunVerdict` is the most recent
+        // runRecord verdict on the resolving EVAL, or null.
+        ...evalBindingFor(evals, us.usId, ac.id),
         // 0.7.0 derived fields — verify does the aggregation here per Track A
         // changelog 2026-07-31 and Track B §18 N2 fold; core does not.
         serviceAttestations: serviceAttestationsFor(fbsItems, ac.id),

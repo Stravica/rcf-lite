@@ -1,0 +1,55 @@
+{
+  "id": "EVAL-001",
+  "usId": "US-1601",
+  "acIds": ["AC-1601-4"],
+  "title": "LLM-as-judge invocation shape: enum-guarded invoker, valid response envelope, honest verdict rollup",
+  "purpose": "Grades whether the LLM-as-judge run path returns a graded envelope that reads as trustworthy (aggregate score corresponds to the graded criteria, criticalFailures reflect declared critical criteria that failed, invoker was on the {claude, codex} enum, no HTTP-API call fingerprints in the recorded runRecord notes). The observable output of the judge invocation is non-deterministic (an LLM grader's rationale prose changes run to run) so TS/TC coverage alone cannot certify the shape: an EVAL is the honest peer contract. AC-1601-4 declares determinism nonDeterministic for this reason.",
+  "criteria": [
+    {
+      "id": "invoker-enum",
+      "description": "the invoker recorded on the run was 'claude' or 'codex' (subscription-only rule holds); no API key or HTTP anthropic.com fingerprint appears in stderr or notes",
+      "critical": true
+    },
+    {
+      "id": "response-envelope",
+      "description": "the graded response validated against judge.harness.responseSchemaPath and carries a numeric aggregateScore between 0 and 1 with a perCriterion array"
+    },
+    {
+      "id": "verdict-honesty",
+      "description": "the resolved verdict is 'pass' when the aggregate meets threshold and no critical criterion failed; 'fail' otherwise; 'pending' is not accepted as the final verdict on a completed run"
+    }
+  ],
+  "cases": [
+    {
+      "id": "smoke-shape",
+      "input": {
+        "prompt": "grade this greeting on the criteria",
+        "criteria": ["invoker-enum", "response-envelope", "verdict-honesty"]
+      },
+      "notes": "one graded case is enough to certify the shape; a real train would carry a case per scenario"
+    }
+  ],
+  "judge": {
+    "type": "rubric"
+  },
+  "passThreshold": {
+    "aggregateScore": 0.8,
+    "criticalMustPass": true
+  },
+  "runRecord": [
+    {
+      "runId": "2026-09-04T16:25:00Z-hand-authored",
+      "runAt": "2026-09-04T16:25:00Z",
+      "runner": "hand-authored, seeded from unit suite outcomes",
+      "aggregateScore": 1.0,
+      "criticalFailures": [],
+      "perCaseScores": [
+        { "caseId": "smoke-shape", "score": 1.0 }
+      ],
+      "verdict": "pass"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-09-04T16:25:00Z",
+  "updatedAt": "2026-09-04T16:25:00Z"
+}

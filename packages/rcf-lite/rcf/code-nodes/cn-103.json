@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-103",
+  "path": "src/finalise/ingest.js#reportHasEvalRefusal",
+  "title": "ingest.js: reportHasEvalRefusal / findEvalRefusalAcs read EVAL-MISSING and EVAL-BELOW-THRESHOLD from perAcVerdicts[]",
+  "implementsAcIds": [
+    "AC-1601-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T16:25:43.709Z",
+  "updatedAt": "2026-09-04T16:25:43.709Z"
+}

@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 15  covered: 15  covered-unresolved: 0  uncovered: 0
+Requirements: 16  covered: 16  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -151,3 +151,7 @@ REQ-014      yes      AC-1401-1   yes         TC-040-loader-accepts-both
 REQ-015      yes      AC-1501-1   yes         TC-044-loader-accepts-standards-fields
                       AC-1501-2   yes         TC-044-loader-refuses-missing-clause
                       AC-1501-3   yes         TC-044-no-cross-check-and-sentinel
+REQ-016      yes      AC-1601-1   yes         TC-045-computeevalcoverage-across-the-four
+                      AC-1601-2   yes         TC-045-per-ac-verdicts-carries-the-two-new-eval
+                      AC-1601-3   yes         TC-045-findevalrefusalacs-and
+                      AC-1601-4   yes         TC-045-runonecase-spawns-the-invoker-claude-or

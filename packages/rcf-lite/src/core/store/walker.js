@@ -87,7 +87,9 @@ function idFromFilenameStem(stem) {
 // Phase 10 (X2 CodeNode bridge): 'codeNode' appended. The load-then-invert
 // engine treats it exactly like any other child kind - extending the graph
 // into code is additive, not a rewrite (PoC-proven, poc/codenode-bridge).
-const CHILD_KINDS = ['req', 'userStory', 'tac', 'adr', 'fbs', 'testSuite', 'codeNode'];
+// rcf-schemas 0.6.0: 'evalDoc' appended. EVAL is a peer of TS; it grades
+// non-deterministic ACs and rides the same load-then-invert engine.
+const CHILD_KINDS = ['req', 'userStory', 'tac', 'adr', 'fbs', 'testSuite', 'codeNode', 'evalDoc'];
 
 const ID_FIELD_BY_KIND = {
   prd: 'prdId',
@@ -102,6 +104,8 @@ const ID_FIELD_BY_KIND = {
   testSuite: 'id',
   // Phase 10: Code Node.
   codeNode: 'cnId',
+  // rcf-schemas 0.6.0: EVAL doc.
+  evalDoc: 'id',
 };
 
 function idOfDoc(doc, kind) {
@@ -125,6 +129,9 @@ function newTree() {
     testSuites: [],
     // Phase 10 (X2 CodeNode bridge): Code Nodes.
     codeNodes: [],
+    // rcf-schemas 0.6.0: EVAL docs. A peer of testSuites; walked and
+    // integrity-checked like every other child kind.
+    evals: [],
     byId: new Map(),
     rawById: new Map(),
     kindById: new Map(),
@@ -146,6 +153,10 @@ function newTree() {
     // fbsByAcId / dependentsByFbsId for the code layer.
     cnByAcId: new Map(),
     dependentsByCnId: new Map(),
+    // rcf-schemas 0.6.0: EVAL -> AC inversion. Key: acId, value: EVAL ids
+    // whose acIds[] names that AC. Consumed by `rcf audit eval coverage`
+    // to answer "does this AC have a resolving EVAL?" in constant time.
+    evalByAcId: new Map(),
   };
 }
 
@@ -174,6 +185,8 @@ function recordDoc(tree, id, doc, raw, kind) {
     case 'testSuite': tree.testSuites.push(doc); break;
     // Phase 10: Code Node.
     case 'codeNode': tree.codeNodes.push(doc); break;
+    // rcf-schemas 0.6.0: EVAL doc.
+    case 'evalDoc': tree.evals.push(doc); break;
     default: break;
   }
 }
@@ -315,6 +328,8 @@ export async function walkTree({ projectRoot }) {
   tree.fbsItems = sortById(tree.fbsItems, 'fbsId');
   tree.testSuites = sortById(tree.testSuites, 'id');
   tree.codeNodes = sortById(tree.codeNodes, 'cnId'); // Phase 10
+  // rcf-schemas 0.6.0: EVAL doc uses `id` field (mirrors TS).
+  tree.evals = sortById(tree.evals, 'id');
 
   // Referential integrity + graph inversion.
   invertGraph(tree);
@@ -416,11 +431,21 @@ function invertGraph(tree) {
     }
   }
 
+  // rcf-schemas 0.6.0: invert EVAL edges.
+  //   EVAL.usId -> US (parent-child)
+  //   EVAL.acIds -> evalByAcId (keyed on AC, value = EVAL grading it)
+  for (const evalDoc of tree.evals) {
+    if (isKind(evalDoc.usId, 'userStory')) linkParent(evalDoc.id, evalDoc.usId);
+    for (const acId of evalDoc.acIds ?? []) {
+      if (acIds.has(acId)) pushToMap(tree.evalByAcId, acId, evalDoc.id);
+    }
+  }
+
   // Sort children lists deterministically.
   for (const [k, list] of tree.childrenByParent) {
     tree.childrenByParent.set(k, [...list].sort());
   }
-  for (const map of [tree.fbsByAcId, tree.dependentsByFbsId, tree.tsByAcId, tree.usByTacId, tree.cnByAcId, tree.dependentsByCnId]) {
+  for (const map of [tree.fbsByAcId, tree.dependentsByFbsId, tree.tsByAcId, tree.usByTacId, tree.cnByAcId, tree.dependentsByCnId, tree.evalByAcId]) {
     for (const [k, list] of map) map.set(k, [...list].sort());
   }
 }
@@ -519,6 +544,8 @@ export function simulateWriteErrors({ tree, preErrors = [], upserts = [], delete
   post.fbsItems = sortById(post.fbsItems, 'fbsId');
   post.testSuites = sortById(post.testSuites, 'id');
   post.codeNodes = sortById(post.codeNodes, 'cnId'); // Phase 10
+  // rcf-schemas 0.6.0: EVAL doc.
+  post.evals = sortById(post.evals, 'id');
   invertGraph(post);
   collectBrokenReferences(post, errors);
   // w-2026-07-28-017: uniqueness is part of the post-write gate, so a
@@ -951,6 +978,48 @@ function collectBrokenReferences(tree, errors) {
         filePath: `rcf/code-nodes/${(cn.cnId ?? '').toLowerCase()}.json`,
         message: `CN ${cn.cnId} depends on unknown code node ${depId}`,
       });
+    }
+  }
+
+  // rcf-schemas 0.6.0: EVAL doc cross-link integrity. Mirrors the TS
+  // parent + acIds shape (usId -> parent US; every acId -> a known AC).
+  // Cross-US EVAL bindings are refused at v1: an EVAL only grades ACs
+  // that live on its parent US, matching the TS scoping rule.
+  for (const evalDoc of tree.evals) {
+    check({
+      docId: evalDoc.id,
+      docKind: 'evalDoc',
+      fromField: 'usId',
+      targetId: evalDoc.usId,
+      expectedKind: 'userStory',
+      filePath: `rcf/evals/${(evalDoc.id ?? '').toLowerCase()}.json`,
+      message: `EVAL ${evalDoc.id} references unknown US ${evalDoc.usId}`,
+    });
+    const parentUs = tree.userStories.find((u) => u.usId === evalDoc.usId);
+    const parentAcIds = new Set(
+      (parentUs?.acceptanceCriteria ?? []).map((ac) => ac?.id).filter(Boolean),
+    );
+    for (const [i, acId] of (evalDoc.acIds ?? []).entries()) {
+      if (!acIds.has(acId)) {
+        errors.push(rcfError({
+          kind: 'brokenReference',
+          message: `EVAL ${evalDoc.id} references unknown acceptance criterion ${acId}`,
+          documentId: evalDoc.id,
+          filePath: `rcf/evals/${(evalDoc.id ?? '').toLowerCase()}.json`,
+          field: `acIds[${i}]`,
+          rule: 'resolveTo:ac',
+        }));
+        tree.brokenIds.add(acId);
+      } else if (parentUs && !parentAcIds.has(acId)) {
+        errors.push(rcfError({
+          kind: 'brokenReference',
+          message: `EVAL ${evalDoc.id} lists AC ${acId} that lives outside its parent US ${evalDoc.usId} (cross-US EVAL bindings are not permitted)`,
+          documentId: evalDoc.id,
+          filePath: `rcf/evals/${(evalDoc.id ?? '').toLowerCase()}.json`,
+          field: `acIds[${i}]`,
+          rule: 'evalAcIdsScopedToParentUs',
+        }));
+      }
     }
   }
 }

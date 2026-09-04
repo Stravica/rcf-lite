@@ -37,6 +37,12 @@ const OPTION_SPEC = {
   path: { type: 'string' },
   deps: { type: 'string' },
   'derive-deps': { type: 'boolean' },
+  // rcf-eval-node spec section 2.2: `rcf define create ac
+  // --determinism deterministic|nonDeterministic`. Optional at CLI
+  // (default deterministic; absence is treated as `deterministic` by
+  // every consumer). A value outside the enum exits 2 with the spec-
+  // named message (spec section 8).
+  determinism: { type: 'string' },
 };
 
 export const HELP = `Usage: rcf define create <kind> [options]
@@ -201,6 +207,14 @@ export async function main(argv, deps = {}) {
     if (!body.description) {
       stderr.write(`[error] usage create ${kind}: --description is required\n`);
       return 2;
+    }
+    // rcf-eval-node spec section 2.2 + 8: --determinism enum guard.
+    if (kind === 'ac' && flags.determinism !== undefined) {
+      if (flags.determinism !== 'deterministic' && flags.determinism !== 'nonDeterministic') {
+        stderr.write(`--determinism expects 'deterministic' or 'nonDeterministic', got '${flags.determinism}'\n`);
+        return 2;
+      }
+      body.determinism = flags.determinism;
     }
   } else if (kind === 'cn') {
     if (!body.path) {

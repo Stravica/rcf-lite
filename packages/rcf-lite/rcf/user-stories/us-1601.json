@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-09-04T16:21:28.205Z",
+  "updatedAt": "2026-09-04T16:22:01.527Z",
+  "description": "As a project owner shipping non-deterministic behaviour, I want rcf-lite to speak the eval-node surface at every stage of the build cycle so that a non-deterministic AC is graded, audited, verdict-annotated and merge-gated without me holding four disconnected mental models. The surface is one train: audit reports coverage, verify annotates per-AC verdicts, finalise refuses on missing / failing evals with an opt-out, and define authors the determinism flag.",
+  "usId": "US-1601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-016",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The four-track eval-node surface (audit / verdict / finalise / define) reads a single spec across four independent consumers",
+  "asA": "project owner shipping non-deterministic behaviour on an rcf-lite project",
+  "iWant": "rcf-lite to speak the eval-node surface at every stage of the build cycle",
+  "soThat": "a non-deterministic AC is graded, audited, verdict-annotated and merge-gated without me holding four disconnected mental models",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1601-1",
+      "description": "`rcf audit eval coverage --strict` exits 0 on a chain with zero nonDeterministic ACs and exits 4 on any nonDeterministic AC without a resolving EVAL (a non-superseded EVAL whose most recent runRecord entry is not pending). Non-strict runs always exit 0; the mermaid format colours the AC glyph green (deterministic), amber (covered) or red (missing).",
+      "testable": true
+    },
+    {
+      "id": "AC-1601-2",
+      "description": "The verify verdict layer emits EVAL-MISSING on any nonDeterministic AC without a resolving EVAL and EVAL-BELOW-THRESHOLD on any nonDeterministic AC whose bound EVAL last ran with verdict fail. Deterministic ACs never emit either verdict. Both entries ride report.perAcVerdicts[] without expanding the top-level VERDICTS set (backward compatibility on validateReportShape). runStats.evalCoverage rolls up the counts and the CLI prints the preflight line on stderr.",
+      "testable": true
+    },
+    {
+      "id": "AC-1601-3",
+      "description": "rcf finalise refuses (exit 4) with the spec-verbatim message when the verify report carries EVAL-MISSING or EVAL-BELOW-THRESHOLD, and accepts --ship-without-eval <reason> (mandatory reason string; exit 2 without one, refused when the value looks like a flag). The acknowledgement lands on the manifest under shipWithoutEval[] with a monotonic id, the reason, the declared per-AC verdicts and the report path.",
+      "testable": true
+    },
+    {
+      "id": "AC-1601-4",
+      "description": "The LLM-as-judge run path spawns claude (or codex) on PATH, passes the per-case payload on stdin, captures stdout, validates against the declared response schema and composes a runRecord[] entry (aggregateScore, criticalFailures, verdict). No API keys or HTTP APIs enter rcf-lite; the estate subscription-only rule holds. The grader's aggregate verdict is a non-deterministic judgement over graded output, which is the correct home for an EVAL contract on the dogfood tree.",
+      "testable": true,
+      "determinism": "nonDeterministic"
+    }
+  ]
+}

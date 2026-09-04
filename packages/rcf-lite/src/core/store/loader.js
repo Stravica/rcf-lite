@@ -30,6 +30,10 @@ export function subdirFor(kind) {
     case 'testSuite': return 'test-suites';
     // Phase 10 (X2 CodeNode bridge): Code Node document type.
     case 'codeNode': return 'code-nodes';
+    // rcf-schemas 0.6.0 EVAL doc type. One file per EVAL under rcf/evals/.
+    // EVAL is optional in the chain; required only for ACs marked
+    // determinism: nonDeterministic.
+    case 'evalDoc': return 'evals';
     default: return null;
   }
 }

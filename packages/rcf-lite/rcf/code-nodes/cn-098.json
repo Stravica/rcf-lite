@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-098",
+  "path": "src/cli/eval-coverage.js#main",
+  "title": "eval-coverage.js: rcf audit eval coverage main handler; parses args, dispatches strict gate, formats table/json/mermaid, exits 4 on missing",
+  "implementsAcIds": [
+    "AC-1601-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T16:25:42.896Z",
+  "updatedAt": "2026-09-04T16:25:42.896Z"
+}

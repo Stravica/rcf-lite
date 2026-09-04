@@ -57,12 +57,27 @@ export const VERDICTS = Object.freeze([...FINDING_SEVERITIES, 'NOT-DEPLOYED', 'B
  *     from the finalise-time profile-vs-AC check fires per FBS rather
  *     than only at finalise.
  */
+/*
+ * rcf-eval-node spec 2026-09-04 sections 5.1 + 5.2: two new per-AC
+ * verdicts joining the family without adding to the top-level set:
+ *   - EVAL-MISSING: an AC whose determinism is nonDeterministic and
+ *     which carries no resolving EVAL in the chain at verify time.
+ *     Semantically equivalent to BROWSER-VERIFICATION-MISSING on a
+ *     UI-bearing AC.
+ *   - EVAL-BELOW-THRESHOLD: an AC whose bound EVAL's most recent run
+ *     had verdict `fail` (aggregate below threshold or a critical
+ *     failure). Semantically equivalent to UI-BASELINE-UNMET.
+ * Both refuse `rcf finalise` promotion to `verified` unless the
+ * operator opts out via `--ship-without-eval "<reason>"`.
+ */
 export const PER_AC_VERDICTS = Object.freeze([
   'MOCK-ONLY-DECLARED',
   'BLOCKED-BY-DECLARATION',
   'UI-BASELINE-UNMET',
   'BROWSER-VERIFICATION-MISSING',
   'SCOPE-MISMATCH',
+  'EVAL-MISSING',
+  'EVAL-BELOW-THRESHOLD',
 ]);
 
 /**
@@ -308,6 +323,37 @@ export function derivePerAcVerdicts({ acs = [], browserVerification = [] } = {})
     if (ui) out.push({ acId: ac.acId, verdict: ui.verdict, reason: ui.reason });
     const scopeMismatch = scopePerAcVerdict(ac);
     if (scopeMismatch) out.push({ acId: ac.acId, verdict: scopeMismatch.verdict, reason: scopeMismatch.reason });
+    // rcf-eval-node spec sections 5.1 + 5.4: EVAL-MISSING and
+    // EVAL-BELOW-THRESHOLD fire only for nonDeterministic ACs. A
+    // deterministic AC ships when TS/TC coverage is honest (unchanged);
+    // a nonDeterministic AC additionally requires a resolving EVAL with
+    // a passing latest run.
+    const evalVerdict = evalPerAcVerdict(ac);
+    if (evalVerdict) out.push({ acId: ac.acId, verdict: evalVerdict.verdict, reason: evalVerdict.reason });
   }
   return out;
+}
+
+/**
+ * rcf-eval-node spec sections 5.1 + 5.4. Resolve the per-AC EVAL
+ * verdict for one AC. Deterministic ACs never trigger this verdict.
+ *
+ * @param {object} ac - a flattened AC with `determinism`, `evalStatus`, `evalRunVerdict`
+ * @returns {{ verdict: 'EVAL-MISSING'|'EVAL-BELOW-THRESHOLD', reason: string } | null}
+ */
+export function evalPerAcVerdict(ac) {
+  if (!ac || ac.determinism !== 'nonDeterministic') return null;
+  if (ac.evalStatus !== 'resolving') {
+    return {
+      verdict: 'EVAL-MISSING',
+      reason: `AC ${ac.acId} is nonDeterministic and carries no resolving EVAL (status=${ac.evalStatus ?? 'absent'}); author an EVAL or reclassify the AC as deterministic.`,
+    };
+  }
+  if (ac.evalRunVerdict === 'fail') {
+    return {
+      verdict: 'EVAL-BELOW-THRESHOLD',
+      reason: `AC ${ac.acId} is nonDeterministic and its bound EVAL's most recent run failed (aggregate below threshold or a critical criterion failed); investigate the runRecord or ship with --ship-without-eval.`,
+    };
+  }
+  return null;
 }

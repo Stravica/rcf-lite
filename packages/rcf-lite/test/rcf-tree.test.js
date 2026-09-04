@@ -41,6 +41,8 @@ function classify(relPath) {
   if (relPath.startsWith('test-suites/')) return 'testSuite';
   // Phase 10 (X2 CodeNode bridge): 11th document kind.
   if (relPath.startsWith('code-nodes/')) return 'codeNode';
+  // rcf-schemas 0.6.0: EVAL doc subdir. Peer of test-suites/.
+  if (relPath.startsWith('evals/')) return 'evalDoc';
   return null;
 }
 
@@ -79,12 +81,16 @@ const expectedCounts = {
   // Core companions train (w-2026-09-03-dave-030) added REQ-013/014/015
   // for the two new core blueprints, companion-suggestion mechanism, and
   // standards-derived-blueprint discipline (12 -> 15).
-  req: 15,
+  // rcf-eval-node train (w-2026-09-03-dave-005) added REQ-016 for the
+  // rcf-lite consumer wiring around the rcf-schemas 0.6.0 EVAL node
+  // (15 -> 16).
+  req: 16,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
   // (37 -> 44).
-  userStory: 44,
+  // rcf-eval-node train added US-1601 (44 -> 45).
+  userStory: 45,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -102,7 +108,8 @@ const expectedCounts = {
   buildSequence: 1,
   // FBS-027 covers the remove-resolution verb (US-1204). Core companions
   // train added FBS-028..034 (7 FBSs, one per US on REQ-013/014/015).
-  fbs: 34,
+  // rcf-eval-node train added FBS-035 (34 -> 35).
+  fbs: 35,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -114,13 +121,21 @@ const expectedCounts = {
   // CN-077..097 (21 code nodes) anchoring each new AC to the shipped
   // blueprint files, loader validation entry points, companions
   // module, apply payload and CLI handler (76 -> 97).
-  codeNode: 97,
+  // rcf-eval-node train added CN-098..105 (8 code nodes) anchoring the
+  // L1 audit-eval verb + compute, L2 verdict + chain evalBindingFor,
+  // L3 ship-without-eval writer + ingest refusal readers, and L4
+  // judge runOneCase + composeRunRecord (97 -> 105).
+  codeNode: 105,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
   // TS-037 pairs with US-1204 for the remove-resolution verb. Core
   // companions train added TS-038..044 paired with US-1301..1501 (37 -> 44).
-  testSuite: 44,
+  // rcf-eval-node train added TS-045 (44 -> 45).
+  testSuite: 45,
+  // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
+  // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
+  evalDoc: 1,
 };
 
 test('expected file counts by category', () => {
@@ -172,6 +187,8 @@ test('file id matches filename and structural location', () => {
     fbs: 'fbsId',
     testSuite: 'id',
     codeNode: 'cnId',
+    // rcf-schemas 0.6.0: EVAL doc uses the plain `id` field (mirrors TS).
+    evalDoc: 'id',
   };
   for (const d of docs) {
     if (d.kind === 'manifest') continue;
