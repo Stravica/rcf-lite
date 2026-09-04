@@ -862,6 +862,10 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
     ...(body?.given !== undefined ? { given: body.given } : {}),
     ...(body?.when !== undefined ? { when: body.when } : {}),
     ...(body?.then !== undefined ? { then: body.then } : {}),
+    // rcf-eval-node spec 2026-09-04 section 2.2: authored determinism
+    // survives write. Absence is treated as 'deterministic' by every
+    // consumer, so we only serialise when the CLI passed a value.
+    ...(body?.determinism !== undefined ? { determinism: body.determinism } : {}),
   };
   const nextAcs = replacingPhantom
     ? currentAcs.map((ac, i) => (i === seedIndex ? acEntry : ac))
