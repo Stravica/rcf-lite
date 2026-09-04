@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 17,
-    "covered": 17,
+    "requirements": 18,
+    "covered": 18,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -1432,6 +1432,53 @@
           "covered": true,
           "testCases": [
             "TC-046-boot-skips-when-runtime-reachable"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-018",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-1801-1",
+          "covered": true,
+          "testCases": [
+            "TC-047-blueprint-json-declares-slug-application"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1801-2",
+          "covered": true,
+          "testCases": [
+            "TC-047-fresh-init-project-applies-the-blueprint"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1801-3",
+          "covered": true,
+          "testCases": [
+            "TC-047-every-pack-check-id-resolves-to-an-ac-id"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1801-4",
+          "covered": true,
+          "testCases": [
+            "TC-047-sample-app-fixture-startserver-serves"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-1801-5",
+          "covered": true,
+          "testCases": [
+            "TC-047-pack-loader-against-blueprint-discovers"
           ],
           "unresolvedTestCases": []
         }
