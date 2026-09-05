@@ -18,6 +18,7 @@ The blueprint claims no new global topics at v1.0.0. The chart-component contrac
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
+| application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 
 The shelf-wide band registry lives in `packages/rcf-lite/docs/blueprint-authoring.md` section 5.
 

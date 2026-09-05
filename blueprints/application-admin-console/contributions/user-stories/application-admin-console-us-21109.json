@@ -1,0 +1,33 @@
+{
+  "usId": "application-admin-console-US-21109",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Console apply refuses on a bare SPA with the spec 5.5.1 message and honours --allow-no-auth-yet",
+  "asA": "operator applying the admin-console on a project with no auth blueprint yet",
+  "iWant": "the apply to refuse with exit 3 and a message naming security-auth-* explicitly, or to accept an --allow-no-auth-yet override that records a scaffolding-note on the sidecar",
+  "soThat": "a scaffolding pass can land the console files without hiding the fact that the surfaces will refuse at runtime until an auth blueprint is applied",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21109-1",
+      "desc": "rcf define blueprint add ./blueprints/application-admin-console on a project with no applied blueprint declaring principalDirectory (and without --allow-no-auth-yet) exits 3; the stderr message begins with \"application-admin-console requires at least one applied security-auth-*\", lists the currently-applied blueprints on the project, and prints the \"Suggested next steps\" block including the four shelf auth slugs. No contribution files are written; the sidecar is not created.",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-21109-2",
+      "desc": "With --allow-no-auth-yet passed, the apply proceeds and writes rcf/blueprints/application-admin-console.applied.json with allowNoAuthYet:true and a notes string naming the \"no auth yet\" state; a later rcf define validate reads the sidecar and flags the ungated surfaces.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-2202-application-admin-console-capability-discovery"
+  ],
+  "tags": [
+    "blueprint:application-admin-console"
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

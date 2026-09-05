@@ -1,0 +1,18 @@
+{
+  "reqId": "application-admin-console-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Orgs surface conditional on tenancy, with switcher and org-scoped invites",
+  "description": "When an applied blueprint declares the tenancy capability, the console renders an orgs route: an org switcher control on the shell and an org-scoped invite path from the users surface. The tenancy capability today has no shelf provider (reserved for a future application-tenancy-orgs blueprint per spec section 11); the surface is suppressed until that provider ships.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round spec section 5.5, REQ 4 of the admin-console blueprint.",
+  "tags": [
+    "blueprint:application-admin-console",
+    "category:04-orgs"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

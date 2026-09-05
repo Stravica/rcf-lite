@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-2203-application-admin-console-invite-transport",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Invite transport: email default (delegated to the email sibling), elicited",
+  "context": "A users surface invite action needs a delivery transport. The shelf ships an email sibling under the application-notifications family (application-notifications-email, reserved as a family-prefix); a projects transport preference varies (email is the modal case; a Slack- or Teams-first workplace prefers a chat transport; an in-app-only demo needs no external transport).",
+  "decision": "v1.0.0 declares email as the recommended default invite transport; the console delegates delivery to the applied application-notifications-email sibling when present, otherwise records the invite as a pending event on the notification centre for a later transport to pick up. The transport is elicited at apply time via the inviteTransport elicit (enum: email, in-app-only, custom), so the console does not hardcode the delivery path.",
+  "consequences": "A project on the modal SaaS shape (email invite) gets a working invite path once application-notifications-email lands (currently reserved). A project that wants in-app-only invites picks that at apply. A future custom transport declares its own capability and the console delegates via the same elicit.",
+  "alternativesConsidered": [
+    {
+      "name": "Hard-code email as the transport",
+      "summary": "The invite always writes to the email sibling.",
+      "reasonNotChosen": "Refuses in-app-only demos and projects that want a chat-first workplace, and couples the console tightly to one shelf sibling."
+    }
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

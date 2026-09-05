@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2201-application-admin-console-capability-vocabulary",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Capability vocabulary: principalDirectory, roleModel, tenancy, auditLog as the v1 capability set",
+  "context": "Admin-console surfaces are conditional on what the applied identity blueprint provides. The vocabulary must be small (four strings today), extensible (the section 6a table is chunk-zero, so a future capability lands with a docs edit and no code change), and grounded in industry practice (SaaS UI research, IAM literature). Baz decision 5 (2026-09-04) is that the initial four capabilities are principalDirectory, roleModel, tenancy and auditLog.",
+  "decision": "v1.0.0 declares four capability strings the applied identity blueprints can declare in their capabilities[] field: principalDirectory (identifies principals for a users surface); roleModel (declares operator-visible role labels for a permission matrix); tenancy (declares an organisation abstraction the console can switch across); auditLog (emits an event stream the audit view can read). The vocabulary lives in packages/rcf-lite/docs/blueprint-authoring.md section 6a as a table extending the roles registry; the loader validates capability SHAPE (lower camelCase on ^[a-z][a-zA-Z0-9]*$), not the vocabulary. A future capability lands by adding a table row and adopting it on an identity blueprints minor bump.",
+  "consequences": "The console renders only surfaces the applied capabilities enable, so a bare magic-link project gets a users surface but no roles surface (per Bazs verbatim example). A future dedicated audit-log blueprint declaring auditLog directly (rather than through observability-logging) composes cleanly. A new capability lands additively.",
+  "alternativesConsidered": [
+    {
+      "name": "Encode the vocabulary in code as an enum",
+      "summary": "Refuse any capability string outside the initial four at the loader.",
+      "reasonNotChosen": "Constrains a future capability behind a rcf-lite release; the section 6a chunk-zero pattern is the ratified convention for vocabulary in prose."
+    },
+    {
+      "name": "Use providesRoles[] for capabilities",
+      "summary": "Overload the existing providesRoles[] field to carry capabilities.",
+      "reasonNotChosen": "providesRoles paired with a scope:global ADR by design; a capability is a projection of the applied blueprints own state, not a role it offers to a second consumer. Overloading blurs the mechanism (spec 5.5.3)."
+    }
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

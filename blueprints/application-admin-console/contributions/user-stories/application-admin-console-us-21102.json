@@ -1,0 +1,34 @@
+{
+  "usId": "application-admin-console-US-21102",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Users surface lists principals when principalDirectory is applied, and renders access-denied for non-admin",
+  "asA": "admin operator managing user directory",
+  "iWant": "a users route that lists every principal identified by data-user-id with invite, deactivate, last-active and status columns when the applied auth blueprint declares principalDirectory; and an access-denied state with a request-access control for a principal without admin scope",
+  "soThat": "I can see and act on the identity set the applied auth blueprint provides, and non-admin users have a clear next step when they hit the console",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21102-1",
+      "desc": "Given an authenticated admin AND an applied auth blueprint declaring principalDirectory, the users table lists every principal with data-user-id on each row, a role column (only when roleModel is applied; else suppressed), a last-active timestamp, and a status column; a principal without admin scope reaching /admin renders an access-denied state with a \"request access\" control routing to POST /api/request-access. Probed by application-admin-console pack check AC-21102-1.",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-21102-2",
+      "desc": "Each row exposes an invite control for a principal without an active session (data-action=\"invite\") and a deactivate control for an active principal (data-action=\"deactivate\"); the controls are keyboard-reachable buttons.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-2201-application-admin-console-shell",
+    "TAC-2202-application-admin-console-capability-discovery"
+  ],
+  "tags": [
+    "blueprint:application-admin-console"
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

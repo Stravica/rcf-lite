@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2202-application-admin-console-baseline-roles",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Owner + Admin + Member + Viewer baseline; elicited additions per project",
+  "context": "A permission matrix needs a starting role set. SaaS UI research 2026 (industry sources including Auth0, Okta, Clerk internal role catalogues; NN/g admin-console pattern research) converges on the four-role Owner + Admin + Member + Viewer baseline as the modal starter posture. Every project has its own domain-specific additions (SupportAgent, Auditor, Reviewer), so the baseline is the floor, not the ceiling.",
+  "decision": "v1.0.0 declares Owner, Admin, Member, Viewer as the baseline four role labels the console renders in the matrix. The project elicits additional labels at apply time via the baselineRoles elicit (when the roleModel capability is applied); the baseline four render first, additions after. The four labels are prose, not code: a projects auth blueprint may map them to internal role ids at surface time.",
+  "consequences": "A fresh project applying admin-console with clerk (declares roleModel) gets a working matrix at Owner + Admin + Member + Viewer immediately; a project with domain-specific roles adds them via the elicit answer without a code change. The mapping between baseline label and internal role id is the applying projects concern (industry practice: label vs id decoupling).",
+  "alternativesConsidered": [
+    {
+      "name": "Elicit the entire role set",
+      "summary": "No baseline; every project elicits their own four-plus roles.",
+      "reasonNotChosen": "Adds friction for the modal case (the Owner/Admin/Member/Viewer baseline covers most greenfield projects) and pushes cognitive load onto the operator every apply."
+    },
+    {
+      "name": "Ship only two roles (Admin + User)",
+      "summary": "A tighter baseline.",
+      "reasonNotChosen": "The Admin/User binary loses the distinction between an operator (Admin), a paying customer (Member) and a shared read-only stakeholder (Viewer) that SaaS UI research treats as a load-bearing shape."
+    }
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

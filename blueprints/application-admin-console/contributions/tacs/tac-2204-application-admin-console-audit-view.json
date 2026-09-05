@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2204-application-admin-console-audit-view",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Audit view",
+  "purpose": "Owns the audit-log surface: consumes the application-datatable shell (T-1) for filter chrome, pagination, four state regions and the row enumeration contract. Renders every audit entry with actor / target / before / after / timestamp / correlationId columns; the correlation id is the join key with the applied logging companion.",
+  "responsibilities": [
+    "Render every audit entry inside the datatable shell (AC-21105-1, AC-21105-2).",
+    "Enumerate every row by data-audit-id and expose every column via data-column (AC-21105-1).",
+    "Render per-actor and per-target filter chrome via the datatable query adapter (AC-21105-2)."
+  ],
+  "internalStructure": "A datatable adapter module: maps the audit event stream to the datatable columnsSpec, exposes the entry ids via data-audit-id, and threads the correlationId column through the datatable render.",
+  "interfaces": [
+    {
+      "name": "renderAuditView",
+      "kind": "factory",
+      "description": "renderAuditView({ eventStream, columns, retentionWindow }) -> { mount(rootElement), unmount() }."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Datatable shell",
+      "kind": "tac",
+      "tacId": "TAC-1801-application-datatable-shell",
+      "description": "Consumed for the table shell contract; the audit view supplies columnsSpec and queryAdapter and delegates the DOM to the datatable."
+    },
+    {
+      "name": "Admin-console shell",
+      "kind": "tac",
+      "tacId": "TAC-2201-application-admin-console-shell",
+      "description": "The audit view mounts inside the shell page-layout."
+    }
+  ],
+  "tradeoffs": "Consuming the datatable shell rather than reimplementing gets ARIA APG grid + WCAG state regions for free; it constrains the audit views UI to the datatable contract. A future audit-specific timeline view supersedes this TAC in its own realisation.",
+  "notes": "The retention window is elicited (ADR-2204); the surface itself is capability-gated on auditLog (from the applied logging companion).",
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "application-admin-console-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Audit-log surface conditional on the auditLog capability (via the applied logging companion), reading the delivered event stream",
+  "description": "When the auditLog capability is applied (through the observability-logging companion or a future dedicated audit blueprint), the console renders an audit-log route: an audit table listing every entry identified by data-audit-id and carrying actor, target, before, after, timestamp, and correlationId columns; per-actor filter chrome and per-target filter chrome; retention window per ADR-2204. Consumes application-datatable (T-1) for the table shell.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round spec section 5.5, REQ 5 of the admin-console blueprint.",
+  "tags": [
+    "blueprint:application-admin-console",
+    "category:05-audit"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

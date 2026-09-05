@@ -1,0 +1,44 @@
+{
+  "tacId": "TAC-2202-application-admin-console-capability-discovery",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Capability discovery",
+  "purpose": "Owns the apply-time reader that inspects every applied blueprints source blueprint.json for its capabilities[] declaration and composes the union as appliedCapabilities. Owns the write side that persists the discovered union plus elicit answers into rcf/blueprints/application-admin-console.applied.json. Runs at apply time (packages/rcf-lite/src/blueprint/capabilities.js); the shell reads the sidecar the runtime writes.",
+  "responsibilities": [
+    "Enumerate manifest.blueprints[] and read each applied blueprints source blueprint.json to extract its capabilities[] (AC-21107-1).",
+    "Compose the union of applied capabilities as a sorted string array (deterministic sidecar output).",
+    "Run the elicitation phase gated on the discovered capabilities: an elicit whose when.requiresCapability list has no overlap with the union does not prompt (AC-21109-2).",
+    "Write the sidecar file with appliedCapabilities[], appliedElicitations{}, allowNoAuthYet? and notes? (AC-21107-1)."
+  ],
+  "internalStructure": "Two helpers: discoverAppliedCapabilities(applied, projectRoot) reads and unions; writeSidecar({slug, version, appliedAt, appliedCapabilities, appliedElicitations, allowNoAuthYet?, notes?}) writes the file. Both live in packages/rcf-lite/src/blueprint/capabilities.js.",
+  "interfaces": [
+    {
+      "name": "discoverAppliedCapabilities",
+      "kind": "function",
+      "description": "Returns { union: string[], perSlug: Record<slug, string[]> }."
+    },
+    {
+      "name": "runElicitationPhase",
+      "kind": "function",
+      "description": "Applies each elicits[] entry against the discovered capability set and coerces answers per kind."
+    },
+    {
+      "name": "writeSidecar",
+      "kind": "function",
+      "description": "Writes rcf/blueprints/${slug}.applied.json."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Blueprint loader",
+      "kind": "code",
+      "description": "Reads each applied blueprints source blueprint.json."
+    }
+  ],
+  "tradeoffs": "Source read-back rather than a schema-carried appliedCapabilities field on the applied record: the rcf-schemas 0.6.0 appliedBlueprintRecord is closed under additionalProperties:false, so a new field cannot land without a schema minor bump. The sidecar decouples the mechanism from the schema release cycle. A future rcf-schemas minor may add appliedCapabilities directly on the applied record and this TAC would move the write there; the sidecar would remain a supported read path for backward compatibility.",
+  "notes": "Reads the applied recordss source string. When the source is a library-qualified ref (wsd:auth-oauth2), the source blueprint is not on this local tree and the reader returns an empty capabilities list; the applied record is skipped from the union.",
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

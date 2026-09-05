@@ -1,0 +1,28 @@
+{
+  "usId": "application-admin-console-US-21104",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Orgs surface renders an org switcher and org-scoped invite only when tenancy is applied",
+  "asA": "admin operator on a multi-tenant project",
+  "iWant": "the shell to expose an org switcher and the users surface to expose an org-scoped invite when the applied blueprints declare the tenancy capability",
+  "soThat": "the console lets me operate on one org at a time without mixing directories across tenants",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21104-1",
+      "desc": "Given an applied blueprint declaring tenancy, the shell renders an org switcher control (data-role=\"org-switcher\") on the console header; the users invite path renders an org selector. When tenancy is not applied, neither control is rendered nor reachable. Probed by pack check AC-21104-1.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-2201-application-admin-console-shell",
+    "TAC-2202-application-admin-console-capability-discovery"
+  ],
+  "tags": [
+    "blueprint:application-admin-console"
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

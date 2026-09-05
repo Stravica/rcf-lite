@@ -1,0 +1,27 @@
+{
+  "usId": "application-admin-console-US-21107",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Console shell surfaces are self-configured from the applied capability sidecar at deploy time, not from client-side inference",
+  "asA": "admin operator opening the console the same way in every deploy environment",
+  "iWant": "the shell to read the applied capability set from a deterministic sidecar file, not to infer from a client-side probe",
+  "soThat": "a preview build renders the same nav a production build renders on the same commit",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21107-1",
+      "desc": "The console shell reads rcf/blueprints/application-admin-console.applied.json (written by apply at build time) as a build asset served under a stable path (e.g. /admin/caps.json); the shell never runs a runtime probe against manifest.blueprints[] over the network. The sidecar payload keys are appliedCapabilities[], appliedElicitations{} and allowNoAuthYet? per the mechanism spec.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-2202-application-admin-console-capability-discovery"
+  ],
+  "tags": [
+    "blueprint:application-admin-console"
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}
