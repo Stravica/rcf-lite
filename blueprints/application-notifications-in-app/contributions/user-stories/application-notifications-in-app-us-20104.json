@@ -1,0 +1,35 @@
+{
+  "usId": "application-notifications-in-app-US-20104",
+  "prdId": "PRD-001",
+  "reqId": "application-notifications-in-app-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The preferences UI carries one section per operator-elicited category with a labelled silence toggle and one section per sibling channel with a digest opt-in",
+  "asA": "operator of a shipped rcf-lite application",
+  "iWant": "a preferences surface where I can silence notification categories I no longer want and opt into a digest on a sibling channel that is applied",
+  "soThat": "I control my own notification fatigue without asking an admin to turn a category off system-wide",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20104-1",
+      "description": "Given the preferences route, the surface renders one section per operator-elicited category (each section carries a `[data-preference-section=\"category\"]` wrapper) with a labelled silence toggle whose control element carries `[data-preference-category=\"<category>\"]` and whose accessible name reads `\"Silence <category> notifications\"`. Activating a silence toggle records the preference at `POST /api/preferences/category` (visible on `window.__notificationFetches`); the server responds and the toggle's `data-silenced` reads `true`.",
+      "given": "the preferences route",
+      "when": "a silence toggle is activated",
+      "then": "the preference is recorded and reflected on the DOM",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-20104-2",
+      "description": "Given a preferences surface on a project that has NOT applied any `application-notifications-*` sibling channel blueprint, the digest opt-in section for each sibling channel renders with `[data-preference-status=\"sibling not applied\"]` and the digest opt-in control is disabled (`aria-disabled=\"true\"`); a preferences surface that offers a digest without a corresponding sibling applied is a defect. The pack does not itself drive this (no sibling channels exist on the shelf today); the AC is a mechanism-reach gap the README names for a v1.1 minor bump when the first sibling ships.",
+      "given": "a preferences surface on a project without a sibling channel applied",
+      "when": "the digest opt-in section is read",
+      "then": "the section is disabled and labelled as sibling not applied",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2103-application-notifications-in-app-preferences"],
+  "tags": ["blueprint:application-notifications-in-app"],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

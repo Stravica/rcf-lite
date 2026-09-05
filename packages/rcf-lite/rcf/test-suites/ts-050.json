@@ -1,0 +1,69 @@
+{
+  "createdAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-09-04T23:59:00.000Z",
+  "purpose": "Cover AC-2101-1..6 via unit tests over the shipped application-notifications-in-app blueprint's contribution counts (five REQs, eight USs, three TACs, three ADRs, 19 contributions total), the pack-loader accepting the shipped pack file with every check id cross-checked against the blueprint's contributed AC ids, every check carrying a description, and the AC-20101-1 description containing the word 'preseeded' per section 9 T-4 row, the pack schema accepting the pack's applicability predicate (references BOTH tacIds AND route), the sample-app fixture exporting startServer serving the three routes with the live-region preseeding, the notification centre backlog, the acknowledge round-trip and the preferences UI, and the negative-run behaviour on the ?break=preseed, ?break=role, ?break=timeout and ?break=ack switches, plus the family-prefix reservation documented in the blueprint README and every shelf topics.md registry row.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-2101-1",
+    "AC-2101-2",
+    "AC-2101-3",
+    "AC-2101-4",
+    "AC-2101-5",
+    "AC-2101-6"
+  ],
+  "id": "TS-050",
+  "usId": "US-2101",
+  "title": "application-notifications-in-app v1.0.0 shelf shape, probe pack cross-check, sample-app fixture and family-prefix reservation",
+  "testCases": [
+    {
+      "id": "TC-050-blueprint-json-shape",
+      "acId": "AC-2101-1",
+      "description": "blueprint.json declares slug application-notifications-in-app, version 1.0.0, category application, 19 contributions in 5 REQ / 8 US / 3 TAC / 3 ADR groups, providesRoles absent, suggestedCompanions declares logging and errorHandling",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app: blueprint.json declares the ratified shape (TC-050-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-050-applies-clean",
+      "acId": "AC-2101-2",
+      "description": "Fresh init project applies the blueprint cleanly; walkTree produces zero errors; 5 REQs and 8 USs land under the application-notifications-in-app prefix",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app: applies cleanly on a fresh init project and adds 19 documents to the tree (TC-050-applies-clean)"
+    },
+    {
+      "id": "TC-050-pack-checks-cross-check",
+      "acId": "AC-2101-3",
+      "description": "Every pack check id resolves to an AC id contributed by the blueprint; expected three check ids (AC-20101-1, AC-20102-1, AC-20103-1); every check carries a description; AC-20101-1 description contains the word 'preseeded' per spec section 9 T-4 row; applicability predicate references BOTH tacIds and route",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app: every pack check id matches a contributed AC id, description discipline holds, appliesTo binds tacIds AND route (TC-050-pack-checks-cross-check)"
+    },
+    {
+      "id": "TC-050-fixture-preseeding",
+      "acId": "AC-2101-4",
+      "description": "Sample-app fixture startServer serves the main, centre and preferences routes; every route preseeds both live-region wrappers empty at load; the centre lists the seeded backlog with data-notification-id enumeration and acknowledge / mark-read / mark-all-read controls; the preferences route renders category silence toggles and sibling-channel sections disabled",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app sample-app fixture: preseeds live regions on every route (TC-050-fixture-preseeding)"
+    },
+    {
+      "id": "TC-050-fixture-acknowledge",
+      "acId": "AC-2101-4",
+      "description": "POST /api/notifications/acknowledge updates the seeded delivery-log row's acknowledgedAt and returns {ok:true}; GET /api/delivery-log returns the seeded rows; /__requests mirrors the server-side record log",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app sample-app fixture: acknowledge round-trips through /api/notifications/acknowledge and delivery-log endpoint returns the seeded rows (TC-050-fixture-acknowledge)"
+    },
+    {
+      "id": "TC-050-negative-runs",
+      "acId": "AC-2101-5",
+      "description": "?break=preseed drops the wrappers from the initial DOM; ?break=role inverts the priority-to-role mapping in the client script (an error toast lands in the polite wrapper as role=status); ?break=timeout advertises a two-second floor on data-toast-timeout-floor-seconds; ?break=ack renders the acknowledge control with no click POST",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app sample-app fixture: break switches surface the four defects on the DOM (TC-050-negative-runs)"
+    },
+    {
+      "id": "TC-050-family-prefix-reservation",
+      "acId": "AC-2101-6",
+      "description": "The family-prefix reservation is present in the blueprint README (a paragraph naming application-notifications- reserved for the sibling channels -email, -push, -webhook) and in the shelf band registry table in every applying blueprint's docs/topics.md",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app: family-prefix reservation documented in blueprint README and own topics.md (TC-050-family-prefix-reservation)"
+    }
+  ],
+  "status": "draft"
+}

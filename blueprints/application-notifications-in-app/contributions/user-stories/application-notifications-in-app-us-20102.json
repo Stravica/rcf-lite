@@ -1,0 +1,35 @@
+{
+  "usId": "application-notifications-in-app-US-20102",
+  "prdId": "PRD-001",
+  "reqId": "application-notifications-in-app-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A transient toast maps its priority to the polite or assertive slot, announces once, and dismisses on activation or timeout",
+  "asA": "screen-reader user reading a shipped rcf-lite application",
+  "iWant": "an informational toast to reach me on the polite queue and an error toast to reach me on the assertive queue, each announced exactly once and dismissable on my activation or after a WCAG-compliant timeout",
+  "soThat": "I can tell an interruption from a confirmation and I have time to read the message before it disappears",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20102-1",
+      "description": "Given a toast triggered by a background event with priority `info`, the toast renders inside `[data-live-region=\"polite\"]` and carries `role=\"status\"`; given priority `error`, the toast renders inside `[data-live-region=\"assertive\"]` and carries `role=\"alert\"`; every toast body text appears in exactly one wrapper (the one whose role reflects the priority) and never in both; every toast records `data-shown-at` and `data-dismissed-at` timestamps on its DOM element; the elapsed time between `data-shown-at` and `data-dismissed-at` on a toast that timed out (not clicked away) is at or above the ADR-2102 floor of six seconds. The pack enumerates toasts by `[data-toast-id]` inside the two wrappers (per-element attribute), not by `role` alone.",
+      "given": "a toast triggered by a background event",
+      "when": "the accessibility tree and the toast timestamps are read",
+      "then": "the priority-to-role mapping holds, the announcement is one-shot, and the timeout is at or above the six second floor",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-20102-2",
+      "description": "Given the toast factory (TAC-2101 `renderToast({ priority, body })`), the factory picks the polite wrapper for `info` priority and the assertive wrapper for `error` priority; a factory that writes into both wrappers on one call, or picks the wrong wrapper for a priority, fails at project-side review.",
+      "given": "the toast factory",
+      "when": "the factory is invoked at a given priority",
+      "then": "the correct wrapper receives the toast",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": ["TAC-2101-application-notifications-in-app-live-region"],
+  "tags": ["blueprint:application-notifications-in-app"],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

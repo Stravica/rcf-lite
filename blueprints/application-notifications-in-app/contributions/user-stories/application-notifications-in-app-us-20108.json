@@ -1,0 +1,26 @@
+{
+  "usId": "application-notifications-in-app-US-20108",
+  "prdId": "PRD-001",
+  "reqId": "application-notifications-in-app-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every notification announcement lands in exactly one live region and the two wrappers never carry the same body simultaneously",
+  "asA": "screen-reader user of a shipped rcf-lite application",
+  "iWant": "each announcement to reach me on exactly one queue (polite for informational, assertive for error), never on both",
+  "soThat": "the assistive-technology announcement contract stays clean and I do not hear the same message twice from two queues",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20108-1",
+      "description": "Given any surfaced notification (toast or centre), the notification's body text appears inside exactly one of `[data-live-region=\"polite\"]` or `[data-live-region=\"assertive\"]` at any moment; a notification whose body appears in both wrappers, or a notification whose body appears in the wrong wrapper for its priority (informational text in the assertive wrapper, or error text in the polite wrapper), is a defect. The pack asserts this by scanning both wrappers after each emission and confirming disjoint content.",
+      "given": "a surfaced notification",
+      "when": "both live-region wrappers are read simultaneously",
+      "then": "the body text appears in exactly one wrapper",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2101-application-notifications-in-app-live-region"],
+  "tags": ["blueprint:application-notifications-in-app"],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

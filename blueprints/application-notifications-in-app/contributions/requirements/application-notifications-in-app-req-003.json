@@ -1,0 +1,15 @@
+{
+  "reqId": "application-notifications-in-app-REQ-003",
+  "prdId": "PRD-001",
+  "title": "The notification centre inbox lists the last N days of notifications and each acknowledge control round-trips to the server",
+  "description": "The applying project renders a notification-centre route (default `/notifications-centre`, operator-elicited) whose inbox surface lists the notifications delivered in the last N days per the ADR-2103 retention window (default thirty days, elicited). Each notification carries a stable `data-notification-id` attribute the pack enumerates by (never by a role attribute alone, per the T-3 gate discipline), and each carries a keyboard-reachable acknowledge control (`[data-action=\"acknowledge\"]`) plus a mark-read control (`[data-action=\"mark-read\"]`); the surface offers one mark-all-read control (`[data-action=\"mark-all-read\"]`) reachable in reading order. Activating the acknowledge control POSTs an acknowledge request to the applying project's server, the server responds, and the DOM updates in response: the notification's `data-acknowledged` reads `true` after the round-trip. Every item is Tab-reachable from the start of the surface without a mouse.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "A transient toast is not a system of record; the notification centre is. Making the centre the operator's inbox with a retention window and per-item acknowledge round-trip is what turns a fleeting on-screen message into a durable one the operator can return to and confirm. Enumerating items by `data-notification-id` rather than by `role=\"listitem\"` on the container follows the T-3 gate discipline: a role attribute the primary element carries alone does not enumerate multiple children; a per-element data attribute does.",
+  "tags": ["blueprint:application-notifications-in-app", "category:03-centre-inbox"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

@@ -43,11 +43,12 @@ Generation strategy: dependencyFirst
 | 37 | 0 | FBS-037 | application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture | notStarted | actionable |  |
 | 38 | 0 | FBS-038 | application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches | notStarted | actionable |  |
 | 39 | 0 | FBS-039 | application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension | notStarted | actionable |  |
+| 40 | 0 | FBS-040 | application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry | notStarted | actionable |  |
 
-Totals: items 39 | notStarted 11 | inProgress 0 | complete 13 | verified 15 | actionable 9 | blocked 2
+Totals: items 40 | notStarted 12 | inProgress 0 | complete 13 | verified 15 | actionable 10 | blocked 2
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027

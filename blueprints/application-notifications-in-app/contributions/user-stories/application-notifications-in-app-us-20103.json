@@ -1,0 +1,35 @@
+{
+  "usId": "application-notifications-in-app-US-20103",
+  "prdId": "PRD-001",
+  "reqId": "application-notifications-in-app-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The notification centre inbox surfaces the last N days of notifications and every acknowledge control round-trips to the server",
+  "asA": "keyboard-only operator using a shipped rcf-lite application",
+  "iWant": "to reach every notification in the centre with Tab, mark items read, mark all read, and acknowledge each item with an activation that round-trips to the server and updates the item on the response",
+  "soThat": "I have a durable record of what the shell has said and my acknowledgement is recorded server-side rather than lost on a page reload",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20103-1",
+      "description": "Given the notification centre route with a seeded backlog of notifications, the surface lists every notification delivered within the ADR-2103 retention window (thirty days by default). Each notification carries `data-notification-id` on its wrapper element (pack enumerates by that per-element attribute, never by `role=\"listitem\"` on the container alone); each carries a Tab-reachable acknowledge control `[data-action=\"acknowledge\"]` and a Tab-reachable mark-read control `[data-action=\"mark-read\"]`; the surface carries exactly one mark-all-read control `[data-action=\"mark-all-read\"]`. Activating a per-item acknowledge control POSTs `POST /api/notifications/acknowledge` (recorded on `window.__notificationFetches` and at `GET /__requests`), the server responds `200 { ok: true }`, and the item's `data-acknowledged` reads `true` after the response.",
+      "given": "the notification centre with a seeded backlog",
+      "when": "an acknowledge control is activated by keyboard",
+      "then": "the acknowledge round-trips to the server and the DOM updates in response",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-20103-2",
+      "description": "Given the centre factory (TAC-2102 `renderCentre`), the factory reads the delivery-attempt log from REQ-005's endpoint and emits one wrapper per row within the retention window; a factory that emits rows older than the retention window, or that skips rows within the window, fails at project-side review.",
+      "given": "the centre factory",
+      "when": "the delivery log is read",
+      "then": "one wrapper is emitted per row within the retention window",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": ["TAC-2102-application-notifications-in-app-centre"],
+  "tags": ["blueprint:application-notifications-in-app"],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

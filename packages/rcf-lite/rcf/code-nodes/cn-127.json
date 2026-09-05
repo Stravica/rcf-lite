@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-127",
+  "path": "../../blueprints/application-notifications-in-app/README.md",
+  "implementsAcIds": [
+    "AC-2101-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-09-04T23:59:00.000Z"
+}

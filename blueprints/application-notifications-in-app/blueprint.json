@@ -1,0 +1,30 @@
+{
+  "slug": "application-notifications-in-app",
+  "version": "1.0.0",
+  "category": "application",
+  "suggestedCompanions": [
+    { "role": "logging", "reason": "Every acknowledge round-trip and every delivery-attempt row is written through the applied logger; a logging companion supplies the factory the notification centre, the toast surface and the delivery-attempt log write records against." },
+    { "role": "errorHandling", "reason": "The assertive-slot alert routes an internal error record whose error envelope conforms to the applied error contract; an errorHandling companion supplies the record factory and the surface boundary the alert toast renders through." }
+  ],
+  "contributions": [
+    { "id": "application-notifications-in-app-REQ-001", "kind": "req", "path": "requirements/application-notifications-in-app-req-001.json" },
+    { "id": "application-notifications-in-app-REQ-002", "kind": "req", "path": "requirements/application-notifications-in-app-req-002.json" },
+    { "id": "application-notifications-in-app-REQ-003", "kind": "req", "path": "requirements/application-notifications-in-app-req-003.json" },
+    { "id": "application-notifications-in-app-REQ-004", "kind": "req", "path": "requirements/application-notifications-in-app-req-004.json" },
+    { "id": "application-notifications-in-app-REQ-005", "kind": "req", "path": "requirements/application-notifications-in-app-req-005.json" },
+    { "id": "application-notifications-in-app-US-20101", "kind": "us", "path": "user-stories/application-notifications-in-app-us-20101.json" },
+    { "id": "application-notifications-in-app-US-20102", "kind": "us", "path": "user-stories/application-notifications-in-app-us-20102.json" },
+    { "id": "application-notifications-in-app-US-20103", "kind": "us", "path": "user-stories/application-notifications-in-app-us-20103.json" },
+    { "id": "application-notifications-in-app-US-20104", "kind": "us", "path": "user-stories/application-notifications-in-app-us-20104.json" },
+    { "id": "application-notifications-in-app-US-20105", "kind": "us", "path": "user-stories/application-notifications-in-app-us-20105.json" },
+    { "id": "application-notifications-in-app-US-20106", "kind": "us", "path": "user-stories/application-notifications-in-app-us-20106.json" },
+    { "id": "application-notifications-in-app-US-20107", "kind": "us", "path": "user-stories/application-notifications-in-app-us-20107.json" },
+    { "id": "application-notifications-in-app-US-20108", "kind": "us", "path": "user-stories/application-notifications-in-app-us-20108.json" },
+    { "id": "TAC-2101-application-notifications-in-app-live-region", "kind": "tac", "path": "tacs/tac-2101-application-notifications-in-app-live-region.json" },
+    { "id": "TAC-2102-application-notifications-in-app-centre", "kind": "tac", "path": "tacs/tac-2102-application-notifications-in-app-centre.json" },
+    { "id": "TAC-2103-application-notifications-in-app-preferences", "kind": "tac", "path": "tacs/tac-2103-application-notifications-in-app-preferences.json" },
+    { "id": "ADR-2101-application-notifications-in-app-live-region-role-mapping", "kind": "adr", "path": "adrs/adr-2101-application-notifications-in-app-live-region-role-mapping.json", "recommendedDefault": true, "elicited": false, "standardsTraceClause": "WCAG 4.1.3 (Status Messages); ARIA APG alert pattern" },
+    { "id": "ADR-2102-application-notifications-in-app-toast-timeout-floor", "kind": "adr", "path": "adrs/adr-2102-application-notifications-in-app-toast-timeout-floor.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "WCAG 2.2.1 (Timing Adjustable)" },
+    { "id": "ADR-2103-application-notifications-in-app-retention-window", "kind": "adr", "path": "adrs/adr-2103-application-notifications-in-app-retention-window.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "generic enterprise practice" }
+  ]
+}

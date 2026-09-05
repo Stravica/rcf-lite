@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-2101-application-notifications-in-app-live-region",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Live-region wrappers, transient toast rendering and the priority-to-role mapping",
+  "purpose": "Owns the shell's live-region contract: the polite and assertive wrappers preseeded on every declared route, the transient-toast factory that writes into one wrapper per ADR-2101's priority-to-role mapping, and the timeout floor per ADR-2102. The wrappers are the substitutable interface every notification announcement flows through; the pack asserts on their presence, their emptiness at load, and the disjoint-content rule (AC-20101-1, AC-20102-1, AC-20108-1).",
+  "responsibilities": [
+    "Emit both live-region wrappers into the DOM at first render and keep them mounted for the app lifetime: a `[aria-live=\"polite\"] [data-live-region=\"polite\"]` wrapper for informational messages and a `[role=\"alert\"] [data-live-region=\"assertive\"]` wrapper for assertive alerts; both empty at load (AC-20101-1).",
+    "Render a toast on `renderToast({ priority, body })` into exactly one wrapper: `info` priority into the polite wrapper with `role=\"status\"`, `error` priority into the assertive wrapper with `role=\"alert\"` (AC-20102-1, AC-20102-2).",
+    "Record `data-shown-at` and `data-dismissed-at` timestamps on the toast's DOM element so the pack measures the actual timeout against the ADR-2102 six-second floor without sleeping (AC-20102-1).",
+    "Dismiss every toast in two ways: an operator activation on the toast's `[data-action=\"dismiss\"]` control, and a scheduled timeout that fires at or above the ADR-2102 floor (AC-20102-1).",
+    "Enforce the disjoint-content rule: no toast body appears in both wrappers simultaneously; a background event and an operator-driven event both flow through the same factory (AC-20107-1, AC-20108-1)."
+  ],
+  "internalStructure": "One live-region factory (`renderLiveRegions`) mounted at first render owning the two wrapper elements. One toast factory (`renderToast`) that resolves the priority-to-role mapping per ADR-2101, mounts the toast DOM inside the correct wrapper, records the two timestamp attributes, and schedules the dismissal timer per ADR-2102. Dismissal on activation and dismissal on timeout share one dismiss code path so the timestamp update is single-sourced.",
+  "interfaces": [
+    {
+      "name": "renderLiveRegions",
+      "kind": "factory",
+      "description": "renderLiveRegions({ rootElement }) -> void. Mounts the two live-region wrappers into `rootElement` at first render if they are not already present. Idempotent across route changes: identity of the two wrappers is stable across the app lifetime (AC-20101-2)."
+    },
+    {
+      "name": "renderToast",
+      "kind": "factory",
+      "description": "renderToast({ priority: 'info' | 'error', body: string, category: string, notificationId: string }) -> void. Mounts the toast DOM inside the wrapper the ADR-2101 mapping resolves to, records `data-shown-at`, schedules the ADR-2102-floored dismissal, and records `data-dismissed-at` on dismissal. Every toast surface event writes a delivery-log row through TAC-2102's `writeDeliveryRow`."
+    },
+    {
+      "name": "priorityToRoleContract",
+      "kind": "shape",
+      "description": "The ADR-2101 mapping: `info` maps to `{ wrapper: 'polite', role: 'status' }`; `error` maps to `{ wrapper: 'assertive', role: 'alert' }`. A priority outside the ADR-2101 enum is refused at project-side review."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Delivery-log write factory",
+      "kind": "tac",
+      "tacId": "TAC-2102-application-notifications-in-app-centre",
+      "description": "Every toast the live-region factory emits records a delivery-log row through TAC-2102's `writeDeliveryRow`; ownership of the row shape lives here through the delegating call, ownership of the persistence layer lives on TAC-2102 and the applied `logging` companion."
+    }
+  ],
+  "tradeoffs": "The two-wrapper contract is opinionated: some designs use one wrapper per notification kind (informational, error, warning, success) with four ARIA politeness levels. This TAC insists on two wrappers because the WCAG 4.1.3 status-message clause and the ARIA APG alert pattern jointly draw the line at polite vs assertive; adding wrapper granularity that assistive technologies do not distinguish trades runtime discipline for false precision. The six-second timeout floor is deliberately not a ceiling: an elicited override raises the floor but never lowers it, so a design that shows a toast for two seconds fails at author-side review.",
+  "notes": "Known mechanism-reach gap: the pack asserts the disjoint-content rule (AC-20108-1) at the moment it inspects the wrappers, not continuously across the toast lifetime. A pathological implementation that briefly writes into both wrappers between two microtasks would not be caught by the pack; project-side review carries the residual. A v1.1 minor bump could add a MutationObserver-based check.",
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

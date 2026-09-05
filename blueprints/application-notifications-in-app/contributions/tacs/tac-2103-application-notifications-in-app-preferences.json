@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2103-application-notifications-in-app-preferences",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Per-user preferences UI, category silence and sibling-channel delegation",
+  "purpose": "Owns the preferences surface where the operator silences notification categories and opts into (or out of) digest delivery on each sibling channel. This blueprint ships no transport: the digest opt-in records the operator's intent on the surface for a sibling blueprint to read. The preferences UI is the operator's single knob on notification fatigue.",
+  "responsibilities": [
+    "Render the preferences route (default `/notifications-preferences`, elicited). Render one section per operator-elicited category with a labelled silence toggle whose control element carries `[data-preference-category=\"<category>\"]` (AC-20104-1).",
+    "On a silence-toggle activation, POST `POST /api/preferences/category` with the category and the new state, wait for the server response, and update `data-silenced` on the toggle to reflect the state (AC-20104-1).",
+    "Render one section per sibling channel (`-email`, `-push`, `-webhook`) with a `[data-preference-section=\"<channel>\"]` wrapper and a digest opt-in control. When no corresponding sibling blueprint is applied to the project, disable the control (`aria-disabled=\"true\"`) and label the section with `[data-preference-status=\"sibling not applied\"]` (AC-20104-2).",
+    "Elicit the notification categories at apply time; the elicited list is the source of truth for the per-category sections. A category rendered without an elicited entry is a defect."
+  ],
+  "internalStructure": "One preferences-route module reading the elicited categories from the applied manifest and rendering one section per category. One sibling-channel section module reading `manifest.blueprints[]` to detect applied siblings and disabling the digest control when the sibling is missing.",
+  "interfaces": [
+    {
+      "name": "renderPreferences",
+      "kind": "factory",
+      "description": "renderPreferences({ rootElement, categories, appliedSiblings }) -> void. Mounts the category-silence sections and the sibling-channel sections. `appliedSiblings` is the list of applied `application-notifications-*` blueprint slugs the applying project passes in from its manifest reader; today the list is empty and every sibling section renders disabled."
+    },
+    {
+      "name": "readPreference",
+      "kind": "function",
+      "description": "readPreference({ category }) -> Promise<{ silenced: boolean }>. Reads the current preference state for a category so the surface can render the initial toggle state. Called at first render; the returned state drives the initial `data-silenced` attribute value."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Live-region factory (surface for preference-update failures)",
+      "kind": "tac",
+      "tacId": "TAC-2101-application-notifications-in-app-live-region",
+      "description": "A preference update that fails at the server surfaces an error toast through TAC-2101."
+    }
+  ],
+  "tradeoffs": "Delegating digest opt-in to sibling blueprints keeps this blueprint's contract at the in-app surface (Baz decision 2026-09-04: 'be clear in the name what these ones are'). The trade-off is that on a project without any sibling channel applied the preferences surface renders disabled sibling sections; a first-time reader might expect the preferences UI to be silent about siblings that do not exist. This TAC ships the disabled section on the argument that the reserved family prefix (`application-notifications-`) is discoverable to the operator and the labelled disabled state names the residual honestly.",
+  "notes": "Known mechanism-reach gap: elicitation of the notification categories is a declarative field on the ADR-2101 elicited-parameters block; the runner has no apply-time elicitation phase today (w-2026-09-04-dave-022, built in T-5), so the applying project gathers the categories by hand at the apply pass. The README names this individually.",
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

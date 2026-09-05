@@ -1,0 +1,26 @@
+{
+  "usId": "application-notifications-in-app-US-20107",
+  "prdId": "PRD-001",
+  "reqId": "application-notifications-in-app-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A background event drives the same toast contract as an operator-driven event, with indistinguishable output on the accessibility tree",
+  "asA": "screen-reader user of a shipped rcf-lite application receiving notifications from server-side events",
+  "iWant": "a toast that arrives from a background push to render with the same role mapping, one-shot announcement, and timeout floor as an operator-driven toast",
+  "soThat": "my experience is consistent regardless of where the notification originated",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20107-1",
+      "description": "Given the sample-app fixture's `POST /__emit` endpoint or an in-page background dispatch, a toast surfaced with priority `info` renders in `[data-live-region=\"polite\"]` with `role=\"status\"` and a toast surfaced with priority `error` renders in `[data-live-region=\"assertive\"]` with `role=\"alert\"` (identical output to a toast surfaced through an operator-driven control). Both toasts record `data-shown-at` and `data-dismissed-at`; both dismiss at or above the six-second timeout floor unless clicked away.",
+      "given": "a background event surfacing a toast",
+      "when": "the toast DOM is read",
+      "then": "the priority-to-role mapping and the one-shot announcement match an operator-driven toast",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2101-application-notifications-in-app-live-region"],
+  "tags": ["blueprint:application-notifications-in-app"],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

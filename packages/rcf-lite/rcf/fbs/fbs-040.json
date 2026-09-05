@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-09-04T23:59:00.000Z",
+  "acIds": [
+    "AC-2101-1",
+    "AC-2101-2",
+    "AC-2101-3",
+    "AC-2101-4",
+    "AC-2101-5",
+    "AC-2101-6"
+  ],
+  "fbsId": "FBS-040",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 40,
+  "executionStatus": "notStarted",
+  "title": "application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry",
+  "summary": "T-4 of the ratified visual round (spec 2026-09-04, section 5.4): the application-notifications-in-app v1.0.0 blueprint on the shelf. Ships 19 contributions (5 REQs on live-region preseeding, transient toast contract, notification centre inbox with acknowledge round-trip, per-user preferences UI with sibling delegation, and delivery-attempt log; 8 USs binding runtime-observable ACs plus three cross-cutting cases; 3 TACs on the live-region wrappers and toast factory, centre inbox and acknowledge round-trip, and preferences UI; 3 ADRs on the priority-to-role mapping polite/status vs assertive/alert per WCAG 4.1.3 and ARIA APG alert, the six-second toast timeout floor per WCAG 2.2.1 Timing Adjustable, and the thirty-day centre retention window), a Playwright probe pack whose three checks (AC-20101-1 live-region preseeded on every declared route, AC-20102-1 transient toast contract with priority-to-role mapping and timeout floor measured via data-shown-at/data-dismissed-at, AC-20103-1 centre acknowledge round-trip enumerated by data-notification-id with client + server request-log reconciliation) are anchored to blueprint AC ids per T-0 AC-1701-3 and each carries a description field per spec section 9 (with AC-20101-1 description carrying the word 'preseeded' per the T-4 row), and a dependency-free sample-app fixture the pack probes for real, with four break switches for the negative runs (preseed, role, timeout, ack). Reserves the family prefix application-notifications- for the sibling channels the shelf will grow into (email, push, webhook) as a doc-only reservation on the blueprint README and every applying blueprint's docs/topics.md registry row. Applies cleanly (validate 0, coverage strict 0, eval strict 0 on a scratch project).",
+  "dependsOnFbsIds": []
+}

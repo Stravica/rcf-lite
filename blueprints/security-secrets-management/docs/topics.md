@@ -38,6 +38,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
+| application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 
 US 8101-8110 sit at the LOW end of the 8101-8899 band on purpose. A project-side story that mechanically derives from a security-secrets-management REQ id into the number `8110` would collide against security-secrets-management-US-8110 in this package; the band leaves headroom at the HIGH end (US 8181-8899) so a project's own stories anchored to security-secrets-management REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

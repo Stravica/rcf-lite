@@ -1,0 +1,52 @@
+{
+  "tacId": "TAC-2102-application-notifications-in-app-centre",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Notification centre inbox, retention window, acknowledge round-trip and delivery-attempt log",
+  "purpose": "Owns the shell's persistent notification-centre inbox: the centre route the applying project mounts (default `/notifications-centre`, elicited), the retention window contract per ADR-2103 (default thirty days, elicited), the per-item acknowledge round-trip that POSTs to the applying project's server and updates the DOM on the response, and the delivery-attempt log write path per REQ-005. The centre is the durable inbox the operator returns to; the toast is the transient surface.",
+  "responsibilities": [
+    "Render one notification wrapper per delivery-log row within the ADR-2103 retention window. Every wrapper carries `data-notification-id` (per-element attribute the pack enumerates by, never `role=\"listitem\"` on the container alone per the T-3 gate discipline) (AC-20103-1, AC-20103-2).",
+    "Render one keyboard-reachable `[data-action=\"acknowledge\"]` control and one `[data-action=\"mark-read\"]` control per item; render exactly one `[data-action=\"mark-all-read\"]` control on the surface, reachable in Tab order after the item list (AC-20103-1).",
+    "On acknowledge activation, POST `POST /api/notifications/acknowledge` with the notification id, wait for the server response, and update `data-acknowledged` on the item to `true` on a 2xx response; a failed response surfaces an error toast via the TAC-2101 factory and the item's `data-acknowledged` remains unchanged (AC-20103-1).",
+    "On a page load with a backlog, render every backlog item on the surface without writing any body text into the polite or assertive live-region wrapper (AC-20106-1).",
+    "Expose the delivery-log write factory `writeDeliveryRow` the TAC-2101 toast factory and this TAC's centre factory both call; every write goes through the applied `logging` companion's record factory (AC-20105-2).",
+    "Expose the delivery-log read endpoint `GET /api/delivery-log` returning `{ rows: [...] }` where every row carries `notificationId`, `category`, `priority`, `deliveredAt`, optionally `dismissedAt`, optionally `acknowledgedAt`; rows are append-only (AC-20105-1)."
+  ],
+  "internalStructure": "One centre-route module reading the delivery-log endpoint filtered to the retention window and rendering one wrapper per row through a shared item factory. One acknowledge-round-trip helper that owns the POST plus the DOM-update code path. One delivery-log write helper (`writeDeliveryRow`) that adapts the shell-side row shape to the applied `logging` companion's record factory.",
+  "interfaces": [
+    {
+      "name": "renderCentre",
+      "kind": "factory",
+      "description": "renderCentre({ rootElement, retentionDays, deliveryLogUrl }) -> Promise<void>. Reads the delivery log filtered to the retention window and mounts one wrapper per row into `rootElement`. Idempotent on the same log state."
+    },
+    {
+      "name": "writeDeliveryRow",
+      "kind": "factory",
+      "description": "writeDeliveryRow({ notificationId, category, priority, deliveredAt, dismissedAt?, acknowledgedAt? }) -> Promise<void>. Writes one row through the applied `logging` companion's record factory. Called from TAC-2101's toast factory on a toast surface event and from this TAC's centre-item activation on an acknowledge event."
+    },
+    {
+      "name": "acknowledgeRoundTrip",
+      "kind": "function",
+      "description": "acknowledgeRoundTrip({ notificationId }) -> Promise<{ ok: boolean }>. POSTs `POST /api/notifications/acknowledge` and returns the parsed server response. A 2xx flips `data-acknowledged` on the item; a non-2xx surfaces an error toast through TAC-2101."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Live-region factory (surface for acknowledge failures)",
+      "kind": "tac",
+      "tacId": "TAC-2101-application-notifications-in-app-live-region",
+      "description": "The centre surfaces acknowledge failures as error toasts through the live-region factory; the wrapper contract per REQ-001 and REQ-002 holds on the centre surface as much as on any other route."
+    },
+    {
+      "name": "Applied logging companion",
+      "kind": "external",
+      "description": "The delivery-attempt log's persistence layer is the applied `logging` companion's; this TAC delegates the write path. A project applying this blueprint without a `logging` companion (neither applied nor registered library nor core shelf) sees the delivery-log endpoint returning an empty rows array, which fails project-side review."
+    }
+  ],
+  "tradeoffs": "The centre reading through the delivery log (rather than a separate inbox store) keeps the shell single-sourced on the applied `logging` companion but couples the surface latency to the log query; a project with a very high notification volume may want to project a materialised inbox view alongside the log. This TAC accepts the coupling because it collapses two writers of the same row into one; a project that needs the materialised view supersedes with a project-authored REQ.",
+  "notes": "Known mechanism-reach gap: the pack asserts one acknowledge round-trip on one item (AC-20103-1); the mark-read control, the mark-all-read control and the retention-window boundary (a row on day 31 must not surface) are runtime-observable ACs the shipped pack does not itself drive. The README names them individually per the T-1 gate discipline; a v1.1 minor bump could add checks for each.",
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2103-application-notifications-in-app-retention-window",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Ship a thirty-day notification-centre retention window by default, elicited overrides",
+  "context": "The notification centre inbox needs a retention boundary: a shelf that keeps every notification forever grows unbounded and a shelf that keeps only the last few days loses the operator's audit trail on a slow-cadence surface. Different applying projects have different memories: a payments platform retains six months; a status-page dashboard retains one week; a consumer product retains thirty days. The problem is picking a shipped default that is honest for the typical case and letting the operator elicit their own.",
+  "decision": "The shipped retention window is thirty days: `manifest.blueprints[application-notifications-in-app].appliedParameters.retentionDays` defaults to thirty. The centre reads the delivery log filtered to `deliveredAt >= now - retentionDays`; rows older than the window remain in the log (write-side truncation is the applied `logging` companion's concern) but do not surface in the centre. Operators elicit a longer or shorter window at apply; the elicited value lands on the manifest and the centre uses it. A window below one day is refused at apply (an inbox that clears every day is not an inbox).",
+  "consequences": "Applying projects get a mid-cycle default that matches the most common operational tempo; long-retention projects and short-retention projects elicit their own. The write-side truncation staying on the `logging` companion keeps this blueprint's concern at the surface, not the store; the applying project picks a log store per its `logging` companion pin and the notifications blueprint stays store-agnostic.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship one week by default",
+      "summary": "Default retention is seven days.",
+      "reasonNotChosen": "Seven days is honest for a high-cadence surface but clears too fast for a project with a weekly reporting cycle; the operator opens the centre on Monday and finds nothing from the prior week."
+    },
+    {
+      "name": "Ship six months by default",
+      "summary": "Default retention is one hundred and eighty days.",
+      "reasonNotChosen": "Six months at typical notification volume produces an inbox the operator cannot skim; the retention becomes a browse problem, not a review problem. A project that really needs six months elicits it."
+    }
+  ],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

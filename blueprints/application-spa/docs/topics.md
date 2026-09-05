@@ -46,6 +46,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
+| application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 
 SPA v1.1.0 stays on the LOW end of its band: v1.0.0 occupied US-1101 through US-1128; v1.1.0 adds US-1129 and US-1130, leaving headroom above 1130 for future minor bumps and for project-side stories that mechanically derive to the 11xx numeric range.
 
