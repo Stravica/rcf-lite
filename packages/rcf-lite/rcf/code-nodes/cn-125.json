@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-125",
+  "path": "../../blueprints/application-notifications-in-app/probe-packs/application-notifications-in-app.pack.mjs",
+  "implementsAcIds": [
+    "AC-2101-3",
+    "AC-2101-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-09-04T23:59:00.000Z"
+}

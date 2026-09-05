@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-124",
+  "path": "../../blueprints/application-notifications-in-app/blueprint.json",
+  "implementsAcIds": [
+    "AC-2101-1",
+    "AC-2101-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-09-04T23:59:00.000Z"
+}

@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-09-04T23:59:00.000Z",
+  "usId": "US-2101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-021",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The application-notifications-in-app blueprint ships on the shelf and its probe pack refuses ship on a broken notifications surface",
+  "asA": "shelf consumer applying the application-notifications-in-app v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files, the Playwright probe pack anchoring live-region preseeding, the transient toast contract with priority-to-role mapping and timeout floor, and the notification-centre acknowledge round-trip, plus a sample-app fixture proving the pack passes on a compliant surface and refuses on the four break switches",
+  "soThat": "a project consuming rcf-lite gets the in-app notifications-shape ACs, the pack that runs the three runtime-observable ACs, and a golden fixture the pack refuses on a surface that lazy-inserts the wrappers, inverts the priority-to-role mapping, dismisses toasts below the WCAG 2.2.1 floor, or drops the acknowledge POST",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2101-1",
+      "description": "The shelf carries blueprints/application-notifications-in-app/blueprint.json declaring slug application-notifications-in-app, version 1.0.0, category application, and 19 contributions (5 REQs, 8 USs, 3 TACs, 3 ADRs); the suggestedCompanions array declares logging and errorHandling with reasons from the ratified spec section 5.4; providesRoles is absent (leaf blueprint per spec; the loader refuses an empty providesRoles array when set, so the leaf-blueprint intent is expressed by omitting the field).",
+      "testable": true
+    },
+    {
+      "id": "AC-2101-2",
+      "description": "rcf define blueprint add ./blueprints/application-notifications-in-app applies the 19 contributions cleanly on a fresh init project; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.",
+      "testable": true
+    },
+    {
+      "id": "AC-2101-3",
+      "description": "The shipped probe pack blueprints/application-notifications-in-app/probe-packs/application-notifications-in-app.pack.mjs loads via T-0's pack-loader against a scratch project with the blueprint applied; each of its three check ids (AC-20101-1 live-region preseeding, AC-20102-1 transient toast contract, AC-20103-1 centre acknowledge round-trip) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the AC-20101-1 description contains the word 'preseeded' per section 9 T-4 row; the pack's appliesTo predicate references BOTH tacIds and route (the two legal source-scan seams).",
+      "testable": true
+    },
+    {
+      "id": "AC-2101-4",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-notifications-in-app/ ships a dependency-free Node HTTP server (server.js) with a start script; when started, its main route preseeds both live-region wrappers ([data-live-region=\"polite\"] with aria-live=polite AND [data-live-region=\"assertive\"] with role=alert), both empty at page load; the notification centre route lists a seeded backlog of notifications each carrying data-notification-id, a keyboard-reachable [data-action=\"acknowledge\"] control and a [data-action=\"mark-read\"] control, plus one [data-action=\"mark-all-read\"] control; the preferences route lists per-category silence toggles and sibling-channel digest sections disabled by default; POST /api/notifications/acknowledge round-trips and updates the seeded row's acknowledgedAt; GET /api/delivery-log returns {rows:[]} with the seeded backlog; window.__notificationFetches and /__requests mirror every client-side fetch record.",
+      "testable": true
+    },
+    {
+      "id": "AC-2101-5",
+      "description": "The probe pack refuses ship on each broken fixture: with ?break=preseed the wrappers are inserted lazily after the first event so AC-20101-1 fails at severity block; with ?break=role the priority-to-role mapping is inverted (error toast in polite/status, info toast in assertive/alert) so AC-20102-1 fails at severity block; with ?break=timeout the toast dismisses after two seconds and the shell root advertises a two-second floor so AC-20102-1 fails at severity block on both the shell-declared floor and the WCAG six-second floor; with ?break=ack the acknowledge click handler is a no-op so AC-20103-1 fails at severity block.",
+      "testable": true
+    },
+    {
+      "id": "AC-2101-6",
+      "description": "The blueprint's family-prefix reservation (application-notifications- reserved for the sibling channels -email, -push, -webhook per Baz decision 2026-09-04) is documented as a paragraph in the blueprint README AND as a row in the shelf band registry table in every applying blueprint's docs/topics.md (marked as a doc-only reservation with no shipped blueprint).",
+      "testable": true
+    }
+  ]
+}

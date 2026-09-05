@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-09-04T23:59:00.000Z",
+  "reqId": "REQ-021",
+  "prdId": "PRD-001",
+  "title": "Application-notifications-in-app v1.0.0 blueprint on the shelf with its Playwright probe pack and sample-app fixture",
+  "description": "The rcf-lite shelf ships the application-notifications-in-app v1.0.0 blueprint (blueprints/application-notifications-in-app/) with 19 contributions (5 REQs on live-region preseeding, the transient toast contract, the notification centre inbox with acknowledge round-trip, the per-user preferences UI with sibling-channel delegation, and the delivery-attempt log; 8 USs binding runtime-observable ACs plus three cross-cutting cases on the page load with backlog, the background event and the disjoint-content contract; 3 TACs on the live-region wrappers and the toast factory, the centre inbox with retention and acknowledge round-trip, and the preferences UI with sibling delegation; 3 ADRs on the priority-to-role mapping polite/status vs assertive/alert, the WCAG 2.2.1 six-second toast timeout floor, and the ADR-2103 thirty-day retention window). Reserves the family prefix application-notifications- for the sibling channels the shelf will grow into (email, push, webhook) as documented in the blueprint README and the shelf band registry. Ships a Playwright probe pack under blueprints/application-notifications-in-app/probe-packs/application-notifications-in-app.pack.mjs whose three checks (AC-20101-1 live-region preseeding on every declared route, AC-20102-1 transient toast contract with priority-to-role mapping and timeout floor measured via data-shown-at/data-dismissed-at timestamps, AC-20103-1 centre acknowledge round-trip through data-notification-id enumeration and reconciliation of client + server request logs) are anchored to blueprint AC ids per T-0 AC-1701-3. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-notifications-in-app/ with four break switches for the negative runs (preseed, role, timeout, ack). Fourth shipped consumer of T-0's probe-pack runner extension; consumes the logging companion for the delivery-log write path and the errorHandling companion for the assertive-slot alert boundary; adds no runner surface (reuses the T-3 pack-browser resize seam only for future minor bumps, none in v1.0.0).",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft"
+}
