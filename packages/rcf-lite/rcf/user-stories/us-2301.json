@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z",
+  "usId": "US-2301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-023",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The application-admin-console blueprint ships on the shelf; its probe pack fires only on applied capabilities and refuses on a broken admin surface",
+  "asA": "shelf consumer applying the application-admin-console v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files with a users, roles, orgs, audit-log surface set that self-configures from the applied capability declarations, the Playwright probe pack whose four checks each gate their fire on the applied capability, and a sample-app fixture proving the pack passes on a compliant surface, records applicable: false where the capability is absent, and refuses on the three break switches",
+  "soThat": "a project consuming rcf-lite gets a vendor-neutral admin console conditional on what identity blueprint is applied, no dead links to unapplied capabilities, the pack that proves the ARIA APG grid pattern on the permission matrix, the request-log ACs on the audit view, and a golden fixture the pack refuses on a surface that loses the grid roles, drops the request-access control, or writes an audit entry missing the correlation id",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2301-1",
+      "description": "The shelf carries blueprints/application-admin-console/blueprint.json declaring slug application-admin-console, version 1.0.0, category application, 23 contributions in the 6 REQ / 9 US / 4 TAC / 4 ADR groups per spec section 5.5; requiresAppliedCapabilities.capabilities is [principalDirectory] with allowSkipFlag: allow-no-auth-yet; elicits[] declares baselineRoles (when roleModel), tenancyShape (when tenancy), inviteTransport, and auditRetentionDays (when auditLog); suggestedCompanions declares logging and errorHandling with reasons from spec section 5.5; providesRoles is absent per spec 5.5.3.",
+      "testable": true
+    },
+    {
+      "id": "AC-2301-2",
+      "description": "rcf define blueprint add ./blueprints/application-admin-console --allow-no-auth-yet applies the 23 contributions cleanly on a fresh init project with only application-spa applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project; the sidecar rcf/blueprints/application-admin-console.applied.json declares allowNoAuthYet: true and an appliedCapabilities: [] union.",
+      "testable": true
+    },
+    {
+      "id": "AC-2301-3",
+      "description": "rcf define blueprint add ./blueprints/application-admin-console on a project with only application-spa applied exits 3 with a stderr message beginning 'application-admin-console requires at least one applied security-auth-*' and naming the currently-applied blueprints; nothing is written to disk (no contributions, no sidecar, no manifest entry).",
+      "testable": true
+    },
+    {
+      "id": "AC-2301-4",
+      "description": "rcf define blueprint add ./blueprints/application-admin-console on a project with security-auth-magic-link 1.1.0 applied applies cleanly; the sidecar's appliedCapabilities reads exactly [principalDirectory] with no roleModel; rcf define blueprint add on a project with security-auth-clerk 1.2.0 + observability-logging applied produces appliedCapabilities [principalDirectory, roleModel, auditLog] (order-agnostic).",
+      "testable": true
+    },
+    {
+      "id": "AC-2301-5",
+      "description": "The shipped probe pack blueprints/application-admin-console/probe-packs/application-admin-console.pack.mjs loads via T-0's pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-21102-1, AC-21103-1, AC-21104-1, AC-21105-1) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; each check's appliesTo predicate reads manifest.blueprints[]/${slug}.applied.json capabilities and returns false when the required capability is absent so the check records applicable: false; the pack-level appliesTo predicate references BOTH tacIds and route.",
+      "testable": true
+    },
+    {
+      "id": "AC-2301-6",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/ ships a dependency-free Node HTTP server (server.js) with a start script; CAPS env or ?caps= query switch selects which surfaces exist mirroring the applied capability set (principalDirectory, roleModel, tenancy, auditLog, or comma combinations thereof); the console shell nav only links applied surfaces; the users directory table enumerates every row by data-user-id inside the role=table region; the permission matrix renders under role=grid with role=row on every rank, role=rowheader on the leftmost cell of each role rank, role=columnheader on every permission header, role=gridcell on inner cells, and each cell announces the exact permission string on focus via aria-label; the org switcher is present only when tenancy is applied; the audit-log table enumerates every row by data-audit-id and every audit entry carries actor, target, before, after, timestamp, and correlationId in inspectable columns; an access-denied route renders a request-access control routed to a POST /api/request-access endpoint; window.__adminFetches and /__requests mirror every request.",
+      "testable": true
+    },
+    {
+      "id": "AC-2301-7",
+      "description": "The probe pack refuses ship on each broken fixture: with ?break=matrix-grid the permission matrix drops the role=grid attributes so AC-21103-1 fails at severity block; with ?break=denied the access-denied route drops the request-access control so AC-21102-1's negative branch (a principal without admin scope) fails at severity block; with ?break=audit-fields the audit entries omit the correlationId column so AC-21105-1 fails at severity block."
+      ,
+      "testable": true
+    }
+  ]
+}

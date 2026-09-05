@@ -1,0 +1,60 @@
+{
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z",
+  "usId": "US-2201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-022",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The capability-declaration mechanism lands in the loader and apply verb; the four shelf auth blueprints adopt it in v1.1.0 minor bumps",
+  "asA": "shelf consumer applying a consumer blueprint that gates surfaces on identity or platform capabilities",
+  "iWant": "the blueprint loader to accept capabilities[], elicits[] and requiresAppliedCapabilities on blueprint.json with shape validation, the apply verb to discover applied capabilities by reading each applied blueprint's source blueprint.json, refuse admin-console-shaped applies with the spec 5.5.1 verbatim message when no required capability is applied and --allow-no-auth-yet is absent, prompt an elicitation phase gated by the discovered capabilities, and persist appliedCapabilities and appliedElicitations to rcf/blueprints/${slug}.applied.json; and the four shelf auth blueprints to declare capabilities[] in v1.1.0 minor bumps landing in the same PR",
+  "soThat": "a project applying admin-console (or any future capability-gated blueprint) gets deterministic apply-time surface configuration, a bare-SPA apply is refused with the operator-friendly message the spec ratified, custom-auth projects elicit their answers into a persistent record the console reads, and the four shelf auth blueprints announce their identity capability set in one release train per spec Q2 default",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2201-1",
+      "description": "The blueprint loader accepts an optional capabilities[] top-level field on blueprint.json: when present it must be a non-empty array of lower camelCase strings on ^[a-z][a-zA-Z0-9]*$, and a malformed value refuses with a validation rcfError naming the field. LoadedBlueprint exposes capabilities[] verbatim.",
+      "testable": true
+    },
+    {
+      "id": "AC-2201-2",
+      "description": "The blueprint loader accepts an optional elicits[] top-level field: when present it must be a non-empty array of {id (kebab slug), prompt (non-empty operator-facing string, no em-dashes, no emojis), kind (one of enum, string, boolean), default (matching kind), options (required when kind=enum), when (optional predicate object)} entries; malformed shapes refuse with a validation rcfError naming the entry.",
+      "testable": true
+    },
+    {
+      "id": "AC-2201-3",
+      "description": "The blueprint loader accepts an optional requiresAppliedCapabilities top-level object: when present its capabilities[] property is a non-empty array of lower camelCase strings, allowSkipFlag is a kebab slug matching an apply-verb flag name (allow-no-auth-yet in v1), and refusalMessageId is a non-empty string; malformed shapes refuse with a validation rcfError.",
+      "testable": true
+    },
+    {
+      "id": "AC-2201-4",
+      "description": "applyBlueprint reads each applied blueprint's source blueprint.json (via the applied record's source field the T-2 core-companions train established) to compute the appliedCapabilities union across the project; when the loaded blueprint declares requiresAppliedCapabilities and the union has no overlap AND the CLI did not pass --allow-no-auth-yet, apply returns an rcfError kind requiresAppliedCapabilities carrying the spec 5.5.1 message body verbatim with the currently-applied blueprints list substituted, and the CLI exits 3 with that message on stderr naming security-auth-*.",
+      "testable": true
+    },
+    {
+      "id": "AC-2201-5",
+      "description": "When --allow-no-auth-yet is passed on the CLI and the blueprint's allowSkipFlag matches, apply proceeds and the applied-record sidecar rcf/blueprints/${slug}.applied.json is written with allowNoAuthYet: true and a notes string naming the no-auth-yet state; the manifest applied record's schema-closed fields remain untouched.",
+      "testable": true
+    },
+    {
+      "id": "AC-2201-6",
+      "description": "The elicitation phase reads --answer <id>=<value> repeatable arguments and --answers <file> (a JSON object mapping id to value) at apply time; every elicit entry whose when predicate resolves true against the discovered applied-capability set is prompted (on a TTY) or read from the answer bag (non-interactive) with the declared kind coerced (boolean from y/yes/n/no, enum against options, string trimmed); a missing required answer refuses with a validation rcfError naming the id.",
+      "testable": true
+    },
+    {
+      "id": "AC-2201-7",
+      "description": "On a clean apply, apply writes rcf/blueprints/${slug}.applied.json containing {slug, version, appliedAt, appliedCapabilities: [...], appliedElicitations: {id: value, ...}, allowNoAuthYet?: bool, notes?: string}; the sidecar is idempotent (re-apply on the same version rewrites the same file) and the manifest.blueprints[] applied record is unchanged in shape.",
+      "testable": true
+    },
+    {
+      "id": "AC-2201-8",
+      "description": "The four shelf auth blueprints declare capabilities[] in v1.1.0 minor bumps landing in the same PR: security-auth-magic-link 1.0.0 -> 1.1.0 capabilities: [principalDirectory]; security-auth-clerk 1.1.0 -> 1.2.0 capabilities: [principalDirectory, roleModel]; security-auth-oauth2 1.0.0 -> 1.1.0 capabilities: [principalDirectory, roleModel]; security-auth-keycloak 1.0.0 -> 1.1.0 capabilities: [principalDirectory, roleModel]. Each blueprint's CHANGELOG.md carries a new entry naming the capabilities added and citing this train (Baz Q2 default 2026-09-04, spec section 5.5.2). No other change to the four blueprints.",
+      "testable": true
+    },
+    {
+      "id": "AC-2201-9",
+      "description": "docs/blueprint-authoring.md section 6a extends the roles registry with the capability vocabulary table (principalDirectory, roleModel, tenancy, auditLog with meaning columns and shelf-provider(s) columns) and cross-references capabilities[] and requiresAppliedCapabilities in the loader as sibling fields to providesRoles and suggestedCompanions.",
+      "testable": true
+    }
+  ]
+}
