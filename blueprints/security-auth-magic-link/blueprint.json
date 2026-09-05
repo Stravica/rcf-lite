@@ -1,7 +1,8 @@
 {
   "slug": "security-auth-magic-link",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "security",
+  "capabilities": ["principalDirectory"],
   "contributions": [
     { "id": "security-auth-magic-link-REQ-001", "kind": "req", "path": "requirements/security-auth-magic-link-req-001.json" },
     { "id": "security-auth-magic-link-REQ-002", "kind": "req", "path": "requirements/security-auth-magic-link-req-002.json" },

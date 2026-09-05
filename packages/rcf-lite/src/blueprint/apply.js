@@ -20,6 +20,7 @@ import { loadBlueprint } from './loader.js';
 import { updateManifest } from './manifest-writer.js';
 import { stampId } from './namespace.js';
 import { nextResolutionId } from './resolutions.js';
+import { buildRefusalMessage, discoverAppliedCapabilities, runElicitationPhase, writeSidecar } from './capabilities.js';
 
 /**
  * @typedef {object} ApplyResult
@@ -79,7 +80,7 @@ import { nextResolutionId } from './resolutions.js';
  *        prove the rollback runs. Never used in production.
  * @returns {Promise<ApplyResult | import('../core/errors/index.js').RcfError>}
  */
-export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryPrefix, libraryBands, resolveDeclarations, now = new Date(), dryRun = false, _copyFileForTest }) {
+export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryPrefix, libraryBands, resolveDeclarations, allowNoAuthYet = false, elicitAnswers = null, now = new Date(), dryRun = false, _copyFileForTest }) {
   const hintSource = typeof displaySource === 'string' && displaySource.length > 0 ? displaySource : source;
   const blueprint = await loadBlueprint(source);
   if (blueprint.kind) return blueprint; // RcfError
@@ -104,6 +105,46 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
     const bandErr = detectContributionsOutOfBand(stamped.contributions, libraryBands);
     if (bandErr) return bandErr;
   }
+
+  // Capability-declaration mechanism (visual round T-5 spec 5.5).
+  // Discover the union of applied capabilities across every applied
+  // blueprint via source read-back; the applied-blueprint-record
+  // schema is closed (rcf-schemas 0.6.0) and does not carry a
+  // capabilities field, so the source blueprint.json is the ground
+  // truth for what each applied blueprint declares.
+  const discovery = await discoverAppliedCapabilities(applied, projectRoot);
+  const appliedCapabilities = discovery.union;
+
+  // Refusal gate for consumer blueprints that require at least one
+  // applied capability. When the union has no overlap AND the CLI did
+  // not pass the allow-skip flag, refuse with the templated message
+  // (spec 5.5.1 verbatim for admin-console).
+  if (blueprint.requiresAppliedCapabilities && !allowNoAuthYet) {
+    const required = blueprint.requiresAppliedCapabilities.capabilities;
+    const overlap = required.some((c) => appliedCapabilities.includes(c));
+    if (!overlap) {
+      const message = buildRefusalMessage({
+        slug: appliedSlug,
+        refusalMessageId: blueprint.requiresAppliedCapabilities.refusalMessageId,
+        requiredCapabilities: required,
+        appliedRecords: applied,
+        allowSkipFlag: blueprint.requiresAppliedCapabilities.allowSkipFlag,
+      });
+      return rcfError({ kind: 'requiresAppliedCapabilities', message });
+    }
+  }
+
+  // Elicitation phase (visual round T-5 spec section 5.5, T-2 gate).
+  // Evaluate each declared elicit against the discovered capability
+  // set; coerce operator answers per kind. A missing required answer
+  // refuses before any write.
+  const elicitResult = runElicitationPhase({
+    elicits: blueprint.elicits,
+    appliedCapabilities,
+    answers: elicitAnswers ?? {},
+  });
+  if (elicitResult.kind) return elicitResult; // RcfError
+  const appliedElicitations = elicitResult.value;
 
   // Pre-detection: fold operator-supplied --resolve declarations into a
   // WORKING COPY of the manifest so the detector honours them on this
@@ -302,11 +343,44 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
   });
   if (manifestResult.kind) return manifestResult; // RcfError
 
+  // Sidecar write for the capability-declaration mechanism (visual
+  // round T-5 spec 5.5.1). Per-project apply-state that the applied-
+  // blueprint-record schema cannot carry today: the discovered
+  // appliedCapabilities snapshot, the elicit answers, and (when the
+  // gate was skipped) an allowNoAuthYet flag plus a notes string that
+  // rcf define validate later reads to flag ungated surfaces. The
+  // sidecar is written on ANY apply that carries capabilities-related
+  // data (declared capabilities, requiresAppliedCapabilities gate,
+  // elicits, or an override) so probe packs and audit tooling have
+  // one deterministic file to read. dryRun skips the write.
+  const wroteSidecar = !dryRun && (
+    blueprint.requiresAppliedCapabilities !== undefined ||
+    (Array.isArray(blueprint.elicits) && blueprint.elicits.length > 0) ||
+    Array.isArray(blueprint.capabilities) ||
+    allowNoAuthYet === true
+  );
+  let sidecarPath = null;
+  if (wroteSidecar) {
+    sidecarPath = await writeSidecar({
+      projectRoot,
+      slug: appliedSlug,
+      version: blueprint.version,
+      appliedAt: now.toISOString(),
+      appliedCapabilities,
+      appliedElicitations,
+      allowNoAuthYet: allowNoAuthYet === true ? true : undefined,
+      notes: allowNoAuthYet === true
+        ? `no auth yet: applied under --${blueprint.requiresAppliedCapabilities?.allowSkipFlag ?? 'allow-no-auth-yet'}; surfaces gated on ${(blueprint.requiresAppliedCapabilities?.capabilities ?? []).join(', ')} will refuse at runtime until an auth blueprint is applied.`
+        : undefined,
+    });
+  }
+
   return {
     applied: true,
     slug: appliedSlug,
     version: blueprint.version,
     contributions: writtenContributions,
+    ...(wroteSidecar ? { sidecarPath, appliedCapabilities, appliedElicitations } : {}),
     // Companion-suggestion mechanism (spec 2.6). Bubble the source
     // blueprint's `suggestedCompanions[]` up on the result so the CLI
     // can render the resolved-suggestion block after a successful

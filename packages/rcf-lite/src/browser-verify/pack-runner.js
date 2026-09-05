@@ -34,6 +34,7 @@ export async function runProbePacksForFbs({
   fbs,
   uiBaseline,
   manifest,
+  projectRoot = null,
   browser,
   fetch,
   runtimeUrl,
@@ -112,9 +113,35 @@ export async function runProbePacksForFbs({
         });
         continue;
       }
+      // Per-check applicability (visual round T-5 spec section 5.5).
+      // A pack check may declare its own `appliesTo` predicate that
+      // reads the applied capability set (from projectRoot) so an
+      // absent capability records `applicable: false` and the
+      // aggregate verdict treats the check as neither pass nor fail.
+      // A check without a predicate always runs (backward compatible
+      // with T-0 through T-4 packs).
+      if (typeof check.appliesTo === 'function') {
+        let checkApplicable;
+        let checkAppliesDetail;
+        try {
+          checkApplicable = Boolean(await check.appliesTo({ fbs, uiBaseline, manifest, projectRoot }));
+        } catch (err) {
+          checkApplicable = false;
+          checkAppliesDetail = `appliesTo threw: ${err.message}`;
+        }
+        if (!checkApplicable) {
+          checkRecords.push({
+            id: check.id,
+            applicable: false,
+            severity: check.severity,
+            ...(checkAppliesDetail ? { detail: checkAppliesDetail } : { detail: 'check appliesTo returned false' }),
+          });
+          continue;
+        }
+      }
       const context = typeof buildContext === 'function'
         ? buildContext(pack)
-        : { browser, fetch, runtimeUrl, route: primaryRoute, theme: primaryTheme };
+        : { browser, fetch, runtimeUrl, route: primaryRoute, theme: primaryTheme, projectRoot };
       let verdict = 'pass';
       let detail;
       try {

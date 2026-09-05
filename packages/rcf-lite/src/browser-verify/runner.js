@@ -135,6 +135,7 @@ export async function runAgentScreenshotCritique({
       fbs,
       uiBaseline: tree.manifest?.uiBaseline ?? null,
       manifest: tree.manifest ?? null,
+      projectRoot,
       browser: packBrowser,
       fetch,
       runtimeUrl,

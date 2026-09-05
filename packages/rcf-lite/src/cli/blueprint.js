@@ -184,6 +184,14 @@ const OPTION_SPEC = {
   // Companion-suggestion mechanism (core-companions spec section 2).
   companion: { type: 'string', multiple: true },
   'no-companion-suggestions': { type: 'boolean' },
+  // Capability-declaration mechanism (visual round T-5 spec 5.5.1,
+  // 5.5.2). --allow-no-auth-yet is the override for the
+  // requiresAppliedCapabilities gate. --answer <id>=<value> is
+  // repeatable; --answers <file> reads a JSON object mapping elicit
+  // ids to values. Both feed the elicitation phase in applyBlueprint.
+  'allow-no-auth-yet': { type: 'boolean' },
+  answer: { type: 'string', multiple: true },
+  answers: { type: 'string' },
 };
 
 /**
@@ -286,9 +294,41 @@ export async function main(argv, deps = {}) {
         }
       }
     }
+    // Capability-declaration mechanism (visual round T-5). Compose
+    // the operator-supplied elicit answers bag from --answers <file>
+    // (JSON object) and --answer <id>=<value> (repeatable). Later
+    // --answer entries override --answers file entries so a shell
+    // one-liner beats a stored default without editing the file.
+    let elicitAnswers = {};
+    if (typeof parsed.values.answers === 'string' && parsed.values.answers.length > 0) {
+      try {
+        const raw = await (await import('node:fs/promises')).readFile(parsed.values.answers, 'utf8');
+        const parsedBag = JSON.parse(raw);
+        if (typeof parsedBag !== 'object' || parsedBag === null || Array.isArray(parsedBag)) {
+          stderr.write(`[error] blueprint add: --answers file must contain a JSON object of id -> value.\n`);
+          return 2;
+        }
+        elicitAnswers = { ...parsedBag };
+      } catch (err) {
+        stderr.write(`[error] blueprint add: --answers file read failed: ${err.message}\n`);
+        return 2;
+      }
+    }
+    if (Array.isArray(parsed.values.answer)) {
+      for (const entry of parsed.values.answer) {
+        const eq = entry.indexOf('=');
+        if (eq < 1) {
+          stderr.write(`[error] blueprint add: --answer expects <id>=<value>; got '${entry}'.\n`);
+          return 2;
+        }
+        elicitAnswers[entry.slice(0, eq)] = entry.slice(eq + 1);
+      }
+    }
     const result = await applyBlueprint({
       projectRoot, tree, source,
       namespaceOverride: parsed.values.namespace,
+      allowNoAuthYet: parsed.values['allow-no-auth-yet'] === true,
+      elicitAnswers,
       // Library-qualified resolves rewire the applied identity under
       // the library prefix and forward the library's declared bands
       // for the apply-time gate (spec §5.3, §8.3). The qualified typed
@@ -321,6 +361,19 @@ export async function main(argv, deps = {}) {
       }
     }
     if (isRcfError(result)) {
+      // Capability-declaration refusal (visual round T-5 spec 5.5.1)
+      // is exit 3, and the message is spec-verbatim (built by
+      // buildRefusalMessage in blueprint/capabilities.js): print it
+      // as-is on stderr, no [error] prefix. Every other rcfError
+      // stays exit 2 with the [error] prefix.
+      if (result.kind === 'requiresAppliedCapabilities') {
+        if (parsed.values.json) {
+          stderr.write(`${JSON.stringify({ refused: true, error: { kind: result.kind, message: result.message } })}\n`);
+        } else {
+          stderr.write(`${result.message}\n`);
+        }
+        return 3;
+      }
       if (parsed.values.json) {
         stderr.write(`${JSON.stringify({ refused: true, error: { kind: result.kind, message: result.message } })}\n`);
       } else {
