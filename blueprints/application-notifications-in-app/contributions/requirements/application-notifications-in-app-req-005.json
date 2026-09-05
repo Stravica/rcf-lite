@@ -1,0 +1,15 @@
+{
+  "reqId": "application-notifications-in-app-REQ-005",
+  "prdId": "PRD-001",
+  "title": "The delivery-attempt log records one row per surfaced notification with the operator-readable fields for later inspection",
+  "description": "Every notification the shell surfaces (as a toast, in the notification centre, or both) appends one row to the delivery-attempt log. Each row carries `notificationId`, `category`, `priority`, `deliveredAt` (ISO-8601 timestamp of the surface event), and the optional acknowledgement trail: `dismissedAt` when the operator dismissed the toast, `acknowledgedAt` when the operator activated the centre's acknowledge control. The log is operator-readable via a `GET /api/delivery-log` endpoint the applying project exposes; the endpoint returns JSON in the shape `{ rows: [...] }`. The log is append-only; a row is never rewritten, only augmented (a `dismissedAt` or `acknowledgedAt` may land on a later request). Records write through the applied `logging` companion's factory so the log's persistence and retention layer is the companion's, not this blueprint's.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "A delivery-attempt log is the operator's audit trail for what the shell has said and when, alongside a second row per acknowledgement event. Ownership of the row shape lives on this blueprint; ownership of the persistence layer lives on the applied `logging` companion (per REQ-005 factory delegation). Splitting the two lets the applying project pick a log store per its `logging` companion pin without the notifications blueprint dragging in a store of its own.",
+  "tags": ["blueprint:application-notifications-in-app", "category:05-delivery-log"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

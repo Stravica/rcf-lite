@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2102-application-notifications-in-app-toast-timeout-floor",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Ship a six-second toast timeout floor per WCAG 2.2.1 Timing Adjustable, with elicited overrides above the floor",
+  "context": "A transient toast that disappears too quickly is a comprehension defect: a reader with a screen reader, a reader with a motor impairment or a reader distracted for two seconds by another task cannot recover the message. The WCAG 2.2.1 Timing Adjustable clause names six seconds as the baseline dwell time for a message the reader must read; below that, the shipped surface fails the clause. On the other hand, an operator on a dashboard with a very high notification volume might want a longer dwell time (twelve seconds, thirty seconds) so an errant page reload does not clear the reader's context.",
+  "decision": "The shipped toast timeout floor is six seconds. The applying project may elicit a longer dwell time at apply; the elicited value is recorded in `manifest.blueprints[application-notifications-in-app].appliedParameters.toastTimeoutSeconds`. A value below six seconds is refused at apply (elicitation rejects it with a message naming the clause). The pack measures the actual dismissal timestamp against the shell root's `data-toast-timeout-floor-seconds` attribute (defaulting to six on the shipped fixture, overrideable by the elicited value) and refuses if any toast dismissed by timeout carries an elapsed time below the recorded floor.",
+  "consequences": "Every shipped surface passes the WCAG 2.2.1 clause at the shipped default. Operators with a real need for a longer dwell time set the elicited value and the pack asserts against the raised floor. The refusal at apply of a value below six seconds keeps the accessibility invariant honest at every project.",
+  "alternativesConsidered": [
+    {
+      "name": "No floor, one project-level default",
+      "summary": "The applying project picks any timeout; the pack does not assert a floor.",
+      "reasonNotChosen": "The WCAG 2.2.1 clause is the whole point; a blueprint that ships without asserting the floor lets a project ship a two-second toast and pass the ship gate. Not shipping the floor is not shipping the discipline."
+    },
+    {
+      "name": "Ship four seconds by default, elicit an override",
+      "summary": "Match the commercial-toast default (four seconds); operators elicit six or more.",
+      "reasonNotChosen": "Four seconds does not clear WCAG 2.2.1 for a reader who is not looking directly at the screen when the toast fires. Shipping below the clause and hoping operators elicit above it is a defect posture."
+    }
+  ],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

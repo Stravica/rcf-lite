@@ -1,0 +1,15 @@
+{
+  "reqId": "application-notifications-in-app-REQ-002",
+  "prdId": "PRD-001",
+  "title": "A transient toast maps its priority to a live-region role, announces exactly once, and dismisses on operator activation or timeout",
+  "description": "A notification surfaced as a transient toast writes into one of the two preseeded live regions based on its priority per ADR-2101: an informational priority renders into the polite wrapper and carries `role=\"status\"`, an error priority renders into the assertive wrapper and carries `role=\"alert\"`. The toast body appears in exactly one wrapper text update (the one whose role reflects the priority) and never in both. Every toast is dismissible in two ways: an operator activation on the toast's dismiss control, and a timeout at or above the ADR-2102 floor (six seconds baseline per WCAG 2.2.1 Timing Adjustable, elicited overrides above the floor). The toast records `data-shown-at` and `data-dismissed-at` timestamps on its DOM element so a probe can measure the actual timeout against the floor without sleeping in the pack.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The WCAG 4.1.3 status-message clause and the ARIA APG alert pattern name the priority-to-role mapping as the accessibility discipline that lets a screen reader distinguish a passive confirmation (polite queue) from an assertive interruption (assertive queue). The WCAG 2.2.1 Timing Adjustable clause names six seconds as the floor for a message a reader can dwell on; a timeout below the floor is a comprehension defect. Recording the shown and dismissed timestamps on the DOM element makes both rules observable at runtime without a race-prone sleep in the pack.",
+  "tags": ["blueprint:application-notifications-in-app", "category:02-toast-contract"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

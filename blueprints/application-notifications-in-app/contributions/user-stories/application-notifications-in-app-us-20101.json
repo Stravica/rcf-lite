@@ -1,0 +1,35 @@
+{
+  "usId": "application-notifications-in-app-US-20101",
+  "prdId": "PRD-001",
+  "reqId": "application-notifications-in-app-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The polite and assertive live-region wrappers are preseeded on every declared route before any notification fires",
+  "asA": "screen-reader user of a shipped rcf-lite application",
+  "iWant": "the polite and assertive live-region wrappers to be present in the DOM at page load on every route so that the first notification fires into a container the accessibility tree already tracks",
+  "soThat": "no informational or assertive message is silently lost by a race between the wrapper insertion and the content insertion, per the WAI-ARIA 1.2 live-regions normative contract",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20101-1",
+      "description": "Given a page load on any declared route, both live-region wrappers are preseeded in the DOM before any notification fires: the polite wrapper carries `aria-live=\"polite\"` and `data-live-region=\"polite\"` and is empty (no descendant text nodes) at page load; the assertive wrapper carries `role=\"alert\"` and `data-live-region=\"assertive\"` and is empty at page load. A wrapper inserted lazily after the first event, or a wrapper that carries content at page load, fails this AC. The pack enumerates wrappers by `[data-live-region]` (per-element attribute), not by `aria-live` or `role` alone.",
+      "given": "a page load on any declared route",
+      "when": "the initial DOM is read",
+      "then": "both preseeded wrappers are present, carry their id attribute, and are empty",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-20101-2",
+      "description": "Given the shell's live-region factory (TAC-2101 `renderLiveRegions`), a call at first render emits exactly two wrapper elements matching the AC-20101-1 shape and never re-creates them on subsequent renders (the wrappers are stable identity across the app lifetime). A factory that recreates the wrappers on a route change fails this AC at project-side review.",
+      "given": "the shell's live-region factory",
+      "when": "the factory is invoked at first render and again on a route change",
+      "then": "the same two wrapper elements are returned; identity is stable",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": ["TAC-2101-application-notifications-in-app-live-region"],
+  "tags": ["blueprint:application-notifications-in-app"],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

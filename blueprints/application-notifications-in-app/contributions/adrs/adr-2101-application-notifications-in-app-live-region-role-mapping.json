@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2101-application-notifications-in-app-live-region-role-mapping",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Map toast priority to live-region wrapper and ARIA role from a fixed two-value enum: info to polite plus status, error to assertive plus alert",
+  "context": "A transient toast needs to reach a screen reader on the queue that matches the reader's attention regime: an informational confirmation belongs on the polite queue, an error interruption belongs on the assertive queue. Free-form role assignment lets a well-meaning implementation route an error into the polite wrapper (the reader misses the interruption) or route an informational message into the assertive wrapper (the reader is interrupted for a confirmation). The WCAG 4.1.3 Status Messages clause and the ARIA APG alert pattern name the correct mapping; the problem is turning that guidance into a runtime discipline the pack can drive.",
+  "decision": "Toast priority is a two-value enum: `info` and `error`. `info` renders inside the polite wrapper (`[aria-live=\"polite\"] [data-live-region=\"polite\"]`) and carries `role=\"status\"` on the toast element. `error` renders inside the assertive wrapper (`[role=\"alert\"] [data-live-region=\"assertive\"]`) and carries `role=\"alert\"` on the toast element. A priority outside the enum is refused at project-side review. The pack asserts the priority-to-role mapping on both branches and asserts the disjoint-content rule (a body text in exactly one wrapper).",
+  "consequences": "Every toast maps to a queue readers already understand; the reader hears an interruption exactly when the application asserts one. The two-value enum is honest about the shipped shelf's known cases; a third priority (`warning`) would land as a v1.1 minor bump with a shelf-wide review because it changes the role vocabulary. The disjoint-content rule keeps a double-post defect visible at ship rather than at incident.",
+  "alternativesConsidered": [
+    {
+      "name": "Free-form priority string with implicit role mapping",
+      "summary": "Any string as priority; the toast factory picks a role based on a runtime rule.",
+      "reasonNotChosen": "Runtime string-to-role rules drift across implementations; the pack cannot usefully assert the mapping without a fixed enum. Free-form is honest about being unspecified but abdicates the accessibility discipline the ADR exists to codify."
+    },
+    {
+      "name": "Three-value enum with a warning priority",
+      "summary": "info, warning, error; warning uses `role=\"status\"` on the polite queue with a distinct visual cue.",
+      "reasonNotChosen": "The ARIA vocabulary does not include a warning-specific role that assistive technologies distinguish; a warning on the polite queue is indistinguishable at the assistive-technology layer from an info. The visual-cue distinction is real but does not warrant an ADR-level split at v1.0.0."
+    }
+  ],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

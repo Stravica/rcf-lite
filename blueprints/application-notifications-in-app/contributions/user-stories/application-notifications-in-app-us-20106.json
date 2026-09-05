@@ -1,0 +1,26 @@
+{
+  "usId": "application-notifications-in-app-US-20106",
+  "prdId": "PRD-001",
+  "reqId": "application-notifications-in-app-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A page load on the notification centre with a backlog renders the backlog at load without re-announcing every notification into the polite queue",
+  "asA": "screen-reader user opening a notification centre with an existing backlog",
+  "iWant": "the backlog to appear on the surface at load without a flood of announcements into the polite live region",
+  "soThat": "opening the centre after a long absence does not saturate the assistive-technology announcement queue",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20106-1",
+      "description": "Given a page load on the notification centre route with a backlog of unacknowledged notifications from the retention window, the DOM contains one wrapper per backlog notification with `data-notification-id` on each; the polite wrapper `[data-live-region=\"polite\"]` remains empty at load (no backlog announcement); the assertive wrapper `[data-live-region=\"assertive\"]` remains empty at load. A centre implementation that pushes every backlog item into the polite queue on load is a defect.",
+      "given": "a page load on the centre route with a backlog",
+      "when": "the initial DOM and the live-region wrappers are read",
+      "then": "the backlog is rendered on the surface and neither live-region wrapper carries a load-time announcement",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2102-application-notifications-in-app-centre"],
+  "tags": ["blueprint:application-notifications-in-app"],
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}

@@ -1,0 +1,15 @@
+{
+  "reqId": "application-notifications-in-app-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The application shell preseeds the polite and assertive live-region wrappers on every declared route before any notification fires",
+  "description": "Every route the applying project declares under its navigation model renders with the two live-region wrappers already present in the DOM at page load: a `[aria-live=\"polite\"]` wrapper for informational messages and a `[role=\"alert\"]` wrapper for assertive alerts. Both wrappers exist and are empty before any notification fires; a wrapper inserted lazily after the first event is a defect that produces a screen-reader miss per the Sara Soueidan normative guidance on ARIA live regions. The wrappers carry stable `data-live-region=\"polite\"` and `data-live-region=\"assertive\"` attributes so the pack can enumerate them by data-id (not by role attribute alone, per the T-3 gate discipline).",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The WAI-ARIA 1.2 live-regions normative contract requires the container to exist in the DOM before content is inserted; a wrapper inserted at the same tick as the content races the screen-reader announcement pass and the message is silently lost. Preseeding the two wrappers on every route is the runtime discipline that turns the WCAG 4.1.3 status-message clause from a design intent into a runtime-observable check the probe pack can drive.",
+  "tags": ["blueprint:application-notifications-in-app", "category:01-live-region-preseeding"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-04T23:59:00Z",
+  "updatedAt": "2026-09-04T23:59:00Z"
+}
