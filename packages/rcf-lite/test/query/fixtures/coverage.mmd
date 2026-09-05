@@ -814,6 +814,72 @@ flowchart LR
   REQ-021 --> AC-2101-6
   TC-050-family-prefix-reservation["TC-050-family-prefix-reservation"]
   AC-2101-6 -.-> TC-050-family-prefix-reservation
+  REQ-022["REQ-022"]
+  AC-2201-1["AC-2201-1"]
+  REQ-022 --> AC-2201-1
+  TC-051-loader-capabilities-shape["TC-051-loader-capabilities-shape"]
+  AC-2201-1 -.-> TC-051-loader-capabilities-shape
+  AC-2201-2["AC-2201-2"]
+  REQ-022 --> AC-2201-2
+  TC-051-loader-elicits-shape["TC-051-loader-elicits-shape"]
+  AC-2201-2 -.-> TC-051-loader-elicits-shape
+  AC-2201-3["AC-2201-3"]
+  REQ-022 --> AC-2201-3
+  TC-051-loader-requires-shape["TC-051-loader-requires-shape"]
+  AC-2201-3 -.-> TC-051-loader-requires-shape
+  AC-2201-4["AC-2201-4"]
+  REQ-022 --> AC-2201-4
+  TC-051-apply-discovery-refuse["TC-051-apply-discovery-refuse"]
+  AC-2201-4 -.-> TC-051-apply-discovery-refuse
+  AC-2201-5["AC-2201-5"]
+  REQ-022 --> AC-2201-5
+  TC-051-apply-allow-skip["TC-051-apply-allow-skip"]
+  AC-2201-5 -.-> TC-051-apply-allow-skip
+  AC-2201-6["AC-2201-6"]
+  REQ-022 --> AC-2201-6
+  TC-051-elicit-answers["TC-051-elicit-answers"]
+  AC-2201-6 -.-> TC-051-elicit-answers
+  AC-2201-7["AC-2201-7"]
+  REQ-022 --> AC-2201-7
+  TC-051-sidecar-write["TC-051-sidecar-write"]
+  AC-2201-7 -.-> TC-051-sidecar-write
+  AC-2201-8["AC-2201-8"]
+  REQ-022 --> AC-2201-8
+  TC-051-auth-minors["TC-051-auth-minors"]
+  AC-2201-8 -.-> TC-051-auth-minors
+  AC-2201-9["AC-2201-9"]
+  REQ-022 --> AC-2201-9
+  TC-051-docs-section-6a["TC-051-docs-section-6a"]
+  AC-2201-9 -.-> TC-051-docs-section-6a
+  REQ-023["REQ-023"]
+  AC-2301-1["AC-2301-1"]
+  REQ-023 --> AC-2301-1
+  TC-052-blueprint-json-shape["TC-052-blueprint-json-shape"]
+  AC-2301-1 -.-> TC-052-blueprint-json-shape
+  AC-2301-2["AC-2301-2"]
+  REQ-023 --> AC-2301-2
+  TC-052-applies-clean-with-override["TC-052-applies-clean-with-override"]
+  AC-2301-2 -.-> TC-052-applies-clean-with-override
+  AC-2301-3["AC-2301-3"]
+  REQ-023 --> AC-2301-3
+  TC-052-refuses-bare-spa["TC-052-refuses-bare-spa"]
+  AC-2301-3 -.-> TC-052-refuses-bare-spa
+  AC-2301-4["AC-2301-4"]
+  REQ-023 --> AC-2301-4
+  TC-052-capability-discovery["TC-052-capability-discovery"]
+  AC-2301-4 -.-> TC-052-capability-discovery
+  AC-2301-5["AC-2301-5"]
+  REQ-023 --> AC-2301-5
+  TC-052-pack-checks-cross-check["TC-052-pack-checks-cross-check"]
+  AC-2301-5 -.-> TC-052-pack-checks-cross-check
+  AC-2301-6["AC-2301-6"]
+  REQ-023 --> AC-2301-6
+  TC-052-fixture-surfaces["TC-052-fixture-surfaces"]
+  AC-2301-6 -.-> TC-052-fixture-surfaces
+  AC-2301-7["AC-2301-7"]
+  REQ-023 --> AC-2301-7
+  TC-052-negative-runs["TC-052-negative-runs"]
+  AC-2301-7 -.-> TC-052-negative-runs
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1232,6 +1298,40 @@ flowchart LR
   class TC-050-negative-runs tc;
   class AC-2101-6 ac;
   class TC-050-family-prefix-reservation tc;
+  class REQ-022 req;
+  class AC-2201-1 ac;
+  class TC-051-loader-capabilities-shape tc;
+  class AC-2201-2 ac;
+  class TC-051-loader-elicits-shape tc;
+  class AC-2201-3 ac;
+  class TC-051-loader-requires-shape tc;
+  class AC-2201-4 ac;
+  class TC-051-apply-discovery-refuse tc;
+  class AC-2201-5 ac;
+  class TC-051-apply-allow-skip tc;
+  class AC-2201-6 ac;
+  class TC-051-elicit-answers tc;
+  class AC-2201-7 ac;
+  class TC-051-sidecar-write tc;
+  class AC-2201-8 ac;
+  class TC-051-auth-minors tc;
+  class AC-2201-9 ac;
+  class TC-051-docs-section-6a tc;
+  class REQ-023 req;
+  class AC-2301-1 ac;
+  class TC-052-blueprint-json-shape tc;
+  class AC-2301-2 ac;
+  class TC-052-applies-clean-with-override tc;
+  class AC-2301-3 ac;
+  class TC-052-refuses-bare-spa tc;
+  class AC-2301-4 ac;
+  class TC-052-capability-discovery tc;
+  class AC-2301-5 ac;
+  class TC-052-pack-checks-cross-check tc;
+  class AC-2301-6 ac;
+  class TC-052-fixture-surfaces tc;
+  class AC-2301-7 ac;
+  class TC-052-negative-runs tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

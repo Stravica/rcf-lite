@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-128",
+  "path": "../../packages/rcf-lite/src/blueprint/loader.js",
+  "implementsAcIds": [
+    "AC-2201-1",
+    "AC-2201-2",
+    "AC-2201-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z"
+}

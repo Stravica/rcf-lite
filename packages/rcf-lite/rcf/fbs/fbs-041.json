@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z",
+  "acIds": ["AC-2201-1", "AC-2201-2", "AC-2201-3", "AC-2201-4", "AC-2201-5", "AC-2201-6", "AC-2201-7", "AC-2201-8", "AC-2201-9"],
+  "fbsId": "FBS-041",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 41,
+  "executionStatus": "notStarted",
+  "title": "Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps",
+  "summary": "T-5 mechanism track of the ratified visual round (spec 2026-09-04, section 5.5). Introduces capabilities[], elicits[] and requiresAppliedCapabilities top-level fields on blueprint.json with shape validation in the loader; apply-time discovery via source read-back on manifest.blueprints[].source; the exit-3 refusal with the spec 5.5.1 verbatim message on bare-SPA applies; --allow-no-auth-yet operator override; elicitation phase reading --answer <id>=<value> (repeatable) and --answers <file> (JSON object) with kind coercion; per-project sidecar rcf/blueprints/${slug}.applied.json capturing appliedCapabilities and appliedElicitations; pack-runner extension for per-check applicability so an absent capability records applicable:false and the aggregate verdict treats the check as neither pass nor fail (spec section 3.3 T-5 residual cure). Bumps the four shelf auth blueprints to declare capabilities[]: magic-link 1.0.0 -> 1.1.0 [principalDirectory]; clerk 1.1.0 -> 1.2.0 [principalDirectory, roleModel]; oauth2 1.0.0 -> 1.1.0 [principalDirectory, roleModel]; keycloak 1.0.0 -> 1.1.0 [principalDirectory, roleModel]. docs/blueprint-authoring.md section 6a extended with the capability vocabulary table (principalDirectory, roleModel, tenancy, auditLog) and the sidecar contract description.",
+  "dependsOnFbsIds": []
+}

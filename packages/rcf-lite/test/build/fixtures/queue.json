@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 40,
-    "notStarted": 12,
+    "items": 42,
+    "notStarted": 14,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 10,
-    "blocked": 2
+    "actionable": 11,
+    "blocked": 3
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -36,7 +36,8 @@
         "FBS-037",
         "FBS-038",
         "FBS-039",
-        "FBS-040"
+        "FBS-040",
+        "FBS-041"
       ]
     },
     {
@@ -45,7 +46,8 @@
         "FBS-002",
         "FBS-017",
         "FBS-019",
-        "FBS-025"
+        "FBS-025",
+        "FBS-042"
       ]
     },
     {
@@ -566,6 +568,30 @@
       "dependsOnFbsIds": [],
       "state": "actionable",
       "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-041",
+      "buildOrder": 41,
+      "tier": 0,
+      "title": "Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-042",
+      "buildOrder": 42,
+      "tier": 1,
+      "title": "application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-041"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-041"
+      ]
     }
   ]
 }

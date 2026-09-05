@@ -247,6 +247,7 @@ export async function main(argv, deps = {}) {
           probePacks: packs,
           packBrowser,
           packNameFilter,
+          projectRoot,
           now,
         });
       } finally {

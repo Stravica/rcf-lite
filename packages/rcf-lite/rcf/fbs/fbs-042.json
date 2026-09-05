@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z",
+  "acIds": ["AC-2301-1", "AC-2301-2", "AC-2301-3", "AC-2301-4", "AC-2301-5", "AC-2301-6", "AC-2301-7"],
+  "fbsId": "FBS-042",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 42,
+  "executionStatus": "notStarted",
+  "title": "application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture",
+  "summary": "T-5 shelf-blueprint track of the ratified visual round (spec 2026-09-04, section 5.5): the application-admin-console v1.0.0 blueprint on the shelf. Ships 23 contributions (6 REQs on console shell + users conditional principalDirectory + roles conditional roleModel with Owner+Admin+Member+Viewer baseline + orgs conditional tenancy + audit-log conditional auditLog + access-denied and request-access WCAG 2.2 AA; 9 USs 21101-21109 binding 16 runtime-observable ACs plus the conditional-refusal apply-time behaviour; 4 TACs 2201-2204 on the console shell reading the surface manifest + apply-time capability discovery + permission matrix as an ARIA APG grid + audit view consuming datatable T-1; 4 ADRs 2201-2204 on the capability vocabulary as free labels + Owner+Admin+Member+Viewer baseline elicited additions + invite transport email default delegated to email sibling elicited + audit-log retention window elicited), a Playwright probe pack whose four capability-gated checks (AC-21102-1 users when principalDirectory, AC-21103-1 permission matrix when roleModel, AC-21104-1 org switcher when tenancy, AC-21105-1 audit-log when auditLog) each declare a per-check appliesTo predicate reading the applied capability sidecar, and a dependency-free sample-app fixture with CAPS switch selecting surfaces, ARIA APG grid permission matrix, users directory with data-user-id enumeration, org switcher, audit-log with correlationId, access-denied with request-access control, and break switches for the negative runs (matrix-grid, denied, audit-fields). Consumes application-datatable (T-1) for the users and audit surfaces; suggestedCompanions logging and errorHandling; providesRoles absent per spec 5.5.3.",
+  "dependsOnFbsIds": ["FBS-041"]
+}
