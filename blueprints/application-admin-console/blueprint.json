@@ -11,6 +11,34 @@
   },
   "elicits": [
     {
+      "id": "custom-auth-provides-principal-directory",
+      "prompt": "Custom auth: does your project's own auth blueprint expose a principal directory (identity records the users surface can list)?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "principalDirectory"
+    },
+    {
+      "id": "custom-auth-provides-role-model",
+      "prompt": "Custom auth: does your project's own auth declare operator-visible role labels a permission matrix can render?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "roleModel"
+    },
+    {
+      "id": "custom-auth-provides-tenancy",
+      "prompt": "Custom auth: does your project's own auth (or a paired tenancy blueprint) declare an organisation abstraction the console can switch across?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "tenancy"
+    },
+    {
+      "id": "custom-auth-provides-audit-log",
+      "prompt": "Custom auth: does your project emit an audit event stream the console's audit view can read?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "auditLog"
+    },
+    {
       "id": "baseline-roles",
       "prompt": "Baseline role labels for the permission matrix (comma-separated). Owner, Admin, Member, Viewer is the ratified default; extend with per-project labels here.",
       "kind": "string",

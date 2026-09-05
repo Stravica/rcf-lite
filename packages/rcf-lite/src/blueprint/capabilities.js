@@ -237,3 +237,82 @@ export async function sidecarExists(projectRoot, slug) {
     return false;
   }
 }
+
+/**
+ * Custom-auth capability elicitation (visual round T-5 spec 5.5
+ * "Risks": custom auth elicits per capability). Runs BEFORE the
+ * requiresAppliedCapabilities refusal gate. Each elicit entry with
+ * a truthy `providesCapability` string is a boolean prompt asking
+ * whether the operator's own (non-shelf) auth blueprint provides
+ * the named capability. A truthy answer folds that capability into
+ * the effective applied set, so a project with no shelf auth
+ * blueprint can still pass the refusal gate without the allowNoAuthYet
+ * override, and the resulting sidecar records the operator-declared
+ * appliedCapabilities honestly.
+ *
+ * Interactive vs non-interactive:
+ *   - Non-interactive: only the elicits whose id appears in `answers`
+ *     resolve; the rest are treated as unanswered.
+ *   - Interactive (tty=true): unanswered custom-auth elicits are read
+ *     from stdin via readline with a `y/N` prompt; this branch is
+ *     driven synchronously by the CLI's `apply` wrapper when it
+ *     detects `process.stdin.isTTY === true`.
+ *
+ * A malformed boolean answer refuses with a validation rcfError.
+ *
+ * @param {object} args
+ * @param {Array<object>} args.elicits             from loader (may include non-providesCapability entries; they are ignored here)
+ * @param {Record<string, string|boolean>} args.answers  operator bag
+ * @param {(prompt: string) => Promise<string>} [args.readLine]  test seam for interactive input
+ * @returns {Promise<{ capsProvided: string[], answered: Record<string, boolean>, elicitsPresent: boolean, anyAnswered: boolean } | import('../core/errors/index.js').RcfError>}
+ */
+export async function runCustomAuthCapabilityElicits({ elicits, answers, readLine }) {
+  const capsProvided = new Set();
+  const answered = {};
+  let elicitsPresent = false;
+  const bag = answers ?? {};
+  for (const e of elicits ?? []) {
+    if (typeof e.providesCapability !== 'string' || e.providesCapability.length === 0) continue;
+    elicitsPresent = true;
+    const raw = bag[e.id];
+    let coerced;
+    if (raw === undefined || raw === null || raw === '') {
+      if (typeof readLine !== 'function') {
+        // Non-interactive branch, no answer supplied: skip. Default
+        // remains false in that case so a missing operator answer does
+        // not silently declare a capability.
+        continue;
+      }
+      const reply = await readLine(`Custom auth: does your auth provide '${e.providesCapability}'? [y/N]: `);
+      const s = String(reply ?? '').trim().toLowerCase();
+      if (s === '' || s === 'n' || s === 'no' || s === 'false' || s === '0') coerced = false;
+      else if (s === 'y' || s === 'yes' || s === 'true' || s === '1') coerced = true;
+      else {
+        return rcfError({
+          kind: 'validation',
+          message: `blueprint apply: elicit '${e.id}' expects a boolean; got '${reply}'.`,
+        });
+      }
+    } else if (typeof raw === 'boolean') {
+      coerced = raw;
+    } else {
+      const s = String(raw).trim().toLowerCase();
+      if (s === 'y' || s === 'yes' || s === 'true' || s === '1') coerced = true;
+      else if (s === 'n' || s === 'no' || s === 'false' || s === '0') coerced = false;
+      else {
+        return rcfError({
+          kind: 'validation',
+          message: `blueprint apply: elicit '${e.id}' expects a boolean; got '${raw}'.`,
+        });
+      }
+    }
+    answered[e.id] = coerced;
+    if (coerced === true) capsProvided.add(e.providesCapability);
+  }
+  return {
+    capsProvided: [...capsProvided].sort(),
+    answered,
+    elicitsPresent,
+    anyAnswered: Object.keys(answered).length > 0,
+  };
+}

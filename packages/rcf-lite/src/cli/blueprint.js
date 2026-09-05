@@ -324,11 +324,24 @@ export async function main(argv, deps = {}) {
         elicitAnswers[entry.slice(0, eq)] = entry.slice(eq + 1);
       }
     }
+    // Custom-auth capability elicits (visual round T-5 spec 5.5
+    // "Risks"): providesCapability elicits fire pre-refusal. On a
+    // TTY, prompt the operator for any unanswered custom-auth elicits
+    // through readline so a fresh project with no shelf auth can pass
+    // the requiresAppliedCapabilities gate by declaring what its own
+    // auth provides. Non-interactive runs skip the prompt and read
+    // answers from the bag only.
+    const stdin = deps.stdin ?? process.stdin;
+    const isTty = Boolean(stdin && stdin.isTTY);
+    const customAuthReadLine = isTty
+      ? await createCustomAuthReadLine({ stdin, stdout })
+      : null;
     const result = await applyBlueprint({
       projectRoot, tree, source,
       namespaceOverride: parsed.values.namespace,
       allowNoAuthYet: parsed.values['allow-no-auth-yet'] === true,
       elicitAnswers,
+      customAuthReadLine,
       // Library-qualified resolves rewire the applied identity under
       // the library prefix and forward the library's declared bands
       // for the apply-time gate (spec §5.3, §8.3). The qualified typed
@@ -811,4 +824,30 @@ function parseResolveOptions(rawList, reason) {
     out.push(decl);
   }
   return { value: out };
+}
+
+/**
+ * Build a readline-backed prompt function for custom-auth capability
+ * elicits (visual round T-5 spec 5.5 "Risks"). Wraps node:readline in
+ * a promise so `runCustomAuthCapabilityElicits` can `await` each line.
+ * Only used when stdin is a TTY; the callback closes the interface on
+ * first shutdown to avoid leaking file descriptors.
+ *
+ * @param {{ stdin: NodeJS.ReadableStream, stdout: NodeJS.WritableStream }} deps
+ * @returns {Promise<(prompt: string) => Promise<string>>}
+ */
+async function createCustomAuthReadLine({ stdin, stdout }) {
+  const { createInterface } = await import('node:readline');
+  const rl = createInterface({ input: stdin, output: stdout, terminal: true });
+  let closed = false;
+  return (prompt) => new Promise((resolve) => {
+    if (closed) return resolve('');
+    rl.question(prompt, (answer) => {
+      if (!closed) {
+        try { rl.close(); } catch { /* fine */ }
+        closed = true;
+      }
+      resolve(answer);
+    });
+  });
 }

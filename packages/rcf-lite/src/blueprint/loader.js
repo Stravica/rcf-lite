@@ -194,6 +194,9 @@ function normaliseElicit(entry) {
   if (entry.when !== undefined) {
     out.when = { requiresCapability: entry.when.requiresCapability };
   }
+  if (typeof entry.providesCapability === 'string') {
+    out.providesCapability = entry.providesCapability;
+  }
   return out;
 }
 
@@ -444,6 +447,40 @@ function validateElicits(doc, metaPath) {
             filePath: metaPath,
           });
         }
+      }
+    }
+    // Custom-auth capability discovery (visual round T-5 spec 5.5
+    // "Risks"). An elicit that declares providesCapability is a
+    // boolean prompt asking the operator whether their custom auth
+    // provides the named capability; a truthy answer folds the
+    // capability into the effective applied set at apply time, so a
+    // project with no shelf auth blueprint can still satisfy a
+    // consumer blueprint's requiresAppliedCapabilities gate without
+    // the allowNoAuthYet override. Rules: kind MUST be boolean,
+    // when MUST be absent (custom-auth elicits fire pre-refusal,
+    // before any discovered-capability set exists), and the value
+    // MUST be lower camelCase (same grammar as capabilities[]).
+    if (entry.providesCapability !== undefined) {
+      if (entry.kind !== 'boolean') {
+        return rcfError({
+          kind: 'validation',
+          message: `blueprint.json: elicits[${i}] '${entry.id}' providesCapability requires kind=boolean (got '${entry.kind}').`,
+          filePath: metaPath,
+        });
+      }
+      if (entry.when !== undefined) {
+        return rcfError({
+          kind: 'validation',
+          message: `blueprint.json: elicits[${i}] '${entry.id}' providesCapability is incompatible with when (custom-auth elicits fire pre-refusal, before applied capabilities are discovered).`,
+          filePath: metaPath,
+        });
+      }
+      if (typeof entry.providesCapability !== 'string' || !ROLE_NAME_RE.test(entry.providesCapability)) {
+        return rcfError({
+          kind: 'validation',
+          message: `blueprint.json: elicits[${i}] '${entry.id}' providesCapability '${entry.providesCapability}' is not lower camelCase (^[a-z][a-zA-Z0-9]*$).`,
+          filePath: metaPath,
+        });
       }
     }
   }

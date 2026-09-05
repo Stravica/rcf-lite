@@ -20,7 +20,7 @@ import { loadBlueprint } from './loader.js';
 import { updateManifest } from './manifest-writer.js';
 import { stampId } from './namespace.js';
 import { nextResolutionId } from './resolutions.js';
-import { buildRefusalMessage, discoverAppliedCapabilities, runElicitationPhase, writeSidecar } from './capabilities.js';
+import { buildRefusalMessage, discoverAppliedCapabilities, runCustomAuthCapabilityElicits, runElicitationPhase, writeSidecar } from './capabilities.js';
 
 /**
  * @typedef {object} ApplyResult
@@ -80,7 +80,7 @@ import { buildRefusalMessage, discoverAppliedCapabilities, runElicitationPhase, 
  *        prove the rollback runs. Never used in production.
  * @returns {Promise<ApplyResult | import('../core/errors/index.js').RcfError>}
  */
-export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryPrefix, libraryBands, resolveDeclarations, allowNoAuthYet = false, elicitAnswers = null, now = new Date(), dryRun = false, _copyFileForTest }) {
+export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryPrefix, libraryBands, resolveDeclarations, allowNoAuthYet = false, elicitAnswers = null, customAuthReadLine = null, now = new Date(), dryRun = false, _copyFileForTest }) {
   const hintSource = typeof displaySource === 'string' && displaySource.length > 0 ? displaySource : source;
   const blueprint = await loadBlueprint(source);
   if (blueprint.kind) return blueprint; // RcfError
@@ -113,12 +113,29 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
   // capabilities field, so the source blueprint.json is the ground
   // truth for what each applied blueprint declares.
   const discovery = await discoverAppliedCapabilities(applied, projectRoot);
-  const appliedCapabilities = discovery.union;
+  const discoveredCapabilities = discovery.union;
+
+  // Custom-auth capability elicitation (visual round T-5 spec 5.5
+  // "Risks": custom auth elicits per capability). Fires BEFORE the
+  // requiresAppliedCapabilities refusal gate: providesCapability
+  // elicits let a project with no shelf auth blueprint declare which
+  // capabilities its own custom auth carries. Truthy answers fold
+  // into the effective applied set; that set is what the refusal gate
+  // and the standard elicitation phase see.
+  const customAuth = await runCustomAuthCapabilityElicits({
+    elicits: blueprint.elicits,
+    answers: elicitAnswers ?? {},
+    readLine: customAuthReadLine ?? undefined,
+  });
+  if (customAuth.kind) return customAuth; // RcfError
+  const appliedCapabilities = [...new Set([...discoveredCapabilities, ...customAuth.capsProvided])].sort();
+  const customAuthElicitations = customAuth.answered;
 
   // Refusal gate for consumer blueprints that require at least one
-  // applied capability. When the union has no overlap AND the CLI did
-  // not pass the allow-skip flag, refuse with the templated message
-  // (spec 5.5.1 verbatim for admin-console).
+  // applied capability. When the effective set has no overlap AND
+  // the CLI did not pass the allow-skip flag AND no custom-auth
+  // capability answers were supplied that satisfy the gate, refuse
+  // with the templated message (spec 5.5.1 verbatim for admin-console).
   if (blueprint.requiresAppliedCapabilities && !allowNoAuthYet) {
     const required = blueprint.requiresAppliedCapabilities.capabilities;
     const overlap = required.some((c) => appliedCapabilities.includes(c));
@@ -135,16 +152,22 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
   }
 
   // Elicitation phase (visual round T-5 spec section 5.5, T-2 gate).
-  // Evaluate each declared elicit against the discovered capability
-  // set; coerce operator answers per kind. A missing required answer
-  // refuses before any write.
+  // Evaluate each declared elicit against the effective capability set
+  // (union of applied blueprints and custom-auth answers). Skip
+  // providesCapability entries: those were resolved above and their
+  // answers already landed in customAuthElicitations. Coerce operator
+  // answers per kind. A missing required answer refuses before any
+  // write.
+  const regularElicits = Array.isArray(blueprint.elicits)
+    ? blueprint.elicits.filter((e) => typeof e.providesCapability !== 'string')
+    : [];
   const elicitResult = runElicitationPhase({
-    elicits: blueprint.elicits,
+    elicits: regularElicits,
     appliedCapabilities,
     answers: elicitAnswers ?? {},
   });
   if (elicitResult.kind) return elicitResult; // RcfError
-  const appliedElicitations = elicitResult.value;
+  const appliedElicitations = { ...customAuthElicitations, ...elicitResult.value };
 
   // Pre-detection: fold operator-supplied --resolve declarations into a
   // WORKING COPY of the manifest so the detector honours them on this

@@ -127,3 +127,76 @@ test('apply writes sidecar with appliedCapabilities and appliedElicitations idem
   assert.ok(wide.appliedCapabilities.includes('principalDirectory'), JSON.stringify(wide.appliedCapabilities));
   assert.ok(wide.appliedCapabilities.includes('roleModel'), JSON.stringify(wide.appliedCapabilities));
 });
+
+test('apply on a custom-auth project fires providesCapability elicits pre-refusal and folds the answers into appliedCapabilities (TC-051-custom-auth-elicit)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-custom-auth-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  // No shelf auth applied. Custom-auth boolean answers say the
+  // project's own auth provides principalDirectory + roleModel; the
+  // refusal gate must NOT fire, the sidecar must record the caps
+  // and the boolean answers, and the regular (when-gated) elicits
+  // must fire against the effective capability set.
+  const result = await applyIn(scratch, CONSOLE_BP, {
+    elicitAnswers: {
+      'custom-auth-provides-principal-directory': 'true',
+      'custom-auth-provides-role-model': 'true',
+      'baseline-roles': 'Owner, Admin, Member, Viewer',
+      'invite-transport': 'email',
+    },
+  });
+  assert.equal(result.applied, true, JSON.stringify(result));
+  assert.deepEqual(result.appliedCapabilities, ['principalDirectory', 'roleModel']);
+  assert.equal(result.appliedElicitations['custom-auth-provides-principal-directory'], true);
+  assert.equal(result.appliedElicitations['custom-auth-provides-role-model'], true);
+  assert.equal(result.appliedElicitations['baseline-roles'], 'Owner, Admin, Member, Viewer');
+  assert.equal(result.appliedElicitations['invite-transport'], 'email');
+  const raw = await readFile(join(scratch, result.sidecarPath), 'utf8');
+  const doc = JSON.parse(raw);
+  assert.deepEqual(doc.appliedCapabilities, ['principalDirectory', 'roleModel']);
+  assert.equal(doc.appliedElicitations['custom-auth-provides-principal-directory'], true);
+  assert.equal(doc.appliedElicitations['custom-auth-provides-role-model'], true);
+});
+
+test('apply on a custom-auth project still refuses when no capability answers are supplied and no override is passed (TC-051-custom-auth-elicit-refusal)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-custom-auth-refuse-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  // No custom-auth answers supplied and no allowNoAuthYet: refusal
+  // must fire, same message as before the mechanism landed.
+  const result = await applyIn(scratch, CONSOLE_BP, {
+    elicitAnswers: {
+      'baseline-roles': 'Owner, Admin, Member, Viewer',
+      'invite-transport': 'email',
+    },
+  });
+  assert.equal(result.kind, 'requiresAppliedCapabilities', JSON.stringify(result));
+  assert.match(result.message, /application-admin-console requires at least one applied security-auth-\*/);
+});
+
+test('apply on a custom-auth project supports interactive TTY prompts via a readLine seam (TC-051-custom-auth-elicit-tty)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-custom-auth-tty-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  // Simulate a TTY session by providing a readLine seam that answers
+  // each custom-auth prompt as yes / no in turn. No answers supplied
+  // via the answer bag; the seam is the only source.
+  const replies = { principalDirectory: 'y', roleModel: 'n', tenancy: 'no', auditLog: 'yes' };
+  const readLine = async (prompt) => {
+    for (const [cap, val] of Object.entries(replies)) {
+      if (prompt.includes(`'${cap}'`)) return val;
+    }
+    return '';
+  };
+  const result = await applyIn(scratch, CONSOLE_BP, {
+    elicitAnswers: {
+      'baseline-roles': 'Owner, Admin, Member, Viewer',
+      'invite-transport': 'email',
+      'audit-retention-days': '90',
+    },
+    customAuthReadLine: readLine,
+  });
+  assert.equal(result.applied, true, JSON.stringify(result));
+  assert.deepEqual(result.appliedCapabilities.sort(), ['auditLog', 'principalDirectory'].sort());
+  assert.equal(result.appliedElicitations['custom-auth-provides-principal-directory'], true);
+  assert.equal(result.appliedElicitations['custom-auth-provides-role-model'], false);
+  assert.equal(result.appliedElicitations['custom-auth-provides-tenancy'], false);
+  assert.equal(result.appliedElicitations['custom-auth-provides-audit-log'], true);
+});

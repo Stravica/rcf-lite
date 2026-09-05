@@ -43,7 +43,27 @@ test('blueprint.json declares 23 contributions with requiresAppliedCapabilities 
   assert.deepEqual(doc.requiresAppliedCapabilities.capabilities, ['principalDirectory']);
   assert.equal(doc.requiresAppliedCapabilities.allowSkipFlag, 'allow-no-auth-yet');
   const elicitIds = doc.elicits.map((e) => e.id).sort();
-  assert.deepEqual(elicitIds, ['audit-retention-days', 'baseline-roles', 'invite-transport', 'tenancy-shape']);
+  // Four regular elicits (when-gated on applied capabilities or
+  // ungated) plus four custom-auth capability-declaration elicits
+  // that fire pre-refusal (spec 5.5 "Risks") and let a project with
+  // no shelf auth declare which capabilities its own auth provides.
+  assert.deepEqual(elicitIds, [
+    'audit-retention-days',
+    'baseline-roles',
+    'custom-auth-provides-audit-log',
+    'custom-auth-provides-principal-directory',
+    'custom-auth-provides-role-model',
+    'custom-auth-provides-tenancy',
+    'invite-transport',
+    'tenancy-shape',
+  ]);
+  const customAuthElicits = doc.elicits.filter((e) => typeof e.providesCapability === 'string');
+  assert.equal(customAuthElicits.length, 4);
+  for (const e of customAuthElicits) {
+    assert.equal(e.kind, 'boolean');
+    assert.equal(e.when, undefined);
+    assert.ok(['principalDirectory', 'roleModel', 'tenancy', 'auditLog'].includes(e.providesCapability));
+  }
   const roles = doc.suggestedCompanions.map((c) => c.role).sort();
   assert.deepEqual(roles, ['errorHandling', 'logging']);
 });
@@ -80,9 +100,10 @@ test('apply on magic-link project yields [principalDirectory] and on clerk+loggi
   assert.equal(consoleApply.applied, true, JSON.stringify(consoleApply));
   assert.deepEqual(consoleApply.appliedCapabilities, ['principalDirectory']);
 
-  // The auditLog capability is not declared by observability-logging (it declares the logging ROLE via providesRoles),
-  // so the union stays at [principalDirectory, roleModel] until a future dedicated audit blueprint (or a logging minor)
-  // declares capabilities: ["auditLog"]. This proves the union math without conflating role and capability grammars.
+  // observability-logging 1.1.0 declares capabilities: ["auditLog"] explicitly (one grammar; no role-to-capability
+  // inference); applying it alongside clerk widens the union to [auditLog, principalDirectory, roleModel]. This
+  // proves the union math without conflating role and capability grammars: the capabilities[] declaration is what
+  // the mechanism reads, never providesRoles[].
   const scratch2 = await mkdtemp(join(tmpdir(), 'admin-console-clerk-'));
   await initProject({ projectRoot: scratch2, projectName: 'scratch' });
   const { tree: c0 } = await walkTree({ projectRoot: scratch2 });
@@ -95,7 +116,7 @@ test('apply on magic-link project yields [principalDirectory] and on clerk+loggi
   const wide = await applyBlueprint({ projectRoot: scratch2, tree: c2, source: BLUEPRINT_ROOT });
   assert.equal(wide.applied, true, JSON.stringify(wide));
   const sorted = [...wide.appliedCapabilities].sort();
-  assert.deepEqual(sorted, ['principalDirectory', 'roleModel']);
+  assert.deepEqual(sorted, ['auditLog', 'principalDirectory', 'roleModel']);
 });
 
 test('every pack check id matches a contributed AC id and appliesTo predicate gates on the applied capability (TC-052-pack-checks-cross-check)', async () => {
