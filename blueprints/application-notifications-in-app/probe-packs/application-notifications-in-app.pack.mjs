@@ -54,8 +54,11 @@ export default {
         const routes = ['/', '/notifications-centre', '/notifications-preferences'];
         const perRoute = [];
         for (const path of routes) {
-          const target = new URL(path, runtimeUrl).toString();
-          await browser.goto(target);
+          // Preserve the reviewer's --url query verbatim across every
+          // route navigation: swap the pathname, keep the search.
+          const target = new URL(runtimeUrl);
+          target.pathname = path;
+          await browser.goto(target.toString());
           const measurement = await browser.evaluate(() => {
             const polite = document.querySelector('[data-live-region="polite"]');
             const assertive = document.querySelector('[data-live-region="assertive"]');
@@ -231,13 +234,20 @@ export default {
       description: 'Notification centre acknowledge round-trip: the centre lists notifications within the ADR-2103 retention window (default thirty days), each item carries a stable data-notification-id (enumerated per-element, never by role alone), and a Tab-reachable [data-action="acknowledge"] control activates a POST /api/notifications/acknowledge round-trip whose 2xx response flips the item data-acknowledged to true. Reconciled against window.__notificationFetches and /__requests.',
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
-        const target = new URL('/notifications-centre', runtimeUrl).toString();
-        await browser.goto(target);
+        // Preserve the reviewer's --url query across the route swap.
+        const target = new URL(runtimeUrl);
+        target.pathname = '/notifications-centre';
+        await browser.goto(target.toString());
         const initial = await browser.evaluate(() => {
-          const items = Array.from(document.querySelectorAll('[data-notification-id]'));
+          // Enumerate only the notification wrappers (articles carrying
+          // data-notification-id AND data-acknowledged; the acknowledge
+          // and mark-read controls also carry data-notification-id so
+          // scope the query to article elements).
+          const items = Array.from(document.querySelectorAll('article[data-notification-id]'));
           return {
             itemCount: items.length,
             itemIds: items.map((el) => el.getAttribute('data-notification-id')),
+            itemAcknowledged: items.map((el) => el.getAttribute('data-acknowledged')),
             centreRegion: Boolean(document.querySelector('[data-region="notifications-centre"]')),
             markAllRead: Boolean(document.querySelector('[data-action="mark-all-read"]')),
             initialFetchCount: (window.__notificationFetches || []).length,
@@ -258,7 +268,11 @@ export default {
         // seam beyond click / type / press but the fixture places the
         // acknowledge control inside a <button> so the click is the
         // same click a keyboard activation would trigger.
-        const targetId = initial.itemIds[0];
+        const firstUnackIndex = initial.itemAcknowledged.findIndex((v) => v !== 'true');
+        if (firstUnackIndex === -1) {
+          return { verdict: 'fail', detail: 'every seeded notification is already acknowledged; cannot exercise the round-trip on an unacknowledged item' };
+        }
+        const targetId = initial.itemIds[firstUnackIndex];
         await browser.click('[data-action="acknowledge"][data-notification-id="' + targetId + '"]');
         // Poll for the DOM update (bounded loop; the acknowledge
         // round-trip should complete in well under a second).
