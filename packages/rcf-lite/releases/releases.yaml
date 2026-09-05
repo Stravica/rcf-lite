@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.20.0"
+latest: "0.21.0"
 releases:
+  - version: "0.21.0"
+    date: "2026-09-05"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.21.0 adds five visual-feature blueprints to the shelf (data table, charts, dashboard with packaged design guidance, in-app notifications, admin console) and the mechanism that proves them: a blueprint can now ship a Playwright probe pack that rcf verify runs against your running app in a real browser, and the ship gate refuses while a surface check fails."
+      - "The admin console only offers the surfaces your applied auth blueprint can support. Blueprints can now ask you questions at apply time."
+      - "The schema floor moves to rcf-schemas 0.6.1."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.20.0"
     date: "2026-09-04"
     breaking: true
