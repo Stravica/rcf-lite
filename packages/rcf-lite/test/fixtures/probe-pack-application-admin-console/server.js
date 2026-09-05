@@ -20,6 +20,7 @@ import http from 'node:http';
 import { URL } from 'node:url';
 
 const DEFAULT_CAPS = process.env.ADMIN_CONSOLE_CAPS ?? 'principalDirectory,roleModel,auditLog';
+const DEFAULT_BREAK = process.env.ADMIN_CONSOLE_BREAK ?? null;
 
 const USERS = [
   { id: 'u1', name: 'Ada Lovelace', email: 'ada@example.com', role: 'Owner', status: 'active', lastActive: '2026-09-04T14:22:00Z' },
@@ -270,7 +271,7 @@ const server = http.createServer(async (req, res) => {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
   const caps = capsFor(reqUrl);
   const asAdmin = reqUrl.searchParams.get('asAdmin') !== 'false';
-  const breakSwitch = reqUrl.searchParams.get('break');
+  const breakSwitch = reqUrl.searchParams.get('break') ?? DEFAULT_BREAK;
 
   if (req.method === 'GET' && reqUrl.pathname === '/__requests') {
     return jsonResponse(res, 200, { rows: requestLog });
