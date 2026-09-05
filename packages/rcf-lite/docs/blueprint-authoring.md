@@ -192,7 +192,7 @@ Identity blueprints declare identity or platform capabilities they provide via a
 | `principalDirectory` | The applied auth blueprint identifies principals a users surface can list. | `security-auth-clerk`, `security-auth-oauth2`, `security-auth-keycloak`, `security-auth-magic-link` (all four; the magic-link case ships principals but no roles). |
 | `roleModel` | The applied auth blueprint declares operator-visible role labels a permission matrix can render. | `security-auth-clerk`, `security-auth-oauth2`, `security-auth-keycloak` (magic-link does NOT declare this; a bare-magic-link project gets no roles surface). |
 | `tenancy` | The applied auth blueprint (or a paired tenancy blueprint) declares an organisation abstraction the console can switch across. | Reserved for a future `application-tenancy-orgs` blueprint; no shelf provider today. |
-| `auditLog` | The applied `logging` companion (or a dedicated audit-log blueprint) emits an event stream the console's audit view can read. | `observability-logging` (implicit through the `logging` role); a dedicated audit-log blueprint may claim it in future. |
+| `auditLog` | The applied `logging` companion (or a dedicated audit-log blueprint) emits an event stream the console's audit view can read. | `observability-logging` from 1.1.0 (declares `capabilities: [auditLog]` explicitly; one grammar, no role-to-capability inference); a dedicated audit-log blueprint may claim it in future. |
 
 The sibling loader fields are:
 

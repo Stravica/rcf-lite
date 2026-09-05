@@ -1,6 +1,6 @@
 # Logging blueprint (v1.0.0)
 
-Structured single-line JSON emission for a rcf-lite project. General enterprise practice, no vendor lock-in. Ships the shelf-canonical `logging` global topic on `ADR-1601-observability-logging-line-shape` (transferred from `application-api-rest-ADR-304`, retained there as superseded history). Provides the `logging` role for the companion-suggestion mechanism.
+Structured single-line JSON emission for a rcf-lite project. General enterprise practice, no vendor lock-in. Ships the shelf-canonical `logging` global topic on `ADR-1601-observability-logging-line-shape` (transferred from `application-api-rest-ADR-304`, retained there as superseded history). Provides the `logging` role for the companion-suggestion mechanism. From 1.1.0, declares `capabilities: [auditLog]` on `blueprint.json` so the application-admin-console probe pack activates the audit-log surface check `AC-21105-1` when this blueprint is applied on the project (one grammar; consumer blueprints read declared capabilities, never a role-to-capability inference).
 
 ## Apply
 

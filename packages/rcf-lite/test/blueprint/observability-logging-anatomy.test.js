@@ -26,9 +26,14 @@ test('observability-logging: blueprint.json declares the ratified shape (TC-038-
   const raw = await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8');
   const doc = JSON.parse(raw);
   assert.equal(doc.slug, 'observability-logging');
-  assert.equal(doc.version, '1.0.0');
+  assert.equal(doc.version, '1.1.0');
   assert.equal(doc.category, 'observability');
   assert.deepEqual(doc.providesRoles, ['logging']);
+  // Visual round T-5: declares capabilities: [auditLog] so the
+  // application-admin-console probe pack's AC-21105-1 audit-log check
+  // activates when this shelf blueprint is applied. One grammar; no
+  // role-to-capability inference.
+  assert.deepEqual(doc.capabilities, ['auditLog']);
   const globalAdrs = doc.contributions.filter((c) => c.kind === 'adr' && c.scope === 'global');
   assert.equal(globalAdrs.length, 1);
   assert.equal(globalAdrs[0].id, 'ADR-1601-observability-logging-line-shape');
@@ -60,7 +65,7 @@ test('observability-logging: apply into a fresh fixture succeeds and writes the 
   const res = await applyBlueprint({ projectRoot: root, tree, source: BLUEPRINT_ROOT });
   assert.equal(res.applied, true, JSON.stringify(res));
   assert.equal(res.slug, 'observability-logging');
-  assert.equal(res.version, '1.0.0');
+  assert.equal(res.version, '1.1.0');
   const adrPath = join(root, 'rcf', 'adrs', 'adr-1601-observability-logging-line-shape.json');
   const st = await stat(adrPath);
   assert.ok(st.isFile(), 'expected ADR-1601 file on disk after apply');
