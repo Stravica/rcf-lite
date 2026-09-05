@@ -124,6 +124,7 @@ The shelf-wide band registry (recorded at ship, never predicted; kept in sync ac
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
+| application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 
 Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (visual round T-5 is up next at 21101-21899 / 22xx for `application-admin-console`) and appends its row here after ship.
 
@@ -181,6 +182,25 @@ Roles named on `providesRoles[]` and `suggestedCompanions[]` (see section 8b) ar
 | `errorHandling` | Uncaught-exception boundary (process and framework), internal error record shape (code, category, message, correlationId, cause chain, redacted context), classification vocabulary (transient / permanent / unknown). | `application-error-handling` |
 
 Where a library ships a role that this table does not yet name (a library-side role the shelf has not adopted), the resolution rule still works and the review-on-add card names the unknown role for the operator's judgement.
+
+#### Capability declaration extension (visual round T-5)
+
+Identity blueprints declare identity or platform capabilities they provide via a sibling `capabilities[]` field on `blueprint.json`. Consumer blueprints (currently `application-admin-console`) gate their surfaces on the union of applied capabilities. The loader validates the shape (lower camelCase on the same `^[a-z][a-zA-Z0-9]*$` pattern as `providesRoles[]`); the vocabulary is this table extended below, in the same chunk-zero-style edit pattern the roles registry uses. Ratified 2026-09-04, spec section 5.5.2.
+
+| Capability | Meaning | Shelf provider(s) |
+|---|---|---|
+| `principalDirectory` | The applied auth blueprint identifies principals a users surface can list. | `security-auth-clerk`, `security-auth-oauth2`, `security-auth-keycloak`, `security-auth-magic-link` (all four; the magic-link case ships principals but no roles). |
+| `roleModel` | The applied auth blueprint declares operator-visible role labels a permission matrix can render. | `security-auth-clerk`, `security-auth-oauth2`, `security-auth-keycloak` (magic-link does NOT declare this; a bare-magic-link project gets no roles surface). |
+| `tenancy` | The applied auth blueprint (or a paired tenancy blueprint) declares an organisation abstraction the console can switch across. | Reserved for a future `application-tenancy-orgs` blueprint; no shelf provider today. |
+| `auditLog` | The applied `logging` companion (or a dedicated audit-log blueprint) emits an event stream the console's audit view can read. | `observability-logging` from 1.1.0 (declares `capabilities: [auditLog]` explicitly; one grammar, no role-to-capability inference); a dedicated audit-log blueprint may claim it in future. |
+
+The sibling loader fields are:
+
+- `capabilities[]` (identity blueprint): declares what the blueprint provides. Optional, non-empty when present.
+- `requiresAppliedCapabilities` (consumer blueprint): `{capabilities: string[], allowSkipFlag: string, refusalMessageId: string}`. The apply verb refuses when no applied blueprint's capabilities intersect the required set, unless the CLI flag matching `allowSkipFlag` is passed. The `refusalMessageId` maps to a bundled template (`application-admin-console-bare-spa` today; a bespoke message is used verbatim otherwise).
+- `elicits[]` (consumer blueprint): apply-time prompts the operator answers via `--answer <id>=<value>` or `--answers <file>`. Each entry declares `{id, prompt, kind (enum|string|boolean), default?, options? (for enum), when? (predicate on applied capabilities)}`; the elicit fires only when its `when.requiresCapability[]` overlaps the discovered applied-capability set.
+
+The apply verb persists the discovered `appliedCapabilities` and the elicit answers into a sidecar file at `rcf/blueprints/${slug}.applied.json` (the applied-blueprint-record schema in rcf-schemas 0.6.0 is closed under `additionalProperties: false`; the sidecar is the applied-side ground truth until a schema minor adopts the fields directly). A future rcf-schemas minor may promote `appliedCapabilities[]` onto the applied record; the sidecar stays supported for backward compatibility.
 
 ## 7. Adherence ACs and the mechanism-reach principle
 

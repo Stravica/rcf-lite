@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z",
+  "purpose": "Cover AC-2301-1..7 via unit tests over the shipped application-admin-console blueprint.json contribution shape (23 contributions in 6 REQ / 9 US / 4 TAC / 4 ADR groups), the requiresAppliedCapabilities and elicits[] declarations, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids, the pack appliesTo predicate discipline (references BOTH tacIds and route), the sample-app fixture serving the console shell with the ARIA APG grid permission matrix, the CAPS switch surface selector, the users directory, org switcher, audit-log table with correlation id, access-denied and request-access control, and the negative-run behaviour on the ?break=matrix-grid, ?break=denied and ?break=audit-fields switches.",
+  "testLevel": "unit",
+  "acIds": ["AC-2301-1", "AC-2301-2", "AC-2301-3", "AC-2301-4", "AC-2301-5", "AC-2301-6", "AC-2301-7"],
+  "id": "TS-052",
+  "usId": "US-2301",
+  "title": "application-admin-console v1.0.0 shelf shape, capability discovery, probe pack cross-check and sample-app fixture",
+  "testCases": [
+    {"id": "TC-052-blueprint-json-shape", "acId": "AC-2301-1", "description": "blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[]", "status": "pending", "testPointer": "test/blueprint/application-admin-console-anatomy.test.js::blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)"},
+    {"id": "TC-052-applies-clean-with-override", "acId": "AC-2301-2", "description": "Fresh init project applies admin-console --allow-no-auth-yet and writes sidecar with allowNoAuthYet true", "status": "pending", "testPointer": "test/blueprint/application-admin-console-anatomy.test.js::apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:true and empty appliedCapabilities (TC-052-applies-clean-with-override)"},
+    {"id": "TC-052-refuses-bare-spa", "acId": "AC-2301-3", "description": "Fresh init project without auth refuses admin-console apply with exit 3 and spec 5.5.1 message", "status": "pending", "testPointer": "test/blueprint/application-admin-console-anatomy.test.js::apply refuses on bare SPA with spec 5.5.1 verbatim message and lists applied blueprints (TC-052-refuses-bare-spa)"},
+    {"id": "TC-052-capability-discovery", "acId": "AC-2301-4", "description": "Discovery reads applied capabilities from applied blueprints", "status": "pending", "testPointer": "test/blueprint/application-admin-console-anatomy.test.js::apply on magic-link project yields [principalDirectory] and on clerk+logging project yields [principalDirectory,roleModel,auditLog] (TC-052-capability-discovery)"},
+    {"id": "TC-052-pack-checks-cross-check", "acId": "AC-2301-5", "description": "Every pack check id matches contributed AC id and applies gates on capability", "status": "pending", "testPointer": "test/blueprint/application-admin-console-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo predicate gates on the applied capability (TC-052-pack-checks-cross-check)"},
+    {"id": "TC-052-fixture-surfaces", "acId": "AC-2301-6", "description": "Sample-app fixture serves the console shell with grid matrix and required data attributes", "status": "pending", "testPointer": "test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture serves console shell with ARIA APG grid permission matrix and required data attributes (TC-052-fixture-surfaces)"},
+    {"id": "TC-052-negative-runs", "acId": "AC-2301-7", "description": "Break switches surface the three defects on the DOM", "status": "pending", "testPointer": "test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture break switches surface the three defects on the DOM (TC-052-negative-runs)"}
+  ],
+  "status": "draft"
+}

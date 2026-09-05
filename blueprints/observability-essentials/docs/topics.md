@@ -54,6 +54,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
+| application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 
 US 7101-7110 sit at the LOW end of the 7101-7899 band on purpose. A project-side story that mechanically derives from an observability-essentials REQs id into the number `7110` would collide against observability-essentials-US-7110 in this package; the band leaves headroom at the HIGH end (US 7181-7899) so a project's own stories anchored to observability-essentials REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

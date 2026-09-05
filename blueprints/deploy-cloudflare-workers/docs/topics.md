@@ -39,6 +39,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
+| application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 
 US 12101-12112 sit at the LOW end of the 12101-12899 band on purpose. A project-side story that mechanically derives from a deploy-cloudflare-workers REQ id into the number `12112` would collide against deploy-cloudflare-workers-US-12112 in this package; the band leaves headroom at the HIGH end (US 12181-12899) so a project's own stories anchored to deploy-cloudflare-workers REQs can allocate without conflict. The watchpost run4 lesson applies here too. Band spacing between the last shipped block (security-secrets-management, 8101-8899, 9xx) and this one (12101-12899, 13xx) leaves the 9xxx-11xxx US bands and the 10xx-12xx suffix blocks open for concurrent-lane authoring so a peer authoring another blueprint in the same PR window does not collide with this one.
 

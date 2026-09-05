@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-132",
+  "path": "../../blueprints/application-admin-console/probe-packs/application-admin-console.pack.mjs",
+  "implementsAcIds": [
+    "AC-2301-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z"
+}

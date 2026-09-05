@@ -1,0 +1,18 @@
+{
+  "reqId": "application-admin-console-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The application ships an admin-console shell with navigation across the applied capability set and no dead links",
+  "description": "The application realises an admin-console surface whose navigation, on load, reads the applied blueprints capability declarations (via source read-back on manifest.blueprints[]) and renders links only for the surfaces the applied capabilities enable. A surface whose gating capability is not applied is neither linked nor reachable from the shell. The shell is the base surface REQ-002 to REQ-006 elaborate on.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round spec section 5.5, REQ 1 of the admin-console blueprint.",
+  "tags": [
+    "blueprint:application-admin-console",
+    "category:01-shell"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

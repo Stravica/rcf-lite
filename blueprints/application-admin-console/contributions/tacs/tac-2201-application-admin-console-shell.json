@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2201-application-admin-console-shell",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Admin-console shell",
+  "purpose": "Owns the rendered admin-console surface: the top-level nav landmark, the surface-manifest read at load, the conditional rendering of every applied surface (users, roles, orgs, audit), the access-denied and request-access states, and the shared page layout every surface renders within. The shell is the base surface every AC in this blueprint anchors on.",
+  "responsibilities": [
+    "Read the applied capability sidecar (rcf/blueprints/application-admin-console.applied.json) at load and configure the surface set (AC-21101-1, AC-21107-1).",
+    "Render a single primary navigation landmark carrying an accessible name and rendering only applied surfaces (AC-21101-1, AC-21101-2).",
+    "Render the access-denied state for a non-admin principal reaching any admin route with a keyboard-reachable request-access control announcing its state (AC-21106-1).",
+    "Delegate the users, roles, orgs and audit surfaces to their respective TACs (TAC-2201 through TAC-2204)."
+  ],
+  "internalStructure": "One shell module that mounts the surface, reads the applied capabilities sidecar, and renders the nav landmark, the page-layout scaffolding, and the route-level containers for each conditional surface. The framework is not prescribed; the shell interfaces are what the project realises against React, Vue, Svelte or vanilla DOM.",
+  "interfaces": [
+    {
+      "name": "renderShell",
+      "kind": "factory",
+      "description": "renderShell({ capsSidecarUrl, surfaceRegistry, accessGuard }) -> { mount(rootElement), unmount() }. The project supplies the capsSidecarUrl (where the sidecar is served from), the surfaceRegistry (maps a capability string to a surface component), and the accessGuard (returns whether the current principal has admin scope)."
+    },
+    {
+      "name": "capabilitiesSidecar",
+      "kind": "shape",
+      "description": "{ slug, version, appliedAt, appliedCapabilities: string[], appliedElicitations: {}, allowNoAuthYet?: boolean, notes?: string }. Written by apply, read by the shell."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Capability discovery",
+      "kind": "tac",
+      "tacId": "TAC-2202-application-admin-console-capability-discovery",
+      "description": "The shell reads the surface-manifest through discovery."
+    }
+  ],
+  "tradeoffs": "The shell reads the sidecar file the apply verb writes; a runtime probe against manifest.blueprints[] would be more dynamic but ties the shell to the deploy-target having filesystem read access, which not every deploy target grants. The sidecar contract is deterministic and cacheable.",
+  "notes": "Known mechanism-reach gap: the shell contract cannot prove keyboard focus does not escape the surface in every frameworks rendering; project-side smoke tests supplement the pack. See README `Known mechanism-reach gaps`.",
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

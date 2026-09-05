@@ -151,8 +151,53 @@ export async function loadBlueprint(source) {
     ...(Array.isArray(doc.standardsTrace)
       ? { standardsTrace: doc.standardsTrace.map((s) => ({ id: s.id, version: s.version })) }
       : {}),
+    // Capability-declaration mechanism (visual round T-5 spec section
+    // 5.5.2). Blueprints declare identity or platform capabilities they
+    // provide (principalDirectory, roleModel, tenancy, auditLog); the
+    // vocabulary lives in the section 6a table in blueprint-authoring.md
+    // and the shape validation lives in this loader. Consumer blueprints
+    // gate surfaces on the union of currently-applied blueprints'
+    // capabilities via the apply-time source read-back (see apply.js).
+    ...(Array.isArray(doc.capabilities) ? { capabilities: doc.capabilities.slice() } : {}),
+    // Elicitation phase (visual round T-5 spec section 5.5, T-2 gate
+    // note d-2026-09-04-051). ADR-elicited fields on contributions are
+    // declarative only; a blueprint that needs apply-time answers
+    // declares them on this top-level list. Each entry has an id
+    // (kebab), a prompt (operator-facing), a kind (enum|string|boolean)
+    // with default and options, and an optional `when` predicate whose
+    // capability list gates whether the elicit fires.
+    ...(Array.isArray(doc.elicits) ? { elicits: doc.elicits.map((e) => normaliseElicit(e)) } : {}),
+    // Refusal gate (visual round T-5 spec section 5.5.1). A blueprint
+    // that requires at least one applied blueprint declaring a listed
+    // capability refuses at apply unless the CLI passes the named skip
+    // flag; the message and shape are validated on load, evaluated on
+    // apply.
+    ...(doc.requiresAppliedCapabilities !== undefined
+      ? {
+          requiresAppliedCapabilities: {
+            capabilities: doc.requiresAppliedCapabilities.capabilities.slice(),
+            allowSkipFlag: doc.requiresAppliedCapabilities.allowSkipFlag,
+            refusalMessageId: doc.requiresAppliedCapabilities.refusalMessageId,
+          },
+        }
+      : {}),
     contributions: Array.isArray(doc.contributions) ? doc.contributions.map(preserveAdrDisciplineFields) : [],
   };
+}
+
+// Shape-preserve an elicit entry. The loader's validator has already
+// vetted every field; this copy strips extra keys and freezes shape.
+function normaliseElicit(entry) {
+  const out = { id: entry.id, prompt: entry.prompt, kind: entry.kind };
+  if (entry.default !== undefined) out.default = entry.default;
+  if (Array.isArray(entry.options)) out.options = entry.options.slice();
+  if (entry.when !== undefined) {
+    out.when = { requiresCapability: entry.when.requiresCapability };
+  }
+  if (typeof entry.providesCapability === 'string') {
+    out.providesCapability = entry.providesCapability;
+  }
+  return out;
 }
 
 // Copy the standards-derived-discipline ADR fields (recommendedDefault,
@@ -276,6 +321,208 @@ function validateMetadata(doc, metaPath) {
   // severity to kind (per amendment A2); the discipline is prose.
   const stError = validateStandardsTrace(doc, metaPath);
   if (stError) return stError;
+  // Capability-declaration mechanism (visual round T-5, spec 5.5.2).
+  const capError = validateCapabilities(doc, metaPath);
+  if (capError) return capError;
+  const elicitError = validateElicits(doc, metaPath);
+  if (elicitError) return elicitError;
+  const requiresError = validateRequiresAppliedCapabilities(doc, metaPath);
+  if (requiresError) return requiresError;
+  return null;
+}
+
+// The kebab-slug grammar the elicit id uses (matches blueprint slug
+// and category shapes). Elicit ids must be slugs so the CLI's
+// --answer <id>=<value> flag has an unambiguous key vocabulary.
+const KEBAB_SLUG_RE = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+
+// Set of legal elicit kinds. `enum` requires options[]; `string` and
+// `boolean` do not.
+const ELICIT_KINDS = new Set(['enum', 'string', 'boolean']);
+
+/**
+ * Validate capabilities[] shape (visual round T-5 spec 5.5.2). Optional;
+ * when present must be a non-empty array of lower camelCase strings on
+ * ^[a-z][a-zA-Z0-9]*$, matching the section 6a role convention.
+ */
+function validateCapabilities(doc, metaPath) {
+  if (doc.capabilities === undefined) return null;
+  if (!Array.isArray(doc.capabilities) || doc.capabilities.length === 0) {
+    return rcfError({ kind: 'validation', message: 'blueprint.json: capabilities must be a non-empty array when set', filePath: metaPath });
+  }
+  for (let i = 0; i < doc.capabilities.length; i += 1) {
+    const cap = doc.capabilities[i];
+    if (typeof cap !== 'string' || !ROLE_NAME_RE.test(cap)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: capabilities[${i}] '${cap}' is not lower camelCase (^[a-z][a-zA-Z0-9]*$).`,
+        filePath: metaPath,
+      });
+    }
+  }
+  return null;
+}
+
+/**
+ * Validate elicits[] shape (visual round T-5 spec 5.5). Optional; when
+ * present must be a non-empty array of entries carrying id (kebab
+ * slug), prompt (non-empty string, no em-dashes, no emojis), kind
+ * (enum|string|boolean), an optional default matching the kind, an
+ * options[] array when kind is enum, and an optional when-predicate
+ * whose requiresCapability[] is a non-empty array of camelCase
+ * capability strings.
+ */
+function validateElicits(doc, metaPath) {
+  if (doc.elicits === undefined) return null;
+  if (!Array.isArray(doc.elicits) || doc.elicits.length === 0) {
+    return rcfError({ kind: 'validation', message: 'blueprint.json: elicits must be a non-empty array when set', filePath: metaPath });
+  }
+  const seenIds = new Set();
+  for (let i = 0; i < doc.elicits.length; i += 1) {
+    const entry = doc.elicits[i];
+    if (typeof entry !== 'object' || entry === null) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] must be an object`, filePath: metaPath });
+    }
+    if (typeof entry.id !== 'string' || !KEBAB_SLUG_RE.test(entry.id)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: elicits[${i}].id '${entry.id}' is not a kebab slug (^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$).`,
+        filePath: metaPath,
+      });
+    }
+    if (seenIds.has(entry.id)) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}].id '${entry.id}' duplicates an earlier entry`, filePath: metaPath });
+    }
+    seenIds.add(entry.id);
+    if (typeof entry.prompt !== 'string' || entry.prompt.trim().length === 0) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' prompt must be a non-empty string`, filePath: metaPath });
+    }
+    if (EM_DASH.test(entry.prompt)) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' prompt contains an em-dash; use a comma, a full stop, or a colon.`, filePath: metaPath });
+    }
+    if (EMOJI_RE.test(entry.prompt)) {
+      return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' prompt contains an emoji; operator-facing prose must be plain text.`, filePath: metaPath });
+    }
+    if (!ELICIT_KINDS.has(entry.kind)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: elicits[${i}] '${entry.id}' kind '${entry.kind}' must be one of: ${[...ELICIT_KINDS].join(', ')}.`,
+        filePath: metaPath,
+      });
+    }
+    if (entry.kind === 'enum') {
+      if (!Array.isArray(entry.options) || entry.options.length === 0) {
+        return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' kind=enum requires a non-empty options[] array`, filePath: metaPath });
+      }
+      for (let j = 0; j < entry.options.length; j += 1) {
+        if (typeof entry.options[j] !== 'string' || entry.options[j].length === 0) {
+          return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' options[${j}] must be a non-empty string`, filePath: metaPath });
+        }
+      }
+      if (entry.default !== undefined && !entry.options.includes(entry.default)) {
+        return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' default '${entry.default}' is not in options[]`, filePath: metaPath });
+      }
+    } else if (entry.kind === 'boolean') {
+      if (entry.default !== undefined && typeof entry.default !== 'boolean') {
+        return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' kind=boolean default must be a boolean`, filePath: metaPath });
+      }
+    } else if (entry.kind === 'string') {
+      if (entry.default !== undefined && typeof entry.default !== 'string') {
+        return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' kind=string default must be a string`, filePath: metaPath });
+      }
+    }
+    if (entry.when !== undefined) {
+      if (typeof entry.when !== 'object' || entry.when === null) {
+        return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' when must be an object`, filePath: metaPath });
+      }
+      if (!Array.isArray(entry.when.requiresCapability) || entry.when.requiresCapability.length === 0) {
+        return rcfError({ kind: 'validation', message: `blueprint.json: elicits[${i}] '${entry.id}' when.requiresCapability must be a non-empty array`, filePath: metaPath });
+      }
+      for (let j = 0; j < entry.when.requiresCapability.length; j += 1) {
+        const cap = entry.when.requiresCapability[j];
+        if (typeof cap !== 'string' || !ROLE_NAME_RE.test(cap)) {
+          return rcfError({
+            kind: 'validation',
+            message: `blueprint.json: elicits[${i}] '${entry.id}' when.requiresCapability[${j}] '${cap}' is not lower camelCase.`,
+            filePath: metaPath,
+          });
+        }
+      }
+    }
+    // Custom-auth capability discovery (visual round T-5 spec 5.5
+    // "Risks"). An elicit that declares providesCapability is a
+    // boolean prompt asking the operator whether their custom auth
+    // provides the named capability; a truthy answer folds the
+    // capability into the effective applied set at apply time, so a
+    // project with no shelf auth blueprint can still satisfy a
+    // consumer blueprint's requiresAppliedCapabilities gate without
+    // the allowNoAuthYet override. Rules: kind MUST be boolean,
+    // when MUST be absent (custom-auth elicits fire pre-refusal,
+    // before any discovered-capability set exists), and the value
+    // MUST be lower camelCase (same grammar as capabilities[]).
+    if (entry.providesCapability !== undefined) {
+      if (entry.kind !== 'boolean') {
+        return rcfError({
+          kind: 'validation',
+          message: `blueprint.json: elicits[${i}] '${entry.id}' providesCapability requires kind=boolean (got '${entry.kind}').`,
+          filePath: metaPath,
+        });
+      }
+      if (entry.when !== undefined) {
+        return rcfError({
+          kind: 'validation',
+          message: `blueprint.json: elicits[${i}] '${entry.id}' providesCapability is incompatible with when (custom-auth elicits fire pre-refusal, before applied capabilities are discovered).`,
+          filePath: metaPath,
+        });
+      }
+      if (typeof entry.providesCapability !== 'string' || !ROLE_NAME_RE.test(entry.providesCapability)) {
+        return rcfError({
+          kind: 'validation',
+          message: `blueprint.json: elicits[${i}] '${entry.id}' providesCapability '${entry.providesCapability}' is not lower camelCase (^[a-z][a-zA-Z0-9]*$).`,
+          filePath: metaPath,
+        });
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Validate requiresAppliedCapabilities shape (visual round T-5 spec
+ * 5.5.1). Optional; when present must be an object with capabilities
+ * (non-empty array of lower camelCase strings), allowSkipFlag (kebab
+ * slug matching a CLI flag name), and refusalMessageId (non-empty
+ * string; the apply verb maps it to a message template).
+ */
+function validateRequiresAppliedCapabilities(doc, metaPath) {
+  if (doc.requiresAppliedCapabilities === undefined) return null;
+  const r = doc.requiresAppliedCapabilities;
+  if (typeof r !== 'object' || r === null) {
+    return rcfError({ kind: 'validation', message: 'blueprint.json: requiresAppliedCapabilities must be an object', filePath: metaPath });
+  }
+  if (!Array.isArray(r.capabilities) || r.capabilities.length === 0) {
+    return rcfError({ kind: 'validation', message: 'blueprint.json: requiresAppliedCapabilities.capabilities must be a non-empty array', filePath: metaPath });
+  }
+  for (let i = 0; i < r.capabilities.length; i += 1) {
+    const cap = r.capabilities[i];
+    if (typeof cap !== 'string' || !ROLE_NAME_RE.test(cap)) {
+      return rcfError({
+        kind: 'validation',
+        message: `blueprint.json: requiresAppliedCapabilities.capabilities[${i}] '${cap}' is not lower camelCase.`,
+        filePath: metaPath,
+      });
+    }
+  }
+  if (typeof r.allowSkipFlag !== 'string' || !KEBAB_SLUG_RE.test(r.allowSkipFlag)) {
+    return rcfError({
+      kind: 'validation',
+      message: `blueprint.json: requiresAppliedCapabilities.allowSkipFlag '${r.allowSkipFlag}' is not a kebab slug (matches a CLI flag name).`,
+      filePath: metaPath,
+    });
+  }
+  if (typeof r.refusalMessageId !== 'string' || r.refusalMessageId.trim().length === 0) {
+    return rcfError({ kind: 'validation', message: 'blueprint.json: requiresAppliedCapabilities.refusalMessageId must be a non-empty string', filePath: metaPath });
+  }
   return null;
 }
 

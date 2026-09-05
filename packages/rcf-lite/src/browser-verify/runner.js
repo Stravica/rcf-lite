@@ -65,7 +65,7 @@ export const stubBrowserDriver = Object.freeze({
  */
 export async function runAgentScreenshotCritique({
   tree, fbs, runtimeUrl, runtimeProfile, browserDriver, fetch, artefactDir, critiqueNotes,
-  probePacks = [], packBrowser = null, packNameFilter, now = new Date(),
+  probePacks = [], packBrowser = null, packNameFilter, projectRoot = null, now = new Date(),
 }) {
   const routes = fbs?.designStage?.navModel?.routes ?? [];
   const themes = readThemesFromBaseline(tree.manifest?.uiBaseline);
@@ -135,6 +135,7 @@ export async function runAgentScreenshotCritique({
       fbs,
       uiBaseline: tree.manifest?.uiBaseline ?? null,
       manifest: tree.manifest ?? null,
+      projectRoot,
       browser: packBrowser,
       fetch,
       runtimeUrl,

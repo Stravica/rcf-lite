@@ -1,7 +1,8 @@
 {
   "slug": "security-auth-keycloak",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "security",
+  "capabilities": ["principalDirectory", "roleModel"],
   "contributions": [
     { "id": "security-auth-keycloak-REQ-001", "kind": "req", "path": "requirements/security-auth-keycloak-req-001.json" },
     { "id": "security-auth-keycloak-REQ-002", "kind": "req", "path": "requirements/security-auth-keycloak-req-002.json" },

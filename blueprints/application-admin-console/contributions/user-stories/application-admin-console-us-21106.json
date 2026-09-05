@@ -1,0 +1,27 @@
+{
+  "usId": "application-admin-console-US-21106",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Access-denied state renders a keyboard-reachable request-access control",
+  "asA": "a non-admin user routed to an admin URL",
+  "iWant": "a clearly-labelled access-denied state naming why access was refused and a keyboard-reachable request-access control",
+  "soThat": "I can request access without leaving the app or contacting an admin out of band",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21106-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "A non-admin principal reaching /admin renders a role=\"region\" with an accessible name naming the denied action (WCAG 2.4.6), a paragraph explaining why access was refused (WCAG 3.3.4), and a request-access control (data-action=\"request-access\") routed to POST /api/request-access. The control announces its state (idle, submitting, submitted) via a polite live region (WCAG 4.1.3)."
+    }
+  ],
+  "tacIds": [
+    "TAC-2201-application-admin-console-shell"
+  ],
+  "tags": [
+    "blueprint:application-admin-console"
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

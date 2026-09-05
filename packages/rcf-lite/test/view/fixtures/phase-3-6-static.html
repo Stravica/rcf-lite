@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -6659,6 +6659,402 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-022">
+  <summary><span class="summary-label">REQ-022 - Capability-declaration mechanism (capabilities[], elicits[], apply-time discovery, refusal and custom-auth elicitation) and four auth-blueprint 1.1.0 minors adopting it</span><span class="status draft">draft</span></summary>
+  <article id="REQ-022" class="doc doc-req">
+  <h3>REQ-022 - Capability-declaration mechanism (capabilities[], elicits[], apply-time discovery, refusal and custom-auth elicitation) and four auth-blueprint 1.1.0 minors adopting it</h3>
+  
+  <p><strong>Description:</strong> The rcf-lite blueprint loader accepts two additive optional top-level fields on blueprint.json: capabilities[] (a non-empty array of lower camelCase strings on the ^[a-z][a-zA-Z0-9]*$ pattern, matching the section 6a role naming convention; a blueprint declares what identity or platform capability it provides so consumer blueprints can gate surfaces on it) and elicits[] (a non-empty array of {id, prompt, kind: enum|string|boolean, default, when?} entries the apply verb reads at apply time to prompt the operator for per-project answers). The loader validates SHAPE; the vocabulary lives in the section 6a table (principalDirectory, roleModel, tenancy, auditLog) extended in the same docs edit. A third additive top-level field requiresAppliedCapabilities[] tells apply that the blueprint refuses to apply when none of the currently-applied blueprints declares any of the required capabilities (unless an allowSkipFlag matching --allow-no-auth-yet is passed); apply then reads back each applied blueprint&#39;s source blueprint.json (the applied-blueprint-record schema is closed and refuses new fields; the source-manifest read-back precedent from the T-2 core-companions train applies here) to compute the appliedCapabilities union across the project. When the union is empty AND the blueprint is admin-console AND --allow-no-auth-yet was not passed, the apply exits 3 with a stderr message naming security-auth-* (the spec 5.5.1 verbatim message) and lists the currently-applied blueprints. When --allow-no-auth-yet is passed, apply stamps a note field onto the applied record so a later rcf define validate can flag surfaces that never activated. The elicitation phase prompts on a TTY and reads --answer &lt;id&gt;=&lt;value&gt; (repeatable) plus --answers &lt;file&gt; (JSON object) non-interactively; each elicit&#39;s `when` predicate evaluates against the discovered applied-capability set so elicits like the tenancy shape only prompt when the tenancy capability is applied. Apply persists appliedCapabilities and appliedElicitations into a sidecar file at rcf/blueprints/${slug}.applied.json (the applied-blueprint-record schema is closed under additionalProperties:false so the manifest cannot carry them; the sidecar is read by consumer surfaces at runtime). The four shelf auth blueprints adopt capabilities[] in v1.1.0 minor bumps landing in the same PR per spec Q2 default: security-auth-magic-link 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory]; security-auth-clerk 1.1.0 -&gt; 1.2.0 capabilities: [principalDirectory, roleModel]; security-auth-oauth2 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]; security-auth-keycloak 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]. Per section 6 of blueprint-authoring.md, an additive optional field with no global-topic change is a minor bump.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> application</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-022[&quot;REQ-022&lt;br/&gt;Capability-declaration mechanism (capabilitie...&quot;]
+  US-2201[&quot;US-2201&lt;br/&gt;The capability-declaration mechanism lands in...&quot;]
+  REQ-022 --&gt; US-2201
+  AC-2201-1[&quot;AC-2201-1&quot;]
+  US-2201 --&gt; AC-2201-1
+  FBS-041[&quot;FBS-041&lt;br/&gt;Capability-declaration mechanism and four she...&quot;]
+  AC-2201-1 -.-&gt;|delivered by| FBS-041
+  CN-128[&quot;CN-128&lt;br/&gt;../../packages/rcf-lite/src/blueprint/loader.js&quot;]
+  AC-2201-1 -.-&gt;|implemented by| CN-128
+  AC-2201-2[&quot;AC-2201-2&quot;]
+  US-2201 --&gt; AC-2201-2
+  AC-2201-2 -.-&gt;|delivered by| FBS-041
+  AC-2201-2 -.-&gt;|implemented by| CN-128
+  AC-2201-3[&quot;AC-2201-3&quot;]
+  US-2201 --&gt; AC-2201-3
+  AC-2201-3 -.-&gt;|delivered by| FBS-041
+  AC-2201-3 -.-&gt;|implemented by| CN-128
+  AC-2201-4[&quot;AC-2201-4&quot;]
+  US-2201 --&gt; AC-2201-4
+  AC-2201-4 -.-&gt;|delivered by| FBS-041
+  CN-129[&quot;CN-129&lt;br/&gt;../../packages/rcf-lite/src/blueprint/apply.js&quot;]
+  AC-2201-4 -.-&gt;|implemented by| CN-129
+  AC-2201-5[&quot;AC-2201-5&quot;]
+  US-2201 --&gt; AC-2201-5
+  AC-2201-5 -.-&gt;|delivered by| FBS-041
+  AC-2201-5 -.-&gt;|implemented by| CN-129
+  AC-2201-6[&quot;AC-2201-6&quot;]
+  US-2201 --&gt; AC-2201-6
+  AC-2201-6 -.-&gt;|delivered by| FBS-041
+  CN-130[&quot;CN-130&lt;br/&gt;../../packages/rcf-lite/src/blueprint/capabil...&quot;]
+  AC-2201-6 -.-&gt;|implemented by| CN-130
+  AC-2201-7[&quot;AC-2201-7&quot;]
+  US-2201 --&gt; AC-2201-7
+  AC-2201-7 -.-&gt;|delivered by| FBS-041
+  AC-2201-7 -.-&gt;|implemented by| CN-129
+  AC-2201-8[&quot;AC-2201-8&quot;]
+  US-2201 --&gt; AC-2201-8
+  AC-2201-8 -.-&gt;|delivered by| FBS-041
+  AC-2201-8 -.-&gt;|implemented by| CN-130
+  AC-2201-9[&quot;AC-2201-9&quot;]
+  US-2201 --&gt; AC-2201-9
+  AC-2201-9 -.-&gt;|delivered by| FBS-041
+  AC-2201-9 -.-&gt;|implemented by| CN-130
+  click REQ-022 &quot;#REQ-022&quot;;
+  click US-2201 &quot;#US-2201&quot;;
+  click AC-2201-1 &quot;#AC-2201-1&quot;;
+  click FBS-041 &quot;#FBS-041&quot;;
+  click CN-128 &quot;#CN-128&quot;;
+  click AC-2201-2 &quot;#AC-2201-2&quot;;
+  click AC-2201-3 &quot;#AC-2201-3&quot;;
+  click AC-2201-4 &quot;#AC-2201-4&quot;;
+  click CN-129 &quot;#CN-129&quot;;
+  click AC-2201-5 &quot;#AC-2201-5&quot;;
+  click AC-2201-6 &quot;#AC-2201-6&quot;;
+  click CN-130 &quot;#CN-130&quot;;
+  click AC-2201-7 &quot;#AC-2201-7&quot;;
+  click AC-2201-8 &quot;#AC-2201-8&quot;;
+  click AC-2201-9 &quot;#AC-2201-9&quot;;
+  class REQ-022 req;
+  class US-2201 us;
+  class AC-2201-1 ac;
+  class FBS-041 fbs;
+  class CN-128 cn;
+  class AC-2201-2 ac;
+  class AC-2201-3 ac;
+  class AC-2201-4 ac;
+  class CN-129 cn;
+  class AC-2201-5 ac;
+  class AC-2201-6 ac;
+  class CN-130 cn;
+  class AC-2201-7 ac;
+  class AC-2201-8 ac;
+  class AC-2201-9 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-022&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Capability-declaration mechanism (capabilities[], elicits[], apply-time discovery, refusal and custom-auth elicitation) and four auth-blueprint 1.1.0 minors adopting it&quot;,
+  &quot;description&quot;: &quot;The rcf-lite blueprint loader accepts two additive optional top-level fields on blueprint.json: capabilities[] (a non-empty array of lower camelCase strings on the ^[a-z][a-zA-Z0-9]*$ pattern, matching the section 6a role naming convention; a blueprint declares what identity or platform capability it provides so consumer blueprints can gate surfaces on it) and elicits[] (a non-empty array of {id, prompt, kind: enum|string|boolean, default, when?} entries the apply verb reads at apply time to prompt the operator for per-project answers). The loader validates SHAPE; the vocabulary lives in the section 6a table (principalDirectory, roleModel, tenancy, auditLog) extended in the same docs edit. A third additive top-level field requiresAppliedCapabilities[] tells apply that the blueprint refuses to apply when none of the currently-applied blueprints declares any of the required capabilities (unless an allowSkipFlag matching --allow-no-auth-yet is passed); apply then reads back each applied blueprint&#39;s source blueprint.json (the applied-blueprint-record schema is closed and refuses new fields; the source-manifest read-back precedent from the T-2 core-companions train applies here) to compute the appliedCapabilities union across the project. When the union is empty AND the blueprint is admin-console AND --allow-no-auth-yet was not passed, the apply exits 3 with a stderr message naming security-auth-* (the spec 5.5.1 verbatim message) and lists the currently-applied blueprints. When --allow-no-auth-yet is passed, apply stamps a note field onto the applied record so a later rcf define validate can flag surfaces that never activated. The elicitation phase prompts on a TTY and reads --answer &lt;id&gt;=&lt;value&gt; (repeatable) plus --answers &lt;file&gt; (JSON object) non-interactively; each elicit&#39;s `when` predicate evaluates against the discovered applied-capability set so elicits like the tenancy shape only prompt when the tenancy capability is applied. Apply persists appliedCapabilities and appliedElicitations into a sidecar file at rcf/blueprints/${slug}.applied.json (the applied-blueprint-record schema is closed under additionalProperties:false so the manifest cannot carry them; the sidecar is read by consumer surfaces at runtime). The four shelf auth blueprints adopt capabilities[] in v1.1.0 minor bumps landing in the same PR per spec Q2 default: security-auth-magic-link 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory]; security-auth-clerk 1.1.0 -&gt; 1.2.0 capabilities: [principalDirectory, roleModel]; security-auth-oauth2 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]; security-auth-keycloak 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]. Per section 6 of blueprint-authoring.md, an additive optional field with no global-topic change is a minor bump.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;application&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-2201">
+  <summary><span class="summary-label">US-2201 - The capability-declaration mechanism lands in the loader and apply verb; the four shelf auth blueprints adopt it in v1.1.0 minor bumps</span><span class="status draft">draft</span></summary>
+  <article id="US-2201" class="doc doc-us">
+  <h3>US-2201 - The capability-declaration mechanism lands in the loader and apply verb; the four shelf auth blueprints adopt it in v1.1.0 minor bumps</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying a consumer blueprint that gates surfaces on identity or platform capabilities</p>
+  <p><strong>I want:</strong> the blueprint loader to accept capabilities[], elicits[] and requiresAppliedCapabilities on blueprint.json with shape validation, the apply verb to discover applied capabilities by reading each applied blueprint&#39;s source blueprint.json, refuse admin-console-shaped applies with the spec 5.5.1 verbatim message when no required capability is applied and --allow-no-auth-yet is absent, prompt an elicitation phase gated by the discovered capabilities, and persist appliedCapabilities and appliedElicitations to rcf/blueprints/${slug}.applied.json; and the four shelf auth blueprints to declare capabilities[] in v1.1.0 minor bumps landing in the same PR</p>
+  <p><strong>So that:</strong> a project applying admin-console (or any future capability-gated blueprint) gets deterministic apply-time surface configuration, a bare-SPA apply is refused with the operator-friendly message the spec ratified, custom-auth projects elicit their answers into a persistent record the console reads, and the four shelf auth blueprints announce their identity capability set in one release train per spec Q2 default</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-022">REQ-022</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-2201-1" class="ac-item"><strong>AC-2201-1</strong> - The blueprint loader accepts an optional capabilities[] top-level field on blueprint.json: when present it must be a non-empty array of lower camelCase strings on ^[a-z][a-zA-Z0-9]*$, and a malformed value refuses with a validation rcfError naming the field. LoadedBlueprint exposes capabilities[] verbatim.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+<li id="AC-2201-2" class="ac-item"><strong>AC-2201-2</strong> - The blueprint loader accepts an optional elicits[] top-level field: when present it must be a non-empty array of {id (kebab slug), prompt (non-empty operator-facing string, no em-dashes, no emojis), kind (one of enum, string, boolean), default (matching kind), options (required when kind=enum), when (optional predicate object)} entries; malformed shapes refuse with a validation rcfError naming the entry.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+<li id="AC-2201-3" class="ac-item"><strong>AC-2201-3</strong> - The blueprint loader accepts an optional requiresAppliedCapabilities top-level object: when present its capabilities[] property is a non-empty array of lower camelCase strings, allowSkipFlag is a kebab slug matching an apply-verb flag name (allow-no-auth-yet in v1), and refusalMessageId is a non-empty string; malformed shapes refuse with a validation rcfError.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+<li id="AC-2201-4" class="ac-item"><strong>AC-2201-4</strong> - applyBlueprint reads each applied blueprint&#39;s source blueprint.json (via the applied record&#39;s source field the T-2 core-companions train established) to compute the appliedCapabilities union across the project; when the loaded blueprint declares requiresAppliedCapabilities and the union has no overlap AND the CLI did not pass --allow-no-auth-yet, apply returns an rcfError kind requiresAppliedCapabilities carrying the spec 5.5.1 message body verbatim with the currently-applied blueprints list substituted, and the CLI exits 3 with that message on stderr naming security-auth-*.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+<li id="AC-2201-5" class="ac-item"><strong>AC-2201-5</strong> - When --allow-no-auth-yet is passed on the CLI and the blueprint&#39;s allowSkipFlag matches, apply proceeds and the applied-record sidecar rcf/blueprints/${slug}.applied.json is written with allowNoAuthYet: true and a notes string naming the no-auth-yet state; the manifest applied record&#39;s schema-closed fields remain untouched.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+<li id="AC-2201-6" class="ac-item"><strong>AC-2201-6</strong> - The elicitation phase reads --answer &lt;id&gt;=&lt;value&gt; repeatable arguments and --answers &lt;file&gt; (a JSON object mapping id to value) at apply time; every elicit entry whose when predicate resolves true against the discovered applied-capability set is prompted (on a TTY) or read from the answer bag (non-interactive) with the declared kind coerced (boolean from y/yes/n/no, enum against options, string trimmed); a missing required answer refuses with a validation rcfError naming the id.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+<li id="AC-2201-7" class="ac-item"><strong>AC-2201-7</strong> - On a clean apply, apply writes rcf/blueprints/${slug}.applied.json containing {slug, version, appliedAt, appliedCapabilities: [...], appliedElicitations: {id: value, ...}, allowNoAuthYet?: bool, notes?: string}; the sidecar is idempotent (re-apply on the same version rewrites the same file) and the manifest.blueprints[] applied record is unchanged in shape.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+<li id="AC-2201-8" class="ac-item"><strong>AC-2201-8</strong> - The four shelf auth blueprints declare capabilities[] in v1.1.0 minor bumps landing in the same PR: security-auth-magic-link 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory]; security-auth-clerk 1.1.0 -&gt; 1.2.0 capabilities: [principalDirectory, roleModel]; security-auth-oauth2 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]; security-auth-keycloak 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]. Each blueprint&#39;s CHANGELOG.md carries a new entry naming the capabilities added and citing this train (Baz Q2 default 2026-09-04, spec section 5.5.2). No other change to the four blueprints.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+<li id="AC-2201-9" class="ac-item"><strong>AC-2201-9</strong> - docs/blueprint-authoring.md section 6a extends the roles registry with the capability vocabulary table (principalDirectory, roleModel, tenancy, auditLog with meaning columns and shelf-provider(s) columns) and cross-references capabilities[] and requiresAppliedCapabilities in the loader as sibling fields to providesRoles and suggestedCompanions.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-041">FBS-041</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;usId&quot;: &quot;US-2201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-022&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The capability-declaration mechanism lands in the loader and apply verb; the four shelf auth blueprints adopt it in v1.1.0 minor bumps&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying a consumer blueprint that gates surfaces on identity or platform capabilities&quot;,
+  &quot;iWant&quot;: &quot;the blueprint loader to accept capabilities[], elicits[] and requiresAppliedCapabilities on blueprint.json with shape validation, the apply verb to discover applied capabilities by reading each applied blueprint&#39;s source blueprint.json, refuse admin-console-shaped applies with the spec 5.5.1 verbatim message when no required capability is applied and --allow-no-auth-yet is absent, prompt an elicitation phase gated by the discovered capabilities, and persist appliedCapabilities and appliedElicitations to rcf/blueprints/${slug}.applied.json; and the four shelf auth blueprints to declare capabilities[] in v1.1.0 minor bumps landing in the same PR&quot;,
+  &quot;soThat&quot;: &quot;a project applying admin-console (or any future capability-gated blueprint) gets deterministic apply-time surface configuration, a bare-SPA apply is refused with the operator-friendly message the spec ratified, custom-auth projects elicit their answers into a persistent record the console reads, and the four shelf auth blueprints announce their identity capability set in one release train per spec Q2 default&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-2201-1&quot;,
+      &quot;description&quot;: &quot;The blueprint loader accepts an optional capabilities[] top-level field on blueprint.json: when present it must be a non-empty array of lower camelCase strings on ^[a-z][a-zA-Z0-9]*$, and a malformed value refuses with a validation rcfError naming the field. LoadedBlueprint exposes capabilities[] verbatim.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2201-2&quot;,
+      &quot;description&quot;: &quot;The blueprint loader accepts an optional elicits[] top-level field: when present it must be a non-empty array of {id (kebab slug), prompt (non-empty operator-facing string, no em-dashes, no emojis), kind (one of enum, string, boolean), default (matching kind), options (required when kind=enum), when (optional predicate object)} entries; malformed shapes refuse with a validation rcfError naming the entry.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2201-3&quot;,
+      &quot;description&quot;: &quot;The blueprint loader accepts an optional requiresAppliedCapabilities top-level object: when present its capabilities[] property is a non-empty array of lower camelCase strings, allowSkipFlag is a kebab slug matching an apply-verb flag name (allow-no-auth-yet in v1), and refusalMessageId is a non-empty string; malformed shapes refuse with a validation rcfError.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2201-4&quot;,
+      &quot;description&quot;: &quot;applyBlueprint reads each applied blueprint&#39;s source blueprint.json (via the applied record&#39;s source field the T-2 core-companions train established) to compute the appliedCapabilities union across the project; when the loaded blueprint declares requiresAppliedCapabilities and the union has no overlap AND the CLI did not pass --allow-no-auth-yet, apply returns an rcfError kind requiresAppliedCapabilities carrying the spec 5.5.1 message body verbatim with the currently-applied blueprints list substituted, and the CLI exits 3 with that message on stderr naming security-auth-*.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2201-5&quot;,
+      &quot;description&quot;: &quot;When --allow-no-auth-yet is passed on the CLI and the blueprint&#39;s allowSkipFlag matches, apply proceeds and the applied-record sidecar rcf/blueprints/${slug}.applied.json is written with allowNoAuthYet: true and a notes string naming the no-auth-yet state; the manifest applied record&#39;s schema-closed fields remain untouched.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2201-6&quot;,
+      &quot;description&quot;: &quot;The elicitation phase reads --answer &lt;id&gt;=&lt;value&gt; repeatable arguments and --answers &lt;file&gt; (a JSON object mapping id to value) at apply time; every elicit entry whose when predicate resolves true against the discovered applied-capability set is prompted (on a TTY) or read from the answer bag (non-interactive) with the declared kind coerced (boolean from y/yes/n/no, enum against options, string trimmed); a missing required answer refuses with a validation rcfError naming the id.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2201-7&quot;,
+      &quot;description&quot;: &quot;On a clean apply, apply writes rcf/blueprints/${slug}.applied.json containing {slug, version, appliedAt, appliedCapabilities: [...], appliedElicitations: {id: value, ...}, allowNoAuthYet?: bool, notes?: string}; the sidecar is idempotent (re-apply on the same version rewrites the same file) and the manifest.blueprints[] applied record is unchanged in shape.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2201-8&quot;,
+      &quot;description&quot;: &quot;The four shelf auth blueprints declare capabilities[] in v1.1.0 minor bumps landing in the same PR: security-auth-magic-link 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory]; security-auth-clerk 1.1.0 -&gt; 1.2.0 capabilities: [principalDirectory, roleModel]; security-auth-oauth2 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]; security-auth-keycloak 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]. Each blueprint&#39;s CHANGELOG.md carries a new entry naming the capabilities added and citing this train (Baz Q2 default 2026-09-04, spec section 5.5.2). No other change to the four blueprints.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2201-9&quot;,
+      &quot;description&quot;: &quot;docs/blueprint-authoring.md section 6a extends the roles registry with the capability vocabulary table (principalDirectory, roleModel, tenancy, auditLog with meaning columns and shelf-provider(s) columns) and cross-references capabilities[] and requiresAppliedCapabilities in the loader as sibling fields to providesRoles and suggestedCompanions.&quot;,
+      &quot;testable&quot;: true
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-023">
+  <summary><span class="summary-label">REQ-023 - Application-admin-console v1.0.0 blueprint on the shelf with capability-gated surfaces, a Playwright probe pack and a sample-app fixture</span><span class="status draft">draft</span></summary>
+  <article id="REQ-023" class="doc doc-req">
+  <h3>REQ-023 - Application-admin-console v1.0.0 blueprint on the shelf with capability-gated surfaces, a Playwright probe pack and a sample-app fixture</h3>
+  
+  <p><strong>Description:</strong> The rcf-lite shelf ships the application-admin-console v1.0.0 blueprint (blueprints/application-admin-console/) with 23 contributions (6 REQs on the console shell with no dead links to unapplied capabilities, the users surface conditional on principalDirectory, the roles surface conditional on roleModel with Owner + Admin + Member + Viewer baseline, the orgs surface conditional on tenancy, the audit-log surface conditional on the auditLog logging companion, and the access-denied and request-access states per WCAG; 9 USs 21101-21109 binding runtime-observable ACs plus the conditional-refusal apply-time behaviour; 4 TACs 2201-2204 on the console shell reading the surface manifest, the apply-time capability discovery, the permission matrix as an ARIA APG grid, and the audit view consuming application-datatable; 4 ADRs 2201-2204 on the capability vocabulary, baseline roles with elicited additions, invite transport with email default delegated to the email sibling and elicited, and audit-log retention window elicited). The blueprint declares requiresAppliedCapabilities: [principalDirectory] and allowSkipFlag: allow-no-auth-yet so a bare-SPA apply refuses with exit 3 and the spec 5.5.1 verbatim message naming security-auth-*; the override records a note on the applied record. Declares elicits[] gating baselineRoles (only when roleModel is applied), tenancyShape (only when tenancy is applied), inviteTransport, and auditRetentionDays (only when auditLog is applied). Declares suggestedCompanions logging and errorHandling with the ratified spec section 5.5 reasons; providesRoles absent per spec 5.5.3 (the console is a consumer of principalDirectory, never a provider). Ships a Playwright probe pack under blueprints/application-admin-console/probe-packs/application-admin-console.pack.mjs whose four checks (AC-21102-1 users directory, AC-21103-1 permission matrix, AC-21104-1 org switcher, AC-21105-1 audit-log surface) each carry an appliesTo predicate that reads manifest.blueprints[] and the read-back capabilities so an inapplicable check records applicable: false and the aggregate verdict treats it as neither pass nor fail. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/ with a CAPS env or query switch selecting which surfaces exist (mirrors the applied capability set so the sample app plays every fixture), a console shell whose nav only links applied surfaces, a users directory table with per-row invite and deactivate controls enumerated by data-user-id, a permission matrix rendered as an ARIA APG grid with role=grid, role=row, role=gridcell, role=rowheader on role rows and role=columnheader on permission columns announcing the exact permission string on focus (WCAG 4.1.3), an org switcher (only under tenancy), an audit-log table with actor / target / before / after / timestamp / correlation id enumerated by data-audit-id, an access-denied route with a request-access control, request log on window.__adminFetches and /__requests, and break switches for the negative runs (matrix-grid, denied, audit-fields). Reads applied capabilities from the rcf/blueprints/application-admin-console.applied.json sidecar or from an ADMIN_CONSOLE_CAPS env override so the fixture can play fixtures (b) SPA + magic-link, (c) SPA + clerk + logging, and (d) custom-auth elicited capabilities. Fifth shipped consumer of T-0&#39;s probe-pack runner extension; consumes application-datatable (T-1) for the users directory and audit views.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> application</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-023[&quot;REQ-023&lt;br/&gt;Application-admin-console v1.0.0 blueprint on...&quot;]
+  US-2301[&quot;US-2301&lt;br/&gt;The application-admin-console blueprint ships...&quot;]
+  REQ-023 --&gt; US-2301
+  AC-2301-1[&quot;AC-2301-1&quot;]
+  US-2301 --&gt; AC-2301-1
+  FBS-042[&quot;FBS-042&lt;br/&gt;application-admin-console v1.0.0 blueprint on...&quot;]
+  AC-2301-1 -.-&gt;|delivered by| FBS-042
+  CN-131[&quot;CN-131&lt;br/&gt;../../blueprints/application-admin-console/bl...&quot;]
+  AC-2301-1 -.-&gt;|implemented by| CN-131
+  AC-2301-2[&quot;AC-2301-2&quot;]
+  US-2301 --&gt; AC-2301-2
+  AC-2301-2 -.-&gt;|delivered by| FBS-042
+  AC-2301-2 -.-&gt;|implemented by| CN-131
+  AC-2301-3[&quot;AC-2301-3&quot;]
+  US-2301 --&gt; AC-2301-3
+  AC-2301-3 -.-&gt;|delivered by| FBS-042
+  AC-2301-3 -.-&gt;|implemented by| CN-131
+  AC-2301-4[&quot;AC-2301-4&quot;]
+  US-2301 --&gt; AC-2301-4
+  AC-2301-4 -.-&gt;|delivered by| FBS-042
+  AC-2301-4 -.-&gt;|implemented by| CN-131
+  AC-2301-5[&quot;AC-2301-5&quot;]
+  US-2301 --&gt; AC-2301-5
+  AC-2301-5 -.-&gt;|delivered by| FBS-042
+  CN-132[&quot;CN-132&lt;br/&gt;../../blueprints/application-admin-console/pr...&quot;]
+  AC-2301-5 -.-&gt;|implemented by| CN-132
+  AC-2301-6[&quot;AC-2301-6&quot;]
+  US-2301 --&gt; AC-2301-6
+  AC-2301-6 -.-&gt;|delivered by| FBS-042
+  CN-133[&quot;CN-133&lt;br/&gt;../../packages/rcf-lite/test/fixtures/probe-p...&quot;]
+  AC-2301-6 -.-&gt;|implemented by| CN-133
+  AC-2301-7[&quot;AC-2301-7&quot;]
+  US-2301 --&gt; AC-2301-7
+  AC-2301-7 -.-&gt;|delivered by| FBS-042
+  AC-2301-7 -.-&gt;|implemented by| CN-133
+  click REQ-023 &quot;#REQ-023&quot;;
+  click US-2301 &quot;#US-2301&quot;;
+  click AC-2301-1 &quot;#AC-2301-1&quot;;
+  click FBS-042 &quot;#FBS-042&quot;;
+  click CN-131 &quot;#CN-131&quot;;
+  click AC-2301-2 &quot;#AC-2301-2&quot;;
+  click AC-2301-3 &quot;#AC-2301-3&quot;;
+  click AC-2301-4 &quot;#AC-2301-4&quot;;
+  click AC-2301-5 &quot;#AC-2301-5&quot;;
+  click CN-132 &quot;#CN-132&quot;;
+  click AC-2301-6 &quot;#AC-2301-6&quot;;
+  click CN-133 &quot;#CN-133&quot;;
+  click AC-2301-7 &quot;#AC-2301-7&quot;;
+  class REQ-023 req;
+  class US-2301 us;
+  class AC-2301-1 ac;
+  class FBS-042 fbs;
+  class CN-131 cn;
+  class AC-2301-2 ac;
+  class AC-2301-3 ac;
+  class AC-2301-4 ac;
+  class AC-2301-5 ac;
+  class CN-132 cn;
+  class AC-2301-6 ac;
+  class CN-133 cn;
+  class AC-2301-7 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-023&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Application-admin-console v1.0.0 blueprint on the shelf with capability-gated surfaces, a Playwright probe pack and a sample-app fixture&quot;,
+  &quot;description&quot;: &quot;The rcf-lite shelf ships the application-admin-console v1.0.0 blueprint (blueprints/application-admin-console/) with 23 contributions (6 REQs on the console shell with no dead links to unapplied capabilities, the users surface conditional on principalDirectory, the roles surface conditional on roleModel with Owner + Admin + Member + Viewer baseline, the orgs surface conditional on tenancy, the audit-log surface conditional on the auditLog logging companion, and the access-denied and request-access states per WCAG; 9 USs 21101-21109 binding runtime-observable ACs plus the conditional-refusal apply-time behaviour; 4 TACs 2201-2204 on the console shell reading the surface manifest, the apply-time capability discovery, the permission matrix as an ARIA APG grid, and the audit view consuming application-datatable; 4 ADRs 2201-2204 on the capability vocabulary, baseline roles with elicited additions, invite transport with email default delegated to the email sibling and elicited, and audit-log retention window elicited). The blueprint declares requiresAppliedCapabilities: [principalDirectory] and allowSkipFlag: allow-no-auth-yet so a bare-SPA apply refuses with exit 3 and the spec 5.5.1 verbatim message naming security-auth-*; the override records a note on the applied record. Declares elicits[] gating baselineRoles (only when roleModel is applied), tenancyShape (only when tenancy is applied), inviteTransport, and auditRetentionDays (only when auditLog is applied). Declares suggestedCompanions logging and errorHandling with the ratified spec section 5.5 reasons; providesRoles absent per spec 5.5.3 (the console is a consumer of principalDirectory, never a provider). Ships a Playwright probe pack under blueprints/application-admin-console/probe-packs/application-admin-console.pack.mjs whose four checks (AC-21102-1 users directory, AC-21103-1 permission matrix, AC-21104-1 org switcher, AC-21105-1 audit-log surface) each carry an appliesTo predicate that reads manifest.blueprints[] and the read-back capabilities so an inapplicable check records applicable: false and the aggregate verdict treats it as neither pass nor fail. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/ with a CAPS env or query switch selecting which surfaces exist (mirrors the applied capability set so the sample app plays every fixture), a console shell whose nav only links applied surfaces, a users directory table with per-row invite and deactivate controls enumerated by data-user-id, a permission matrix rendered as an ARIA APG grid with role=grid, role=row, role=gridcell, role=rowheader on role rows and role=columnheader on permission columns announcing the exact permission string on focus (WCAG 4.1.3), an org switcher (only under tenancy), an audit-log table with actor / target / before / after / timestamp / correlation id enumerated by data-audit-id, an access-denied route with a request-access control, request log on window.__adminFetches and /__requests, and break switches for the negative runs (matrix-grid, denied, audit-fields). Reads applied capabilities from the rcf/blueprints/application-admin-console.applied.json sidecar or from an ADMIN_CONSOLE_CAPS env override so the fixture can play fixtures (b) SPA + magic-link, (c) SPA + clerk + logging, and (d) custom-auth elicited capabilities. Fifth shipped consumer of T-0&#39;s probe-pack runner extension; consumes application-datatable (T-1) for the users directory and audit views.&quot;
+,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;application&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-2301">
+  <summary><span class="summary-label">US-2301 - The application-admin-console blueprint ships on the shelf; its probe pack fires only on applied capabilities and refuses on a broken admin surface</span><span class="status draft">draft</span></summary>
+  <article id="US-2301" class="doc doc-us">
+  <h3>US-2301 - The application-admin-console blueprint ships on the shelf; its probe pack fires only on applied capabilities and refuses on a broken admin surface</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the application-admin-console v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the shipped blueprint files with a users, roles, orgs, audit-log surface set that self-configures from the applied capability declarations, the Playwright probe pack whose four checks each gate their fire on the applied capability, and a sample-app fixture proving the pack passes on a compliant surface, records applicable: false where the capability is absent, and refuses on the three break switches</p>
+  <p><strong>So that:</strong> a project consuming rcf-lite gets a vendor-neutral admin console conditional on what identity blueprint is applied, no dead links to unapplied capabilities, the pack that proves the ARIA APG grid pattern on the permission matrix, the request-log ACs on the audit view, and a golden fixture the pack refuses on a surface that loses the grid roles, drops the request-access control, or writes an audit entry missing the correlation id</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-023">REQ-023</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-2301-1" class="ac-item"><strong>AC-2301-1</strong> - The shelf carries blueprints/application-admin-console/blueprint.json declaring slug application-admin-console, version 1.0.0, category application, 23 contributions in the 6 REQ / 9 US / 4 TAC / 4 ADR groups per spec section 5.5; requiresAppliedCapabilities.capabilities is [principalDirectory] with allowSkipFlag: allow-no-auth-yet; elicits[] declares baselineRoles (when roleModel), tenancyShape (when tenancy), inviteTransport, and auditRetentionDays (when auditLog); suggestedCompanions declares logging and errorHandling with reasons from spec section 5.5; providesRoles is absent per spec 5.5.3.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-042">FBS-042</a></p></li>
+<li id="AC-2301-2" class="ac-item"><strong>AC-2301-2</strong> - rcf define blueprint add ./blueprints/application-admin-console --allow-no-auth-yet applies the 23 contributions cleanly on a fresh init project with only application-spa applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project; the sidecar rcf/blueprints/application-admin-console.applied.json declares allowNoAuthYet: true and an appliedCapabilities: [] union.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-042">FBS-042</a></p></li>
+<li id="AC-2301-3" class="ac-item"><strong>AC-2301-3</strong> - rcf define blueprint add ./blueprints/application-admin-console on a project with only application-spa applied exits 3 with a stderr message beginning &#39;application-admin-console requires at least one applied security-auth-*&#39; and naming the currently-applied blueprints; nothing is written to disk (no contributions, no sidecar, no manifest entry).
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-042">FBS-042</a></p></li>
+<li id="AC-2301-4" class="ac-item"><strong>AC-2301-4</strong> - rcf define blueprint add ./blueprints/application-admin-console on a project with security-auth-magic-link 1.1.0 applied applies cleanly; the sidecar&#39;s appliedCapabilities reads exactly [principalDirectory] with no roleModel; rcf define blueprint add on a project with security-auth-clerk 1.2.0 + observability-logging applied produces appliedCapabilities [principalDirectory, roleModel, auditLog] (order-agnostic).
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-042">FBS-042</a></p></li>
+<li id="AC-2301-5" class="ac-item"><strong>AC-2301-5</strong> - The shipped probe pack blueprints/application-admin-console/probe-packs/application-admin-console.pack.mjs loads via T-0&#39;s pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-21102-1, AC-21103-1, AC-21104-1, AC-21105-1) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; each check&#39;s appliesTo predicate reads manifest.blueprints[]/${slug}.applied.json capabilities and returns false when the required capability is absent so the check records applicable: false; the pack-level appliesTo predicate references BOTH tacIds and route.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-042">FBS-042</a></p></li>
+<li id="AC-2301-6" class="ac-item"><strong>AC-2301-6</strong> - The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/ ships a dependency-free Node HTTP server (server.js) with a start script; CAPS env or ?caps= query switch selects which surfaces exist mirroring the applied capability set (principalDirectory, roleModel, tenancy, auditLog, or comma combinations thereof); the console shell nav only links applied surfaces; the users directory table enumerates every row by data-user-id inside the role=table region; the permission matrix renders under role=grid with role=row on every rank, role=rowheader on the leftmost cell of each role rank, role=columnheader on every permission header, role=gridcell on inner cells, and each cell announces the exact permission string on focus via aria-label; the org switcher is present only when tenancy is applied; the audit-log table enumerates every row by data-audit-id and every audit entry carries actor, target, before, after, timestamp, and correlationId in inspectable columns; an access-denied route renders a request-access control routed to a POST /api/request-access endpoint; window.__adminFetches and /__requests mirror every request.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-042">FBS-042</a></p></li>
+<li id="AC-2301-7" class="ac-item"><strong>AC-2301-7</strong> - The probe pack refuses ship on each broken fixture: with ?break=matrix-grid the permission matrix drops the role=grid attributes so AC-21103-1 fails at severity block; with ?break=denied the access-denied route drops the request-access control so AC-21102-1&#39;s negative branch (a principal without admin scope) fails at severity block; with ?break=audit-fields the audit entries omit the correlationId column so AC-21105-1 fails at severity block.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-042">FBS-042</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;usId&quot;: &quot;US-2301&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-023&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The application-admin-console blueprint ships on the shelf; its probe pack fires only on applied capabilities and refuses on a broken admin surface&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the application-admin-console v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the shipped blueprint files with a users, roles, orgs, audit-log surface set that self-configures from the applied capability declarations, the Playwright probe pack whose four checks each gate their fire on the applied capability, and a sample-app fixture proving the pack passes on a compliant surface, records applicable: false where the capability is absent, and refuses on the three break switches&quot;,
+  &quot;soThat&quot;: &quot;a project consuming rcf-lite gets a vendor-neutral admin console conditional on what identity blueprint is applied, no dead links to unapplied capabilities, the pack that proves the ARIA APG grid pattern on the permission matrix, the request-log ACs on the audit view, and a golden fixture the pack refuses on a surface that loses the grid roles, drops the request-access control, or writes an audit entry missing the correlation id&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-2301-1&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/application-admin-console/blueprint.json declaring slug application-admin-console, version 1.0.0, category application, 23 contributions in the 6 REQ / 9 US / 4 TAC / 4 ADR groups per spec section 5.5; requiresAppliedCapabilities.capabilities is [principalDirectory] with allowSkipFlag: allow-no-auth-yet; elicits[] declares baselineRoles (when roleModel), tenancyShape (when tenancy), inviteTransport, and auditRetentionDays (when auditLog); suggestedCompanions declares logging and errorHandling with reasons from spec section 5.5; providesRoles is absent per spec 5.5.3.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2301-2&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/application-admin-console --allow-no-auth-yet applies the 23 contributions cleanly on a fresh init project with only application-spa applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project; the sidecar rcf/blueprints/application-admin-console.applied.json declares allowNoAuthYet: true and an appliedCapabilities: [] union.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2301-3&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/application-admin-console on a project with only application-spa applied exits 3 with a stderr message beginning &#39;application-admin-console requires at least one applied security-auth-*&#39; and naming the currently-applied blueprints; nothing is written to disk (no contributions, no sidecar, no manifest entry).&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2301-4&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/application-admin-console on a project with security-auth-magic-link 1.1.0 applied applies cleanly; the sidecar&#39;s appliedCapabilities reads exactly [principalDirectory] with no roleModel; rcf define blueprint add on a project with security-auth-clerk 1.2.0 + observability-logging applied produces appliedCapabilities [principalDirectory, roleModel, auditLog] (order-agnostic).&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2301-5&quot;,
+      &quot;description&quot;: &quot;The shipped probe pack blueprints/application-admin-console/probe-packs/application-admin-console.pack.mjs loads via T-0&#39;s pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-21102-1, AC-21103-1, AC-21104-1, AC-21105-1) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; each check&#39;s appliesTo predicate reads manifest.blueprints[]/${slug}.applied.json capabilities and returns false when the required capability is absent so the check records applicable: false; the pack-level appliesTo predicate references BOTH tacIds and route.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2301-6&quot;,
+      &quot;description&quot;: &quot;The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/ ships a dependency-free Node HTTP server (server.js) with a start script; CAPS env or ?caps= query switch selects which surfaces exist mirroring the applied capability set (principalDirectory, roleModel, tenancy, auditLog, or comma combinations thereof); the console shell nav only links applied surfaces; the users directory table enumerates every row by data-user-id inside the role=table region; the permission matrix renders under role=grid with role=row on every rank, role=rowheader on the leftmost cell of each role rank, role=columnheader on every permission header, role=gridcell on inner cells, and each cell announces the exact permission string on focus via aria-label; the org switcher is present only when tenancy is applied; the audit-log table enumerates every row by data-audit-id and every audit entry carries actor, target, before, after, timestamp, and correlationId in inspectable columns; an access-denied route renders a request-access control routed to a POST /api/request-access endpoint; window.__adminFetches and /__requests mirror every request.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2301-7&quot;,
+      &quot;description&quot;: &quot;The probe pack refuses ship on each broken fixture: with ?break=matrix-grid the permission matrix drops the role=grid attributes so AC-21103-1 fails at severity block; with ?break=denied the access-denied route drops the request-access control so AC-21102-1&#39;s negative branch (a principal without admin scope) fails at severity block; with ?break=audit-fields the audit entries omit the correlationId column so AC-21105-1 fails at severity block.&quot;
+      ,
+      &quot;testable&quot;: true
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -7763,7 +8159,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -10932,6 +11328,168 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;title&quot;: &quot;application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry&quot;,
   &quot;summary&quot;: &quot;T-4 of the ratified visual round (spec 2026-09-04, section 5.4): the application-notifications-in-app v1.0.0 blueprint on the shelf. Ships 19 contributions (5 REQs on live-region preseeding, transient toast contract, notification centre inbox with acknowledge round-trip, per-user preferences UI with sibling delegation, and delivery-attempt log; 8 USs binding runtime-observable ACs plus three cross-cutting cases; 3 TACs on the live-region wrappers and toast factory, centre inbox and acknowledge round-trip, and preferences UI; 3 ADRs on the priority-to-role mapping polite/status vs assertive/alert per WCAG 4.1.3 and ARIA APG alert, the six-second toast timeout floor per WCAG 2.2.1 Timing Adjustable, and the thirty-day centre retention window), a Playwright probe pack whose three checks (AC-20101-1 live-region preseeded on every declared route, AC-20102-1 transient toast contract with priority-to-role mapping and timeout floor measured via data-shown-at/data-dismissed-at, AC-20103-1 centre acknowledge round-trip enumerated by data-notification-id with client + server request-log reconciliation) are anchored to blueprint AC ids per T-0 AC-1701-3 and each carries a description field per spec section 9 (with AC-20101-1 description carrying the word &#39;preseeded&#39; per the T-4 row), and a dependency-free sample-app fixture the pack probes for real, with four break switches for the negative runs (preseed, role, timeout, ack). Reserves the family prefix application-notifications- for the sibling channels the shelf will grow into (email, push, webhook) as a doc-only reservation on the blueprint README and every applying blueprint&#39;s docs/topics.md registry row. Applies cleanly (validate 0, coverage strict 0, eval strict 0 on a scratch project).&quot;,
   &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-041">
+  <summary><span class="summary-label">FBS-041 - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-041" class="doc doc-fbs">
+  <h3>FBS-041 - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</h3>
+  
+  <p><strong>Summary:</strong> T-5 mechanism track of the ratified visual round (spec 2026-09-04, section 5.5). Introduces capabilities[], elicits[] and requiresAppliedCapabilities top-level fields on blueprint.json with shape validation in the loader; apply-time discovery via source read-back on manifest.blueprints[].source; the exit-3 refusal with the spec 5.5.1 verbatim message on bare-SPA applies; --allow-no-auth-yet operator override; elicitation phase reading --answer &lt;id&gt;=&lt;value&gt; (repeatable) and --answers &lt;file&gt; (JSON object) with kind coercion; per-project sidecar rcf/blueprints/${slug}.applied.json capturing appliedCapabilities and appliedElicitations; pack-runner extension for per-check applicability so an absent capability records applicable:false and the aggregate verdict treats the check as neither pass nor fail (spec section 3.3 T-5 residual cure). Bumps the four shelf auth blueprints to declare capabilities[]: magic-link 1.0.0 -&gt; 1.1.0 [principalDirectory]; clerk 1.1.0 -&gt; 1.2.0 [principalDirectory, roleModel]; oauth2 1.0.0 -&gt; 1.1.0 [principalDirectory, roleModel]; keycloak 1.0.0 -&gt; 1.1.0 [principalDirectory, roleModel]. docs/blueprint-authoring.md section 6a extended with the capability vocabulary table (principalDirectory, roleModel, tenancy, auditLog) and the sidecar contract description.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-2201-1">AC-2201-1</a><a class="ac-pill" href="#AC-2201-2">AC-2201-2</a><a class="ac-pill" href="#AC-2201-3">AC-2201-3</a><a class="ac-pill" href="#AC-2201-4">AC-2201-4</a><a class="ac-pill" href="#AC-2201-5">AC-2201-5</a><a class="ac-pill" href="#AC-2201-6">AC-2201-6</a><a class="ac-pill" href="#AC-2201-7">AC-2201-7</a><a class="ac-pill" href="#AC-2201-8">AC-2201-8</a><a class="ac-pill" href="#AC-2201-9">AC-2201-9</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-2201-1">AC-2201-1</a></strong> - The blueprint loader accepts an optional capabilities[] top-level field on blueprint.json: when present it must be a non-empty array of lower camelCase strings on ^[a-z][a-zA-Z0-9]*$, and a malformed value refuses with a validation rcfError naming the field. LoadedBlueprint exposes capabilities[] verbatim.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2201-2">AC-2201-2</a></strong> - The blueprint loader accepts an optional elicits[] top-level field: when present it must be a non-empty array of {id (kebab slug), prompt (non-empty operator-facing string, no em-dashes, no emojis), kind (one of enum, string, boolean), default (matching kind), options (required when kind=enum), when (optional predicate object)} entries; malformed shapes refuse with a validation rcfError naming the entry.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2201-3">AC-2201-3</a></strong> - The blueprint loader accepts an optional requiresAppliedCapabilities top-level object: when present its capabilities[] property is a non-empty array of lower camelCase strings, allowSkipFlag is a kebab slug matching an apply-verb flag name (allow-no-auth-yet in v1), and refusalMessageId is a non-empty string; malformed shapes refuse with a validation rcfError.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2201-4">AC-2201-4</a></strong> - applyBlueprint reads each applied blueprint&#39;s source blueprint.json (via the applied record&#39;s source field the T-2 core-companions train established) to compute the appliedCapabilities union across the project; when the loaded blueprint declares requiresAppliedCapabilities and the union has no overlap AND the CLI did not pass --allow-no-auth-yet, apply returns an rcfError kind requiresAppliedCapabilities carrying the spec 5.5.1 message body verbatim with the currently-applied blueprints list substituted, and the CLI exits 3 with that message on stderr naming security-auth-*.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2201-5">AC-2201-5</a></strong> - When --allow-no-auth-yet is passed on the CLI and the blueprint&#39;s allowSkipFlag matches, apply proceeds and the applied-record sidecar rcf/blueprints/${slug}.applied.json is written with allowNoAuthYet: true and a notes string naming the no-auth-yet state; the manifest applied record&#39;s schema-closed fields remain untouched.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2201-6">AC-2201-6</a></strong> - The elicitation phase reads --answer &lt;id&gt;=&lt;value&gt; repeatable arguments and --answers &lt;file&gt; (a JSON object mapping id to value) at apply time; every elicit entry whose when predicate resolves true against the discovered applied-capability set is prompted (on a TTY) or read from the answer bag (non-interactive) with the declared kind coerced (boolean from y/yes/n/no, enum against options, string trimmed); a missing required answer refuses with a validation rcfError naming the id.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2201-7">AC-2201-7</a></strong> - On a clean apply, apply writes rcf/blueprints/${slug}.applied.json containing {slug, version, appliedAt, appliedCapabilities: [...], appliedElicitations: {id: value, ...}, allowNoAuthYet?: bool, notes?: string}; the sidecar is idempotent (re-apply on the same version rewrites the same file) and the manifest.blueprints[] applied record is unchanged in shape.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2201-8">AC-2201-8</a></strong> - The four shelf auth blueprints declare capabilities[] in v1.1.0 minor bumps landing in the same PR: security-auth-magic-link 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory]; security-auth-clerk 1.1.0 -&gt; 1.2.0 capabilities: [principalDirectory, roleModel]; security-auth-oauth2 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]; security-auth-keycloak 1.0.0 -&gt; 1.1.0 capabilities: [principalDirectory, roleModel]. Each blueprint&#39;s CHANGELOG.md carries a new entry naming the capabilities added and citing this train (Baz Q2 default 2026-09-04, spec section 5.5.2). No other change to the four blueprints.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2201-9">AC-2201-9</a></strong> - docs/blueprint-authoring.md section 6a extends the roles registry with the capability vocabulary table (principalDirectory, roleModel, tenancy, auditLog with meaning columns and shelf-provider(s) columns) and cross-references capabilities[] and requiresAppliedCapabilities in the loader as sibling fields to providesRoles and suggestedCompanions.</p>
+  
+  
+  
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 41</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;acIds&quot;: [&quot;AC-2201-1&quot;, &quot;AC-2201-2&quot;, &quot;AC-2201-3&quot;, &quot;AC-2201-4&quot;, &quot;AC-2201-5&quot;, &quot;AC-2201-6&quot;, &quot;AC-2201-7&quot;, &quot;AC-2201-8&quot;, &quot;AC-2201-9&quot;],
+  &quot;fbsId&quot;: &quot;FBS-041&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 41,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps&quot;,
+  &quot;summary&quot;: &quot;T-5 mechanism track of the ratified visual round (spec 2026-09-04, section 5.5). Introduces capabilities[], elicits[] and requiresAppliedCapabilities top-level fields on blueprint.json with shape validation in the loader; apply-time discovery via source read-back on manifest.blueprints[].source; the exit-3 refusal with the spec 5.5.1 verbatim message on bare-SPA applies; --allow-no-auth-yet operator override; elicitation phase reading --answer &lt;id&gt;=&lt;value&gt; (repeatable) and --answers &lt;file&gt; (JSON object) with kind coercion; per-project sidecar rcf/blueprints/${slug}.applied.json capturing appliedCapabilities and appliedElicitations; pack-runner extension for per-check applicability so an absent capability records applicable:false and the aggregate verdict treats the check as neither pass nor fail (spec section 3.3 T-5 residual cure). Bumps the four shelf auth blueprints to declare capabilities[]: magic-link 1.0.0 -&gt; 1.1.0 [principalDirectory]; clerk 1.1.0 -&gt; 1.2.0 [principalDirectory, roleModel]; oauth2 1.0.0 -&gt; 1.1.0 [principalDirectory, roleModel]; keycloak 1.0.0 -&gt; 1.1.0 [principalDirectory, roleModel]. docs/blueprint-authoring.md section 6a extended with the capability vocabulary table (principalDirectory, roleModel, tenancy, auditLog) and the sidecar contract description.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-042">
+  <summary><span class="summary-label">FBS-042 - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-042" class="doc doc-fbs">
+  <h3>FBS-042 - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</h3>
+  
+  <p><strong>Summary:</strong> T-5 shelf-blueprint track of the ratified visual round (spec 2026-09-04, section 5.5): the application-admin-console v1.0.0 blueprint on the shelf. Ships 23 contributions (6 REQs on console shell + users conditional principalDirectory + roles conditional roleModel with Owner+Admin+Member+Viewer baseline + orgs conditional tenancy + audit-log conditional auditLog + access-denied and request-access WCAG 2.2 AA; 9 USs 21101-21109 binding 16 runtime-observable ACs plus the conditional-refusal apply-time behaviour; 4 TACs 2201-2204 on the console shell reading the surface manifest + apply-time capability discovery + permission matrix as an ARIA APG grid + audit view consuming datatable T-1; 4 ADRs 2201-2204 on the capability vocabulary as free labels + Owner+Admin+Member+Viewer baseline elicited additions + invite transport email default delegated to email sibling elicited + audit-log retention window elicited), a Playwright probe pack whose four capability-gated checks (AC-21102-1 users when principalDirectory, AC-21103-1 permission matrix when roleModel, AC-21104-1 org switcher when tenancy, AC-21105-1 audit-log when auditLog) each declare a per-check appliesTo predicate reading the applied capability sidecar, and a dependency-free sample-app fixture with CAPS switch selecting surfaces, ARIA APG grid permission matrix, users directory with data-user-id enumeration, org switcher, audit-log with correlationId, access-denied with request-access control, and break switches for the negative runs (matrix-grid, denied, audit-fields). Consumes application-datatable (T-1) for the users and audit surfaces; suggestedCompanions logging and errorHandling; providesRoles absent per spec 5.5.3.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-2301-1">AC-2301-1</a><a class="ac-pill" href="#AC-2301-2">AC-2301-2</a><a class="ac-pill" href="#AC-2301-3">AC-2301-3</a><a class="ac-pill" href="#AC-2301-4">AC-2301-4</a><a class="ac-pill" href="#AC-2301-5">AC-2301-5</a><a class="ac-pill" href="#AC-2301-6">AC-2301-6</a><a class="ac-pill" href="#AC-2301-7">AC-2301-7</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-2301-1">AC-2301-1</a></strong> - The shelf carries blueprints/application-admin-console/blueprint.json declaring slug application-admin-console, version 1.0.0, category application, 23 contributions in the 6 REQ / 9 US / 4 TAC / 4 ADR groups per spec section 5.5; requiresAppliedCapabilities.capabilities is [principalDirectory] with allowSkipFlag: allow-no-auth-yet; elicits[] declares baselineRoles (when roleModel), tenancyShape (when tenancy), inviteTransport, and auditRetentionDays (when auditLog); suggestedCompanions declares logging and errorHandling with reasons from spec section 5.5; providesRoles is absent per spec 5.5.3.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2301-2">AC-2301-2</a></strong> - rcf define blueprint add ./blueprints/application-admin-console --allow-no-auth-yet applies the 23 contributions cleanly on a fresh init project with only application-spa applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project; the sidecar rcf/blueprints/application-admin-console.applied.json declares allowNoAuthYet: true and an appliedCapabilities: [] union.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2301-3">AC-2301-3</a></strong> - rcf define blueprint add ./blueprints/application-admin-console on a project with only application-spa applied exits 3 with a stderr message beginning &#39;application-admin-console requires at least one applied security-auth-*&#39; and naming the currently-applied blueprints; nothing is written to disk (no contributions, no sidecar, no manifest entry).</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2301-4">AC-2301-4</a></strong> - rcf define blueprint add ./blueprints/application-admin-console on a project with security-auth-magic-link 1.1.0 applied applies cleanly; the sidecar&#39;s appliedCapabilities reads exactly [principalDirectory] with no roleModel; rcf define blueprint add on a project with security-auth-clerk 1.2.0 + observability-logging applied produces appliedCapabilities [principalDirectory, roleModel, auditLog] (order-agnostic).</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2301-5">AC-2301-5</a></strong> - The shipped probe pack blueprints/application-admin-console/probe-packs/application-admin-console.pack.mjs loads via T-0&#39;s pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-21102-1, AC-21103-1, AC-21104-1, AC-21105-1) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; each check&#39;s appliesTo predicate reads manifest.blueprints[]/${slug}.applied.json capabilities and returns false when the required capability is absent so the check records applicable: false; the pack-level appliesTo predicate references BOTH tacIds and route.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2301-6">AC-2301-6</a></strong> - The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/ ships a dependency-free Node HTTP server (server.js) with a start script; CAPS env or ?caps= query switch selects which surfaces exist mirroring the applied capability set (principalDirectory, roleModel, tenancy, auditLog, or comma combinations thereof); the console shell nav only links applied surfaces; the users directory table enumerates every row by data-user-id inside the role=table region; the permission matrix renders under role=grid with role=row on every rank, role=rowheader on the leftmost cell of each role rank, role=columnheader on every permission header, role=gridcell on inner cells, and each cell announces the exact permission string on focus via aria-label; the org switcher is present only when tenancy is applied; the audit-log table enumerates every row by data-audit-id and every audit entry carries actor, target, before, after, timestamp, and correlationId in inspectable columns; an access-denied route renders a request-access control routed to a POST /api/request-access endpoint; window.__adminFetches and /__requests mirror every request.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2301-7">AC-2301-7</a></strong> - The probe pack refuses ship on each broken fixture: with ?break=matrix-grid the permission matrix drops the role=grid attributes so AC-21103-1 fails at severity block; with ?break=denied the access-denied route drops the request-access control so AC-21102-1&#39;s negative branch (a principal without admin scope) fails at severity block; with ?break=audit-fields the audit entries omit the correlationId column so AC-21105-1 fails at severity block.</p>
+  
+  
+  
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-041">FBS-041</a></p></section>
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 42</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;acIds&quot;: [&quot;AC-2301-1&quot;, &quot;AC-2301-2&quot;, &quot;AC-2301-3&quot;, &quot;AC-2301-4&quot;, &quot;AC-2301-5&quot;, &quot;AC-2301-6&quot;, &quot;AC-2301-7&quot;],
+  &quot;fbsId&quot;: &quot;FBS-042&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 42,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture&quot;,
+  &quot;summary&quot;: &quot;T-5 shelf-blueprint track of the ratified visual round (spec 2026-09-04, section 5.5): the application-admin-console v1.0.0 blueprint on the shelf. Ships 23 contributions (6 REQs on console shell + users conditional principalDirectory + roles conditional roleModel with Owner+Admin+Member+Viewer baseline + orgs conditional tenancy + audit-log conditional auditLog + access-denied and request-access WCAG 2.2 AA; 9 USs 21101-21109 binding 16 runtime-observable ACs plus the conditional-refusal apply-time behaviour; 4 TACs 2201-2204 on the console shell reading the surface manifest + apply-time capability discovery + permission matrix as an ARIA APG grid + audit view consuming datatable T-1; 4 ADRs 2201-2204 on the capability vocabulary as free labels + Owner+Admin+Member+Viewer baseline elicited additions + invite transport email default delegated to email sibling elicited + audit-log retention window elicited), a Playwright probe pack whose four capability-gated checks (AC-21102-1 users when principalDirectory, AC-21103-1 permission matrix when roleModel, AC-21104-1 org switcher when tenancy, AC-21105-1 audit-log when auditLog) each declare a per-check appliesTo predicate reading the applied capability sidecar, and a dependency-free sample-app fixture with CAPS switch selecting surfaces, ARIA APG grid permission matrix, users directory with data-user-id enumeration, org switcher, audit-log with correlationId, access-denied with request-access control, and break switches for the negative runs (matrix-grid, denied, audit-fields). Consumes application-datatable (T-1) for the users and audit surfaces; suggestedCompanions logging and errorHandling; providesRoles absent per spec 5.5.3.&quot;,
+  &quot;dependsOnFbsIds&quot;: [&quot;FBS-041&quot;]
 }
 </pre></details>
 </article>
@@ -15083,6 +15641,154 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app: family-prefix reservation documented in blueprint README and own topics.md (TC-050-family-prefix-reservation)&quot;
     }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-051">
+  <summary><span class="summary-label">TS-051 - Capability-declaration mechanism loader and apply verb behaviour; four auth-blueprint 1.1.0 minor adoption</span><span class="status draft">draft</span></summary>
+  <article id="TS-051" class="doc doc-ts">
+  <h3>TS-051 - Capability-declaration mechanism loader and apply verb behaviour; four auth-blueprint 1.1.0 minor adoption</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-2201">US-2201</a></p>
+  <p><strong>Purpose:</strong> Cover AC-2201-1..9 via unit tests over the blueprint loader accepting capabilities[], elicits[] and requiresAppliedCapabilities with shape validation, applyBlueprint discovering applied capabilities from the applied blueprints source blueprint.json files, refusing on a bare-SPA project with the spec 5.5.1 message, honouring --allow-no-auth-yet, running the elicitation phase with --answer and --answers, writing the sidecar rcf/blueprints/${slug}.applied.json with appliedCapabilities and appliedElicitations, the four shelf auth blueprints declaring their capabilities[] in their v1.1.0 minor bumps with matching CHANGELOG entries, and docs/blueprint-authoring.md section 6a carrying the extended capability vocabulary table.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-2201-1">AC-2201-1</a>, <a href="#AC-2201-2">AC-2201-2</a>, <a href="#AC-2201-3">AC-2201-3</a>, <a href="#AC-2201-4">AC-2201-4</a>, <a href="#AC-2201-5">AC-2201-5</a>, <a href="#AC-2201-6">AC-2201-6</a>, <a href="#AC-2201-7">AC-2201-7</a>, <a href="#AC-2201-8">AC-2201-8</a>, <a href="#AC-2201-9">AC-2201-9</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-051-loader-capabilities-shape">
+  <p><strong>TC-051-loader-capabilities-shape</strong> - covers <a href="#AC-2201-1">AC-2201-1</a> <span class="status pending">pending</span></p>
+  <p>loader accepts capabilities[] on shape; refuses empty array, refuses non-string entries, refuses non-camelCase strings</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-loader.test.js::loader accepts capabilities[] shape and refuses malformed variants (TC-051-loader-capabilities-shape)</code></p>
+</div>
+<div class="tc" id="TC-051-loader-elicits-shape">
+  <p><strong>TC-051-loader-elicits-shape</strong> - covers <a href="#AC-2201-2">AC-2201-2</a> <span class="status pending">pending</span></p>
+  <p>loader accepts elicits[] on shape; refuses empty array, refuses invalid kind, refuses em-dash in prompt, refuses missing options on kind=enum</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-loader.test.js::loader accepts elicits[] shape and refuses malformed variants (TC-051-loader-elicits-shape)</code></p>
+</div>
+<div class="tc" id="TC-051-loader-requires-shape">
+  <p><strong>TC-051-loader-requires-shape</strong> - covers <a href="#AC-2201-3">AC-2201-3</a> <span class="status pending">pending</span></p>
+  <p>loader accepts requiresAppliedCapabilities object shape; refuses empty capabilities array, refuses non-kebab allowSkipFlag</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-loader.test.js::loader accepts requiresAppliedCapabilities shape and refuses malformed variants (TC-051-loader-requires-shape)</code></p>
+</div>
+<div class="tc" id="TC-051-apply-discovery-refuse">
+  <p><strong>TC-051-apply-discovery-refuse</strong> - covers <a href="#AC-2201-4">AC-2201-4</a> <span class="status pending">pending</span></p>
+  <p>applyBlueprint returns a requiresAppliedCapabilities rcfError when no applied blueprint declares any required capability and allowNoAuthYet is false; message body includes the spec 5.5.1 verbatim opening line and lists the currently-applied blueprints</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-apply.test.js::apply refuses with requiresAppliedCapabilities rcfError on a bare project (TC-051-apply-discovery-refuse)</code></p>
+</div>
+<div class="tc" id="TC-051-apply-allow-skip">
+  <p><strong>TC-051-apply-allow-skip</strong> - covers <a href="#AC-2201-5">AC-2201-5</a> <span class="status pending">pending</span></p>
+  <p>applyBlueprint with allowNoAuthYet true writes contributions and sidecar with allowNoAuthYet true and a notes string naming the no-auth-yet state; manifest applied record is untouched</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-apply.test.js::apply honours allowNoAuthYet and writes sidecar with notes (TC-051-apply-allow-skip)</code></p>
+</div>
+<div class="tc" id="TC-051-elicit-answers">
+  <p><strong>TC-051-elicit-answers</strong> - covers <a href="#AC-2201-6">AC-2201-6</a> <span class="status pending">pending</span></p>
+  <p>applyBlueprint reads elicitAnswers map; every elicit whose when-predicate resolves true against discovered capabilities is coerced by kind; missing required answer returns validation rcfError naming id</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-apply.test.js::apply elicitation phase coerces answers by kind and refuses missing required (TC-051-elicit-answers)</code></p>
+</div>
+<div class="tc" id="TC-051-sidecar-write">
+  <p><strong>TC-051-sidecar-write</strong> - covers <a href="#AC-2201-7">AC-2201-7</a> <span class="status pending">pending</span></p>
+  <p>applyBlueprint writes rcf/blueprints/${slug}.applied.json with slug, version, appliedAt, appliedCapabilities and appliedElicitations; re-apply on same version rewrites the file idempotently</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-apply.test.js::apply writes sidecar with appliedCapabilities and appliedElicitations idempotently (TC-051-sidecar-write)</code></p>
+</div>
+<div class="tc" id="TC-051-auth-minors">
+  <p><strong>TC-051-auth-minors</strong> - covers <a href="#AC-2201-8">AC-2201-8</a> <span class="status pending">pending</span></p>
+  <p>The four shelf auth blueprints declare capabilities[] and correct new versions; each CHANGELOG.md carries a new entry naming the capabilities added and citing spec section 5.5.2</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-auth-minors.test.js::the four shelf auth blueprints declare capabilities[] and matching CHANGELOG entries (TC-051-auth-minors)</code></p>
+</div>
+<div class="tc" id="TC-051-docs-section-6a">
+  <p><strong>TC-051-docs-section-6a</strong> - covers <a href="#AC-2201-9">AC-2201-9</a> <span class="status pending">pending</span></p>
+  <p>packages/rcf-lite/docs/blueprint-authoring.md section 6a includes the capability vocabulary table with the four capability strings and their shelf providers; the section text cross-references capabilities[] and requiresAppliedCapabilities as loader fields</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/capabilities-auth-minors.test.js::docs blueprint-authoring section 6a carries the capability vocabulary table (TC-051-docs-section-6a)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-2201-1..9 via unit tests over the blueprint loader accepting capabilities[], elicits[] and requiresAppliedCapabilities with shape validation, applyBlueprint discovering applied capabilities from the applied blueprints source blueprint.json files, refusing on a bare-SPA project with the spec 5.5.1 message, honouring --allow-no-auth-yet, running the elicitation phase with --answer and --answers, writing the sidecar rcf/blueprints/${slug}.applied.json with appliedCapabilities and appliedElicitations, the four shelf auth blueprints declaring their capabilities[] in their v1.1.0 minor bumps with matching CHANGELOG entries, and docs/blueprint-authoring.md section 6a carrying the extended capability vocabulary table.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [&quot;AC-2201-1&quot;, &quot;AC-2201-2&quot;, &quot;AC-2201-3&quot;, &quot;AC-2201-4&quot;, &quot;AC-2201-5&quot;, &quot;AC-2201-6&quot;, &quot;AC-2201-7&quot;, &quot;AC-2201-8&quot;, &quot;AC-2201-9&quot;],
+  &quot;id&quot;: &quot;TS-051&quot;,
+  &quot;usId&quot;: &quot;US-2201&quot;,
+  &quot;title&quot;: &quot;Capability-declaration mechanism loader and apply verb behaviour; four auth-blueprint 1.1.0 minor adoption&quot;,
+  &quot;testCases&quot;: [
+    {&quot;id&quot;: &quot;TC-051-loader-capabilities-shape&quot;, &quot;acId&quot;: &quot;AC-2201-1&quot;, &quot;description&quot;: &quot;loader accepts capabilities[] on shape; refuses empty array, refuses non-string entries, refuses non-camelCase strings&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-loader.test.js::loader accepts capabilities[] shape and refuses malformed variants (TC-051-loader-capabilities-shape)&quot;},
+    {&quot;id&quot;: &quot;TC-051-loader-elicits-shape&quot;, &quot;acId&quot;: &quot;AC-2201-2&quot;, &quot;description&quot;: &quot;loader accepts elicits[] on shape; refuses empty array, refuses invalid kind, refuses em-dash in prompt, refuses missing options on kind=enum&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-loader.test.js::loader accepts elicits[] shape and refuses malformed variants (TC-051-loader-elicits-shape)&quot;},
+    {&quot;id&quot;: &quot;TC-051-loader-requires-shape&quot;, &quot;acId&quot;: &quot;AC-2201-3&quot;, &quot;description&quot;: &quot;loader accepts requiresAppliedCapabilities object shape; refuses empty capabilities array, refuses non-kebab allowSkipFlag&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-loader.test.js::loader accepts requiresAppliedCapabilities shape and refuses malformed variants (TC-051-loader-requires-shape)&quot;},
+    {&quot;id&quot;: &quot;TC-051-apply-discovery-refuse&quot;, &quot;acId&quot;: &quot;AC-2201-4&quot;, &quot;description&quot;: &quot;applyBlueprint returns a requiresAppliedCapabilities rcfError when no applied blueprint declares any required capability and allowNoAuthYet is false; message body includes the spec 5.5.1 verbatim opening line and lists the currently-applied blueprints&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-apply.test.js::apply refuses with requiresAppliedCapabilities rcfError on a bare project (TC-051-apply-discovery-refuse)&quot;},
+    {&quot;id&quot;: &quot;TC-051-apply-allow-skip&quot;, &quot;acId&quot;: &quot;AC-2201-5&quot;, &quot;description&quot;: &quot;applyBlueprint with allowNoAuthYet true writes contributions and sidecar with allowNoAuthYet true and a notes string naming the no-auth-yet state; manifest applied record is untouched&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-apply.test.js::apply honours allowNoAuthYet and writes sidecar with notes (TC-051-apply-allow-skip)&quot;},
+    {&quot;id&quot;: &quot;TC-051-elicit-answers&quot;, &quot;acId&quot;: &quot;AC-2201-6&quot;, &quot;description&quot;: &quot;applyBlueprint reads elicitAnswers map; every elicit whose when-predicate resolves true against discovered capabilities is coerced by kind; missing required answer returns validation rcfError naming id&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-apply.test.js::apply elicitation phase coerces answers by kind and refuses missing required (TC-051-elicit-answers)&quot;},
+    {&quot;id&quot;: &quot;TC-051-sidecar-write&quot;, &quot;acId&quot;: &quot;AC-2201-7&quot;, &quot;description&quot;: &quot;applyBlueprint writes rcf/blueprints/${slug}.applied.json with slug, version, appliedAt, appliedCapabilities and appliedElicitations; re-apply on same version rewrites the file idempotently&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-apply.test.js::apply writes sidecar with appliedCapabilities and appliedElicitations idempotently (TC-051-sidecar-write)&quot;},
+    {&quot;id&quot;: &quot;TC-051-auth-minors&quot;, &quot;acId&quot;: &quot;AC-2201-8&quot;, &quot;description&quot;: &quot;The four shelf auth blueprints declare capabilities[] and correct new versions; each CHANGELOG.md carries a new entry naming the capabilities added and citing spec section 5.5.2&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-auth-minors.test.js::the four shelf auth blueprints declare capabilities[] and matching CHANGELOG entries (TC-051-auth-minors)&quot;},
+    {&quot;id&quot;: &quot;TC-051-docs-section-6a&quot;, &quot;acId&quot;: &quot;AC-2201-9&quot;, &quot;description&quot;: &quot;packages/rcf-lite/docs/blueprint-authoring.md section 6a includes the capability vocabulary table with the four capability strings and their shelf providers; the section text cross-references capabilities[] and requiresAppliedCapabilities as loader fields&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/capabilities-auth-minors.test.js::docs blueprint-authoring section 6a carries the capability vocabulary table (TC-051-docs-section-6a)&quot;}
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-052">
+  <summary><span class="summary-label">TS-052 - application-admin-console v1.0.0 shelf shape, capability discovery, probe pack cross-check and sample-app fixture</span><span class="status draft">draft</span></summary>
+  <article id="TS-052" class="doc doc-ts">
+  <h3>TS-052 - application-admin-console v1.0.0 shelf shape, capability discovery, probe pack cross-check and sample-app fixture</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-2301">US-2301</a></p>
+  <p><strong>Purpose:</strong> Cover AC-2301-1..7 via unit tests over the shipped application-admin-console blueprint.json contribution shape (23 contributions in 6 REQ / 9 US / 4 TAC / 4 ADR groups), the requiresAppliedCapabilities and elicits[] declarations, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids, the pack appliesTo predicate discipline (references BOTH tacIds and route), the sample-app fixture serving the console shell with the ARIA APG grid permission matrix, the CAPS switch surface selector, the users directory, org switcher, audit-log table with correlation id, access-denied and request-access control, and the negative-run behaviour on the ?break=matrix-grid, ?break=denied and ?break=audit-fields switches.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-2301-1">AC-2301-1</a>, <a href="#AC-2301-2">AC-2301-2</a>, <a href="#AC-2301-3">AC-2301-3</a>, <a href="#AC-2301-4">AC-2301-4</a>, <a href="#AC-2301-5">AC-2301-5</a>, <a href="#AC-2301-6">AC-2301-6</a>, <a href="#AC-2301-7">AC-2301-7</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-052-blueprint-json-shape">
+  <p><strong>TC-052-blueprint-json-shape</strong> - covers <a href="#AC-2301-1">AC-2301-1</a> <span class="status pending">pending</span></p>
+  <p>blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[]</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)</code></p>
+</div>
+<div class="tc" id="TC-052-applies-clean-with-override">
+  <p><strong>TC-052-applies-clean-with-override</strong> - covers <a href="#AC-2301-2">AC-2301-2</a> <span class="status pending">pending</span></p>
+  <p>Fresh init project applies admin-console --allow-no-auth-yet and writes sidecar with allowNoAuthYet true</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:true and empty appliedCapabilities (TC-052-applies-clean-with-override)</code></p>
+</div>
+<div class="tc" id="TC-052-refuses-bare-spa">
+  <p><strong>TC-052-refuses-bare-spa</strong> - covers <a href="#AC-2301-3">AC-2301-3</a> <span class="status pending">pending</span></p>
+  <p>Fresh init project without auth refuses admin-console apply with exit 3 and spec 5.5.1 message</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::apply refuses on bare SPA with spec 5.5.1 verbatim message and lists applied blueprints (TC-052-refuses-bare-spa)</code></p>
+</div>
+<div class="tc" id="TC-052-capability-discovery">
+  <p><strong>TC-052-capability-discovery</strong> - covers <a href="#AC-2301-4">AC-2301-4</a> <span class="status pending">pending</span></p>
+  <p>Discovery reads applied capabilities from applied blueprints</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::apply on magic-link project yields [principalDirectory] and on clerk+logging project yields [principalDirectory,roleModel,auditLog] (TC-052-capability-discovery)</code></p>
+</div>
+<div class="tc" id="TC-052-pack-checks-cross-check">
+  <p><strong>TC-052-pack-checks-cross-check</strong> - covers <a href="#AC-2301-5">AC-2301-5</a> <span class="status pending">pending</span></p>
+  <p>Every pack check id matches contributed AC id and applies gates on capability</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo predicate gates on the applied capability (TC-052-pack-checks-cross-check)</code></p>
+</div>
+<div class="tc" id="TC-052-fixture-surfaces">
+  <p><strong>TC-052-fixture-surfaces</strong> - covers <a href="#AC-2301-6">AC-2301-6</a> <span class="status pending">pending</span></p>
+  <p>Sample-app fixture serves the console shell with grid matrix and required data attributes</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture serves console shell with ARIA APG grid permission matrix and required data attributes (TC-052-fixture-surfaces)</code></p>
+</div>
+<div class="tc" id="TC-052-negative-runs">
+  <p><strong>TC-052-negative-runs</strong> - covers <a href="#AC-2301-7">AC-2301-7</a> <span class="status pending">pending</span></p>
+  <p>Break switches surface the three defects on the DOM</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture break switches surface the three defects on the DOM (TC-052-negative-runs)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-2301-1..7 via unit tests over the shipped application-admin-console blueprint.json contribution shape (23 contributions in 6 REQ / 9 US / 4 TAC / 4 ADR groups), the requiresAppliedCapabilities and elicits[] declarations, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids, the pack appliesTo predicate discipline (references BOTH tacIds and route), the sample-app fixture serving the console shell with the ARIA APG grid permission matrix, the CAPS switch surface selector, the users directory, org switcher, audit-log table with correlation id, access-denied and request-access control, and the negative-run behaviour on the ?break=matrix-grid, ?break=denied and ?break=audit-fields switches.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [&quot;AC-2301-1&quot;, &quot;AC-2301-2&quot;, &quot;AC-2301-3&quot;, &quot;AC-2301-4&quot;, &quot;AC-2301-5&quot;, &quot;AC-2301-6&quot;, &quot;AC-2301-7&quot;],
+  &quot;id&quot;: &quot;TS-052&quot;,
+  &quot;usId&quot;: &quot;US-2301&quot;,
+  &quot;title&quot;: &quot;application-admin-console v1.0.0 shelf shape, capability discovery, probe pack cross-check and sample-app fixture&quot;,
+  &quot;testCases&quot;: [
+    {&quot;id&quot;: &quot;TC-052-blueprint-json-shape&quot;, &quot;acId&quot;: &quot;AC-2301-1&quot;, &quot;description&quot;: &quot;blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[]&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)&quot;},
+    {&quot;id&quot;: &quot;TC-052-applies-clean-with-override&quot;, &quot;acId&quot;: &quot;AC-2301-2&quot;, &quot;description&quot;: &quot;Fresh init project applies admin-console --allow-no-auth-yet and writes sidecar with allowNoAuthYet true&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:true and empty appliedCapabilities (TC-052-applies-clean-with-override)&quot;},
+    {&quot;id&quot;: &quot;TC-052-refuses-bare-spa&quot;, &quot;acId&quot;: &quot;AC-2301-3&quot;, &quot;description&quot;: &quot;Fresh init project without auth refuses admin-console apply with exit 3 and spec 5.5.1 message&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply refuses on bare SPA with spec 5.5.1 verbatim message and lists applied blueprints (TC-052-refuses-bare-spa)&quot;},
+    {&quot;id&quot;: &quot;TC-052-capability-discovery&quot;, &quot;acId&quot;: &quot;AC-2301-4&quot;, &quot;description&quot;: &quot;Discovery reads applied capabilities from applied blueprints&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply on magic-link project yields [principalDirectory] and on clerk+logging project yields [principalDirectory,roleModel,auditLog] (TC-052-capability-discovery)&quot;},
+    {&quot;id&quot;: &quot;TC-052-pack-checks-cross-check&quot;, &quot;acId&quot;: &quot;AC-2301-5&quot;, &quot;description&quot;: &quot;Every pack check id matches contributed AC id and applies gates on capability&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo predicate gates on the applied capability (TC-052-pack-checks-cross-check)&quot;},
+    {&quot;id&quot;: &quot;TC-052-fixture-surfaces&quot;, &quot;acId&quot;: &quot;AC-2301-6&quot;, &quot;description&quot;: &quot;Sample-app fixture serves the console shell with grid matrix and required data attributes&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture serves console shell with ARIA APG grid permission matrix and required data attributes (TC-052-fixture-surfaces)&quot;},
+    {&quot;id&quot;: &quot;TC-052-negative-runs&quot;, &quot;acId&quot;: &quot;AC-2301-7&quot;, &quot;description&quot;: &quot;Break switches surface the three defects on the DOM&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture break switches surface the three defects on the DOM (TC-052-negative-runs)&quot;}
   ],
   &quot;status&quot;: &quot;draft&quot;
 }

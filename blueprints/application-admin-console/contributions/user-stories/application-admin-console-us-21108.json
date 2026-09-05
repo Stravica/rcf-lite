@@ -1,0 +1,27 @@
+{
+  "usId": "application-admin-console-US-21108",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The console does not declare providesRoles per spec 5.5.3; the mechanism composes at the capability edge instead",
+  "asA": "shelf author reasoning about future admin-console-shaped blueprints",
+  "iWant": "admin-console v1.0.0 to not declare providesRoles[]; composition with a second admin-console-shaped blueprint happens via capabilities[] and the crossBlueprintOwnership conflict path",
+  "soThat": "a specialised console (a vertical admin-console) declares its own capabilities[] and the mechanism reasons about the composition through one grammar, not two",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21108-1",
+      "testable": true,
+      "scope": "library",
+      "description": "blueprint.json does not declare providesRoles (per spec 5.5.3); the loader is happy (providesRoles is optional). A future admin-console-shaped blueprint composes via capabilities[] and the crossBlueprintOwnership conflict on the same slug family, not via providesRoles[]."
+    }
+  ],
+  "tacIds": [
+    "TAC-2202-application-admin-console-capability-discovery"
+  ],
+  "tags": [
+    "blueprint:application-admin-console"
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-2204-application-admin-console-audit-retention",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Audit-log retention window: elicited (default 90 days when auditLog is applied)",
+  "context": "The audit view reads the applied logging companions event stream. Retention windows are domain-specific (finance and healthcare regulations push retention to years; consumer SaaS often trims to 90 days for storage cost and privacy hygiene). The console does not own the retention decision; the applying project does.",
+  "decision": "v1.0.0 declares audit-log retention as an elicited parameter (auditRetentionDays elicit, kind:string default \"90\", when: auditLog is applied). The console renders the audit view with the elicited window; the applied logging companion is responsible for actually enforcing the retention at the write layer. The console suppresses the audit view when the auditLog capability is not applied.",
+  "consequences": "A projects audit view honours the elicited window; the write-side retention is the loggers job (the console does not delete rows from the log). A project on a heavily-regulated domain elicits a longer window at apply; a consumer SaaS defaults to 90 days.",
+  "alternativesConsidered": [
+    {
+      "name": "Hard-code a 90-day retention",
+      "summary": "The console reads the last 90 days only.",
+      "reasonNotChosen": "Refuses regulated-domain projects that need to render older entries in the surface; the retention question is authentically the projects, not the shelfs."
+    }
+  ],
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}

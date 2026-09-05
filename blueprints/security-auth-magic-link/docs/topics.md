@@ -39,6 +39,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
+| application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 
 US 3101-3111 sit at the LOW end of the 3101-3899 band on purpose. A project-side story that mechanically derives from `security-auth-magic-link-REQ-011` into the number `3111` would collide against security-auth-magic-link-US-3111 in this package; the band leaves headroom at the HIGH end (US 3181-3899) so a project's own stories anchored to security-auth-magic-link REQs can allocate without conflict.
 

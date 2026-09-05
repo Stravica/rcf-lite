@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-130",
+  "path": "../../packages/rcf-lite/src/blueprint/capabilities.js",
+  "implementsAcIds": [
+    "AC-2201-6",
+    "AC-2201-8",
+    "AC-2201-9"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z"
+}

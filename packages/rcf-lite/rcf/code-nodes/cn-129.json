@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-129",
+  "path": "../../packages/rcf-lite/src/blueprint/apply.js",
+  "implementsAcIds": [
+    "AC-2201-4",
+    "AC-2201-5",
+    "AC-2201-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z"
+}

@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-133",
+  "path": "../../packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/server.js",
+  "implementsAcIds": [
+    "AC-2301-6",
+    "AC-2301-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-05T01:30:00.000Z"
+}

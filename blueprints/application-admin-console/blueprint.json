@@ -1,0 +1,226 @@
+{
+  "slug": "application-admin-console",
+  "version": "1.0.0",
+  "category": "application",
+  "requiresAppliedCapabilities": {
+    "capabilities": [
+      "principalDirectory"
+    ],
+    "allowSkipFlag": "allow-no-auth-yet",
+    "refusalMessageId": "application-admin-console-bare-spa"
+  },
+  "elicits": [
+    {
+      "id": "custom-auth-provides-principal-directory",
+      "prompt": "Custom auth: does your project's own auth blueprint expose a principal directory (identity records the users surface can list)?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "principalDirectory"
+    },
+    {
+      "id": "custom-auth-provides-role-model",
+      "prompt": "Custom auth: does your project's own auth declare operator-visible role labels a permission matrix can render?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "roleModel"
+    },
+    {
+      "id": "custom-auth-provides-tenancy",
+      "prompt": "Custom auth: does your project's own auth (or a paired tenancy blueprint) declare an organisation abstraction the console can switch across?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "tenancy"
+    },
+    {
+      "id": "custom-auth-provides-audit-log",
+      "prompt": "Custom auth: does your project emit an audit event stream the console's audit view can read?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "auditLog"
+    },
+    {
+      "id": "baseline-roles",
+      "prompt": "Baseline role labels for the permission matrix (comma-separated). Owner, Admin, Member, Viewer is the ratified default; extend with per-project labels here.",
+      "kind": "string",
+      "default": "Owner, Admin, Member, Viewer",
+      "when": {
+        "requiresCapability": [
+          "roleModel"
+        ]
+      }
+    },
+    {
+      "id": "tenancy-shape",
+      "prompt": "Tenancy shape for the org switcher: per-user (users belong to one org), per-org (all users belong to every org they can see) or both.",
+      "kind": "enum",
+      "options": [
+        "per-user",
+        "per-org",
+        "both"
+      ],
+      "default": "per-user",
+      "when": {
+        "requiresCapability": [
+          "tenancy"
+        ]
+      }
+    },
+    {
+      "id": "invite-transport",
+      "prompt": "Invite transport: email delegates to the email sibling when present; in-app-only records the invite as a notification; custom hands the delivery to your own transport at surface time.",
+      "kind": "enum",
+      "options": [
+        "email",
+        "in-app-only",
+        "custom"
+      ],
+      "default": "email"
+    },
+    {
+      "id": "audit-retention-days",
+      "prompt": "Audit-log retention window in days. The applied logger enforces retention at the write layer; the console reads the same window.",
+      "kind": "string",
+      "default": "90",
+      "when": {
+        "requiresCapability": [
+          "auditLog"
+        ]
+      }
+    }
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "The audit-log surface reads the event stream the applied logger emits; without a logging companion, the audit surface has no source and is suppressed at apply."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "Invite failures and role-change refusals construct internal error records; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "contributions": [
+    {
+      "id": "application-admin-console-REQ-001",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-001.json"
+    },
+    {
+      "id": "application-admin-console-REQ-002",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-002.json"
+    },
+    {
+      "id": "application-admin-console-REQ-003",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-003.json"
+    },
+    {
+      "id": "application-admin-console-REQ-004",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-004.json"
+    },
+    {
+      "id": "application-admin-console-REQ-005",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-005.json"
+    },
+    {
+      "id": "application-admin-console-REQ-006",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-006.json"
+    },
+    {
+      "id": "application-admin-console-US-21101",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21101.json"
+    },
+    {
+      "id": "application-admin-console-US-21102",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21102.json"
+    },
+    {
+      "id": "application-admin-console-US-21103",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21103.json"
+    },
+    {
+      "id": "application-admin-console-US-21104",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21104.json"
+    },
+    {
+      "id": "application-admin-console-US-21105",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21105.json"
+    },
+    {
+      "id": "application-admin-console-US-21106",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21106.json"
+    },
+    {
+      "id": "application-admin-console-US-21107",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21107.json"
+    },
+    {
+      "id": "application-admin-console-US-21108",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21108.json"
+    },
+    {
+      "id": "application-admin-console-US-21109",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21109.json"
+    },
+    {
+      "id": "TAC-2201-application-admin-console-shell",
+      "kind": "tac",
+      "path": "tacs/tac-2201-application-admin-console-shell.json"
+    },
+    {
+      "id": "TAC-2202-application-admin-console-capability-discovery",
+      "kind": "tac",
+      "path": "tacs/tac-2202-application-admin-console-capability-discovery.json"
+    },
+    {
+      "id": "TAC-2203-application-admin-console-permission-matrix",
+      "kind": "tac",
+      "path": "tacs/tac-2203-application-admin-console-permission-matrix.json"
+    },
+    {
+      "id": "TAC-2204-application-admin-console-audit-view",
+      "kind": "tac",
+      "path": "tacs/tac-2204-application-admin-console-audit-view.json"
+    },
+    {
+      "id": "ADR-2201-application-admin-console-capability-vocabulary",
+      "kind": "adr",
+      "path": "adrs/adr-2201-application-admin-console-capability-vocabulary.json",
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-2202-application-admin-console-baseline-roles",
+      "kind": "adr",
+      "path": "adrs/adr-2202-application-admin-console-baseline-roles.json",
+      "elicited": true,
+      "standardsTraceClause": "SaaS UI research 2026"
+    },
+    {
+      "id": "ADR-2203-application-admin-console-invite-transport",
+      "kind": "adr",
+      "path": "adrs/adr-2203-application-admin-console-invite-transport.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-2204-application-admin-console-audit-retention",
+      "kind": "adr",
+      "path": "adrs/adr-2204-application-admin-console-audit-retention.json",
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}

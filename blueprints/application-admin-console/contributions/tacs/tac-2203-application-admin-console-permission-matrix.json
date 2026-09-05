@@ -1,0 +1,34 @@
+{
+  "tacId": "TAC-2203-application-admin-console-permission-matrix",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Permission matrix",
+  "purpose": "Owns the roles surface: renders the permission matrix as an ARIA APG grid (role=\"grid\" on the outer element, role=\"row\" on every rank, role=\"rowheader\" on the leftmost cell of each role rank, role=\"columnheader\" on every permission column header, role=\"gridcell\" on inner cells). Each cell announces its permission string on focus (WCAG 4.1.3).",
+  "responsibilities": [
+    "Render the ARIA APG grid pattern per WAI-ARIA Authoring Practices Guide (AC-21103-1).",
+    "Render the Owner + Admin + Member + Viewer baseline in the first four rank rows; elicited additional roles rendered after (AC-21103-2).",
+    "Announce every cells permission string plus allowed/denied state via aria-label on focus (AC-21103-1, WCAG 4.1.3)."
+  ],
+  "internalStructure": "One grid module: computes the matrix rank layout, renders the header rank and the role ranks, wires focus management for two-dimensional keyboard navigation, and drives aria-label from a permission catalogue map. Framework-agnostic per shell contract.",
+  "interfaces": [
+    {
+      "name": "renderMatrix",
+      "kind": "factory",
+      "description": "renderMatrix({ roles: RoleSpec[], permissions: PermissionSpec[], matrix: Record<roleId, Record<permissionId, boolean>> }) -> { mount(rootElement), unmount() }."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Admin-console shell",
+      "kind": "tac",
+      "tacId": "TAC-2201-application-admin-console-shell",
+      "description": "The matrix mounts inside the shell page-layout."
+    }
+  ],
+  "tradeoffs": "A grid pattern is more expensive to implement than a plain table but is the correct pattern for a keyboard-interactive matrix (per ARIA APG guidance). The pack asserts the pattern is present, not that every cell announces on focus perfectly in every framework: a project-side keyboard smoke complements the pack.",
+  "notes": "Consumes the datatable pattern-choice contract (ADR-1801, table vs grid per interactivity) at the shell edge, without namespacing conflicts because admin-console does not contribute an ADR on datatable pattern.",
+  "createdAt": "2026-09-05T01:30:00Z",
+  "updatedAt": "2026-09-05T01:30:00Z"
+}
