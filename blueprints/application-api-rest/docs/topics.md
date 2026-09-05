@@ -41,6 +41,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
+| application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 
 Suffix-family ids (ADR, TAC): SPA numbers in the 2xx range, this package takes 3xx (ADR-301 to ADR-308, TAC-301 to TAC-306); the next blueprint should take 4xx.
 

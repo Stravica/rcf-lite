@@ -123,8 +123,11 @@ The shelf-wide band registry (recorded at ship, never predicted; kept in sync ac
 | application-datatable | 17101-17899 | 18xx | shipped v1.0.0 | none |
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
+| application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 
-Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (visual round T-4 is up next at 20101-20899 / 21xx for `application-notifications-in-app`) and appends its row here after ship.
+Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (visual round T-5 is up next at 21101-21899 / 22xx for `application-admin-console`) and appends its row here after ship.
+
+T-4 reserves the `application-notifications-` family prefix as a name-only doc reservation (per spec Q3 default) for the sibling in-app-adjacent channels the shelf will grow into (`-email`, `-push`, `-webhook`): the name space is reserved so a future PR does not propose `application-alerts-email` or `application-messages-push` outside the family. Band allocation for each sibling happens at ship time by claiming the next unclaimed slot above the current tail. Reserved-name rows are documented in `blueprints/application-notifications-in-app/docs/topics.md`.
 
 A composing blueprint takes a fresh band rather than proposing namespaced AC ids. A US id numeric like `1101` gets its ACs as `AC-1101-1`, `AC-1101-2`, and so on; the US id anchors the band.
 
