@@ -1,9 +1,12 @@
+[info] build: ui-classifier verdict=ui reason=keyword-scan (2 signal(s)) [not yet ratified]
+       Classified as UI-bearing. Ratify with: rcf define update FBS-001 --set uiBearing=true
+       Override with: rcf define update FBS-001 --set uiBearing=false (if the classifier is wrong).
 # Spec bundle: FBS-001 - Document store core
 
 ## 1. Header
 
 - Item: FBS-001 - Document store core
-- Queue: order 1, item 1 of 39
+- Queue: order 1, item 1 of 40
 - Execution status: complete
 - Estimated size: medium
 - Estimated hours: 6

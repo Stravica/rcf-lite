@@ -787,6 +787,33 @@ flowchart LR
   REQ-020 --> AC-2001-7
   TC-049-resize-seam["TC-049-resize-seam"]
   AC-2001-7 -.-> TC-049-resize-seam
+  REQ-021["REQ-021"]
+  AC-2101-1["AC-2101-1"]
+  REQ-021 --> AC-2101-1
+  TC-050-blueprint-json-shape["TC-050-blueprint-json-shape"]
+  AC-2101-1 -.-> TC-050-blueprint-json-shape
+  AC-2101-2["AC-2101-2"]
+  REQ-021 --> AC-2101-2
+  TC-050-applies-clean["TC-050-applies-clean"]
+  AC-2101-2 -.-> TC-050-applies-clean
+  AC-2101-3["AC-2101-3"]
+  REQ-021 --> AC-2101-3
+  TC-050-pack-checks-cross-check["TC-050-pack-checks-cross-check"]
+  AC-2101-3 -.-> TC-050-pack-checks-cross-check
+  AC-2101-4["AC-2101-4"]
+  REQ-021 --> AC-2101-4
+  TC-050-fixture-acknowledge["TC-050-fixture-acknowledge"]
+  AC-2101-4 -.-> TC-050-fixture-acknowledge
+  TC-050-fixture-preseeding["TC-050-fixture-preseeding"]
+  AC-2101-4 -.-> TC-050-fixture-preseeding
+  AC-2101-5["AC-2101-5"]
+  REQ-021 --> AC-2101-5
+  TC-050-negative-runs["TC-050-negative-runs"]
+  AC-2101-5 -.-> TC-050-negative-runs
+  AC-2101-6["AC-2101-6"]
+  REQ-021 --> AC-2101-6
+  TC-050-family-prefix-reservation["TC-050-family-prefix-reservation"]
+  AC-2101-6 -.-> TC-050-family-prefix-reservation
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1191,6 +1218,20 @@ flowchart LR
   class TC-049-negative-runs tc;
   class AC-2001-7 ac;
   class TC-049-resize-seam tc;
+  class REQ-021 req;
+  class AC-2101-1 ac;
+  class TC-050-blueprint-json-shape tc;
+  class AC-2101-2 ac;
+  class TC-050-applies-clean tc;
+  class AC-2101-3 ac;
+  class TC-050-pack-checks-cross-check tc;
+  class AC-2101-4 ac;
+  class TC-050-fixture-acknowledge tc;
+  class TC-050-fixture-preseeding tc;
+  class AC-2101-5 ac;
+  class TC-050-negative-runs tc;
+  class AC-2101-6 ac;
+  class TC-050-family-prefix-reservation tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

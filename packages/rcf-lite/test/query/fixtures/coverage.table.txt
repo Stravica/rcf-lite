@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 20  covered: 20  covered-unresolved: 0  uncovered: 0
+Requirements: 21  covered: 21  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -180,3 +180,9 @@ REQ-020      yes      AC-2001-1   yes         TC-049-blueprint-json-shape
                       AC-2001-5   yes         TC-049-fixture-dashboard-render
                       AC-2001-6   yes         TC-049-negative-runs
                       AC-2001-7   yes         TC-049-resize-seam
+REQ-021      yes      AC-2101-1   yes         TC-050-blueprint-json-shape
+                      AC-2101-2   yes         TC-050-applies-clean
+                      AC-2101-3   yes         TC-050-pack-checks-cross-check
+                      AC-2101-4   yes         TC-050-fixture-acknowledge, TC-050-fixture-preseeding
+                      AC-2101-5   yes         TC-050-negative-runs
+                      AC-2101-6   yes         TC-050-family-prefix-reservation
