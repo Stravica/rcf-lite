@@ -42,6 +42,13 @@ const VALID_KINDS = new Set([
   // individually schema-clean) and from `brokenReference` (nothing
   // dangles; the graph is over-connected, not under-connected).
   'duplicateId',
+  // Visual round T-5 (spec section 5.5.1): a consumer blueprint whose
+  // requiresAppliedCapabilities gate refuses because no applied
+  // blueprint declares any of the required capabilities AND the CLI
+  // did not pass the allow-skip flag. The apply verb returns this kind
+  // with the spec-verbatim refusal message; the CLI translates it to
+  // exit 3 (not exit 2) with the message printed as-is on stderr.
+  'requiresAppliedCapabilities',
 ]);
 
 /**
