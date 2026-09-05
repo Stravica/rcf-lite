@@ -11,15 +11,15 @@
   "acceptanceCriteria": [
     {
       "id": "AC-21103-1",
-      "desc": "Given the roles surface AND an applied auth blueprint declaring roleModel, the permission matrix renders as an ARIA APG grid: role=\"grid\" on the outer element, role=\"row\" on every rank (including the header rank), role=\"columnheader\" on every permission column header, role=\"rowheader\" on the leftmost cell of each role rank, role=\"gridcell\" on every inner cell, and each cell carries an aria-label announcing the exact permission string plus the allowed/denied state on focus (WCAG 4.1.3). Probed by pack check AC-21103-1.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "Given the roles surface AND an applied auth blueprint declaring roleModel, the permission matrix renders as an ARIA APG grid: role=\"grid\" on the outer element, role=\"row\" on every rank (including the header rank), role=\"columnheader\" on every permission column header, role=\"rowheader\" on the leftmost cell of each role rank, role=\"gridcell\" on every inner cell, and each cell carries an aria-label announcing the exact permission string plus the allowed/denied state on focus (WCAG 4.1.3). Probed by pack check AC-21103-1."
     },
     {
       "id": "AC-21103-2",
-      "desc": "The baseline role set is Owner, Admin, Member, Viewer (ADR-2202); elicited additional roles rendered as extra rank rows, with the baseline four rendered first and additions after.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "The baseline role set is Owner, Admin, Member, Viewer (ADR-2202); elicited additional roles rendered as extra rank rows, with the baseline four rendered first and additions after."
     }
   ],
   "tacIds": [

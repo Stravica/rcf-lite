@@ -11,9 +11,9 @@
   "acceptanceCriteria": [
     {
       "id": "AC-21108-1",
-      "desc": "blueprint.json does not declare providesRoles (per spec 5.5.3); the loader is happy (providesRoles is optional). A future admin-console-shaped blueprint composes via capabilities[] and the crossBlueprintOwnership conflict on the same slug family, not via providesRoles[].",
       "testable": true,
-      "scope": "chain"
+      "scope": "library",
+      "description": "blueprint.json does not declare providesRoles (per spec 5.5.3); the loader is happy (providesRoles is optional). A future admin-console-shaped blueprint composes via capabilities[] and the crossBlueprintOwnership conflict on the same slug family, not via providesRoles[]."
     }
   ],
   "tacIds": [

@@ -11,15 +11,15 @@
   "acceptanceCriteria": [
     {
       "id": "AC-21102-1",
-      "desc": "Given an authenticated admin AND an applied auth blueprint declaring principalDirectory, the users table lists every principal with data-user-id on each row, a role column (only when roleModel is applied; else suppressed), a last-active timestamp, and a status column; a principal without admin scope reaching /admin renders an access-denied state with a \"request access\" control routing to POST /api/request-access. Probed by application-admin-console pack check AC-21102-1.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "Given an authenticated admin AND an applied auth blueprint declaring principalDirectory, the users table lists every principal with data-user-id on each row, a role column (only when roleModel is applied; else suppressed), a last-active timestamp, and a status column; a principal without admin scope reaching /admin renders an access-denied state with a \"request access\" control routing to POST /api/request-access. Probed by application-admin-console pack check AC-21102-1."
     },
     {
       "id": "AC-21102-2",
-      "desc": "Each row exposes an invite control for a principal without an active session (data-action=\"invite\") and a deactivate control for an active principal (data-action=\"deactivate\"); the controls are keyboard-reachable buttons.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "Each row exposes an invite control for a principal without an active session (data-action=\"invite\") and a deactivate control for an active principal (data-action=\"deactivate\"); the controls are keyboard-reachable buttons."
     }
   ],
   "tacIds": [

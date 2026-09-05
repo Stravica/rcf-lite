@@ -33,7 +33,7 @@
   "dependencies": [
     {
       "name": "Blueprint loader",
-      "kind": "code",
+      "kind": "external",
       "description": "Reads each applied blueprints source blueprint.json."
     }
   ],

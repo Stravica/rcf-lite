@@ -11,15 +11,15 @@
   "acceptanceCriteria": [
     {
       "id": "AC-21105-1",
-      "desc": "Given a role change AND the auditLog capability applied (via observability-logging or a dedicated audit blueprint), an audit-log entry writes with actor, target, before, after, timestamp, and correlationId from the logging companion; the entry surfaces on the audit view table where every row is enumerable by data-audit-id and every cell exposes its column via a data-column attribute. Probed by pack check AC-21105-1.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "Given a role change AND the auditLog capability applied (via observability-logging or a dedicated audit blueprint), an audit-log entry writes with actor, target, before, after, timestamp, and correlationId from the logging companion; the entry surfaces on the audit view table where every row is enumerable by data-audit-id and every cell exposes its column via a data-column attribute. Probed by pack check AC-21105-1."
     },
     {
       "id": "AC-21105-2",
-      "desc": "The audit view consumes the application-datatable shell (TAC-2204 depends on TAC-1801-application-datatable-shell), so filter chrome, pagination and the four state regions inherit from the datatable contract.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "The audit view consumes the application-datatable shell (TAC-2204 depends on TAC-1801-application-datatable-shell), so filter chrome, pagination and the four state regions inherit from the datatable contract."
     }
   ],
   "tacIds": [

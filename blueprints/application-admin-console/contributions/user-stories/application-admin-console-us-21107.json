@@ -11,9 +11,9 @@
   "acceptanceCriteria": [
     {
       "id": "AC-21107-1",
-      "desc": "The console shell reads rcf/blueprints/application-admin-console.applied.json (written by apply at build time) as a build asset served under a stable path (e.g. /admin/caps.json); the shell never runs a runtime probe against manifest.blueprints[] over the network. The sidecar payload keys are appliedCapabilities[], appliedElicitations{} and allowNoAuthYet? per the mechanism spec.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "The console shell reads rcf/blueprints/application-admin-console.applied.json (written by apply at build time) as a build asset served under a stable path (e.g. /admin/caps.json); the shell never runs a runtime probe against manifest.blueprints[] over the network. The sidecar payload keys are appliedCapabilities[], appliedElicitations{} and allowNoAuthYet? per the mechanism spec."
     }
   ],
   "tacIds": [

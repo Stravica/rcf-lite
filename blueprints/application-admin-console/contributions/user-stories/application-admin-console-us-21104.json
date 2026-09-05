@@ -11,9 +11,9 @@
   "acceptanceCriteria": [
     {
       "id": "AC-21104-1",
-      "desc": "Given an applied blueprint declaring tenancy, the shell renders an org switcher control (data-role=\"org-switcher\") on the console header; the users invite path renders an org selector. When tenancy is not applied, neither control is rendered nor reachable. Probed by pack check AC-21104-1.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "Given an applied blueprint declaring tenancy, the shell renders an org switcher control (data-role=\"org-switcher\") on the console header; the users invite path renders an org selector. When tenancy is not applied, neither control is rendered nor reachable. Probed by pack check AC-21104-1."
     }
   ],
   "tacIds": [

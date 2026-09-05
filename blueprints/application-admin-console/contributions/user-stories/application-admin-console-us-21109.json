@@ -11,15 +11,15 @@
   "acceptanceCriteria": [
     {
       "id": "AC-21109-1",
-      "desc": "rcf define blueprint add ./blueprints/application-admin-console on a project with no applied blueprint declaring principalDirectory (and without --allow-no-auth-yet) exits 3; the stderr message begins with \"application-admin-console requires at least one applied security-auth-*\", lists the currently-applied blueprints on the project, and prints the \"Suggested next steps\" block including the four shelf auth slugs. No contribution files are written; the sidecar is not created.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "rcf define blueprint add ./blueprints/application-admin-console on a project with no applied blueprint declaring principalDirectory (and without --allow-no-auth-yet) exits 3; the stderr message begins with \"application-admin-console requires at least one applied security-auth-*\", lists the currently-applied blueprints on the project, and prints the \"Suggested next steps\" block including the four shelf auth slugs. No contribution files are written; the sidecar is not created."
     },
     {
       "id": "AC-21109-2",
-      "desc": "With --allow-no-auth-yet passed, the apply proceeds and writes rcf/blueprints/application-admin-console.applied.json with allowNoAuthYet:true and a notes string naming the \"no auth yet\" state; a later rcf define validate reads the sidecar and flags the ungated surfaces.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "With --allow-no-auth-yet passed, the apply proceeds and writes rcf/blueprints/application-admin-console.applied.json with allowNoAuthYet:true and a notes string naming the \"no auth yet\" state; a later rcf define validate reads the sidecar and flags the ungated surfaces."
     }
   ],
   "tacIds": [
