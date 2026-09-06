@@ -4,6 +4,19 @@
 
 Your project renders any surface whose input can be empty, whose network call can fail, whose user can lack scope, or whose client can crash mid-render. That covers every SPA that hits an API and every routed page that can dereference an id. You want one contract for the eight named states, one recovery-action router per state, one polite live-region for progress announcements, and a runtime pack that refuses ship on a stack-trace leak, a resource-id leak, a missing recovery affordance, or a dropped live-region wrapper.
 
+## The eight named states
+
+The blueprint enumerates the eight states in the ratified order below. Every README, guide, pack `checks[]` and `docs/topics.md` row across the family names the same eight slugs.
+
+- `not-found`: routed page dereferences an id that has been removed or was never there.
+- `forbidden`: caller is authenticated but the target resource refuses; the surface offers a request-access affordance.
+- `server-error`: a 500-class failure the client cannot recover from without a retry.
+- `offline`: the client has lost the network; the surface announces the transition and, on reconnection, replays it through the polite live-region wrapper.
+- `permission-denied`: the caller lacks a scope the target resource requires; the surface names the missing scope in the cause without leaking the resource id.
+- `empty-list`: a collection surface has zero rows and offers the recovery-action router entry (create, clear filters, or invite, per project wiring).
+- `no-search-results`: a query returned an empty set; the surface echoes the query verbatim and suggests broadening it.
+- `error-boundary`: a client-side render exception was caught; the surface renders under `role="alert"` and offers a route-level recovery.
+
 ## When NOT to reach for it
 
 Your product is a marketing site or a static content surface with no dynamic state. The eight states model a live workspace; a static site has no offline mode, no per-resource forbidden state, no client-side render boundary, and forcing the model on a static site adds mechanism without payoff.
