@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-135",
+  "path": "../../blueprints/application-empty-error-states/probe-packs/application-empty-error-states.pack.mjs",
+  "implementsAcIds": [
+    "AC-2401-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T15:39:29.906Z",
+  "updatedAt": "2026-09-06T15:39:29.906Z"
+}

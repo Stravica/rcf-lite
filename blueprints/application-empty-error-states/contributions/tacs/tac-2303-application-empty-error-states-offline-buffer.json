@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2303-application-empty-error-states-offline-buffer",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Offline write-buffer",
+  "purpose": "Owns the buffering and reconciliation contract for writes attempted while navigator.onLine is false. Every buffered write carries an idempotency token, a serialised payload and a monotonic sequence; on reconnection the buffer flushes in sequence and the server dedupes on the idempotency token.",
+  "responsibilities": [
+    "Persist every buffered write to the applied local buffer (IndexedDB by default per ADR-2303, an elicited alternative for projects that need it) with an idempotency token, serialised payload and sequence (AC-22105-1).",
+    "Expose window.__offlineBuffer as a read-only enumeration for the pack and for project-side smoke tests (AC-22105-1).",
+    "Announce buffered-write count changes through the polite live-region wrapper on entry and on reconnection (AC-22105-1 via TAC-2301).",
+    "On reconnection, flush the buffer in sequence, retain the entry on flush failure with a retry counter, and clear the entry on flush success."
+  ],
+  "internalStructure": "One buffer module the state machine invokes on offline entry and exit. The buffer wraps the applied storage engine (default IndexedDB via a small adapter interface, elicited alternatives per ADR-2303) with a serialise/deserialise pair and a monotonic counter. The reconciliation loop is idempotent: replaying the flush against the same buffer produces the same server-side effect.",
+  "interfaces": [
+    {
+      "name": "bufferWrite",
+      "kind": "factory",
+      "description": "bufferWrite({ payload, idempotencyToken }) -> { sequence }. Persists the write, returns the sequence assigned. The idempotency token is caller-supplied so the server-side dedupe key is stable across retries."
+    },
+    {
+      "name": "flushBuffer",
+      "kind": "factory",
+      "description": "flushBuffer({ onSuccess, onFailure }) -> { flushed, retained }. Called on reconnection; iterates the buffer in sequence, calling onSuccess or onFailure per entry."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "State machine",
+      "kind": "tac",
+      "tacId": "TAC-2301-application-empty-error-states-state-machine",
+      "description": "The state machine dispatches offline entry and reconnection into this buffer."
+    }
+  ],
+  "tradeoffs": "IndexedDB by default is available in every modern browser but requires the applied surface to run in a browser context (not a WebView with a locked-down storage policy). Projects on a stripped WebView elicit an alternative via ADR-2303. Retention semantics on flush failure are per-write; a global give-up threshold is a project-side concern and not part of the v1 contract.",
+  "notes": "The buffer is a runtime-observable contract; the pack drives an offline probe with a synthetic write and asserts window.__offlineBuffer is populated.",
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

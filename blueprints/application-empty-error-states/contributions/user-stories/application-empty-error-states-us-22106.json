@@ -1,0 +1,29 @@
+{
+  "usId": "application-empty-error-states-US-22106",
+  "prdId": "PRD-001",
+  "reqId": "application-empty-error-states-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The empty-list state renders with a distinct visual and a creation-affordance recovery control",
+  "asA": "operator opening a listing surface that has no rows",
+  "iWant": "the empty-list state to render with a distinct visual and a creation-affordance recovery control",
+  "soThat": "I know the surface loaded successfully and my next action is to create the first row, not to reload",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-22106-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given a listing endpoint returning an empty array, the empty-list state renders inside role=\"region\" with a data-visual=\"empty-list\" wrapper (distinct from data-visual=\"loading\" and data-visual=\"loaded\") and a keyboard-reachable [data-recovery=\"create\"] control. The pack drives /probe/empty-list, reads the region and the wrapper attribute, and asserts the recovery control exists and carries an accessible name."
+    }
+  ],
+  "tacIds": [
+    "TAC-2301-application-empty-error-states-state-machine",
+    "TAC-2302-application-empty-error-states-recovery-router"
+  ],
+  "tags": [
+    "blueprint:application-empty-error-states",
+    "state:empty-list"
+  ],
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

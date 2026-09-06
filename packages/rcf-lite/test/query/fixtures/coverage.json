@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 23,
-    "covered": 23,
+    "requirements": 24,
+    "covered": 24,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -1791,7 +1791,119 @@
           "unresolvedTestCases": []
         }
       ]
+    },
+    {
+      "id": "REQ-024",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-2401-1",
+          "covered": true,
+          "testCases": [
+            "TC-053-blueprint-json-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2401-2",
+          "covered": false,
+          "testCases": [
+            "TC-053-applies-clean"
+          ],
+          "unresolvedTestCases": [
+            "TC-053-applies-clean"
+          ]
+        },
+        {
+          "id": "AC-2401-3",
+          "covered": false,
+          "testCases": [
+            "TC-053-pack-checks-cross-check"
+          ],
+          "unresolvedTestCases": [
+            "TC-053-pack-checks-cross-check"
+          ]
+        },
+        {
+          "id": "AC-2401-4",
+          "covered": false,
+          "testCases": [
+            "TC-053-fixture-serves-states"
+          ],
+          "unresolvedTestCases": [
+            "TC-053-fixture-serves-states"
+          ]
+        },
+        {
+          "id": "AC-2401-5",
+          "covered": false,
+          "testCases": [
+            "TC-053-negative-runs"
+          ],
+          "unresolvedTestCases": [
+            "TC-053-negative-runs"
+          ]
+        },
+        {
+          "id": "AC-2401-6",
+          "covered": false,
+          "testCases": [
+            "TC-053-state-enumeration-parity"
+          ],
+          "unresolvedTestCases": [
+            "TC-053-state-enumeration-parity"
+          ]
+        },
+        {
+          "id": "AC-2401-7",
+          "covered": false,
+          "testCases": [
+            "TC-053-readme-gaps-and-changelog"
+          ],
+          "unresolvedTestCases": [
+            "TC-053-readme-gaps-and-changelog"
+          ]
+        }
+      ]
     }
   ],
-  "unresolvedTestPointers": []
+  "unresolvedTestPointers": [
+    {
+      "tsId": "TS-053",
+      "tcId": "TC-053-applies-clean",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean)",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-053",
+      "tcId": "TC-053-fixture-serves-states",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::sample-app fixture serves every one of the eight states on the default branch (TC-053-fixture-serves-states)",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-053",
+      "tcId": "TC-053-negative-runs",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-053-negative-runs)",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-053",
+      "tcId": "TC-053-pack-checks-cross-check",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-053-pack-checks-cross-check)",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-053",
+      "tcId": "TC-053-readme-gaps-and-changelog",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-1 row (TC-053-readme-gaps-and-changelog)",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-053",
+      "tcId": "TC-053-state-enumeration-parity",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::eight state slugs appear identically across README guide pack and docs (TC-053-state-enumeration-parity)",
+      "reason": "test-missing"
+    }
+  ]
 }

@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-2301-application-empty-error-states-state-machine",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Empty and error state machine",
+  "purpose": "Owns the mapping from an FBS surface render (a routed page, a listing surface, a search surface, a client-side render) to the eight named empty and error states and from each state to a recovery-action shape. Reads the runtime signals (HTTP status code, response body shape, navigator.onLine, caught render exception) and dispatches the correct state region plus the correct recovery shape. Every AC in this blueprint anchors on this TAC.",
+  "responsibilities": [
+    "Map HTTP 404 to not-found, 403 to forbidden or permission-denied (see internalStructure), 5xx to server-error, and empty-array response bodies to empty-list or no-search-results (see internalStructure) (AC-22101-1 through AC-22104-1, AC-22106-1, AC-22107-1).",
+    "Map navigator.onLine false to offline and the reconnect signal to the polite reconnection announcement (AC-22105-1).",
+    "Map a caught client-side render exception to error-boundary announced through role=\"alert\" (AC-22108-1).",
+    "Delegate every recovery action to the recovery-action router (TAC-2302) and every offline buffer operation to the offline-buffer TAC (TAC-2303)."
+  ],
+  "internalStructure": "One state-machine module the shell mounts on route entry. On response, the machine reads the HTTP status code plus the response body shape: a 403 with a per-resource cause routes to permission-denied, a bare 403 routes to forbidden; a 200 with an empty array on a search endpoint (route carries a q query parameter) routes to no-search-results, a 200 with an empty array on a listing endpoint routes to empty-list. On navigator.onLine transitions the machine dispatches offline entry and reconnection through the polite live-region wrapper. On a caught render exception (the SPA error boundary) the machine dispatches error-boundary through the assertive alert wrapper. Every dispatch writes the state name into the rendered region as an accessible name and delegates the recovery action to the recovery router. The framework is not prescribed; the machines interfaces are what the project realises against React, Vue, Svelte or vanilla DOM.",
+  "interfaces": [
+    {
+      "name": "renderState",
+      "kind": "factory",
+      "description": "renderState({ statusCode, responseBody, route, onLine, caughtException }) -> { stateName, recoveryShape, regionProps }. The project supplies the runtime signals; the machine returns the state name, the recovery shape the router will realise, and the region props (role, aria-live level, accessible name)."
+    },
+    {
+      "name": "statesEnum",
+      "kind": "shape",
+      "description": "The eight named states are the closed enum { not-found, forbidden, server-error, offline, permission-denied, empty-list, no-search-results, error-boundary }. A ninth state is a blueprint minor bump (see CHANGELOG)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Recovery-action router",
+      "kind": "tac",
+      "tacId": "TAC-2302-application-empty-error-states-recovery-router",
+      "description": "The state machine hands every rendered state's recovery shape to the router."
+    },
+    {
+      "name": "Offline write-buffer",
+      "kind": "tac",
+      "tacId": "TAC-2303-application-empty-error-states-offline-buffer",
+      "description": "The offline entry dispatches through the write-buffer TAC."
+    }
+  ],
+  "tradeoffs": "One state-machine module keeps the mapping deterministic and lint-checkable but ties every state to a runtime signal the project must expose. Projects that route through a framework's own boundary primitive (React error boundary, Vue errorCaptured) wire the machine into that primitive rather than replacing it. Known mechanism-reach gap: the machine cannot prove keyboard focus lands on the recovery control in every framework's rendering; the pack asserts the control is reachable, project-side smoke tests supplement.",
+  "notes": "See README Known mechanism-reach gaps for the full list.",
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

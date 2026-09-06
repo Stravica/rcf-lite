@@ -1,0 +1,29 @@
+{
+  "usId": "application-empty-error-states-US-22104",
+  "prdId": "PRD-001",
+  "reqId": "application-empty-error-states-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The permission-denied state names a class-level cause and never the per-resource id",
+  "asA": "authenticated operator hitting a 403 with a per-resource cause",
+  "iWant": "the permission-denied state to render a class-level cause string (for example \"admin scope required\") not the resource id",
+  "soThat": "I get an actionable class-level explanation and no resource identifier leaks into the surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-22104-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given a mocked 403 response with a per-resource cause, the permission-denied state renders inside role=\"region\" with a class-level cause string (matches /^[A-Za-z][A-Za-z0-9 ]+$/ with no digits-run of four or more) and a [data-action=\"request-access\"] control. The pack drives /probe/permission-denied, reads the cause string, and refuses when the string contains a resource-id shape (four or more consecutive digits, or a UUID pattern, or a slug-shape id preceded by resource identifiers like \"resource=\" or \"id=\")."
+    }
+  ],
+  "tacIds": [
+    "TAC-2301-application-empty-error-states-state-machine",
+    "TAC-2302-application-empty-error-states-recovery-router"
+  ],
+  "tags": [
+    "blueprint:application-empty-error-states",
+    "state:permission-denied"
+  ],
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

@@ -125,8 +125,9 @@ The shelf-wide band registry (recorded at ship, never predicted; kept in sync ac
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 | application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
+| application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
 
-Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (visual round T-5 is up next at 21101-21899 / 22xx for `application-admin-console`) and appends its row here after ship.
+Project-authored docs live in the 001-999 band, below every blueprint. The next blueprint claims its own non-overlapping block above the current tail (visual round 4 T-2 is up next at 23101-23899 / 24xx for `application-file-upload`) and appends its row here after ship.
 
 T-4 reserves the `application-notifications-` family prefix as a name-only doc reservation (per spec Q3 default) for the sibling in-app-adjacent channels the shelf will grow into (`-email`, `-push`, `-webhook`): the name space is reserved so a future PR does not propose `application-alerts-email` or `application-messages-push` outside the family. Band allocation for each sibling happens at ship time by claiming the next unclaimed slot above the current tail. Reserved-name rows are documented in `blueprints/application-notifications-in-app/docs/topics.md`.
 

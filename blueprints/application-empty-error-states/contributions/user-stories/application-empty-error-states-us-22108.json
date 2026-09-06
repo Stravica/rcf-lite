@@ -1,0 +1,29 @@
+{
+  "usId": "application-empty-error-states-US-22108",
+  "prdId": "PRD-001",
+  "reqId": "application-empty-error-states-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The error-boundary state renders on a client-side render failure with a role=alert announcement",
+  "asA": "operator hitting a client-side render exception",
+  "iWant": "the error-boundary state to render inside role=\"alert\" with a retry recovery hook and no stack detail",
+  "soThat": "the assistive tech announces the failure immediately (assertive, not polite) and I have an escape from a broken render",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-22108-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given a synthetic client-side render exception thrown via page.evaluate (or the sample-app /probe/error-boundary?crash=1 route), the error-boundary state renders inside role=\"alert\" with a keyboard-reachable [data-recovery=\"retry\"] control, a plain summary line and no stack-frame content matching the sensitive-pattern list. The pack drives /probe/error-boundary?crash=1, reads the region, the retry control and the document text for pattern hits."
+    }
+  ],
+  "tacIds": [
+    "TAC-2301-application-empty-error-states-state-machine",
+    "TAC-2302-application-empty-error-states-recovery-router"
+  ],
+  "tags": [
+    "blueprint:application-empty-error-states",
+    "state:error-boundary"
+  ],
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

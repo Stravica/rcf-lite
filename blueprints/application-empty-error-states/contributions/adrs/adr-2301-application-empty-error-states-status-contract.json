@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2301-application-empty-error-states-status-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "HTTP status to rendered state mapping follows RFC 9110 semantics",
+  "context": "The blueprint dispatches states from HTTP responses. There are three plausible mappings from status to rendered state: honour RFC 9110 semantics verbatim (404 to not-found, 403 to forbidden, 5xx to server-error, empty 200 to empty-list or no-search-results depending on the endpoint kind); collapse all client errors into a single generic client-error state; or lean on a bespoke response-body flag the server includes to name the state. The first is the least-surprising choice for a shelf blueprint whose surfaces will be composed with vendor libraries that emit plain HTTP; the second loses the affordances (parent-surface link on 404, request-access on 403) that make the state useful; the third couples the client tightly to a server contract the shelf does not otherwise mint.",
+  "decision": "Adopt RFC 9110 semantics verbatim as the state-machine's status mapping. 404 dispatches not-found; 403 dispatches forbidden by default and permission-denied when the response body carries a class-level cause string; 5xx dispatches server-error. An empty 200 response body on a listing endpoint dispatches empty-list; an empty 200 on a search endpoint (identified by a q query parameter or an FBS-declared search route) dispatches no-search-results. This mapping is the recommendedDefault per the ADR contribution field.",
+  "consequences": "Projects composing REST APIs that already answer RFC 9110 status codes get the state dispatch for free. Projects using an RPC-style API layer must wrap their transport in a small adapter that raises the plain status code. The state machine remains stable across vendor libraries (fetch, axios, tRPC clients, GraphQL error-code conventions that project the transport-level status) because the contract is on the status number the machine reads, not on a bespoke body flag.",
+  "alternativesConsidered": [
+    {
+      "name": "Collapse client errors into one generic state",
+      "summary": "Route every 4xx into a single client-error state with a generic recovery.",
+      "reasonNotChosen": "Loses the four recovery-shape specialisations (parent-surface on 404, request-access on 403, retry on 5xx, clear-filters on no-search-results) that make the state actionable and forces every recovery through a generic retry."
+    },
+    {
+      "name": "Bespoke response-body state-name field",
+      "summary": "Require every response body to carry a stateName string the machine reads.",
+      "reasonNotChosen": "Couples the shelf blueprint tightly to a server contract the shelf does not otherwise mint; a vendor library returning plain HTTP would be unsupported by default."
+    }
+  ],
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

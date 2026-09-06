@@ -1,0 +1,18 @@
+{
+  "reqId": "application-empty-error-states-REQ-001",
+  "prdId": "PRD-001",
+  "title": "State catalogue: the eight named empty and error states, each with a machine-readable status and a distinct visual",
+  "description": "The application realises eight named empty and error states, one contract per state: not-found (HTTP 404 on an unknown resource), forbidden (HTTP 403 on an authenticated principal without scope), server-error (HTTP 5xx on an internal failure), offline (navigator.onLine false), permission-denied (HTTP 403 with a per-resource cause), empty-list (a listing endpoint returned an empty array), no-search-results (a search or filter yielded zero rows), error-boundary (a client-side render exception caught by the SPA boundary). Each state carries a machine-readable status (statusCode for HTTP-triggered states, a well-known token for client-triggered states) and a distinct visual so a screenshot review reader can tell them apart at a glance. Vendor-neutral: the blueprint contributes WHAT surfaces under WHAT condition, not the visual design.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec section 5.1, REQ 1.",
+  "tags": [
+    "blueprint:application-empty-error-states",
+    "category:01-state-catalogue"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

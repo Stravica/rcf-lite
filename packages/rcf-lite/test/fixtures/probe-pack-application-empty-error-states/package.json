@@ -1,0 +1,10 @@
+{
+  "name": "probe-pack-application-empty-error-states-fixture",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Dependency-free sample app the application-empty-error-states probe pack probes on the shelf. See ../server.js.",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

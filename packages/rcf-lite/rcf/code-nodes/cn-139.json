@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-139",
+  "path": "../../blueprints/application-empty-error-states/CHANGELOG.md",
+  "implementsAcIds": [
+    "AC-2401-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T16:04:53.396Z",
+  "updatedAt": "2026-09-06T16:04:53.396Z"
+}

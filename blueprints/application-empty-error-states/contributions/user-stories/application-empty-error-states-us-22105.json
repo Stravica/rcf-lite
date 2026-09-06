@@ -1,0 +1,29 @@
+{
+  "usId": "application-empty-error-states-US-22105",
+  "prdId": "PRD-001",
+  "reqId": "application-empty-error-states-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The offline state renders on navigator.onLine false, buffers a synthetic write, and announces reconnection through a polite live-region wrapper",
+  "asA": "operator whose network drops mid-session",
+  "iWant": "the offline state to render with a read-only banner, my writes to buffer locally with an idempotency token, and a polite reconnection announcement when the network comes back",
+  "soThat": "I keep working through a network drop and my writes flush cleanly with no duplicates when the network returns",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-22105-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given navigator.onLine simulated false via the runtime seam (page.setOffline(true) on the project route, an offline endpoint on the sample-app route the pack uses instead), the offline state renders inside role=\"region\" with a read-only banner naming offline mode. A synthetic write buffers to window.__offlineBuffer with an idempotency token and a monotonic sequence. On the reconnect signal (navigator.onLine true or the sample-app /probe/offline?reconnect route) the polite live-region wrapper with data-live-region=\"polite\" carries a reconnection announcement. The pack drives /probe/offline, reads the banner, the buffer entry and the polite wrapper text."
+    }
+  ],
+  "tacIds": [
+    "TAC-2301-application-empty-error-states-state-machine",
+    "TAC-2303-application-empty-error-states-offline-buffer"
+  ],
+  "tags": [
+    "blueprint:application-empty-error-states",
+    "state:offline"
+  ],
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

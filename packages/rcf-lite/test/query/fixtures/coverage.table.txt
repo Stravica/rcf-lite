@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 23  covered: 23  covered-unresolved: 0  uncovered: 0
+Requirements: 24  covered: 24  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -202,3 +202,18 @@ REQ-023      yes      AC-2301-1   yes         TC-052-blueprint-json-shape
                       AC-2301-5   yes         TC-052-pack-checks-cross-check
                       AC-2301-6   yes         TC-052-fixture-surfaces
                       AC-2301-7   yes         TC-052-negative-runs
+REQ-024      yes      AC-2401-1   yes         TC-053-blueprint-json-shape
+                      AC-2401-2   unresolved  TC-053-applies-clean[unresolved]
+                      AC-2401-3   unresolved  TC-053-pack-checks-cross-check[unresolved]
+                      AC-2401-4   unresolved  TC-053-fixture-serves-states[unresolved]
+                      AC-2401-5   unresolved  TC-053-negative-runs[unresolved]
+                      AC-2401-6   unresolved  TC-053-state-enumeration-parity[unresolved]
+                      AC-2401-7   unresolved  TC-053-readme-gaps-and-changelog[unresolved]
+
+Unresolved test pointers (never counted as coverage):
+  TC-053-applies-clean (TS-053): test/blueprint/application-empty-error-states-anatomy.test.js::applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean) - test-missing
+  TC-053-fixture-serves-states (TS-053): test/blueprint/application-empty-error-states-anatomy.test.js::sample-app fixture serves every one of the eight states on the default branch (TC-053-fixture-serves-states) - test-missing
+  TC-053-negative-runs (TS-053): test/blueprint/application-empty-error-states-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-053-negative-runs) - test-missing
+  TC-053-pack-checks-cross-check (TS-053): test/blueprint/application-empty-error-states-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-053-pack-checks-cross-check) - test-missing
+  TC-053-readme-gaps-and-changelog (TS-053): test/blueprint/application-empty-error-states-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-1 row (TC-053-readme-gaps-and-changelog) - test-missing
+  TC-053-state-enumeration-parity (TS-053): test/blueprint/application-empty-error-states-anatomy.test.js::eight state slugs appear identically across README guide pack and docs (TC-053-state-enumeration-parity) - test-missing

@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2303-application-empty-error-states-offline-strategy",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Offline strategy is write-buffer by default with elicited alternatives for read-only-banner and refuse-writes",
+  "context": "Applications differ on what they want to do while offline. A note-taking application wants a write-buffer so the operator keeps working. A financial application wants to refuse writes altogether because a queued write against stale server state is worse than a hard fail. A dashboard application wants a read-only banner and refuses writes silently. There is no single sensible default; the shelf blueprint commits to one and elicits the two alternatives.",
+  "decision": "Default is write-buffer per TAC-2303: writes queue to IndexedDB with an idempotency token and flush on reconnection with server-side dedupe. Elicited alternatives are read-only-banner (the surface renders a banner and every write control disables) and refuse-writes (every write attempt fails locally with a clear message; nothing queues). The elicited answer lives on the applied-blueprint sidecar and the state machine reads it on offline entry. elicited is true; recommendedDefault stays false because the choice is genuinely per-project.",
+  "consequences": "Projects that want the write-buffer get the default with no configuration; the pack drives an offline probe and asserts window.__offlineBuffer is populated. Projects electing read-only-banner get a simpler UI at the cost of losing the operator's in-flight writes. Projects electing refuse-writes get the strictest posture with the clearest failure mode. All three shapes render the offline region and the polite reconnection announcement per REQ-005; the difference is only whether writes queue, disable or refuse.",
+  "alternativesConsidered": [
+    {
+      "name": "Force refuse-writes as the default",
+      "summary": "Refuse every offline write locally; no buffer; no queue.",
+      "reasonNotChosen": "Loses the operator's in-flight work every time the network drops for a few seconds; the most common failure mode (transient loss) becomes the most painful."
+    },
+    {
+      "name": "Server-side sync engine",
+      "summary": "Ship a CRDT or event-sourced sync engine as part of this blueprint.",
+      "reasonNotChosen": "Outside the shelf blueprint's scope (this is a UI-state blueprint, not a persistence blueprint); belongs to a future persistence-sync-engine blueprint if the shelf grows one."
+    }
+  ],
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

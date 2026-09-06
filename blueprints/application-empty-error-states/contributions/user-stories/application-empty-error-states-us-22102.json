@@ -1,0 +1,29 @@
+{
+  "usId": "application-empty-error-states-US-22102",
+  "prdId": "PRD-001",
+  "reqId": "application-empty-error-states-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The forbidden state renders with a request-access control and refuses to surface a resource id, resource name or path shape",
+  "asA": "authenticated operator without scope on a resource",
+  "iWant": "the forbidden state to render with a request-access control routing to the applied notification centre and no resource-identifying content on the rendered surface",
+  "soThat": "I have a legitimate recovery path and I cannot infer the existence of a resource I am not authorised to see",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-22102-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given a 403 response, the forbidden state renders inside role=\"region\" with a keyboard-reachable [data-action=\"request-access\"] control that POSTs to /api/request-access. The rendered surface does NOT contain any word matching the sensitive-pattern list (resource id shape, resource name shape, path-shape strings starting with /). The pack drives /probe/forbidden and reads the region, the control, and the full document text for pattern hits."
+    }
+  ],
+  "tacIds": [
+    "TAC-2301-application-empty-error-states-state-machine",
+    "TAC-2302-application-empty-error-states-recovery-router"
+  ],
+  "tags": [
+    "blueprint:application-empty-error-states",
+    "state:forbidden"
+  ],
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

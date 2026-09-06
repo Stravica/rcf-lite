@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-134",
+  "path": "../../blueprints/application-empty-error-states/blueprint.json",
+  "implementsAcIds": [
+    "AC-2401-1",
+    "AC-2401-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T15:39:29.738Z",
+  "updatedAt": "2026-09-06T15:39:29.738Z"
+}
