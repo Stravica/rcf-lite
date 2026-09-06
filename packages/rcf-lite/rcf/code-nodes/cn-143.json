@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-143",
+  "path": "../../packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/server.js",
+  "implementsAcIds": [
+    "AC-2501-4",
+    "AC-2501-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:21:30.842Z",
+  "updatedAt": "2026-09-06T17:21:30.842Z"
+}

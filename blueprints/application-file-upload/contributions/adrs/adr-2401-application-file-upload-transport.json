@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2401-application-file-upload-transport",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Transport branch: multipart POST is the recommended default; tus.io 1.0.0 and per-vendor SDK are the elicited alternatives",
+  "context": "There are three plausible upload transports for a shelf blueprint whose consumers range from a hobby SPA hitting a Node server to an enterprise SPA hitting Cloudflare R2. Native multipart POST is the least-surprising choice: every server toolkit and every fetch client can send it, the client side of the code is a Blob split into fixed-size chunks, and the server assembles the chunks server-side. The tus.io resumable upload protocol 1.0.0 (RFC-shaped spec) is the strongest choice for large files over spotty connections because it standardises Upload-Offset and Upload-Length headers and a PATCH-per-chunk shape that lets the client resume by re-reading the offset from the server; it needs a tus-server or the third-party tus client library. A per-vendor SDK (S3 multipart, Cloudflare R2 client-direct upload, Cloudinary widget, Uppy with a specific backend) buys the vendor's operational benefits (signed URLs, resumable multipart, CDN write-through) at the price of pinning the client to the vendor and the vendor's SDK release cycle.",
+  "decision": "Adopt multipart POST as the recommended default. Every applied blueprint gets multipart out of the box with no configuration. Projects with tus servers or the tus client library elicit the tus branch through this ADR and the transport TAC instantiates the tus adapter. Projects committed to a vendor (S3, R2, Cloudinary) elicit the vendor-sdk branch and supply the SDK client through the applied endpoint config; the transport TAC delegates chunking to the SDK. recommendedDefault is true; elicited is true because the branch is a per-project answer.",
+  "consequences": "Projects on the default get a working chunked-and-resumable upload against a plain server with no extra dependency. Projects that need tus wire it in via a small adapter and gain the protocol's cross-vendor portability. Projects on vendor SDKs delegate the wire-level details to the vendor and accept the vendor lock-in as an explicit choice. The pack fires on both the multipart branch and the tus branch of the sample fixture; a vendor-sdk project runs the pack against a fixture that mocks the vendor's completion callback.",
+  "alternativesConsidered": [
+    {
+      "name": "tus-only as the shelf default",
+      "summary": "Ship tus.io as the sole transport, on the theory that resumable-by-default is the correct posture.",
+      "reasonNotChosen": "Every applied blueprint would need a tus server, which is a hard prerequisite for a shelf blueprint; a hobby SPA hitting a Node server would refuse to apply without stand-up work. The default has to be reachable by every consumer."
+    },
+    {
+      "name": "Vendor-SDK-only",
+      "summary": "Ship an SDK-agnostic vendor adapter as the only transport, on the theory that most enterprise uploads eventually pin a vendor.",
+      "reasonNotChosen": "A vendor-first shelf pins the shelf to a vendor's SDK release cycle and breaks the vendor-neutral posture of every other application blueprint on the shelf."
+    }
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

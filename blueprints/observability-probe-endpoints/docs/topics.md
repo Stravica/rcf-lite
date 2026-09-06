@@ -46,6 +46,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 | application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 | application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
+| application-file-upload | 23101-23899 | 24xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 
 US 14101-14108 sit at the LOW end of the 14101-14899 band on purpose. A project-side story that mechanically derives from an observability-probe-endpoints REQ id into the number `14108` would collide against observability-probe-endpoints-US-14108 in this package; the band leaves headroom at the HIGH end (US 14181-14899) so a project's own stories anchored to observability-probe-endpoints REQs can allocate without conflict. The watchpost run4 lesson applies here too. Band spacing between the previous HQ-lane row (persistence-data-d1, 13101-13899, 14xx) and this one (14101-14899, 15xx) reflects the four-digit widening pattern opened by security-auth-clerk at 10xx and continued through the round-2 HQ lane.

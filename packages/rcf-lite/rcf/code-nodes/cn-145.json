@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-145",
+  "path": "../../blueprints/application-file-upload/guide/application-file-upload.md",
+  "implementsAcIds": [
+    "AC-2501-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:21:31.174Z",
+  "updatedAt": "2026-09-06T17:21:31.174Z"
+}

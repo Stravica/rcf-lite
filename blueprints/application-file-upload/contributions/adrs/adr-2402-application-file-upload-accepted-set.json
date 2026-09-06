@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2402-application-file-upload-accepted-set",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Accepted MIME set and per-file size cap are elicited per project; no shelf default beyond \"nothing accepted\"",
+  "context": "A shelf blueprint cannot know what a downstream project's upload endpoint accepts. A photo-gallery product accepts a narrow image set (jpeg, png, webp) with a 20 MB per-file cap; a document workspace accepts pdf, docx, txt with a 100 MB cap; a code-review product accepts a broad set with a 5 MB cap. Picking a default that fits all projects picks one that fits none. Shipping without any elicited values leaves the input TAC in a state where every file is refused (the safe default), which is the correct floor: a project that forgets to elicit the accepted set discovers this immediately on the first upload.",
+  "decision": "The accepted MIME set and the per-file size cap are elicited per project through this ADR. The blueprint contributes the two parameters as elicits on apply; the input TAC's MIME gate refuses every file until both are elicited. The elicited MIME set is a list of IANA media types; wildcards (image/*, application/*) are permitted for projects that want them but discouraged in the guide. The per-file size cap is a positive integer in bytes. A concurrency cap and the polling interval for the announcer are secondary elicits with recommended defaults (concurrency 3, interval 250 ms).",
+  "consequences": "Projects that apply the blueprint without elicitizing discover the refusal on the first upload attempt and go through the elicit flow to unblock it; the refusal is legible (\"MIME gate has no accepted set\") rather than silently accepting everything. Projects with a mature accepted-set list paste it in once and never revisit. The pack asserts the input TAC refuses an obvious wrong-MIME file (a text/plain payload with a jpeg extension) and refuses a payload exceeding the size cap.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship a broad default set (image/*, application/pdf, text/plain)",
+      "summary": "Adopt a shelf default that covers the most common cases so most projects can apply without elicitizing.",
+      "reasonNotChosen": "Any default that is broad enough to be useful is broad enough to be wrong for a project whose backend cannot accept the same set; the discovery cost of a mismatched accepted set at the server is higher than the discovery cost of the refuse-all floor at the client."
+    },
+    {
+      "name": "Ship no accepted-set gate at all",
+      "summary": "Rely on the server to refuse a wrong-MIME upload and skip the client-side gate.",
+      "reasonNotChosen": "The server refusal happens after the bytes are on the wire; a client that never gates wastes the operator's upload budget on payloads the server will refuse and loses the aria-describedby error binding the input TAC ships."
+    }
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

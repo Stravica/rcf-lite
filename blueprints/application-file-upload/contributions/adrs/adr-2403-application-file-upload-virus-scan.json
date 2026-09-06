@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2403-application-file-upload-virus-scan",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Virus scan integration is a capability-plus-elicit; the operator supplies a verifier or the transport refuses the branch",
+  "context": "A file-upload surface that skips virus scanning ships a well-known attack path: a workspace with unmoderated attachments hands a payload from one user to any other user that opens the file. The right answer is server-side scanning against a vendor (ClamAV, VirusTotal, S3 GuardDuty malware protection) plus a client-side hook that refuses to hand a scan-hit file to the user for retry. But the vendor and the wire shape are project decisions: a healthcare product with a HIPAA data path uses a different scanner than a games product with an S3 bucket. The shelf cannot choose one.",
+  "decision": "Virus scan integration is a capability-plus-elicit: the blueprint contributes a virusScan capability the input TAC calls (an async predicate over a File that resolves to {clean: true} or {clean: false, reason: <string>}), and the applied capability is elicited per project. Projects with a virus scanner supply the verifier. Projects that explicitly opt out of virus scanning elicit the noop verifier and accept the risk (the guide names the risk in plain language). The pack asserts the input TAC's refusal path fires on a virus-scan hit and that the refused file never leaves the browser.",
+  "consequences": "Projects with a scanner apply the blueprint and paste in the verifier. Projects without one see the elicit and either wire in ClamAV/VirusTotal or accept the noop with the guide's warning in hand. The shelf posture is opinionated on the mechanism (a virus-scan hook exists and is called) but neutral on the vendor. A project that ignores the elicit and never supplies a verifier hits an apply-time refusal.",
+  "alternativesConsidered": [
+    {
+      "name": "Skip virus scanning at the shelf layer entirely",
+      "summary": "Leave scanning to the server and ship no client-side hook.",
+      "reasonNotChosen": "The server-side scanner cannot refuse the client's retry loop on a hit without an aria-describedby error binding; the client-side hook is what surfaces the refusal legibly."
+    },
+    {
+      "name": "Bundle ClamAV as the shelf default",
+      "summary": "Ship the ClamAV client bindings as the sole verifier.",
+      "reasonNotChosen": "Adds a vendor dependency to every applied project and pins the shelf to a scanner that many projects will not use; capability-plus-elicit keeps the shelf vendor-neutral."
+    }
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

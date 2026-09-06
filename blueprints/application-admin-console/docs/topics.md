@@ -21,6 +21,7 @@ The blueprint claims no new global topics at v1.0.0. The console is a consumer o
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 | application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 | application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
+| application-file-upload | 23101-23899 | 24xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 
 The shelf-wide band registry lives in `packages/rcf-lite/docs/blueprint-authoring.md` section 5.

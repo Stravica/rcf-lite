@@ -1,0 +1,29 @@
+{
+  "usId": "application-file-upload-US-23105",
+  "prdId": "PRD-001",
+  "reqId": "application-file-upload-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "On successful completion the upload surface renders an assertive-slot announcement and per-file remove and retry controls",
+  "asA": "operator whose upload set has just finished",
+  "iWant": "an assertive-slot announcement saying how many files uploaded successfully, plus a keyboard-reachable remove control per completed file",
+  "soThat": "my screen reader tells me the set is done and I can remove a file I no longer want without a page reload",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-23105-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "After the fixture completes the upload set the upload region carries a [data-assertive-slot] element with aria-live=\"assertive\" or role=\"status\" whose textContent matches /^\\d+ files uploaded successfully$/, each completed file row carries [data-file-row][data-file-state=\"complete\"], a keyboard-reachable [data-recovery=\"remove\"] button per row and, after a refused-then-succeeded row, a [data-recovery=\"retry\"] button visible only until the retry succeeds."
+    }
+  ],
+  "tacIds": [
+    "TAC-2401-application-file-upload-input",
+    "TAC-2403-application-file-upload-progress-announcer"
+  ],
+  "tags": [
+    "blueprint:application-file-upload",
+    "affordance:completion"
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

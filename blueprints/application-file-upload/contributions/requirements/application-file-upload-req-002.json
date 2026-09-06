@@ -1,0 +1,18 @@
+{
+  "reqId": "application-file-upload-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Progress contract: per-file percent, aggregate percent, and a polite live-region tick",
+  "description": "Every file in the upload set carries a per-file percent that advances monotonically from 0 to 100. The surface also carries an aggregate percent that reflects the mean weighted by byte size. A polite live-region wrapper (aria-live polite) receives a text tick at least every 10 percent of aggregate progress with the string format \"<uploaded> of <total> files, <PP> percent\". The polite wrapper is preseeded at render time so a screen reader adopts it before the first tick fires.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec section 5.2, REQ 2.",
+  "tags": [
+    "blueprint:application-file-upload",
+    "category:02-progress-contract"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

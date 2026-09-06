@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-06T16:57:28.764Z",
-  "updatedAt": "2026-09-06T16:57:45.626Z",
+  "updatedAt": "2026-09-06T18:03:22.207Z",
   "acIds": [
     "AC-2501-1",
     "AC-2501-2",
@@ -13,7 +13,7 @@
   "fbsId": "FBS-044",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 44,
+  "buildOrder": 45,
   "executionStatus": "notStarted",
   "title": "application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture",
   "summary": "T-2 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.2): the application-file-upload v1.0.0 blueprint on the shelf. Ships 18 contributions (5 REQs on the input contract with a labelled file input plus drop-zone plus keyboard alternative per WCAG 2.5.7, the progress contract with per-file percent and aggregate percent and polite live-region tick, the refusal contract with MIME-type refusal and size-limit refusal and virus-scan hit and aria-describedby error binding and focus-to-retry, the transport contract with chunked-and-resumable and multipart POST default and tus.io elicited alternative, and the completion contract with an assertive-slot announcement on success per WCAG 4.1.3 and per-file remove and retry; 7 USs 23101-23107 one per REQ plus two cross-cutting cases network-interruption resumption and background-tab progress; 3 TACs 2401 input surface and 2402 transport contract and 2403 progress announcer; 3 ADRs 2401 transport across multipart POST and tus.io and per-vendor SDK with recommendedDefault true on multipart and elicited true, 2402 accepted MIME set and per-file size cap elicited, 2403 virus-scan integration via operator-supplied verifier through a capability plus elicit elicited), a Playwright probe pack whose four checks (AC-23101-1 input surface, AC-23102-1 progress announcer, AC-23103-1 refusal contract, AC-23104-1 chunked transport) each bind TAC-2401 or the operator-configured upload-route glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ realising both transports honestly on /upload with a ?transport=multipart default and ?transport=tus alternative plus break switches (?break=no-input, ?break=no-live-region, ?break=send-refused, ?break=no-chunks) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent; capabilities absent. Seventh shipped consumer of T-0's probe-pack runner extension.",

@@ -1,0 +1,47 @@
+{
+  "tacId": "TAC-2402-application-file-upload-transport",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Upload transport contract",
+  "purpose": "Owns the wire-level side of the file-upload contract: chunking, resumption, the multipart POST default, the tus.io elicited alternative, the refusal-render seam, and the completion callback. Every AC on REQ-004 that reads the request log anchors on this TAC.",
+  "responsibilities": [
+    "Split each accepted file into fixed-size chunks and upload chunks in bounded parallelism (default 3) (AC-23104-1).",
+    "On the multipart branch, POST the chunk set to the applied endpoint and assemble server-side; expose [data-transport=\"multipart\"] and [data-chunks-uploaded] on the file row (AC-23104-1).",
+    "On the tus branch, PATCH chunks to the tus creation URL with an Upload-Offset header per request; expose [data-transport=\"tus\"] (AC-23104-1).",
+    "On interruption, pause the upload and resume from the last acknowledged offset on reconnect, without re-sending acknowledged bytes (AC-23106-1).",
+    "Refuse to enqueue a refused file (mime, size, virus-scan) and hand control back to TAC-2401's refusal-render seam (AC-23103-1).",
+    "Call the progress-announcer TAC with per-chunk acknowledgements so the per-file and aggregate percent advance (AC-23102-1)."
+  ],
+  "internalStructure": "One transport module the input TAC drains. The module reads the applied ADR-2401 branch (multipart, tus, per-vendor SDK) and instantiates one of three adapter shapes. Each adapter drains the file-selection set through a bounded worker pool (concurrency default 3, elicited cap), tracks per-file [data-chunks-uploaded], and posts an acknowledgement event on every server acknowledgement the progress-announcer TAC reads. Interruption is detected via fetch reject (multipart) or the tus client's onError seam (tus); resumption re-fetches the Upload-Offset (tus) or resumes from the last completed chunk index (multipart). The refusal-render seam is a thin wrapper the input TAC calls, not a separate class, so the input surface stays authoritative.",
+  "interfaces": [
+    {
+      "name": "uploadFile",
+      "kind": "factory",
+      "description": "uploadFile({ file, endpoint, transport }) -> UploadSession. Returns a session the caller reads for per-chunk progress and completion."
+    },
+    {
+      "name": "resumeSession",
+      "kind": "factory",
+      "description": "resumeSession(session) -> UploadSession. Resumes from the last acknowledged offset."
+    },
+    {
+      "name": "transportsEnum",
+      "kind": "shape",
+      "description": "The transport branches are the closed enum {multipart, tus, vendor-sdk}. multipart is the recommended default per ADR-2401."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Progress announcer",
+      "kind": "tac",
+      "tacId": "TAC-2403-application-file-upload-progress-announcer",
+      "description": "The transport calls the announcer's tick on every acknowledged chunk."
+    }
+  ],
+  "tradeoffs": "Three transport branches keep the shelf usable for teams already committed to a vendor SDK, but the per-branch adapter code is real work; a project that never elicits tus or a vendor SDK ships with the multipart adapter only. Bounded parallelism (default 3) is a heuristic; a slow-link project can lower it via the applied endpoint config. Known mechanism-reach gap: the pack cannot probe a network-interruption resume path on the multipart branch without a request-blocking driver; the fixture simulates the pause via a ?interrupt=1 branch and the pack reads the resulting DOM state.",
+  "notes": "See README Known mechanism-reach gaps for the full list.",
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

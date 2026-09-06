@@ -1,0 +1,114 @@
+{
+  "slug": "application-file-upload",
+  "version": "1.0.0",
+  "category": "application",
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every refused upload writes one request-scoped log line with the refusal reason (mime, size, virus-scan) and the correlation identifier the applied logger factory returns."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "Refusals and transport-layer failures construct an internal error record through the applied error-handling factory so the aria-describedby error binding renders a consistent message."
+    }
+  ],
+  "contributions": [
+    {
+      "id": "application-file-upload-REQ-001",
+      "kind": "req",
+      "path": "requirements/application-file-upload-req-001.json"
+    },
+    {
+      "id": "application-file-upload-REQ-002",
+      "kind": "req",
+      "path": "requirements/application-file-upload-req-002.json"
+    },
+    {
+      "id": "application-file-upload-REQ-003",
+      "kind": "req",
+      "path": "requirements/application-file-upload-req-003.json"
+    },
+    {
+      "id": "application-file-upload-REQ-004",
+      "kind": "req",
+      "path": "requirements/application-file-upload-req-004.json"
+    },
+    {
+      "id": "application-file-upload-REQ-005",
+      "kind": "req",
+      "path": "requirements/application-file-upload-req-005.json"
+    },
+    {
+      "id": "application-file-upload-US-23101",
+      "kind": "us",
+      "path": "user-stories/application-file-upload-us-23101.json"
+    },
+    {
+      "id": "application-file-upload-US-23102",
+      "kind": "us",
+      "path": "user-stories/application-file-upload-us-23102.json"
+    },
+    {
+      "id": "application-file-upload-US-23103",
+      "kind": "us",
+      "path": "user-stories/application-file-upload-us-23103.json"
+    },
+    {
+      "id": "application-file-upload-US-23104",
+      "kind": "us",
+      "path": "user-stories/application-file-upload-us-23104.json"
+    },
+    {
+      "id": "application-file-upload-US-23105",
+      "kind": "us",
+      "path": "user-stories/application-file-upload-us-23105.json"
+    },
+    {
+      "id": "application-file-upload-US-23106",
+      "kind": "us",
+      "path": "user-stories/application-file-upload-us-23106.json"
+    },
+    {
+      "id": "application-file-upload-US-23107",
+      "kind": "us",
+      "path": "user-stories/application-file-upload-us-23107.json"
+    },
+    {
+      "id": "TAC-2401-application-file-upload-input",
+      "kind": "tac",
+      "path": "tacs/tac-2401-application-file-upload-input.json"
+    },
+    {
+      "id": "TAC-2402-application-file-upload-transport",
+      "kind": "tac",
+      "path": "tacs/tac-2402-application-file-upload-transport.json"
+    },
+    {
+      "id": "TAC-2403-application-file-upload-progress-announcer",
+      "kind": "tac",
+      "path": "tacs/tac-2403-application-file-upload-progress-announcer.json"
+    },
+    {
+      "id": "ADR-2401-application-file-upload-transport",
+      "kind": "adr",
+      "path": "adrs/adr-2401-application-file-upload-transport.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "WHATWG Fetch multipart/form-data; tus.io resumable upload protocol 1.0.0"
+    },
+    {
+      "id": "ADR-2402-application-file-upload-accepted-set",
+      "kind": "adr",
+      "path": "adrs/adr-2402-application-file-upload-accepted-set.json",
+      "elicited": true,
+      "standardsTraceClause": "IANA media types; generic enterprise practice"
+    },
+    {
+      "id": "ADR-2403-application-file-upload-virus-scan",
+      "kind": "adr",
+      "path": "adrs/adr-2403-application-file-upload-virus-scan.json",
+      "elicited": true,
+      "standardsTraceClause": "OWASP ASVS V12 file uploads"
+    }
+  ]
+}

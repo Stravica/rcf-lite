@@ -1,0 +1,29 @@
+{
+  "usId": "application-file-upload-US-23103",
+  "prdId": "PRD-001",
+  "reqId": "application-file-upload-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A refused file renders an aria-describedby-bound error and moves focus to its retry control, without sending the bytes",
+  "asA": "operator whose selected file is refused by the MIME gate, the size gate or the virus scanner",
+  "iWant": "an inline error that names the refusal reason, is bound to my file row via aria-describedby, and moves my focus to the retry control without sending the file to the server",
+  "soThat": "I learn why the file was refused, do not waste my upload budget on a refused file, and can retry with a corrected file from my keyboard",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-23103-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "When the fixture is seeded with a refused file (MIME mismatch, size cap exceeded, or virus-scan hit), the file row [data-file-row][data-refused=\"true\"] renders a [data-error-message] element whose id is referenced by the row's aria-describedby attribute, the row exposes the closed refusal reason via [data-refusal-reason] (one of mime-refused, size-refused, virus-refused), a [data-recovery=\"retry\"] control receives keyboard focus, and the pack observes zero POST or PATCH requests carrying the refused filename on the browser's request log."
+    }
+  ],
+  "tacIds": [
+    "TAC-2401-application-file-upload-input",
+    "TAC-2402-application-file-upload-transport"
+  ],
+  "tags": [
+    "blueprint:application-file-upload",
+    "affordance:refusal"
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

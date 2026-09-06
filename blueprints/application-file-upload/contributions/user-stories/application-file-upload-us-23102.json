@@ -1,0 +1,28 @@
+{
+  "usId": "application-file-upload-US-23102",
+  "prdId": "PRD-001",
+  "reqId": "application-file-upload-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The progress announcer emits per-file and aggregate progress through a polite live-region wrapper",
+  "asA": "operator watching an upload progress on a screen reader or a low-vision magnifier",
+  "iWant": "a polite live-region tick every 10 percent of aggregate progress that names how many files have completed out of how many",
+  "soThat": "I know the upload is still working without watching the screen and I can tell when it stalls",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-23102-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The upload region ships a [data-live-region=\"polite\"] wrapper with aria-live=\"polite\" preseeded at render time. During an upload the wrapper's textContent matches /^\\d+ of \\d+ files, \\d{1,3} percent$/ and the numeric aggregate percent advances monotonically. Per-file rows carry [data-file-row] with a [data-file-progress] element whose text or aria-valuenow reflects the per-file percent. The pack drives /upload?transport=multipart, starts the upload, and reads the wrapper text plus one per-file progress value before completion."
+    }
+  ],
+  "tacIds": [
+    "TAC-2403-application-file-upload-progress-announcer"
+  ],
+  "tags": [
+    "blueprint:application-file-upload",
+    "affordance:polite-progress"
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

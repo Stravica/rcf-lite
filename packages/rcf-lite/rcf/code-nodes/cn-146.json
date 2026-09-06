@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-146",
+  "path": "../../blueprints/application-file-upload/CHANGELOG.md",
+  "implementsAcIds": [
+    "AC-2501-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:21:31.341Z",
+  "updatedAt": "2026-09-06T17:21:31.341Z"
+}
