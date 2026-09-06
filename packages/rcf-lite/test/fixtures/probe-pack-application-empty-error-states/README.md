@@ -23,6 +23,8 @@ Prints `LISTENING <port>` once bound.
 | Query | Purpose |
 |---|---|
 | `?state=<name>` | Selects one of the eight named states directly (`not-found`, `forbidden`, `server-error`, `offline`, `permission-denied`, `empty-list`, `no-search-results`, `error-boundary`). |
+| `?caps=<list>` | n/a for this blueprint. application-empty-error-states declares no capabilities and no requiresAppliedCapabilities, so there is nothing to gate; the fixture ignores this switch. |
+| `?theme=<name>` | n/a for this blueprint. This blueprint has no theme-gated surface or resize seam, so the fixture does not vary its render on theme; the switch is ignored. |
 | `?break=stack-trace` | Re-adds a stack trace on the server-error route (pack check `AC-22103-1` refuses). |
 | `?break=leak-id` | Re-adds a resource id on the forbidden and permission-denied routes (pack check `AC-22102-1` or `AC-22104-1` refuses). |
 | `?break=no-recovery` | Drops the `[data-recovery="create"]` on the empty-list route (pack check `AC-22106-1` refuses). |
