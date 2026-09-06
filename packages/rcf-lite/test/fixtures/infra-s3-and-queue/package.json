@@ -2,11 +2,13 @@
   "name": "infra-s3-and-queue-fixture",
   "version": "1.0.0",
   "private": true,
-  "description": "Shared sample-app fixture for the object-storage-s3 (T-2) and messaging-queue-cloudflare (T-3) blueprints. T-2 side: boots MinIO via docker compose, exposes a facade over @aws-sdk/client-s3 against MinIO on http://localhost:9000, and hosts induced-failure switches the six shipped probes drive against.",
+  "description": "Shared sample-app fixture for the object-storage-s3 (T-2) and messaging-queue-cloudflare (T-3) blueprints. T-2 side: boots MinIO via docker compose, exposes a facade over @aws-sdk/client-s3 against MinIO on http://localhost:9000, and hosts induced-failure switches the six shipped probes drive against. T-3 side: exposes an in-memory queue-driver realising the Cloudflare Queues binding shape (send / sendBatch on the producer side, batch envelope with ack / retry per message on the consumer side) alongside a wrangler.toml that declares the real Queues binding a live Workers project would receive; the five shipped T-3 probes drive the fixture facade against the in-memory driver, no live wrangler process required (per SDR-3-a on US-29107).",
   "type": "module",
   "scripts": {
     "start": "node src/object-store.mjs",
-    "create-bucket": "node src/create-bucket.mjs"
+    "create-bucket": "node src/create-bucket.mjs",
+    "queue-probe-facade-ready": "node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-producer-facade-ready.mjs",
+    "queue-probe-publish-to-delivery": "node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-publish-to-delivery.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.720.0",

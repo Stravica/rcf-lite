@@ -1,0 +1,18 @@
+{
+  "reqId": "messaging-queue-cloudflare-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Publish, consume and ack with stable message-id and producer-supplied trace-id",
+  "description": "The producer facade publishes messages with a stable message-id assigned by the Cloudflare Queues platform on send and a producer-supplied trace-id carried in the message headers. The consumer, registered on the Worker's queue handler, reads a batch of messages, dispatches each to the registered handler, acknowledges each per message on successful return, and returns retry when the handler throws a retryable error. The received body equals the published body byte-for-byte; the received headers include both the stable message-id and the producer-supplied trace-id. Publish is idempotent from the producer's point of view within a single facade instance (an application layer that reissues a publish for the same domain event gets a new message-id, per the at-least-once shape).",
+  "category": "functional",
+  "domain": "messaging",
+  "priority": "must",
+  "rationale": "Publish, consume, ack is the minimum useful contract for a directed producer-to-consumer worklist. The stable message-id enables the consumer to record what it processed for downstream dedup; the producer-supplied trace-id crosses process boundaries so the request that enqueued a job is stitchable to the run that processed it, which the observability-logging companion consumes when applied.",
+  "tags": [
+    "blueprint:messaging-queue-cloudflare",
+    "category:02-transport"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

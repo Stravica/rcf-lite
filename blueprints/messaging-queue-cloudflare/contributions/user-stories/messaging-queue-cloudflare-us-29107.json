@@ -1,0 +1,25 @@
+{
+  "usId": "messaging-queue-cloudflare-US-29107",
+  "prdId": "PRD-001",
+  "reqId": "messaging-queue-cloudflare-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Wrangler-dev round-trip: full publish-to-delivery cycle observable under wrangler dev",
+  "asA": "developer running the fixture under wrangler dev on my laptop",
+  "iWant": "the producer-facade-ready and publish-to-delivery cycles to complete inside the fixture wrangler-dev seam without a real Cloudflare account",
+  "soThat": "I can iterate on the facade contract without a live account and CI can gate a change without live-account access",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-29108-1",
+      "description": "Given the fixture booted with the in-memory queue-driver mode (the wrangler-dev-equivalent seam the probes drive), when the producer-facade-ready and publish-to-delivery probes run in sequence, then producerReady fires with the queueName, publish delivers all 5 messages to the consumer with body byte-equal, and the per-blueprint reports at .rcf/reports/blueprints/messaging-queue-cloudflare/producer-facade-ready.json and publish-to-delivery.json each carry aggregateVerdict pass.",
+      "given": "the fixture with the in-memory queue-driver mode active (SDR-3-a: wrangler-dev-equivalent seam per the local-development doc's stated limitations)",
+      "when": "the producer-facade-ready and publish-to-delivery run-shims execute",
+      "then": "each shim exits 0; the per-blueprint reports carry aggregateVerdict pass; the event records observed include producerReady with queueName and 5 messageAcked events with matching messageIds",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade", "TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

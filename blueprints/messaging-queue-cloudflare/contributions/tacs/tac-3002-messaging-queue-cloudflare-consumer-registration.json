@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Messaging-queue-cloudflare consumer registration on the Worker queue handler",
+  "purpose": "The consumer registration surface on the Worker's queue handler that pairs with the producer facade (TAC-3001). Reads a batch of messages from the batch envelope, dispatches per-message to the registered handler, acknowledges per-message on success, returns retry on retryable failure, and drives the retry-to-DLQ trajectory bounded by the elicited max-attempts (ADR-3003) and batch settings (ADR-3004).",
+  "responsibilities": [
+    "Provide createConsumer({ handler, onEvent }) returning a queue-handler function (env, ctx) that reads the batch envelope, dispatches per-message, and acks or retries per return (AC-29102-2, AC-29103-1, AC-29105-1).",
+    "Expose the elicited batch size (max_batch_size default 10, ceiling 100) and batch timeout (max_batch_timeout default 5 seconds, ceiling 60 seconds) as parameters realised through wrangler config on the [[queues.consumers]] block (AC-29105-1).",
+    "Classify a handler throw as retryable or terminal and re-deliver retryable throws via return retry with the attempt counter increment observable on subsequent deliveries (AC-29103-1).",
+    "Emit messageDeadLettered on the sink when the DLQ landing observation surfaces (via a Worker DLQ-consumer wiring the fixture DLQ-inspector helper exercises for the shipped shape) (AC-29104-1)."
+  ],
+  "internalStructure": "One module exporting createConsumer({ handler, onEvent }) that returns a queue handler (batch, env, ctx). The handler shape matches the Cloudflare Queues Worker queue-handler contract per https://developers.cloudflare.com/queues/configuration/javascript-apis/#consumer. Per-message ack semantics come from the message envelope's ack and retry methods.",
+  "interfaces": [
+    {
+      "name": "createConsumer",
+      "kind": "factory",
+      "description": "createConsumer({ handler, onEvent }) -> (batch, env, ctx) => Promise<void>. The exported queue handler the Worker registers under the [triggers] queue binding. The handler is invoked once per delivered message and returns a value used to classify success/retry/terminal."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Producer facade",
+      "kind": "tac",
+      "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+      "description": "The producer this consumer pairs with; both share the sink and the queueName."
+    },
+    {
+      "name": "Event sink",
+      "kind": "tac",
+      "tacId": "TAC-3003-messaging-queue-cloudflare-event-sink",
+      "description": "The lifecycle-event sink contract the consumer emits through with metadata-only field discipline."
+    }
+  ],
+  "tradeoffs": "Per-message ack over batch-level ack matches Cloudflare's Queues Worker queue-handler contract; a batch-level rollback would be simpler but would poison-batch every peer of a single bad message and defeat the DLQ contract. The elicited batch defaults sit well below Cloudflare's maxes so tightening in a project is a config change, not a code change.",
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

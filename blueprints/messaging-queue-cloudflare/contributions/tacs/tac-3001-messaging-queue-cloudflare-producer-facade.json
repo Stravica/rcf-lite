@@ -1,0 +1,56 @@
+{
+  "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Messaging-queue-cloudflare producer facade",
+  "purpose": "The single project-side module that dereferences the Cloudflare Queues binding (env.<queueBinding>), exposes narrow named domain verbs (publish, publishBatch) to consumer code, and emits structured lifecycle events to the event sink (TAC-3003). Consumers never touch the raw binding outside this module; the facade is the one place the vendor surface lives. The adapter reference is opaque at this boundary so a Workers-side native adapter, a future sibling (an SQS shim, the reserved messaging-queue-postgres sibling) or a fixture-time in-memory adapter slots in without a facade re-shape.",
+  "responsibilities": [
+    "Open the producer on boot against the elicited queue binding; hold no other reference to the Queues vendor surface; export no symbol that leaks the raw binding (AC-29101-1, AC-29101-2).",
+    "Expose named domain verbs (publish, publishBatch) as named exports with typed parameters; refuse a raw-binding passthrough on the public surface (AC-29102-1).",
+    "Emit producerReady exactly once per facade instance on the injected event sink with the queueName (AC-29101-1); serialise pre-ready publishes behind the ready-check.",
+    "Emit messagePublished per publish and messageAcked per successful consumer return, both metadata-only per TAC-3003 (AC-29102-1, AC-29102-2, AC-29105-1).",
+    "Attach a producer-supplied trace-id to the message headers on every publish so downstream consumers can stitch enqueue-to-process (AC-29102-1)."
+  ],
+  "internalStructure": "One module exporting a createProducer({ binding, queueName, adapter, onEvent }) factory returning a Producer whose methods are the named domain verbs. The binding dereference lives at the top of this module; the factory captures the binding, wires the sink, and hands back closures. Consumers destructure the verbs they need at their top level and hold the facade reference for the process lifetime.",
+  "interfaces": [
+    {
+      "name": "createProducer",
+      "kind": "factory",
+      "description": "createProducer({ binding, queueName, adapter, onEvent }) -> Producer. The sole entry point every publisher calls. Opens against the binding; wires the sink; hands back a Producer whose methods are the named domain verbs."
+    },
+    {
+      "name": "onEvent",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with { event, ts, messageId, queueName, attempts } for producerReady, messagePublished, messageAcked, messageDeadLettered events. Never invoked with message body values, header values or consumer-context fields."
+    },
+    {
+      "name": "producer.verbs",
+      "kind": "read-write-api",
+      "description": "The named domain verbs the facade exposes: publish(body, headers), publishBatch(messages)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Consumer registration",
+      "kind": "tac",
+      "tacId": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+      "description": "The consumer surface on the Worker queue handler that pairs with this producer; both share the sink and the queueName."
+    },
+    {
+      "name": "Event sink",
+      "kind": "tac",
+      "tacId": "TAC-3003-messaging-queue-cloudflare-event-sink",
+      "description": "The lifecycle-event sink contract the facade emits through with metadata-only field discipline."
+    },
+    {
+      "name": "Queue binding via deploy-cloudflare-workers",
+      "kind": "external",
+      "description": "The applied deploy-cloudflare-workers blueprint supplies the wrangler config in which the queue binding is declared; the facade reads the binding at boot. Composition is transitive through the wrangler binding, not through the capability mechanism, so no requiresAppliedCapabilities block is declared."
+    }
+  ],
+  "tradeoffs": "The facade holds a single Producer instance per queue at v1.0.0; a project publishing to multiple queues creates multiple facade instances. The adapter reference is opaque at ADR-3001 so a future SQS shim, an in-memory adapter, or the reserved messaging-queue-postgres sibling slots in as a per-target module swap; the outward interface stays unchanged.",
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

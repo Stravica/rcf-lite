@@ -1,6 +1,6 @@
 # infra-s3-and-queue fixture
 
-Shared sample-app fixture for the `object-storage-s3` (T-2) and `messaging-queue-cloudflare` (T-3) blueprints (infra round 5 spec section 3.6). T-2 side: boots MinIO in a container, exposes a facade over `@aws-sdk/client-s3` against MinIO on `http://localhost:9000`, and hosts induced-failure switches the six shipped probes drive against. T-3 side: to be added by track T-3 as a sibling docker-compose service and `wrangler dev` seam under `src/`.
+Shared sample-app fixture for the `object-storage-s3` (T-2) and `messaging-queue-cloudflare` (T-3) blueprints (infra round 5 spec section 3.6). T-2 side: boots MinIO in a container, exposes a facade over `@aws-sdk/client-s3` against MinIO on `http://localhost:9000`, and hosts induced-failure switches the six shipped probes drive against. T-3 side (added 2026-09-06): ships a `wrangler.toml` declaring the Cloudflare Worker queue binding (`RCF_TEST_QUEUE`), DLQ binding (`RCF_TEST_DLQ`), consumer max_retries and batch settings; plus an in-memory queue-driver under `src/queue-driver.mjs` that realises the same Queues binding shape (`send`, `sendBatch` on the producer, batch envelope with per-message `ack` / `retry` on the consumer) so the T-3 producer facade (`src/producer.mjs`) and consumer registration (`src/consumer.mjs`) run against the wrangler-dev-equivalent seam without a live wrangler process (SDR-3-a on US-29107).
 
 ## Boot MinIO
 
@@ -89,3 +89,62 @@ docker compose down -v
 ```
 
 Removes the container and the anonymous volume; no orphan state on the host.
+
+## T-3 side: messaging-queue-cloudflare fixture
+
+The T-3 slice adds four files under `src/` and one `wrangler.toml` at the fixture root. No new runtime dependencies land in the fixture's `package.json` (the queue driver is dependency-free Node code); the T-2 MinIO branch and this T-3 queue branch coexist under one compose project (no second project name spinning a parallel stack).
+
+- `wrangler.toml`: declares a Cloudflare Worker with a queue producer binding named `RCF_TEST_QUEUE` on queue `rcf-test-queue`, a consumer block with `dead_letter_queue = "rcf-test-dlq"`, `max_retries = 3` (per ADR-3003 and the fetched Cloudflare Queues dead-letter documentation at https://developers.cloudflare.com/queues/configuration/dead-letter-queues/), `max_batch_size = 10`, `max_batch_timeout = 5` (per ADR-3004 and the fetched Cloudflare Queues platform limits at https://developers.cloudflare.com/queues/platform/limits/), and a producer binding on the DLQ named `RCF_TEST_DLQ`.
+- `src/queue-driver.mjs`: in-memory queue-driver realising the Cloudflare Queues binding shape. Producer methods (`send`, `sendBatch`) mint stable message-ids and append to the queue; consumer `pull(maxBatchSize)` returns a batch envelope whose per-message `ack` / `retry` drive the retry-to-DLQ trajectory bounded by `max_retries`.
+- `src/producer.mjs`: producer facade realising TAC-3001. Sole reader of the queue binding; exposes typed `publish(body, {headers})` and `publishBatch(messages)`. Emits `producerReady` on the first successful ready-check and `messagePublished` per publish.
+- `src/consumer.mjs`: consumer registration realising TAC-3002. Exports `createConsumer({handler, onEvent, dlqProducer, env})` returning the queue-handler function shape a real Worker registers under the `[triggers]` queue binding.
+- `src/dlq-inspector.mjs`: DLQ inspector helper for the retry-and-dlq probe (production analogue: `wrangler queues consumer add --dead-letter-queue` per the fetched Cloudflare Queues dead-letter documentation).
+- `src/event-sink.mjs`: lifecycle-event sink adapter realising TAC-3003; enforces the metadata-only field whitelist (`event`, `ts`, `messageId`, `queueName`, `attempts`) in code (aligned with T-2's `{event, ts, ...}` common envelope prefix so a future v1.1 minor can promote one shared shape to schema enforcement).
+
+### Wrangler dev port
+
+The T-3 side, when a real `wrangler dev` process is available, binds `WRANGLER_DEV_PORT` (default `8787`, distinct from MinIO's `9000`/`9001` so the two branches of this fixture never race for a port). Overrides:
+
+```sh
+WRANGLER_DEV_PORT=18787 npx wrangler dev
+```
+
+### T-3 queue elicited parameters realised
+
+- `RCF_QUEUE_NAME` (default `rcf-test-queue`).
+- `RCF_DLQ_NAME` (default `rcf-test-dlq`).
+- `RCF_MAX_RETRIES` (default `3`, floor `1`, ceiling `100` per ADR-3003 and the Cloudflare Queues limits doc).
+- `RCF_BATCH_SIZE` (default `10`, ceiling `100`).
+- `RCF_BATCH_TIMEOUT_MS` (default `5000` ms, ceiling `60000` ms).
+
+### T-3 induced-failure switches
+
+Three switches simulate the negative-run paths the T-3 probes exercise. Each is wired end-to-end in the fixture code and was proven at build time:
+
+- `SIMULATE_CONSUMER_RETRY=true`: the consumer classifies every delivery as `retry` regardless of the handler outcome; the `retry-and-dlq` probe drives this path and asserts the DLQ landing at `max_retries + 1` with the same stable message-id.
+- `SIMULATE_DLQ_OVERFLOW=true`: the consumer forces DLQ landing on the FIRST delivery (overrides `SIMULATE_CONSUMER_RETRY`); observed baseline behaviour when set is one `messageDeadLettered` from the direct DLQ send plus the DLQ inspector reads one entry on the DLQ.
+- `SIMULATE_PII_IN_BODY=true`: the consumer is invoked with a PII fixture body (`userId: 1234, ssn: "123-45-6789"`) supplied by the `event-secrecy` probe; the whitelist enforcement in `src/event-sink.mjs` is what stops the PII from leaking into any lifecycle-event record.
+
+### Two-line gate-reviewer boot for T-3 probes
+
+The T-3 probes do not require Docker; the queue-driver runs in-process on Node 24. Boot line:
+
+```sh
+node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-producer-facade-ready.mjs
+node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-publish-to-delivery.mjs
+```
+
+The remaining three probe shims (`run-retry-and-dlq.mjs`, `run-event-secrecy.mjs`, `run-real-account-concurrency-smoke.mjs`) follow the same pattern and each write a per-blueprint probe report at `.rcf/reports/blueprints/messaging-queue-cloudflare/<probe-name>.json` per spec section 3.4.
+
+### Real-account concurrency smoke (accountBound)
+
+`node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-real-account-concurrency-smoke.mjs`:
+
+- Without `CI_HAS_CLOUDFLARE_ACCOUNT`: exits 0 with `accountBoundSkipped: true` per spec section 3.5.
+- With `CI_HAS_CLOUDFLARE_ACCOUNT` set alongside credentials for the shared HQ queue `rcf-lite-ci-queue-smoke` (Q2 default per spec section 10) wired via `security-secrets-management`, a live-account run is queued as a follow-up (v1.0.0 ships the skipped-record shape; the live-account run rides `deploy-cloudflare-workers`' surface, not a Node probe module).
+
+### Known limitations (not mechanism-reach gaps)
+
+- Cloudflare Queues local development does not support consumer concurrency per https://developers.cloudflare.com/queues/configuration/local-development/. The concurrency assertion is the `accountBound: true` real-account smoke; the wrangler-dev-equivalent seam (in-memory driver) proves the facade contract but not concurrency.
+- Cloudflare Queues does not support Wrangler's remote mode (`wrangler dev --remote`) per the same page. A real-account run happens through a deployed Worker.
+- Cloudflare Queues per-message size cap is 128 KB per https://developers.cloudflare.com/queues/platform/limits/. A project sending larger payloads either chunks or moves the body out-of-band to `object-storage-s3` (the guide names both patterns).

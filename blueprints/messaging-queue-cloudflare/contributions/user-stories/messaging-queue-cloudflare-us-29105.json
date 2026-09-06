@@ -1,0 +1,25 @@
+{
+  "usId": "messaging-queue-cloudflare-US-29105",
+  "prdId": "PRD-001",
+  "reqId": "messaging-queue-cloudflare-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Batch consume bounded by Cloudflare limits with per-message ack semantics",
+  "asA": "developer publishing bursty traffic",
+  "iWant": "the consumer to process a batch of messages in one Worker invocation with the elicited batch size and batch timeout, acking each message individually",
+  "soThat": "one bad message in a batch does not roll back the twenty good ones behind it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-29105-1",
+      "description": "Given the fixture consumer configured with max_batch_size 10 and max_batch_timeout 5, when 5 messages are published in rapid succession, then the consumer receives them in one batched invocation and acknowledges each per message; every message is delivered exactly to the count published (barring redeliveries the AC does not test); no batch-level rollback fires on a per-message retry.",
+      "given": "the fixture consumer with the elicited batch settings",
+      "when": "the publish-to-delivery probe publishes 5 messages",
+      "then": "the consumer receives them in one batch; per-message ack fires 5 times; the messageAcked events on the sink number 5",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

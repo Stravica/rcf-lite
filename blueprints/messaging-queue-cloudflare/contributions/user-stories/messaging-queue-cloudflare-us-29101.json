@@ -1,0 +1,34 @@
+{
+  "usId": "messaging-queue-cloudflare-US-29101",
+  "prdId": "PRD-001",
+  "reqId": "messaging-queue-cloudflare-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "One producer facade module opens the Queues binding on boot and emits producerReady with the queue name",
+  "asA": "developer whose Worker or Node service needs a directed producer-to-consumer worklist behind a swappable boundary",
+  "iWant": "one producer facade module to hold the Cloudflare Queues binding reference and expose typed domain verbs (publish, publishBatch), with a producerReady lifecycle event on the first successful ready-check",
+  "soThat": "the boundary between my domain and the Queues vendor surface is the only place that has to move when the adapter changes, and boot ordering is observable via the event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-29101-1",
+      "description": "On process boot, the facade opens against the elicited queue binding (env.RCF_TEST_QUEUE on the fixture); once the first successful ready-check returns, a producerReady event fires on the injected event sink with a payload containing queueName. The facade exposes typed named domain verbs (publish, publishBatch) and does not re-export the raw Queues binding.",
+      "given": "a Worker or Node process with the facade module imported and its factory invoked with the elicited binding and queue name",
+      "when": "the process boots and the facade ready-check returns",
+      "then": "a producerReady event fires on the injected event sink with a payload containing queueName; the facade exposes named domain verbs (publish, publishBatch) and does not re-export the raw Queues binding",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-29101-2",
+      "description": "Exactly one source-tree module inside the facade directory holds the reference to the Cloudflare Queues binding (env.RCF_TEST_QUEUE in the fixture); every other module that publishes imports the facade and calls its named domain verbs, verified by a targeted grep on the applied fixture.",
+      "given": "the applied project's source tree after apply",
+      "when": "grep for a Queues binding dereference walks the tree outside the facade directory",
+      "then": "no match is found outside the facade directory; the facade's public surface exports named domain verbs only, no raw binding reference",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade"],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

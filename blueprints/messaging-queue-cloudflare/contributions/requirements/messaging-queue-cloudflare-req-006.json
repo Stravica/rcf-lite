@@ -1,0 +1,18 @@
+{
+  "reqId": "messaging-queue-cloudflare-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Lifecycle events with metadata-only fields: producerReady, messagePublished, messageAcked, messageDeadLettered",
+  "description": "The facade fires four lifecycle events on the injected event sink: producerReady (once per facade instance, on the first successful ready-check), messagePublished (once per successful publish), messageAcked (once per successful ack), messageDeadLettered (once per DLQ landing). Every event record carries a metadata-only field whitelist: messageId, queueName, attempts (integer, 0 for producerReady and messagePublished), timestamp (ISO 8601 UTC). No event record contains the message body, any header value, any consumer-context field, or any producer-context field. The whitelist is enforced in code (the sink adapter refuses forbidden fields); a call site that hands a body-bearing payload to the sink is refused at author-side review.",
+  "category": "functional",
+  "domain": "messaging",
+  "priority": "must",
+  "rationale": "A metadata-only event whitelist is what turns the event sink into a leak-proof observability seam. The applied logging companion writes these records verbatim; the applied error-handling companion constructs error records from messageDeadLettered records. Neither ever sees the message body through this surface, which is what allows the shipped shape to compose with a PII-bearing body without redaction gymnastics at every log site.",
+  "tags": [
+    "blueprint:messaging-queue-cloudflare",
+    "category:06-events"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-3001-messaging-queue-cloudflare-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Adapter: Cloudflare Queues as the shipped v1.0.0 first adapter",
+  "context": "A project deploying a directed producer-to-consumer worklist queue on Cloudflare Workers has one native shipped answer today: Cloudflare Queues. The Queues surface is bound through wrangler configuration (a [[queues.producers]] block for the producer facade to publish through, a [[queues.consumers]] block for the Worker queue handler to consume from), and the shipped Worker runtime binds env.<binding> to a Queues object with send / sendBatch on the producer side and a batch envelope with ack / retry on the consumer side per https://developers.cloudflare.com/queues/configuration/javascript-apis/. The v1.0.0 facade must hold the adapter reference opaque at the facade boundary so a future non-Cloudflare adapter (an SQS shim, the reserved messaging-queue-postgres sibling per Baz decision 7) slots in without a facade re-shape, and so a fixture-time in-memory adapter is testable without live Cloudflare Queues access.",
+  "decision": "The shipped v1.0.0 default is Cloudflare Queues, wired through wrangler config (producer binding on [[queues.producers]], consumer on [[queues.consumers]] with dead_letter_queue and max_retries per https://developers.cloudflare.com/queues/configuration/dead-letter-queues/). The producer facade module is the sole holder of the Queues binding reference per REQ-001; the consumer registration module is the sole reader of the batch envelope per REQ-002. The adapter reference is OPAQUE at this ADR: the facade dereferences the elicited binding at the top of the module and any consumer wanting a different adapter (an SQS shim, the messaging-queue-postgres sibling minted on demand) replaces the binding reference here without touching the outward interface. A fixture-time in-memory adapter (used by the local probes) implements the same binding shape (send / sendBatch on the producer side, batch with ack / retry on the consumer side) so the facade and consumer surfaces are indistinguishable from the real Queues binding at the facade boundary. The 128 KB per-message cap and 100 messages per batch cap Cloudflare documents at https://developers.cloudflare.com/queues/platform/limits/ apply to every real-Queues run.",
+  "consequences": "The project inherits the Cloudflare Queues wire-format, the platform-assigned stable message-id, and the batch envelope's per-message ack semantics. Standards trace clause: Cloudflare Queues documented per-message and per-batch limits (per https://developers.cloudflare.com/queues/platform/limits/), Cloudflare Queues Worker queue-handler contract (per https://developers.cloudflare.com/queues/configuration/javascript-apis/), and Cloudflare Queues dead-letter documentation (per https://developers.cloudflare.com/queues/configuration/dead-letter-queues/). A future non-Cloudflare adapter mints under a sibling blueprint (reserved slug messaging-queue-postgres, Baz decision 7) and conflicts by design on deliverySemantics (ADR-3002) with this blueprint; the operator picks one queue backend per project via a project-level ADR.",
+  "alternativesConsidered": [
+    {
+      "name": "External SQS or SNS as the shipped v1.0.0 default",
+      "summary": "Ship AWS SQS as the primary v1.0.0 queue backend and provide Cloudflare Queues as an elicited alternative.",
+      "reasonNotChosen": "The shelf composition target this round is a Cloudflare Workers project (deploy-cloudflare-workers is the applied deploy target on the shared fixture). Shipping SQS as the default would leave a Workers project reaching into a non-Cloudflare vendor for its main worklist, which is not the shipped-shape target of the round-5 spec section 5.3."
+    },
+    {
+      "name": "Kafka or NATS as the shipped v1.0.0 default",
+      "summary": "Ship a self-hosted Kafka or NATS backend as the primary v1.0.0 queue.",
+      "reasonNotChosen": "A self-hosted Kafka or NATS backend adds a persistent operational surface every applying project has to run; the round-5 spec section 5.3 targets a directed producer-to-consumer worklist as a shipped shape whose applying project need not host a broker. The reserved messaging-queue-postgres sibling (Baz decision 7) covers the self-hosted-transport family separately when demand mints it."
+    },
+    {
+      "name": "Ship a hand-rolled fetch client against the Queues REST API",
+      "summary": "Skip the Worker Queues binding and roll a fetch client against the Queues REST-shape endpoints.",
+      "reasonNotChosen": "The Worker binding is the shipped Cloudflare surface and the one every Queues doc references; a REST client would ship a second surface with its own auth and its own reliability envelope. The mature binding-based surface is what makes the v1.0.0 facade portable at the boundary."
+    }
+  ],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}
