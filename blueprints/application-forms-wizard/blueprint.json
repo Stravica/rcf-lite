@@ -1,0 +1,120 @@
+{
+  "slug": "application-forms-wizard",
+  "version": "1.0.0",
+  "category": "application",
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every step transition, validation failure and save-and-return event writes one request-scoped log line with the correlation identifier and the step slug through the applied logger factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "The error-summary contract constructs an internal error record per failed field through the applied error-handling factory so the aria-describedby binding renders a consistent message shape across steps."
+    }
+  ],
+  "contributions": [
+    {
+      "id": "application-forms-wizard-REQ-001",
+      "kind": "req",
+      "path": "requirements/application-forms-wizard-req-001.json"
+    },
+    {
+      "id": "application-forms-wizard-REQ-002",
+      "kind": "req",
+      "path": "requirements/application-forms-wizard-req-002.json"
+    },
+    {
+      "id": "application-forms-wizard-REQ-003",
+      "kind": "req",
+      "path": "requirements/application-forms-wizard-req-003.json"
+    },
+    {
+      "id": "application-forms-wizard-REQ-004",
+      "kind": "req",
+      "path": "requirements/application-forms-wizard-req-004.json"
+    },
+    {
+      "id": "application-forms-wizard-REQ-005",
+      "kind": "req",
+      "path": "requirements/application-forms-wizard-req-005.json"
+    },
+    {
+      "id": "application-forms-wizard-US-24101",
+      "kind": "us",
+      "path": "user-stories/application-forms-wizard-us-24101.json"
+    },
+    {
+      "id": "application-forms-wizard-US-24102",
+      "kind": "us",
+      "path": "user-stories/application-forms-wizard-us-24102.json"
+    },
+    {
+      "id": "application-forms-wizard-US-24103",
+      "kind": "us",
+      "path": "user-stories/application-forms-wizard-us-24103.json"
+    },
+    {
+      "id": "application-forms-wizard-US-24104",
+      "kind": "us",
+      "path": "user-stories/application-forms-wizard-us-24104.json"
+    },
+    {
+      "id": "application-forms-wizard-US-24105",
+      "kind": "us",
+      "path": "user-stories/application-forms-wizard-us-24105.json"
+    },
+    {
+      "id": "application-forms-wizard-US-24106",
+      "kind": "us",
+      "path": "user-stories/application-forms-wizard-us-24106.json"
+    },
+    {
+      "id": "application-forms-wizard-US-24107",
+      "kind": "us",
+      "path": "user-stories/application-forms-wizard-us-24107.json"
+    },
+    {
+      "id": "application-forms-wizard-US-24108",
+      "kind": "us",
+      "path": "user-stories/application-forms-wizard-us-24108.json"
+    },
+    {
+      "id": "TAC-2501-application-forms-wizard-task-list",
+      "kind": "tac",
+      "path": "tacs/tac-2501-application-forms-wizard-task-list.json"
+    },
+    {
+      "id": "TAC-2502-application-forms-wizard-error-summary",
+      "kind": "tac",
+      "path": "tacs/tac-2502-application-forms-wizard-error-summary.json"
+    },
+    {
+      "id": "TAC-2503-application-forms-wizard-draft-store",
+      "kind": "tac",
+      "path": "tacs/tac-2503-application-forms-wizard-draft-store.json"
+    },
+    {
+      "id": "ADR-2501-application-forms-wizard-navigation",
+      "kind": "adr",
+      "path": "adrs/adr-2501-application-forms-wizard-navigation.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "GOV.UK Design System step-by-step navigation pattern"
+    },
+    {
+      "id": "ADR-2502-application-forms-wizard-save-and-return",
+      "kind": "adr",
+      "path": "adrs/adr-2502-application-forms-wizard-save-and-return.json",
+      "elicited": true,
+      "standardsTraceClause": "GOV.UK Design System save and return pattern; generic enterprise practice"
+    },
+    {
+      "id": "ADR-2503-application-forms-wizard-step-indicator",
+      "kind": "adr",
+      "path": "adrs/adr-2503-application-forms-wizard-step-indicator.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "GOV.UK Design System task list pattern; WCAG 2.2 SC 2.4.6 Headings and Labels"
+    }
+  ]
+}

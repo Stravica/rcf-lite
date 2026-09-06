@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-09-06T19:03:26.530Z",
+  "updatedAt": "2026-09-06T19:07:14.938Z",
+  "description": "US-2601 anchors the shelf-shape acceptance criteria for the T-3 track: shelf carries blueprint.json with the ratified shape, contributions apply cleanly on a fresh init project, the pack cross-checks against contributed AC ids, the sample-app fixture serves the four wizard surfaces honestly and drives both save-and-return transports on their query branches, and the break switches refuse on the negative branch. The blueprint contributes further AC records on its own USs 24101 to 24108; those are covered by the pack against the fixture and by the anatomy test that walks the contributions.",
+  "usId": "US-2601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-026",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The application-forms-wizard blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches",
+  "asA": "shelf consumer applying the application-forms-wizard v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks of the wizard contract (task-list contract with the closed GOV.UK vocabulary, error-summary contract with the top-of-page summary and aria bindings, summary-review pattern with the change-per-row and answer retention, and save-and-return contract with a server-side draft table or a client-side local buffer with a sync tick), and a sample-app fixture proving the pack passes on the honest render of the four wizard surfaces and refuses on the four break switches",
+  "soThat": "a project consuming rcf-lite gets the WCAG 2.2 AA compliant multi-step forms contract with a runtime-verified pack, the GOV.UK Design System task-list pattern out of the box, one recommended navigation posture with an elicited alternative, two save-and-return transports with no default so the abandoned-draft loss class does not ship silently, and a golden fixture the pack refuses on a surface that swaps a state string away from the closed vocabulary, drops the error summary, drops answer retention on the summary review, or drops the draft transport altogether",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2601-1",
+      "description": "The shelf carries blueprints/application-forms-wizard/blueprint.json declaring slug application-forms-wizard, version 1.0.0, category application, and 19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups per spec section 5.3; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.3; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent.",
+      "testable": true
+    },
+    {
+      "id": "AC-2601-2",
+      "description": "rcf define blueprint add ./blueprints/application-forms-wizard applies the 19 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.",
+      "testable": true
+    },
+    {
+      "id": "AC-2601-3",
+      "description": "The shipped probe pack blueprints/application-forms-wizard/probe-packs/application-forms-wizard.pack.mjs loads via T-0 pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-24101-1 task-list, AC-24103-1 error-summary, AC-24104-1 summary-review, AC-24105-1 save-and-return) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.",
+      "testable": true
+    },
+    {
+      "id": "AC-2601-4",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /task-list renders the ARIA progressbar wrapper plus one step row per manifest entry with a data-step-state from the closed GOV.UK vocabulary; /step/2?refused=1 pre-renders the error-summary shape with a heading, one skip link per failed field and aria-invalid=\"true\" on the field with aria-describedby to the message; /summary?seed=complete renders one summary-list section per step with data-summary-row entries and a data-recovery=\"change\" link per row; /step/1?draft-store=server&preseed=1 writes into the in-memory drafts table so GET /drafts returns the persisted fields, and /step/1?draft-store=local&preseed=1 writes to window.localStorage under draft:application-forms-wizard:<step-slug> and renders [data-sync-tick] carrying an ISO-8601 timestamp; PORT env overrides the bind port (default 3000, never binds 4200); the fixture prints LISTENING <port> once bound.",
+      "testable": true
+    },
+    {
+      "id": "AC-2601-5",
+      "description": "The probe pack refuses ship on each broken fixture branch: ?break=task-list-vocab swaps a step-state string away from the closed GOV.UK vocabulary so AC-24101-1 fails at severity block; ?break=no-summary drops the [data-surface=\"error-summary\"] region on the refused step so AC-24103-1 fails at severity block; ?break=no-retain wipes every unedited answer on the edit-and-save round-trip so AC-24104-1 fails at severity block; ?break=no-draft drops the draft transport altogether so AC-24105-1 fails at severity block on both branches (no POST to /drafts, no localStorage write, no data-sync-tick element).",
+      "testable": true
+    },
+    {
+      "id": "AC-2601-6",
+      "description": "The four state slugs from the closed GOV.UK vocabulary (Cannot start yet, Not started, In progress, Completed), the two save-and-return transport slugs (server-draft-table, client-local-buffer), the four break switches and the four probe-pack check ids appear identically across the scope paragraph in the blueprint README, the pack checks[] list, the guide, the fixture README and the docs/topics.md registry table; a grep sweep for each slug confirms every occurrence is accounted for and no vocabulary string is silently dropped.",
+      "testable": true
+    },
+    {
+      "id": "AC-2601-7",
+      "description": "The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the task-list contract, the per-step validation timing rule, the error-summary contract, the summary-review pattern, the save-and-return contract with the two transports, the pack checks, the sample-app fixture and the three ADRs; docs/topics.md carries the shelf id band registry table extended with the T-3 row (application-forms-wizard 24101-24899 / 25xx) and the cross-reference to application-empty-error-states for the no-in-progress empty state.",
+      "testable": true
+    }
+  ]
+}

@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -7577,6 +7577,348 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-026">
+  <summary><span class="summary-label">REQ-026 - Application-forms-wizard v1.0.0 blueprint on the shelf with the task-list contract, error-summary contract, summary-review pattern, save-and-return draft store and Playwright probe pack</span><span class="status draft">draft</span></summary>
+  <article id="REQ-026" class="doc doc-req">
+  <h3>REQ-026 - Application-forms-wizard v1.0.0 blueprint on the shelf with the task-list contract, error-summary contract, summary-review pattern, save-and-return draft store and Playwright probe pack</h3>
+  
+  <p><strong>Description:</strong> The rcf-lite shelf ships the application-forms-wizard v1.0.0 blueprint (blueprints/application-forms-wizard/) with 19 contributions (5 REQs on the task-list contract with the closed GOV.UK vocabulary Cannot start yet plus Not started plus In progress plus Completed with an ARIA progressbar wrapper, the per-step validation timing rule on-blur before first submit then on-change after first failure and a full pass on submit reusing SPA forms-engine TAC-205 per WCAG 2.2 SC 3.3.1 and 3.3.3, the error-summary contract with a top-of-page summary and skip links per failed field with aria-invalid true on the field and aria-describedby to the per-field error message and focus moved to the summary heading on submit failure, the summary-review contract with a summary-list rendering per step with Change links returning to each step and every other answer retained on save per WCAG 2.2 SC 3.3.4, the save-and-return contract with a server-side draft table or a client-side local buffer with a per-write ISO-8601 sync tick with the pack refusing to ship if neither is wired per WCAG 2.2 SC 3.3.7; 8 USs 24101 to 24108 one per REQ plus three cross-cutting cases linear-vs-free navigation, in-progress list and no-in-progress empty state delegated to application-empty-error-states; 3 TACs 2501 task-list shell and 2502 error-summary contract and 2503 draft store; 3 ADRs 2501 navigation posture linear default with elicited free branch, 2502 save-and-return transport across server-draft-table and client-local-buffer elicited with NO recommendedDefault because the abandoned-draft loss class does not ship silently, 2503 step indicator across task-list ARIA progressbar and breadcrumb with recommendedDefault true on task-list). Declares suggestedCompanions logging and errorHandling with reasons from spec section 5.3; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent. Ships a Playwright probe pack under blueprints/application-forms-wizard/probe-packs/application-forms-wizard.pack.mjs with four surface-observable checks anchored to TAC-2501 or an operator-configured wizard-route glob. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ realising the four wizard surfaces honestly plus both save-and-return transports server default and local elicited plus four break switches so each check refuses on its own defect. Eighth shipped consumer of T-0 probe-pack runner extension. Consumes application-empty-error-states for the no-in-progress empty state on the /in-progress list surface.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> application</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-026[&quot;REQ-026&lt;br/&gt;Application-forms-wizard v1.0.0 blueprint on ...&quot;]
+  US-2601[&quot;US-2601&lt;br/&gt;The application-forms-wizard blueprint ships ...&quot;]
+  REQ-026 --&gt; US-2601
+  AC-2601-1[&quot;AC-2601-1&quot;]
+  US-2601 --&gt; AC-2601-1
+  FBS-045[&quot;FBS-045&lt;br/&gt;application-forms-wizard v1.0.0 blueprint on ...&quot;]
+  AC-2601-1 -.-&gt;|delivered by| FBS-045
+  CN-148[&quot;CN-148&lt;br/&gt;../../blueprints/application-forms-wizard/blu...&quot;]
+  AC-2601-1 -.-&gt;|implemented by| CN-148
+  AC-2601-2[&quot;AC-2601-2&quot;]
+  US-2601 --&gt; AC-2601-2
+  AC-2601-2 -.-&gt;|delivered by| FBS-045
+  AC-2601-2 -.-&gt;|implemented by| CN-148
+  AC-2601-3[&quot;AC-2601-3&quot;]
+  US-2601 --&gt; AC-2601-3
+  AC-2601-3 -.-&gt;|delivered by| FBS-045
+  CN-149[&quot;CN-149&lt;br/&gt;../../blueprints/application-forms-wizard/pro...&quot;]
+  AC-2601-3 -.-&gt;|implemented by| CN-149
+  AC-2601-4[&quot;AC-2601-4&quot;]
+  US-2601 --&gt; AC-2601-4
+  AC-2601-4 -.-&gt;|delivered by| FBS-045
+  CN-150[&quot;CN-150&lt;br/&gt;../../packages/rcf-lite/test/fixtures/probe-p...&quot;]
+  AC-2601-4 -.-&gt;|implemented by| CN-150
+  AC-2601-5[&quot;AC-2601-5&quot;]
+  US-2601 --&gt; AC-2601-5
+  AC-2601-5 -.-&gt;|delivered by| FBS-045
+  AC-2601-5 -.-&gt;|implemented by| CN-150
+  AC-2601-6[&quot;AC-2601-6&quot;]
+  US-2601 --&gt; AC-2601-6
+  AC-2601-6 -.-&gt;|delivered by| FBS-045
+  CN-151[&quot;CN-151&lt;br/&gt;../../blueprints/application-forms-wizard/REA...&quot;]
+  AC-2601-6 -.-&gt;|implemented by| CN-151
+  CN-152[&quot;CN-152&lt;br/&gt;../../blueprints/application-forms-wizard/gui...&quot;]
+  AC-2601-6 -.-&gt;|implemented by| CN-152
+  CN-154[&quot;CN-154&lt;br/&gt;../../blueprints/application-forms-wizard/doc...&quot;]
+  AC-2601-6 -.-&gt;|implemented by| CN-154
+  AC-2601-7[&quot;AC-2601-7&quot;]
+  US-2601 --&gt; AC-2601-7
+  AC-2601-7 -.-&gt;|delivered by| FBS-045
+  AC-2601-7 -.-&gt;|implemented by| CN-151
+  CN-153[&quot;CN-153&lt;br/&gt;../../blueprints/application-forms-wizard/CHA...&quot;]
+  AC-2601-7 -.-&gt;|implemented by| CN-153
+  AC-2601-7 -.-&gt;|implemented by| CN-154
+  click REQ-026 &quot;#REQ-026&quot;;
+  click US-2601 &quot;#US-2601&quot;;
+  click AC-2601-1 &quot;#AC-2601-1&quot;;
+  click FBS-045 &quot;#FBS-045&quot;;
+  click CN-148 &quot;#CN-148&quot;;
+  click AC-2601-2 &quot;#AC-2601-2&quot;;
+  click AC-2601-3 &quot;#AC-2601-3&quot;;
+  click CN-149 &quot;#CN-149&quot;;
+  click AC-2601-4 &quot;#AC-2601-4&quot;;
+  click CN-150 &quot;#CN-150&quot;;
+  click AC-2601-5 &quot;#AC-2601-5&quot;;
+  click AC-2601-6 &quot;#AC-2601-6&quot;;
+  click CN-151 &quot;#CN-151&quot;;
+  click CN-152 &quot;#CN-152&quot;;
+  click CN-154 &quot;#CN-154&quot;;
+  click AC-2601-7 &quot;#AC-2601-7&quot;;
+  click CN-153 &quot;#CN-153&quot;;
+  class REQ-026 req;
+  class US-2601 us;
+  class AC-2601-1 ac;
+  class FBS-045 fbs;
+  class CN-148 cn;
+  class AC-2601-2 ac;
+  class AC-2601-3 ac;
+  class CN-149 cn;
+  class AC-2601-4 ac;
+  class CN-150 cn;
+  class AC-2601-5 ac;
+  class AC-2601-6 ac;
+  class CN-151 cn;
+  class CN-152 cn;
+  class CN-154 cn;
+  class AC-2601-7 ac;
+  class CN-153 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T19:03:15.348Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T19:07:15.107Z&quot;,
+  &quot;description&quot;: &quot;The rcf-lite shelf ships the application-forms-wizard v1.0.0 blueprint (blueprints/application-forms-wizard/) with 19 contributions (5 REQs on the task-list contract with the closed GOV.UK vocabulary Cannot start yet plus Not started plus In progress plus Completed with an ARIA progressbar wrapper, the per-step validation timing rule on-blur before first submit then on-change after first failure and a full pass on submit reusing SPA forms-engine TAC-205 per WCAG 2.2 SC 3.3.1 and 3.3.3, the error-summary contract with a top-of-page summary and skip links per failed field with aria-invalid true on the field and aria-describedby to the per-field error message and focus moved to the summary heading on submit failure, the summary-review contract with a summary-list rendering per step with Change links returning to each step and every other answer retained on save per WCAG 2.2 SC 3.3.4, the save-and-return contract with a server-side draft table or a client-side local buffer with a per-write ISO-8601 sync tick with the pack refusing to ship if neither is wired per WCAG 2.2 SC 3.3.7; 8 USs 24101 to 24108 one per REQ plus three cross-cutting cases linear-vs-free navigation, in-progress list and no-in-progress empty state delegated to application-empty-error-states; 3 TACs 2501 task-list shell and 2502 error-summary contract and 2503 draft store; 3 ADRs 2501 navigation posture linear default with elicited free branch, 2502 save-and-return transport across server-draft-table and client-local-buffer elicited with NO recommendedDefault because the abandoned-draft loss class does not ship silently, 2503 step indicator across task-list ARIA progressbar and breadcrumb with recommendedDefault true on task-list). Declares suggestedCompanions logging and errorHandling with reasons from spec section 5.3; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent. Ships a Playwright probe pack under blueprints/application-forms-wizard/probe-packs/application-forms-wizard.pack.mjs with four surface-observable checks anchored to TAC-2501 or an operator-configured wizard-route glob. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ realising the four wizard surfaces honestly plus both save-and-return transports server default and local elicited plus four break switches so each check refuses on its own defect. Eighth shipped consumer of T-0 probe-pack runner extension. Consumes application-empty-error-states for the no-in-progress empty state on the /in-progress list surface.&quot;,
+  &quot;reqId&quot;: &quot;REQ-026&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Application-forms-wizard v1.0.0 blueprint on the shelf with the task-list contract, error-summary contract, summary-review pattern, save-and-return draft store and Playwright probe pack&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;application&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;,
+      &quot;httpApi&quot;,
+      &quot;persistence&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-06T19:03:15.372Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;form&quot;
+      },
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;store&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;form&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;form&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;form&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;WCAG&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;aria-&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;aria-&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;rendering&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;WCAG&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;WCAG&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;nav&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;navigation&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;store&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;nav&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;navigation&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;post&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;form&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;form&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;route&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;form&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-2601">
+  <summary><span class="summary-label">US-2601 - The application-forms-wizard blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches</span><span class="status draft">draft</span></summary>
+  <article id="US-2601" class="doc doc-us">
+  <h3>US-2601 - The application-forms-wizard blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the application-forms-wizard v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks of the wizard contract (task-list contract with the closed GOV.UK vocabulary, error-summary contract with the top-of-page summary and aria bindings, summary-review pattern with the change-per-row and answer retention, and save-and-return contract with a server-side draft table or a client-side local buffer with a sync tick), and a sample-app fixture proving the pack passes on the honest render of the four wizard surfaces and refuses on the four break switches</p>
+  <p><strong>So that:</strong> a project consuming rcf-lite gets the WCAG 2.2 AA compliant multi-step forms contract with a runtime-verified pack, the GOV.UK Design System task-list pattern out of the box, one recommended navigation posture with an elicited alternative, two save-and-return transports with no default so the abandoned-draft loss class does not ship silently, and a golden fixture the pack refuses on a surface that swaps a state string away from the closed vocabulary, drops the error summary, drops answer retention on the summary review, or drops the draft transport altogether</p>
+  <p><strong>Description:</strong> US-2601 anchors the shelf-shape acceptance criteria for the T-3 track: shelf carries blueprint.json with the ratified shape, contributions apply cleanly on a fresh init project, the pack cross-checks against contributed AC ids, the sample-app fixture serves the four wizard surfaces honestly and drives both save-and-return transports on their query branches, and the break switches refuse on the negative branch. The blueprint contributes further AC records on its own USs 24101 to 24108; those are covered by the pack against the fixture and by the anatomy test that walks the contributions.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-026">REQ-026</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-2601-1" class="ac-item"><strong>AC-2601-1</strong> - The shelf carries blueprints/application-forms-wizard/blueprint.json declaring slug application-forms-wizard, version 1.0.0, category application, and 19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups per spec section 5.3; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.3; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-045">FBS-045</a></p></li>
+<li id="AC-2601-2" class="ac-item"><strong>AC-2601-2</strong> - rcf define blueprint add ./blueprints/application-forms-wizard applies the 19 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-045">FBS-045</a></p></li>
+<li id="AC-2601-3" class="ac-item"><strong>AC-2601-3</strong> - The shipped probe pack blueprints/application-forms-wizard/probe-packs/application-forms-wizard.pack.mjs loads via T-0 pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-24101-1 task-list, AC-24103-1 error-summary, AC-24104-1 summary-review, AC-24105-1 save-and-return) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-045">FBS-045</a></p></li>
+<li id="AC-2601-4" class="ac-item"><strong>AC-2601-4</strong> - The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /task-list renders the ARIA progressbar wrapper plus one step row per manifest entry with a data-step-state from the closed GOV.UK vocabulary; /step/2?refused=1 pre-renders the error-summary shape with a heading, one skip link per failed field and aria-invalid=&quot;true&quot; on the field with aria-describedby to the message; /summary?seed=complete renders one summary-list section per step with data-summary-row entries and a data-recovery=&quot;change&quot; link per row; /step/1?draft-store=server&amp;preseed=1 writes into the in-memory drafts table so GET /drafts returns the persisted fields, and /step/1?draft-store=local&amp;preseed=1 writes to window.localStorage under draft:application-forms-wizard:&lt;step-slug&gt; and renders [data-sync-tick] carrying an ISO-8601 timestamp; PORT env overrides the bind port (default 3000, never binds 4200); the fixture prints LISTENING &lt;port&gt; once bound.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-045">FBS-045</a></p></li>
+<li id="AC-2601-5" class="ac-item"><strong>AC-2601-5</strong> - The probe pack refuses ship on each broken fixture branch: ?break=task-list-vocab swaps a step-state string away from the closed GOV.UK vocabulary so AC-24101-1 fails at severity block; ?break=no-summary drops the [data-surface=&quot;error-summary&quot;] region on the refused step so AC-24103-1 fails at severity block; ?break=no-retain wipes every unedited answer on the edit-and-save round-trip so AC-24104-1 fails at severity block; ?break=no-draft drops the draft transport altogether so AC-24105-1 fails at severity block on both branches (no POST to /drafts, no localStorage write, no data-sync-tick element).
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-045">FBS-045</a></p></li>
+<li id="AC-2601-6" class="ac-item"><strong>AC-2601-6</strong> - The four state slugs from the closed GOV.UK vocabulary (Cannot start yet, Not started, In progress, Completed), the two save-and-return transport slugs (server-draft-table, client-local-buffer), the four break switches and the four probe-pack check ids appear identically across the scope paragraph in the blueprint README, the pack checks[] list, the guide, the fixture README and the docs/topics.md registry table; a grep sweep for each slug confirms every occurrence is accounted for and no vocabulary string is silently dropped.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-045">FBS-045</a></p></li>
+<li id="AC-2601-7" class="ac-item"><strong>AC-2601-7</strong> - The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the task-list contract, the per-step validation timing rule, the error-summary contract, the summary-review pattern, the save-and-return contract with the two transports, the pack checks, the sample-app fixture and the three ADRs; docs/topics.md carries the shelf id band registry table extended with the T-3 row (application-forms-wizard 24101-24899 / 25xx) and the cross-reference to application-empty-error-states for the no-in-progress empty state.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-045">FBS-045</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T19:03:26.530Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T19:07:14.938Z&quot;,
+  &quot;description&quot;: &quot;US-2601 anchors the shelf-shape acceptance criteria for the T-3 track: shelf carries blueprint.json with the ratified shape, contributions apply cleanly on a fresh init project, the pack cross-checks against contributed AC ids, the sample-app fixture serves the four wizard surfaces honestly and drives both save-and-return transports on their query branches, and the break switches refuse on the negative branch. The blueprint contributes further AC records on its own USs 24101 to 24108; those are covered by the pack against the fixture and by the anatomy test that walks the contributions.&quot;,
+  &quot;usId&quot;: &quot;US-2601&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-026&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The application-forms-wizard blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the application-forms-wizard v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks of the wizard contract (task-list contract with the closed GOV.UK vocabulary, error-summary contract with the top-of-page summary and aria bindings, summary-review pattern with the change-per-row and answer retention, and save-and-return contract with a server-side draft table or a client-side local buffer with a sync tick), and a sample-app fixture proving the pack passes on the honest render of the four wizard surfaces and refuses on the four break switches&quot;,
+  &quot;soThat&quot;: &quot;a project consuming rcf-lite gets the WCAG 2.2 AA compliant multi-step forms contract with a runtime-verified pack, the GOV.UK Design System task-list pattern out of the box, one recommended navigation posture with an elicited alternative, two save-and-return transports with no default so the abandoned-draft loss class does not ship silently, and a golden fixture the pack refuses on a surface that swaps a state string away from the closed vocabulary, drops the error summary, drops answer retention on the summary review, or drops the draft transport altogether&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-2601-1&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/application-forms-wizard/blueprint.json declaring slug application-forms-wizard, version 1.0.0, category application, and 19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups per spec section 5.3; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.3; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2601-2&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/application-forms-wizard applies the 19 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2601-3&quot;,
+      &quot;description&quot;: &quot;The shipped probe pack blueprints/application-forms-wizard/probe-packs/application-forms-wizard.pack.mjs loads via T-0 pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-24101-1 task-list, AC-24103-1 error-summary, AC-24104-1 summary-review, AC-24105-1 save-and-return) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2601-4&quot;,
+      &quot;description&quot;: &quot;The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /task-list renders the ARIA progressbar wrapper plus one step row per manifest entry with a data-step-state from the closed GOV.UK vocabulary; /step/2?refused=1 pre-renders the error-summary shape with a heading, one skip link per failed field and aria-invalid=\&quot;true\&quot; on the field with aria-describedby to the message; /summary?seed=complete renders one summary-list section per step with data-summary-row entries and a data-recovery=\&quot;change\&quot; link per row; /step/1?draft-store=server&amp;preseed=1 writes into the in-memory drafts table so GET /drafts returns the persisted fields, and /step/1?draft-store=local&amp;preseed=1 writes to window.localStorage under draft:application-forms-wizard:&lt;step-slug&gt; and renders [data-sync-tick] carrying an ISO-8601 timestamp; PORT env overrides the bind port (default 3000, never binds 4200); the fixture prints LISTENING &lt;port&gt; once bound.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2601-5&quot;,
+      &quot;description&quot;: &quot;The probe pack refuses ship on each broken fixture branch: ?break=task-list-vocab swaps a step-state string away from the closed GOV.UK vocabulary so AC-24101-1 fails at severity block; ?break=no-summary drops the [data-surface=\&quot;error-summary\&quot;] region on the refused step so AC-24103-1 fails at severity block; ?break=no-retain wipes every unedited answer on the edit-and-save round-trip so AC-24104-1 fails at severity block; ?break=no-draft drops the draft transport altogether so AC-24105-1 fails at severity block on both branches (no POST to /drafts, no localStorage write, no data-sync-tick element).&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2601-6&quot;,
+      &quot;description&quot;: &quot;The four state slugs from the closed GOV.UK vocabulary (Cannot start yet, Not started, In progress, Completed), the two save-and-return transport slugs (server-draft-table, client-local-buffer), the four break switches and the four probe-pack check ids appear identically across the scope paragraph in the blueprint README, the pack checks[] list, the guide, the fixture README and the docs/topics.md registry table; a grep sweep for each slug confirms every occurrence is accounted for and no vocabulary string is silently dropped.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2601-7&quot;,
+      &quot;description&quot;: &quot;The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the task-list contract, the per-step validation timing rule, the error-summary contract, the summary-review pattern, the save-and-return contract with the two transports, the pack checks, the sample-app fixture and the three ADRs; docs/topics.md carries the shelf id band registry table extended with the T-3 row (application-forms-wizard 24101-24899 / 25xx) and the cross-reference to application-empty-error-states for the no-in-progress empty state.&quot;,
+      &quot;testable&quot;: true
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 <details class="doc-details doc-req-wrap" data-doc-id="REQ-040">
   <summary><span class="summary-label">REQ-040 - Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container</span><span class="status draft">draft</span></summary>
   <article id="REQ-040" class="doc doc-req">
@@ -9199,7 +9541,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -12702,6 +13044,90 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   ]
 }
 </pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-045">
+  <summary><span class="summary-label">FBS-045 - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-045" class="doc doc-fbs">
+  <h3>FBS-045 - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</h3>
+  
+  <p><strong>Summary:</strong> T-3 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.3): the application-forms-wizard v1.0.0 blueprint on the shelf. Ships 19 contributions (5 REQs on the task-list contract with the closed GOV.UK vocabulary Cannot start yet plus Not started plus In progress plus Completed with an ARIA progressbar wrapper, the per-step validation timing rule on-blur before first submit then on-change after first failure and a full pass on submit reusing SPA forms-engine TAC-205 per WCAG 2.2 SC 3.3.1 and 3.3.3, the error-summary contract with a top-of-page summary and skip links per failed field with aria-invalid true on the field and aria-describedby to the per-field error message and focus moved to the summary heading on submit failure, the summary-review contract with a summary-list rendering per step with Change links returning to each step and every other answer retained on save per WCAG 2.2 SC 3.3.4, the save-and-return contract with a server-side draft table or a client-side local buffer with a per-write ISO-8601 sync tick with the pack refusing to ship if neither is wired per WCAG 2.2 SC 3.3.7; 8 USs 24101 to 24108 one per REQ plus three cross-cutting cases linear-vs-free navigation, in-progress list and no-in-progress empty state delegated to application-empty-error-states; 3 TACs 2501 task-list shell and 2502 error-summary contract and 2503 draft store; 3 ADRs 2501 navigation posture linear default with elicited free branch, 2502 save-and-return transport across server-draft-table and client-local-buffer elicited with NO recommendedDefault, 2503 step indicator across task-list ARIA progressbar and breadcrumb with recommendedDefault true on task-list), a Playwright probe pack whose four checks (AC-24101-1 task-list, AC-24103-1 error-summary, AC-24104-1 summary-review, AC-24105-1 save-and-return) each bind TAC-2501 or the operator-configured wizard-route glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ realising the four wizard surfaces honestly on /task-list, /step/&lt;n&gt;, /summary and /in-progress plus both save-and-return transports server default and local elicited plus four break switches (?break=task-list-vocab, ?break=no-summary, ?break=no-retain, ?break=no-draft) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent; capabilities absent. Eighth shipped consumer of T-0 probe-pack runner extension.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-2601-1">AC-2601-1</a><a class="ac-pill" href="#AC-2601-2">AC-2601-2</a><a class="ac-pill" href="#AC-2601-3">AC-2601-3</a><a class="ac-pill" href="#AC-2601-4">AC-2601-4</a><a class="ac-pill" href="#AC-2601-5">AC-2601-5</a><a class="ac-pill" href="#AC-2601-6">AC-2601-6</a><a class="ac-pill" href="#AC-2601-7">AC-2601-7</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-2601-1">AC-2601-1</a></strong> - The shelf carries blueprints/application-forms-wizard/blueprint.json declaring slug application-forms-wizard, version 1.0.0, category application, and 19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups per spec section 5.3; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.3; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2601-2">AC-2601-2</a></strong> - rcf define blueprint add ./blueprints/application-forms-wizard applies the 19 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2601-3">AC-2601-3</a></strong> - The shipped probe pack blueprints/application-forms-wizard/probe-packs/application-forms-wizard.pack.mjs loads via T-0 pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-24101-1 task-list, AC-24103-1 error-summary, AC-24104-1 summary-review, AC-24105-1 save-and-return) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2601-4">AC-2601-4</a></strong> - The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /task-list renders the ARIA progressbar wrapper plus one step row per manifest entry with a data-step-state from the closed GOV.UK vocabulary; /step/2?refused=1 pre-renders the error-summary shape with a heading, one skip link per failed field and aria-invalid=&quot;true&quot; on the field with aria-describedby to the message; /summary?seed=complete renders one summary-list section per step with data-summary-row entries and a data-recovery=&quot;change&quot; link per row; /step/1?draft-store=server&amp;preseed=1 writes into the in-memory drafts table so GET /drafts returns the persisted fields, and /step/1?draft-store=local&amp;preseed=1 writes to window.localStorage under draft:application-forms-wizard:&lt;step-slug&gt; and renders [data-sync-tick] carrying an ISO-8601 timestamp; PORT env overrides the bind port (default 3000, never binds 4200); the fixture prints LISTENING &lt;port&gt; once bound.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2601-5">AC-2601-5</a></strong> - The probe pack refuses ship on each broken fixture branch: ?break=task-list-vocab swaps a step-state string away from the closed GOV.UK vocabulary so AC-24101-1 fails at severity block; ?break=no-summary drops the [data-surface=&quot;error-summary&quot;] region on the refused step so AC-24103-1 fails at severity block; ?break=no-retain wipes every unedited answer on the edit-and-save round-trip so AC-24104-1 fails at severity block; ?break=no-draft drops the draft transport altogether so AC-24105-1 fails at severity block on both branches (no POST to /drafts, no localStorage write, no data-sync-tick element).</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2601-6">AC-2601-6</a></strong> - The four state slugs from the closed GOV.UK vocabulary (Cannot start yet, Not started, In progress, Completed), the two save-and-return transport slugs (server-draft-table, client-local-buffer), the four break switches and the four probe-pack check ids appear identically across the scope paragraph in the blueprint README, the pack checks[] list, the guide, the fixture README and the docs/topics.md registry table; a grep sweep for each slug confirms every occurrence is accounted for and no vocabulary string is silently dropped.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2601-7">AC-2601-7</a></strong> - The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the task-list contract, the per-step validation timing rule, the error-summary contract, the summary-review pattern, the save-and-return contract with the two transports, the pack checks, the sample-app fixture and the three ADRs; docs/topics.md carries the shelf id band registry table extended with the T-3 row (application-forms-wizard 24101-24899 / 25xx) and the cross-reference to application-empty-error-states for the no-in-progress empty state.</p>
+  
+  
+  
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-044">FBS-044</a></p></section>
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 47</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T19:04:36.272Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T20:09:17.380Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2601-1&quot;,
+    &quot;AC-2601-2&quot;,
+    &quot;AC-2601-3&quot;,
+    &quot;AC-2601-4&quot;,
+    &quot;AC-2601-5&quot;,
+    &quot;AC-2601-6&quot;,
+    &quot;AC-2601-7&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-045&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 47,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture&quot;,
+  &quot;summary&quot;: &quot;T-3 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.3): the application-forms-wizard v1.0.0 blueprint on the shelf. Ships 19 contributions (5 REQs on the task-list contract with the closed GOV.UK vocabulary Cannot start yet plus Not started plus In progress plus Completed with an ARIA progressbar wrapper, the per-step validation timing rule on-blur before first submit then on-change after first failure and a full pass on submit reusing SPA forms-engine TAC-205 per WCAG 2.2 SC 3.3.1 and 3.3.3, the error-summary contract with a top-of-page summary and skip links per failed field with aria-invalid true on the field and aria-describedby to the per-field error message and focus moved to the summary heading on submit failure, the summary-review contract with a summary-list rendering per step with Change links returning to each step and every other answer retained on save per WCAG 2.2 SC 3.3.4, the save-and-return contract with a server-side draft table or a client-side local buffer with a per-write ISO-8601 sync tick with the pack refusing to ship if neither is wired per WCAG 2.2 SC 3.3.7; 8 USs 24101 to 24108 one per REQ plus three cross-cutting cases linear-vs-free navigation, in-progress list and no-in-progress empty state delegated to application-empty-error-states; 3 TACs 2501 task-list shell and 2502 error-summary contract and 2503 draft store; 3 ADRs 2501 navigation posture linear default with elicited free branch, 2502 save-and-return transport across server-draft-table and client-local-buffer elicited with NO recommendedDefault, 2503 step indicator across task-list ARIA progressbar and breadcrumb with recommendedDefault true on task-list), a Playwright probe pack whose four checks (AC-24101-1 task-list, AC-24103-1 error-summary, AC-24104-1 summary-review, AC-24105-1 save-and-return) each bind TAC-2501 or the operator-configured wizard-route glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ realising the four wizard surfaces honestly on /task-list, /step/&lt;n&gt;, /summary and /in-progress plus both save-and-return transports server default and local elicited plus four break switches (?break=task-list-vocab, ?break=no-summary, ?break=no-retain, ?break=no-draft) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent; capabilities absent. Eighth shipped consumer of T-0 probe-pack runner extension.&quot;,
+  &quot;dependsOnFbsIds&quot;: [
+    &quot;FBS-044&quot;
+  ]
+}</pre></details>
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-060">
@@ -17388,6 +17814,136 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-2 shelf registry row&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/application-file-upload-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-2 row (TC-054-readme-gaps-and-changelog)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-055">
+  <summary><span class="summary-label">TS-055 - application-forms-wizard v1.0.0 shelf shape, probe pack cross-check and sample-app fixture</span><span class="status draft">draft</span></summary>
+  <article id="TS-055" class="doc doc-ts">
+  <h3>TS-055 - application-forms-wizard v1.0.0 shelf shape, probe pack cross-check and sample-app fixture</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-2601">US-2601</a></p>
+  <p><strong>Purpose:</strong> Cover AC-2601-1 through AC-2601-7 via unit tests over the shipped application-forms-wizard blueprint.json contribution shape (19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups), the applies-clean pass on a fresh init project, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving the four wizard surfaces honestly and both save-and-return transports on their query branches, the negative-run behaviour on the ?break=task-list-vocab ?break=no-summary ?break=no-retain and ?break=no-draft switches, the vocabulary-and-transport enumeration parity across README guide pack and docs/topics.md registry, and the README mechanism-reach gaps and CHANGELOG 1.0.0 entry.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-2601-1">AC-2601-1</a>, <a href="#AC-2601-2">AC-2601-2</a>, <a href="#AC-2601-3">AC-2601-3</a>, <a href="#AC-2601-4">AC-2601-4</a>, <a href="#AC-2601-5">AC-2601-5</a>, <a href="#AC-2601-6">AC-2601-6</a>, <a href="#AC-2601-7">AC-2601-7</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-055-blueprint-json-shape">
+  <p><strong>TC-055-blueprint-json-shape</strong> - covers <a href="#AC-2601-1">AC-2601-1</a> <span class="status pending">pending</span></p>
+  <p>blueprint.json declares slug, version 1.0.0, category application, 19 contributions in 5/8/3/3 groups; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent; suggestedCompanions logging and errorHandling</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-forms-wizard-anatomy.test.js::blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-055-blueprint-json-shape)</code></p>
+</div>
+<div class="tc" id="TC-055-applies-clean">
+  <p><strong>TC-055-applies-clean</strong> - covers <a href="#AC-2601-2">AC-2601-2</a> <span class="status pending">pending</span></p>
+  <p>Fresh init project applies application-forms-wizard cleanly and reports the tree clean</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-forms-wizard-anatomy.test.js::applies cleanly on a fresh init project and adds 19 documents to the tree (TC-055-applies-clean)</code></p>
+</div>
+<div class="tc" id="TC-055-pack-checks-cross-check">
+  <p><strong>TC-055-pack-checks-cross-check</strong> - covers <a href="#AC-2601-3">AC-2601-3</a> <span class="status pending">pending</span></p>
+  <p>Every pack check id matches a contributed AC id; pack-level appliesTo references BOTH tacIds and route; withUrl helper used for every URL string</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-forms-wizard-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-055-pack-checks-cross-check)</code></p>
+</div>
+<div class="tc" id="TC-055-pack-loader-discovers">
+  <p><strong>TC-055-pack-loader-discovers</strong> - covers <a href="#AC-2601-3">AC-2601-3</a> <span class="status pending">pending</span></p>
+  <p>Pack loader discovers the shipped pack against an applied scratch project</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-forms-wizard-anatomy.test.js::application-forms-wizard: pack loader discovers the shipped pack against an applied scratch project (TC-055-pack-loader-discovers)</code></p>
+</div>
+<div class="tc" id="TC-055-fixture-serves-surfaces">
+  <p><strong>TC-055-fixture-serves-surfaces</strong> - covers <a href="#AC-2601-4">AC-2601-4</a> <span class="status pending">pending</span></p>
+  <p>Sample-app fixture serves the four wizard surfaces honestly and the two draft-store transports on their query branches</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-forms-wizard-anatomy.test.js::sample-app fixture serves the four wizard surfaces and both draft-store transports (TC-055-fixture-serves-surfaces)</code></p>
+</div>
+<div class="tc" id="TC-055-negative-runs">
+  <p><strong>TC-055-negative-runs</strong> - covers <a href="#AC-2601-5">AC-2601-5</a> <span class="status pending">pending</span></p>
+  <p>Break switches surface the four defects on the DOM or storage layer for the corresponding pack checks</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-forms-wizard-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-055-negative-runs)</code></p>
+</div>
+<div class="tc" id="TC-055-vocabulary-and-transport-parity">
+  <p><strong>TC-055-vocabulary-and-transport-parity</strong> - covers <a href="#AC-2601-6">AC-2601-6</a> <span class="status pending">pending</span></p>
+  <p>Closed GOV.UK vocabulary strings and the two transport slugs appear identically across README, guide, pack checks[] and docs/topics.md registry</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-forms-wizard-anatomy.test.js::four state slugs and two transport slugs appear identically across README guide pack and docs (TC-055-vocabulary-and-transport-parity)</code></p>
+</div>
+<div class="tc" id="TC-055-readme-gaps-and-changelog">
+  <p><strong>TC-055-readme-gaps-and-changelog</strong> - covers <a href="#AC-2601-7">AC-2601-7</a> <span class="status pending">pending</span></p>
+  <p>README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-3 shelf registry row and the cross-reference to application-empty-error-states</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-forms-wizard-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-3 row (TC-055-readme-gaps-and-changelog)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T19:04:07.390Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T19:04:27.043Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-2601-1 through AC-2601-7 via unit tests over the shipped application-forms-wizard blueprint.json contribution shape (19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups), the applies-clean pass on a fresh init project, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving the four wizard surfaces honestly and both save-and-return transports on their query branches, the negative-run behaviour on the ?break=task-list-vocab ?break=no-summary ?break=no-retain and ?break=no-draft switches, the vocabulary-and-transport enumeration parity across README guide pack and docs/topics.md registry, and the README mechanism-reach gaps and CHANGELOG 1.0.0 entry.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2601-1&quot;,
+    &quot;AC-2601-2&quot;,
+    &quot;AC-2601-3&quot;,
+    &quot;AC-2601-4&quot;,
+    &quot;AC-2601-5&quot;,
+    &quot;AC-2601-6&quot;,
+    &quot;AC-2601-7&quot;
+  ],
+  &quot;id&quot;: &quot;TS-055&quot;,
+  &quot;usId&quot;: &quot;US-2601&quot;,
+  &quot;title&quot;: &quot;application-forms-wizard v1.0.0 shelf shape, probe pack cross-check and sample-app fixture&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-055-blueprint-json-shape&quot;,
+      &quot;acId&quot;: &quot;AC-2601-1&quot;,
+      &quot;description&quot;: &quot;blueprint.json declares slug, version 1.0.0, category application, 19 contributions in 5/8/3/3 groups; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent; suggestedCompanions logging and errorHandling&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-055-blueprint-json-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-055-applies-clean&quot;,
+      &quot;acId&quot;: &quot;AC-2601-2&quot;,
+      &quot;description&quot;: &quot;Fresh init project applies application-forms-wizard cleanly and reports the tree clean&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::applies cleanly on a fresh init project and adds 19 documents to the tree (TC-055-applies-clean)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-055-pack-checks-cross-check&quot;,
+      &quot;acId&quot;: &quot;AC-2601-3&quot;,
+      &quot;description&quot;: &quot;Every pack check id matches a contributed AC id; pack-level appliesTo references BOTH tacIds and route; withUrl helper used for every URL string&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-055-pack-checks-cross-check)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-055-pack-loader-discovers&quot;,
+      &quot;acId&quot;: &quot;AC-2601-3&quot;,
+      &quot;description&quot;: &quot;Pack loader discovers the shipped pack against an applied scratch project&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::application-forms-wizard: pack loader discovers the shipped pack against an applied scratch project (TC-055-pack-loader-discovers)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-055-fixture-serves-surfaces&quot;,
+      &quot;acId&quot;: &quot;AC-2601-4&quot;,
+      &quot;description&quot;: &quot;Sample-app fixture serves the four wizard surfaces honestly and the two draft-store transports on their query branches&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::sample-app fixture serves the four wizard surfaces and both draft-store transports (TC-055-fixture-serves-surfaces)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-055-negative-runs&quot;,
+      &quot;acId&quot;: &quot;AC-2601-5&quot;,
+      &quot;description&quot;: &quot;Break switches surface the four defects on the DOM or storage layer for the corresponding pack checks&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-055-negative-runs)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-055-vocabulary-and-transport-parity&quot;,
+      &quot;acId&quot;: &quot;AC-2601-6&quot;,
+      &quot;description&quot;: &quot;Closed GOV.UK vocabulary strings and the two transport slugs appear identically across README, guide, pack checks[] and docs/topics.md registry&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::four state slugs and two transport slugs appear identically across README guide pack and docs (TC-055-vocabulary-and-transport-parity)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-055-readme-gaps-and-changelog&quot;,
+      &quot;acId&quot;: &quot;AC-2601-7&quot;,
+      &quot;description&quot;: &quot;README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-3 shelf registry row and the cross-reference to application-empty-error-states&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-3 row (TC-055-readme-gaps-and-changelog)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

@@ -1,0 +1,79 @@
+[boot] runtime http://127.0.0.1:13804 already reachable; boot skipped
+[pack-browser] closing playwright-mcp browser
+{
+  "id": "bv-FBS-001-5",
+  "fbsId": "FBS-001",
+  "createdAt": "2026-09-06T19:11:33.487Z",
+  "mode": "agentScreenshotCritique",
+  "runtimeProfile": "local-dev",
+  "runtimeUrl": "http://127.0.0.1:13804",
+  "routesChecked": [
+    {
+      "path": "/task-list",
+      "screenshotPath": ".rcf/artefacts/fbs-001/placeholder.png",
+      "themeApplied": "light"
+    }
+  ],
+  "invariantChecks": [
+    {
+      "invariant": "sharedLayoutModule",
+      "verdict": "pass"
+    },
+    {
+      "invariant": "agentDriverWired",
+      "verdict": "fail",
+      "detail": "browser driver returned zero captures; wire a Playwright driver via deps.browserDriver or run in --mode operatorSession"
+    }
+  ],
+  "verdict": "block",
+  "probePacks": [
+    {
+      "packName": "application-forms-wizard",
+      "packVersion": "1.0.0",
+      "blueprintSlug": "application-forms-wizard",
+      "applicable": true,
+      "checks": [
+        {
+          "id": "AC-24101-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "rows=3 progressbar={\"now\":\"0\",\"max\":\"3\",\"text\":\"0 of 3 steps completed\"}"
+        },
+        {
+          "id": "AC-24103-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "anchors=1 invalidFields=1 heading=\"There is a problem\""
+        },
+        {
+          "id": "AC-24104-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "sections=3 rows=6 editedSlug=\"contact-details.fullName\""
+        },
+        {
+          "id": "AC-24105-1",
+          "verdict": "fail",
+          "severity": "block",
+          "detail": "server-draft body carries no persisted fields: {\"operatorId\":\"operator-1\",\"wizardSlug\":\"application-forms-wizard\",\"fields\":{},\"updatedAt\":null}"
+        }
+      ]
+    }
+  ],
+  "notes": "Driver: no captures produced."
+}
+
+browser-verify FBS-001 (agentScreenshotCritique, local-dev)
+  agent critique:
+    Driver: no captures produced.
+  invariant checks:
+    [pass] sharedLayoutModule
+    [fail] agentDriverWired - browser driver returned zero captures; wire a Playwright driver via deps.browserDriver or run in --mode operatorSession
+  probe packs:
+    [pass] application-forms-wizard AC-24101-1 - rows=3 progressbar={"now":"0","max":"3","text":"0 of 3 steps completed"}
+    [pass] application-forms-wizard AC-24103-1 - anchors=1 invalidFields=1 heading="There is a problem"
+    [pass] application-forms-wizard AC-24104-1 - sections=3 rows=6 editedSlug="contact-details.fullName"
+    [fail] application-forms-wizard AC-24105-1 - server-draft body carries no persisted fields: {"operatorId":"operator-1","wizardSlug":"application-forms-wizard","fields":{},"updatedAt":null}
+  verdict: block
+
+browser-verify FBS-001: wrote bv-FBS-001-5 to rcf/manifest.json (verdict=block).

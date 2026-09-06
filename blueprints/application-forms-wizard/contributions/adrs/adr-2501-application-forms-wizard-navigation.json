@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2501-application-forms-wizard-navigation",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Step navigation posture is linear by default with free-step as the elicited alternative",
+  "context": "Wizards divide on how much freedom the operator has to jump between steps. A linear posture forbids advancing until the current step is Completed and disables backward jumps to steps whose prerequisites the domain says must be Completed first (an application with a payment step gated on shipping details, say). A free posture lets the operator pick any step at any time and computes the completion states independently. Neither is wrong; the choice is a per-project posture driven by the domain the wizard serves. GOV.UK Design System publishes the step-by-step navigation pattern as the widely-adopted linear model.",
+  "decision": "Adopt linear as the recommended default. The shipped task-list disables rows whose [data-step-state] is Cannot start yet by rendering them as spans without an href. Projects that want free navigation elicit ADR-2501 to the free branch and every row renders as an anchor. recommendedDefault is true because linear is the safer starting posture for a domain the shelf blueprint does not know; elicited is true because the switch is a real per-project answer.",
+  "consequences": "Projects on the default get a linear wizard out of the box with no configuration; the task-list refuses out-of-order entry and the operator walks the manifest in order. Projects electing free get an unconstrained task-list at the price of surfacing every prerequisite the domain implies through the manifest and the copy. All three step-indicator shapes (ADR-2503) render on both branches; the difference is only the click-through on rows whose prerequisites are unfinished.",
+  "alternativesConsidered": [
+    {
+      "name": "Free-step as the shipped default",
+      "summary": "Ship free navigation everywhere and rely on per-step validation to catch out-of-order entries.",
+      "reasonNotChosen": "Loses the affordance the domain often needs (a payment step should not be reachable before shipping details); reads as more forgiving but pushes the domain rule into copy rather than into the surface."
+    },
+    {
+      "name": "Two-step wizard with no task-list",
+      "summary": "Ship no task-list at all and rely on Back and Next.",
+      "reasonNotChosen": "Loses the completion overview and the ARIA progressbar; a wizard with three or more steps benefits materially from the task-list surface."
+    }
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

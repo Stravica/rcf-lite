@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 46,
-    "notStarted": 18,
+    "items": 47,
+    "notStarted": 19,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
     "actionable": 12,
-    "blocked": 6
+    "blocked": 7
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -79,7 +79,8 @@
         "FBS-007",
         "FBS-011",
         "FBS-012",
-        "FBS-028"
+        "FBS-028",
+        "FBS-045"
       ]
     },
     {
@@ -648,6 +649,20 @@
       "dependsOnFbsIds": [],
       "state": "actionable",
       "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-045",
+      "buildOrder": 47,
+      "tier": 4,
+      "title": "application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-044"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-044"
+      ]
     }
   ]
 }

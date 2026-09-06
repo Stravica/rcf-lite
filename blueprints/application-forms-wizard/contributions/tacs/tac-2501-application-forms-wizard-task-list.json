@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-2501-application-forms-wizard-task-list",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Wizard task-list shell",
+  "purpose": "Owns the task-list surface of the wizard: the ordered enumeration of steps, the per-step completion-state slot from the closed GOV.UK vocabulary, the ARIA progressbar wrapper, and the linear-or-free navigation gate. Every AC on REQ-001 anchors on this TAC, and every AC that reads step order anchors here.",
+  "responsibilities": [
+    "Enumerate every step in a stable order derived from the elicited step manifest and render one [data-step-slug] row per step (AC-24101-1).",
+    "Render [data-step-state] on every row from the closed enum {Cannot start yet, Not started, In progress, Completed} (AC-24101-1).",
+    "Render an ARIA progressbar wrapper on the surface with aria-valuenow (completed count), aria-valuemax (total step count) and aria-valuetext naming the completion in words (AC-24101-1).",
+    "Honour the ADR-2501 linear-vs-free branch by rendering rows whose prerequisites are unfinished as non-anchor spans on linear and as anchors on free (AC-24106-1).",
+    "Delegate to TAC-2503 to hydrate step states from the draft store on entry and to persist step completion transitions on advance."
+  ],
+  "internalStructure": "One task-list module the shell mounts on the /task-list route. On mount it reads the step manifest, reads the draft store for the operator's per-step answers, computes the per-step completion state from the answers, renders the enumeration, and wires the row-click handler to the linear-vs-free branch. On step advance the module recomputes the state for the just-completed step and updates the progressbar aria-valuenow. Framework is not prescribed; the module's interfaces are what the project realises against React, Vue, Svelte or vanilla DOM.",
+  "interfaces": [
+    {
+      "name": "renderTaskList",
+      "kind": "factory",
+      "description": "renderTaskList({ manifest, answers, nav }) -> void. Renders the shell and wires the row handlers."
+    },
+    {
+      "name": "computeStepState",
+      "kind": "factory",
+      "description": "computeStepState({ step, answers }) -> stateString. Returns one of {Cannot start yet, Not started, In progress, Completed}."
+    },
+    {
+      "name": "statesEnum",
+      "kind": "shape",
+      "description": "The four state strings are the closed enum {\"Cannot start yet\", \"Not started\", \"In progress\", \"Completed\"}. A fifth state is a v1.1.0 minor bump."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Draft store",
+      "kind": "tac",
+      "tacId": "TAC-2503-application-forms-wizard-draft-store",
+      "description": "The task-list reads the draft store on entry and writes on advance."
+    }
+  ],
+  "tradeoffs": "One task-list module keeps the enumeration deterministic and lint-checkable but ties every step to a manifest entry the project supplies. A project rendering the wizard without a task-list (a single-flow submit surface with no completion overview) does not apply this TAC; the wizard-shell TACs still hold. Known mechanism-reach gap: the pack asserts row order and state strings but does not additionally probe that focus moves to the task-list on route entry; a v1.1.0 minor bump can drive the accessibility tree.",
+  "notes": "See README Known mechanism-reach gaps.",
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

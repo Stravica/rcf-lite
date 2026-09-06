@@ -1,0 +1,29 @@
+{
+  "usId": "application-forms-wizard-US-24108",
+  "prdId": "PRD-001",
+  "reqId": "application-forms-wizard-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "When no drafts are held the in-progress list surface delegates to the application-empty-error-states empty-list state and offers a create-affordance back to a fresh wizard",
+  "asA": "operator returning to the application with no wizards in flight",
+  "iWant": "the in-progress list to render the empty-list surface from the empty-and-error-states sibling with a control that starts a fresh wizard",
+  "soThat": "the empty case reads consistently with every other empty listing in the application and I have one obvious next action",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-24108-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given zero drafts in the draft store, /in-progress renders [data-surface=\"empty-list\"] (the empty-list wrapper contributed by application-empty-error-states) with a [data-recovery=\"create\"] control whose href routes to the first step of a fresh wizard. The pack asserts the wrapper and the control are present on the honest render and refuses when either is missing."
+    }
+  ],
+  "tacIds": [
+    "TAC-2503-application-forms-wizard-draft-store"
+  ],
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "case:no-in-progress-forms-empty-state",
+    "consumes:application-empty-error-states"
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "application-forms-wizard-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Error-summary contract: top-of-page summary with skip links per failed field, aria-invalid on the field, and focus moved to the summary heading on submit failure",
+  "description": "On submit refusal the step renders a top-of-page error summary region carrying a heading and one skip link per failed field. Each skip link's target is a focusable field element; the field carries aria-invalid=\"true\" while unresolved and aria-describedby pointing at the field-level error message. On submit failure the client moves focus to the summary heading so a screen-reader user hears the error class and can walk the skip links; visual users see the heading anchor scroll into view. The summary and per-field bindings anchor on TAC-2502 (error-summary contract). Per WCAG 2.2 SC 3.3.1 Error Identification and SC 3.3.3 Error Suggestion.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec section 5.3, REQ 3.",
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "category:03-error-summary"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

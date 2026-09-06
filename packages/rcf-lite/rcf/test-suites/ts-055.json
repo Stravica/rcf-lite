@@ -1,0 +1,77 @@
+{
+  "createdAt": "2026-09-06T19:04:07.390Z",
+  "updatedAt": "2026-09-06T19:04:27.043Z",
+  "purpose": "Cover AC-2601-1 through AC-2601-7 via unit tests over the shipped application-forms-wizard blueprint.json contribution shape (19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups), the applies-clean pass on a fresh init project, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving the four wizard surfaces honestly and both save-and-return transports on their query branches, the negative-run behaviour on the ?break=task-list-vocab ?break=no-summary ?break=no-retain and ?break=no-draft switches, the vocabulary-and-transport enumeration parity across README guide pack and docs/topics.md registry, and the README mechanism-reach gaps and CHANGELOG 1.0.0 entry.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-2601-1",
+    "AC-2601-2",
+    "AC-2601-3",
+    "AC-2601-4",
+    "AC-2601-5",
+    "AC-2601-6",
+    "AC-2601-7"
+  ],
+  "id": "TS-055",
+  "usId": "US-2601",
+  "title": "application-forms-wizard v1.0.0 shelf shape, probe pack cross-check and sample-app fixture",
+  "testCases": [
+    {
+      "id": "TC-055-blueprint-json-shape",
+      "acId": "AC-2601-1",
+      "description": "blueprint.json declares slug, version 1.0.0, category application, 19 contributions in 5/8/3/3 groups; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent; suggestedCompanions logging and errorHandling",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-forms-wizard-anatomy.test.js::blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-055-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-055-applies-clean",
+      "acId": "AC-2601-2",
+      "description": "Fresh init project applies application-forms-wizard cleanly and reports the tree clean",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-forms-wizard-anatomy.test.js::applies cleanly on a fresh init project and adds 19 documents to the tree (TC-055-applies-clean)"
+    },
+    {
+      "id": "TC-055-pack-checks-cross-check",
+      "acId": "AC-2601-3",
+      "description": "Every pack check id matches a contributed AC id; pack-level appliesTo references BOTH tacIds and route; withUrl helper used for every URL string",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-forms-wizard-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-055-pack-checks-cross-check)"
+    },
+    {
+      "id": "TC-055-pack-loader-discovers",
+      "acId": "AC-2601-3",
+      "description": "Pack loader discovers the shipped pack against an applied scratch project",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-forms-wizard-anatomy.test.js::application-forms-wizard: pack loader discovers the shipped pack against an applied scratch project (TC-055-pack-loader-discovers)"
+    },
+    {
+      "id": "TC-055-fixture-serves-surfaces",
+      "acId": "AC-2601-4",
+      "description": "Sample-app fixture serves the four wizard surfaces honestly and the two draft-store transports on their query branches",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-forms-wizard-anatomy.test.js::sample-app fixture serves the four wizard surfaces and both draft-store transports (TC-055-fixture-serves-surfaces)"
+    },
+    {
+      "id": "TC-055-negative-runs",
+      "acId": "AC-2601-5",
+      "description": "Break switches surface the four defects on the DOM or storage layer for the corresponding pack checks",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-forms-wizard-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-055-negative-runs)"
+    },
+    {
+      "id": "TC-055-vocabulary-and-transport-parity",
+      "acId": "AC-2601-6",
+      "description": "Closed GOV.UK vocabulary strings and the two transport slugs appear identically across README, guide, pack checks[] and docs/topics.md registry",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-forms-wizard-anatomy.test.js::four state slugs and two transport slugs appear identically across README guide pack and docs (TC-055-vocabulary-and-transport-parity)"
+    },
+    {
+      "id": "TC-055-readme-gaps-and-changelog",
+      "acId": "AC-2601-7",
+      "description": "README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-3 shelf registry row and the cross-reference to application-empty-error-states",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-forms-wizard-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-3 row (TC-055-readme-gaps-and-changelog)"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,29 @@
+{
+  "usId": "application-forms-wizard-US-24102",
+  "prdId": "PRD-001",
+  "reqId": "application-forms-wizard-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Each step validates its own answers on blur before the first submit, then on change after the first failure, and rebuilds the error set from scratch on submit",
+  "asA": "operator filling in a step whose answers I have partially entered",
+  "iWant": "field-level messages to appear when I leave a field (not while I am mid-typing), then to update as I correct them after I have already tried to submit, and every message rebuilt from scratch on the next submit",
+  "soThat": "I am not scolded while typing, I see my corrections take effect immediately after a submit failure, and I trust that what shows on the page is what the engine last checked",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-24102-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "On the wizard step route, focusing a field then blurring it without a valid entry renders a field-level error message referenced by aria-describedby without setting aria-invalid=\"true\" before the first submit (the pack asserts the message element is present and referenced). After a submit attempt fails on the field, subsequent input events on the same field update the message text on every change (the pack drives a first-submit-fail then a valid input and reads the message element's textContent transitioning to empty). On the next submit the engine rebuilds the error set from scratch (the pack asserts a previously failing field that has been corrected no longer appears in the summary)."
+    }
+  ],
+  "tacIds": [
+    "TAC-2501-application-forms-wizard-task-list",
+    "TAC-2502-application-forms-wizard-error-summary"
+  ],
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "contract:validation-timing"
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

@@ -1,0 +1,28 @@
+{
+  "usId": "application-forms-wizard-US-24101",
+  "prdId": "PRD-001",
+  "reqId": "application-forms-wizard-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The task-list surface renders every step with one of the four GOV.UK completion states and an ARIA progressbar naming the completion count",
+  "asA": "operator working through a multi-step form",
+  "iWant": "a task-list surface that shows me every step in order, tells me for each step whether I Cannot start yet, have Not started, am In progress or have Completed it, and announces the total number completed",
+  "soThat": "I can see at a glance where I am, decide which step to pick up next, and know when I have nothing left to do before the summary review",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-24101-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given the wizard task-list route, the rendered surface exposes [data-surface=\"task-list\"] carrying a [role=\"progressbar\"] with aria-valuenow, aria-valuemax and aria-valuetext, and one child element per step carrying [data-step-slug] and [data-step-state] whose value is one of the closed set {Cannot start yet, Not started, In progress, Completed}. The pack drives the real browser to /task-list and reads the state string per step, the progressbar values, and the enumerated step order."
+    }
+  ],
+  "tacIds": [
+    "TAC-2501-application-forms-wizard-task-list"
+  ],
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "contract:task-list"
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

@@ -1,0 +1,28 @@
+{
+  "usId": "application-forms-wizard-US-24103",
+  "prdId": "PRD-001",
+  "reqId": "application-forms-wizard-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "On submit refusal the step renders a top-of-page error summary with one skip link per failed field, aria-invalid on the field, and focus moved to the summary heading",
+  "asA": "operator who has submitted a step with an invalid entry",
+  "iWant": "a top-of-page summary of every failed field with a skip link that lands me on the field itself, the failed fields marked so a screen reader announces the error class, and focus placed on the summary heading so I hear the summary before anything else",
+  "soThat": "I can walk the failures in order, land directly on the field that needs fixing, and hear what went wrong before the rest of the page reads out",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-24103-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given a submit refusal on the wizard step, the rendered surface exposes [data-surface=\"error-summary\"] with a heading (h2 or role=heading), one anchor element per failed field with href pointing at the field's id, and every failed field carries aria-invalid=\"true\" plus aria-describedby referencing its per-field error message. Focus after submit lands on the summary heading (document.activeElement matches the summary heading selector). The pack drives /step/2 with empty required inputs, submits and reads the summary heading, the anchor href list, the field aria-invalid attribute and the active-element selector."
+    }
+  ],
+  "tacIds": [
+    "TAC-2502-application-forms-wizard-error-summary"
+  ],
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "contract:error-summary"
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

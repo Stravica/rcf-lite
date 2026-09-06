@@ -1,0 +1,28 @@
+{
+  "usId": "application-forms-wizard-US-24107",
+  "prdId": "PRD-001",
+  "reqId": "application-forms-wizard-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The in-progress forms list surfaces every wizard the operator has started but not yet submitted with a resume link back to the task-list",
+  "asA": "operator returning to the application with more than one wizard on the go",
+  "iWant": "an index surface listing every wizard I have started but not submitted, each with the wizard title, the step I was on and a resume link",
+  "soThat": "I can walk back into the one I meant to finish without hunting through the navigation",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-24107-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given at least one draft persisted per REQ-005, /in-progress renders [data-surface=\"in-progress-list\"] with one [data-wizard-row] per draft carrying the wizard title, the step slug the operator was on and a [data-recovery=\"resume\"] link whose href routes back to the wizard's task-list surface. The row count matches the number of drafts held in the draft store."
+    }
+  ],
+  "tacIds": [
+    "TAC-2503-application-forms-wizard-draft-store"
+  ],
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "case:in-progress-list"
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}
