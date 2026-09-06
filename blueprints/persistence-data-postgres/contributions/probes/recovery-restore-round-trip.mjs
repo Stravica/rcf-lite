@@ -20,14 +20,16 @@
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { mkdir, writeFile, unlink, rm } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createStore, connectionUrlFromEnv } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
 
 const execFileAsync = promisify(execFile);
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ARTEFACT_DIR = resolve(HERE, '..', '..', '..', '..', '.rcf/reports/blueprints/persistence-data-postgres/recovery');
+const PROJECT_ROOT = resolve(HERE, '..', '..', '..', '..');
+const ARTEFACT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/persistence-data-postgres/recovery');
 const ARTEFACT = resolve(ARTEFACT_DIR, 'backup.sql');
+const ARTEFACT_REL = relative(PROJECT_ROOT, ARTEFACT);
 const SOURCE_CONTAINER = 'infra-postgres-postgres-1';
 const RESTORE_CONTAINER = 'infra-postgres-restore';
 const RESTORE_PORT = '55432';
@@ -148,7 +150,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'AC-27105-1',
       verdict: bytes > 0 ? 'pass' : 'fail',
-      detail: `pg_dump artefact written to ${ARTEFACT} (${bytes} bytes)`,
+      detail: `pg_dump artefact written to ${ARTEFACT_REL} (${bytes} bytes)`,
     });
     results.push({
       anchorAcId: 'AC-27105-1',

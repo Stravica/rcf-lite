@@ -41,6 +41,8 @@
       "path": "adrs/adr-2801-persistence-data-postgres-driver.json",
       "scope": "global",
       "topic": "persistenceStore",
+      "recommendedDefault": true,
+      "elicited": true,
       "standardsTraceClause": "node-postgres parameterised-queries contract"
     },
     {
@@ -49,24 +51,29 @@
       "path": "adrs/adr-2802-persistence-data-postgres-migration-shape.json",
       "scope": "global",
       "topic": "migrationDiscipline",
+      "recommendedDefault": true,
+      "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
     },
     {
       "id": "ADR-2803-persistence-data-postgres-runner-mode",
       "kind": "adr",
       "path": "adrs/adr-2803-persistence-data-postgres-runner-mode.json",
+      "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
     },
     {
       "id": "ADR-2804-persistence-data-postgres-recovery",
       "kind": "adr",
       "path": "adrs/adr-2804-persistence-data-postgres-recovery.json",
+      "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
     },
     {
       "id": "ADR-2805-persistence-data-postgres-connection-pool-posture",
       "kind": "adr",
       "path": "adrs/adr-2805-persistence-data-postgres-connection-pool-posture.json",
+      "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
     }
   ]
