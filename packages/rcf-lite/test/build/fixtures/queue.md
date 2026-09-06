@@ -47,14 +47,15 @@ Generation strategy: dependencyFirst
 | 41 | 0 | FBS-041 | Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps | notStarted | actionable |  |
 | 42 | 1 | FBS-042 | application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture | notStarted | blocked | FBS-041 |
 | 43 | 2 | FBS-043 | application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture | notStarted | blocked | FBS-042 |
+| 44 | 3 | FBS-060 | persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture | notStarted | blocked | FBS-043 |
 
-Totals: items 43 | notStarted 15 | inProgress 0 | complete 13 | verified 15 | actionable 11 | blocked 4
+Totals: items 44 | notStarted 16 | inProgress 0 | complete 13 | verified 15 | actionable 11 | blocked 5
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043
-- tier 3: FBS-006, FBS-009, FBS-010, FBS-027
+- tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060
 - tier 4: FBS-007, FBS-011, FBS-012, FBS-028
 - tier 5: FBS-029
 - tier 6: FBS-030

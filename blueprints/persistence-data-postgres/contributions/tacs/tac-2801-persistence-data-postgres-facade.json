@@ -1,0 +1,58 @@
+{
+  "tacId": "TAC-2801-persistence-data-postgres-facade",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Postgres store facade",
+  "purpose": "The single project-side module that imports the pg driver, exposes narrow named domain verbs to consumer code, issues every query as a static string literal with $N parameters, and emits structured lifecycle events to the injected event sink. Consumers never destructure the pg driver outside this module; the facade is the one place the vendor surface lives. The driver reference is opaque at this boundary so the round-6 Hyperdrive v1.1.0 adapter (ADR-2801) can swap the client without a facade re-shape.",
+  "responsibilities": [
+    "Open a pg.Pool on boot against the elicited connection URL; hold no other reference to the pg vendor surface; export no symbol that leaks the raw pool or client (AC-27101-1, AC-27101-2).",
+    "Expose named domain verbs (getUserById, createUser, listUsers, ...) as named exports with typed parameters; refuse a general-purpose raw-SQL passthrough on the public surface (AC-27101-1, AC-27103-1).",
+    "Issue every read and write through pg.query with a static string literal as the first argument and parameters as an array bound to $1, $2, ... $N per the node-postgres parameterised-queries contract (AC-27103-1).",
+    "Expose the transaction helper (TAC-2803) as a named verb; consumers pass a callback, the helper wraps BEGIN and COMMIT, ROLLBACK on error, and fires transactionRolledBack on the sink with the failing statement index (AC-27104-1).",
+    "Emit facadeReady exactly once per facade instance on the injected event sink with the database name; serialise pre-ready consumer queries behind the pool's ready-check (AC-27101-1, AC-27108-1).",
+    "Expose the optional advisory-lock helper only when the elicited answer is session or transaction; the surface is absent when the answer is off (AC-27107-1)."
+  ],
+  "internalStructure": "One module exporting a createStore({ connectionUrl, onEvent, poolConfig, advisoryLockHelper }) factory returning a Store whose methods are the named CRUD verbs plus withTransaction and (optionally) withAdvisoryLock. The pg import lives at the top of this module; the factory captures a pg.Pool and the injected sink and hands back closures. Consumers destructure the verbs they need at their top level and hold the facade reference for the process lifetime (or, on a request-scoped container platform, for the request lifetime).",
+  "interfaces": [
+    {
+      "name": "createStore",
+      "kind": "factory",
+      "description": "createStore({ connectionUrl, onEvent, poolConfig, advisoryLockHelper }) -> Store. The sole entry point every consumer calls. Opens a pg.Pool against connectionUrl; wires the sink; hands back a Store whose methods are the named CRUD verbs plus withTransaction and (optionally) withAdvisoryLock."
+    },
+    {
+      "name": "onEvent",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with { event, ts, ... } for facadeReady, migrationsApplied, transactionRolledBack, backupExported, recoveryDrillPassed, queryFailed events. Never invoked with domain-row values."
+    },
+    {
+      "name": "store.verbs",
+      "kind": "read-write-api",
+      "description": "The named domain CRUD verbs the facade exposes. Each verb has typed parameters; no verb accepts a raw SQL string or a general query object from consumer code."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Migration runner",
+      "kind": "tac",
+      "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+      "description": "The runner the facade or the CI step invokes to apply forward-only migrations before the facade opens its first query."
+    },
+    {
+      "name": "Transaction helper",
+      "kind": "tac",
+      "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
+      "description": "The helper wrapping BEGIN and COMMIT around a consumer callback; exposed as store.withTransaction."
+    },
+    {
+      "name": "Recovery runner",
+      "kind": "tac",
+      "tacId": "TAC-2804-persistence-data-postgres-recovery-runner",
+      "description": "Shares the facade's event sink for backupExported and recoveryDrillPassed events; invoked from the ops or CI surface, not from request code."
+    }
+  ],
+  "tradeoffs": "The facade holds a long-lived pool on Node targets and a request-scoped pool on container targets; the round-6 Hyperdrive adapter (ADR-2801) delegates the pool entirely to the Hyperdrive-managed pool. That flexibility costs a per-target pool decision the operator makes via ADR-2805; the facade's outward interface stays unchanged across all three postures.",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

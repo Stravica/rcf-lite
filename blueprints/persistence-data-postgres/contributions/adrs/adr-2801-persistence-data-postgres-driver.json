@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-2801-persistence-data-postgres-driver",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The pg client (node-postgres) as the shipped v1.0.0 driver; a round-6 Hyperdrive adapter slots in at v1.1.0 without a facade re-shape",
+  "context": "A project deploying Postgres on a Node target has two mainstream driver choices: pg (node-postgres, the callback-and-pool oriented reference driver on npm) and postgres.js (a promise-first alternative with a compact API surface). Both speak the Postgres wire protocol; both support parameterised queries; both are actively maintained. The round-6 Cloudflare-line proposal reserves a Hyperdrive-in-front adapter that wraps pg with Cloudflare's connection-pool and query-cache surface. The v1.0.0 facade design has to hold the driver reference opaque at the facade boundary so the round-6 adapter slots in as an additive minor without a facade re-shape.",
+  "decision": "The shipped v1.0.0 driver is pg (node-postgres) with a long-lived pg.Pool held inside the facade module (or a request-scoped pool on request-scoped container targets per ADR-2805). Every pg.query call passes a static string literal as its first argument and supplies parameters as an array bound to $1, $2, ... $N per the node-postgres parameterised-queries contract at https://node-postgres.com/features/queries. The driver reference inside the facade is OPAQUE at this ADR: the facade imports pg and any consumer or adapter that wants to swap the driver (postgres.js, a Hyperdrive-wrapped pg via the round-6 v1.1.0 adapter, an ORM sitting inside the facade) replaces the import here without touching the outward interface. Alternative drivers are elicited at apply time under the adapter parameter; the v1.0.0 shipped default is pg with recommendedDefault true.",
+  "consequences": "The project inherits the pg driver's mature parameterised-query surface, its pool implementation with configurable size and idle-timeout, and its clean rejection propagation for constraint violations and connection errors. The Round-6 Hyperdrive adapter (Cloudflare's pg-driver-compatible connection-pool and query-cache surface per https://developers.cloudflare.com/hyperdrive/) slots in as a v1.1.0 minor bump that swaps the import at the facade boundary; no outward-interface change, no AC moves. Projects that want postgres.js instead pass adapter=postgresjs at apply time; the facade's outward interface is preserved. Projects that want an ORM (Kysely, Drizzle, Prisma) sitting inside the facade wire the ORM inside the facade against the same pg.Pool the shipped default holds; the outward interface is preserved. Standards trace clause: node-postgres parameterised-queries contract at https://node-postgres.com/features/queries.",
+  "alternativesConsidered": [
+    {
+      "name": "postgres.js as the shipped default",
+      "summary": "Ship postgres.js as the v1.0.0 default driver, elicit pg as the alternative.",
+      "reasonNotChosen": "postgres.js is a fine driver but has a smaller ecosystem and the round-6 Hyperdrive adapter targets pg specifically per Cloudflare's Hyperdrive docs. Shipping pg first keeps the round-6 slot clean; postgres.js remains available via the elicit."
+    },
+    {
+      "name": "Bless one ORM (Kysely or Drizzle) as the shipped surface",
+      "summary": "Ship Kysely or Drizzle as the v1.0.0 default; the facade wraps the ORM, not pg.",
+      "reasonNotChosen": "ORMs sit above pg and are an operator choice on top of the driver, not a substitute for it. Blessing one ORM as default pushes the shelf into a maintenance stance on a tool it does not build; the facade contract is orm-neutral so a project may drop an ORM inside the facade without moving any AC."
+    },
+    {
+      "name": "Hyperdrive as the shipped v1.0.0 driver",
+      "summary": "Ship Hyperdrive-wrapped pg as the v1.0.0 default.",
+      "reasonNotChosen": "Hyperdrive is a Cloudflare-account-bound service and the round-5 spec ruling 5 (Baz decision 8) places Postgres as the local-first blueprint. Making Hyperdrive the default would force every project to bind to a Cloudflare account before applying the blueprint. Round 6 lands Hyperdrive as a v1.1.0 minor adapter behind an elicit, keeping local-first at v1.0.0."
+    }
+  ],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

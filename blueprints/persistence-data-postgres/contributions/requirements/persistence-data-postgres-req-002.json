@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-postgres-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Schema evolution ships as numbered forward-only .sql migrations applied one file one transaction",
+  "description": "Schema evolution is expressed as a directory of numbered .sql migration files under the elicited migrations directory (default ./migrations/). Each filename begins with a monotonically increasing integer that is unique across the directory; the file body is engine-native SQL. An in-tree migration runner applies each file inside its own transaction (BEGIN, run the file body, COMMIT on success or ROLLBACK on error); the runner tracks applied filenames in a schema_version bookkeeping table it maintains inside the same database. There are no down migrations. Which runner tool the project reaches for is elicited (a node-pg-migrate wrap, a sqitch invocation, a flyway process, or a bespoke Node runner over pg); the discipline is what is fixed here, not the tool.",
+  "category": "technical",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "Numbered forward-only migrations are the general-enterprise-practice shape for schema evolution over Postgres. One file one transaction gives the runner a clean rollback surface on any statement failure; the schema_version table gives the project a single source of truth on what has been applied to the deployed database. Refusing to bless one migration tool keeps the shelf out of the maintenance stance of a tool it does not build; the runner mode is elicited so a long-lived Node process may run migrations at boot while a Workers-adjacent deployment runs them as a CI step.",
+  "tags": [
+    "blueprint:persistence-data-postgres",
+    "category:02-migration-runner"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

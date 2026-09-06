@@ -1,0 +1,35 @@
+{
+  "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Postgres transaction helper",
+  "purpose": "The helper that wraps client.query('BEGIN') and client.query('COMMIT') around a consumer callback and issues client.query('ROLLBACK') with a transactionRolledBack event on any error, tracking the zero-based index of the failing statement inside the callback.",
+  "responsibilities": [
+    "Acquire a pg.PoolClient from the facade's pool; issue client.query('BEGIN') (AC-27104-1).",
+    "Invoke the consumer callback with a wrapped client whose query(sql, params) delegates to the underlying client and increments a statement counter each time it is called (AC-27104-1).",
+    "On the callback's successful completion, issue client.query('COMMIT'), release the client, resolve the outer promise (AC-27104-1).",
+    "On any error thrown from a wrapped-client query or from the callback body, issue client.query('ROLLBACK'), fire transactionRolledBack on the injected event sink with { statementIndex, code }, release the client, re-throw the underlying error (AC-27104-1).",
+    "Preserve the underlying pg error object (code, detail, position, table, constraint) on the re-thrown error so the facade's own error boundary constructs the internal error record correctly."
+  ],
+  "internalStructure": "A single async function withTransaction({ pool, onEvent }) that returns a call helper. The helper wraps the pg.PoolClient in a proxy that intercepts .query() to increment the counter, forwards the arguments to the underlying client, and re-throws on error after firing the event.",
+  "interfaces": [
+    {
+      "name": "withTransaction",
+      "kind": "read-write-api",
+      "description": "await store.withTransaction(async (tx) => { await tx.query(...); await tx.query(...); }). Commits on successful return, rolls back on any thrown error, fires transactionRolledBack with statementIndex on rollback."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Postgres facade",
+      "kind": "tac",
+      "tacId": "TAC-2801-persistence-data-postgres-facade",
+      "description": "The facade owns the pool the helper acquires from and the event sink the rollback event fires on."
+    }
+  ],
+  "tradeoffs": "Wrapping the client in a proxy adds one function-call hop per query; on a hot path this is negligible. Tracking statementIndex by counting calls does not survive nested withTransaction invocations (Postgres does not support nested transactions natively; savepoints would be a v1.1 minor). Consumers that need savepoints today drop to raw client.query('SAVEPOINT ...') inside the callback and accept that statementIndex points at the outer BEGIN sequence.",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

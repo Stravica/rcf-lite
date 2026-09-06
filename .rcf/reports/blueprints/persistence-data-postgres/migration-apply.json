@@ -1,0 +1,28 @@
+{
+  "slug": "persistence-data-postgres",
+  "probeName": "migration-apply",
+  "runAt": "2026-09-06T17:46:06.738Z",
+  "engine": {
+    "kind": "postgres",
+    "image": "postgres:17-alpine",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-27102-1",
+      "verdict": "pass",
+      "detail": "applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"] expected=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]"
+    },
+    {
+      "anchorAcId": "AC-27102-1",
+      "verdict": "pass",
+      "detail": "migrationsApplied fired with applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]"
+    },
+    {
+      "anchorAcId": "AC-27102-1",
+      "verdict": "pass",
+      "detail": "schema_version rows=3 (expected 3, i.e. schema_version advanced to 3)"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

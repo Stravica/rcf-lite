@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2805-persistence-data-postgres-connection-pool-posture",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Connection-pool posture per deploy target: long-lived pool on Node, request-scoped pool on container, delegated to Hyperdrive on Workers-adjacent (v1.1.0)",
+  "context": "Postgres has real connection cost per open (TCP handshake, TLS negotiation, authentication, role setup). A long-lived Node process wants one pool per process amortising that cost across every request. A request-scoped container platform (a serverless-container target spinning fresh instances per request) cannot hold a long-lived pool because the instance dies at request end; each instance opens a pool for its request budget. A Workers-adjacent target via the round-6 Hyperdrive v1.1.0 adapter delegates the pool entirely to Cloudflare's Hyperdrive-managed pool.",
+  "decision": "The pool posture is elicited per deploy target: longLivedNode (default: long-lived pg.Pool for the process lifetime), requestScopedContainer (a pool sized to the request budget, disposed at request end), or hyperdriveManaged (reserved for the round-6 v1.1.0 adapter). The shipped defaults per posture: longLivedNode pool size 10 with idleTimeoutMillis 30000 and connectionTimeoutMillis 5000 (matching pg's own defaults); requestScopedContainer pool size 2 with idleTimeoutMillis 5000 and connectionTimeoutMillis 3000; hyperdriveManaged inherits Hyperdrive's own pool settings and holds no Node-side pool. Every default is overridable by the operator via elicited pool-config fields at apply time.",
+  "consequences": "The project gets the pool posture appropriate to its deploy target without a code change: a longLivedNode app on Kubernetes and a longLivedNode app on a self-managed VM share the same shipped default; a requestScopedContainer app on a serverless-container platform gets a small per-request pool; a round-6 Workers app inherits Hyperdrive's pool. The pool-posture-smoke probe drives twenty concurrent queries at pool size 5 and asserts no timeout; the probe does not impose a sizing formula so operator overrides are safe. Standards trace clause: generic enterprise practice.",
+  "alternativesConsidered": [
+    {
+      "name": "One pool posture (longLivedNode) for every target",
+      "summary": "Ship the long-lived pool as the only posture; a request-scoped container platform holds the pool for the instance lifetime.",
+      "reasonNotChosen": "A fresh-per-request container that holds a long-lived pool re-pays the connection cost on every instance. Sizing the pool for a request-scoped instance is different from sizing it for a long-lived process; conflating them under one default surprises the operator."
+    },
+    {
+      "name": "Delegate every pool to Hyperdrive from v1.0.0",
+      "summary": "Ship Hyperdrive as the pool manager for every target.",
+      "reasonNotChosen": "Hyperdrive is a Cloudflare-account-bound service; forcing every project to bind to Cloudflare before applying the blueprint conflicts with the local-first posture (round-5 spec ruling 5, Baz decision 8). Round 6 lands Hyperdrive as an elicit for the operator who wants it."
+    }
+  ],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

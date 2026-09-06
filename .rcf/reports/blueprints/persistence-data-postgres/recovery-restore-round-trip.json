@@ -1,0 +1,28 @@
+{
+  "slug": "persistence-data-postgres",
+  "probeName": "recovery-restore-round-trip",
+  "runAt": "2026-09-06T17:46:09.600Z",
+  "engine": {
+    "kind": "postgres",
+    "image": "postgres:17-alpine",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-27105-1",
+      "verdict": "pass",
+      "detail": "pg_dump artefact written to .rcf/reports/blueprints/persistence-data-postgres/recovery/backup.sql (3040 bytes)"
+    },
+    {
+      "anchorAcId": "AC-27105-1",
+      "verdict": "pass",
+      "detail": "row-count source=5 restored=5"
+    },
+    {
+      "anchorAcId": "AC-27105-1",
+      "verdict": "pass",
+      "detail": "checksum source=5530cde3560c06e26bc910de6617aae9 restored=5530cde3560c06e26bc910de6617aae9"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

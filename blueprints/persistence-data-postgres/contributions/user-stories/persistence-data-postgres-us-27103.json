@@ -1,0 +1,25 @@
+{
+  "usId": "persistence-data-postgres-US-27103",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every pg.query call site inside the facade passes a static string literal as its first argument",
+  "asA": "reviewer of an rcf-lite Postgres project auditing for SQL injection risk at the driver boundary",
+  "iWant": "an AST scan over the facade directory to prove every pg.query first argument is a static string literal with $N parameters, per the node-postgres parameterised-queries contract",
+  "soThat": "a call site that concatenates or template-literal-interpolates consumer values into SQL text is caught at build time before it ships",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27103-1",
+      "description": "An AST scan over every .ts/.js/.mjs file under the applied fixture's facade directory finds every call to pg.query and asserts each first-argument node is a StringLiteral (Literal node with a string value), not a TemplateLiteral, not a BinaryExpression whose operator is '+' with a string operand. Parameters are supplied as an array whose values bind to $1, $2, ... $N placeholders in the string.",
+      "given": "the applied fixture's src/store.mjs and any sibling module inside the facade directory",
+      "when": "a Node built-in AST parser walks every call expression whose callee is 'pg.query' or resolves to a method named 'query' on a pg.Client, pg.Pool, or pg.PoolClient reference",
+      "then": "every first-argument node is a Literal with typeof value === 'string'; no first-argument node is a TemplateLiteral or a string-concatenation expression",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

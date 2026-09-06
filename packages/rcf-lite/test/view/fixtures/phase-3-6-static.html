@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-040">REQ-040</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -7323,6 +7323,209 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-040">
+  <summary><span class="summary-label">REQ-040 - Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container</span><span class="status draft">draft</span></summary>
+  <article id="REQ-040" class="doc doc-req">
+  <h3>REQ-040 - Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container</h3>
+  
+  <p><strong>Description:</strong> The rcf-lite shelf ships the persistence-data-postgres v1.0.0 blueprint (blueprints/persistence-data-postgres/) with 26 contributions per the ratified infra round 5 spec section 5.1: 7 REQs (facade sole-reader over the pg client; numbered forward-only .sql migrations with one file one transaction; prepared-statement discipline via static string literals with $N parameters; transactional atomicity via a helper wrapping BEGIN and COMMIT; two-path recovery via scheduled pg_dump plus vendor point-in-time recovery; connection-pool posture per deploy target; optional advisory-lock helper elicited default off per Baz Q1 default), 10 USs 27101-27110 binding runtime-observable ACs, 4 TACs 2801-2804 (facade, migration runner, transaction helper, recovery runner), 5 ADRs 2801-2805 (driver choice pg with elicited alternatives, numbered forward-only migrations, runner mode atBoot or ciStep, recovery pg_dump plus PITR both required, pool posture per deploy target). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.1 reasons, providesRoles absent, capabilities [relationalStore], requiresAppliedCapabilities absent. Contributes ADR-2801 and ADR-2802 as scope:global on the persistenceStore and migrationDiscipline topics reused from persistence-data-sqlite and persistence-data-d1 so applying persistence-data-postgres alongside either of them surfaces a DELIBERATE conflict per the round-2 pattern. Ships six Node-only probes under blueprints/persistence-data-postgres/contributions/probes/ (facade-round-trip, migration-apply, prepared-statement-scan, transaction-atomicity, recovery-restore-round-trip, pool-posture-smoke) each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id, and matching run-&lt;probe-name&gt;.mjs shims that drive the probe against the applied fixture and write the per-blueprint probe report at .rcf/reports/blueprints/persistence-data-postgres/&lt;probe-name&gt;.json per spec section 3.4. None of the six probes carry accountBound:true; Postgres is local-first per Baz decision 8. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for relationalStore per spec section 5.6. Appends one row for persistence-data-postgres at US band 27101-27899 / ADR-TAC suffix block 28xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Reserves the round-6 Hyperdrive v1.1.0 adapter slot at ADR-2801 by keeping the driver reference opaque at the facade boundary per spec section 5.7. Re-minted with HQ&#39;s reserved round-5 chain-id block (REQ-040 / US-4001 / TS-070 / FBS-060 / CN-200..202) after HQ&#39;s round-4 T-1 landed first at origin/main 784d12f and the coordinator ruling changed to reserved-block minting via --id (no more max+1 racing).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> application</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-040[&quot;REQ-040&lt;br/&gt;Persistence-data-postgres v1.0.0 blueprint on...&quot;]
+  US-4001[&quot;US-4001&lt;br/&gt;The persistence-data-postgres blueprint ships...&quot;]
+  REQ-040 --&gt; US-4001
+  AC-4001-1[&quot;AC-4001-1&quot;]
+  US-4001 --&gt; AC-4001-1
+  FBS-060[&quot;FBS-060&lt;br/&gt;persistence-data-postgres v1.0.0 blueprint on...&quot;]
+  AC-4001-1 -.-&gt;|delivered by| FBS-060
+  CN-200[&quot;CN-200&lt;br/&gt;../../blueprints/persistence-data-postgres/bl...&quot;]
+  AC-4001-1 -.-&gt;|implemented by| CN-200
+  AC-4001-2[&quot;AC-4001-2&quot;]
+  US-4001 --&gt; AC-4001-2
+  AC-4001-2 -.-&gt;|delivered by| FBS-060
+  AC-4001-2 -.-&gt;|implemented by| CN-200
+  AC-4001-3[&quot;AC-4001-3&quot;]
+  US-4001 --&gt; AC-4001-3
+  AC-4001-3 -.-&gt;|delivered by| FBS-060
+  AC-4001-3 -.-&gt;|implemented by| CN-200
+  AC-4001-4[&quot;AC-4001-4&quot;]
+  US-4001 --&gt; AC-4001-4
+  AC-4001-4 -.-&gt;|delivered by| FBS-060
+  CN-201[&quot;CN-201&lt;br/&gt;../../blueprints/persistence-data-postgres/co...&quot;]
+  AC-4001-4 -.-&gt;|implemented by| CN-201
+  CN-202[&quot;CN-202&lt;br/&gt;../../packages/rcf-lite/test/fixtures/infra-p...&quot;]
+  AC-4001-4 -.-&gt;|implemented by| CN-202
+  AC-4001-5[&quot;AC-4001-5&quot;]
+  US-4001 --&gt; AC-4001-5
+  AC-4001-5 -.-&gt;|delivered by| FBS-060
+  AC-4001-5 -.-&gt;|implemented by| CN-201
+  AC-4001-5 -.-&gt;|implemented by| CN-202
+  AC-4001-6[&quot;AC-4001-6&quot;]
+  US-4001 --&gt; AC-4001-6
+  AC-4001-6 -.-&gt;|delivered by| FBS-060
+  AC-4001-6 -.-&gt;|implemented by| CN-202
+  click REQ-040 &quot;#REQ-040&quot;;
+  click US-4001 &quot;#US-4001&quot;;
+  click AC-4001-1 &quot;#AC-4001-1&quot;;
+  click FBS-060 &quot;#FBS-060&quot;;
+  click CN-200 &quot;#CN-200&quot;;
+  click AC-4001-2 &quot;#AC-4001-2&quot;;
+  click AC-4001-3 &quot;#AC-4001-3&quot;;
+  click AC-4001-4 &quot;#AC-4001-4&quot;;
+  click CN-201 &quot;#CN-201&quot;;
+  click CN-202 &quot;#CN-202&quot;;
+  click AC-4001-5 &quot;#AC-4001-5&quot;;
+  click AC-4001-6 &quot;#AC-4001-6&quot;;
+  class REQ-040 req;
+  class US-4001 us;
+  class AC-4001-1 ac;
+  class FBS-060 fbs;
+  class CN-200 cn;
+  class AC-4001-2 ac;
+  class AC-4001-3 ac;
+  class AC-4001-4 ac;
+  class CN-201 cn;
+  class CN-202 cn;
+  class AC-4001-5 ac;
+  class AC-4001-6 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T16:59:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T16:59:00.000Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-040&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container&quot;,
+  &quot;description&quot;: &quot;The rcf-lite shelf ships the persistence-data-postgres v1.0.0 blueprint (blueprints/persistence-data-postgres/) with 26 contributions per the ratified infra round 5 spec section 5.1: 7 REQs (facade sole-reader over the pg client; numbered forward-only .sql migrations with one file one transaction; prepared-statement discipline via static string literals with $N parameters; transactional atomicity via a helper wrapping BEGIN and COMMIT; two-path recovery via scheduled pg_dump plus vendor point-in-time recovery; connection-pool posture per deploy target; optional advisory-lock helper elicited default off per Baz Q1 default), 10 USs 27101-27110 binding runtime-observable ACs, 4 TACs 2801-2804 (facade, migration runner, transaction helper, recovery runner), 5 ADRs 2801-2805 (driver choice pg with elicited alternatives, numbered forward-only migrations, runner mode atBoot or ciStep, recovery pg_dump plus PITR both required, pool posture per deploy target). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.1 reasons, providesRoles absent, capabilities [relationalStore], requiresAppliedCapabilities absent. Contributes ADR-2801 and ADR-2802 as scope:global on the persistenceStore and migrationDiscipline topics reused from persistence-data-sqlite and persistence-data-d1 so applying persistence-data-postgres alongside either of them surfaces a DELIBERATE conflict per the round-2 pattern. Ships six Node-only probes under blueprints/persistence-data-postgres/contributions/probes/ (facade-round-trip, migration-apply, prepared-statement-scan, transaction-atomicity, recovery-restore-round-trip, pool-posture-smoke) each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id, and matching run-&lt;probe-name&gt;.mjs shims that drive the probe against the applied fixture and write the per-blueprint probe report at .rcf/reports/blueprints/persistence-data-postgres/&lt;probe-name&gt;.json per spec section 3.4. None of the six probes carry accountBound:true; Postgres is local-first per Baz decision 8. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for relationalStore per spec section 5.6. Appends one row for persistence-data-postgres at US band 27101-27899 / ADR-TAC suffix block 28xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Reserves the round-6 Hyperdrive v1.1.0 adapter slot at ADR-2801 by keeping the driver reference opaque at the facade boundary per spec section 5.7. Re-minted with HQ&#39;s reserved round-5 chain-id block (REQ-040 / US-4001 / TS-070 / FBS-060 / CN-200..202) after HQ&#39;s round-4 T-1 landed first at origin/main 784d12f and the coordinator ruling changed to reserved-block minting via --id (no more max+1 racing).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;application&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-4001">
+  <summary><span class="summary-label">US-4001 - The persistence-data-postgres blueprint ships on the shelf; six Node-only probes pass against a live postgres:17-alpine container and refuse on each induced failure</span><span class="status draft">draft</span></summary>
+  <article id="US-4001" class="doc doc-us">
+  <h3>US-4001 - The persistence-data-postgres blueprint ships on the shelf; six Node-only probes pass against a live postgres:17-alpine container and refuse on each induced failure</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the persistence-data-postgres v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the shipped blueprint files with 26 contributions and six probes, a sample-app fixture that boots postgres:17-alpine and applies three toy forward-only migrations, and gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch</p>
+  <p><strong>So that:</strong> a rcf-lite project applying this blueprint gets a facade contract over pg with numbered forward-only migrations, prepared-statement discipline, transactional atomicity, a two-path recovery model, and pool posture per deploy target, with runtime-observable ACs proven by probes the HQ gate runs against a real Postgres container rather than a simulated harness</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-040">REQ-040</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-4001-1" class="ac-item"><strong>AC-4001-1</strong> - The shelf carries blueprints/persistence-data-postgres/blueprint.json declaring slug persistence-data-postgres, version 1.0.0, category persistence, 26 contributions in the 7 REQ / 10 US / 4 TAC / 5 ADR groups per infra round 5 spec section 5.1; capabilities is [relationalStore]; suggestedCompanions declares logging and errorHandling with spec section 5.1 reasons; providesRoles is absent; requiresAppliedCapabilities is absent.
+<div class="ac-gwt"><p><em>Given</em> the shelf tree after this blueprint lands</p><p><em>When</em> jq queries against blueprints/persistence-data-postgres/blueprint.json</p><p><em>Then</em> jq .slug returns persistence-data-postgres; jq .version returns 1.0.0; jq .contributions | length returns 26; jq .capabilities | index(relationalStore) returns 0; jq .suggestedCompanions | length returns 2</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-060">FBS-060</a></p></li>
+<li id="AC-4001-2" class="ac-item"><strong>AC-4001-2</strong> - rcf define blueprint add ./blueprints/persistence-data-postgres applies the 26 contributions cleanly on a fresh init project with no other persistence blueprint applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.
+<div class="ac-gwt"><p><em>Given</em> a fresh rcf init scratch project with no persistence-* blueprint applied</p><p><em>When</em> rcf define blueprint add ./blueprints/persistence-data-postgres runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict</p><p><em>Then</em> every command exits 0; the scratch project&#39;s rcf tree contains the 26 contributions; no globalAdrTopic conflict is raised</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-060">FBS-060</a></p></li>
+<li id="AC-4001-3" class="ac-item"><strong>AC-4001-3</strong> - rcf define blueprint add ./blueprints/persistence-data-postgres on a scratch project with persistence-data-d1 already applied surfaces a DELIBERATE conflict on the persistenceStore and migrationDiscipline global-ADR topics per the round-2 pattern; the tree is untouched by the failed add.
+<div class="ac-gwt"><p><em>Given</em> a fresh rcf init scratch project with persistence-data-d1 v1.0.0 already applied</p><p><em>When</em> rcf define blueprint add ./blueprints/persistence-data-postgres runs against the scratch project</p><p><em>Then</em> the add refuses with a globalAdrTopic conflict list containing persistenceStore and migrationDiscipline; the scratch project&#39;s rcf tree does not carry persistence-data-postgres contributions after the refusal</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-060">FBS-060</a></p></li>
+<li id="AC-4001-4" class="ac-item"><strong>AC-4001-4</strong> - The six probe modules under blueprints/persistence-data-postgres/contributions/probes/ each pass against a running postgres:17-alpine container brought up from the sample-app fixture: facade-round-trip asserts facadeReady fires and the round-trip returns; migration-apply asserts three migrations apply inside individual transactions and schema_version advances to 3; prepared-statement-scan asserts every pg.query first-argument node is a static string literal; transaction-atomicity asserts a rollback fires with the failing statement index; recovery-restore-round-trip asserts row-count and checksum equality between source and restored databases; pool-posture-smoke asserts twenty concurrent queries return with no timeout. Each per-blueprint probe report at .rcf/reports/blueprints/persistence-data-postgres/&lt;probe-name&gt;.json carries aggregateVerdict pass.
+<div class="ac-gwt"><p><em>Given</em> the sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker compose up -d postgres running and the fixture applied</p><p><em>When</em> each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence</p><p><em>Then</em> every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-060">FBS-060</a></p></li>
+<li id="AC-4001-5" class="ac-item"><strong>AC-4001-5</strong> - The sample-app fixture&#39;s induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_MIGRATION_FAILURE=true makes run-migration-apply.mjs exit non-zero with the failing migration filename in its report and the transaction rolled back; SIMULATE_CONSTRAINT_VIOLATION=true names the transaction-atomicity probe&#39;s rollback observation. Every negative-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts.
+<div class="ac-gwt"><p><em>Given</em> the sample-app fixture with docker compose up -d postgres running</p><p><em>When</em> the migration-apply probe runs with SIMULATE_MIGRATION_FAILURE=true, and the transaction-atomicity probe runs with SIMULATE_CONSTRAINT_VIOLATION=true</p><p><em>Then</em> the migration-apply shim exits non-zero and its report at .rcf/reports/blueprints/persistence-data-postgres/migration-apply.json carries aggregateVerdict fail with the failing migration filename in a detail field; the transaction-atomicity probe records the rollback event with statementIndex 1 as evidence of the constraint-violation semantics</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-060">FBS-060</a></p></li>
+<li id="AC-4001-6" class="ac-item"><strong>AC-4001-6</strong> - The blueprint ships a sample-app fixture, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a persistence-data-postgres row at US band 27101-27899 / ADR-TAC suffix block 28xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for relationalStore per infra round 5 spec section 5.6.
+<div class="ac-gwt"><p><em>Given</em> the shelf tree after this blueprint lands</p><p><em>When</em> grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table</p><p><em>Then</em> packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | relationalStore |; every shipped blueprint&#39;s docs/topics.md carries a row beginning | persistence-data-postgres | with the 27101-27899 band and 28xx suffix; blueprints/persistence-data-postgres/README.md, CHANGELOG.md, guide/persistence-data-postgres.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-postgres/ all exist; the fixture README names the docker and podman incantations and the two induced-failure switches</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-060">FBS-060</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T16:59:00.000Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T16:59:00.000Z&quot;,
+  &quot;usId&quot;: &quot;US-4001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-040&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The persistence-data-postgres blueprint ships on the shelf; six Node-only probes pass against a live postgres:17-alpine container and refuse on each induced failure&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the persistence-data-postgres v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the shipped blueprint files with 26 contributions and six probes, a sample-app fixture that boots postgres:17-alpine and applies three toy forward-only migrations, and gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch&quot;,
+  &quot;soThat&quot;: &quot;a rcf-lite project applying this blueprint gets a facade contract over pg with numbered forward-only migrations, prepared-statement discipline, transactional atomicity, a two-path recovery model, and pool posture per deploy target, with runtime-observable ACs proven by probes the HQ gate runs against a real Postgres container rather than a simulated harness&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-4001-1&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/persistence-data-postgres/blueprint.json declaring slug persistence-data-postgres, version 1.0.0, category persistence, 26 contributions in the 7 REQ / 10 US / 4 TAC / 5 ADR groups per infra round 5 spec section 5.1; capabilities is [relationalStore]; suggestedCompanions declares logging and errorHandling with spec section 5.1 reasons; providesRoles is absent; requiresAppliedCapabilities is absent.&quot;,
+      &quot;given&quot;: &quot;the shelf tree after this blueprint lands&quot;,
+      &quot;when&quot;: &quot;jq queries against blueprints/persistence-data-postgres/blueprint.json&quot;,
+      &quot;then&quot;: &quot;jq .slug returns persistence-data-postgres; jq .version returns 1.0.0; jq .contributions | length returns 26; jq .capabilities | index(relationalStore) returns 0; jq .suggestedCompanions | length returns 2&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4001-2&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/persistence-data-postgres applies the 26 contributions cleanly on a fresh init project with no other persistence blueprint applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.&quot;,
+      &quot;given&quot;: &quot;a fresh rcf init scratch project with no persistence-* blueprint applied&quot;,
+      &quot;when&quot;: &quot;rcf define blueprint add ./blueprints/persistence-data-postgres runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict&quot;,
+      &quot;then&quot;: &quot;every command exits 0; the scratch project&#39;s rcf tree contains the 26 contributions; no globalAdrTopic conflict is raised&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4001-3&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/persistence-data-postgres on a scratch project with persistence-data-d1 already applied surfaces a DELIBERATE conflict on the persistenceStore and migrationDiscipline global-ADR topics per the round-2 pattern; the tree is untouched by the failed add.&quot;,
+      &quot;given&quot;: &quot;a fresh rcf init scratch project with persistence-data-d1 v1.0.0 already applied&quot;,
+      &quot;when&quot;: &quot;rcf define blueprint add ./blueprints/persistence-data-postgres runs against the scratch project&quot;,
+      &quot;then&quot;: &quot;the add refuses with a globalAdrTopic conflict list containing persistenceStore and migrationDiscipline; the scratch project&#39;s rcf tree does not carry persistence-data-postgres contributions after the refusal&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4001-4&quot;,
+      &quot;description&quot;: &quot;The six probe modules under blueprints/persistence-data-postgres/contributions/probes/ each pass against a running postgres:17-alpine container brought up from the sample-app fixture: facade-round-trip asserts facadeReady fires and the round-trip returns; migration-apply asserts three migrations apply inside individual transactions and schema_version advances to 3; prepared-statement-scan asserts every pg.query first-argument node is a static string literal; transaction-atomicity asserts a rollback fires with the failing statement index; recovery-restore-round-trip asserts row-count and checksum equality between source and restored databases; pool-posture-smoke asserts twenty concurrent queries return with no timeout. Each per-blueprint probe report at .rcf/reports/blueprints/persistence-data-postgres/&lt;probe-name&gt;.json carries aggregateVerdict pass.&quot;,
+      &quot;given&quot;: &quot;the sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker compose up -d postgres running and the fixture applied&quot;,
+      &quot;when&quot;: &quot;each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence&quot;,
+      &quot;then&quot;: &quot;every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4001-5&quot;,
+      &quot;description&quot;: &quot;The sample-app fixture&#39;s induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_MIGRATION_FAILURE=true makes run-migration-apply.mjs exit non-zero with the failing migration filename in its report and the transaction rolled back; SIMULATE_CONSTRAINT_VIOLATION=true names the transaction-atomicity probe&#39;s rollback observation. Every negative-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts.&quot;,
+      &quot;given&quot;: &quot;the sample-app fixture with docker compose up -d postgres running&quot;,
+      &quot;when&quot;: &quot;the migration-apply probe runs with SIMULATE_MIGRATION_FAILURE=true, and the transaction-atomicity probe runs with SIMULATE_CONSTRAINT_VIOLATION=true&quot;,
+      &quot;then&quot;: &quot;the migration-apply shim exits non-zero and its report at .rcf/reports/blueprints/persistence-data-postgres/migration-apply.json carries aggregateVerdict fail with the failing migration filename in a detail field; the transaction-atomicity probe records the rollback event with statementIndex 1 as evidence of the constraint-violation semantics&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4001-6&quot;,
+      &quot;description&quot;: &quot;The blueprint ships a sample-app fixture, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a persistence-data-postgres row at US band 27101-27899 / ADR-TAC suffix block 28xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for relationalStore per infra round 5 spec section 5.6.&quot;,
+      &quot;given&quot;: &quot;the shelf tree after this blueprint lands&quot;,
+      &quot;when&quot;: &quot;grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table&quot;,
+      &quot;then&quot;: &quot;packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | relationalStore |; every shipped blueprint&#39;s docs/topics.md carries a row beginning | persistence-data-postgres | with the 27101-27899 band and 28xx suffix; blueprints/persistence-data-postgres/README.md, CHANGELOG.md, guide/persistence-data-postgres.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-postgres/ all exist; the fixture README names the docker and podman incantations and the two induced-failure switches&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -8427,7 +8630,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -11843,6 +12046,84 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture&quot;,
   &quot;summary&quot;: &quot;T-1 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.1): the application-empty-error-states v1.0.0 blueprint on the shelf. Ships 19 contributions (5 REQs on state catalogue and recovery-action contract and announcement contract and least-privilege 5xx and 403 posture and offline write-buffer; 8 USs 22101-22108 binding runtime-observable ACs one per named state; 3 TACs 2301 state-machine and 2302 recovery-router and 2303 offline write-buffer; 3 ADRs 2301 HTTP status contract RFC 9110 and 2302 stack-trace visibility elicited and 2303 offline strategy elicited), a Playwright probe pack whose eight checks (AC-22101-1 through AC-22108-1) each anchor one named state via TAC-2301 or the operator-configured error-shell path glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/ serving all eight states honestly on /probe/&lt;name&gt; plus break switches (?break=stack-trace, ?break=leak-id, ?break=no-recovery, ?break=no-live-region) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent (no auth required); capabilities absent. Sixth shipped consumer of T-0s probe-pack runner extension; T-3 forms-wizard and T-4 account-settings consume this blueprint.&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-060">
+  <summary><span class="summary-label">FBS-060 - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-060" class="doc doc-fbs">
+  <h3>FBS-060 - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</h3>
+  
+  <p><strong>Summary:</strong> T-1 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.1) re-minted with HQ reserved-block ids (REQ-040 / US-4001 / TS-070 / FBS-060 / CN-200..202) after HQ round-4 T-1 (application-empty-error-states) merged first to origin/main at 784d12f. Ships the persistence-data-postgres v1.0.0 blueprint on the shelf with 26 contributions in the 7 REQ / 10 US 27101-27110 / 4 TAC 2801-2804 / 5 ADR 2801-2805 groups per spec section 5.1, six Node-only probes under blueprints/persistence-data-postgres/contributions/probes/ (facade-round-trip, migration-apply, prepared-statement-scan, transaction-atomicity, recovery-restore-round-trip, pool-posture-smoke) with matching run-&lt;probe-name&gt;.mjs shims writing per-blueprint reports at .rcf/reports/blueprints/persistence-data-postgres/&lt;probe-name&gt;.json, and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker-compose declaring postgres:17-alpine, three toy forward-only migrations, src/store.mjs realising the facade as sole reader of pg, src/migrate.mjs realising the migration runner (with SIMULATE_MIGRATION_FAILURE switch), src/recovery.mjs realising the scheduled export runner via pg_dump, package.json with pg as runtime dep, and a README naming docker and podman incantations plus induced-failure switches. Declares capabilities [relationalStore], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent. Contributes ADR-2801 and ADR-2802 as scope:global on persistenceStore and migrationDiscipline reused from persistence-data-sqlite and persistence-data-d1 so composition with either surfaces a DELIBERATE conflict per the round-2 pattern. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with a relationalStore row per spec section 5.6; appends one shelf-registry row for persistence-data-postgres at 27101-27899 / 28xx to every shipped blueprint docs/topics.md. Reserves the round-6 Hyperdrive v1.1.0 adapter slot at ADR-2801 by keeping the driver reference opaque at the facade boundary per spec section 5.7. None of the six probes carry accountBound:true; Postgres is local-first per Baz decision 8.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-4001-1">AC-4001-1</a><a class="ac-pill" href="#AC-4001-2">AC-4001-2</a><a class="ac-pill" href="#AC-4001-3">AC-4001-3</a><a class="ac-pill" href="#AC-4001-4">AC-4001-4</a><a class="ac-pill" href="#AC-4001-5">AC-4001-5</a><a class="ac-pill" href="#AC-4001-6">AC-4001-6</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-4001-1">AC-4001-1</a></strong> - The shelf carries blueprints/persistence-data-postgres/blueprint.json declaring slug persistence-data-postgres, version 1.0.0, category persistence, 26 contributions in the 7 REQ / 10 US / 4 TAC / 5 ADR groups per infra round 5 spec section 5.1; capabilities is [relationalStore]; suggestedCompanions declares logging and errorHandling with spec section 5.1 reasons; providesRoles is absent; requiresAppliedCapabilities is absent.</p>
+  <p><em>Given</em> the shelf tree after this blueprint lands</p>
+  <p><em>When</em> jq queries against blueprints/persistence-data-postgres/blueprint.json</p>
+  <p><em>Then</em> jq .slug returns persistence-data-postgres; jq .version returns 1.0.0; jq .contributions | length returns 26; jq .capabilities | index(relationalStore) returns 0; jq .suggestedCompanions | length returns 2</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4001-2">AC-4001-2</a></strong> - rcf define blueprint add ./blueprints/persistence-data-postgres applies the 26 contributions cleanly on a fresh init project with no other persistence blueprint applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.</p>
+  <p><em>Given</em> a fresh rcf init scratch project with no persistence-* blueprint applied</p>
+  <p><em>When</em> rcf define blueprint add ./blueprints/persistence-data-postgres runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict</p>
+  <p><em>Then</em> every command exits 0; the scratch project&#39;s rcf tree contains the 26 contributions; no globalAdrTopic conflict is raised</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4001-3">AC-4001-3</a></strong> - rcf define blueprint add ./blueprints/persistence-data-postgres on a scratch project with persistence-data-d1 already applied surfaces a DELIBERATE conflict on the persistenceStore and migrationDiscipline global-ADR topics per the round-2 pattern; the tree is untouched by the failed add.</p>
+  <p><em>Given</em> a fresh rcf init scratch project with persistence-data-d1 v1.0.0 already applied</p>
+  <p><em>When</em> rcf define blueprint add ./blueprints/persistence-data-postgres runs against the scratch project</p>
+  <p><em>Then</em> the add refuses with a globalAdrTopic conflict list containing persistenceStore and migrationDiscipline; the scratch project&#39;s rcf tree does not carry persistence-data-postgres contributions after the refusal</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4001-4">AC-4001-4</a></strong> - The six probe modules under blueprints/persistence-data-postgres/contributions/probes/ each pass against a running postgres:17-alpine container brought up from the sample-app fixture: facade-round-trip asserts facadeReady fires and the round-trip returns; migration-apply asserts three migrations apply inside individual transactions and schema_version advances to 3; prepared-statement-scan asserts every pg.query first-argument node is a static string literal; transaction-atomicity asserts a rollback fires with the failing statement index; recovery-restore-round-trip asserts row-count and checksum equality between source and restored databases; pool-posture-smoke asserts twenty concurrent queries return with no timeout. Each per-blueprint probe report at .rcf/reports/blueprints/persistence-data-postgres/&lt;probe-name&gt;.json carries aggregateVerdict pass.</p>
+  <p><em>Given</em> the sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker compose up -d postgres running and the fixture applied</p>
+  <p><em>When</em> each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence</p>
+  <p><em>Then</em> every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4001-5">AC-4001-5</a></strong> - The sample-app fixture&#39;s induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_MIGRATION_FAILURE=true makes run-migration-apply.mjs exit non-zero with the failing migration filename in its report and the transaction rolled back; SIMULATE_CONSTRAINT_VIOLATION=true names the transaction-atomicity probe&#39;s rollback observation. Every negative-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts.</p>
+  <p><em>Given</em> the sample-app fixture with docker compose up -d postgres running</p>
+  <p><em>When</em> the migration-apply probe runs with SIMULATE_MIGRATION_FAILURE=true, and the transaction-atomicity probe runs with SIMULATE_CONSTRAINT_VIOLATION=true</p>
+  <p><em>Then</em> the migration-apply shim exits non-zero and its report at .rcf/reports/blueprints/persistence-data-postgres/migration-apply.json carries aggregateVerdict fail with the failing migration filename in a detail field; the transaction-atomicity probe records the rollback event with statementIndex 1 as evidence of the constraint-violation semantics</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4001-6">AC-4001-6</a></strong> - The blueprint ships a sample-app fixture, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a persistence-data-postgres row at US band 27101-27899 / ADR-TAC suffix block 28xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for relationalStore per infra round 5 spec section 5.6.</p>
+  <p><em>Given</em> the shelf tree after this blueprint lands</p>
+  <p><em>When</em> grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table</p>
+  <p><em>Then</em> packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | relationalStore |; every shipped blueprint&#39;s docs/topics.md carries a row beginning | persistence-data-postgres | with the 27101-27899 band and 28xx suffix; blueprints/persistence-data-postgres/README.md, CHANGELOG.md, guide/persistence-data-postgres.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-postgres/ all exist; the fixture README names the docker and podman incantations and the two induced-failure switches</p>
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-043">FBS-043</a></p></section>
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 44</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T17:02:45.649Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T17:04:08.054Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-4001-1&quot;,
+    &quot;AC-4001-2&quot;,
+    &quot;AC-4001-3&quot;,
+    &quot;AC-4001-4&quot;,
+    &quot;AC-4001-5&quot;,
+    &quot;AC-4001-6&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-060&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 44,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture&quot;,
+  &quot;summary&quot;: &quot;T-1 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.1) re-minted with HQ reserved-block ids (REQ-040 / US-4001 / TS-070 / FBS-060 / CN-200..202) after HQ round-4 T-1 (application-empty-error-states) merged first to origin/main at 784d12f. Ships the persistence-data-postgres v1.0.0 blueprint on the shelf with 26 contributions in the 7 REQ / 10 US 27101-27110 / 4 TAC 2801-2804 / 5 ADR 2801-2805 groups per spec section 5.1, six Node-only probes under blueprints/persistence-data-postgres/contributions/probes/ (facade-round-trip, migration-apply, prepared-statement-scan, transaction-atomicity, recovery-restore-round-trip, pool-posture-smoke) with matching run-&lt;probe-name&gt;.mjs shims writing per-blueprint reports at .rcf/reports/blueprints/persistence-data-postgres/&lt;probe-name&gt;.json, and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker-compose declaring postgres:17-alpine, three toy forward-only migrations, src/store.mjs realising the facade as sole reader of pg, src/migrate.mjs realising the migration runner (with SIMULATE_MIGRATION_FAILURE switch), src/recovery.mjs realising the scheduled export runner via pg_dump, package.json with pg as runtime dep, and a README naming docker and podman incantations plus induced-failure switches. Declares capabilities [relationalStore], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent. Contributes ADR-2801 and ADR-2802 as scope:global on persistenceStore and migrationDiscipline reused from persistence-data-sqlite and persistence-data-d1 so composition with either surfaces a DELIBERATE conflict per the round-2 pattern. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with a relationalStore row per spec section 5.6; appends one shelf-registry row for persistence-data-postgres at 27101-27899 / 28xx to every shipped blueprint docs/topics.md. Reserves the round-6 Hyperdrive v1.1.0 adapter slot at ADR-2801 by keeping the driver reference opaque at the facade boundary per spec section 5.7. None of the six probes carry accountBound:true; Postgres is local-first per Baz decision 8.&quot;,
+  &quot;dependsOnFbsIds&quot;: [
+    &quot;FBS-043&quot;
+  ]
 }
 </pre></details>
 </article>
@@ -16262,6 +16543,111 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;id&quot;: &quot;TS-053&quot;,
   &quot;usId&quot;: &quot;US-2401&quot;,
   &quot;title&quot;: &quot;application-empty-error-states v1.0.0 shelf shape, probe pack cross-check and sample-app fixture&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-070">
+  <summary><span class="summary-label">TS-070 - persistence-data-postgres v1.0.0 shelf shape, conflict-on-topics-surface, six-probe module contract and shelf-doc consistency</span><span class="status draft">draft</span></summary>
+  <article id="TS-070" class="doc doc-ts">
+  <h3>TS-070 - persistence-data-postgres v1.0.0 shelf shape, conflict-on-topics-surface, six-probe module contract and shelf-doc consistency</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-4001">US-4001</a></p>
+  <p><strong>Purpose:</strong> Cover AC-4001-1..6 via unit tests over the shipped persistence-data-postgres blueprint shape, applies-clean behaviour, DELIBERATE conflict surface on persistenceStore and migrationDiscipline, six Node-only probe module contract, induced-failure switches, and shelf-doc consistency.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-4001-1">AC-4001-1</a>, <a href="#AC-4001-2">AC-4001-2</a>, <a href="#AC-4001-3">AC-4001-3</a>, <a href="#AC-4001-4">AC-4001-4</a>, <a href="#AC-4001-5">AC-4001-5</a>, <a href="#AC-4001-6">AC-4001-6</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-070-blueprint-json-shape">
+  <p><strong>TC-070-blueprint-json-shape</strong> - covers <a href="#AC-4001-1">AC-4001-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4001-1 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/persistence-data-postgres-anatomy.test.js::blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)</code></p>
+</div>
+<div class="tc" id="TC-070-applies-clean-no-persistence">
+  <p><strong>TC-070-applies-clean-no-persistence</strong> - covers <a href="#AC-4001-2">AC-4001-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4001-2 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/persistence-data-postgres-anatomy.test.js::apply persistence-data-postgres on a bare scratch project writes 26 contributions and validate plus strict audits exit zero (TC-070-applies-clean-no-persistence)</code></p>
+</div>
+<div class="tc" id="TC-070-conflict-with-d1">
+  <p><strong>TC-070-conflict-with-d1</strong> - covers <a href="#AC-4001-3">AC-4001-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4001-3 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/persistence-data-postgres-anatomy.test.js::apply persistence-data-postgres on a d1-applied scratch project surfaces globalAdrTopic conflict on persistenceStore and migrationDiscipline (TC-070-conflict-with-d1)</code></p>
+</div>
+<div class="tc" id="TC-070-probe-anchor-ids-cross-check">
+  <p><strong>TC-070-probe-anchor-ids-cross-check</strong> - covers <a href="#AC-4001-4">AC-4001-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4001-4 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/persistence-data-postgres-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-070-probe-anchor-ids-cross-check)</code></p>
+</div>
+<div class="tc" id="TC-070-fixture-and-switches">
+  <p><strong>TC-070-fixture-and-switches</strong> - covers <a href="#AC-4001-5">AC-4001-5</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4001-5 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/persistence-data-postgres-anatomy.test.js::sample-app fixture ships docker-compose.yml, migrations, store.mjs, recovery.mjs, and its README documents both induced-failure switches (TC-070-fixture-and-switches)</code></p>
+</div>
+<div class="tc" id="TC-070-shelf-doc-consistency">
+  <p><strong>TC-070-shelf-doc-consistency</strong> - covers <a href="#AC-4001-6">AC-4001-6</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4001-6 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/persistence-data-postgres-anatomy.test.js::section 6a table gains a relationalStore row and every shipped blueprint docs/topics.md gains a persistence-data-postgres row at 27101-27899 / 28xx (TC-070-shelf-doc-consistency)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T17:02:27.310Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T17:02:29.479Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-4001-1..6 via unit tests over the shipped persistence-data-postgres blueprint shape, applies-clean behaviour, DELIBERATE conflict surface on persistenceStore and migrationDiscipline, six Node-only probe module contract, induced-failure switches, and shelf-doc consistency.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-4001-1&quot;,
+    &quot;AC-4001-2&quot;,
+    &quot;AC-4001-3&quot;,
+    &quot;AC-4001-4&quot;,
+    &quot;AC-4001-5&quot;,
+    &quot;AC-4001-6&quot;
+  ],
+  &quot;id&quot;: &quot;TS-070&quot;,
+  &quot;usId&quot;: &quot;US-4001&quot;,
+  &quot;title&quot;: &quot;persistence-data-postgres v1.0.0 shelf shape, conflict-on-topics-surface, six-probe module contract and shelf-doc consistency&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-070-blueprint-json-shape&quot;,
+      &quot;acId&quot;: &quot;AC-4001-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-4001-1 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/persistence-data-postgres-anatomy.test.js::blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-070-applies-clean-no-persistence&quot;,
+      &quot;acId&quot;: &quot;AC-4001-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-4001-2 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/persistence-data-postgres-anatomy.test.js::apply persistence-data-postgres on a bare scratch project writes 26 contributions and validate plus strict audits exit zero (TC-070-applies-clean-no-persistence)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-070-conflict-with-d1&quot;,
+      &quot;acId&quot;: &quot;AC-4001-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-4001-3 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/persistence-data-postgres-anatomy.test.js::apply persistence-data-postgres on a d1-applied scratch project surfaces globalAdrTopic conflict on persistenceStore and migrationDiscipline (TC-070-conflict-with-d1)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-070-probe-anchor-ids-cross-check&quot;,
+      &quot;acId&quot;: &quot;AC-4001-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-4001-4 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/persistence-data-postgres-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-070-probe-anchor-ids-cross-check)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-070-fixture-and-switches&quot;,
+      &quot;acId&quot;: &quot;AC-4001-5&quot;,
+      &quot;description&quot;: &quot;Cover AC-4001-5 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/persistence-data-postgres-anatomy.test.js::sample-app fixture ships docker-compose.yml, migrations, store.mjs, recovery.mjs, and its README documents both induced-failure switches (TC-070-fixture-and-switches)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-070-shelf-doc-consistency&quot;,
+      &quot;acId&quot;: &quot;AC-4001-6&quot;,
+      &quot;description&quot;: &quot;Cover AC-4001-6 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/persistence-data-postgres-anatomy.test.js::section 6a table gains a relationalStore row and every shipped blueprint docs/topics.md gains a persistence-data-postgres row at 27101-27899 / 28xx (TC-070-shelf-doc-consistency)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
 }
 </pre></details>
 </article>

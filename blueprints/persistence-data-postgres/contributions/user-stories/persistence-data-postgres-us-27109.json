@@ -1,0 +1,25 @@
+{
+  "usId": "persistence-data-postgres-US-27109",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A failing migration rolls back its own transaction and the runner exits non-zero without advancing schema_version",
+  "asA": "operator running migrations at boot on a long-lived Node process",
+  "iWant": "a failing migration to roll back its own transaction and stop the runner with a non-zero exit and the failing filename in the diagnostic",
+  "soThat": "the runner never leaves a partially-applied migration on the database and the operator can name the failing file to un-jam the deploy",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27109-1",
+      "description": "Given a migrations directory whose second file contains an invalid SQL statement (simulated in the fixture by the SIMULATE_MIGRATION_FAILURE switch), when the migration runner runs, then the first file commits, the second file's transaction rolls back on the invalid statement, the runner exits non-zero, and the failing filename appears in the runner's diagnostic output. The schema_version bookkeeping table records only the first file's row.",
+      "given": "a Postgres at schema_version 0 and three migration files where the second is intentionally broken",
+      "when": "the migration runner applies the directory with SIMULATE_MIGRATION_FAILURE=true",
+      "then": "the first file's transaction commits and its row lands in the bookkeeping table; the second file's transaction rolls back; the runner exits non-zero with the failing filename in its stderr; the third file is not attempted; the bookkeeping table shows exactly one applied row",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2802-persistence-data-postgres-migration-runner"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

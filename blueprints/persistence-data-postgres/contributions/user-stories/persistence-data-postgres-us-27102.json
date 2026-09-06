@@ -1,0 +1,25 @@
+{
+  "usId": "persistence-data-postgres-US-27102",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Numbered forward-only .sql migrations apply one file one transaction; schema_version advances",
+  "asA": "operator who needs deploys reproducible from a git ref with no schema state outside version control",
+  "iWant": "every schema change to be a new numbered .sql file under the elicited migrations directory, applied by the in-tree runner one file at a time inside its own transaction",
+  "soThat": "the schema shape at any deployed version can be read from committed files, each apply either commits or leaves the schema exactly as it was, and the schema_version bookkeeping table is the one source of truth on what has been applied",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27102-1",
+      "description": "Given a fresh Postgres database at schema_version 0 and three numbered forward-only .sql migration files (001, 002, 003), when the migration runner opens the store and applies them, then each file applies inside its own transaction (BEGIN, file body, COMMIT), a migrationsApplied event fires with the applied filename list, and the schema_version bookkeeping table records three rows keyed by filename.",
+      "given": "a fresh Postgres instance and a migrations directory with 001_*.sql, 002_*.sql, 003_*.sql each a single statement inside an implicit transaction",
+      "when": "the migration runner applies the directory against the database",
+      "then": "each file runs inside a BEGIN/COMMIT pair; after all three succeed a migrationsApplied event fires with the filename list ['001_*.sql', '002_*.sql', '003_*.sql'] and the schema_version table (or the runner's configured bookkeeping table name) carries a row per applied filename",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2802-persistence-data-postgres-migration-runner"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

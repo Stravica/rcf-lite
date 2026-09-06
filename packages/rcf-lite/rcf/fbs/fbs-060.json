@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-06T17:02:45.649Z",
+  "updatedAt": "2026-09-06T17:04:08.054Z",
+  "acIds": [
+    "AC-4001-1",
+    "AC-4001-2",
+    "AC-4001-3",
+    "AC-4001-4",
+    "AC-4001-5",
+    "AC-4001-6"
+  ],
+  "fbsId": "FBS-060",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 44,
+  "executionStatus": "notStarted",
+  "title": "persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture",
+  "summary": "T-1 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.1) re-minted with HQ reserved-block ids (REQ-040 / US-4001 / TS-070 / FBS-060 / CN-200..202) after HQ round-4 T-1 (application-empty-error-states) merged first to origin/main at 784d12f. Ships the persistence-data-postgres v1.0.0 blueprint on the shelf with 26 contributions in the 7 REQ / 10 US 27101-27110 / 4 TAC 2801-2804 / 5 ADR 2801-2805 groups per spec section 5.1, six Node-only probes under blueprints/persistence-data-postgres/contributions/probes/ (facade-round-trip, migration-apply, prepared-statement-scan, transaction-atomicity, recovery-restore-round-trip, pool-posture-smoke) with matching run-<probe-name>.mjs shims writing per-blueprint reports at .rcf/reports/blueprints/persistence-data-postgres/<probe-name>.json, and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker-compose declaring postgres:17-alpine, three toy forward-only migrations, src/store.mjs realising the facade as sole reader of pg, src/migrate.mjs realising the migration runner (with SIMULATE_MIGRATION_FAILURE switch), src/recovery.mjs realising the scheduled export runner via pg_dump, package.json with pg as runtime dep, and a README naming docker and podman incantations plus induced-failure switches. Declares capabilities [relationalStore], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent. Contributes ADR-2801 and ADR-2802 as scope:global on persistenceStore and migrationDiscipline reused from persistence-data-sqlite and persistence-data-d1 so composition with either surfaces a DELIBERATE conflict per the round-2 pattern. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with a relationalStore row per spec section 5.6; appends one shelf-registry row for persistence-data-postgres at 27101-27899 / 28xx to every shipped blueprint docs/topics.md. Reserves the round-6 Hyperdrive v1.1.0 adapter slot at ADR-2801 by keeping the driver reference opaque at the facade boundary per spec section 5.7. None of the six probes carry accountBound:true; Postgres is local-first per Baz decision 8.",
+  "dependsOnFbsIds": [
+    "FBS-043"
+  ]
+}

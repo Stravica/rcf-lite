@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 43,
-    "notStarted": 15,
+    "items": 44,
+    "notStarted": 16,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
     "actionable": 11,
-    "blocked": 4
+    "blocked": 5
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -67,7 +67,8 @@
         "FBS-006",
         "FBS-009",
         "FBS-010",
-        "FBS-027"
+        "FBS-027",
+        "FBS-060"
       ]
     },
     {
@@ -606,6 +607,20 @@
       "state": "blocked",
       "blockedBy": [
         "FBS-042"
+      ]
+    },
+    {
+      "fbsId": "FBS-060",
+      "buildOrder": 44,
+      "tier": 3,
+      "title": "persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-043"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-043"
       ]
     }
   ]

@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-postgres-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Prepared-statement discipline: every pg.query first argument is a static string literal with $N parameters",
+  "description": "Every call to pg.query (whether via the pool, a client, or a transaction helper) inside the facade module passes a static string literal as its first argument and supplies parameters as an array of values that the driver binds to $1, $2, ... $N placeholders in the string, per the node-postgres parameterised-queries contract at https://node-postgres.com/features/queries. No call site inside the facade passes a template literal with an interpolated expression as the first argument; no call site builds a query string via string concatenation or template-literal interpolation with consumer-supplied values. A call site that violates the discipline refuses at author-side review; the prepared-statement-scan probe surfaces the violation at gate time via a source-tree AST scan (per the persistence-data-d1 pattern).",
+  "category": "technical",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "Static string literals with $N parameters is what stops SQL injection at the driver boundary. The pg client's parameter-binding surface is safe; string concatenation with consumer-supplied values is not. The discipline is testable at build time by an AST scan without a running database, which is the shape a shelf blueprint can prove without shipping a test file (mechanism-reach principle, blueprint-authoring section 7); the runtime facade-round-trip probe carries the runtime observable that the surface works end to end.",
+  "tags": [
+    "blueprint:persistence-data-postgres",
+    "category:03-prepared-statements"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

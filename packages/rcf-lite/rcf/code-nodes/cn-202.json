@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-202",
+  "path": "../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+  "implementsAcIds": [
+    "AC-4001-4",
+    "AC-4001-5",
+    "AC-4001-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:02:46.746Z",
+  "updatedAt": "2026-09-06T17:02:46.746Z"
+}

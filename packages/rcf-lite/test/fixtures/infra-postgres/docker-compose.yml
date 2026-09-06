@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: rcf
+      POSTGRES_PASSWORD: rcf-dev-only
+      POSTGRES_DB: rcf_test
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "rcf", "-d", "rcf_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 20

@@ -1,0 +1,25 @@
+{
+  "usId": "persistence-data-postgres-US-27105",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Scheduled pg_dump lands an artefact and a fresh Postgres primed from it round-trips the row set",
+  "asA": "operator responsible for restoring a Postgres project after a cluster loss or a data-integrity incident",
+  "iWant": "a scheduled export runner that drives pg_dump against the live database and writes an artefact to the elicited destination",
+  "soThat": "a fresh Postgres primed from the artefact returns the row set the source held at the artefact's completion timestamp",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27105-1",
+      "description": "Given a live Postgres containing a small fixture rowset, when the scheduled export runner runs, then it invokes pg_dump via child_process.execFile against the elicited connection URL, writes the artefact to the elicited destination, and emits backupExported with { artefactPath, completedAt }. A fresh Postgres primed by psql-restoring the artefact returns the same rowset (row count and row checksum both equal) as the source.",
+      "given": "a live Postgres seeded with a fixture rowset and the recovery runner configured to write to a temporary destination",
+      "when": "the recovery runner runs pg_dump against the source and a second Postgres is primed from the artefact",
+      "then": "the runner exits 0, backupExported fires with the artefact path and completion timestamp, the artefact file exists at the elicited destination, and a query against the restored Postgres returns the same row count and same checksum of the fixture rowset as the source",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2804-persistence-data-postgres-recovery-runner"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

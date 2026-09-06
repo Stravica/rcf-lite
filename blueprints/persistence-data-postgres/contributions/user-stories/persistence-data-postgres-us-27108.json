@@ -1,0 +1,25 @@
+{
+  "usId": "persistence-data-postgres-US-27108",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Facade boot survives a first-connect race and does not double-emit facadeReady",
+  "asA": "developer whose process may issue queries against the facade before its pool's first ready-check completes",
+  "iWant": "the facade to serialise consumer queries behind the pool's ready-check without dropping any and to emit facadeReady exactly once per facade instance",
+  "soThat": "boot-time races do not surface as unhandled promise rejections and the ready event is not double-counted by an observability sink",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27108-1",
+      "description": "Given a facade instance and five concurrent domain-verb calls issued before the pool's first ready-check completes, when the pool becomes ready, then all five calls succeed against the pool once ready, the facadeReady event fires exactly once with the database name, and no consumer sees a NotReady error.",
+      "given": "a fresh facade instance and five concurrent getUserById calls issued immediately after construction",
+      "when": "the pool completes its first ready-check",
+      "then": "all five calls resolve successfully; facadeReady fires exactly once on the event sink; no unhandled rejection is raised",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

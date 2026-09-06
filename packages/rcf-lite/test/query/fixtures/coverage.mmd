@@ -909,6 +909,31 @@ flowchart LR
   REQ-024 --> AC-2401-7
   TC-053-readme-gaps-and-changelog["TC-053-readme-gaps-and-changelog"]
   AC-2401-7 -.-> TC-053-readme-gaps-and-changelog
+  REQ-040["REQ-040"]
+  AC-4001-1["AC-4001-1"]
+  REQ-040 --> AC-4001-1
+  TC-070-blueprint-json-shape["TC-070-blueprint-json-shape"]
+  AC-4001-1 -.-> TC-070-blueprint-json-shape
+  AC-4001-2["AC-4001-2"]
+  REQ-040 --> AC-4001-2
+  TC-070-applies-clean-no-persistence["TC-070-applies-clean-no-persistence"]
+  AC-4001-2 -.-> TC-070-applies-clean-no-persistence
+  AC-4001-3["AC-4001-3"]
+  REQ-040 --> AC-4001-3
+  TC-070-conflict-with-d1["TC-070-conflict-with-d1"]
+  AC-4001-3 -.-> TC-070-conflict-with-d1
+  AC-4001-4["AC-4001-4"]
+  REQ-040 --> AC-4001-4
+  TC-070-probe-anchor-ids-cross-check["TC-070-probe-anchor-ids-cross-check"]
+  AC-4001-4 -.-> TC-070-probe-anchor-ids-cross-check
+  AC-4001-5["AC-4001-5"]
+  REQ-040 --> AC-4001-5
+  TC-070-fixture-and-switches["TC-070-fixture-and-switches"]
+  AC-4001-5 -.-> TC-070-fixture-and-switches
+  AC-4001-6["AC-4001-6"]
+  REQ-040 --> AC-4001-6
+  TC-070-shelf-doc-consistency["TC-070-shelf-doc-consistency"]
+  AC-4001-6 -.-> TC-070-shelf-doc-consistency
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1376,6 +1401,19 @@ flowchart LR
   class TC-053-state-enumeration-parity tc;
   class AC-2401-7 ac;
   class TC-053-readme-gaps-and-changelog tc;
+  class REQ-040 req;
+  class AC-4001-1 ac;
+  class TC-070-blueprint-json-shape tc;
+  class AC-4001-2 ac;
+  class TC-070-applies-clean-no-persistence tc;
+  class AC-4001-3 ac;
+  class TC-070-conflict-with-d1 tc;
+  class AC-4001-4 ac;
+  class TC-070-probe-anchor-ids-cross-check tc;
+  class AC-4001-5 ac;
+  class TC-070-fixture-and-switches tc;
+  class AC-4001-6 ac;
+  class TC-070-shelf-doc-consistency tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

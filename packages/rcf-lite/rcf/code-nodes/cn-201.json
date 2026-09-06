@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-201",
+  "path": "../../blueprints/persistence-data-postgres/contributions/probes/facade-round-trip.mjs",
+  "implementsAcIds": [
+    "AC-4001-4",
+    "AC-4001-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:02:46.386Z",
+  "updatedAt": "2026-09-06T17:02:46.386Z"
+}

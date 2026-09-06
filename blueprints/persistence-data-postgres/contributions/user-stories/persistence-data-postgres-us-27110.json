@@ -1,0 +1,25 @@
+{
+  "usId": "persistence-data-postgres-US-27110",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A recovery drill primes a fresh Postgres from the pg_dump artefact and the row-count and checksum match the source",
+  "asA": "operator running a recovery drill on a schedule to prove the pg_dump path works",
+  "iWant": "the drill to prime a fresh Postgres from the artefact and compare the restored dataset against the source by row-count and checksum",
+  "soThat": "the recovery path is proven end to end and drift on the artefact shape is caught before an incident forces a live restore",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27110-1",
+      "description": "Given a live Postgres with a fixture rowset and a pg_dump artefact produced by the scheduled runner, when the drill primes a fresh Postgres from the artefact and computes the row-count and checksum of the fixture table on both databases, then the row-count and checksum on the restored Postgres equal those on the source and a recoveryDrillPassed event fires on the event sink carrying the two matched values.",
+      "given": "a source Postgres seeded with a fixture rowset and a pg_dump artefact at the elicited destination",
+      "when": "the drill primes a fresh Postgres from the artefact and runs SELECT count(*) and a checksum aggregate on the fixture table against both databases",
+      "then": "the two counts are equal; the two checksums are equal; recoveryDrillPassed fires on the event sink with { count, checksum }; the fresh Postgres and its artefact primer are torn down on exit",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2804-persistence-data-postgres-recovery-runner"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

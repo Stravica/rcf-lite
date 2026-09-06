@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-postgres-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Connection-pool posture per deploy target: long-lived pool on Node, request-scoped isolation on container",
+  "description": "The facade opens a long-lived pg.Pool for the lifetime of the Node process on a long-lived-Node deploy target (a monolithic Node server, a container platform holding warm instances). On a request-scoped container platform (a serverless-container target that spins fresh instances per request, a Workers-adjacent target via the round-6 Hyperdrive adapter at ADR-2801), the facade opens a pool sized to the request budget and disposes it at request end, or delegates the pool to the round-6 Hyperdrive-managed connection pool without holding a Node-side long-lived pool. Pool size, idle timeout, and query timeout are elicited defaults that the operator overrides per target; the shipped defaults are pool size 10, idleTimeoutMillis 30000, connectionTimeoutMillis 5000, per the node-postgres pool defaults. The pool-posture-smoke probe drives twenty concurrent queries at pool size 5 and asserts all return with no timeout; the probe does not impose a sizing formula.",
+  "category": "technical",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "Postgres has real connection cost per open, and the pool is what amortises it. A long-lived Node process wants one pool per process; a request-scoped container platform wants a pool per request (or delegated to Hyperdrive when the round-6 adapter lands). The shipped defaults are the pg driver's own defaults; the elicit surface lets an operator move them per target without moving any AC on this blueprint.",
+  "tags": [
+    "blueprint:persistence-data-postgres",
+    "category:06-pool-posture"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}
