@@ -1,0 +1,18 @@
+{
+  "reqId": "object-storage-s3-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Multipart-upload contract above an elicited threshold",
+  "description": "For payloads above the elicited threshold (default 8 MiB per ADR-2903), the facade's put path switches transparently to multipart-upload: initiate multipart upload, part-upload each chunk with a stable part number and returned ETag, complete-multipart-upload with the ordered part list. A part-upload failure aborts the in-flight upload (AbortMultipartUpload) before propagating the error; leaving an incomplete multipart upload behind is not the shipped path. On completion the objectPut lifecycle event fires with the final total size. Multipart re-upload semantics (per the R2 doc, a re-upload to the same part number replaces the previous with loss-on-fail) is a documented gotcha named in the README; the multipart-upload probe asserts an end-to-end round-trip of at least 10 MiB.",
+  "category": "functional",
+  "domain": "object-storage",
+  "priority": "must",
+  "rationale": "S3-shape storage caps single-put at 5 GiB; multipart is the required path for larger objects and the pragmatic path above ~8 MiB where the AWS SDK's own multi-part-transferer switches by default. Shipping the multipart-upload as a facade concern (not a consumer concern) keeps consumer code shape-stable across payload sizes.",
+  "tags": [
+    "blueprint:object-storage-s3",
+    "category:04-multipart"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

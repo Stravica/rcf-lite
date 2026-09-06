@@ -1,0 +1,25 @@
+{
+  "usId": "object-storage-s3-US-28105",
+  "prdId": "PRD-001",
+  "reqId": "object-storage-s3-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Lifecycle event records carry metadata only; no body, no user id, no PII",
+  "asA": "operator wiring the logger and error-handling companions to the object-storage facade",
+  "iWant": "every lifecycle event record to carry a fixed metadata-only shape",
+  "soThat": "downstream loggers cannot leak object body bytes, user ids, or PII drawn from the object body",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-objectstorage-eventSecrecy",
+      "description": "Given a lifecycle-event spy attached to the sink, when put, get, delete, and presign verbs run against a PII fixture (key users/1234/passport.jpg, body carrying the PII fixture text), then every event record on the sink carries only fields from the whitelist {event, key, size, contentType, ttl, timestamp, endpointHost, bucketName}; no field name matches userId or ssn or dob or email; no field value contains the PII fixture body text; no field value contains any part of the object body bytes.",
+      "given": "the facade opened, a spy on the event sink, a PII fixture body PII-FIXTURE-DO-NOT-LOG",
+      "when": "putObject(users/1234/passport.jpg, image/jpeg, <body containing PII-FIXTURE-DO-NOT-LOG>), then getObject, then presignGetUrl, then deleteObject",
+      "then": "every event record on the sink has keys drawn from the whitelist above; no event value contains the string PII-FIXTURE-DO-NOT-LOG; no event value contains a userId, ssn, dob, or email field; the key users/1234/passport.jpg appears on records as the key field only (not decomposed into userId)",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2903-object-storage-s3-event-sink"],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

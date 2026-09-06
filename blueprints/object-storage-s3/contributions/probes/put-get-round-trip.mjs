@@ -1,0 +1,84 @@
+/**
+ * Put/get/delete/list round-trip probe.
+ *
+ * Puts a 1 KiB payload with a stable content-type, gets it back, asserts
+ * byte equality and content-type match. Puts three objects under a
+ * prefix and lists them. Deletes the objects and asserts the delete
+ * lifecycle event fires and the get returns a not-found shape.
+ *
+ * Anchors AC-objectstorage-putGetRoundTrip, AC-28102-2, AC-28102-3.
+ */
+
+import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
+import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
+import { probeKey } from './probe-utils.mjs';
+
+export default async function runProbe() {
+  const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
+  const credentials = await credentialsFromShim(secretsShim);
+  const events = [];
+  const store = createObjectStore({
+    endpointUrl: endpoint,
+    bucket,
+    credentialsRef: credentials,
+    region,
+    forcePathStyle,
+    onEvent: (e) => events.push(e),
+  });
+  const results = [];
+  const key = probeKey('probe/put-get');
+  const body = Buffer.alloc(1024, 0x41); // 1 KiB of A
+  const contentType = 'application/octet-stream';
+  try {
+    await store.ready();
+    await store.putObject(key, contentType, body);
+    const got = await store.getObject(key);
+    const roundTripPass = got.body.length === 1024
+      && got.body.equals(body)
+      && got.contentType === contentType;
+    const putEvent = events.find((e) => e.event === 'objectPut' && e.key === key);
+    const eventPass = putEvent && putEvent.size === 1024 && putEvent.contentType === contentType;
+    results.push({
+      anchorAcId: 'AC-objectstorage-putGetRoundTrip',
+      verdict: roundTripPass && eventPass ? 'pass' : 'fail',
+      detail: roundTripPass && eventPass
+        ? `1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
+        : `roundTripPass=${roundTripPass} eventPass=${eventPass} got.size=${got.body.length}`,
+    });
+
+    // list under prefix
+    const prefix = probeKey('probe/list-parent');
+    const listKeys = [`${prefix}/a`, `${prefix}/b`, `${prefix}/c`];
+    for (const k of listKeys) await store.putObject(k, 'text/plain', Buffer.from(k));
+    const listed = await store.listObjects(prefix);
+    const listPass = listKeys.every((k) => listed.keys.includes(k)) && typeof listed.isTruncated === 'boolean';
+    results.push({
+      anchorAcId: 'AC-28102-3',
+      verdict: listPass ? 'pass' : 'fail',
+      detail: listPass ? `list returned ${listed.keys.length} keys with isTruncated=${listed.isTruncated}` : `listed=${JSON.stringify(listed)}`,
+    });
+
+    // delete and confirm 404
+    await store.deleteObject(key);
+    let deletedEvent = events.find((e) => e.event === 'objectDeleted' && e.key === key);
+    let notFound = false;
+    try { await store.getObject(key); } catch (err) {
+      const status = err && err.$metadata && err.$metadata.httpStatusCode;
+      notFound = err.name === 'NoSuchKey' || err.Code === 'NoSuchKey' || status === 404;
+    }
+    results.push({
+      anchorAcId: 'AC-28102-2',
+      verdict: deletedEvent && notFound ? 'pass' : 'fail',
+      detail: deletedEvent && notFound
+        ? 'objectDeleted fired and get after delete returned NoSuchKey'
+        : `deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
+    });
+    // clean up the list keys
+    for (const k of listKeys) {
+      try { await store.deleteObject(k); } catch { /* ignore */ }
+    }
+  } finally {
+    await store.close();
+  }
+  return results;
+}

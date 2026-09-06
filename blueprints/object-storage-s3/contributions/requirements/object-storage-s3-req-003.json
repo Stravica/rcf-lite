@@ -1,0 +1,18 @@
+{
+  "reqId": "object-storage-s3-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Presigned-URL contract with bounded TTL",
+  "description": "The facade exposes a presignGetUrl verb that issues a presigned URL for GET against an existing key with a bounded TTL: default 15 minutes per ADR-2902, floor 1 minute, ceiling elicited by the operator with no shipped default. A presignedIssued lifecycle event fires with key, ttl (seconds), and timestamp on every issue. The URL is signed at the client edge with the applied credentials; a fetch of the URL within TTL returns the object body, and a fetch after TTL returns 403 or the storage-side 403-equivalent (MinIO returns 403 with an XML AccessDenied body; the R2 shape matches). No presigned PUT is shipped on the v1.0.0 surface; the multipart-upload path (REQ-004) is the shipped write-side above the threshold.",
+  "category": "functional",
+  "domain": "object-storage",
+  "priority": "must",
+  "rationale": "A presigned URL is the standard mechanism for delegating read access to an object without handing out credentials. A bounded TTL is generic enterprise practice: too-short and legitimate readers miss the window, too-long and a leaked URL is a persistent breach. 15 minutes as the default matches the AWS SDK default; the 1-minute floor is a defensive against copy-paste ADRs.",
+  "tags": [
+    "blueprint:object-storage-s3",
+    "category:03-presigned-url"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

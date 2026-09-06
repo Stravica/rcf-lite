@@ -1,0 +1,34 @@
+{
+  "usId": "object-storage-s3-US-28107",
+  "prdId": "PRD-001",
+  "reqId": "object-storage-s3-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Round-trip against MinIO in the shared sample-app fixture; five local probes pass end-to-end",
+  "asA": "gate reviewer running the ship gate for object-storage-s3 in CI",
+  "iWant": "the five local Node-only probes to pass against a real MinIO container brought up from the shared infra-s3-and-queue fixture",
+  "soThat": "every runtime-observable AC has a live-engine verdict on file at ship time",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-28107-1",
+      "description": "Given docker compose up -d minio from packages/rcf-lite/test/fixtures/infra-s3-and-queue/, when each of the five run-<probe>.mjs shims runs in sequence (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy), then each shim exits 0 and writes .rcf/reports/blueprints/object-storage-s3/<probe>.json with aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint.",
+      "given": "the shared fixture with docker compose up -d minio running and MinIO healthy on port 9000",
+      "when": "run-facade-round-trip.mjs, run-put-get-round-trip.mjs, run-presigned-url.mjs, run-multipart-upload.mjs, run-event-secrecy.mjs run in sequence",
+      "then": "each shim exits 0; each per-blueprint report at .rcf/reports/blueprints/object-storage-s3/<probe>.json carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-28107-2",
+      "description": "Given the shared fixture, when each induced-failure switch is set (SIMULATE_MINIO_DOWN, SIMULATE_403_ON_GET, SIMULATE_PART_UPLOAD_FAIL, SIMULATE_PRESIGN_MALFORMED, SIMULATE_PII_ON_EVENT, SIMULATE_LARGE_PAYLOAD) and the paired probe runs, then that probe's aggregate verdict flips from pass to fail on the AC anchored to the observation the switch corrupts.",
+      "given": "the shared fixture with MinIO running",
+      "when": "each induced-failure switch is set in turn and the paired probe runs",
+      "then": "the paired probe exits non-zero and the aggregate verdict lands as fail on the anchored AC; the fixture README documents the paired switch and probe for each of the six switches",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2901-object-storage-s3-facade", "TAC-2902-object-storage-s3-multipart-uploader", "TAC-2903-object-storage-s3-event-sink"],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

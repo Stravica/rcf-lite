@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2902-object-storage-s3-presigned-ttl-floor",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Presigned-URL default TTL 15 minutes, floor 1 minute, ceiling elicited",
+  "context": "A presigned URL is the S3-shape mechanism for delegating read access to an object without handing out credentials. The URL carries a bounded TTL after which the storage endpoint refuses the request with 403 (S3 AccessDenied; MinIO returns a 403 XML with AccessDenied code; the R2 shape matches). Too-short a TTL and legitimate readers miss the window; too-long a TTL and a leaked URL becomes a persistent breach. The AWS SDK's default expires-in value is 900 seconds (15 minutes) which most enterprises match; the S3 API caps SigV4 presigned URLs at 604800 seconds (7 days) though few callers reach that ceiling. Local dev with MinIO handles the full range identically.",
+  "decision": "The shipped default TTL is 15 minutes (900 seconds). The floor is 1 minute (60 seconds); the facade refuses a presign request below the floor with a value error. The ceiling is elicited at apply time (no shipped default) with the S3 API's own 7-day ceiling as the outer bound; the operator picks a shorter cap when their threat model calls for it. Every presignedIssued event carries the ttl value used so downstream logging can flag long-lived URLs.",
+  "consequences": "The default is the AWS SDK's own default; most consumer code needs no override. Standards trace clause: generic enterprise practice (no single normative RFC for presigned URL TTL; the S3 API's 7-day ceiling is the outer bound). The 1-minute floor is a defensive against copy-paste ADRs that drift TTL toward seconds; a legitimate short-TTL use case (a 30-second CDN-signed URL) is handled by a dedicated CDN blueprint, not by object-storage-s3. Operators who want a longer default author a project-level ADR overriding the elicited ceiling; the shipped default stays at 15 minutes.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship a shorter default (5 minutes)",
+      "summary": "Ship 5 minutes as the default TTL, matching the tightest common threat model.",
+      "reasonNotChosen": "5 minutes trips legitimate browser-side retries and long-form downloads on slow connections; the AWS SDK's own default of 15 minutes has years of production burn-in without visible complaints."
+    },
+    {
+      "name": "Ship no floor",
+      "summary": "Let the operator set any TTL >= 1 second, matching the SDK's own minimum.",
+      "reasonNotChosen": "A 1-second TTL is a footgun for the copy-paste ADR class of failure; the 1-minute floor is a small defensive with no measured cost."
+    }
+  ],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

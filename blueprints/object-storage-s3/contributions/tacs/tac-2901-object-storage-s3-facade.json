@@ -1,0 +1,57 @@
+{
+  "tacId": "TAC-2901-object-storage-s3-facade",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Object-storage S3 facade",
+  "purpose": "The single project-side module that imports the S3 client (either @aws-sdk/client-s3 on Node targets or aws4fetch on Workers targets per ADR-2901), exposes narrow named domain verbs to consumer code (putObject, getObject, deleteObject, listObjects, presignGetUrl), delegates payloads above the ADR-2903 threshold to the multipart-uploader (TAC-2902), and emits structured lifecycle events to the event sink (TAC-2903). Consumers never destructure the S3 client outside this module; the facade is the one place the vendor surface lives. The adapter reference is opaque at this boundary so a Workers-side aws4fetch adapter or a future adapter (a GCS shim, an Azure Blob shim) slots in without a facade re-shape.",
+  "responsibilities": [
+    "Open the S3 client on boot against the elicited endpoint URL and bucket name; hold no other reference to the S3 vendor surface; export no symbol that leaks the raw client (AC-objectstorage-facadeReady, AC-28101-2).",
+    "Expose named domain verbs (putObject, getObject, deleteObject, listObjects, presignGetUrl) as named exports with typed parameters; refuse a raw-request passthrough on the public surface (AC-objectstorage-putGetRoundTrip, AC-28102-2, AC-28102-3).",
+    "Route payloads above the elicited ADR-2903 threshold through the multipart uploader (TAC-2902); on part-upload failure, AbortMultipartUpload before propagating the error (AC-objectstorage-multipartUpload, AC-28104-2).",
+    "Issue presigned GET URLs with a bounded TTL (floor 1 minute, default 15 minutes per ADR-2902, ceiling elicited); emit presignedIssued on the sink (AC-objectstorage-presignedUrl).",
+    "Emit facadeReady exactly once per facade instance on the injected event sink with endpointHost and bucketName; serialise pre-ready consumer verbs behind the ready-check (AC-objectstorage-facadeReady).",
+    "Consume the credential pair as an opaque secretRef through the applied security-secrets-management surface; never accept a plain-value credential on the public surface (AC-28106-1, AC-28106-2)."
+  ],
+  "internalStructure": "One module exporting a createObjectStore({ endpointUrl, bucket, credentialsRef, adapter, multipartThresholdBytes, defaultPresignTtlSeconds, onEvent }) factory returning an ObjectStore whose methods are the named domain verbs. The S3 client import lives at the top of this module; the factory captures a client instance keyed to the elicited endpoint and bucket, wires the sink, and hands back closures. Consumers destructure the verbs they need at their top level and hold the facade reference for the process lifetime.",
+  "interfaces": [
+    {
+      "name": "createObjectStore",
+      "kind": "factory",
+      "description": "createObjectStore({ endpointUrl, bucket, credentialsRef, adapter, multipartThresholdBytes, defaultPresignTtlSeconds, onEvent }) -> ObjectStore. The sole entry point every consumer calls. Opens the S3 client against endpointUrl and bucket; wires the sink; hands back an ObjectStore whose methods are the named domain verbs."
+    },
+    {
+      "name": "onEvent",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with { event, ts, ... } for facadeReady, objectPut, objectDeleted, presignedIssued events. Never invoked with object body values or credential material."
+    },
+    {
+      "name": "store.verbs",
+      "kind": "read-write-api",
+      "description": "The named domain verbs the facade exposes: putObject(key, contentType, body), getObject(key), deleteObject(key), listObjects(prefix, continuationToken), presignGetUrl(key, ttlSeconds)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Multipart uploader",
+      "kind": "tac",
+      "tacId": "TAC-2902-object-storage-s3-multipart-uploader",
+      "description": "The helper the facade delegates to for payloads above the ADR-2903 threshold; handles initiate, part-upload, complete-multipart-upload, abort-on-error."
+    },
+    {
+      "name": "Event sink",
+      "kind": "tac",
+      "tacId": "TAC-2903-object-storage-s3-event-sink",
+      "description": "The lifecycle-event sink contract the facade emits through with metadata-only field discipline."
+    },
+    {
+      "name": "Credential pair via security-secrets-management",
+      "kind": "external",
+      "description": "The applied security-secrets-management blueprint supplies the credential pair as an opaque secretRef the facade dereferences at boot; the compose-test path refuses composition when the predecessor is not applied."
+    }
+  ],
+  "tradeoffs": "The facade holds a single client instance per bucket at v1.0.0; a project needing multiple buckets creates multiple facade instances. The adapter reference is opaque at ADR-2901 so a future aws4fetch adapter or GCS/Azure shim slots in as a per-target module swap; the outward interface stays unchanged.",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

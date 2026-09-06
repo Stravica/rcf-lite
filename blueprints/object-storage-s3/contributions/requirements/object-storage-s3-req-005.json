@@ -1,0 +1,18 @@
+{
+  "reqId": "object-storage-s3-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Lifecycle events at four moments with metadata-only fields",
+  "description": "The facade emits four lifecycle events on the injected event sink: facadeReady (endpoint host, bucket name, timestamp), objectPut (key, size, contentType, timestamp), objectDeleted (key, timestamp), presignedIssued (key, ttl, timestamp). No event record carries object body bytes, no body checksum, no user id fields beyond what appears in the key itself, no PII drawn from the object body, and no adapter internal state. The event sink is a synchronous callback the operator wires; the facade never invokes it with domain-row values or authentication tokens. TAC-2903 realises the event-sink contract; the event-secrecy probe asserts field-level whitelist compliance against a PII fixture.",
+  "category": "functional",
+  "domain": "object-storage",
+  "priority": "must",
+  "rationale": "The event sink is the observability seam the applied logger and error-handling companions bind to. A leak of object body or PII through the event sink defeats every downstream redaction the logger applies. The metadata-only rule is the field-level whitelist the event-secrecy probe enforces.",
+  "tags": [
+    "blueprint:object-storage-s3",
+    "category:05-lifecycle-events"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

@@ -1,0 +1,36 @@
+{
+  "tacId": "TAC-2902-object-storage-s3-multipart-uploader",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Multipart uploader",
+  "purpose": "The helper the facade delegates to for payloads above the ADR-2903 threshold. Wraps CreateMultipartUpload, UploadPart (one per chunk), CompleteMultipartUpload, and AbortMultipartUpload on error into a single put verb the facade calls. Holds the multipart-upload id and part list in memory for the duration of the upload; guarantees an Abort on any thrown error before propagating the rejection, so no orphan in-flight upload remains on the bucket.",
+  "responsibilities": [
+    "Chunk the payload into fixed-size parts sized to the ADR-2903 threshold (default 8 MiB) with a final smaller-tail part if applicable (AC-objectstorage-multipartUpload).",
+    "Issue CreateMultipartUpload against the bucket and key; capture the returned UploadId (AC-objectstorage-multipartUpload).",
+    "Issue UploadPart for each chunk with a stable one-based PartNumber and stream the ETag responses into the part list (AC-objectstorage-multipartUpload).",
+    "On any UploadPart failure, issue AbortMultipartUpload with the captured UploadId before propagating the error to the caller; the abort is best-effort but is always attempted (AC-28104-2).",
+    "On successful upload of every part, issue CompleteMultipartUpload with the ordered part list; the get after complete returns the payload at full size (AC-objectstorage-multipartUpload).",
+    "Emit no lifecycle events itself; the outer facade owns event emission on completion (AC-objectstorage-multipartUpload)."
+  ],
+  "internalStructure": "One module exporting a putMultipart({ client, bucket, key, contentType, body, partSizeBytes }) async function. The function iterates the payload in partSizeBytes chunks, awaits UploadPart per chunk, and awaits CompleteMultipartUpload on success or AbortMultipartUpload on any thrown error. The UploadId and part-etag list are held in local scope; no state escapes across concurrent uploads.",
+  "interfaces": [
+    {
+      "name": "putMultipart",
+      "kind": "function",
+      "description": "putMultipart({ client, bucket, key, contentType, body, partSizeBytes }) -> Promise<{size, etag}>. Throws on any part-upload failure after AbortMultipartUpload attempts to clean up."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Facade",
+      "kind": "tac",
+      "tacId": "TAC-2901-object-storage-s3-facade",
+      "description": "The facade owns the S3 client instance and the elicited bucket; it passes both to the multipart uploader on invocation and owns event emission after completion."
+    }
+  ],
+  "tradeoffs": "The uploader holds the full payload in memory chunk-by-chunk at v1.0.0; a streaming-source variant lands as a v1.1 minor when a project needs it. The abort on part-upload failure is best-effort per the R2 doc semantics (re-uploads to the same part number replace the previous with loss-on-fail); the README names the gotcha.",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

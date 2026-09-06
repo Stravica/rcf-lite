@@ -1,0 +1,18 @@
+{
+  "name": "infra-s3-and-queue-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared sample-app fixture for the object-storage-s3 (T-2) and messaging-queue-cloudflare (T-3) blueprints. T-2 side: boots MinIO via docker compose, exposes a facade over @aws-sdk/client-s3 against MinIO on http://localhost:9000, and hosts induced-failure switches the six shipped probes drive against.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/object-store.mjs",
+    "create-bucket": "node src/create-bucket.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.720.0",
+    "@aws-sdk/s3-request-presigner": "^3.720.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

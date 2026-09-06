@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2904-object-storage-s3-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "S3 API as the shipped object-storage contract; global scope on topic objectStorageContract",
+  "context": "Object storage on major clouds and self-hosted deployments has converged on the S3 API as the de facto interop standard: Cloudflare R2, AWS S3, MinIO, Backblaze B2 (S3-compatible mode), Wasabi, and every other S3-compatible remote speak the same wire protocol with per-vendor deviations enumerated in vendor docs. The rcf-lite shelf mints one blueprint per contract shape; a future GCS-native or Azure-Blob-native sibling that owns different semantics needs a global-topic conflict surface at composition time so the operator picks one contract per project.",
+  "decision": "The shipped v1.0.0 object-storage contract shape is the S3 API. object-storage-s3 contributes a scope:global ADR on new topic objectStorageContract with the S3 shape as the answer. A future object-storage-native-gcs blueprint (reserved slug, not shipped) or object-storage-native-azure blueprint (reserved slug, not shipped) would contribute the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR. The v1.0.0 facade's outward surface is shaped around S3 semantics (put, get, delete, list on keys; presigned GET URL; multipart-upload above threshold); a native-GCS or native-Azure sibling would ship a different outward surface fitting its own contract.",
+  "consequences": "Every S3-compatible endpoint (R2, S3, MinIO, Backblaze, Wasabi, self-hosted) composes with object-storage-s3 v1.0.0 with no topic conflict. Standards trace clause: AWS S3 API (the de facto interop standard) and the Cloudflare R2 S3-compatibility notes at https://developers.cloudflare.com/r2/api/s3/api/. A project that later adopts a GCS-native or Azure-Blob-native workflow triggers the topic conflict at compose time; the operator resolves with a project-level ADR replacing the S3 shape, or keeps object-storage-s3 for the S3-shape workloads and pairs it with a native sibling on a different key namespace. The three global-topic ADRs shipped this round (persistenceStore, objectStorageContract, deliverySemantics, backgroundJobModel per infra round 5 spec section 4) are additive and non-overlapping.",
+  "alternativesConsidered": [
+    {
+      "name": "Do not claim a global topic",
+      "summary": "Leave object-storage-s3 scope-local and let a future sibling coexist without a compose-time conflict.",
+      "reasonNotChosen": "A project applying both object-storage-s3 and a hypothetical native-GCS sibling without a conflict surface will end up with two facades over two clients over two credential pairs; the operator resolution needs to be visible, not silent. The topic conflict is the mechanism."
+    },
+    {
+      "name": "Claim persistenceStore instead of a new topic",
+      "summary": "Reuse the persistenceStore topic the persistence-* family carries.",
+      "reasonNotChosen": "persistenceStore names the relational-store answer; object storage is a different semantic category (blob-shape, not row-shape). Reusing the topic would forbid the shipped combination of Postgres + S3 in the common web-app shape."
+    }
+  ],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

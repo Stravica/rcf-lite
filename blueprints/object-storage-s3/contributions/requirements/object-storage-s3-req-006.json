@@ -1,0 +1,18 @@
+{
+  "reqId": "object-storage-s3-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Credential-pair discipline via security-secrets-management; refuses composition without",
+  "description": "The credential pair (accessKeyId, secretAccessKey) required to sign S3 requests is a secretRef value delegated to security-secrets-management: an opaque string agreed between object-storage-s3 and security-secrets-management naming the secret entry, never the credential value itself. The apply verb refuses composition on a project that has NOT applied security-secrets-management with exit code 3 and the stable message id object-storage-s3-no-secrets on stderr, per infra round 5 spec section 5.2 (Baz decision 6). The refusal names the required predecessor blueprint (security-secrets-management) and the override flag (--allow-no-secrets-yet). The override records a note on the applied blueprint's source.notes so rcf define validate can later flag the surface as not-yet-activated. The compose-test path checks the pair through the applied secrets facade before the object-store facade opens.",
+  "category": "security",
+  "domain": "object-storage",
+  "priority": "must",
+  "rationale": "A project that skips secrets-management and hardcodes the credential pair defeats the discipline; the compose-time refusal is the mechanism that makes the discipline reach through the mechanism-reach principle. The override records a note, not a bypass, so the operator later reconciles.",
+  "tags": [
+    "blueprint:object-storage-s3",
+    "category:06-credentials"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}
