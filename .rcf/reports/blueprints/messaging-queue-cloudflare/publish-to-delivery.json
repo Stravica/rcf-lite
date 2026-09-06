@@ -1,0 +1,33 @@
+{
+  "slug": "messaging-queue-cloudflare",
+  "probeName": "publish-to-delivery",
+  "runAt": "2026-09-06T19:40:07.604Z",
+  "engine": {
+    "kind": "queues",
+    "image": "cloudflare/wrangler-dev-equivalent (in-memory driver)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-29102-1",
+      "verdict": "pass",
+      "detail": "5 messages received byte-equal with stable message-ids and producer trace-ids preserved; first id=rcf-test-queue#msg-000001"
+    },
+    {
+      "anchorAcId": "AC-29102-2",
+      "verdict": "pass",
+      "detail": "messageAcked fired 5 times with matching message-ids and queueName=rcf-test-queue"
+    },
+    {
+      "anchorAcId": "AC-29105-1",
+      "verdict": "pass",
+      "detail": "5 publishes, 5 acks; per-message ack semantics observed under batch max_batch_size=10"
+    },
+    {
+      "anchorAcId": "AC-29108-1",
+      "verdict": "pass",
+      "detail": "wrangler-dev-equivalent seam round-trip complete; 5 messages delivered with stable ids"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

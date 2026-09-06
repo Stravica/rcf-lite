@@ -1,0 +1,19 @@
+{
+  "slug": "messaging-queue-cloudflare",
+  "probeName": "real-account-concurrency-smoke",
+  "runAt": "2026-09-06T19:40:07.707Z",
+  "engine": {
+    "kind": "queues",
+    "image": "cloudflare/queues (accountBound)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-29108-2",
+      "verdict": "pass",
+      "detail": "accountBound: skipped (no CI_HAS_CLOUDFLARE_ACCOUNT)",
+      "accountBoundSkipped": true
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

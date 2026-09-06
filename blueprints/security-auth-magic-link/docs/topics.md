@@ -47,6 +47,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-onboarding-tour | 26101-26899 | 27xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
+| messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
 
 US 3101-3111 sit at the LOW end of the 3101-3899 band on purpose. A project-side story that mechanically derives from `security-auth-magic-link-REQ-011` into the number `3111` would collide against security-auth-magic-link-US-3111 in this package; the band leaves headroom at the HIGH end (US 3181-3899) so a project's own stories anchored to security-auth-magic-link REQs can allocate without conflict.
 

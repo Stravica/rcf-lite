@@ -1,0 +1,23 @@
+{
+  "slug": "messaging-queue-cloudflare",
+  "probeName": "retry-and-dlq",
+  "runAt": "2026-09-06T19:40:07.634Z",
+  "engine": {
+    "kind": "queues",
+    "image": "cloudflare/wrangler-dev-equivalent (in-memory driver)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-29103-1",
+      "verdict": "pass",
+      "detail": "same messageId=rcf-test-queue#msg-000001 seen across attempts 1,2,3"
+    },
+    {
+      "anchorAcId": "AC-29104-1",
+      "verdict": "pass",
+      "detail": "DLQ landing observed: messageDeadLettered messageId=rcf-test-queue#msg-000001 attempts=4; DLQ contents body byte-equal"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

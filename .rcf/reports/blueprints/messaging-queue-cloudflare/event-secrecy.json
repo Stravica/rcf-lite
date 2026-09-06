@@ -1,0 +1,18 @@
+{
+  "slug": "messaging-queue-cloudflare",
+  "probeName": "event-secrecy",
+  "runAt": "2026-09-06T19:40:07.677Z",
+  "engine": {
+    "kind": "queues",
+    "image": "cloudflare/wrangler-dev-equivalent (in-memory driver)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-29106-1",
+      "verdict": "pass",
+      "detail": "whitelist enforced on 3 events; no PII substring hit; no forbidden field name present"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}
