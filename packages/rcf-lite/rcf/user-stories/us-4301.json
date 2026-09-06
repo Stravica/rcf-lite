@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-09-06T20:28:34.000Z",
+  "updatedAt": "2026-09-06T20:28:34.000Z",
+  "asA": "shelf consumer applying the jobs-background v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files with 22 contributions, five probes, an extension to the shared sample-app fixture wiring the jobs runtime and scheduler on top of the T-3 in-memory queue seam, plus gate-runnable proof that apply refuses on a bare project with exit 3 and the stable message id, --allow-no-queue-yet writes a sidecar note, and every probe passes on the canonical fixture state",
+  "soThat": "a rcf-lite project applying this blueprint gets a job-definition contract with retry policy and timeout, an elicited scheduler (inProcess for now, workerCron or external for shipped adapters, workflows reserved for v1.1.0), a metadata-only run-log event stream at four moments, and the backgroundJobs capability future consumer blueprints can compose on; the T-5 capability-consumer mechanism is exercised end to end through the queue-capability path with runtime-observable ACs proven by probes the HQ gate runs against the shared sample-app fixture",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4301-1",
+      "description": "The shelf carries blueprints/jobs-background/blueprint.json declaring slug jobs-background, version 1.0.0, category jobs, 22 contributions in the 6 REQ / 9 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.4; capabilities is [backgroundJobs]; suggestedCompanions declares logging and errorHandling with spec section 5.4 reasons; providesRoles is absent; requiresAppliedCapabilities equals {capabilities:[queue],allowSkipFlag:allow-no-queue-yet,refusalMessageId:jobs-background-no-queue}; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.",
+      "given": "the shelf tree after this blueprint lands",
+      "when": "jq queries against blueprints/jobs-background/blueprint.json",
+      "then": "jq .slug returns jobs-background; jq .version returns 1.0.0; jq .contributions | length returns 22; jq .capabilities returns [backgroundJobs]; jq .suggestedCompanions | length returns 2; jq .requiresAppliedCapabilities.capabilities returns [queue]; jq .requiresAppliedCapabilities.allowSkipFlag returns allow-no-queue-yet; jq .requiresAppliedCapabilities.refusalMessageId returns jobs-background-no-queue; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4301-2",
+      "description": "rcf define blueprint add ./blueprints/jobs-background on a bare fresh init project with no queue-capability provider applied refuses with exit 3 and the stderr message opens with the tag [jobs-background-no-queue] and explicitly names messaging-queue-cloudflare as the shipped provider and --allow-no-queue-yet as the override, per infra round 5 spec section 10 Q3 default asserting BOTH exit code AND stable message id.",
+      "given": "a fresh rcf init scratch project with no applied blueprints",
+      "when": "rcf define blueprint add ./blueprints/jobs-background runs",
+      "then": "exit code is 3; stderr contains the substring [jobs-background-no-queue]; stderr contains the substring messaging-queue-cloudflare; stderr contains the substring --allow-no-queue-yet; nothing is written to rcf/manifest.json under blueprints[] for jobs-background",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4301-3",
+      "description": "rcf define blueprint add ./blueprints/jobs-background --allow-no-queue-yet on the same bare project exits 0 and writes the sidecar rcf/blueprints/jobs-background.applied.json with allowNoAuthYet true, appliedCapabilities [], and a notes field naming the missing queue capability and the --allow-no-queue-yet override flag (queue-family prose, not auth-family prose); the T-5 mechanism's shipped sidecar path supersedes the spec section 5.4 prose reference to manifest.blueprints[jobs-background].source.notes because the applied-blueprint-record schema in rcf-schemas 0.6.1 is closed and cannot carry the notes field.",
+      "given": "a fresh rcf init scratch project with no applied blueprints",
+      "when": "rcf define blueprint add ./blueprints/jobs-background --allow-no-queue-yet runs",
+      "then": "exit code is 0; the file rcf/blueprints/jobs-background.applied.json exists; its slug is jobs-background; its allowNoAuthYet is true; its appliedCapabilities is []; its notes contains the substring no queue yet and the substring --allow-no-queue-yet and the substring queue; its notes does NOT contain the substring no auth yet nor no secrets-management yet",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4301-4",
+      "description": "rcf define blueprint add ./blueprints/jobs-background on a fresh init project that first applied messaging-queue-cloudflare exits 0 and the sidecar rcf/blueprints/jobs-background.applied.json records appliedCapabilities containing queue via the T-5 capability discovery mechanism (union across applied blueprint capability declarations); the spec section 5.4 prose reference to jq '.blueprints[] | select(.slug==\"jobs-background\") | .appliedCapabilities' rcf/manifest.json is superseded by the shipped mechanism which lives on the sidecar.",
+      "given": "a fresh rcf init scratch project with messaging-queue-cloudflare applied first",
+      "when": "rcf define blueprint add ./blueprints/jobs-background runs",
+      "then": "exit code is 0; the file rcf/blueprints/jobs-background.applied.json exists; its slug is jobs-background; its appliedCapabilities contains the string queue; its allowNoAuthYet is undefined; its notes is undefined",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4301-5",
+      "description": "Every probe module under blueprints/jobs-background/contributions/probes/ exports the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id on the blueprint (apply-time-refusal.mjs anchorAcId AC-jobs-requiresQueue, apply-time-override.mjs AC-jobs-overrideRecorded, fake-clock-cron.mjs AC-jobs-scheduledRunsOnCron, retry-and-fail.mjs AC-jobs-retryOnHandlerFailure, event-secrecy.mjs AC-jobs-eventSecrecy); every run-<probe-name>.mjs shim exits 0 on a fresh run of the shared sample-app fixture with the T-3 in-memory queue seam active; every per-blueprint report at .rcf/reports/blueprints/jobs-background/<probe-name>.json carries aggregateVerdict pass.",
+      "given": "the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with the T-3 in-memory queue-driver seam active (SDR-3-a coordinator ruling: wrangler dev is not on this build host and the in-memory realisation of the Cloudflare Queues binding shape is the shipped local seam)",
+      "when": "each of the five run-<probe-name>.mjs shims runs against the fixture in sequence",
+      "then": "every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4301-6",
+      "description": "The shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ grows a jobs/ directory carrying two toy job-definition modules (send-welcome-email.mjs with retryPolicy {maxAttempts:3,backoff:exponential} and timeoutMs 60000, refresh-cache.mjs with retryPolicy {maxAttempts:5,backoff:constant} timeoutMs 10000 and cron every-minute), src/jobs-runtime.mjs realising the run-time (reads applied capabilities from the sidecar, registers job handlers with the queue consumer, fires the four lifecycle events per REQ-005), src/scheduler.mjs realising the inProcess scheduler with a fake-clock seam; two induced-failure switches SIMULATE_HANDLER_THROW and SIMULATE_PII_IN_JOB_INPUT are WIRED and driven live by the retry-and-fail.mjs and event-secrecy.mjs probes; the fixture README documents the two toy jobs, the jobs/ convention, the fake-clock switch, the elicited parameters and both induced-failure switches with paired probes.",
+      "given": "the shared fixture with the T-3 in-memory queue-driver seam and the T-4 jobs-runtime+scheduler wired on top",
+      "when": "each of the two induced-failure switches is set in turn and the paired probe runs",
+      "then": "SIMULATE_HANDLER_THROW true yields retry-and-fail report with attempts counter 1,2,3 across three jobStarted events with the same jobId followed by jobFailed with terminal code; SIMULATE_PII_IN_JOB_INPUT true yields event-secrecy report with aggregateVerdict pass proving the event whitelist blocks every PII input field; the fixture README documents each switch and the paired probe module by name",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4301-7",
+      "description": "The blueprint ships a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a jobs-background row at US band 30101-30899 / ADR-TAC suffix block 31xx across every shipped blueprint's docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for backgroundJobs naming the reserved sibling posture per infra round 5 spec section 5.6.",
+      "given": "the shelf tree after this blueprint lands",
+      "when": "grep queries walk every blueprint's docs/topics.md and the section 6a table",
+      "then": "packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | backgroundJobs | naming jobs-background and the reserved sibling posture; every shipped blueprint's docs/topics.md carries a row beginning | jobs-background | with the 30101-30899 band and 31xx suffix; blueprints/jobs-background/README.md, CHANGELOG.md, guide/jobs-background.md, docs/topics.md, and the extended packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names the jobs-runtime boot line and the two wired induced-failure switches",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "usId": "US-4301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-043",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The jobs-background blueprint ships on the shelf with five probes wired to the T-3 in-memory queue seam"
+}
