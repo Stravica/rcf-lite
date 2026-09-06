@@ -1,0 +1,27 @@
+{
+  "usId": "application-account-settings-US-25103",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Security surface self-service branch renders when credentialSelfService applied",
+  "asA": "authenticated principal managing my credentials in-place",
+  "iWant": "a security surface rendering a self-service password-change and MFA-management branch when the applied auth blueprint declares credentialSelfService",
+  "soThat": "I can change my password and manage second factors without leaving the product",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25103-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "When credentialSelfService is in the applied capability set, GET /account/security renders <div data-surface=\"security\" data-branch=\"self-service\"> containing a [data-role=\"change-password\"] form and a [data-role=\"mfa-management\"] region. Absent from render when credentialSelfService is not applied. Probed by pack check AC-25105-1 (unified security check)."
+    }
+  ],
+  "tacIds": [
+    "TAC-2603-application-account-settings-hosted-ui-bridge"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

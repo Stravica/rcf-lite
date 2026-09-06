@@ -1,0 +1,27 @@
+{
+  "usId": "application-account-settings-US-25104",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Security surface hosted-UI branch renders when hostedIdentityUi applied",
+  "asA": "authenticated principal reaching security surfaces on a hosted identity provider",
+  "iWant": "a link-out or embed branch that hands me to the hosted account page cleanly",
+  "soThat": "the shipped surface takes me to the provider that owns credential storage",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25104-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "When hostedIdentityUi is in the applied capability set AND the operator elicited security-surface-shape=hosted-link-out, GET /account/security renders <a data-role=\"hosted-link-out\" href=\"{hosted-identity-url}\" rel=\"noopener\"> with an accessible label carrying the destination provider name; when security-surface-shape=hosted-embed, renders <iframe data-role=\"hosted-embed\" title=\"Account security\" src=\"{hosted-identity-url}\" sandbox=\"allow-scripts allow-forms allow-same-origin\">. Probed by pack check AC-25105-1."
+    }
+  ],
+  "tacIds": [
+    "TAC-2603-application-account-settings-hosted-ui-bridge"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

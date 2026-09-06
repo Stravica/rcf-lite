@@ -1,0 +1,35 @@
+{
+  "tacId": "TAC-2603-application-account-settings-hosted-ui-bridge",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Hosted identity UI bridge",
+  "purpose": "The security surface bridge between the applied auth blueprint and the operator-elicited hosted-UI destination.",
+  "responsibilities": [
+    "When credentialSelfService is applied, render the self-service branch (password change, MFA management) (AC-25103-1).",
+    "When hostedIdentityUi is applied AND security-surface-shape=hosted-link-out, render an <a data-role=\"hosted-link-out\" href=\"{hosted-identity-url}\"> with rel=\"noopener\" (AC-25104-1).",
+    "When hostedIdentityUi is applied AND security-surface-shape=hosted-embed, render an <iframe data-role=\"hosted-embed\" title=\"Account security\" src=\"{hosted-identity-url}\" sandbox=\"allow-scripts allow-forms allow-same-origin\"> (AC-25104-1).",
+    "Refuse at apply when the operator answers security-surface-shape but no applied blueprint declares credentialSelfService or hostedIdentityUi (AC-25110-1)."
+  ],
+  "internalStructure": "One security-surface module reading the elicited security-surface-shape and hosted-identity-url from the sidecar and dispatching to the appropriate render helper. The framework is not prescribed.",
+  "interfaces": [
+    {
+      "name": "renderSecuritySurface",
+      "kind": "factory",
+      "description": "renderSecuritySurface({ appliedCapabilities, appliedElicitations }) -> { mount(root), unmount() }. Reads security-surface-shape and hosted-identity-url from appliedElicitations."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Capability discovery",
+      "kind": "tac",
+      "tacId": "TAC-2602-application-account-settings-capability-discovery",
+      "description": "The bridge reads the applied capability set from the sidecar the discovery helper writes."
+    }
+  ],
+  "tradeoffs": "A hosted-embed carries the sandbox attribute at a conservative default (allow-scripts allow-forms allow-same-origin); a hosted-UI provider that requires additional sandbox tokens is a v1.1.0 minor bump (extending the elicits with a sandbox-tokens field). ADR-2602 records the choice.",
+  "notes": "Known mechanism-reach gap: the bridge cannot itself prove the hosted UI actually loads at the elicited URL; the pack asserts the DOM shape and the operator asserts the URL is reachable.",
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

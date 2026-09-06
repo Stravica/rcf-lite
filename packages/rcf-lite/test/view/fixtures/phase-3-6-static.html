@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -7919,6 +7919,293 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-027">
+  <summary><span class="summary-label">REQ-027 - application-account-settings v1.0.0 blueprint on the shelf with 5-check pack, 4 auth-blueprint minor bumps and observability-logging minor</span><span class="status draft">draft</span></summary>
+  <article id="REQ-027" class="doc doc-req">
+  <h3>REQ-027 - application-account-settings v1.0.0 blueprint on the shelf with 5-check pack, 4 auth-blueprint minor bumps and observability-logging minor</h3>
+  
+  <p><strong>Description:</strong> T-4 shelf-blueprint track: application-account-settings v1.0.0 with 24 contributions 6 REQs 10 USs 25101 to 25110 4 TACs 2601 to 2604 4 ADRs 2601 to 2604; requiresAppliedCapabilities principalDirectory with allow-no-auth-yet override; 8 elicits; probe pack with 5 capability-gated checks anchored to AC-25101-1 AC-25102-1 AC-25105-1 AC-25106-1 AC-25108-1; sample-app fixture with 5 conditional surfaces and 4 break switches; rides with clerk 1.3.0 keycloak 1.2.0 oauth2 1.2.0 magic-link 1.2.0 doc-only observability-logging 1.2.0; mechanism minor for Q3 refusal and refusal template. Ninth shipped consumer of T-0 probe-pack runner.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> application</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-027[&quot;REQ-027&lt;br/&gt;application-account-settings v1.0.0 blueprint...&quot;]
+  US-2701[&quot;US-2701&lt;br/&gt;The application-account-settings blueprint sh...&quot;]
+  REQ-027 --&gt; US-2701
+  AC-2701-1[&quot;AC-2701-1&quot;]
+  US-2701 --&gt; AC-2701-1
+  FBS-046[&quot;FBS-046&lt;br/&gt;application-account-settings v1.0.0 blueprint...&quot;]
+  AC-2701-1 -.-&gt;|delivered by| FBS-046
+  CN-155[&quot;CN-155&lt;br/&gt;../../blueprints/application-account-settings...&quot;]
+  AC-2701-1 -.-&gt;|implemented by| CN-155
+  CN-159[&quot;CN-159&lt;br/&gt;../../blueprints/application-account-settings...&quot;]
+  AC-2701-1 -.-&gt;|implemented by| CN-159
+  AC-2701-2[&quot;AC-2701-2&quot;]
+  US-2701 --&gt; AC-2701-2
+  AC-2701-2 -.-&gt;|delivered by| FBS-046
+  AC-2701-2 -.-&gt;|implemented by| CN-155
+  AC-2701-3[&quot;AC-2701-3&quot;]
+  US-2701 --&gt; AC-2701-3
+  AC-2701-3 -.-&gt;|delivered by| FBS-046
+  CN-164[&quot;CN-164&lt;br/&gt;../../packages/rcf-lite/src/blueprint/capabil...&quot;]
+  AC-2701-3 -.-&gt;|implemented by| CN-164
+  AC-2701-4[&quot;AC-2701-4&quot;]
+  US-2701 --&gt; AC-2701-4
+  AC-2701-4 -.-&gt;|delivered by| FBS-046
+  CN-156[&quot;CN-156&lt;br/&gt;../../blueprints/application-account-settings...&quot;]
+  AC-2701-4 -.-&gt;|implemented by| CN-156
+  AC-2701-5[&quot;AC-2701-5&quot;]
+  US-2701 --&gt; AC-2701-5
+  AC-2701-5 -.-&gt;|delivered by| FBS-046
+  CN-157[&quot;CN-157&lt;br/&gt;../../packages/rcf-lite/test/fixtures/probe-p...&quot;]
+  AC-2701-5 -.-&gt;|implemented by| CN-157
+  CN-158[&quot;CN-158&lt;br/&gt;../../packages/rcf-lite/test/fixtures/probe-p...&quot;]
+  AC-2701-5 -.-&gt;|implemented by| CN-158
+  AC-2701-6[&quot;AC-2701-6&quot;]
+  US-2701 --&gt; AC-2701-6
+  AC-2701-6 -.-&gt;|delivered by| FBS-046
+  AC-2701-6 -.-&gt;|implemented by| CN-155
+  AC-2701-6 -.-&gt;|implemented by| CN-156
+  AC-2701-6 -.-&gt;|implemented by| CN-157
+  AC-2701-7[&quot;AC-2701-7&quot;]
+  US-2701 --&gt; AC-2701-7
+  AC-2701-7 -.-&gt;|delivered by| FBS-046
+  CN-162[&quot;CN-162&lt;br/&gt;../../blueprints/application-account-settings...&quot;]
+  AC-2701-7 -.-&gt;|implemented by| CN-162
+  CN-163[&quot;CN-163&lt;br/&gt;../../packages/rcf-lite/docs/blueprint-author...&quot;]
+  AC-2701-7 -.-&gt;|implemented by| CN-163
+  AC-2701-8[&quot;AC-2701-8&quot;]
+  US-2701 --&gt; AC-2701-8
+  AC-2701-8 -.-&gt;|delivered by| FBS-046
+  AC-2701-8 -.-&gt;|implemented by| CN-159
+  CN-160[&quot;CN-160&lt;br/&gt;../../blueprints/application-account-settings...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-160
+  CN-161[&quot;CN-161&lt;br/&gt;../../blueprints/application-account-settings...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-161
+  AC-2701-8 -.-&gt;|implemented by| CN-162
+  AC-2701-8 -.-&gt;|implemented by| CN-164
+  CN-165[&quot;CN-165&lt;br/&gt;../../blueprints/security-auth-clerk/blueprin...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-165
+  CN-166[&quot;CN-166&lt;br/&gt;../../blueprints/security-auth-clerk/CHANGELO...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-166
+  CN-167[&quot;CN-167&lt;br/&gt;../../blueprints/security-auth-keycloak/bluep...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-167
+  CN-168[&quot;CN-168&lt;br/&gt;../../blueprints/security-auth-keycloak/CHANG...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-168
+  CN-169[&quot;CN-169&lt;br/&gt;../../blueprints/security-auth-oauth2/bluepri...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-169
+  CN-170[&quot;CN-170&lt;br/&gt;../../blueprints/security-auth-oauth2/CHANGEL...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-170
+  CN-171[&quot;CN-171&lt;br/&gt;../../blueprints/security-auth-magic-link/blu...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-171
+  CN-172[&quot;CN-172&lt;br/&gt;../../blueprints/security-auth-magic-link/CHA...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-172
+  CN-173[&quot;CN-173&lt;br/&gt;../../blueprints/observability-logging/bluepr...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-173
+  CN-174[&quot;CN-174&lt;br/&gt;../../blueprints/observability-logging/CHANGE...&quot;]
+  AC-2701-8 -.-&gt;|implemented by| CN-174
+  click REQ-027 &quot;#REQ-027&quot;;
+  click US-2701 &quot;#US-2701&quot;;
+  click AC-2701-1 &quot;#AC-2701-1&quot;;
+  click FBS-046 &quot;#FBS-046&quot;;
+  click CN-155 &quot;#CN-155&quot;;
+  click CN-159 &quot;#CN-159&quot;;
+  click AC-2701-2 &quot;#AC-2701-2&quot;;
+  click AC-2701-3 &quot;#AC-2701-3&quot;;
+  click CN-164 &quot;#CN-164&quot;;
+  click AC-2701-4 &quot;#AC-2701-4&quot;;
+  click CN-156 &quot;#CN-156&quot;;
+  click AC-2701-5 &quot;#AC-2701-5&quot;;
+  click CN-157 &quot;#CN-157&quot;;
+  click CN-158 &quot;#CN-158&quot;;
+  click AC-2701-6 &quot;#AC-2701-6&quot;;
+  click AC-2701-7 &quot;#AC-2701-7&quot;;
+  click CN-162 &quot;#CN-162&quot;;
+  click CN-163 &quot;#CN-163&quot;;
+  click AC-2701-8 &quot;#AC-2701-8&quot;;
+  click CN-160 &quot;#CN-160&quot;;
+  click CN-161 &quot;#CN-161&quot;;
+  click CN-165 &quot;#CN-165&quot;;
+  click CN-166 &quot;#CN-166&quot;;
+  click CN-167 &quot;#CN-167&quot;;
+  click CN-168 &quot;#CN-168&quot;;
+  click CN-169 &quot;#CN-169&quot;;
+  click CN-170 &quot;#CN-170&quot;;
+  click CN-171 &quot;#CN-171&quot;;
+  click CN-172 &quot;#CN-172&quot;;
+  click CN-173 &quot;#CN-173&quot;;
+  click CN-174 &quot;#CN-174&quot;;
+  class REQ-027 req;
+  class US-2701 us;
+  class AC-2701-1 ac;
+  class FBS-046 fbs;
+  class CN-155 cn;
+  class CN-159 cn;
+  class AC-2701-2 ac;
+  class AC-2701-3 ac;
+  class CN-164 cn;
+  class AC-2701-4 ac;
+  class CN-156 cn;
+  class AC-2701-5 ac;
+  class CN-157 cn;
+  class CN-158 cn;
+  class AC-2701-6 ac;
+  class AC-2701-7 ac;
+  class CN-162 cn;
+  class CN-163 cn;
+  class AC-2701-8 ac;
+  class CN-160 cn;
+  class CN-161 cn;
+  class CN-165 cn;
+  class CN-166 cn;
+  class CN-167 cn;
+  class CN-168 cn;
+  class CN-169 cn;
+  class CN-170 cn;
+  class CN-171 cn;
+  class CN-172 cn;
+  class CN-173 cn;
+  class CN-174 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T21:11:33.252Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T21:11:33.281Z&quot;,
+  &quot;description&quot;: &quot;T-4 shelf-blueprint track: application-account-settings v1.0.0 with 24 contributions 6 REQs 10 USs 25101 to 25110 4 TACs 2601 to 2604 4 ADRs 2601 to 2604; requiresAppliedCapabilities principalDirectory with allow-no-auth-yet override; 8 elicits; probe pack with 5 capability-gated checks anchored to AC-25101-1 AC-25102-1 AC-25105-1 AC-25106-1 AC-25108-1; sample-app fixture with 5 conditional surfaces and 4 break switches; rides with clerk 1.3.0 keycloak 1.2.0 oauth2 1.2.0 magic-link 1.2.0 doc-only observability-logging 1.2.0; mechanism minor for Q3 refusal and refusal template. Ninth shipped consumer of T-0 probe-pack runner.&quot;,
+  &quot;reqId&quot;: &quot;REQ-027&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;application-account-settings v1.0.0 blueprint on the shelf with 5-check pack, 4 auth-blueprint minor bumps and observability-logging minor&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;application&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;,
+      &quot;auth&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-06T21:11:33.280Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;magic-link&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;template&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-2701">
+  <summary><span class="summary-label">US-2701 - The application-account-settings blueprint ships on the shelf with its 5-check pack and sample-app fixture; the pack refuses on the four break switches; the four auth minors and the observability-logging minor bump ship in the same PR with the extended section 6a capability table</span><span class="status draft">draft</span></summary>
+  <article id="US-2701" class="doc doc-us">
+  <h3>US-2701 - The application-account-settings blueprint ships on the shelf with its 5-check pack and sample-app fixture; the pack refuses on the four break switches; the four auth minors and the observability-logging minor bump ship in the same PR with the extended section 6a capability table</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the application-account-settings v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring the five surface-observable checks (shell tabs, profile autocomplete, security branch, sessions dialog-modal, theme radiogroup) with capability-gated appliesTo, and a sample-app fixture proving the pack passes on the honest render of the five conditional surfaces and fails on the four break switches; the four auth blueprint minor bumps and the observability-logging minor bump riding the same PR extending the section 6a capability table with credentialSelfService sessionInventory and hostedIdentityUi</p>
+  <p><strong>So that:</strong> a project consuming rcf-lite gets the WCAG 2.2 AA compliant account-settings surface with a runtime-verified pack that gates on the applied capability set (no bespoke work when magic-link is applied and only profile activates; the security surface renders self-service on Keycloak or hosted-link-out on Clerk; the sessions surface renders on any applied sessionInventory provider including observability-logging as the logging-projection provider), one recommended default per elicit where honest and no recommended default on security-surface-shape where dishonest</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-027">REQ-027</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-2701-1" class="ac-item"><strong>AC-2701-1</strong> - The shelf carries blueprints/application-account-settings/blueprint.json declaring slug application-account-settings, version 1.0.0, category application, and 24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups per spec section 5.4; suggestedCompanions declares logging and errorHandling with reasons; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities declares principalDirectory with allowSkipFlag allow-no-auth-yet and refusalMessageId application-account-settings-bare-spa.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-046">FBS-046</a></p></li>
+<li id="AC-2701-2" class="ac-item"><strong>AC-2701-2</strong> - The shelf carries blueprints/application-account-settings/blueprint.json declaring slug application-account-settings, version 1.0.0, category application, and 24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups per spec section 5.4; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.4; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities declares principalDirectory with allowSkipFlag allow-no-auth-yet and refusalMessageId application-account-settings-bare-spa.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-046">FBS-046</a></p></li>
+<li id="AC-2701-3" class="ac-item"><strong>AC-2701-3</strong> - rcf define blueprint add ./blueprints/application-account-settings applies the 24 contributions cleanly on a fresh init project with security-auth-magic-link applied (exit 0, contribution count matches blueprint.json); the applied sidecar records appliedCapabilities principalDirectory only; a fresh init project with no auth applied refuses at exit 3 with the [application-account-settings-bare-spa] refusal message; --allow-no-auth-yet applies with allowNoAuthYet true and a scaffolding-pass note on the sidecar.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-046">FBS-046</a></p></li>
+<li id="AC-2701-4" class="ac-item"><strong>AC-2701-4</strong> - The shipped probe pack blueprints/application-account-settings/probe-packs/application-account-settings.pack.mjs loads via T-0 pack-loader against a scratch project with the blueprint applied; each of its five check ids (AC-25101-1 shell, AC-25102-1 profile, AC-25105-1 security, AC-25106-1 sessions, AC-25108-1 theme) resolves to an AC id contributed by the blueprint; every check carries a description field; the pack-level appliesTo predicate references BOTH tacIds AND route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-046">FBS-046</a></p></li>
+<li id="AC-2701-5" class="ac-item"><strong>AC-2701-5</strong> - The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /account renders the ARIA APG tabs shell whose tabs mirror the CAPS env; /account/profile renders the form with autocomplete tokens name email bday country; /account/security?security-surface-shape=self-service renders the change-password and mfa-management regions when credentialSelfService is in CAPS; /account/sessions renders one row per session with data-session-id and a terminate control on non-current rows plus the ARIA dialog-modal; /account/theme renders the radiogroup with light dark system and persists per the ACCOUNT_SETTINGS_THEME_PERSIST env; PORT env overrides the bind port (default 3000, never binds 4200).
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-046">FBS-046</a></p></li>
+<li id="AC-2701-6" class="ac-item"><strong>AC-2701-6</strong> - The probe pack fails on each broken fixture branch: ?break=leak-tab renders the security tab even when neither credentialSelfService nor hostedIdentityUi is in CAPS so AC-25101-1 fails at severity block; ?break=no-autocomplete drops the autocomplete tokens on the profile form so AC-25102-1 fails at severity block; ?break=no-dialog removes the terminate confirmation dialog so AC-25106-1 fails at severity block; ?break=no-persist drops the theme persistence write so AC-25108-1 does not fail on this fixture-side signal directly but the data-persist attribute mismatch triggers the fail.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-046">FBS-046</a></p></li>
+<li id="AC-2701-7" class="ac-item"><strong>AC-2701-7</strong> - The four capability strings principalDirectory credentialSelfService sessionInventory hostedIdentityUi and the security surface shape enum self-service hosted-link-out hosted-embed appear identically across README, guide, pack checks[] descriptions and docs/topics.md registry; the section 6a capability table in packages/rcf-lite/docs/blueprint-authoring.md lists credentialSelfService sessionInventory and hostedIdentityUi with the shelf providers named.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-046">FBS-046</a></p></li>
+<li id="AC-2701-8" class="ac-item"><strong>AC-2701-8</strong> - README lists mechanism-reach gaps individually per AC id per checklist section 6.g; CHANGELOG carries one 1.0.0 entry naming the auth minors and the observability-logging minor that ride the same PR; docs/topics.md carries the T-4 shelf registry row and the cross-references to application-empty-error-states and application-admin-console; the four amended auth blueprints each carry a README latest note and a CHANGELOG entry naming the new capabilities and the account-settings consumer; the observability-logging blueprint carries the same.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-046">FBS-046</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T21:11:39.906Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T21:12:11.457Z&quot;,
+  &quot;usId&quot;: &quot;US-2701&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-027&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The application-account-settings blueprint ships on the shelf with its 5-check pack and sample-app fixture; the pack refuses on the four break switches; the four auth minors and the observability-logging minor bump ship in the same PR with the extended section 6a capability table&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the application-account-settings v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the shipped blueprint files, the Playwright probe pack anchoring the five surface-observable checks (shell tabs, profile autocomplete, security branch, sessions dialog-modal, theme radiogroup) with capability-gated appliesTo, and a sample-app fixture proving the pack passes on the honest render of the five conditional surfaces and fails on the four break switches; the four auth blueprint minor bumps and the observability-logging minor bump riding the same PR extending the section 6a capability table with credentialSelfService sessionInventory and hostedIdentityUi&quot;,
+  &quot;soThat&quot;: &quot;a project consuming rcf-lite gets the WCAG 2.2 AA compliant account-settings surface with a runtime-verified pack that gates on the applied capability set (no bespoke work when magic-link is applied and only profile activates; the security surface renders self-service on Keycloak or hosted-link-out on Clerk; the sessions surface renders on any applied sessionInventory provider including observability-logging as the logging-projection provider), one recommended default per elicit where honest and no recommended default on security-surface-shape where dishonest&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-2701-1&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/application-account-settings/blueprint.json declaring slug application-account-settings, version 1.0.0, category application, and 24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups per spec section 5.4; suggestedCompanions declares logging and errorHandling with reasons; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities declares principalDirectory with allowSkipFlag allow-no-auth-yet and refusalMessageId application-account-settings-bare-spa.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2701-2&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/application-account-settings/blueprint.json declaring slug application-account-settings, version 1.0.0, category application, and 24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups per spec section 5.4; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.4; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities declares principalDirectory with allowSkipFlag allow-no-auth-yet and refusalMessageId application-account-settings-bare-spa.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2701-3&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/application-account-settings applies the 24 contributions cleanly on a fresh init project with security-auth-magic-link applied (exit 0, contribution count matches blueprint.json); the applied sidecar records appliedCapabilities principalDirectory only; a fresh init project with no auth applied refuses at exit 3 with the [application-account-settings-bare-spa] refusal message; --allow-no-auth-yet applies with allowNoAuthYet true and a scaffolding-pass note on the sidecar.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2701-4&quot;,
+      &quot;description&quot;: &quot;The shipped probe pack blueprints/application-account-settings/probe-packs/application-account-settings.pack.mjs loads via T-0 pack-loader against a scratch project with the blueprint applied; each of its five check ids (AC-25101-1 shell, AC-25102-1 profile, AC-25105-1 security, AC-25106-1 sessions, AC-25108-1 theme) resolves to an AC id contributed by the blueprint; every check carries a description field; the pack-level appliesTo predicate references BOTH tacIds AND route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2701-5&quot;,
+      &quot;description&quot;: &quot;The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /account renders the ARIA APG tabs shell whose tabs mirror the CAPS env; /account/profile renders the form with autocomplete tokens name email bday country; /account/security?security-surface-shape=self-service renders the change-password and mfa-management regions when credentialSelfService is in CAPS; /account/sessions renders one row per session with data-session-id and a terminate control on non-current rows plus the ARIA dialog-modal; /account/theme renders the radiogroup with light dark system and persists per the ACCOUNT_SETTINGS_THEME_PERSIST env; PORT env overrides the bind port (default 3000, never binds 4200).&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2701-6&quot;,
+      &quot;description&quot;: &quot;The probe pack fails on each broken fixture branch: ?break=leak-tab renders the security tab even when neither credentialSelfService nor hostedIdentityUi is in CAPS so AC-25101-1 fails at severity block; ?break=no-autocomplete drops the autocomplete tokens on the profile form so AC-25102-1 fails at severity block; ?break=no-dialog removes the terminate confirmation dialog so AC-25106-1 fails at severity block; ?break=no-persist drops the theme persistence write so AC-25108-1 does not fail on this fixture-side signal directly but the data-persist attribute mismatch triggers the fail.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2701-7&quot;,
+      &quot;description&quot;: &quot;The four capability strings principalDirectory credentialSelfService sessionInventory hostedIdentityUi and the security surface shape enum self-service hosted-link-out hosted-embed appear identically across README, guide, pack checks[] descriptions and docs/topics.md registry; the section 6a capability table in packages/rcf-lite/docs/blueprint-authoring.md lists credentialSelfService sessionInventory and hostedIdentityUi with the shelf providers named.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-2701-8&quot;,
+      &quot;description&quot;: &quot;README lists mechanism-reach gaps individually per AC id per checklist section 6.g; CHANGELOG carries one 1.0.0 entry naming the auth minors and the observability-logging minor that ride the same PR; docs/topics.md carries the T-4 shelf registry row and the cross-references to application-empty-error-states and application-admin-console; the four amended auth blueprints each carry a README latest note and a CHANGELOG entry naming the new capabilities and the account-settings consumer; the observability-logging blueprint carries the same.&quot;,
+      &quot;testable&quot;: true
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 <details class="doc-details doc-req-wrap" data-doc-id="REQ-040">
   <summary><span class="summary-label">REQ-040 - Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container</span><span class="status draft">draft</span></summary>
   <article id="REQ-040" class="doc doc-req">
@@ -9541,7 +9828,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -13128,6 +13415,98 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     &quot;FBS-044&quot;
   ]
 }</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-046">
+  <summary><span class="summary-label">FBS-046 - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-046" class="doc doc-fbs">
+  <h3>FBS-046 - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</h3>
+  
+  <p><strong>Summary:</strong> T-4 shelf-blueprint track of the ratified visual round 4 spec (2026-09-06 section 5.4): the application-account-settings v1.0.0 blueprint on the shelf with 24 contributions (6 REQs shell + profile + security + sessions + notifications + theme; 10 USs 25101 to 25110; 4 TACs 2601 shell / 2602 capability-discovery / 2603 hosted-ui-bridge / 2604 session-store; 4 ADRs 2601 capability-vocabulary extension / 2602 security-surface-shape elicited no default / 2603 theme-persistence spa-local-storage default / 2604 reauth-window 15m default). Declares requiresAppliedCapabilities principalDirectory with the application-account-settings-bare-spa refusal template and the allow-no-auth-yet override; 8 elicits (4 custom-auth-provides plus security-surface-shape hosted-identity-url theme-persistence reauth-window). Ships a Playwright probe pack with five capability-gated checks anchored to AC-25101-1 AC-25102-1 AC-25105-1 AC-25106-1 AC-25108-1, and a dependency-free sample-app fixture with the five conditional surfaces plus four break switches. Rides with the auth-blueprint minor bumps clerk 1.3.0 (adds sessionInventory hostedIdentityUi) keycloak 1.2.0 (adds credentialSelfService sessionInventory) oauth2 1.2.0 (adds credentialSelfService sessionInventory hostedIdentityUi provider-conditional) magic-link 1.2.0 (doc-only) and the observability-logging 1.2.0 minor bump (adds sessionInventory as the logging-projection provider). Extends the section 6a capability table in packages/rcf-lite/docs/blueprint-authoring.md with three new capability strings. Mechanism minor: buildRefusalMessage carries the application-account-settings-bare-spa template; runElicitationPhase refuses when an operator answers a gated elicit whose when predicate did not fire (Q3 refusal). Composes on application-empty-error-states T-1 for the forbidden and empty-history states; no bespoke access-denied UI. Ninth shipped consumer of T-0 probe-pack runner extension. suggestedCompanions logging and errorHandling; providesRoles absent; capabilities absent.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-2701-1">AC-2701-1</a><a class="ac-pill" href="#AC-2701-2">AC-2701-2</a><a class="ac-pill" href="#AC-2701-3">AC-2701-3</a><a class="ac-pill" href="#AC-2701-4">AC-2701-4</a><a class="ac-pill" href="#AC-2701-5">AC-2701-5</a><a class="ac-pill" href="#AC-2701-6">AC-2701-6</a><a class="ac-pill" href="#AC-2701-7">AC-2701-7</a><a class="ac-pill" href="#AC-2701-8">AC-2701-8</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-2701-1">AC-2701-1</a></strong> - The shelf carries blueprints/application-account-settings/blueprint.json declaring slug application-account-settings, version 1.0.0, category application, and 24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups per spec section 5.4; suggestedCompanions declares logging and errorHandling with reasons; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities declares principalDirectory with allowSkipFlag allow-no-auth-yet and refusalMessageId application-account-settings-bare-spa.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2701-2">AC-2701-2</a></strong> - The shelf carries blueprints/application-account-settings/blueprint.json declaring slug application-account-settings, version 1.0.0, category application, and 24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups per spec section 5.4; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.4; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities declares principalDirectory with allowSkipFlag allow-no-auth-yet and refusalMessageId application-account-settings-bare-spa.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2701-3">AC-2701-3</a></strong> - rcf define blueprint add ./blueprints/application-account-settings applies the 24 contributions cleanly on a fresh init project with security-auth-magic-link applied (exit 0, contribution count matches blueprint.json); the applied sidecar records appliedCapabilities principalDirectory only; a fresh init project with no auth applied refuses at exit 3 with the [application-account-settings-bare-spa] refusal message; --allow-no-auth-yet applies with allowNoAuthYet true and a scaffolding-pass note on the sidecar.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2701-4">AC-2701-4</a></strong> - The shipped probe pack blueprints/application-account-settings/probe-packs/application-account-settings.pack.mjs loads via T-0 pack-loader against a scratch project with the blueprint applied; each of its five check ids (AC-25101-1 shell, AC-25102-1 profile, AC-25105-1 security, AC-25106-1 sessions, AC-25108-1 theme) resolves to an AC id contributed by the blueprint; every check carries a description field; the pack-level appliesTo predicate references BOTH tacIds AND route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2701-5">AC-2701-5</a></strong> - The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /account renders the ARIA APG tabs shell whose tabs mirror the CAPS env; /account/profile renders the form with autocomplete tokens name email bday country; /account/security?security-surface-shape=self-service renders the change-password and mfa-management regions when credentialSelfService is in CAPS; /account/sessions renders one row per session with data-session-id and a terminate control on non-current rows plus the ARIA dialog-modal; /account/theme renders the radiogroup with light dark system and persists per the ACCOUNT_SETTINGS_THEME_PERSIST env; PORT env overrides the bind port (default 3000, never binds 4200).</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2701-6">AC-2701-6</a></strong> - The probe pack fails on each broken fixture branch: ?break=leak-tab renders the security tab even when neither credentialSelfService nor hostedIdentityUi is in CAPS so AC-25101-1 fails at severity block; ?break=no-autocomplete drops the autocomplete tokens on the profile form so AC-25102-1 fails at severity block; ?break=no-dialog removes the terminate confirmation dialog so AC-25106-1 fails at severity block; ?break=no-persist drops the theme persistence write so AC-25108-1 does not fail on this fixture-side signal directly but the data-persist attribute mismatch triggers the fail.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2701-7">AC-2701-7</a></strong> - The four capability strings principalDirectory credentialSelfService sessionInventory hostedIdentityUi and the security surface shape enum self-service hosted-link-out hosted-embed appear identically across README, guide, pack checks[] descriptions and docs/topics.md registry; the section 6a capability table in packages/rcf-lite/docs/blueprint-authoring.md lists credentialSelfService sessionInventory and hostedIdentityUi with the shelf providers named.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2701-8">AC-2701-8</a></strong> - README lists mechanism-reach gaps individually per AC id per checklist section 6.g; CHANGELOG carries one 1.0.0 entry naming the auth minors and the observability-logging minor that ride the same PR; docs/topics.md carries the T-4 shelf registry row and the cross-references to application-empty-error-states and application-admin-console; the four amended auth blueprints each carry a README latest note and a CHANGELOG entry naming the new capabilities and the account-settings consumer; the observability-logging blueprint carries the same.</p>
+  
+  
+  
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-045">FBS-045</a></p></section>
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 48</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T21:13:14.813Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T21:13:14.813Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2701-1&quot;,
+    &quot;AC-2701-2&quot;,
+    &quot;AC-2701-3&quot;,
+    &quot;AC-2701-4&quot;,
+    &quot;AC-2701-5&quot;,
+    &quot;AC-2701-6&quot;,
+    &quot;AC-2701-7&quot;,
+    &quot;AC-2701-8&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-046&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 48,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal&quot;,
+  &quot;summary&quot;: &quot;T-4 shelf-blueprint track of the ratified visual round 4 spec (2026-09-06 section 5.4): the application-account-settings v1.0.0 blueprint on the shelf with 24 contributions (6 REQs shell + profile + security + sessions + notifications + theme; 10 USs 25101 to 25110; 4 TACs 2601 shell / 2602 capability-discovery / 2603 hosted-ui-bridge / 2604 session-store; 4 ADRs 2601 capability-vocabulary extension / 2602 security-surface-shape elicited no default / 2603 theme-persistence spa-local-storage default / 2604 reauth-window 15m default). Declares requiresAppliedCapabilities principalDirectory with the application-account-settings-bare-spa refusal template and the allow-no-auth-yet override; 8 elicits (4 custom-auth-provides plus security-surface-shape hosted-identity-url theme-persistence reauth-window). Ships a Playwright probe pack with five capability-gated checks anchored to AC-25101-1 AC-25102-1 AC-25105-1 AC-25106-1 AC-25108-1, and a dependency-free sample-app fixture with the five conditional surfaces plus four break switches. Rides with the auth-blueprint minor bumps clerk 1.3.0 (adds sessionInventory hostedIdentityUi) keycloak 1.2.0 (adds credentialSelfService sessionInventory) oauth2 1.2.0 (adds credentialSelfService sessionInventory hostedIdentityUi provider-conditional) magic-link 1.2.0 (doc-only) and the observability-logging 1.2.0 minor bump (adds sessionInventory as the logging-projection provider). Extends the section 6a capability table in packages/rcf-lite/docs/blueprint-authoring.md with three new capability strings. Mechanism minor: buildRefusalMessage carries the application-account-settings-bare-spa template; runElicitationPhase refuses when an operator answers a gated elicit whose when predicate did not fire (Q3 refusal). Composes on application-empty-error-states T-1 for the forbidden and empty-history states; no bespoke access-denied UI. Ninth shipped consumer of T-0 probe-pack runner extension. suggestedCompanions logging and errorHandling; providesRoles absent; capabilities absent.&quot;,
+  &quot;dependsOnFbsIds&quot;: [
+    &quot;FBS-045&quot;
+  ]
+}
+</pre></details>
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-060">
@@ -17944,6 +18323,137 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-3 shelf registry row and the cross-reference to application-empty-error-states&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/application-forms-wizard-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-3 row (TC-055-readme-gaps-and-changelog)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-056">
+  <summary><span class="summary-label">TS-056 - application-account-settings v1.0.0 shelf shape, probe pack cross-check, sample-app fixture, auth-minor and observability-logging minor bumps, mechanism minor for Q3 refusal</span><span class="status draft">draft</span></summary>
+  <article id="TS-056" class="doc doc-ts">
+  <h3>TS-056 - application-account-settings v1.0.0 shelf shape, probe pack cross-check, sample-app fixture, auth-minor and observability-logging minor bumps, mechanism minor for Q3 refusal</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-2701">US-2701</a></p>
+  <p><strong>Purpose:</strong> Cover AC-2701-1 through AC-2701-8 via unit tests over the shipped application-account-settings blueprint.json contribution shape (24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups), the applies-clean pass on a fresh init project with security-auth-magic-link applied, the bare-SPA refusal at exit 3 with the shipped refusal template, the --allow-no-auth-yet override sidecar note, the Q3 refusal for an operator answering security-surface-shape without applied credentialSelfService or hostedIdentityUi, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving the five conditional surfaces honestly and refusing on the four break switches, the section 6a capability table extension in blueprint-authoring.md, and the four amended auth blueprints and observability-logging blueprint carrying their new capabilities[] and CHANGELOG entries.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-2701-1">AC-2701-1</a>, <a href="#AC-2701-2">AC-2701-2</a>, <a href="#AC-2701-3">AC-2701-3</a>, <a href="#AC-2701-4">AC-2701-4</a>, <a href="#AC-2701-5">AC-2701-5</a>, <a href="#AC-2701-6">AC-2701-6</a>, <a href="#AC-2701-7">AC-2701-7</a>, <a href="#AC-2701-8">AC-2701-8</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-056-blueprint-json-shape">
+  <p><strong>TC-056-blueprint-json-shape</strong> - covers <a href="#AC-2701-1">AC-2701-1</a> <span class="status pending">pending</span></p>
+  <p>blueprint.json declares 24 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::blueprint.json declares 24 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)</code></p>
+</div>
+<div class="tc" id="TC-056-applies-clean">
+  <p><strong>TC-056-applies-clean</strong> - covers <a href="#AC-2701-2">AC-2701-2</a> <span class="status pending">pending</span></p>
+  <p>applies cleanly on a magic-link project with 24 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::applies cleanly on a magic-link project with 24 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)</code></p>
+</div>
+<div class="tc" id="TC-056-apply-refusal-and-override">
+  <p><strong>TC-056-apply-refusal-and-override</strong> - covers <a href="#AC-2701-3">AC-2701-3</a> <span class="status pending">pending</span></p>
+  <p>apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)</code></p>
+</div>
+<div class="tc" id="TC-056-q3-refusal">
+  <p><strong>TC-056-q3-refusal</strong> - covers <a href="#AC-2701-8">AC-2701-8</a> <span class="status pending">pending</span></p>
+  <p>Q3 gate: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi is silently gated at apply; the sidecar records no shape entry; the TAC-2603 hosted-ui-bridge enforces the refusal at surface load time</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::Q3 gate: security-surface-shape is silently gated when neither credentialSelfService nor hostedIdentityUi is applied; sidecar records no shape entry; TAC-2603 hosted-ui-bridge enforces the refusal at surface load (TC-056-q3-refusal)</code></p>
+</div>
+<div class="tc" id="TC-056-pack-checks-cross-check">
+  <p><strong>TC-056-pack-checks-cross-check</strong> - covers <a href="#AC-2701-4">AC-2701-4</a> <span class="status pending">pending</span></p>
+  <p>every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; per-check appliesTo gates on the applied capability (TC-056-pack-checks-cross-check)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; per-check appliesTo gates on the applied capability (TC-056-pack-checks-cross-check)</code></p>
+</div>
+<div class="tc" id="TC-056-fixture-and-switches">
+  <p><strong>TC-056-fixture-and-switches</strong> - covers <a href="#AC-2701-5">AC-2701-5</a> <span class="status pending">pending</span></p>
+  <p>sample-app fixture serves the five conditional surfaces honestly (TC-056-fixture-and-switches)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::sample-app fixture serves the five conditional surfaces honestly (TC-056-fixture-and-switches)</code></p>
+</div>
+<div class="tc" id="TC-056-negative-runs">
+  <p><strong>TC-056-negative-runs</strong> - covers <a href="#AC-2701-6">AC-2701-6</a> <span class="status pending">pending</span></p>
+  <p>sample-app fixture break switches surface the four defects (TC-056-negative-runs)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::sample-app fixture break switches surface the four defects (TC-056-negative-runs)</code></p>
+</div>
+<div class="tc" id="TC-056-shelf-doc-consistency">
+  <p><strong>TC-056-shelf-doc-consistency</strong> - covers <a href="#AC-2701-7">AC-2701-7</a> <span class="status pending">pending</span></p>
+  <p>four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T21:13:07.603Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T21:13:07.603Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-2701-1 through AC-2701-8 via unit tests over the shipped application-account-settings blueprint.json contribution shape (24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups), the applies-clean pass on a fresh init project with security-auth-magic-link applied, the bare-SPA refusal at exit 3 with the shipped refusal template, the --allow-no-auth-yet override sidecar note, the Q3 refusal for an operator answering security-surface-shape without applied credentialSelfService or hostedIdentityUi, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving the five conditional surfaces honestly and refusing on the four break switches, the section 6a capability table extension in blueprint-authoring.md, and the four amended auth blueprints and observability-logging blueprint carrying their new capabilities[] and CHANGELOG entries.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2701-1&quot;,
+    &quot;AC-2701-2&quot;,
+    &quot;AC-2701-3&quot;,
+    &quot;AC-2701-4&quot;,
+    &quot;AC-2701-5&quot;,
+    &quot;AC-2701-6&quot;,
+    &quot;AC-2701-7&quot;,
+    &quot;AC-2701-8&quot;
+  ],
+  &quot;id&quot;: &quot;TS-056&quot;,
+  &quot;usId&quot;: &quot;US-2701&quot;,
+  &quot;title&quot;: &quot;application-account-settings v1.0.0 shelf shape, probe pack cross-check, sample-app fixture, auth-minor and observability-logging minor bumps, mechanism minor for Q3 refusal&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-056-blueprint-json-shape&quot;,
+      &quot;acId&quot;: &quot;AC-2701-1&quot;,
+      &quot;description&quot;: &quot;blueprint.json declares 24 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::blueprint.json declares 24 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-056-applies-clean&quot;,
+      &quot;acId&quot;: &quot;AC-2701-2&quot;,
+      &quot;description&quot;: &quot;applies cleanly on a magic-link project with 24 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::applies cleanly on a magic-link project with 24 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-056-apply-refusal-and-override&quot;,
+      &quot;acId&quot;: &quot;AC-2701-3&quot;,
+      &quot;description&quot;: &quot;apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-056-q3-refusal&quot;,
+      &quot;acId&quot;: &quot;AC-2701-8&quot;,
+      &quot;description&quot;: &quot;Q3 gate: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi is silently gated at apply; the sidecar records no shape entry; the TAC-2603 hosted-ui-bridge enforces the refusal at surface load time&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::Q3 gate: security-surface-shape is silently gated when neither credentialSelfService nor hostedIdentityUi is applied; sidecar records no shape entry; TAC-2603 hosted-ui-bridge enforces the refusal at surface load (TC-056-q3-refusal)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-056-pack-checks-cross-check&quot;,
+      &quot;acId&quot;: &quot;AC-2701-4&quot;,
+      &quot;description&quot;: &quot;every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; per-check appliesTo gates on the applied capability (TC-056-pack-checks-cross-check)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; per-check appliesTo gates on the applied capability (TC-056-pack-checks-cross-check)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-056-fixture-and-switches&quot;,
+      &quot;acId&quot;: &quot;AC-2701-5&quot;,
+      &quot;description&quot;: &quot;sample-app fixture serves the five conditional surfaces honestly (TC-056-fixture-and-switches)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::sample-app fixture serves the five conditional surfaces honestly (TC-056-fixture-and-switches)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-056-negative-runs&quot;,
+      &quot;acId&quot;: &quot;AC-2701-6&quot;,
+      &quot;description&quot;: &quot;sample-app fixture break switches surface the four defects (TC-056-negative-runs)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::sample-app fixture break switches surface the four defects (TC-056-negative-runs)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-056-shelf-doc-consistency&quot;,
+      &quot;acId&quot;: &quot;AC-2701-7&quot;,
+      &quot;description&quot;: &quot;four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

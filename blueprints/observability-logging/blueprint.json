@@ -1,12 +1,13 @@
 {
   "slug": "observability-logging",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "category": "observability",
   "providesRoles": [
     "logging"
   ],
   "capabilities": [
-    "auditLog"
+    "auditLog",
+    "sessionInventory"
   ],
   "contributions": [
     {

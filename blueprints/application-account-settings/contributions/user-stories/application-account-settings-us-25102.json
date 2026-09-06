@@ -1,0 +1,27 @@
+{
+  "usId": "application-account-settings-US-25102",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Profile surface renders form with WCAG 1.3.5 autocomplete tokens on every identifier",
+  "asA": "authenticated principal editing my profile",
+  "iWant": "name, email, birthday and country inputs whose autocomplete tokens follow WCAG 1.3.5 exactly, and save success and failure announcements that keyboard-only and screen-reader users can rely on",
+  "soThat": "my browser autofill fires correctly and my success and failure feedback is announced",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25102-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "GET /account/profile renders a <form data-surface=\"profile\"> with inputs carrying autocomplete tokens \"name\" on the full-name field, \"email\" on the email field, \"bday\" on the birthday field and \"country\" on the country field; save-success renders <div role=\"status\" aria-live=\"polite\">Profile saved</div>; save-failure per field carries aria-invalid=\"true\" and aria-describedby pointing to a rendered error message. Probed by pack check AC-25102-1."
+    }
+  ],
+  "tacIds": [
+    "TAC-2601-application-account-settings-shell"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

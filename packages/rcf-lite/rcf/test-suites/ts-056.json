@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-09-06T21:13:07.603Z",
+  "updatedAt": "2026-09-06T21:13:07.603Z",
+  "purpose": "Cover AC-2701-1 through AC-2701-8 via unit tests over the shipped application-account-settings blueprint.json contribution shape (24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups), the applies-clean pass on a fresh init project with security-auth-magic-link applied, the bare-SPA refusal at exit 3 with the shipped refusal template, the --allow-no-auth-yet override sidecar note, the Q3 refusal for an operator answering security-surface-shape without applied credentialSelfService or hostedIdentityUi, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving the five conditional surfaces honestly and refusing on the four break switches, the section 6a capability table extension in blueprint-authoring.md, and the four amended auth blueprints and observability-logging blueprint carrying their new capabilities[] and CHANGELOG entries.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-2701-1",
+    "AC-2701-2",
+    "AC-2701-3",
+    "AC-2701-4",
+    "AC-2701-5",
+    "AC-2701-6",
+    "AC-2701-7",
+    "AC-2701-8"
+  ],
+  "id": "TS-056",
+  "usId": "US-2701",
+  "title": "application-account-settings v1.0.0 shelf shape, probe pack cross-check, sample-app fixture, auth-minor and observability-logging minor bumps, mechanism minor for Q3 refusal",
+  "testCases": [
+    {
+      "id": "TC-056-blueprint-json-shape",
+      "acId": "AC-2701-1",
+      "description": "blueprint.json declares 24 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::blueprint.json declares 24 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-056-applies-clean",
+      "acId": "AC-2701-2",
+      "description": "applies cleanly on a magic-link project with 24 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::applies cleanly on a magic-link project with 24 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)"
+    },
+    {
+      "id": "TC-056-apply-refusal-and-override",
+      "acId": "AC-2701-3",
+      "description": "apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)"
+    },
+    {
+      "id": "TC-056-q3-refusal",
+      "acId": "AC-2701-8",
+      "description": "Q3 gate: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi is silently gated at apply; the sidecar records no shape entry; the TAC-2603 hosted-ui-bridge enforces the refusal at surface load time",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::Q3 gate: security-surface-shape is silently gated when neither credentialSelfService nor hostedIdentityUi is applied; sidecar records no shape entry; TAC-2603 hosted-ui-bridge enforces the refusal at surface load (TC-056-q3-refusal)"
+    },
+    {
+      "id": "TC-056-pack-checks-cross-check",
+      "acId": "AC-2701-4",
+      "description": "every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; per-check appliesTo gates on the applied capability (TC-056-pack-checks-cross-check)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; per-check appliesTo gates on the applied capability (TC-056-pack-checks-cross-check)"
+    },
+    {
+      "id": "TC-056-fixture-and-switches",
+      "acId": "AC-2701-5",
+      "description": "sample-app fixture serves the five conditional surfaces honestly (TC-056-fixture-and-switches)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::sample-app fixture serves the five conditional surfaces honestly (TC-056-fixture-and-switches)"
+    },
+    {
+      "id": "TC-056-negative-runs",
+      "acId": "AC-2701-6",
+      "description": "sample-app fixture break switches surface the four defects (TC-056-negative-runs)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::sample-app fixture break switches surface the four defects (TC-056-negative-runs)"
+    },
+    {
+      "id": "TC-056-shelf-doc-consistency",
+      "acId": "AC-2701-7",
+      "description": "four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)"
+    }
+  ],
+  "status": "draft"
+}

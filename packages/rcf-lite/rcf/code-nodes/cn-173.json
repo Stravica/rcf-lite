@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-173",
+  "path": "../../blueprints/observability-logging/blueprint.json",
+  "implementsAcIds": [
+    "AC-2701-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:14:00.291Z",
+  "updatedAt": "2026-09-06T21:14:00.291Z"
+}

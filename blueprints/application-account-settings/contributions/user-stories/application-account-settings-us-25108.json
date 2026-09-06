@@ -1,0 +1,27 @@
+{
+  "usId": "application-account-settings-US-25108",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Theme surface renders light/dark/system radiogroup when application-spa applied",
+  "asA": "authenticated principal on an SPA project",
+  "iWant": "a theme surface with a light, dark and system option persisted per the theme-persistence elicit",
+  "soThat": "my theme choice sticks the way the project decided",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25108-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "When application-spa is in the applied-blueprint set, GET /account/theme renders <div data-surface=\"theme\" role=\"radiogroup\" aria-label=\"Theme\"> containing three <input type=\"radio\" name=\"theme\" value=\"light|dark|system\"> options; selecting an option flips the data-theme attribute on the html element and persists per the theme-persistence elicit (spa-local-storage default, server-scoped, or none). Probed by pack check AC-25108-1."
+    }
+  ],
+  "tacIds": [
+    "TAC-2601-application-account-settings-shell"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

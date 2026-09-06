@@ -1,0 +1,234 @@
+{
+  "slug": "application-account-settings",
+  "version": "1.0.0",
+  "category": "application",
+  "requiresAppliedCapabilities": {
+    "capabilities": [
+      "principalDirectory"
+    ],
+    "allowSkipFlag": "allow-no-auth-yet",
+    "refusalMessageId": "application-account-settings-bare-spa"
+  },
+  "elicits": [
+    {
+      "id": "custom-auth-provides-principal-directory",
+      "prompt": "Custom auth: does your projects own auth identify principals a users surface (and the account-settings profile surface) can read?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "principalDirectory"
+    },
+    {
+      "id": "custom-auth-provides-credential-self-service",
+      "prompt": "Custom auth: does your projects own auth expose a credential self-service surface (password change, MFA management, email change) the security tab can render in-place?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "credentialSelfService"
+    },
+    {
+      "id": "custom-auth-provides-session-inventory",
+      "prompt": "Custom auth: does your projects own auth (or logging companion) expose an inventory of active sessions with device labels and a terminate action?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "sessionInventory"
+    },
+    {
+      "id": "custom-auth-provides-hosted-identity-ui",
+      "prompt": "Custom auth: does your project point at a hosted identity portal (sign-in, sign-up, account, security) the security tab can link out to or embed?",
+      "kind": "boolean",
+      "default": false,
+      "providesCapability": "hostedIdentityUi"
+    },
+    {
+      "id": "security-surface-shape",
+      "prompt": "Security surface shape: self-service (renders the in-place password change and MFA surface), hosted-link-out (renders a link to your hosted portal) or hosted-embed (renders your hosted portal in an iframe).",
+      "kind": "enum",
+      "options": [
+        "self-service",
+        "hosted-link-out",
+        "hosted-embed"
+      ],
+      "when": {
+        "requiresCapability": [
+          "credentialSelfService",
+          "hostedIdentityUi"
+        ]
+      }
+    },
+    {
+      "id": "hosted-identity-url",
+      "prompt": "Hosted identity URL: the destination the security surface links out to or embeds when security-surface-shape is hosted-*. Ignored on self-service.",
+      "kind": "string",
+      "default": "",
+      "when": {
+        "requiresCapability": [
+          "hostedIdentityUi"
+        ]
+      }
+    },
+    {
+      "id": "theme-persistence",
+      "prompt": "Theme persistence: spa-local-storage (per-browser default), server-scoped (per-principal), or none (defers to prefers-color-scheme).",
+      "kind": "enum",
+      "options": [
+        "spa-local-storage",
+        "server-scoped",
+        "none"
+      ],
+      "default": "spa-local-storage"
+    },
+    {
+      "id": "reauth-window",
+      "prompt": "Re-authenticate window in minutes for high-value changes (password change, MFA change, session terminate, account delete). Enter never, 5, 15 or 60.",
+      "kind": "enum",
+      "options": [
+        "never",
+        "5",
+        "15",
+        "60"
+      ],
+      "default": "15"
+    }
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every rendered account surface writes one request-scoped log line with the correlation identifier; a logging companion supplies the factory the pipeline calls. When the logging companion also declares sessionInventory (observability-logging 1.2.0+), the sessions surface reads the inventory from the log projection."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "Profile-save failures, security-flow failures and session-terminate failures construct internal error records; an error-handling companion supplies the record factory and the boundary the empty-error-states blueprint renders."
+    }
+  ],
+  "contributions": [
+    {
+      "id": "application-account-settings-REQ-001",
+      "kind": "req",
+      "path": "requirements/application-account-settings-req-001.json"
+    },
+    {
+      "id": "application-account-settings-REQ-002",
+      "kind": "req",
+      "path": "requirements/application-account-settings-req-002.json"
+    },
+    {
+      "id": "application-account-settings-REQ-003",
+      "kind": "req",
+      "path": "requirements/application-account-settings-req-003.json"
+    },
+    {
+      "id": "application-account-settings-REQ-004",
+      "kind": "req",
+      "path": "requirements/application-account-settings-req-004.json"
+    },
+    {
+      "id": "application-account-settings-REQ-005",
+      "kind": "req",
+      "path": "requirements/application-account-settings-req-005.json"
+    },
+    {
+      "id": "application-account-settings-REQ-006",
+      "kind": "req",
+      "path": "requirements/application-account-settings-req-006.json"
+    },
+    {
+      "id": "application-account-settings-US-25101",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25101.json"
+    },
+    {
+      "id": "application-account-settings-US-25102",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25102.json"
+    },
+    {
+      "id": "application-account-settings-US-25103",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25103.json"
+    },
+    {
+      "id": "application-account-settings-US-25104",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25104.json"
+    },
+    {
+      "id": "application-account-settings-US-25105",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25105.json"
+    },
+    {
+      "id": "application-account-settings-US-25106",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25106.json"
+    },
+    {
+      "id": "application-account-settings-US-25107",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25107.json"
+    },
+    {
+      "id": "application-account-settings-US-25108",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25108.json"
+    },
+    {
+      "id": "application-account-settings-US-25109",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25109.json"
+    },
+    {
+      "id": "application-account-settings-US-25110",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25110.json"
+    },
+    {
+      "id": "TAC-2601-application-account-settings-shell",
+      "kind": "tac",
+      "path": "tacs/tac-2601-application-account-settings-shell.json"
+    },
+    {
+      "id": "TAC-2602-application-account-settings-capability-discovery",
+      "kind": "tac",
+      "path": "tacs/tac-2602-application-account-settings-capability-discovery.json"
+    },
+    {
+      "id": "TAC-2603-application-account-settings-hosted-ui-bridge",
+      "kind": "tac",
+      "path": "tacs/tac-2603-application-account-settings-hosted-ui-bridge.json"
+    },
+    {
+      "id": "TAC-2604-application-account-settings-session-store",
+      "kind": "tac",
+      "path": "tacs/tac-2604-application-account-settings-session-store.json"
+    },
+    {
+      "id": "ADR-2601-application-account-settings-capability-vocabulary",
+      "kind": "adr",
+      "path": "adrs/adr-2601-application-account-settings-capability-vocabulary.json",
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-2602-application-account-settings-security-surface-shape",
+      "kind": "adr",
+      "path": "adrs/adr-2602-application-account-settings-security-surface-shape.json",
+      "recommendedDefault": false,
+      "elicited": true,
+      "standardsTraceClause": "WCAG 3.3.8 Accessible Authentication (Minimum)"
+    },
+    {
+      "id": "ADR-2603-application-account-settings-theme-persistence",
+      "kind": "adr",
+      "path": "adrs/adr-2603-application-account-settings-theme-persistence.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-2604-application-account-settings-reauth-window",
+      "kind": "adr",
+      "path": "adrs/adr-2604-application-account-settings-reauth-window.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "WCAG 3.3.4 Error Prevention (Legal, Financial, Data)"
+    }
+  ]
+}

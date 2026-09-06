@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-172",
+  "path": "../../blueprints/security-auth-magic-link/CHANGELOG.md",
+  "implementsAcIds": [
+    "AC-2701-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:14:00.117Z",
+  "updatedAt": "2026-09-06T21:14:00.117Z"
+}

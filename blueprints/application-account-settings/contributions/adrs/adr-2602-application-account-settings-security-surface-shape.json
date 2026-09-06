@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-2602-application-account-settings-security-surface-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Security surface shape: password vs passkey vs hosted-UI vs link-out per applied auth",
+  "context": "The security surface has four legal shapes depending on the applied auth: self-service password (Keycloak, OAuth2 with a self-service endpoint), self-service passkey (WebAuthn where the auth blueprint declares credentialSelfService and the operator has stood up a passkey flow), hosted link-out to a portal (Clerk, Auth0), or hosted embed of the same portal in an iframe. The spec section 5.4 marks security-surface-shape as elicited with no recommended default because the security surface leaks the vendors identity architecture and no default is honest across all four applied-auth combinations.",
+  "decision": "security-surface-shape is elicited (enum: self-service | hosted-link-out | hosted-embed). No recommended default. Recording no default is the point: the operator picks the shape that matches the applied auth vendors surface. When the elicit is answered but no applied blueprint declares credentialSelfService (for self-service) or hostedIdentityUi (for the two hosted branches), apply refuses (AC-25110-1). The hosted-embed sandbox default is allow-scripts allow-forms allow-same-origin; a project that needs a different token set writes a project-scoped ADR overriding the sandbox.",
+  "consequences": "The operator makes an explicit choice at apply that reads on the sidecar; downstream review has a stable record of which security-surface-shape was elicited. A project that mis-answers (elicits hosted-link-out on a Keycloak project) hits the AC-25110-1 refusal at apply, not at runtime.",
+  "alternativesConsidered": [
+    {
+      "name": "Alternative approach considered",
+      "summary": "Auto-selecting the shape from the applied capability set was considered (self-service when credentialSelfService applied, else hosted-link-out when hostedIdentityUi applied) but the choice is a UX decision the operator owns, not a mechanism inference. Encoding it in the elicit keeps the choice legible.",
+      "reasonNotChosen": "See the decision text; the chosen shape composes cleanly with the applied blueprint set the spec section 5.4 names."
+    }
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

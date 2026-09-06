@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-157",
+  "path": "../../packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/server.js",
+  "implementsAcIds": [
+    "AC-2701-5",
+    "AC-2701-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:13:57.513Z",
+  "updatedAt": "2026-09-06T21:13:57.513Z"
+}

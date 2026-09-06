@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-06T21:13:14.813Z",
+  "updatedAt": "2026-09-06T21:13:14.813Z",
+  "acIds": [
+    "AC-2701-1",
+    "AC-2701-2",
+    "AC-2701-3",
+    "AC-2701-4",
+    "AC-2701-5",
+    "AC-2701-6",
+    "AC-2701-7",
+    "AC-2701-8"
+  ],
+  "fbsId": "FBS-046",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 48,
+  "executionStatus": "notStarted",
+  "title": "application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal",
+  "summary": "T-4 shelf-blueprint track of the ratified visual round 4 spec (2026-09-06 section 5.4): the application-account-settings v1.0.0 blueprint on the shelf with 24 contributions (6 REQs shell + profile + security + sessions + notifications + theme; 10 USs 25101 to 25110; 4 TACs 2601 shell / 2602 capability-discovery / 2603 hosted-ui-bridge / 2604 session-store; 4 ADRs 2601 capability-vocabulary extension / 2602 security-surface-shape elicited no default / 2603 theme-persistence spa-local-storage default / 2604 reauth-window 15m default). Declares requiresAppliedCapabilities principalDirectory with the application-account-settings-bare-spa refusal template and the allow-no-auth-yet override; 8 elicits (4 custom-auth-provides plus security-surface-shape hosted-identity-url theme-persistence reauth-window). Ships a Playwright probe pack with five capability-gated checks anchored to AC-25101-1 AC-25102-1 AC-25105-1 AC-25106-1 AC-25108-1, and a dependency-free sample-app fixture with the five conditional surfaces plus four break switches. Rides with the auth-blueprint minor bumps clerk 1.3.0 (adds sessionInventory hostedIdentityUi) keycloak 1.2.0 (adds credentialSelfService sessionInventory) oauth2 1.2.0 (adds credentialSelfService sessionInventory hostedIdentityUi provider-conditional) magic-link 1.2.0 (doc-only) and the observability-logging 1.2.0 minor bump (adds sessionInventory as the logging-projection provider). Extends the section 6a capability table in packages/rcf-lite/docs/blueprint-authoring.md with three new capability strings. Mechanism minor: buildRefusalMessage carries the application-account-settings-bare-spa template; runElicitationPhase refuses when an operator answers a gated elicit whose when predicate did not fire (Q3 refusal). Composes on application-empty-error-states T-1 for the forbidden and empty-history states; no bespoke access-denied UI. Ninth shipped consumer of T-0 probe-pack runner extension. suggestedCompanions logging and errorHandling; providesRoles absent; capabilities absent.",
+  "dependsOnFbsIds": [
+    "FBS-045"
+  ]
+}

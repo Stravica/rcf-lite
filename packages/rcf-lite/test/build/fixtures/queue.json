@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 47,
-    "notStarted": 19,
+    "items": 48,
+    "notStarted": 20,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
     "actionable": 12,
-    "blocked": 7
+    "blocked": 8
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -86,7 +86,8 @@
     {
       "tier": 5,
       "fbsIds": [
-        "FBS-029"
+        "FBS-029",
+        "FBS-046"
       ]
     },
     {
@@ -662,6 +663,20 @@
       "state": "blocked",
       "blockedBy": [
         "FBS-044"
+      ]
+    },
+    {
+      "fbsId": "FBS-046",
+      "buildOrder": 48,
+      "tier": 5,
+      "title": "application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-045"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-045"
       ]
     }
   ]

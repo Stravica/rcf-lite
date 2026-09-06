@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2604-application-account-settings-session-store",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Session store contract",
+  "purpose": "The sessions surface bridge between the applied blueprints session-inventory source and the terminate-write flow.",
+  "responsibilities": [
+    "Read the active-session inventory from the applied provider (an auth blueprint declaring sessionInventory, or observability-logging 1.2.0+ as the logging-projection provider) (AC-25105-1, AC-25106-1).",
+    "Render one row per session enumerated by data-session-id with device and last-active columns and a terminate action (AC-25105-1).",
+    "Open an ARIA APG dialog-modal on terminate with focus-trap, aria-labelledby to the heading and focus-return to the neighbouring row on close (AC-25105-2).",
+    "Announce the terminate-success via <div role=\"status\" aria-live=\"polite\" data-role=\"session-terminated-announce\">Session ended</div> (AC-25105-2)."
+  ],
+  "internalStructure": "One sessions-surface module with a read-inventory helper and a terminate-write helper. The read-inventory helper dispatches to the applied providers session-inventory API; the terminate-write helper dispatches to the same providers terminate API. The framework is not prescribed.",
+  "interfaces": [
+    {
+      "name": "renderSessionsSurface",
+      "kind": "factory",
+      "description": "renderSessionsSurface({ inventoryAdapter, terminateAdapter }) -> { mount(root), unmount() }. The project supplies the two adapters against the applied provider."
+    },
+    {
+      "name": "sessionRecord",
+      "kind": "shape",
+      "description": "{ sessionId, deviceLabel, lastActive (ISO-8601), currentSession (boolean) }. The current session cannot be terminated by itself (the operator signs out from the shell instead); the pack asserts the surface renders every session, the terminate control is present on every non-current row, and the current row (data-current-session=\"true\") does not carry the terminate action."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Capability discovery",
+      "kind": "tac",
+      "tacId": "TAC-2602-application-account-settings-capability-discovery",
+      "description": "The sessions surface reads the applied capability set to gate on sessionInventory."
+    }
+  ],
+  "tradeoffs": "Re-authenticate before terminate is elicited (reauth-window ADR-2604) with a default of true. A project that ships a short-lived session token can set reauth-window=never; ADR-2604 records the choice and its risk.",
+  "notes": "Known mechanism-reach gap: the read-inventory adapter contract cannot prove the applied provider actually returns a device label the operator will recognise (User-Agent parsing varies); the pack asserts the DOM shape.",
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

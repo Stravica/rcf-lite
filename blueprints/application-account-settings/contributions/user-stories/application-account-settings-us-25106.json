@@ -1,0 +1,27 @@
+{
+  "usId": "application-account-settings-US-25106",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sessions surface hoists session inventory from an applied logging companion",
+  "asA": "authenticated principal on a project where the logger is the session store",
+  "iWant": "the sessions surface to read the applied logging companion inventory when sessionInventory arrives from observability-logging rather than from an auth blueprint",
+  "soThat": "the composition is the same regardless of which applied blueprint declared sessionInventory",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25106-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The sessions surface reads sessionInventory from the union of applied capabilities across auth AND logging providers; the render contract of AC-25105-1 is identical whether the capability was supplied by an auth blueprint (security-auth-clerk 1.3.0, security-auth-keycloak 1.2.0, security-auth-oauth2 1.2.0) or by observability-logging 1.2.0."
+    }
+  ],
+  "tacIds": [
+    "TAC-2604-application-account-settings-session-store"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

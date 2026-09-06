@@ -1,0 +1,18 @@
+{
+  "reqId": "application-account-settings-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Notification preferences surface conditional on application-notifications-in-app applied",
+  "description": "The notification-preferences surface (/account/notifications) renders when application-notifications-in-app is applied. Provides a per-category silence control and a per-channel opt-in (in-app, email, push where channels apply). The blueprint does NOT own the notification model; it delegates the model to the applied blueprint and renders the operator interface only. Save-success and save-failure announcements follow the profile surface contract.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec (2026-09-06) section 5.4, REQ 5 of the account-settings blueprint.",
+  "tags": [
+    "blueprint:application-account-settings",
+    "category:05-notifications"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

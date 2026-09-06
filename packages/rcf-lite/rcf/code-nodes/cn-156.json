@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-156",
+  "path": "../../blueprints/application-account-settings/probe-packs/application-account-settings.pack.mjs",
+  "implementsAcIds": [
+    "AC-2701-4",
+    "AC-2701-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:13:57.341Z",
+  "updatedAt": "2026-09-06T21:13:57.341Z"
+}

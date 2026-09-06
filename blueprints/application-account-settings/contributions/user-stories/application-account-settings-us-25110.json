@@ -1,0 +1,27 @@
+{
+  "usId": "application-account-settings-US-25110",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Q3 refusal at apply when no security capability declared and security-surface-shape elicited",
+  "asA": "operator applying on a project that declares principalDirectory but neither credentialSelfService nor hostedIdentityUi",
+  "iWant": "a Q3-per-spec refusal at apply naming the two remedies when the security-surface-shape elicit is answered",
+  "soThat": "no auth-managed-elsewhere placeholder ships silently",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25110-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "When no applied blueprint declares credentialSelfService OR hostedIdentityUi and the operator answers --answer security-surface-shape=self-service (or =hosted-link-out or =hosted-embed), apply exits 3 with the two-remedy message: (a) apply an auth blueprint that declares one of the two security capabilities, or (b) drop the security tab from scope by not answering security-surface-shape."
+    }
+  ],
+  "tacIds": [
+    "TAC-2603-application-account-settings-hosted-ui-bridge"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

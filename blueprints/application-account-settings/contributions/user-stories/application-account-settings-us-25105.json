@@ -1,0 +1,33 @@
+{
+  "usId": "application-account-settings-US-25105",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sessions surface lists active sessions and terminates via dialog-modal when sessionInventory applied",
+  "asA": "authenticated principal reviewing my active sessions",
+  "iWant": "a listing of every active session by device and last-active timestamp with a terminate control that confirms via a modal",
+  "soThat": "I can sign out a device I no longer control without leaving the surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25105-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "When sessionInventory is in the applied capability set, GET /account/sessions renders <div data-surface=\"sessions\"> containing a table whose rows are enumerated by data-session-id, each row carrying [data-column=\"device\"], [data-column=\"lastActive\"] and a [data-action=\"terminate\"] control. Absent when sessionInventory is not applied. Probed by pack check AC-25106-1."
+    },
+    {
+      "id": "AC-25105-2",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Clicking [data-action=\"terminate\"] opens <div role=\"dialog\" aria-modal=\"true\" data-role=\"terminate-confirm\" aria-labelledby=\"terminate-confirm-heading\"> with the row focus-trapped inside the dialog; on confirm the row is removed and <div role=\"status\" aria-live=\"polite\" data-role=\"session-terminated-announce\">Session ended</div> is announced; focus returns to the neighbouring row on close."
+    }
+  ],
+  "tacIds": [
+    "TAC-2604-application-account-settings-session-store"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

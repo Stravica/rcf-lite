@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-155",
+  "path": "../../blueprints/application-account-settings/blueprint.json",
+  "implementsAcIds": [
+    "AC-2701-1",
+    "AC-2701-2",
+    "AC-2701-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:13:57.165Z",
+  "updatedAt": "2026-09-06T21:13:57.165Z"
+}

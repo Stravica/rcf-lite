@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-170",
+  "path": "../../blueprints/security-auth-oauth2/CHANGELOG.md",
+  "implementsAcIds": [
+    "AC-2701-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:13:59.768Z",
+  "updatedAt": "2026-09-06T21:13:59.768Z"
+}

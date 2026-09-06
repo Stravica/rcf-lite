@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-161",
+  "path": "../../blueprints/application-account-settings/guide/application-account-settings.md",
+  "implementsAcIds": [
+    "AC-2701-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:13:58.207Z",
+  "updatedAt": "2026-09-06T21:13:58.207Z"
+}

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-174",
+  "path": "../../blueprints/observability-logging/CHANGELOG.md",
+  "implementsAcIds": [
+    "AC-2701-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:14:00.466Z",
+  "updatedAt": "2026-09-06T21:14:00.466Z"
+}

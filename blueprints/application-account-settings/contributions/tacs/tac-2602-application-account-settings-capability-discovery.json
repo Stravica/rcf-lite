@@ -1,0 +1,28 @@
+{
+  "tacId": "TAC-2602-application-account-settings-capability-discovery",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Account settings capability discovery",
+  "purpose": "The apply-time reader that translates the applied blueprint set and any custom-auth elicits into an appliedCapabilities[] array, and enforces the requiresAppliedCapabilities gate.",
+  "responsibilities": [
+    "Read the union of capabilities[] declarations across applied blueprints (AC-25101-1, AC-25107-1, AC-25108-1).",
+    "Add capabilities the operator asserted through the four custom-auth-provides-* elicits (AC-25101-1).",
+    "Refuse at apply when no applied blueprint declares principalDirectory and --allow-no-auth-yet is not passed (AC-25109-1).",
+    "Write the sidecar file capturing appliedCapabilities, appliedElicitations, allowNoAuthYet and any scaffolding note (AC-25109-2)."
+  ],
+  "internalStructure": "One helper module reused verbatim from application-admin-console (readAppliedCapabilities), read from the applied sidecar file by the pack and the shell.",
+  "interfaces": [
+    {
+      "name": "readAppliedCapabilities",
+      "kind": "function",
+      "description": "readAppliedCapabilities(projectRoot) -> Promise<string[]>. Reads rcf/blueprints/application-account-settings.applied.json and returns appliedCapabilities[] or []. Never throws."
+    }
+  ],
+  "dependencies": [],
+  "tradeoffs": "The sidecar path is stable and versioned; a schema minor bump on rcf-schemas can promote appliedCapabilities[] onto the applied-record shape directly, at which point the helper reads the manifest record instead. Kept file-scoped for v1.",
+  "notes": "Known mechanism-reach gap: a project that declares a capability outside the section 6a vocabulary passes the loader shape check but the shell records no surface for it. Documented in README.",
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

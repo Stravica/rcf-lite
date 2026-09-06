@@ -1,0 +1,33 @@
+{
+  "usId": "application-account-settings-US-25109",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Bare-SPA apply-time refusal names the two remedies and honours --allow-no-auth-yet",
+  "asA": "operator applying the account-settings blueprint on a bare SPA",
+  "iWant": "a refusal that names the two remedies (apply an auth blueprint, or override for a scaffolding pass) and an override that records a note on the sidecar",
+  "soThat": "the account surfaces never activate silently on a project with no identity",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25109-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "rcf define blueprint add ./blueprints/application-account-settings on a project with no applied blueprint declaring principalDirectory exits 3 and prints the [application-account-settings-bare-spa] refusal message quoting the required capability, the applied-blueprint list and the two suggested next steps."
+    },
+    {
+      "id": "AC-25109-2",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Passing --allow-no-auth-yet applies the blueprint and writes rcf/blueprints/application-account-settings.applied.json with allowNoAuthYet:true, empty appliedCapabilities and a scaffolding-pass note; rcf define validate flags the sidecar note on read-back."
+    }
+  ],
+  "tacIds": [
+    "TAC-2602-application-account-settings-capability-discovery"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

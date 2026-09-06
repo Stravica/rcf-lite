@@ -11,11 +11,19 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
 
+// Updated for visual round T-4 (spec 2026-09-06 section 5.4.2): each auth
+// blueprint declared the round T-4 capability additions in the same PR as
+// the application-account-settings v1.0.0 shelf blueprint. Magic-link is
+// a doc-only bump (no new capability strings; the click-a-link flow is
+// the whole surface). Clerk adds sessionInventory and hostedIdentityUi;
+// Keycloak adds credentialSelfService and sessionInventory; OAuth2 adds
+// credentialSelfService, sessionInventory and hostedIdentityUi (provider-
+// conditional per the OAuth2 README).
 const EXPECTED = [
-  { slug: 'security-auth-magic-link', version: '1.1.0', capabilities: ['principalDirectory'] },
-  { slug: 'security-auth-clerk', version: '1.2.0', capabilities: ['principalDirectory', 'roleModel'] },
-  { slug: 'security-auth-oauth2', version: '1.1.0', capabilities: ['principalDirectory', 'roleModel'] },
-  { slug: 'security-auth-keycloak', version: '1.1.0', capabilities: ['principalDirectory', 'roleModel'] },
+  { slug: 'security-auth-magic-link', version: '1.2.0', capabilities: ['principalDirectory'] },
+  { slug: 'security-auth-clerk', version: '1.3.0', capabilities: ['principalDirectory', 'roleModel', 'sessionInventory', 'hostedIdentityUi'] },
+  { slug: 'security-auth-oauth2', version: '1.2.0', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory', 'hostedIdentityUi'] },
+  { slug: 'security-auth-keycloak', version: '1.2.0', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory'] },
 ];
 
 test('the four shelf auth blueprints declare capabilities[] and matching CHANGELOG entries (TC-051-auth-minors)', async () => {
@@ -28,7 +36,8 @@ test('the four shelf auth blueprints declare capabilities[] and matching CHANGEL
     const cl = await readFile(join(REPO_ROOT, 'blueprints', spec.slug, 'CHANGELOG.md'), 'utf8');
     assert.ok(cl.includes(`## ${spec.version}`), `${spec.slug} CHANGELOG has ${spec.version} header`);
     assert.ok(cl.includes('capabilities'), `${spec.slug} CHANGELOG mentions capabilities`);
-    assert.ok(cl.includes('5.5.2'), `${spec.slug} CHANGELOG cites spec section 5.5.2`);
+    // T-4 entries cite section 5.4.2 (T-5 legacy entries still cite 5.5.2).
+    assert.ok(cl.includes('5.4.2') || cl.includes('5.5.2'), `${spec.slug} CHANGELOG cites the ratifying spec section`);
   }
 });
 

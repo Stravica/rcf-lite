@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-2603-application-account-settings-theme-persistence",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Theme persistence: spa-local-storage default, server-scoped or none",
+  "context": "The theme surface persists the light/dark/system choice. The applied SPA blueprint owns per-tab hydration; the account-settings blueprint owns the operator surface for choosing the theme and the persistence hand-off. The spec section 5.4 marks theme-persistence as elicited with recommendedDefault true on spa-local-storage because per-browser persistence is the least-surprising default and it does not require a server round-trip.",
+  "decision": "theme-persistence is elicited (enum: spa-local-storage | server-scoped | none). Recommended default: spa-local-storage. The applied SPA blueprint reads the persisted choice at hydrate time and applies data-theme on the html element before first paint (no flash of unstyled content). A server-scoped persistence writes the choice on the principals record so it follows the user across devices; the account-settings blueprint records the choice through its themeAdapter interface. A \"none\" choice reflects the projects prefers-color-scheme by default and never persists.",
+  "consequences": "A spa-local-storage project honours the users choice per browser tab family, which is the vernacular expectation. A server-scoped project pays the cost of a per-preference write. A none project honours the OS.",
+  "alternativesConsidered": [
+    {
+      "name": "Alternative approach considered",
+      "summary": "Auto-detecting from the applied blueprint set was considered but the choice is a UX decision.",
+      "reasonNotChosen": "See the decision text; the chosen shape composes cleanly with the applied blueprint set the spec section 5.4 names."
+    }
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

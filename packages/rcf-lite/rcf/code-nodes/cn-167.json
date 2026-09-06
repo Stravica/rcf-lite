@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-167",
+  "path": "../../blueprints/security-auth-keycloak/blueprint.json",
+  "implementsAcIds": [
+    "AC-2701-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:13:59.247Z",
+  "updatedAt": "2026-09-06T21:13:59.247Z"
+}

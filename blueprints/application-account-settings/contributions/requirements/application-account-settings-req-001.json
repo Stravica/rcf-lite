@@ -1,0 +1,18 @@
+{
+  "reqId": "application-account-settings-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Settings shell with no dead links to unapplied capabilities and ARIA APG tabs",
+  "description": "The settings shell renders a single primary tabs region (ARIA APG tabs pattern) whose entries mirror the union of applied capabilities discovered via readAppliedCapabilities. A tab whose capability is not applied does NOT render (no dead link, no disabled shell). A principal without an authenticated session reaching /account routes to the access-denied state through application-empty-error-states (T-1) with a sign-in link; no bespoke access-denied UI is invented here. Landmark, headings, focus order per WCAG 2.4.6.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec (2026-09-06) section 5.4, REQ 1 of the account-settings blueprint.",
+  "tags": [
+    "blueprint:application-account-settings",
+    "category:01-shell"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}

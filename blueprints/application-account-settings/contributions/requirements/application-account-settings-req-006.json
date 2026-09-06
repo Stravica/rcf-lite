@@ -1,0 +1,18 @@
+{
+  "reqId": "application-account-settings-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Theme surface conditional on application-spa applied with theme-persistence elicit",
+  "description": "The theme surface (/account/theme) renders when application-spa is applied. Renders a light/dark/system radiogroup (ARIA APG radiogroup, keyboard reachable) and persists the choice per the theme-persistence elicit (spa-local-storage default, server-scoped, or none). Choice takes effect immediately (data-theme attribute on the html element flips) and honours the users prefers-color-scheme when set to system.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec (2026-09-06) section 5.4, REQ 6 of the account-settings blueprint.",
+  "tags": [
+    "blueprint:application-account-settings",
+    "category:06-theme"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}
