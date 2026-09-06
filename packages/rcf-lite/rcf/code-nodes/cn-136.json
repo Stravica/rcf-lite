@@ -1,13 +1,14 @@
 {
   "cnId": "CN-136",
-  "path": "../../packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/server.js",
+  "path": "../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
   "implementsAcIds": [
     "AC-2401-4",
-    "AC-2401-5"
+    "AC-2401-5",
+    "AC-2401-6"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
-  "createdAt": "2026-09-06T15:39:30.074Z",
-  "updatedAt": "2026-09-06T15:39:30.074Z"
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
 }

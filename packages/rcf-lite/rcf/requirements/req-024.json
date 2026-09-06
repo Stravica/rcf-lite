@@ -1,69 +1,18 @@
 {
-  "createdAt": "2026-09-06T15:38:14.226Z",
-  "updatedAt": "2026-09-06T15:38:14.250Z",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z",
+  "reqId": "REQ-024",
+  "prdId": "PRD-001",
+  "title": "Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container",
+  "description": "The rcf-lite shelf ships the persistence-data-postgres v1.0.0 blueprint (blueprints/persistence-data-postgres/) with 26 contributions per the ratified infra round 5 spec section 5.1: 7 REQs (facade sole-reader over the pg client; numbered forward-only .sql migrations with one file one transaction; prepared-statement discipline via static string literals with $N parameters; transactional atomicity via a helper wrapping BEGIN and COMMIT; two-path recovery via scheduled pg_dump plus vendor point-in-time recovery; connection-pool posture per deploy target; optional advisory-lock helper elicited default off per Baz Q1 default), 10 USs 27101-27110 binding runtime-observable ACs, 4 TACs 2801-2804 (facade, migration runner, transaction helper, recovery runner), 5 ADRs 2801-2805 (driver choice pg with elicited alternatives, numbered forward-only migrations with elicited migration-runner tool, runner mode atBoot or ciStep, recovery pg_dump plus PITR both required, pool posture per deploy target). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.1 reasons, providesRoles absent, capabilities [relationalStore], requiresAppliedCapabilities absent (this is a provider blueprint, not a consumer). Contributes ADR-2801 and ADR-2802 as scope:global on the persistenceStore and migrationDiscipline topics reused from persistence-data-sqlite and persistence-data-d1 so applying persistence-data-postgres alongside either of them surfaces a DELIBERATE conflict per the round-2 pattern. Ships six Node-only probes under blueprints/persistence-data-postgres/contributions/probes/ (facade-round-trip, migration-apply, prepared-statement-scan, transaction-atomicity, recovery-restore-round-trip, pool-posture-smoke) each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id, and matching run-<probe-name>.mjs shims that drive the probe against the applied fixture and write the per-blueprint probe report at .rcf/reports/blueprints/persistence-data-postgres/<probe-name>.json per spec section 3.4. None of the six probes carry accountBound:true; Postgres is local-first per Baz decision 8 (spec section 1 ruling 5). Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with a docker-compose.yml declaring postgres:17-alpine (POSTGRES_USER=rcf, POSTGRES_PASSWORD=rcf-dev-only, POSTGRES_DB=rcf_test, pg_isready healthcheck, port 5432 with PORT env override), three toy forward-only migrations under migrations/, src/store.mjs realising the facade contract as the sole reader of pg with typed domain verbs, src/recovery.mjs realising the scheduled export runner via pg_dump through child_process.execFile, package.json with pg as a runtime dependency, and a README naming the docker and podman incantations, the induced-failure switches (SIMULATE_MIGRATION_FAILURE, SIMULATE_CONSTRAINT_VIOLATION), and the gate-reviewer two-line boot. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for relationalStore per spec section 5.6. Appends one row for persistence-data-postgres at US band 27101-27899 / ADR-TAC suffix block 28xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Reserves the round-6 Hyperdrive v1.1.0 adapter slot at ADR-2801 by keeping the driver reference opaque at the facade boundary per spec section 5.7.",
   "category": "functional",
   "domain": "application",
   "priority": "must",
   "version": "0.1.0",
   "status": "draft",
-  "rationale": "Per visual round 4 spec section 5.1 (2026-09-06).",
-  "description": "The rcf-lite shelf ships the application-empty-error-states v1.0.0 blueprint (blueprints/application-empty-error-states/) with 19 to 24 contributions (5 REQs on the state catalogue with eight named states, the recovery-action contract per state, the announcement contract with role=region and aria-live=polite, the server-error surface with no stack-trace and no resource-id leak in production, and the offline state with a write-buffer and navigator.onLine reconnection semantics; 8 USs 22101 to 22108 binding runtime-observable ACs one per named state; 3 TACs 2301 state-machine from FBS render to state render to recovery, 2302 recovery-action router across parent-surface search request-access retry, 2303 offline write-buffer with reconciliation semantics; 3 ADRs 2301 HTTP status to rendered state mapping with standardsTraceClause RFC 9110 and recommendedDefault true, 2302 production hides stack traces with recommendedDefault true and elicited true, 2303 offline strategy across write-buffer read-only-banner refuse-writes with elicited true). Declares suggestedCompanions logging and errorHandling with reasons from spec section 5.1; providesRoles absent; capabilities empty; requiresAppliedCapabilities absent (no auth required). Ships a Playwright probe pack under blueprints/application-empty-error-states/probe-packs/application-empty-error-states.pack.mjs whose eight checks (AC-22101-1 not-found, AC-22102-1 forbidden, AC-22103-1 server-error, AC-22104-1 permission-denied, AC-22105-1 offline, AC-22106-1 empty-list, AC-22107-1 no-search-results, AC-22108-1 error-boundary) each anchor one named state via TAC-2301 or an operator-configured error-shell path glob; pack URLs composed by the withUrl(runtimeUrl, path) helper per round 3 T-3 fix train. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/ realising all eight states honestly with a query switch ?state=<name> and break switches ?break=stack-trace, ?break=leak-id, ?break=no-recovery and ?break=no-live-region so each check refuses on its own defect. Sixth shipped consumer of T-0s probe-pack runner extension; T-3 forms-wizard and T-4 account-settings both compose this blueprint.",
-  "reqId": "REQ-024",
-  "prdId": "PRD-001",
-  "title": "Application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state contract, Playwright probe pack and sample-app fixture",
-  "shapeClassification": {
-    "shapes": [
-      "webUi",
-      "auth"
-    ],
-    "reason": "keyword-scan",
-    "classifiedAt": "2026-09-06T15:38:14.249Z",
-    "signals": [
-      {
-        "source": "description",
-        "shape": "auth",
-        "match": "role"
-      },
-      {
-        "source": "description",
-        "shape": "webUi",
-        "match": "aria-"
-      },
-      {
-        "source": "description",
-        "shape": "webUi",
-        "match": "nav"
-      },
-      {
-        "source": "description",
-        "shape": "webUi",
-        "match": "render"
-      },
-      {
-        "source": "description",
-        "shape": "webUi",
-        "match": "render"
-      },
-      {
-        "source": "description",
-        "shape": "webUi",
-        "match": "route"
-      },
-      {
-        "source": "description",
-        "shape": "webUi",
-        "match": "rendered"
-      },
-      {
-        "source": "description",
-        "shape": "auth",
-        "match": "permission"
-      },
-      {
-        "source": "description",
-        "shape": "webUi",
-        "match": "form"
-      }
-    ]
-  }
+  "tags": [
+    "blueprint:persistence-data-postgres",
+    "round:5",
+    "track:T-1"
+  ]
 }

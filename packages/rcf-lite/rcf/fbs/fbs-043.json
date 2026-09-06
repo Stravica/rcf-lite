@@ -1,23 +1,13 @@
 {
-  "createdAt": "2026-09-06T15:39:29.571Z",
-  "updatedAt": "2026-09-06T15:47:21.202Z",
-  "dependsOnFbsIds": [
-    "FBS-042"
-  ],
-  "acIds": [
-    "AC-2401-1",
-    "AC-2401-2",
-    "AC-2401-3",
-    "AC-2401-4",
-    "AC-2401-5",
-    "AC-2401-6",
-    "AC-2401-7"
-  ],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z",
+  "acIds": ["AC-2401-1", "AC-2401-2", "AC-2401-3", "AC-2401-4", "AC-2401-5", "AC-2401-6"],
   "fbsId": "FBS-043",
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 43,
   "executionStatus": "notStarted",
-  "title": "application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture",
-  "summary": "T-1 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.1): the application-empty-error-states v1.0.0 blueprint on the shelf. Ships 19 contributions (5 REQs on state catalogue and recovery-action contract and announcement contract and least-privilege 5xx and 403 posture and offline write-buffer; 8 USs 22101-22108 binding runtime-observable ACs one per named state; 3 TACs 2301 state-machine and 2302 recovery-router and 2303 offline write-buffer; 3 ADRs 2301 HTTP status contract RFC 9110 and 2302 stack-trace visibility elicited and 2303 offline strategy elicited), a Playwright probe pack whose eight checks (AC-22101-1 through AC-22108-1) each anchor one named state via TAC-2301 or the operator-configured error-shell path glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/ serving all eight states honestly on /probe/<name> plus break switches (?break=stack-trace, ?break=leak-id, ?break=no-recovery, ?break=no-live-region) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent (no auth required); capabilities absent. Sixth shipped consumer of T-0s probe-pack runner extension; T-3 forms-wizard and T-4 account-settings consume this blueprint."
+  "title": "persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture",
+  "summary": "T-1 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.1): the persistence-data-postgres v1.0.0 blueprint on the shelf. Ships 26 contributions in the 7 REQ / 10 US 27101-27110 / 4 TAC 2801-2804 / 5 ADR 2801-2805 groups per spec section 5.1, six Node-only probes under blueprints/persistence-data-postgres/contributions/probes/ (facade-round-trip, migration-apply, prepared-statement-scan, transaction-atomicity, recovery-restore-round-trip, pool-posture-smoke) with matching run-<probe-name>.mjs shims that write per-blueprint reports at .rcf/reports/blueprints/persistence-data-postgres/<probe-name>.json, and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker-compose declaring postgres:17-alpine, three toy forward-only migrations, src/store.mjs realising the facade as sole reader of pg, src/recovery.mjs realising the scheduled export runner via pg_dump, package.json with pg as runtime dep, and a README naming docker and podman incantations plus induced-failure switches. Declares capabilities [relationalStore], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent. Contributes ADR-2801 and ADR-2802 as scope:global on persistenceStore and migrationDiscipline reused from persistence-data-sqlite and persistence-data-d1 so composition with either surfaces a DELIBERATE conflict per the round-2 pattern. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with a relationalStore row per spec section 5.6; appends one shelf-registry row for persistence-data-postgres at 27101-27899 / 28xx to every shipped blueprint's docs/topics.md. Reserves the round-6 Hyperdrive v1.1.0 adapter slot at ADR-2801 by keeping the driver reference opaque at the facade boundary per spec section 5.7. None of the six probes carry accountBound:true; Postgres is local-first per Baz decision 8.",
+  "dependsOnFbsIds": ["FBS-042"]
 }

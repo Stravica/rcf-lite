@@ -1,70 +1,55 @@
 {
-  "createdAt": "2026-09-06T15:39:17.193Z",
-  "updatedAt": "2026-09-06T15:39:17.193Z",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z",
+  "purpose": "Cover AC-2401-1..6 via unit tests over the shipped persistence-data-postgres blueprint.json contribution shape (26 contributions in 7 REQ / 10 US / 4 TAC / 5 ADR groups), the applies-clean behaviour on a scratch project without prior persistence, the DELIBERATE conflict surface on persistenceStore and migrationDiscipline when persistence-data-d1 is already applied, the six Node-only probe module contract (each exports the section 3.2 verdict envelope and its anchorAcId matches a contributed AC id), the induced-failure switches on the sample-app fixture, and the shelf-doc consistency (section 6a table row for relationalStore, shelf-wide id-band registry row for persistence-data-postgres in every blueprint's docs/topics.md, blueprint README and CHANGELOG and guide and fixture README all present).",
+  "testLevel": "unit",
+  "acIds": ["AC-2401-1", "AC-2401-2", "AC-2401-3", "AC-2401-4", "AC-2401-5", "AC-2401-6"],
+  "id": "TS-053",
+  "usId": "US-2401",
+  "title": "persistence-data-postgres v1.0.0 shelf shape, conflict-on-topics-surface, six-probe module contract and shelf-doc consistency",
   "testCases": [
     {
       "id": "TC-053-blueprint-json-shape",
       "acId": "AC-2401-1",
-      "description": "blueprint.json declares slug, version 1.0.0, category application, 19 contributions in 5/8/3/3 groups; providesRoles absent; requiresAppliedCapabilities absent; suggestedCompanions logging and errorHandling",
+      "description": "blueprint.json declares 26 contributions with capabilities [relationalStore] and suggestedCompanions logging and errorHandling",
       "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)"
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-053-blueprint-json-shape)"
     },
     {
-      "id": "TC-053-applies-clean",
+      "id": "TC-053-applies-clean-no-persistence",
       "acId": "AC-2401-2",
-      "description": "Fresh init project applies application-empty-error-states cleanly and reports the tree clean",
+      "description": "Fresh init project applies persistence-data-postgres cleanly and validate plus both strict audits exit zero",
       "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean)"
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::apply persistence-data-postgres on a bare scratch project writes 26 contributions and validate plus strict audits exit zero (TC-053-applies-clean-no-persistence)"
     },
     {
-      "id": "TC-053-pack-checks-cross-check",
+      "id": "TC-053-conflict-with-d1",
       "acId": "AC-2401-3",
-      "description": "Every pack check id matches a contributed AC id; pack-level appliesTo references BOTH tacIds and route; withUrl helper used for every URL string",
+      "description": "Add refuses on a scratch project with persistence-data-d1 applied surfacing conflict on persistenceStore and migrationDiscipline",
       "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-053-pack-checks-cross-check)"
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::apply persistence-data-postgres on a d1-applied scratch project surfaces globalAdrTopic conflict on persistenceStore and migrationDiscipline (TC-053-conflict-with-d1)"
     },
     {
-      "id": "TC-053-fixture-serves-states",
+      "id": "TC-053-probe-anchor-ids-cross-check",
       "acId": "AC-2401-4",
-      "description": "Sample-app fixture serves every one of the eight states honestly on its default branch and via ?state= switch",
+      "description": "Every probe module under contributions/probes/ exports the section 3.2 verdict envelope and its anchorAcId matches a contributed AC id on the blueprint",
       "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::sample-app fixture serves every one of the eight states on the default branch (TC-053-fixture-serves-states)"
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-053-probe-anchor-ids-cross-check)"
     },
     {
-      "id": "TC-053-negative-runs",
+      "id": "TC-053-fixture-and-switches",
       "acId": "AC-2401-5",
-      "description": "Break switches surface the four defects on the DOM for the corresponding pack checks",
+      "description": "The sample-app fixture README names the SIMULATE_MIGRATION_FAILURE and SIMULATE_CONSTRAINT_VIOLATION switches and store.mjs recognises them",
       "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-053-negative-runs)"
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::sample-app fixture ships docker-compose.yml, migrations, store.mjs, recovery.mjs, and its README documents both induced-failure switches (TC-053-fixture-and-switches)"
     },
     {
-      "id": "TC-053-state-enumeration-parity",
+      "id": "TC-053-shelf-doc-consistency",
       "acId": "AC-2401-6",
-      "description": "Eight state slugs appear identically across README, guide, pack checks[] and docs/topics.md registry",
+      "description": "Section 6a table gains a relationalStore row and every blueprint's docs/topics.md gains a persistence-data-postgres row at band 27101-27899 / 28xx",
       "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::eight state slugs appear identically across README guide pack and docs (TC-053-state-enumeration-parity)"
-    },
-    {
-      "id": "TC-053-readme-gaps-and-changelog",
-      "acId": "AC-2401-7",
-      "description": "README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-1 shelf registry row",
-      "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-1 row (TC-053-readme-gaps-and-changelog)"
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::section 6a table gains a relationalStore row and every shipped blueprint docs/topics.md gains a persistence-data-postgres row at 27101-27899 / 28xx (TC-053-shelf-doc-consistency)"
     }
   ],
-  "status": "draft",
-  "purpose": "Cover AC-2401-1 through AC-2401-7 via unit tests over the shipped application-empty-error-states blueprint.json contribution shape (19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups), the applies-clean pass on a fresh init project, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving all eight state branches, the negative-run behaviour on the ?break=stack-trace, ?break=leak-id, ?break=no-recovery and ?break=no-live-region switches, the state-slug enumeration parity across README, guide, pack and docs/topics.md registry, and the README mechanism-reach gaps and CHANGELOG 1.0.0 entry.",
-  "testLevel": "unit",
-  "acIds": [
-    "AC-2401-1",
-    "AC-2401-2",
-    "AC-2401-3",
-    "AC-2401-4",
-    "AC-2401-5",
-    "AC-2401-6",
-    "AC-2401-7"
-  ],
-  "id": "TS-053",
-  "usId": "US-2401",
-  "title": "application-empty-error-states v1.0.0 shelf shape, probe pack cross-check and sample-app fixture"
+  "status": "draft"
 }
