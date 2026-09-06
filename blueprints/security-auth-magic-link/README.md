@@ -2,6 +2,9 @@
 
 The third content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified; Phase 4 of the blueprint programme). Scope: passwordless magic-link sign-in with server-issued opaque cookie sessions, single deployable, pluggable email delivery and pluggable principal registry, targeted at small greenfield rcf-lite projects. Composes with the application-spa blueprint (client half) and the application-api-rest blueprint (server half) by design, contributing one deliberate scope:global conflict on `authModel`.
 
+
+> Latest: **v1.2.0 (doc-only)** (visual round T-4, 2026-09-06). `capabilities: [principalDirectory]`. See [CHANGELOG.md](CHANGELOG.md).
+
 ## Apply
 
 ```

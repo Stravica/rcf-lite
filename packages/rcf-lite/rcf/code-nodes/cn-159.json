@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-159",
+  "path": "../../blueprints/application-account-settings/README.md",
+  "implementsAcIds": [
+    "AC-2701-1",
+    "AC-2701-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:13:57.859Z",
+  "updatedAt": "2026-09-06T21:13:57.859Z"
+}

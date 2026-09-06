@@ -112,6 +112,23 @@ export function buildRefusalMessage({ slug, refusalMessageId, requiredCapabiliti
       `       rcf define blueprint add ${slug} --${allowSkipFlag}`,
     ].join('\n');
   }
+  if (refusalMessageId === 'application-account-settings-bare-spa') {
+    return [
+      `${slug} requires at least one applied security-auth-* blueprint,`,
+      `or an operator override with --${allowSkipFlag}.`,
+      '',
+      'Applied blueprints on this project:',
+      appliedBlock,
+      '',
+      'Suggested next steps:',
+      '  1. Apply an auth blueprint first:',
+      '       rcf define blueprint add security-auth-magic-link',
+      '     (or security-auth-clerk, security-auth-oauth2, security-auth-keycloak)',
+      `  2. Override for a scaffolding pass (surfaces will refuse at apply until an`,
+      `     auth blueprint is applied):`,
+      `       rcf define blueprint add ${slug} --${allowSkipFlag}`,
+    ].join('\n');
+  }
   if (refusalMessageId === 'object-storage-s3-no-secrets') {
     return [
       `[object-storage-s3-no-secrets] ${slug} requires an applied blueprint declaring`,

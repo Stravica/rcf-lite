@@ -1,0 +1,55 @@
+{
+  "createdAt": "2026-09-06T21:11:39.906Z",
+  "updatedAt": "2026-09-06T21:12:11.457Z",
+  "usId": "US-2701",
+  "prdId": "PRD-001",
+  "reqId": "REQ-027",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The application-account-settings blueprint ships on the shelf with its 5-check pack and sample-app fixture; the pack refuses on the four break switches; the four auth minors and the observability-logging minor bump ship in the same PR with the extended section 6a capability table",
+  "asA": "shelf consumer applying the application-account-settings v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files, the Playwright probe pack anchoring the five surface-observable checks (shell tabs, profile autocomplete, security branch, sessions dialog-modal, theme radiogroup) with capability-gated appliesTo, and a sample-app fixture proving the pack passes on the honest render of the five conditional surfaces and fails on the four break switches; the four auth blueprint minor bumps and the observability-logging minor bump riding the same PR extending the section 6a capability table with credentialSelfService sessionInventory and hostedIdentityUi",
+  "soThat": "a project consuming rcf-lite gets the WCAG 2.2 AA compliant account-settings surface with a runtime-verified pack that gates on the applied capability set (no bespoke work when magic-link is applied and only profile activates; the security surface renders self-service on Keycloak or hosted-link-out on Clerk; the sessions surface renders on any applied sessionInventory provider including observability-logging as the logging-projection provider), one recommended default per elicit where honest and no recommended default on security-surface-shape where dishonest",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2701-1",
+      "description": "The shelf carries blueprints/application-account-settings/blueprint.json declaring slug application-account-settings, version 1.0.0, category application, and 24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups per spec section 5.4; suggestedCompanions declares logging and errorHandling with reasons; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities declares principalDirectory with allowSkipFlag allow-no-auth-yet and refusalMessageId application-account-settings-bare-spa.",
+      "testable": true
+    },
+    {
+      "id": "AC-2701-2",
+      "description": "The shelf carries blueprints/application-account-settings/blueprint.json declaring slug application-account-settings, version 1.0.0, category application, and 24 contributions in the 6 REQ / 10 US / 4 TAC / 4 ADR groups per spec section 5.4; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.4; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities declares principalDirectory with allowSkipFlag allow-no-auth-yet and refusalMessageId application-account-settings-bare-spa.",
+      "testable": true
+    },
+    {
+      "id": "AC-2701-3",
+      "description": "rcf define blueprint add ./blueprints/application-account-settings applies the 24 contributions cleanly on a fresh init project with security-auth-magic-link applied (exit 0, contribution count matches blueprint.json); the applied sidecar records appliedCapabilities principalDirectory only; a fresh init project with no auth applied refuses at exit 3 with the [application-account-settings-bare-spa] refusal message; --allow-no-auth-yet applies with allowNoAuthYet true and a scaffolding-pass note on the sidecar.",
+      "testable": true
+    },
+    {
+      "id": "AC-2701-4",
+      "description": "The shipped probe pack blueprints/application-account-settings/probe-packs/application-account-settings.pack.mjs loads via T-0 pack-loader against a scratch project with the blueprint applied; each of its five check ids (AC-25101-1 shell, AC-25102-1 profile, AC-25105-1 security, AC-25106-1 sessions, AC-25108-1 theme) resolves to an AC id contributed by the blueprint; every check carries a description field; the pack-level appliesTo predicate references BOTH tacIds AND route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.",
+      "testable": true
+    },
+    {
+      "id": "AC-2701-5",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /account renders the ARIA APG tabs shell whose tabs mirror the CAPS env; /account/profile renders the form with autocomplete tokens name email bday country; /account/security?security-surface-shape=self-service renders the change-password and mfa-management regions when credentialSelfService is in CAPS; /account/sessions renders one row per session with data-session-id and a terminate control on non-current rows plus the ARIA dialog-modal; /account/theme renders the radiogroup with light dark system and persists per the ACCOUNT_SETTINGS_THEME_PERSIST env; PORT env overrides the bind port (default 3000, never binds 4200).",
+      "testable": true
+    },
+    {
+      "id": "AC-2701-6",
+      "description": "The probe pack fails on each broken fixture branch: ?break=leak-tab renders the security tab even when neither credentialSelfService nor hostedIdentityUi is in CAPS so AC-25101-1 fails at severity block; ?break=no-autocomplete drops the autocomplete tokens on the profile form so AC-25102-1 fails at severity block; ?break=no-dialog removes the terminate confirmation dialog so AC-25106-1 fails at severity block; ?break=no-persist drops the theme persistence write so AC-25108-1 does not fail on this fixture-side signal directly but the data-persist attribute mismatch triggers the fail.",
+      "testable": true
+    },
+    {
+      "id": "AC-2701-7",
+      "description": "The four capability strings principalDirectory credentialSelfService sessionInventory hostedIdentityUi and the security surface shape enum self-service hosted-link-out hosted-embed appear identically across README, guide, pack checks[] descriptions and docs/topics.md registry; the section 6a capability table in packages/rcf-lite/docs/blueprint-authoring.md lists credentialSelfService sessionInventory and hostedIdentityUi with the shelf providers named.",
+      "testable": true
+    },
+    {
+      "id": "AC-2701-8",
+      "description": "README lists mechanism-reach gaps individually per AC id per checklist section 6.g; CHANGELOG carries one 1.0.0 entry naming the auth minors and the observability-logging minor that ride the same PR; docs/topics.md carries the T-4 shelf registry row and the cross-references to application-empty-error-states and application-admin-console; the four amended auth blueprints each carry a README latest note and a CHANGELOG entry naming the new capabilities and the account-settings consumer; the observability-logging blueprint carries the same.",
+      "testable": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-158",
+  "path": "../../packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/README.md",
+  "implementsAcIds": [
+    "AC-2701-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T21:13:57.686Z",
+  "updatedAt": "2026-09-06T21:13:57.686Z"
+}

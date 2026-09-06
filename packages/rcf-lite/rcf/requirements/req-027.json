@@ -1,0 +1,33 @@
+{
+  "createdAt": "2026-09-06T21:11:33.252Z",
+  "updatedAt": "2026-09-06T21:11:33.281Z",
+  "description": "T-4 shelf-blueprint track: application-account-settings v1.0.0 with 24 contributions 6 REQs 10 USs 25101 to 25110 4 TACs 2601 to 2604 4 ADRs 2601 to 2604; requiresAppliedCapabilities principalDirectory with allow-no-auth-yet override; 8 elicits; probe pack with 5 capability-gated checks anchored to AC-25101-1 AC-25102-1 AC-25105-1 AC-25106-1 AC-25108-1; sample-app fixture with 5 conditional surfaces and 4 break switches; rides with clerk 1.3.0 keycloak 1.2.0 oauth2 1.2.0 magic-link 1.2.0 doc-only observability-logging 1.2.0; mechanism minor for Q3 refusal and refusal template. Ninth shipped consumer of T-0 probe-pack runner.",
+  "reqId": "REQ-027",
+  "prdId": "PRD-001",
+  "title": "application-account-settings v1.0.0 blueprint on the shelf with 5-check pack, 4 auth-blueprint minor bumps and observability-logging minor",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-06T21:11:33.280Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "magic-link"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "template"
+      }
+    ]
+  }
+}

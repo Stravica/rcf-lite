@@ -116,7 +116,10 @@ test('apply on magic-link project yields [principalDirectory] and on clerk+loggi
   const wide = await applyBlueprint({ projectRoot: scratch2, tree: c2, source: BLUEPRINT_ROOT });
   assert.equal(wide.applied, true, JSON.stringify(wide));
   const sorted = [...wide.appliedCapabilities].sort();
-  assert.deepEqual(sorted, ['auditLog', 'principalDirectory', 'roleModel']);
+  // T-4 bumps: clerk 1.3.0 adds sessionInventory + hostedIdentityUi;
+  // observability-logging 1.2.0 adds sessionInventory (as the logging-projection provider).
+  // The union widens accordingly.
+  assert.deepEqual(sorted, ['auditLog', 'hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
 });
 
 test('every pack check id matches a contributed AC id and appliesTo predicate gates on the applied capability (TC-052-pack-checks-cross-check)', async () => {

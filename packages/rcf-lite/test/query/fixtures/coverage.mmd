@@ -969,6 +969,39 @@ flowchart LR
   REQ-026 --> AC-2601-7
   TC-055-readme-gaps-and-changelog["TC-055-readme-gaps-and-changelog"]
   AC-2601-7 -.-> TC-055-readme-gaps-and-changelog
+  REQ-027["REQ-027"]
+  AC-2701-1["AC-2701-1"]
+  REQ-027 --> AC-2701-1
+  TC-056-blueprint-json-shape["TC-056-blueprint-json-shape"]
+  AC-2701-1 -.-> TC-056-blueprint-json-shape
+  AC-2701-2["AC-2701-2"]
+  REQ-027 --> AC-2701-2
+  TC-056-applies-clean["TC-056-applies-clean"]
+  AC-2701-2 -.-> TC-056-applies-clean
+  AC-2701-3["AC-2701-3"]
+  REQ-027 --> AC-2701-3
+  TC-056-apply-refusal-and-override["TC-056-apply-refusal-and-override"]
+  AC-2701-3 -.-> TC-056-apply-refusal-and-override
+  AC-2701-4["AC-2701-4"]
+  REQ-027 --> AC-2701-4
+  TC-056-pack-checks-cross-check["TC-056-pack-checks-cross-check"]
+  AC-2701-4 -.-> TC-056-pack-checks-cross-check
+  AC-2701-5["AC-2701-5"]
+  REQ-027 --> AC-2701-5
+  TC-056-fixture-and-switches["TC-056-fixture-and-switches"]
+  AC-2701-5 -.-> TC-056-fixture-and-switches
+  AC-2701-6["AC-2701-6"]
+  REQ-027 --> AC-2701-6
+  TC-056-negative-runs["TC-056-negative-runs"]
+  AC-2701-6 -.-> TC-056-negative-runs
+  AC-2701-7["AC-2701-7"]
+  REQ-027 --> AC-2701-7
+  TC-056-shelf-doc-consistency["TC-056-shelf-doc-consistency"]
+  AC-2701-7 -.-> TC-056-shelf-doc-consistency
+  AC-2701-8["AC-2701-8"]
+  REQ-027 --> AC-2701-8
+  TC-056-q3-refusal["TC-056-q3-refusal"]
+  AC-2701-8 -.-> TC-056-q3-refusal
   REQ-040["REQ-040"]
   AC-4001-1["AC-4001-1"]
   REQ-040 --> AC-4001-1
@@ -1019,6 +1052,7 @@ flowchart LR
   REQ-041 --> AC-4101-6
   TC-071-shelf-doc-consistency["TC-071-shelf-doc-consistency"]
   AC-4101-6 -.-> TC-071-shelf-doc-consistency
+  class TC-056-q3-refusal broken;
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1517,6 +1551,23 @@ flowchart LR
   class TC-055-vocabulary-and-transport-parity tc;
   class AC-2601-7 ac;
   class TC-055-readme-gaps-and-changelog tc;
+  class REQ-027 req;
+  class AC-2701-1 ac;
+  class TC-056-blueprint-json-shape tc;
+  class AC-2701-2 ac;
+  class TC-056-applies-clean tc;
+  class AC-2701-3 ac;
+  class TC-056-apply-refusal-and-override tc;
+  class AC-2701-4 ac;
+  class TC-056-pack-checks-cross-check tc;
+  class AC-2701-5 ac;
+  class TC-056-fixture-and-switches tc;
+  class AC-2701-6 ac;
+  class TC-056-negative-runs tc;
+  class AC-2701-7 ac;
+  class TC-056-shelf-doc-consistency tc;
+  class AC-2701-8 ac;
+  class TC-056-q3-refusal tc;
   class REQ-040 req;
   class AC-4001-1 ac;
   class TC-070-blueprint-json-shape tc;

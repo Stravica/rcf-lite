@@ -1,0 +1,27 @@
+{
+  "usId": "application-account-settings-US-25107",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Notification-preferences surface renders when application-notifications-in-app applied",
+  "asA": "authenticated principal managing notification preferences",
+  "iWant": "a preferences surface with per-category silence and per-channel opt-in controls only when the notifications blueprint is applied",
+  "soThat": "the shipped surface never lies about what preferences my product actually supports",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25107-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "When application-notifications-in-app is in the applied-blueprint set, GET /account/notifications renders <div data-surface=\"notifications\"> with [data-role=\"category-silence\"] entries per category and [data-role=\"channel-opt-in\"] entries per channel; save-success and save-failure announcements follow the profile surface contract. Absent when notifications-in-app is not applied. Probed by pack check AC-25107-1."
+    }
+  ],
+  "tacIds": [
+    "TAC-2601-application-account-settings-shell"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-06T20:55:46Z",
+  "updatedAt": "2026-09-06T20:55:46Z"
+}
