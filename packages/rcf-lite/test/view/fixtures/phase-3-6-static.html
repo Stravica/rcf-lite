@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-040">REQ-040</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-040">REQ-040</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -7323,6 +7323,260 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-025">
+  <summary><span class="summary-label">REQ-025 - Application-file-upload v1.0.0 blueprint on the shelf with the file-input plus drop-zone contract, chunked-resumable transport, refusal semantics and Playwright probe pack</span><span class="status draft">draft</span></summary>
+  <article id="REQ-025" class="doc doc-req">
+  <h3>REQ-025 - Application-file-upload v1.0.0 blueprint on the shelf with the file-input plus drop-zone contract, chunked-resumable transport, refusal semantics and Playwright probe pack</h3>
+  
+  <p><strong>Description:</strong> The rcf-lite shelf ships the application-file-upload v1.0.0 blueprint (blueprints/application-file-upload/) with 18 to 22 contributions (5 REQs on the input contract with a labelled file input plus drop-zone plus keyboard alternative per WCAG 2.5.7, the progress contract with per-file percent plus aggregate percent plus polite live-region tick, the refusal contract with MIME-type refusal and size-limit refusal and virus-scan hit and aria-describedby error binding and focus-to-retry, the transport contract with chunked-and-resumable and multipart POST default and tus.io elicited alternative, and the completion contract with an assertive-slot announcement on success per WCAG 4.1.3 and per-file remove and retry; 7 USs 23101 to 23107 one per REQ plus two cross-cutting cases network-interruption resumption and background-tab progress; 3 TACs 2401 input surface, 2402 transport contract, 2403 progress announcer; 3 ADRs 2401 transport across multipart POST and tus.io and per-vendor SDK with recommendedDefault true on multipart and elicited true, 2402 accepted MIME set and per-file size cap with elicited true, 2403 virus-scan integration via operator-supplied verifier through a capability plus elicit with elicited true). Declares suggestedCompanions logging and errorHandling with reasons from spec section 5.2; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent. Ships a Playwright probe pack under blueprints/application-file-upload/probe-packs/application-file-upload.pack.mjs with four surface-observable checks anchored to TAC-2401 or an operator-configured upload-route glob. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ realising both transport branches multipart POST and tus.io honestly plus break switches so each check refuses on its own defect. Seventh shipped consumer of T-0&#39;s probe-pack runner extension.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> application</p>
+  <p><strong>Priority:</strong> must</p>
+  <p><strong>Rationale:</strong> Per visual round 4 spec section 5.2 (2026-09-06).</p>
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-025[&quot;REQ-025&lt;br/&gt;Application-file-upload v1.0.0 blueprint on t...&quot;]
+  US-2501[&quot;US-2501&lt;br/&gt;The application-file-upload blueprint ships o...&quot;]
+  REQ-025 --&gt; US-2501
+  AC-2501-1[&quot;AC-2501-1&quot;]
+  US-2501 --&gt; AC-2501-1
+  FBS-044[&quot;FBS-044&lt;br/&gt;application-file-upload v1.0.0 blueprint on t...&quot;]
+  AC-2501-1 -.-&gt;|delivered by| FBS-044
+  CN-141[&quot;CN-141&lt;br/&gt;../../blueprints/application-file-upload/blue...&quot;]
+  AC-2501-1 -.-&gt;|implemented by| CN-141
+  AC-2501-2[&quot;AC-2501-2&quot;]
+  US-2501 --&gt; AC-2501-2
+  AC-2501-2 -.-&gt;|delivered by| FBS-044
+  AC-2501-2 -.-&gt;|implemented by| CN-141
+  AC-2501-3[&quot;AC-2501-3&quot;]
+  US-2501 --&gt; AC-2501-3
+  AC-2501-3 -.-&gt;|delivered by| FBS-044
+  CN-142[&quot;CN-142&lt;br/&gt;../../blueprints/application-file-upload/prob...&quot;]
+  AC-2501-3 -.-&gt;|implemented by| CN-142
+  AC-2501-4[&quot;AC-2501-4&quot;]
+  US-2501 --&gt; AC-2501-4
+  AC-2501-4 -.-&gt;|delivered by| FBS-044
+  CN-143[&quot;CN-143&lt;br/&gt;../../packages/rcf-lite/test/fixtures/probe-p...&quot;]
+  AC-2501-4 -.-&gt;|implemented by| CN-143
+  AC-2501-5[&quot;AC-2501-5&quot;]
+  US-2501 --&gt; AC-2501-5
+  AC-2501-5 -.-&gt;|delivered by| FBS-044
+  AC-2501-5 -.-&gt;|implemented by| CN-143
+  AC-2501-6[&quot;AC-2501-6&quot;]
+  US-2501 --&gt; AC-2501-6
+  AC-2501-6 -.-&gt;|delivered by| FBS-044
+  CN-144[&quot;CN-144&lt;br/&gt;../../blueprints/application-file-upload/READ...&quot;]
+  AC-2501-6 -.-&gt;|implemented by| CN-144
+  CN-145[&quot;CN-145&lt;br/&gt;../../blueprints/application-file-upload/guid...&quot;]
+  AC-2501-6 -.-&gt;|implemented by| CN-145
+  CN-147[&quot;CN-147&lt;br/&gt;../../blueprints/application-file-upload/docs...&quot;]
+  AC-2501-6 -.-&gt;|implemented by| CN-147
+  AC-2501-7[&quot;AC-2501-7&quot;]
+  US-2501 --&gt; AC-2501-7
+  AC-2501-7 -.-&gt;|delivered by| FBS-044
+  AC-2501-7 -.-&gt;|implemented by| CN-144
+  CN-146[&quot;CN-146&lt;br/&gt;../../blueprints/application-file-upload/CHAN...&quot;]
+  AC-2501-7 -.-&gt;|implemented by| CN-146
+  AC-2501-7 -.-&gt;|implemented by| CN-147
+  click REQ-025 &quot;#REQ-025&quot;;
+  click US-2501 &quot;#US-2501&quot;;
+  click AC-2501-1 &quot;#AC-2501-1&quot;;
+  click FBS-044 &quot;#FBS-044&quot;;
+  click CN-141 &quot;#CN-141&quot;;
+  click AC-2501-2 &quot;#AC-2501-2&quot;;
+  click AC-2501-3 &quot;#AC-2501-3&quot;;
+  click CN-142 &quot;#CN-142&quot;;
+  click AC-2501-4 &quot;#AC-2501-4&quot;;
+  click CN-143 &quot;#CN-143&quot;;
+  click AC-2501-5 &quot;#AC-2501-5&quot;;
+  click AC-2501-6 &quot;#AC-2501-6&quot;;
+  click CN-144 &quot;#CN-144&quot;;
+  click CN-145 &quot;#CN-145&quot;;
+  click CN-147 &quot;#CN-147&quot;;
+  click AC-2501-7 &quot;#AC-2501-7&quot;;
+  click CN-146 &quot;#CN-146&quot;;
+  class REQ-025 req;
+  class US-2501 us;
+  class AC-2501-1 ac;
+  class FBS-044 fbs;
+  class CN-141 cn;
+  class AC-2501-2 ac;
+  class AC-2501-3 ac;
+  class CN-142 cn;
+  class AC-2501-4 ac;
+  class CN-143 cn;
+  class AC-2501-5 ac;
+  class AC-2501-6 ac;
+  class CN-144 cn;
+  class CN-145 cn;
+  class CN-147 cn;
+  class AC-2501-7 ac;
+  class CN-146 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T16:55:02.404Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T16:56:22.580Z&quot;,
+  &quot;description&quot;: &quot;The rcf-lite shelf ships the application-file-upload v1.0.0 blueprint (blueprints/application-file-upload/) with 18 to 22 contributions (5 REQs on the input contract with a labelled file input plus drop-zone plus keyboard alternative per WCAG 2.5.7, the progress contract with per-file percent plus aggregate percent plus polite live-region tick, the refusal contract with MIME-type refusal and size-limit refusal and virus-scan hit and aria-describedby error binding and focus-to-retry, the transport contract with chunked-and-resumable and multipart POST default and tus.io elicited alternative, and the completion contract with an assertive-slot announcement on success per WCAG 4.1.3 and per-file remove and retry; 7 USs 23101 to 23107 one per REQ plus two cross-cutting cases network-interruption resumption and background-tab progress; 3 TACs 2401 input surface, 2402 transport contract, 2403 progress announcer; 3 ADRs 2401 transport across multipart POST and tus.io and per-vendor SDK with recommendedDefault true on multipart and elicited true, 2402 accepted MIME set and per-file size cap with elicited true, 2403 virus-scan integration via operator-supplied verifier through a capability plus elicit with elicited true). Declares suggestedCompanions logging and errorHandling with reasons from spec section 5.2; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent. Ships a Playwright probe pack under blueprints/application-file-upload/probe-packs/application-file-upload.pack.mjs with four surface-observable checks anchored to TAC-2401 or an operator-configured upload-route glob. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ realising both transport branches multipart POST and tus.io honestly plus break switches so each check refuses on its own defect. Seventh shipped consumer of T-0&#39;s probe-pack runner extension.&quot;,
+  &quot;reqId&quot;: &quot;REQ-025&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Application-file-upload v1.0.0 blueprint on the shelf with the file-input plus drop-zone contract, chunked-resumable transport, refusal semantics and Playwright probe pack&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;application&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;,
+      &quot;httpApi&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-06T16:55:02.427Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;WCAG&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;aria-&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;POST&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;WCAG&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;POST&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;route&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;POST&quot;
+      }
+    ]
+  },
+  &quot;rationale&quot;: &quot;Per visual round 4 spec section 5.2 (2026-09-06).&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-2501">
+  <summary><span class="summary-label">US-2501 - The application-file-upload blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches</span><span class="status draft">draft</span></summary>
+  <article id="US-2501" class="doc doc-us">
+  <h3>US-2501 - The application-file-upload blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the application-file-upload v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks of the file-upload contract (input surface with a labelled file input plus drop-zone plus keyboard alternative, transport contract with a chunked path and a refusal contract, and a progress announcer with a polite tick and an assertive completion), and a sample-app fixture proving the pack passes on both transport branches multipart POST and tus.io and refuses on the four break switches</p>
+  <p><strong>So that:</strong> a project consuming rcf-lite gets the WCAG 2.5.7 dragging-movements safe file-upload contract with a runtime-verified pack, one recommended transport with two elicited alternatives, and a golden fixture the pack refuses on a surface that drops the file input, drops the polite live-region, ships a refused file to the server or collapses the chunked path</p>
+  <p><strong>Description:</strong> US-2501 anchors the shelf-shape acceptance criteria for the T-2 track: shelf carries blueprint.json with the ratified shape, contributions apply cleanly on a fresh init project, the pack cross-checks against contributed AC ids, the sample-app fixture serves both transport branches (multipart POST default and tus.io elicited alternative) on the honest branch, and the break switches refuse on the negative branch. The blueprint contributes further AC records on its own USs 23101 to 23107; those are covered by the pack against the fixture and by the anatomy test that walks the contributions.</p>
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-025">REQ-025</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-2501-1" class="ac-item"><strong>AC-2501-1</strong> - The shelf carries blueprints/application-file-upload/blueprint.json declaring slug application-file-upload, version 1.0.0, category application, and 18 to 22 contributions in the 5 REQ / 7 US / 3 TAC / 3 ADR groups per spec section 5.2; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.2; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-044">FBS-044</a></p></li>
+<li id="AC-2501-2" class="ac-item"><strong>AC-2501-2</strong> - rcf define blueprint add ./blueprints/application-file-upload applies the 18 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-044">FBS-044</a></p></li>
+<li id="AC-2501-3" class="ac-item"><strong>AC-2501-3</strong> - The shipped probe pack blueprints/application-file-upload/probe-packs/application-file-upload.pack.mjs loads via T-0s pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-23101-1 input surface, AC-23102-1 progress announcer, AC-23103-1 refusal contract, AC-23104-1 chunked transport) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-044">FBS-044</a></p></li>
+<li id="AC-2501-4" class="ac-item"><strong>AC-2501-4</strong> - The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ ships a dependency-free Node HTTP server (server.js) with a start script; on the multipart POST default branch the four states idle, uploading, refused and complete render honestly and per-file plus aggregate progress ticks fire through the polite live-region wrapper; on the ?transport=tus branch chunked PATCH uploads carry an Upload-Offset header per chunk and the assertive completion announcement fires; PORT env overrides the bind port (default 3000, never binds 4200); the fixture responds LISTENING &lt;port&gt; once bound.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-044">FBS-044</a></p></li>
+<li id="AC-2501-5" class="ac-item"><strong>AC-2501-5</strong> - The probe pack refuses ship on each broken fixture branch: ?break=no-input drops the file input leaving only the drop-zone so AC-23101-1 fails at severity block (WCAG 2.5.7 keyboard alternative gone); ?break=no-live-region drops the polite live-region wrapper so AC-23102-1 fails at severity block; ?break=send-refused sends a refused file to the server so AC-23103-1 fails at severity block (a POST for the refused filename is observed on the network); ?break=no-chunks collapses the chunked path to a single POST so AC-23104-1 fails at severity block (no Upload-Offset header on any request).
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-044">FBS-044</a></p></li>
+<li id="AC-2501-6" class="ac-item"><strong>AC-2501-6</strong> - The four fixture states (idle, uploading, refused, complete) and the two transport slugs (multipart, tus) appear identically across the scope paragraph in the blueprint README, the packs checks[] list, the guide, the fixture README and the docs/topics.md registry table; a grep sweep for each slug confirms every occurrence is accounted for and no state or transport is silently dropped.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-044">FBS-044</a></p></li>
+<li id="AC-2501-7" class="ac-item"><strong>AC-2501-7</strong> - The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the input contract, the progress contract, the refusal contract, the transport contract with the multipart default and the tus.io elicited alternative, the completion contract, the pack checks, the sample-app fixture and the three ADRs; docs/topics.md carries the shelf id band registry table extended with the T-2 row (application-file-upload 23101-23899 / 24xx).
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-044">FBS-044</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T16:55:12.496Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T16:56:03.586Z&quot;,
+  &quot;description&quot;: &quot;US-2501 anchors the shelf-shape acceptance criteria for the T-2 track: shelf carries blueprint.json with the ratified shape, contributions apply cleanly on a fresh init project, the pack cross-checks against contributed AC ids, the sample-app fixture serves both transport branches (multipart POST default and tus.io elicited alternative) on the honest branch, and the break switches refuse on the negative branch. The blueprint contributes further AC records on its own USs 23101 to 23107; those are covered by the pack against the fixture and by the anatomy test that walks the contributions.&quot;,
+  &quot;usId&quot;: &quot;US-2501&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-025&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The application-file-upload blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the application-file-upload v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks of the file-upload contract (input surface with a labelled file input plus drop-zone plus keyboard alternative, transport contract with a chunked path and a refusal contract, and a progress announcer with a polite tick and an assertive completion), and a sample-app fixture proving the pack passes on both transport branches multipart POST and tus.io and refuses on the four break switches&quot;,
+  &quot;soThat&quot;: &quot;a project consuming rcf-lite gets the WCAG 2.5.7 dragging-movements safe file-upload contract with a runtime-verified pack, one recommended transport with two elicited alternatives, and a golden fixture the pack refuses on a surface that drops the file input, drops the polite live-region, ships a refused file to the server or collapses the chunked path&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-2501-1&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/application-file-upload/blueprint.json declaring slug application-file-upload, version 1.0.0, category application, and 18 to 22 contributions in the 5 REQ / 7 US / 3 TAC / 3 ADR groups per spec section 5.2; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.2; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2501-2&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/application-file-upload applies the 18 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2501-3&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;,
+      &quot;description&quot;: &quot;The shipped probe pack blueprints/application-file-upload/probe-packs/application-file-upload.pack.mjs loads via T-0s pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-23101-1 input surface, AC-23102-1 progress announcer, AC-23103-1 refusal contract, AC-23104-1 chunked transport) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2501-4&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;,
+      &quot;description&quot;: &quot;The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ ships a dependency-free Node HTTP server (server.js) with a start script; on the multipart POST default branch the four states idle, uploading, refused and complete render honestly and per-file plus aggregate progress ticks fire through the polite live-region wrapper; on the ?transport=tus branch chunked PATCH uploads carry an Upload-Offset header per chunk and the assertive completion announcement fires; PORT env overrides the bind port (default 3000, never binds 4200); the fixture responds LISTENING &lt;port&gt; once bound.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2501-5&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;,
+      &quot;description&quot;: &quot;The probe pack refuses ship on each broken fixture branch: ?break=no-input drops the file input leaving only the drop-zone so AC-23101-1 fails at severity block (WCAG 2.5.7 keyboard alternative gone); ?break=no-live-region drops the polite live-region wrapper so AC-23102-1 fails at severity block; ?break=send-refused sends a refused file to the server so AC-23103-1 fails at severity block (a POST for the refused filename is observed on the network); ?break=no-chunks collapses the chunked path to a single POST so AC-23104-1 fails at severity block (no Upload-Offset header on any request).&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2501-6&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;,
+      &quot;description&quot;: &quot;The four fixture states (idle, uploading, refused, complete) and the two transport slugs (multipart, tus) appear identically across the scope paragraph in the blueprint README, the packs checks[] list, the guide, the fixture README and the docs/topics.md registry table; a grep sweep for each slug confirms every occurrence is accounted for and no state or transport is silently dropped.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2501-7&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;,
+      &quot;description&quot;: &quot;The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the input contract, the progress contract, the refusal contract, the transport contract with the multipart default and the tus.io elicited alternative, the completion contract, the pack checks, the sample-app fixture and the three ADRs; docs/topics.md carries the shelf id band registry table extended with the T-2 row (application-file-upload 23101-23899 / 24xx).&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 <details class="doc-details doc-req-wrap" data-doc-id="REQ-040">
   <summary><span class="summary-label">REQ-040 - Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container</span><span class="status draft">draft</span></summary>
   <article id="REQ-040" class="doc doc-req">
@@ -8630,7 +8884,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -12046,6 +12300,91 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture&quot;,
   &quot;summary&quot;: &quot;T-1 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.1): the application-empty-error-states v1.0.0 blueprint on the shelf. Ships 19 contributions (5 REQs on state catalogue and recovery-action contract and announcement contract and least-privilege 5xx and 403 posture and offline write-buffer; 8 USs 22101-22108 binding runtime-observable ACs one per named state; 3 TACs 2301 state-machine and 2302 recovery-router and 2303 offline write-buffer; 3 ADRs 2301 HTTP status contract RFC 9110 and 2302 stack-trace visibility elicited and 2303 offline strategy elicited), a Playwright probe pack whose eight checks (AC-22101-1 through AC-22108-1) each anchor one named state via TAC-2301 or the operator-configured error-shell path glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/ serving all eight states honestly on /probe/&lt;name&gt; plus break switches (?break=stack-trace, ?break=leak-id, ?break=no-recovery, ?break=no-live-region) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent (no auth required); capabilities absent. Sixth shipped consumer of T-0s probe-pack runner extension; T-3 forms-wizard and T-4 account-settings consume this blueprint.&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-044">
+  <summary><span class="summary-label">FBS-044 - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-044" class="doc doc-fbs">
+  <h3>FBS-044 - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</h3>
+  
+  <p><strong>Summary:</strong> T-2 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.2): the application-file-upload v1.0.0 blueprint on the shelf. Ships 18 contributions (5 REQs on the input contract with a labelled file input plus drop-zone plus keyboard alternative per WCAG 2.5.7, the progress contract with per-file percent and aggregate percent and polite live-region tick, the refusal contract with MIME-type refusal and size-limit refusal and virus-scan hit and aria-describedby error binding and focus-to-retry, the transport contract with chunked-and-resumable and multipart POST default and tus.io elicited alternative, and the completion contract with an assertive-slot announcement on success per WCAG 4.1.3 and per-file remove and retry; 7 USs 23101-23107 one per REQ plus two cross-cutting cases network-interruption resumption and background-tab progress; 3 TACs 2401 input surface and 2402 transport contract and 2403 progress announcer; 3 ADRs 2401 transport across multipart POST and tus.io and per-vendor SDK with recommendedDefault true on multipart and elicited true, 2402 accepted MIME set and per-file size cap elicited, 2403 virus-scan integration via operator-supplied verifier through a capability plus elicit elicited), a Playwright probe pack whose four checks (AC-23101-1 input surface, AC-23102-1 progress announcer, AC-23103-1 refusal contract, AC-23104-1 chunked transport) each bind TAC-2401 or the operator-configured upload-route glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ realising both transports honestly on /upload with a ?transport=multipart default and ?transport=tus alternative plus break switches (?break=no-input, ?break=no-live-region, ?break=send-refused, ?break=no-chunks) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent; capabilities absent. Seventh shipped consumer of T-0&#39;s probe-pack runner extension.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-2501-1">AC-2501-1</a><a class="ac-pill" href="#AC-2501-2">AC-2501-2</a><a class="ac-pill" href="#AC-2501-3">AC-2501-3</a><a class="ac-pill" href="#AC-2501-4">AC-2501-4</a><a class="ac-pill" href="#AC-2501-5">AC-2501-5</a><a class="ac-pill" href="#AC-2501-6">AC-2501-6</a><a class="ac-pill" href="#AC-2501-7">AC-2501-7</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-2501-1">AC-2501-1</a></strong> - The shelf carries blueprints/application-file-upload/blueprint.json declaring slug application-file-upload, version 1.0.0, category application, and 18 to 22 contributions in the 5 REQ / 7 US / 3 TAC / 3 ADR groups per spec section 5.2; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.2; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2501-2">AC-2501-2</a></strong> - rcf define blueprint add ./blueprints/application-file-upload applies the 18 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2501-3">AC-2501-3</a></strong> - The shipped probe pack blueprints/application-file-upload/probe-packs/application-file-upload.pack.mjs loads via T-0s pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-23101-1 input surface, AC-23102-1 progress announcer, AC-23103-1 refusal contract, AC-23104-1 chunked transport) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2501-4">AC-2501-4</a></strong> - The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ ships a dependency-free Node HTTP server (server.js) with a start script; on the multipart POST default branch the four states idle, uploading, refused and complete render honestly and per-file plus aggregate progress ticks fire through the polite live-region wrapper; on the ?transport=tus branch chunked PATCH uploads carry an Upload-Offset header per chunk and the assertive completion announcement fires; PORT env overrides the bind port (default 3000, never binds 4200); the fixture responds LISTENING &lt;port&gt; once bound.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2501-5">AC-2501-5</a></strong> - The probe pack refuses ship on each broken fixture branch: ?break=no-input drops the file input leaving only the drop-zone so AC-23101-1 fails at severity block (WCAG 2.5.7 keyboard alternative gone); ?break=no-live-region drops the polite live-region wrapper so AC-23102-1 fails at severity block; ?break=send-refused sends a refused file to the server so AC-23103-1 fails at severity block (a POST for the refused filename is observed on the network); ?break=no-chunks collapses the chunked path to a single POST so AC-23104-1 fails at severity block (no Upload-Offset header on any request).</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2501-6">AC-2501-6</a></strong> - The four fixture states (idle, uploading, refused, complete) and the two transport slugs (multipart, tus) appear identically across the scope paragraph in the blueprint README, the packs checks[] list, the guide, the fixture README and the docs/topics.md registry table; a grep sweep for each slug confirms every occurrence is accounted for and no state or transport is silently dropped.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2501-7">AC-2501-7</a></strong> - The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the input contract, the progress contract, the refusal contract, the transport contract with the multipart default and the tus.io elicited alternative, the completion contract, the pack checks, the sample-app fixture and the three ADRs; docs/topics.md carries the shelf id band registry table extended with the T-2 row (application-file-upload 23101-23899 / 24xx).</p>
+  
+  
+  
+</div></section>
+  
+  <section class="field-list"><h4>Depends on</h4><p><a href="#FBS-043">FBS-043</a></p></section>
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 45</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T16:57:28.764Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T18:03:22.207Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2501-1&quot;,
+    &quot;AC-2501-2&quot;,
+    &quot;AC-2501-3&quot;,
+    &quot;AC-2501-4&quot;,
+    &quot;AC-2501-5&quot;,
+    &quot;AC-2501-6&quot;,
+    &quot;AC-2501-7&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-044&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 45,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture&quot;,
+  &quot;summary&quot;: &quot;T-2 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.2): the application-file-upload v1.0.0 blueprint on the shelf. Ships 18 contributions (5 REQs on the input contract with a labelled file input plus drop-zone plus keyboard alternative per WCAG 2.5.7, the progress contract with per-file percent and aggregate percent and polite live-region tick, the refusal contract with MIME-type refusal and size-limit refusal and virus-scan hit and aria-describedby error binding and focus-to-retry, the transport contract with chunked-and-resumable and multipart POST default and tus.io elicited alternative, and the completion contract with an assertive-slot announcement on success per WCAG 4.1.3 and per-file remove and retry; 7 USs 23101-23107 one per REQ plus two cross-cutting cases network-interruption resumption and background-tab progress; 3 TACs 2401 input surface and 2402 transport contract and 2403 progress announcer; 3 ADRs 2401 transport across multipart POST and tus.io and per-vendor SDK with recommendedDefault true on multipart and elicited true, 2402 accepted MIME set and per-file size cap elicited, 2403 virus-scan integration via operator-supplied verifier through a capability plus elicit elicited), a Playwright probe pack whose four checks (AC-23101-1 input surface, AC-23102-1 progress announcer, AC-23103-1 refusal contract, AC-23104-1 chunked transport) each bind TAC-2401 or the operator-configured upload-route glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ realising both transports honestly on /upload with a ?transport=multipart default and ?transport=tus alternative plus break switches (?break=no-input, ?break=no-live-region, ?break=send-refused, ?break=no-chunks) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent; capabilities absent. Seventh shipped consumer of T-0&#39;s probe-pack runner extension.&quot;,
+  &quot;dependsOnFbsIds&quot;: [
+    &quot;FBS-043&quot;
+  ]
 }
 </pre></details>
 </article>
@@ -16543,6 +16882,124 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;id&quot;: &quot;TS-053&quot;,
   &quot;usId&quot;: &quot;US-2401&quot;,
   &quot;title&quot;: &quot;application-empty-error-states v1.0.0 shelf shape, probe pack cross-check and sample-app fixture&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-054">
+  <summary><span class="summary-label">TS-054 - application-file-upload v1.0.0 shelf shape, probe pack cross-check and sample-app fixture</span><span class="status draft">draft</span></summary>
+  <article id="TS-054" class="doc doc-ts">
+  <h3>TS-054 - application-file-upload v1.0.0 shelf shape, probe pack cross-check and sample-app fixture</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-2501">US-2501</a></p>
+  <p><strong>Purpose:</strong> Cover AC-2501-1 through AC-2501-7 via unit tests over the shipped application-file-upload blueprint.json contribution shape (18 contributions in the 5 REQ / 7 US / 3 TAC / 3 ADR groups), the applies-clean pass on a fresh init project, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving both transport branches multipart POST and tus.io, the negative-run behaviour on the ?break=no-input ?break=no-live-region ?break=send-refused and ?break=no-chunks switches, the state-and-transport enumeration parity across README guide pack and docs/topics.md registry, and the README mechanism-reach gaps and CHANGELOG 1.0.0 entry.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-2501-1">AC-2501-1</a>, <a href="#AC-2501-2">AC-2501-2</a>, <a href="#AC-2501-3">AC-2501-3</a>, <a href="#AC-2501-4">AC-2501-4</a>, <a href="#AC-2501-5">AC-2501-5</a>, <a href="#AC-2501-6">AC-2501-6</a>, <a href="#AC-2501-7">AC-2501-7</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-054-blueprint-json-shape">
+  <p><strong>TC-054-blueprint-json-shape</strong> - covers <a href="#AC-2501-1">AC-2501-1</a> <span class="status pending">pending</span></p>
+  <p>blueprint.json declares slug, version 1.0.0, category application, 18 contributions in 5/7/3/3 groups; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent; suggestedCompanions logging and errorHandling</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-file-upload-anatomy.test.js::blueprint.json declares 18 contributions with no capabilities and no requiresAppliedCapabilities (TC-054-blueprint-json-shape)</code></p>
+</div>
+<div class="tc" id="TC-054-applies-clean">
+  <p><strong>TC-054-applies-clean</strong> - covers <a href="#AC-2501-2">AC-2501-2</a> <span class="status pending">pending</span></p>
+  <p>Fresh init project applies application-file-upload cleanly and reports the tree clean</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-file-upload-anatomy.test.js::applies cleanly on a fresh init project and adds 18 documents to the tree (TC-054-applies-clean)</code></p>
+</div>
+<div class="tc" id="TC-054-pack-checks-cross-check">
+  <p><strong>TC-054-pack-checks-cross-check</strong> - covers <a href="#AC-2501-3">AC-2501-3</a> <span class="status pending">pending</span></p>
+  <p>Every pack check id matches a contributed AC id; pack-level appliesTo references BOTH tacIds and route; withUrl helper used for every URL string</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-file-upload-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-054-pack-checks-cross-check)</code></p>
+</div>
+<div class="tc" id="TC-054-fixture-serves-transports">
+  <p><strong>TC-054-fixture-serves-transports</strong> - covers <a href="#AC-2501-4">AC-2501-4</a> <span class="status pending">pending</span></p>
+  <p>Sample-app fixture serves the multipart POST default and the tus.io elicited alternative honestly on their default branches and via ?transport= switch</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-file-upload-anatomy.test.js::sample-app fixture serves both transport branches on the default branch (TC-054-fixture-serves-transports)</code></p>
+</div>
+<div class="tc" id="TC-054-negative-runs">
+  <p><strong>TC-054-negative-runs</strong> - covers <a href="#AC-2501-5">AC-2501-5</a> <span class="status pending">pending</span></p>
+  <p>Break switches surface the four defects on the DOM or network layer for the corresponding pack checks</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-file-upload-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-054-negative-runs)</code></p>
+</div>
+<div class="tc" id="TC-054-state-and-transport-parity">
+  <p><strong>TC-054-state-and-transport-parity</strong> - covers <a href="#AC-2501-6">AC-2501-6</a> <span class="status pending">pending</span></p>
+  <p>Four state slugs and two transport slugs appear identically across README, guide, pack checks[] and docs/topics.md registry</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-file-upload-anatomy.test.js::four state slugs and two transport slugs appear identically across README guide pack and docs (TC-054-state-and-transport-parity)</code></p>
+</div>
+<div class="tc" id="TC-054-readme-gaps-and-changelog">
+  <p><strong>TC-054-readme-gaps-and-changelog</strong> - covers <a href="#AC-2501-7">AC-2501-7</a> <span class="status pending">pending</span></p>
+  <p>README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-2 shelf registry row</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-file-upload-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-2 row (TC-054-readme-gaps-and-changelog)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T16:56:55.746Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T16:57:22.760Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-2501-1 through AC-2501-7 via unit tests over the shipped application-file-upload blueprint.json contribution shape (18 contributions in the 5 REQ / 7 US / 3 TAC / 3 ADR groups), the applies-clean pass on a fresh init project, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving both transport branches multipart POST and tus.io, the negative-run behaviour on the ?break=no-input ?break=no-live-region ?break=send-refused and ?break=no-chunks switches, the state-and-transport enumeration parity across README guide pack and docs/topics.md registry, and the README mechanism-reach gaps and CHANGELOG 1.0.0 entry.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2501-1&quot;,
+    &quot;AC-2501-2&quot;,
+    &quot;AC-2501-3&quot;,
+    &quot;AC-2501-4&quot;,
+    &quot;AC-2501-5&quot;,
+    &quot;AC-2501-6&quot;,
+    &quot;AC-2501-7&quot;
+  ],
+  &quot;id&quot;: &quot;TS-054&quot;,
+  &quot;usId&quot;: &quot;US-2501&quot;,
+  &quot;title&quot;: &quot;application-file-upload v1.0.0 shelf shape, probe pack cross-check and sample-app fixture&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-054-blueprint-json-shape&quot;,
+      &quot;acId&quot;: &quot;AC-2501-1&quot;,
+      &quot;description&quot;: &quot;blueprint.json declares slug, version 1.0.0, category application, 18 contributions in 5/7/3/3 groups; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent; suggestedCompanions logging and errorHandling&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-file-upload-anatomy.test.js::blueprint.json declares 18 contributions with no capabilities and no requiresAppliedCapabilities (TC-054-blueprint-json-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-054-applies-clean&quot;,
+      &quot;acId&quot;: &quot;AC-2501-2&quot;,
+      &quot;description&quot;: &quot;Fresh init project applies application-file-upload cleanly and reports the tree clean&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-file-upload-anatomy.test.js::applies cleanly on a fresh init project and adds 18 documents to the tree (TC-054-applies-clean)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-054-pack-checks-cross-check&quot;,
+      &quot;acId&quot;: &quot;AC-2501-3&quot;,
+      &quot;description&quot;: &quot;Every pack check id matches a contributed AC id; pack-level appliesTo references BOTH tacIds and route; withUrl helper used for every URL string&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-file-upload-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-054-pack-checks-cross-check)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-054-fixture-serves-transports&quot;,
+      &quot;acId&quot;: &quot;AC-2501-4&quot;,
+      &quot;description&quot;: &quot;Sample-app fixture serves the multipart POST default and the tus.io elicited alternative honestly on their default branches and via ?transport= switch&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-file-upload-anatomy.test.js::sample-app fixture serves both transport branches on the default branch (TC-054-fixture-serves-transports)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-054-negative-runs&quot;,
+      &quot;acId&quot;: &quot;AC-2501-5&quot;,
+      &quot;description&quot;: &quot;Break switches surface the four defects on the DOM or network layer for the corresponding pack checks&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-file-upload-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-054-negative-runs)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-054-state-and-transport-parity&quot;,
+      &quot;acId&quot;: &quot;AC-2501-6&quot;,
+      &quot;description&quot;: &quot;Four state slugs and two transport slugs appear identically across README, guide, pack checks[] and docs/topics.md registry&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-file-upload-anatomy.test.js::four state slugs and two transport slugs appear identically across README guide pack and docs (TC-054-state-and-transport-parity)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-054-readme-gaps-and-changelog&quot;,
+      &quot;acId&quot;: &quot;AC-2501-7&quot;,
+      &quot;description&quot;: &quot;README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-2 shelf registry row&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-file-upload-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-2 row (TC-054-readme-gaps-and-changelog)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
 }
 </pre></details>
 </article>

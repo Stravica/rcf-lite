@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-2401-application-file-upload-input",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Upload input surface",
+  "purpose": "Owns the input-side surface of the file-upload contract: the labelled file input, the drop-zone region, the keyboard-focusable picker-opener, the accessible-name binding, the file-collector aggregating the three input paths into one selection set, and the refusal-render seam. Every AC on REQ-001 and REQ-003 that reads the surface anchors on this TAC.",
+  "responsibilities": [
+    "Render a labelled <input type=\"file\"> with a keyboard-reachable label and an accessible name (AC-23101-1).",
+    "Render a [data-drop-zone] region that accepts dropped files but is never the only input path (WCAG 2.5.7).",
+    "Render a [data-open-picker] button that opens the same picker on Enter or Space (AC-23101-1).",
+    "Aggregate the three input paths into one file-selection set the transport TAC drains (AC-23101-1).",
+    "Render a per-file error region with an aria-describedby binding and a [data-recovery=\"retry\"] control on refusal, and hand refused files to the transport TAC's refusal-render seam so no bytes leave the browser (AC-23103-1)."
+  ],
+  "internalStructure": "One input-surface module the shell mounts on route entry. On file addition the module normalises the three input paths (input change, drop event, picker-opener button) into a File[] selection set, tags each entry with a stable [data-file-row] id, runs the accepted-set gates (MIME per ADR-2402, size per ADR-2402) and the virus-scan hook per ADR-2403 before handing the set to the transport TAC. Refusal renders inside the file row with a [data-error-message] element whose id is referenced by the row's aria-describedby attribute; the closed refusal-reason enum {mime-refused, size-refused, virus-refused} rides [data-refusal-reason].",
+  "interfaces": [
+    {
+      "name": "collectFiles",
+      "kind": "factory",
+      "description": "collectFiles({ inputEvent | dropEvent | pickerClick }) -> FileSelection. Every input path routes through this factory."
+    },
+    {
+      "name": "renderRefusal",
+      "kind": "factory",
+      "description": "renderRefusal({ fileRow, reason }) -> void. Binds the error region to the row via aria-describedby, sets [data-refusal-reason], focuses the [data-recovery=\"retry\"] control."
+    },
+    {
+      "name": "affordancesEnum",
+      "kind": "shape",
+      "description": "The three input affordances (input, drop-zone, keyboard-opener) are the closed enum {file-input, drop-zone, keyboard-opener}. Removing one is a v2.0.0 major bump."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Transport contract",
+      "kind": "tac",
+      "tacId": "TAC-2402-application-file-upload-transport",
+      "description": "The input surface hands accepted files to the transport TAC and honours its refusal-render seam on virus-scan hits."
+    }
+  ],
+  "tradeoffs": "One input-surface module keeps the WCAG 2.5.7 discipline lint-checkable but ties every framework to the collectFiles factory. Projects using a vendor upload widget (Filepond, Uppy) satisfy the surface by adapting the vendor's mount seam to the TAC's factories rather than rewriting the collector. Known mechanism-reach gap: the pack cannot exhaustively probe every drop-target inside a nested drop-zone; the primary drop-zone attribute is asserted.",
+  "notes": "See README Known mechanism-reach gaps for the full list.",
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

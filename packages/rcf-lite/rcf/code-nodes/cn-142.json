@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-142",
+  "path": "../../blueprints/application-file-upload/probe-packs/application-file-upload.pack.mjs",
+  "implementsAcIds": [
+    "AC-2501-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:21:30.677Z",
+  "updatedAt": "2026-09-06T17:21:30.677Z"
+}

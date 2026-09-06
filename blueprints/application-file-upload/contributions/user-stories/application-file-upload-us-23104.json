@@ -1,0 +1,28 @@
+{
+  "usId": "application-file-upload-US-23104",
+  "prdId": "PRD-001",
+  "reqId": "application-file-upload-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The transport uploads files in chunks and, on the tus.io branch, exposes an Upload-Offset header per PATCH",
+  "asA": "operator uploading a large file over a spotty connection",
+  "iWant": "the transport to split my file into chunks and to resume from the last acknowledged offset on retry",
+  "soThat": "an interrupted upload does not re-send bytes I already delivered",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-23104-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "On the ?transport=multipart branch the fixture returns 200 with a completed chunk count higher than 1 on a file large enough to force chunking; the DOM exposes [data-transport=\"multipart\"] and [data-chunks-uploaded] whose numeric value equals the completed chunk count. On the ?transport=tus branch the pack observes at least one PATCH request on the browser's network log whose request headers include Upload-Offset with a numeric value, and the DOM exposes [data-transport=\"tus\"] with [data-chunks-uploaded] > 1."
+    }
+  ],
+  "tacIds": [
+    "TAC-2402-application-file-upload-transport"
+  ],
+  "tags": [
+    "blueprint:application-file-upload",
+    "affordance:chunked-resumable"
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

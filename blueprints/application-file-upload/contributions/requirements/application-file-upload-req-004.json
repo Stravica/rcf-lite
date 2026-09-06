@@ -1,0 +1,18 @@
+{
+  "reqId": "application-file-upload-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Transport contract: chunked-and-resumable, multipart POST default, tus.io elicited alternative",
+  "description": "The upload transport is chunked-and-resumable: an interrupted upload resumes from the last acknowledged offset on retry, and the client retries on transient failures without re-sending acknowledged bytes. The recommended default is a multipart POST with the file split into fixed-size chunks the server assembles server-side. The tus.io resumable upload protocol 1.0.0 is the elicited alternative for projects with a tus server or the third-party SDK; when applied it exposes an Upload-Offset header per PATCH request and supports server-side pause and resume. A per-vendor SDK (S3 multipart, Cloudflare R2 client-direct) is the second elicited alternative when the project has committed to a vendor library.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec section 5.2, REQ 4.",
+  "tags": [
+    "blueprint:application-file-upload",
+    "category:04-transport-contract"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

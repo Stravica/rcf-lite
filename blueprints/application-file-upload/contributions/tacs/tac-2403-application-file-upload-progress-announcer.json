@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-2403-application-file-upload-progress-announcer",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Upload progress announcer",
+  "purpose": "Owns the announcement side of the file-upload contract: the polite live-region wrapper the transport ticks, the aggregate-percent calculator, the assertive-slot completion announcement, and the background-tab tick continuity. Every AC on REQ-002 and REQ-005 that reads the aria-live regions anchors on this TAC.",
+  "responsibilities": [
+    "Mount the polite live-region wrapper at render time so a screen reader adopts it before the first tick (AC-23102-1).",
+    "Emit a polite text tick every 10 percent of aggregate progress in the closed format \"<uploaded> of <total> files, <PP> percent\" (AC-23102-1).",
+    "Compute the aggregate percent as the mean weighted by byte size across the active file set (AC-23102-1).",
+    "On completion of the set, mount an assertive-slot announcement (aria-live=\"assertive\" or role=\"status\") with the closed text \"<N> files uploaded successfully\", exactly once per set (AC-23105-1).",
+    "Continue ticking under document visibilitychange to hidden so a backgrounded tab does not stall the announcement (AC-23107-1)."
+  ],
+  "internalStructure": "One announcer module the transport hooks. The module preseeds the polite wrapper (aria-live polite) on mount, reads per-chunk acknowledgements from the transport, updates a per-file percent + aggregate percent record, and pushes a text tick every time the floor(aggregate/10) integer changes. Completion detection is a single flag; the assertive slot is mounted on mount as an empty wrapper and its textContent is set exactly once per set. Background-tab continuity is achieved by using setInterval on the ack polling loop rather than requestAnimationFrame; the interval keeps firing when the tab is hidden. A project that wants to pause on hidden explicitly elicits the alternative.",
+  "interfaces": [
+    {
+      "name": "tick",
+      "kind": "factory",
+      "description": "tick({ fileRowId, bytesAcknowledged, totalBytes }) -> void. Transport calls this on every acknowledgement."
+    },
+    {
+      "name": "complete",
+      "kind": "factory",
+      "description": "complete({ successCount }) -> void. Transport calls this exactly once per set."
+    },
+    {
+      "name": "announcementFormatsEnum",
+      "kind": "shape",
+      "description": "The polite format is fixed: /^\\d+ of \\d+ files, \\d{1,3} percent$/; the assertive format is fixed: /^\\d+ files uploaded successfully$/. Localisation is a v1.1.0 minor bump extending the enum with a lookup table."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Transport contract",
+      "kind": "tac",
+      "tacId": "TAC-2402-application-file-upload-transport",
+      "description": "The announcer reads per-chunk acknowledgements from the transport."
+    }
+  ],
+  "tradeoffs": "One announcer module keeps the aria-live discipline testable but pins the wire format in English at v1.0.0; a localised project elicits the format table in a v1.1.0 minor. Known mechanism-reach gap: the pack asserts the polite wrapper's textContent format but does not additionally probe screen-reader adoption (that requires a real assistive tech in the loop).",
+  "notes": "See README Known mechanism-reach gaps for the full list.",
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-147",
+  "path": "../../blueprints/application-file-upload/docs/topics.md",
+  "implementsAcIds": [
+    "AC-2501-6",
+    "AC-2501-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:21:31.507Z",
+  "updatedAt": "2026-09-06T17:21:31.507Z"
+}

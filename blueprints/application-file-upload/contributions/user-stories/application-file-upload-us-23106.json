@@ -1,0 +1,28 @@
+{
+  "usId": "application-file-upload-US-23106",
+  "prdId": "PRD-001",
+  "reqId": "application-file-upload-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A network interruption mid-upload resumes from the last acknowledged offset when the connection returns",
+  "asA": "operator uploading through a spotty connection or a captive portal that drops mid-request",
+  "iWant": "the transport to pause on interruption, wait for the connection to return, and resume from the last acknowledged offset without re-sending",
+  "soThat": "a dropped connection does not force me to restart a large upload",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-23106-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "On the ?interrupt=1 branch of the fixture the upload pauses after the first acknowledged chunk, the DOM exposes [data-file-state=\"paused\"] and [data-chunks-uploaded] with a numeric value greater than zero on the paused row, and after the fixture resumes with ?resume=1 the row transitions to [data-file-state=\"complete\"] with the accumulated [data-chunks-uploaded] equal to the total chunk count. The pack asserts no chunk index is re-uploaded (the fixture records the received offsets on the row and never repeats one)."
+    }
+  ],
+  "tacIds": [
+    "TAC-2402-application-file-upload-transport"
+  ],
+  "tags": [
+    "blueprint:application-file-upload",
+    "affordance:resumption"
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

@@ -1,0 +1,79 @@
+[boot] runtime http://127.0.0.1:13960/upload already reachable; boot skipped
+[pack-browser] closing playwright-mcp browser
+{
+  "id": "bv-FBS-001-6",
+  "fbsId": "FBS-001",
+  "createdAt": "2026-09-06T17:51:50.097Z",
+  "mode": "agentScreenshotCritique",
+  "runtimeProfile": "local-dev",
+  "runtimeUrl": "http://127.0.0.1:13960/upload",
+  "routesChecked": [
+    {
+      "path": "/",
+      "screenshotPath": ".rcf/artefacts/fbs-001/placeholder.png",
+      "themeApplied": "light"
+    }
+  ],
+  "invariantChecks": [
+    {
+      "invariant": "sharedLayoutModule",
+      "verdict": "pass"
+    },
+    {
+      "invariant": "agentDriverWired",
+      "verdict": "fail",
+      "detail": "browser driver returned zero captures; wire a Playwright driver via deps.browserDriver or run in --mode operatorSession"
+    }
+  ],
+  "verdict": "block",
+  "probePacks": [
+    {
+      "packName": "application-file-upload",
+      "packVersion": "1.0.0",
+      "blueprintSlug": "application-file-upload",
+      "applicable": true,
+      "checks": [
+        {
+          "id": "AC-23101-1",
+          "verdict": "fail",
+          "severity": "block",
+          "detail": "upload region missing input[type=\"file\"]"
+        },
+        {
+          "id": "AC-23102-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "firstTick=\"0 of 2 files, 0 percent\" firstRow=33 secondRow=100"
+        },
+        {
+          "id": "AC-23103-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "reason=\"mime-refused\" err=\"This file was refused (mime-refused). Please choose another file.\" no refused bytes on the wire (1 recorded upload requests)"
+        },
+        {
+          "id": "AC-23104-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "multipart branch: chunks=5"
+        }
+      ]
+    }
+  ],
+  "notes": "Driver: no captures produced."
+}
+
+browser-verify FBS-001 (agentScreenshotCritique, local-dev)
+  agent critique:
+    Driver: no captures produced.
+  invariant checks:
+    [pass] sharedLayoutModule
+    [fail] agentDriverWired - browser driver returned zero captures; wire a Playwright driver via deps.browserDriver or run in --mode operatorSession
+  probe packs:
+    [fail] application-file-upload AC-23101-1 - upload region missing input[type="file"]
+    [pass] application-file-upload AC-23102-1 - firstTick="0 of 2 files, 0 percent" firstRow=33 secondRow=100
+    [pass] application-file-upload AC-23103-1 - reason="mime-refused" err="This file was refused (mime-refused). Please choose another file." no refused bytes on the wire (1 recorded upload requests)
+    [pass] application-file-upload AC-23104-1 - multipart branch: chunks=5
+  verdict: block
+
+browser-verify FBS-001: wrote bv-FBS-001-6 to rcf/manifest.json (verdict=block).

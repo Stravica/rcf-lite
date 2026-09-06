@@ -1,0 +1,28 @@
+{
+  "usId": "application-file-upload-US-23101",
+  "prdId": "PRD-001",
+  "reqId": "application-file-upload-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The upload surface renders a labelled file input, a drop-zone region and a keyboard-focusable alternative that opens the picker on Enter",
+  "asA": "operator selecting files to upload, whether by pointer, drag-drop or keyboard alone",
+  "iWant": "a labelled native file input, a drop-zone region and a keyboard-focusable button that opens the picker so I can add files from whichever input mode I use",
+  "soThat": "I never have to drag to add a file and my screen reader announces the picker rather than a silent drop-zone",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-23101-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The upload region carries [data-surface=\"file-upload\"] and inside it: a labelled <input type=\"file\"> with a keyboard-reachable label (an id-referenced <label> or an aria-label), a [data-drop-zone] region, and a keyboard-focusable [data-open-picker] button that opens the same picker on Enter or Space. The pack drives the real browser to /upload, asserts the three affordances are present, focuses the [data-open-picker] control and presses Enter, then reads that the file input received focus."
+    }
+  ],
+  "tacIds": [
+    "TAC-2401-application-file-upload-input"
+  ],
+  "tags": [
+    "blueprint:application-file-upload",
+    "affordance:input-plus-drop-plus-keyboard"
+  ],
+  "createdAt": "2026-09-06T16:55:00Z",
+  "updatedAt": "2026-09-06T16:55:00Z"
+}

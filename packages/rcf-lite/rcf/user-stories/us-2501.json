@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-09-06T16:55:12.496Z",
+  "updatedAt": "2026-09-06T16:56:03.586Z",
+  "description": "US-2501 anchors the shelf-shape acceptance criteria for the T-2 track: shelf carries blueprint.json with the ratified shape, contributions apply cleanly on a fresh init project, the pack cross-checks against contributed AC ids, the sample-app fixture serves both transport branches (multipart POST default and tus.io elicited alternative) on the honest branch, and the break switches refuse on the negative branch. The blueprint contributes further AC records on its own USs 23101 to 23107; those are covered by the pack against the fixture and by the anatomy test that walks the contributions.",
+  "usId": "US-2501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-025",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The application-file-upload blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches",
+  "asA": "shelf consumer applying the application-file-upload v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks of the file-upload contract (input surface with a labelled file input plus drop-zone plus keyboard alternative, transport contract with a chunked path and a refusal contract, and a progress announcer with a polite tick and an assertive completion), and a sample-app fixture proving the pack passes on both transport branches multipart POST and tus.io and refuses on the four break switches",
+  "soThat": "a project consuming rcf-lite gets the WCAG 2.5.7 dragging-movements safe file-upload contract with a runtime-verified pack, one recommended transport with two elicited alternatives, and a golden fixture the pack refuses on a surface that drops the file input, drops the polite live-region, ships a refused file to the server or collapses the chunked path",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2501-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The shelf carries blueprints/application-file-upload/blueprint.json declaring slug application-file-upload, version 1.0.0, category application, and 18 to 22 contributions in the 5 REQ / 7 US / 3 TAC / 3 ADR groups per spec section 5.2; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.2; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent."
+    },
+    {
+      "id": "AC-2501-2",
+      "testable": true,
+      "scope": "runtime",
+      "description": "rcf define blueprint add ./blueprints/application-file-upload applies the 18 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project."
+    },
+    {
+      "id": "AC-2501-3",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The shipped probe pack blueprints/application-file-upload/probe-packs/application-file-upload.pack.mjs loads via T-0s pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-23101-1 input surface, AC-23102-1 progress announcer, AC-23103-1 refusal contract, AC-23104-1 chunked transport) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source."
+    },
+    {
+      "id": "AC-2501-4",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/ ships a dependency-free Node HTTP server (server.js) with a start script; on the multipart POST default branch the four states idle, uploading, refused and complete render honestly and per-file plus aggregate progress ticks fire through the polite live-region wrapper; on the ?transport=tus branch chunked PATCH uploads carry an Upload-Offset header per chunk and the assertive completion announcement fires; PORT env overrides the bind port (default 3000, never binds 4200); the fixture responds LISTENING <port> once bound."
+    },
+    {
+      "id": "AC-2501-5",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The probe pack refuses ship on each broken fixture branch: ?break=no-input drops the file input leaving only the drop-zone so AC-23101-1 fails at severity block (WCAG 2.5.7 keyboard alternative gone); ?break=no-live-region drops the polite live-region wrapper so AC-23102-1 fails at severity block; ?break=send-refused sends a refused file to the server so AC-23103-1 fails at severity block (a POST for the refused filename is observed on the network); ?break=no-chunks collapses the chunked path to a single POST so AC-23104-1 fails at severity block (no Upload-Offset header on any request)."
+    },
+    {
+      "id": "AC-2501-6",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The four fixture states (idle, uploading, refused, complete) and the two transport slugs (multipart, tus) appear identically across the scope paragraph in the blueprint README, the packs checks[] list, the guide, the fixture README and the docs/topics.md registry table; a grep sweep for each slug confirms every occurrence is accounted for and no state or transport is silently dropped."
+    },
+    {
+      "id": "AC-2501-7",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the input contract, the progress contract, the refusal contract, the transport contract with the multipart default and the tus.io elicited alternative, the completion contract, the pack checks, the sample-app fixture and the three ADRs; docs/topics.md carries the shelf id band registry table extended with the T-2 row (application-file-upload 23101-23899 / 24xx)."
+    }
+  ]
+}

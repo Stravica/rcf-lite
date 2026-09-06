@@ -52,6 +52,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 | application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 | application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
+| application-file-upload | 23101-23899 | 24xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 
 US 11101-11113 sit at the LOW end of the 11101-11899 band on purpose. A project-side story that mechanically derives from a security-auth-keycloak REQ id into the number `11113` would collide against security-auth-keycloak-US-11113 in this package; the band leaves headroom at the HIGH end (US 11181-11899) so a project's own stories anchored to security-auth-keycloak REQs can allocate without conflict. The watchpost run4 lesson applies here too.
