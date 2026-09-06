@@ -21,7 +21,7 @@ const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures',
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md');
 
-test('blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-053-blueprint-json-shape)', async () => {
+test('blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-postgres');
   assert.equal(doc.version, '1.0.0');
@@ -46,7 +46,7 @@ test('blueprint.json declares 26 contributions with capabilities relationalStore
   assert.deepEqual(topics, ['migrationDiscipline', 'persistenceStore']);
 });
 
-test('apply persistence-data-postgres on a bare scratch project writes 26 contributions and validate plus strict audits exit zero (TC-053-applies-clean-no-persistence)', async () => {
+test('apply persistence-data-postgres on a bare scratch project writes 26 contributions and validate plus strict audits exit zero (TC-070-applies-clean-no-persistence)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'rcf-postgres-apply-'));
   await initProject({ projectRoot: dir, projectName: 'PostgresApplyTest' });
   const { tree } = await walkTree({ projectRoot: dir });
@@ -63,7 +63,7 @@ test('apply persistence-data-postgres on a bare scratch project writes 26 contri
   assert.equal(postgresUss.length, 10);
 });
 
-test('apply persistence-data-postgres on a d1-applied scratch project surfaces globalAdrTopic conflict on persistenceStore and migrationDiscipline (TC-053-conflict-with-d1)', async () => {
+test('apply persistence-data-postgres on a d1-applied scratch project surfaces globalAdrTopic conflict on persistenceStore and migrationDiscipline (TC-070-conflict-with-d1)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'rcf-postgres-conflict-'));
   await initProject({ projectRoot: dir, projectName: 'PostgresConflictTest' });
   const { tree: t0 } = await walkTree({ projectRoot: dir });
@@ -96,7 +96,7 @@ test('apply persistence-data-postgres on a d1-applied scratch project surfaces g
   assert.equal(leaked.length, 0, `expected no persistence-data-postgres contributions after refusal; found ${leaked}`);
 });
 
-test('every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-053-probe-anchor-ids-cross-check)', async () => {
+test('every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-070-probe-anchor-ids-cross-check)', async () => {
   // Read the blueprint's contributed AC ids by walking every US file
   const blueprintDoc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   const contributedAcIds = new Set();
@@ -137,7 +137,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
   }
 });
 
-test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recovery.mjs, and its README documents both induced-failure switches (TC-053-fixture-and-switches)', async () => {
+test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recovery.mjs, and its README documents both induced-failure switches (TC-070-fixture-and-switches)', async () => {
   await stat(join(FIXTURE_ROOT, 'docker-compose.yml'));
   await stat(join(FIXTURE_ROOT, 'package.json'));
   const migrations = await readdir(join(FIXTURE_ROOT, 'migrations'));
@@ -167,7 +167,7 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   assert.match(migrateSrc, /BEGIN[\s\S]*COMMIT/, 'migrate.mjs must wrap each file in BEGIN/COMMIT per REQ-002');
 });
 
-test('section 6a table gains a relationalStore row and every shipped blueprint docs/topics.md gains a persistence-data-postgres row at 27101-27899 / 28xx (TC-053-shelf-doc-consistency)', async () => {
+test('section 6a table gains a relationalStore row and every shipped blueprint docs/topics.md gains a persistence-data-postgres row at 27101-27899 / 28xx (TC-070-shelf-doc-consistency)', async () => {
   const authoring = await readFile(AUTHORING_DOC, 'utf8');
   assert.match(authoring, /^\|\s*`relationalStore`\s*\|/m, 'section 6a capability table must gain a relationalStore row');
 

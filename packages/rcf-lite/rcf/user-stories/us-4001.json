@@ -1,0 +1,69 @@
+{
+  "createdAt": "2026-09-06T16:59:00.000Z",
+  "updatedAt": "2026-09-06T16:59:00.000Z",
+  "usId": "US-4001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-040",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The persistence-data-postgres blueprint ships on the shelf; six Node-only probes pass against a live postgres:17-alpine container and refuse on each induced failure",
+  "asA": "shelf consumer applying the persistence-data-postgres v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files with 26 contributions and six probes, a sample-app fixture that boots postgres:17-alpine and applies three toy forward-only migrations, and gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch",
+  "soThat": "a rcf-lite project applying this blueprint gets a facade contract over pg with numbered forward-only migrations, prepared-statement discipline, transactional atomicity, a two-path recovery model, and pool posture per deploy target, with runtime-observable ACs proven by probes the HQ gate runs against a real Postgres container rather than a simulated harness",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4001-1",
+      "description": "The shelf carries blueprints/persistence-data-postgres/blueprint.json declaring slug persistence-data-postgres, version 1.0.0, category persistence, 26 contributions in the 7 REQ / 10 US / 4 TAC / 5 ADR groups per infra round 5 spec section 5.1; capabilities is [relationalStore]; suggestedCompanions declares logging and errorHandling with spec section 5.1 reasons; providesRoles is absent; requiresAppliedCapabilities is absent.",
+      "given": "the shelf tree after this blueprint lands",
+      "when": "jq queries against blueprints/persistence-data-postgres/blueprint.json",
+      "then": "jq .slug returns persistence-data-postgres; jq .version returns 1.0.0; jq .contributions | length returns 26; jq .capabilities | index(relationalStore) returns 0; jq .suggestedCompanions | length returns 2",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4001-2",
+      "description": "rcf define blueprint add ./blueprints/persistence-data-postgres applies the 26 contributions cleanly on a fresh init project with no other persistence blueprint applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.",
+      "given": "a fresh rcf init scratch project with no persistence-* blueprint applied",
+      "when": "rcf define blueprint add ./blueprints/persistence-data-postgres runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict",
+      "then": "every command exits 0; the scratch project's rcf tree contains the 26 contributions; no globalAdrTopic conflict is raised",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4001-3",
+      "description": "rcf define blueprint add ./blueprints/persistence-data-postgres on a scratch project with persistence-data-d1 already applied surfaces a DELIBERATE conflict on the persistenceStore and migrationDiscipline global-ADR topics per the round-2 pattern; the tree is untouched by the failed add.",
+      "given": "a fresh rcf init scratch project with persistence-data-d1 v1.0.0 already applied",
+      "when": "rcf define blueprint add ./blueprints/persistence-data-postgres runs against the scratch project",
+      "then": "the add refuses with a globalAdrTopic conflict list containing persistenceStore and migrationDiscipline; the scratch project's rcf tree does not carry persistence-data-postgres contributions after the refusal",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4001-4",
+      "description": "The six probe modules under blueprints/persistence-data-postgres/contributions/probes/ each pass against a running postgres:17-alpine container brought up from the sample-app fixture: facade-round-trip asserts facadeReady fires and the round-trip returns; migration-apply asserts three migrations apply inside individual transactions and schema_version advances to 3; prepared-statement-scan asserts every pg.query first-argument node is a static string literal; transaction-atomicity asserts a rollback fires with the failing statement index; recovery-restore-round-trip asserts row-count and checksum equality between source and restored databases; pool-posture-smoke asserts twenty concurrent queries return with no timeout. Each per-blueprint probe report at .rcf/reports/blueprints/persistence-data-postgres/<probe-name>.json carries aggregateVerdict pass.",
+      "given": "the sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker compose up -d postgres running and the fixture applied",
+      "when": "each of the six run-<probe-name>.mjs shims runs against the fixture in sequence",
+      "then": "every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4001-5",
+      "description": "The sample-app fixture's induced-failure switches surface each probe's negative-run behaviour: SIMULATE_MIGRATION_FAILURE=true makes run-migration-apply.mjs exit non-zero with the failing migration filename in its report and the transaction rolled back; SIMULATE_CONSTRAINT_VIOLATION=true names the transaction-atomicity probe's rollback observation. Every negative-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts.",
+      "given": "the sample-app fixture with docker compose up -d postgres running",
+      "when": "the migration-apply probe runs with SIMULATE_MIGRATION_FAILURE=true, and the transaction-atomicity probe runs with SIMULATE_CONSTRAINT_VIOLATION=true",
+      "then": "the migration-apply shim exits non-zero and its report at .rcf/reports/blueprints/persistence-data-postgres/migration-apply.json carries aggregateVerdict fail with the failing migration filename in a detail field; the transaction-atomicity probe records the rollback event with statementIndex 1 as evidence of the constraint-violation semantics",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4001-6",
+      "description": "The blueprint ships a sample-app fixture, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a persistence-data-postgres row at US band 27101-27899 / ADR-TAC suffix block 28xx across every shipped blueprint's docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for relationalStore per infra round 5 spec section 5.6.",
+      "given": "the shelf tree after this blueprint lands",
+      "when": "grep queries walk every blueprint's docs/topics.md and the section 6a table",
+      "then": "packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | relationalStore |; every shipped blueprint's docs/topics.md carries a row beginning | persistence-data-postgres | with the 27101-27899 band and 28xx suffix; blueprints/persistence-data-postgres/README.md, CHANGELOG.md, guide/persistence-data-postgres.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-postgres/ all exist; the fixture README names the docker and podman incantations and the two induced-failure switches",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ]
+}

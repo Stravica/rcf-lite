@@ -97,9 +97,13 @@ const expectedCounts = {
   // visual round T-5 (w-2026-09-04-dave-015) added REQ-022 for the
   // capability-declaration mechanism and REQ-023 for the
   // application-admin-console v1.0.0 blueprint on the shelf (21 -> 23).
-  // infra round 5 T-1 (w-2026-09-06-dave-020) added REQ-024 for the
-  // persistence-data-postgres v1.0.0 blueprint on the shelf (23 -> 24).
-  req: 24,
+  // visual round 4 T-1 (w-2026-09-06-dave-015) added REQ-024 for the
+  // application-empty-error-states v1.0.0 blueprint on the shelf (23 -> 24).
+  // Infra round 5 T-1 (w-2026-09-06-dave-020) added REQ-040 for the
+  // persistence-data-postgres v1.0.0 blueprint (HQ reserved-block ruling:
+  // round 5 mints from the reserved id block via --id, no next-id
+  // racing with HQ's train) (24 -> 25).
+  req: 25,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -111,8 +115,10 @@ const expectedCounts = {
   // visual round T-3 added US-2001 (48 -> 49).
   // visual round T-4 added US-2101 (49 -> 50).
   // visual round T-5 added US-2201 and US-2301 (50 -> 52).
-  // infra round 5 T-1 added US-2401 (52 -> 53).
-  userStory: 53,
+  // visual round 4 T-1 added US-2401 (52 -> 53).
+  // Infra round 5 T-1 added US-4001 (derived from REQ-040 per HQ
+  // reserved-block ruling) (53 -> 54).
+  userStory: 54,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -138,8 +144,9 @@ const expectedCounts = {
   // visual round T-4 added FBS-040 (39 -> 40).
   // visual round T-5 added FBS-041 covering US-2201 and FBS-042
   // covering US-2301 (40 -> 42).
-  // infra round 5 T-1 added FBS-043 covering US-2401 (42 -> 43).
-  fbs: 43,
+  // visual round 4 T-1 added FBS-043 covering US-2401 (42 -> 43).
+  // Infra round 5 T-1 added FBS-060 covering US-4001 per HQ reserved-block ruling (43 -> 44).
+  fbs: 44,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -186,11 +193,17 @@ const expectedCounts = {
   // points (loader, apply, capabilities), the admin-console
   // blueprint.json, the probe pack, and the sample-app fixture
   // (127 -> 133).
-  // infra round 5 T-1 (w-2026-09-06-dave-020) added CN-134..136 (3
-  // code nodes) anchoring the persistence-data-postgres blueprint.json,
-  // the facade-round-trip probe module, and the sample-app fixture
-  // facade store.mjs (133 -> 136).
-  codeNode: 136,
+  // Visual round 4 T-1 (w-2026-09-06-dave-015) added CN-134..140
+  // (7 code nodes) anchoring the application-empty-error-states
+  // shipped blueprint.json, the probe pack, the sample-app fixture's
+  // server.js, and the README, guide, CHANGELOG and docs/topics.md
+  // for the state-slug enumeration parity + mechanism-reach gaps
+  // ACs (133 -> 140).
+  // Infra round 5 T-1 added CN-200/201/202 (3 code nodes) anchoring
+  // the persistence-data-postgres blueprint.json, the facade-round-trip
+  // probe module, and the sample-app fixture facade store.mjs per HQ
+  // reserved-block ruling (140 -> 143).
+  codeNode: 143,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -204,8 +217,9 @@ const expectedCounts = {
   // visual round T-4 added TS-050 paired with US-2101 (49 -> 50).
   // visual round T-5 added TS-051 paired with US-2201 and TS-052
   // paired with US-2301 (50 -> 52).
-  // infra round 5 T-1 added TS-053 paired with US-2401 (52 -> 53).
-  testSuite: 53,
+  // visual round 4 T-1 added TS-053 paired with US-2401 (52 -> 53).
+  // Infra round 5 T-1 added TS-070 paired with US-4001 per HQ reserved-block ruling (53 -> 54).
+  testSuite: 54,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

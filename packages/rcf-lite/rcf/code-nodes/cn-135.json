@@ -1,13 +1,12 @@
 {
   "cnId": "CN-135",
-  "path": "../../blueprints/persistence-data-postgres/contributions/probes/facade-round-trip.mjs",
+  "path": "../../blueprints/application-empty-error-states/probe-packs/application-empty-error-states.pack.mjs",
   "implementsAcIds": [
-    "AC-2401-4",
-    "AC-2401-5"
+    "AC-2401-3"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
-  "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "createdAt": "2026-09-06T15:39:29.906Z",
+  "updatedAt": "2026-09-06T15:39:29.906Z"
 }

@@ -1,0 +1,62 @@
+{
+  "createdAt": "2026-09-06T17:02:27.310Z",
+  "updatedAt": "2026-09-06T17:02:29.479Z",
+  "purpose": "Cover AC-4001-1..6 via unit tests over the shipped persistence-data-postgres blueprint shape, applies-clean behaviour, DELIBERATE conflict surface on persistenceStore and migrationDiscipline, six Node-only probe module contract, induced-failure switches, and shelf-doc consistency.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-4001-1",
+    "AC-4001-2",
+    "AC-4001-3",
+    "AC-4001-4",
+    "AC-4001-5",
+    "AC-4001-6"
+  ],
+  "id": "TS-070",
+  "usId": "US-4001",
+  "title": "persistence-data-postgres v1.0.0 shelf shape, conflict-on-topics-surface, six-probe module contract and shelf-doc consistency",
+  "testCases": [
+    {
+      "id": "TC-070-blueprint-json-shape",
+      "acId": "AC-4001-1",
+      "description": "Cover AC-4001-1 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-070-applies-clean-no-persistence",
+      "acId": "AC-4001-2",
+      "description": "Cover AC-4001-2 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::apply persistence-data-postgres on a bare scratch project writes 26 contributions and validate plus strict audits exit zero (TC-070-applies-clean-no-persistence)"
+    },
+    {
+      "id": "TC-070-conflict-with-d1",
+      "acId": "AC-4001-3",
+      "description": "Cover AC-4001-3 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::apply persistence-data-postgres on a d1-applied scratch project surfaces globalAdrTopic conflict on persistenceStore and migrationDiscipline (TC-070-conflict-with-d1)"
+    },
+    {
+      "id": "TC-070-probe-anchor-ids-cross-check",
+      "acId": "AC-4001-4",
+      "description": "Cover AC-4001-4 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-070-probe-anchor-ids-cross-check)"
+    },
+    {
+      "id": "TC-070-fixture-and-switches",
+      "acId": "AC-4001-5",
+      "description": "Cover AC-4001-5 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::sample-app fixture ships docker-compose.yml, migrations, store.mjs, recovery.mjs, and its README documents both induced-failure switches (TC-070-fixture-and-switches)"
+    },
+    {
+      "id": "TC-070-shelf-doc-consistency",
+      "acId": "AC-4001-6",
+      "description": "Cover AC-4001-6 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/persistence-data-postgres-anatomy.test.js::section 6a table gains a relationalStore row and every shipped blueprint docs/topics.md gains a persistence-data-postgres row at 27101-27899 / 28xx (TC-070-shelf-doc-consistency)"
+    }
+  ],
+  "status": "draft"
+}

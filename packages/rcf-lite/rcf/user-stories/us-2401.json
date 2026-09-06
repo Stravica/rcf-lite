@@ -1,69 +1,62 @@
 {
-  "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z",
-  "usId": "US-2401",
-  "prdId": "PRD-001",
-  "reqId": "REQ-024",
-  "version": "0.1.0",
-  "status": "draft",
-  "title": "The persistence-data-postgres blueprint ships on the shelf; six Node-only probes pass against a live postgres:17-alpine container and refuse on each induced failure",
-  "asA": "shelf consumer applying the persistence-data-postgres v1.0.0 blueprint",
-  "iWant": "the shipped blueprint files with 26 contributions and six probes, a sample-app fixture that boots postgres:17-alpine and applies three toy forward-only migrations, and gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch",
-  "soThat": "a rcf-lite project applying this blueprint gets a facade contract over pg with numbered forward-only migrations, prepared-statement discipline, transactional atomicity, a two-path recovery model, and pool posture per deploy target, with runtime-observable ACs proven by probes the HQ gate runs against a real Postgres container rather than a simulated harness",
+  "createdAt": "2026-09-06T15:38:51.042Z",
+  "updatedAt": "2026-09-06T15:38:51.042Z",
+  "asA": "shelf consumer applying the application-empty-error-states v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files, the Playwright probe pack anchoring the eight named states of the empty and error catalogue, the recovery-action router across parent-surface search request-access and retry, the offline state with the write-buffer contract, and a sample-app fixture proving the pack passes on a compliant surface and refuses on the four break switches",
+  "soThat": "a project consuming rcf-lite gets the eight-state contract with a runtime-verified pack, the least-privilege surface for the 500 and 403 states, and a golden fixture the pack refuses on a surface that leaks a stack trace, leaks a resource id, drops a recovery affordance, or drops the polite live-region wrapper",
+  "description": "US-2401 anchors the shelf-shape acceptance criteria for the T-1 track: shelf carries blueprint.json with the ratified shape, contributions apply cleanly on a fresh init project, the pack cross-checks against contributed AC ids, the sample-app fixture serves every state on the honest branch, and the break switches refuse on the negative branch. The blueprint contributes 19 to 24 further AC records on its own USs 22101 to 22108; those are covered by the pack against the fixture and by the anatomy test that walks the contributions.",
   "acceptanceCriteria": [
     {
       "id": "AC-2401-1",
-      "description": "The shelf carries blueprints/persistence-data-postgres/blueprint.json declaring slug persistence-data-postgres, version 1.0.0, category persistence, 26 contributions in the 7 REQ / 10 US / 4 TAC / 5 ADR groups per infra round 5 spec section 5.1; capabilities is [\"relationalStore\"]; suggestedCompanions declares logging and errorHandling with spec section 5.1 reasons; providesRoles is absent; requiresAppliedCapabilities is absent.",
-      "given": "the shelf tree after this blueprint lands",
-      "when": "jq queries against blueprints/persistence-data-postgres/blueprint.json",
-      "then": "jq '.slug' returns \"persistence-data-postgres\"; jq '.version' returns \"1.0.0\"; jq '.contributions | length' returns 26; jq '.capabilities | index(\"relationalStore\")' returns 0; jq '.suggestedCompanions | length' returns 2",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "The shelf carries blueprints/application-empty-error-states/blueprint.json declaring slug application-empty-error-states, version 1.0.0, category application, and 19 to 24 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups per spec section 5.1; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.1; providesRoles is absent; capabilities is absent or empty; requiresAppliedCapabilities is absent (no auth required)."
     },
     {
       "id": "AC-2401-2",
-      "description": "rcf define blueprint add ./blueprints/persistence-data-postgres applies the 26 contributions cleanly on a fresh init project with no other persistence blueprint applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.",
-      "given": "a fresh rcf init scratch project with no persistence-* blueprint applied",
-      "when": "rcf define blueprint add ./blueprints/persistence-data-postgres runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict",
-      "then": "every command exits 0; the scratch project's rcf tree contains the 26 contributions; no globalAdrTopic conflict is raised",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "rcf define blueprint add ./blueprints/application-empty-error-states applies the 19 contributions cleanly on a fresh init project (exit 0, contribution count matches blueprint.json); rcf define validate on the scratch project reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project."
     },
     {
       "id": "AC-2401-3",
-      "description": "rcf define blueprint add ./blueprints/persistence-data-postgres on a scratch project with persistence-data-d1 already applied surfaces a DELIBERATE conflict on the persistenceStore and migrationDiscipline global-ADR topics per the round-2 pattern; the tree is untouched by the failed add.",
-      "given": "a fresh rcf init scratch project with persistence-data-d1 v1.0.0 already applied",
-      "when": "rcf define blueprint add ./blueprints/persistence-data-postgres runs against the scratch project",
-      "then": "the add refuses with a globalAdrTopic conflict list containing persistenceStore and migrationDiscipline; the scratch project's rcf tree does not carry persistence-data-postgres contributions after the refusal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "The shipped probe pack blueprints/application-empty-error-states/probe-packs/application-empty-error-states.pack.mjs loads via T-0s pack-loader against a scratch project with the blueprint applied; each of its eight check ids (AC-22101-1 through AC-22108-1) resolves to an AC id contributed by the blueprint per T-0 AC-1701-3; every check carries a description field per spec section 9; the pack-level appliesTo predicate references BOTH tacIds and route; every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source."
     },
     {
       "id": "AC-2401-4",
-      "description": "The six probe modules under blueprints/persistence-data-postgres/contributions/probes/ each pass against a running postgres:17-alpine container brought up from the sample-app fixture: facade-round-trip asserts facadeReady fires and the round-trip returns; migration-apply asserts three migrations apply inside individual transactions and schema_version advances to 3; prepared-statement-scan asserts every pg.query first-argument node is a StringLiteral; transaction-atomicity asserts a rollback fires with the failing statement index; recovery-restore-round-trip asserts row-count and checksum equality between source and restored databases; pool-posture-smoke asserts twenty concurrent queries return with no timeout. Each per-blueprint probe report at .rcf/reports/blueprints/persistence-data-postgres/<probe-name>.json carries aggregateVerdict pass.",
-      "given": "the sample-app fixture at packages/rcf-lite/test/fixtures/infra-postgres/ with docker compose up -d postgres running and the fixture applied",
-      "when": "each of the six run-<probe-name>.mjs shims runs against the fixture in sequence",
-      "then": "every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/ ships a dependency-free Node HTTP server (server.js) with a start script; every one of the eight states renders on its default branch and is selectable via ?state=<name>; PORT env overrides the bind port (default 3000, never binds 4200); the fixture responds LISTENING <port> once bound."
     },
     {
       "id": "AC-2401-5",
-      "description": "The sample-app fixture's induced-failure switches surface each probe's negative-run behaviour: SIMULATE_MIGRATION_FAILURE=true makes run-migration-apply.mjs exit non-zero with the failing migration filename in its report and the transaction rolled back; SIMULATE_CONSTRAINT_VIOLATION=true makes run-transaction-atomicity.mjs record a rollback with the correct failing statement index in its report. Every negative-run probe report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts.",
-      "given": "the sample-app fixture with docker compose up -d postgres running",
-      "when": "the migration-apply probe runs with SIMULATE_MIGRATION_FAILURE=true, and the transaction-atomicity probe runs with SIMULATE_CONSTRAINT_VIOLATION=true",
-      "then": "the migration-apply shim exits non-zero and its report at .rcf/reports/blueprints/persistence-data-postgres/migration-apply.json carries aggregateVerdict fail with the failing migration filename in a detail field; the transaction-atomicity shim asserts the rollback fires with the failing statement index and its report carries either the negative-run detail or the pass verdict depending on the probe's contract (the probe's contract is that the negative run PROVES rollback semantics; the shim exit is 0 with aggregateVerdict pass because rollback is the correct observation, but the DEFECT switch omitting the rollback event turns the same probe to fail; the fixture ships both switches so the reviewer can walk either shape)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "The probe pack refuses ship on each broken fixture branch: ?break=stack-trace re-adds a stack trace to the 500 state so AC-22103-1 fails at severity block; ?break=leak-id re-adds the resource id to the forbidden and permission-denied surfaces so AC-22102-1 or AC-22104-1 fails at severity block; ?break=no-recovery drops the recovery control from the empty-list state so AC-22106-1 fails at severity block; ?break=no-live-region drops the polite live-region wrapper so AC-22105-1 (offline reconnection announcement) fails at severity block."
     },
     {
       "id": "AC-2401-6",
-      "description": "The blueprint ships a sample-app fixture, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a persistence-data-postgres row at US band 27101-27899 / ADR-TAC suffix block 28xx across every shipped blueprint's docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for relationalStore per infra round 5 spec section 5.6.",
-      "given": "the shelf tree after this blueprint lands",
-      "when": "grep queries walk every blueprint's docs/topics.md and the section 6a table",
-      "then": "packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning '| `relationalStore` |'; every shipped blueprint's docs/topics.md carries a row beginning '| persistence-data-postgres |' with the 27101-27899 band and 28xx suffix; blueprints/persistence-data-postgres/README.md, CHANGELOG.md, guide/persistence-data-postgres.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-postgres/ all exist; the fixture README names the docker and podman incantations and the two induced-failure switches",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "description": "The eight enumerated named states appear identically across the scope paragraph in the blueprint README, the packs checks[] list, the guide, and the docs/topics.md registry table; a grep sweep for each state slug (not-found, forbidden, server-error, offline, permission-denied, empty-list, no-search-results, error-boundary) confirms every occurrence is accounted for and no state is silently dropped."
+    },
+    {
+      "id": "AC-2401-7",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The blueprint README lists every runtime-observable AC the pack does NOT bind directly under Known mechanism-reach gaps, individually per AC id; the blueprint CHANGELOG.md carries a single 1.0.0 entry naming the eight state contracts, the pack checks, the recovery-action router and the offline strategy ADR; docs/topics.md carries the shelf id band registry table extended with the T-1 row (application-empty-error-states 22101-22899 / 23xx)."
     }
-  ]
+  ],
+  "tacIds": [],
+  "tags": [
+    "blueprint:application-empty-error-states"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "usId": "US-2401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-024",
+  "title": "The application-empty-error-states blueprint ships on the shelf with its eight-state pack and sample-app fixture; the pack refuses on the four break switches"
 }
