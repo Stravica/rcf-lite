@@ -1,0 +1,36 @@
+{
+  "tacId": "TAC-2302-application-empty-error-states-recovery-router",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Recovery-action router",
+  "purpose": "Owns the mapping from a state's recovery shape (parent-surface, search, request-access, retry, create, clear-filters) to a concrete rendered control on the state region. The router is the second layer under the state machine; every state that renders passes its recovery shape through the router.",
+  "responsibilities": [
+    "Realise the parent-surface shape as a link with data-recovery=\"parent-surface\" whose href points to the FBS-declared parent path (AC-22101-1, AC-22106-1 when the empty-list has a parent).",
+    "Realise the search shape as a search entry with data-recovery=\"search\" (AC-22101-1, AC-22107-1).",
+    "Realise the request-access shape as a button with data-action=\"request-access\" that POSTs to the FBS-configured request-access endpoint (AC-22102-1, AC-22104-1).",
+    "Realise the retry shape as a button with data-recovery=\"retry\" that re-issues the failed operation (AC-22103-1, AC-22105-1, AC-22108-1).",
+    "Realise the create shape as a link or button with data-recovery=\"create\" (AC-22106-1) and the clear-filters shape as a button with data-recovery=\"clear-filters\" (AC-22107-1)."
+  ],
+  "internalStructure": "One router module the state machine hands each state's recovery shape. The router reads the FBS-configured parent path, request-access endpoint and clear-filters callback and constructs the rendered control. Refuses to render a state without a legitimate recovery shape (an authored no-recovery notice is a legitimate shape; a bare state region without any recovery is a build defect).",
+  "interfaces": [
+    {
+      "name": "renderRecovery",
+      "kind": "factory",
+      "description": "renderRecovery({ shape, config }) -> { element, dataRecoveryAttr, dataActionAttr }. shape is one of parent-surface, search, request-access, retry, create, clear-filters, no-recovery. config carries the FBS-declared paths and callbacks the router needs."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "State machine",
+      "kind": "tac",
+      "tacId": "TAC-2301-application-empty-error-states-state-machine",
+      "description": "The router runs downstream of the state machine's dispatch."
+    }
+  ],
+  "tradeoffs": "A closed set of recovery shapes keeps the state matrix testable but constrains projects that want a bespoke recovery flow to compose a wider shape as no-recovery with a project-side custom region. A future v1.1.0 minor bump can add a request-access-inline shape (inline form rather than a POST) when demand warrants.",
+  "notes": "The recovery-shape enum is closed at v1: parent-surface, search, request-access, retry, create, clear-filters, no-recovery. A new shape is a blueprint minor bump.",
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

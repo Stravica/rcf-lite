@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 42,
-    "notStarted": 14,
+    "items": 43,
+    "notStarted": 15,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
     "actionable": 11,
-    "blocked": 3
+    "blocked": 4
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -57,7 +57,8 @@
         "FBS-004",
         "FBS-005",
         "FBS-008",
-        "FBS-026"
+        "FBS-026",
+        "FBS-043"
       ]
     },
     {
@@ -591,6 +592,20 @@
       "state": "blocked",
       "blockedBy": [
         "FBS-041"
+      ]
+    },
+    {
+      "fbsId": "FBS-043",
+      "buildOrder": 43,
+      "tier": 2,
+      "title": "application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-042"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-042"
       ]
     }
   ]

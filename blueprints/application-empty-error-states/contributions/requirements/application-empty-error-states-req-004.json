@@ -1,0 +1,18 @@
+{
+  "reqId": "application-empty-error-states-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Server-error surface: no stack trace in production, no resource-id leak on forbidden per least-privilege posture",
+  "description": "The server-error (5xx) state renders in production mode without a stack trace, without a source file path, without any environment-variable key shape (VARNAME=value or process.env.NAME references), and without any framework internal frame prefix. The pack refuses when any word in a bundled sensitive-pattern list matches the rendered surface (path-shape strings, backtrace-frame prefixes, environment-variable key shape). The forbidden (403) and permission-denied (403 with cause) states render without the resource id, without the resource name and without the server-side path so a principal without scope cannot infer resource existence from the error surface. A staging environment override is available via ADR-2302 elicitation.",
+  "category": "security",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec section 5.1, REQ 4. Second risk clause in the round-4 spec calls for a CSP-shape enforcement on the 500 surface.",
+  "tags": [
+    "blueprint:application-empty-error-states",
+    "category:04-least-privilege"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

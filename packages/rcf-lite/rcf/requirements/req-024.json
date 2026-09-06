@@ -1,0 +1,69 @@
+{
+  "createdAt": "2026-09-06T15:38:14.226Z",
+  "updatedAt": "2026-09-06T15:38:14.250Z",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "rationale": "Per visual round 4 spec section 5.1 (2026-09-06).",
+  "description": "The rcf-lite shelf ships the application-empty-error-states v1.0.0 blueprint (blueprints/application-empty-error-states/) with 19 to 24 contributions (5 REQs on the state catalogue with eight named states, the recovery-action contract per state, the announcement contract with role=region and aria-live=polite, the server-error surface with no stack-trace and no resource-id leak in production, and the offline state with a write-buffer and navigator.onLine reconnection semantics; 8 USs 22101 to 22108 binding runtime-observable ACs one per named state; 3 TACs 2301 state-machine from FBS render to state render to recovery, 2302 recovery-action router across parent-surface search request-access retry, 2303 offline write-buffer with reconciliation semantics; 3 ADRs 2301 HTTP status to rendered state mapping with standardsTraceClause RFC 9110 and recommendedDefault true, 2302 production hides stack traces with recommendedDefault true and elicited true, 2303 offline strategy across write-buffer read-only-banner refuse-writes with elicited true). Declares suggestedCompanions logging and errorHandling with reasons from spec section 5.1; providesRoles absent; capabilities empty; requiresAppliedCapabilities absent (no auth required). Ships a Playwright probe pack under blueprints/application-empty-error-states/probe-packs/application-empty-error-states.pack.mjs whose eight checks (AC-22101-1 not-found, AC-22102-1 forbidden, AC-22103-1 server-error, AC-22104-1 permission-denied, AC-22105-1 offline, AC-22106-1 empty-list, AC-22107-1 no-search-results, AC-22108-1 error-boundary) each anchor one named state via TAC-2301 or an operator-configured error-shell path glob; pack URLs composed by the withUrl(runtimeUrl, path) helper per round 3 T-3 fix train. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/ realising all eight states honestly with a query switch ?state=<name> and break switches ?break=stack-trace, ?break=leak-id, ?break=no-recovery and ?break=no-live-region so each check refuses on its own defect. Sixth shipped consumer of T-0s probe-pack runner extension; T-3 forms-wizard and T-4 account-settings both compose this blueprint.",
+  "reqId": "REQ-024",
+  "prdId": "PRD-001",
+  "title": "Application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state contract, Playwright probe pack and sample-app fixture",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-06T15:38:14.249Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "aria-"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "nav"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "render"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "render"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "rendered"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "permission"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      }
+    ]
+  }
+}

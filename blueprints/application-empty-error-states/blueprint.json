@@ -1,0 +1,119 @@
+{
+  "slug": "application-empty-error-states",
+  "version": "1.0.0",
+  "category": "application",
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every rendered error state writes one request-scoped log line with the correlation identifier; a logging companion supplies the factory the pipeline calls."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "The error-boundary state constructs an internal error record from the caught exception; an error-handling companion supplies the factory and the boundary."
+    }
+  ],
+  "contributions": [
+    {
+      "id": "application-empty-error-states-REQ-001",
+      "kind": "req",
+      "path": "requirements/application-empty-error-states-req-001.json"
+    },
+    {
+      "id": "application-empty-error-states-REQ-002",
+      "kind": "req",
+      "path": "requirements/application-empty-error-states-req-002.json"
+    },
+    {
+      "id": "application-empty-error-states-REQ-003",
+      "kind": "req",
+      "path": "requirements/application-empty-error-states-req-003.json"
+    },
+    {
+      "id": "application-empty-error-states-REQ-004",
+      "kind": "req",
+      "path": "requirements/application-empty-error-states-req-004.json"
+    },
+    {
+      "id": "application-empty-error-states-REQ-005",
+      "kind": "req",
+      "path": "requirements/application-empty-error-states-req-005.json"
+    },
+    {
+      "id": "application-empty-error-states-US-22101",
+      "kind": "us",
+      "path": "user-stories/application-empty-error-states-us-22101.json"
+    },
+    {
+      "id": "application-empty-error-states-US-22102",
+      "kind": "us",
+      "path": "user-stories/application-empty-error-states-us-22102.json"
+    },
+    {
+      "id": "application-empty-error-states-US-22103",
+      "kind": "us",
+      "path": "user-stories/application-empty-error-states-us-22103.json"
+    },
+    {
+      "id": "application-empty-error-states-US-22104",
+      "kind": "us",
+      "path": "user-stories/application-empty-error-states-us-22104.json"
+    },
+    {
+      "id": "application-empty-error-states-US-22105",
+      "kind": "us",
+      "path": "user-stories/application-empty-error-states-us-22105.json"
+    },
+    {
+      "id": "application-empty-error-states-US-22106",
+      "kind": "us",
+      "path": "user-stories/application-empty-error-states-us-22106.json"
+    },
+    {
+      "id": "application-empty-error-states-US-22107",
+      "kind": "us",
+      "path": "user-stories/application-empty-error-states-us-22107.json"
+    },
+    {
+      "id": "application-empty-error-states-US-22108",
+      "kind": "us",
+      "path": "user-stories/application-empty-error-states-us-22108.json"
+    },
+    {
+      "id": "TAC-2301-application-empty-error-states-state-machine",
+      "kind": "tac",
+      "path": "tacs/tac-2301-application-empty-error-states-state-machine.json"
+    },
+    {
+      "id": "TAC-2302-application-empty-error-states-recovery-router",
+      "kind": "tac",
+      "path": "tacs/tac-2302-application-empty-error-states-recovery-router.json"
+    },
+    {
+      "id": "TAC-2303-application-empty-error-states-offline-buffer",
+      "kind": "tac",
+      "path": "tacs/tac-2303-application-empty-error-states-offline-buffer.json"
+    },
+    {
+      "id": "ADR-2301-application-empty-error-states-status-contract",
+      "kind": "adr",
+      "path": "adrs/adr-2301-application-empty-error-states-status-contract.json",
+      "recommendedDefault": true,
+      "standardsTraceClause": "RFC 9110"
+    },
+    {
+      "id": "ADR-2302-application-empty-error-states-stack-trace-visibility",
+      "kind": "adr",
+      "path": "adrs/adr-2302-application-empty-error-states-stack-trace-visibility.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "OWASP ASVS V7 error handling"
+    },
+    {
+      "id": "ADR-2303-application-empty-error-states-offline-strategy",
+      "kind": "adr",
+      "path": "adrs/adr-2303-application-empty-error-states-offline-strategy.json",
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}

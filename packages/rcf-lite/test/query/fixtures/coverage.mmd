@@ -880,6 +880,35 @@ flowchart LR
   REQ-023 --> AC-2301-7
   TC-052-negative-runs["TC-052-negative-runs"]
   AC-2301-7 -.-> TC-052-negative-runs
+  REQ-024["REQ-024"]
+  AC-2401-1["AC-2401-1"]
+  REQ-024 --> AC-2401-1
+  TC-053-blueprint-json-shape["TC-053-blueprint-json-shape"]
+  AC-2401-1 -.-> TC-053-blueprint-json-shape
+  AC-2401-2["AC-2401-2"]
+  REQ-024 --> AC-2401-2
+  TC-053-applies-clean["TC-053-applies-clean"]
+  AC-2401-2 -.-> TC-053-applies-clean
+  AC-2401-3["AC-2401-3"]
+  REQ-024 --> AC-2401-3
+  TC-053-pack-checks-cross-check["TC-053-pack-checks-cross-check"]
+  AC-2401-3 -.-> TC-053-pack-checks-cross-check
+  AC-2401-4["AC-2401-4"]
+  REQ-024 --> AC-2401-4
+  TC-053-fixture-serves-states["TC-053-fixture-serves-states"]
+  AC-2401-4 -.-> TC-053-fixture-serves-states
+  AC-2401-5["AC-2401-5"]
+  REQ-024 --> AC-2401-5
+  TC-053-negative-runs["TC-053-negative-runs"]
+  AC-2401-5 -.-> TC-053-negative-runs
+  AC-2401-6["AC-2401-6"]
+  REQ-024 --> AC-2401-6
+  TC-053-state-enumeration-parity["TC-053-state-enumeration-parity"]
+  AC-2401-6 -.-> TC-053-state-enumeration-parity
+  AC-2401-7["AC-2401-7"]
+  REQ-024 --> AC-2401-7
+  TC-053-readme-gaps-and-changelog["TC-053-readme-gaps-and-changelog"]
+  AC-2401-7 -.-> TC-053-readme-gaps-and-changelog
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1332,6 +1361,21 @@ flowchart LR
   class TC-052-fixture-surfaces tc;
   class AC-2301-7 ac;
   class TC-052-negative-runs tc;
+  class REQ-024 req;
+  class AC-2401-1 ac;
+  class TC-053-blueprint-json-shape tc;
+  class AC-2401-2 ac;
+  class TC-053-applies-clean tc;
+  class AC-2401-3 ac;
+  class TC-053-pack-checks-cross-check tc;
+  class AC-2401-4 ac;
+  class TC-053-fixture-serves-states tc;
+  class AC-2401-5 ac;
+  class TC-053-negative-runs tc;
+  class AC-2401-6 ac;
+  class TC-053-state-enumeration-parity tc;
+  class AC-2401-7 ac;
+  class TC-053-readme-gaps-and-changelog tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

@@ -1,0 +1,107 @@
+[boot] runtime http://127.0.0.1:13810 already reachable; boot skipped
+[pack-browser] closing playwright-mcp browser
+{
+  "id": "bv-FBS-001-3",
+  "fbsId": "FBS-001",
+  "createdAt": "2026-09-06T15:55:45.994Z",
+  "mode": "agentScreenshotCritique",
+  "runtimeProfile": "local-dev",
+  "runtimeUrl": "http://127.0.0.1:13810",
+  "routesChecked": [
+    {
+      "path": "/",
+      "screenshotPath": ".rcf/artefacts/fbs-001/placeholder.png",
+      "themeApplied": "light"
+    }
+  ],
+  "invariantChecks": [
+    {
+      "invariant": "sharedLayoutModule",
+      "verdict": "pass"
+    },
+    {
+      "invariant": "agentDriverWired",
+      "verdict": "fail",
+      "detail": "browser driver returned zero captures; wire a Playwright driver via deps.browserDriver or run in --mode operatorSession"
+    }
+  ],
+  "verdict": "block",
+  "probePacks": [
+    {
+      "packName": "application-empty-error-states",
+      "packVersion": "1.0.0",
+      "blueprintSlug": "application-empty-error-states",
+      "applicable": true,
+      "checks": [
+        {
+          "id": "AC-22101-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "heading=\"Widget not found\" title=\"Not found - Sample app\""
+        },
+        {
+          "id": "AC-22102-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "forbidden region clean; request-access control present"
+        },
+        {
+          "id": "AC-22103-1",
+          "verdict": "fail",
+          "severity": "block",
+          "detail": "server-error surface leaked backtrace-frame: at handleWidget (/opt/app/src/handlers/widget.js:44:11)"
+        },
+        {
+          "id": "AC-22104-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "cause=\"admin scope required\""
+        },
+        {
+          "id": "AC-22105-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "bufferSample=[{\"idempotencyToken\":\"idempotency-token-seed-write-1\",\"payload\":{\"kind\":\"note\",\"body\":\"offline draft\"},\"sequence\":1}] reconnect=\"Reconnected. Flushing 1 buffered write.\""
+        },
+        {
+          "id": "AC-22106-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "empty-list wrapper and create control present"
+        },
+        {
+          "id": "AC-22107-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "queryEcho=\"needle\""
+        },
+        {
+          "id": "AC-22108-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "error-boundary role=alert, retry control present, no stack detail"
+        }
+      ]
+    }
+  ],
+  "notes": "Driver: no captures produced."
+}
+
+browser-verify FBS-001 (agentScreenshotCritique, local-dev)
+  agent critique:
+    Driver: no captures produced.
+  invariant checks:
+    [pass] sharedLayoutModule
+    [fail] agentDriverWired - browser driver returned zero captures; wire a Playwright driver via deps.browserDriver or run in --mode operatorSession
+  probe packs:
+    [pass] application-empty-error-states AC-22101-1 - heading="Widget not found" title="Not found - Sample app"
+    [pass] application-empty-error-states AC-22102-1 - forbidden region clean; request-access control present
+    [fail] application-empty-error-states AC-22103-1 - server-error surface leaked backtrace-frame: at handleWidget (/opt/app/src/handlers/widget.js:44:11)
+    [pass] application-empty-error-states AC-22104-1 - cause="admin scope required"
+    [pass] application-empty-error-states AC-22105-1 - bufferSample=[{"idempotencyToken":"idempotency-token-seed-write-1","payload":{"kind":"note","body":"offline draft"},"sequence":1}] reconnect="Reconnected. Flushing 1 buffered write."
+    [pass] application-empty-error-states AC-22106-1 - empty-list wrapper and create control present
+    [pass] application-empty-error-states AC-22107-1 - queryEcho="needle"
+    [pass] application-empty-error-states AC-22108-1 - error-boundary role=alert, retry control present, no stack detail
+  verdict: block
+
+browser-verify FBS-001: wrote bv-FBS-001-3 to rcf/manifest.json (verdict=block).

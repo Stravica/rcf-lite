@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 23  covered: 23  covered-unresolved: 0  uncovered: 0
+Requirements: 24  covered: 24  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -202,3 +202,10 @@ REQ-023      yes      AC-2301-1   yes         TC-052-blueprint-json-shape
                       AC-2301-5   yes         TC-052-pack-checks-cross-check
                       AC-2301-6   yes         TC-052-fixture-surfaces
                       AC-2301-7   yes         TC-052-negative-runs
+REQ-024      yes      AC-2401-1   yes         TC-053-blueprint-json-shape
+                      AC-2401-2   yes         TC-053-applies-clean
+                      AC-2401-3   yes         TC-053-pack-checks-cross-check
+                      AC-2401-4   yes         TC-053-fixture-serves-states
+                      AC-2401-5   yes         TC-053-negative-runs
+                      AC-2401-6   yes         TC-053-state-enumeration-parity
+                      AC-2401-7   yes         TC-053-readme-gaps-and-changelog

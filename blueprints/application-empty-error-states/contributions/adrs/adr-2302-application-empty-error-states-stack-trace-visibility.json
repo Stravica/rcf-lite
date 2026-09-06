@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2302-application-empty-error-states-stack-trace-visibility",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "The server-error state hides stack traces, source paths and environment-variable keys in production",
+  "context": "The 5xx state is the most tempting surface for a debug leak because a stack trace is the first thing a developer would like on-screen when something breaks. In production the same surface is a probing target for an attacker: a stack trace names framework versions and internal frame layouts; a source path names filesystem structure; an environment-variable key shape names the deploy environment's configuration surface. Staging environments legitimately want the debug detail; production does not.",
+  "decision": "In production the server-error state renders a plain summary line and a retry recovery hook only. The rendered surface refuses any word matching the sensitive-pattern list: backtrace-frame prefixes (\"at <fn>(<file>:<line>:<col>)\" and variants), source paths (leading /, ./, ../), environment-variable key shape (NAME= or process.env.NAME references), and framework-internal frame prefixes. In non-production environments (staging, local) the elicited stack-trace-visible parameter may flip the guard off; the pack still fires on staging so a leak that reaches production is caught before ship. recommendedDefault is true; elicited is true so the operator can flip the guard for staging or for a build that renders the debug region behind a role gate.",
+  "consequences": "Projects on the recommended default get the least-privilege posture with no configuration. Projects that want a debug region in staging author the elicited toggle and add a role-gated debug region behind an operator scope. The pack fires on both branches with the appropriate expectation. A production build that ships with the toggle flipped on refuses the ship gate through this pack's AC-22103-1.",
+  "alternativesConsidered": [
+    {
+      "name": "Always render the stack trace",
+      "summary": "Ship the full stack trace in every environment, on the theory that the operator will see it before an attacker does.",
+      "reasonNotChosen": "In practice an attacker triggers 5xx surfaces at will (bad payloads, malformed routes); the stack trace ships to their browser too. The debug value in production is negligible compared to the leak."
+    },
+    {
+      "name": "Server-side redaction only",
+      "summary": "Rely on the server to strip the stack trace before it reaches the client.",
+      "reasonNotChosen": "The client-side error boundary also renders 5xx surfaces from caught JS exceptions that never touched the server; a server-side redactor cannot cover the client boundary."
+    }
+  ],
+  "createdAt": "2026-09-06T15:40:00Z",
+  "updatedAt": "2026-09-06T15:40:00Z"
+}

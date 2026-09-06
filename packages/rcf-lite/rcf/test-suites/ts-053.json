@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-09-06T15:39:17.193Z",
+  "updatedAt": "2026-09-06T15:39:17.193Z",
+  "testCases": [
+    {
+      "id": "TC-053-blueprint-json-shape",
+      "acId": "AC-2401-1",
+      "description": "blueprint.json declares slug, version 1.0.0, category application, 19 contributions in 5/8/3/3 groups; providesRoles absent; requiresAppliedCapabilities absent; suggestedCompanions logging and errorHandling",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-053-applies-clean",
+      "acId": "AC-2401-2",
+      "description": "Fresh init project applies application-empty-error-states cleanly and reports the tree clean",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean)"
+    },
+    {
+      "id": "TC-053-pack-checks-cross-check",
+      "acId": "AC-2401-3",
+      "description": "Every pack check id matches a contributed AC id; pack-level appliesTo references BOTH tacIds and route; withUrl helper used for every URL string",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-053-pack-checks-cross-check)"
+    },
+    {
+      "id": "TC-053-fixture-serves-states",
+      "acId": "AC-2401-4",
+      "description": "Sample-app fixture serves every one of the eight states honestly on its default branch and via ?state= switch",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::sample-app fixture serves every one of the eight states on the default branch (TC-053-fixture-serves-states)"
+    },
+    {
+      "id": "TC-053-negative-runs",
+      "acId": "AC-2401-5",
+      "description": "Break switches surface the four defects on the DOM for the corresponding pack checks",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::sample-app fixture break switches surface the four defects on the DOM (TC-053-negative-runs)"
+    },
+    {
+      "id": "TC-053-state-enumeration-parity",
+      "acId": "AC-2401-6",
+      "description": "Eight state slugs appear identically across README, guide, pack checks[] and docs/topics.md registry",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::eight state slugs appear identically across README guide pack and docs (TC-053-state-enumeration-parity)"
+    },
+    {
+      "id": "TC-053-readme-gaps-and-changelog",
+      "acId": "AC-2401-7",
+      "description": "README lists mechanism-reach gaps individually; CHANGELOG carries one 1.0.0 entry; docs/topics.md carries the T-1 shelf registry row",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-1 row (TC-053-readme-gaps-and-changelog)"
+    }
+  ],
+  "status": "draft",
+  "purpose": "Cover AC-2401-1 through AC-2401-7 via unit tests over the shipped application-empty-error-states blueprint.json contribution shape (19 contributions in the 5 REQ / 8 US / 3 TAC / 3 ADR groups), the applies-clean pass on a fresh init project, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving all eight state branches, the negative-run behaviour on the ?break=stack-trace, ?break=leak-id, ?break=no-recovery and ?break=no-live-region switches, the state-slug enumeration parity across README, guide, pack and docs/topics.md registry, and the README mechanism-reach gaps and CHANGELOG 1.0.0 entry.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-2401-1",
+    "AC-2401-2",
+    "AC-2401-3",
+    "AC-2401-4",
+    "AC-2401-5",
+    "AC-2401-6",
+    "AC-2401-7"
+  ],
+  "id": "TS-053",
+  "usId": "US-2401",
+  "title": "application-empty-error-states v1.0.0 shelf shape, probe pack cross-check and sample-app fixture"
+}
