@@ -1,0 +1,43 @@
+{
+  "usId": "object-storage-s3-US-28102",
+  "prdId": "PRD-001",
+  "reqId": "object-storage-s3-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The facade puts, gets, deletes and lists on typed keys with byte-equal round-trip",
+  "asA": "developer storing user uploads and generated artefacts as S3-shape objects",
+  "iWant": "put, get, delete, list verbs on the facade that round-trip bytes without corruption and emit lifecycle events",
+  "soThat": "my consumer code stays vendor-neutral above the facade and observability wires cleanly",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-28102-1",
+      "description": "Given a putObject through the facade for a known key, a stable content-type, and a 1 KiB payload, when a subsequent getObject reads the key, then the returned bytes equal the put bytes and the content-type header matches; an objectPut lifecycle event fires with key, size=1024, contentType, timestamp.",
+      "given": "the facade opened against a running S3-compatible engine and a bucket that exists",
+      "when": "putObject(key, contentType='application/octet-stream', body=<1 KiB Buffer>) then getObject(key)",
+      "then": "the returned body's byte length equals 1024 and the returned content-type equals application/octet-stream; the events list captured on the sink contains an objectPut record with matching key, size 1024, contentType, timestamp; no body bytes appear in any event record",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-28102-2",
+      "description": "Given a deleteObject through the facade for a known key that exists, when the delete returns, then a getObject on the same key returns a not-found error (S3 NoSuchKey or the storage-side 404-equivalent); an objectDeleted event fires with the key and timestamp.",
+      "given": "an object previously put through the facade",
+      "when": "deleteObject(key) followed by getObject(key)",
+      "then": "the getObject rejects with a not-found shape (NoSuchKey on S3/R2/MinIO); an objectDeleted event fires on the sink with matching key and timestamp",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-28102-3",
+      "description": "Given at least three objects put under a common key prefix, when listObjects(prefix) is called, then the returned page contains every put key at or under the prefix and a boolean isTruncated indicating whether more pages exist.",
+      "given": "three keys previously put under prefix probe/list/",
+      "when": "listObjects(prefix='probe/list/')",
+      "then": "the returned keys include every put key with matching prefix, and the paginated envelope carries an isTruncated boolean",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

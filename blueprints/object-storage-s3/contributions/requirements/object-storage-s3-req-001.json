@@ -1,0 +1,18 @@
+{
+  "reqId": "object-storage-s3-REQ-001",
+  "prdId": "PRD-001",
+  "title": "One facade module is the sole reader of the S3 client and opens on boot",
+  "description": "The application accesses object storage through a single facade module in the project's source tree that is the ONLY module in the tree that imports the S3 client (either @aws-sdk/client-s3 on Node targets or aws4fetch on Workers targets per ADR-2901). Every other module that touches object storage imports the facade and calls its named domain verbs; no other module holds the raw S3 client, an S3Client instance, or an aws4fetch AwsClient instance. On process boot, the facade opens the client against the elicited endpoint URL and bucket name, and once the first successful ready-check completes, emits a facadeReady lifecycle event carrying endpoint host and bucket name. The endpoint URL (a Cloudflare R2 URL, an AWS S3 URL, a MinIO URL, or any S3-compatible remote) and the bucket name are elicited at apply time.",
+  "category": "functional",
+  "domain": "object-storage",
+  "priority": "must",
+  "rationale": "A single facade is what turns the raw S3 client surface into an application-side surface with domain-shaped verbs. Multiple call sites reaching into the client directly produces a codebase where the endpoint, the credential-pair discipline, the event-emission discipline, and the multipart-threshold posture are all diffused across the tree. One facade means one place to test, one place to swap adapters (the Workers-side aws4fetch adapter slots in here without moving any AC), and one place where the object-storage code paths are discoverable.",
+  "tags": [
+    "blueprint:object-storage-s3",
+    "category:01-facade"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

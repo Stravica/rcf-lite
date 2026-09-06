@@ -1,0 +1,25 @@
+{
+  "usId": "object-storage-s3-US-28103",
+  "prdId": "PRD-001",
+  "reqId": "object-storage-s3-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The facade issues presigned GET URLs with bounded TTL; a fetch within TTL returns 200 and after TTL returns 403",
+  "asA": "developer handing delegated read access to a browser client",
+  "iWant": "presignGetUrl on the facade with a bounded TTL and a lifecycle event on issue",
+  "soThat": "the browser fetches the object directly from the storage endpoint without holding my credentials, and my logs can bind to the issue event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-28103-1",
+      "description": "Given a presignGetUrl call with ttl=60 seconds for a known key, when the returned URL is fetched with Node built-in fetch within TTL, then the response status is 200 and the body bytes equal the object bytes; when the same URL is fetched after ttl+2 seconds, the response status is 403 (S3-shape AccessDenied) or the storage-side 403-equivalent; a presignedIssued event fires on the sink with key, ttl=60, timestamp.",
+      "given": "an object previously put through the facade and the facade opened",
+      "when": "presignGetUrl(key, ttl=60) then fetch(url) immediately, then wait ttl+2 seconds and fetch(url) again",
+      "then": "first fetch returns 200 with body bytes equal to the put payload; second fetch returns 403; the events list contains a presignedIssued record with key, ttl=60, timestamp; no URL or credential material appears in any event record",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

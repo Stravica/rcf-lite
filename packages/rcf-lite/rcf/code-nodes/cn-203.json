@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-203",
+  "path": "../../blueprints/object-storage-s3/blueprint.json",
+  "implementsAcIds": [
+    "AC-4101-1",
+    "AC-4101-2",
+    "AC-4101-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:51:53.270Z",
+  "updatedAt": "2026-09-06T17:51:53.270Z"
+}

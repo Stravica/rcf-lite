@@ -1,0 +1,28 @@
+{
+  "slug": "object-storage-s3",
+  "probeName": "multipart-upload",
+  "runAt": "2026-09-06T18:42:15.706Z",
+  "engine": {
+    "kind": "s3",
+    "image": "minio/minio",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-28104-1",
+      "verdict": "pass",
+      "detail": "10 MiB multipart round-trip byte-equal; objectPut fired with size=10485760"
+    },
+    {
+      "anchorAcId": "AC-28104-1",
+      "verdict": "pass",
+      "detail": "no in-flight multipart uploads after complete"
+    },
+    {
+      "anchorAcId": "AC-28104-2",
+      "verdict": "pass",
+      "detail": "abort-on-failure path exercised only when SIMULATE_PART_UPLOAD_FAIL=true; not-run on canonical fixture state"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

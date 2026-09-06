@@ -105,7 +105,11 @@ const expectedCounts = {
   // persistence-data-postgres v1.0.0 blueprint (HQ reserved-block ruling:
   // round 5 mints from the reserved id block via --id, no next-id
   // racing with HQ's train) (25 -> 26).
-  req: 26,
+  // Infra round 5 T-2 (w-2026-09-06-dave-021) added REQ-041 for the
+  // object-storage-s3 v1.0.0 blueprint on the shelf with five Node-only
+  // probes against a live MinIO container plus one accountBound R2
+  // real-account smoke (26 -> 27).
+  req: 27,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -121,7 +125,9 @@ const expectedCounts = {
   // visual round 4 T-2 added US-2501 (53 -> 54).
   // Infra round 5 T-1 added US-4001 (derived from REQ-040 per HQ
   // reserved-block ruling) (54 -> 55).
-  userStory: 55,
+  // Infra round 5 T-2 added US-4101 (derived from REQ-041 per HQ
+  // reserved-block ruling) (55 -> 56).
+  userStory: 56,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -151,7 +157,9 @@ const expectedCounts = {
   // visual round 4 T-2 added FBS-044 covering US-2501 (43 -> 44).
   // Infra round 5 T-1 added FBS-060 covering US-4001 per HQ
   // reserved-block ruling (44 -> 45).
-  fbs: 45,
+  // Infra round 5 T-2 added FBS-061 covering US-4101 per HQ
+  // reserved-block ruling (45 -> 46).
+  fbs: 46,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -214,7 +222,11 @@ const expectedCounts = {
   // the persistence-data-postgres blueprint.json, the facade-round-trip
   // probe module, and the sample-app fixture facade store.mjs per HQ
   // reserved-block ruling (147 -> 150).
-  codeNode: 150,
+  // Infra round 5 T-2 added CN-203/204/205 (3 code nodes) anchoring
+  // the object-storage-s3 blueprint.json, the facade-round-trip probe
+  // module, and the shared sample-app fixture facade object-store.mjs
+  // per HQ reserved-block ruling (150 -> 153).
+  codeNode: 153,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -232,7 +244,9 @@ const expectedCounts = {
   // visual round 4 T-2 added TS-054 paired with US-2501 (53 -> 54).
   // Infra round 5 T-1 added TS-070 paired with US-4001 per HQ
   // reserved-block ruling (54 -> 55).
-  testSuite: 55,
+  // Infra round 5 T-2 added TS-071 paired with US-4101 per HQ
+  // reserved-block ruling (55 -> 56).
+  testSuite: 56,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

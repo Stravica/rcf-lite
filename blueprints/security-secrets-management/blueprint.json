@@ -1,7 +1,8 @@
 {
   "slug": "security-secrets-management",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "category": "security",
+  "capabilities": ["secretsProvider"],
   "contributions": [
     { "id": "security-secrets-management-REQ-001", "kind": "req", "path": "requirements/security-secrets-management-req-001.json" },
     { "id": "security-secrets-management-REQ-002", "kind": "req", "path": "requirements/security-secrets-management-req-002.json" },

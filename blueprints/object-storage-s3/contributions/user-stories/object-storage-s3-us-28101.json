@@ -1,0 +1,34 @@
+{
+  "usId": "object-storage-s3-US-28101",
+  "prdId": "PRD-001",
+  "reqId": "object-storage-s3-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "One facade module opens the S3 client on boot and emits facadeReady with endpoint host and bucket name",
+  "asA": "developer whose service needs S3-shape object storage behind a swappable boundary",
+  "iWant": "one facade module to hold the S3 client and expose named domain verbs, with a facadeReady lifecycle event on the first successful ready-check",
+  "soThat": "the boundary between my domain and the S3 vendor surface is the only place that has to move when the adapter changes, and boot ordering is observable via the event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-28101-1",
+      "description": "On process boot, the facade opens an S3 client against the elicited endpoint URL and bucket name; once the first successful ready-check (a HeadBucket or equivalent metadata call) returns, a facadeReady event fires on the injected event sink with a payload containing endpoint host and bucket name.",
+      "given": "a Node process with the facade module imported and its factory invoked",
+      "when": "the process boots and the facade's ready-check returns",
+      "then": "a facadeReady event fires on the injected event sink with a payload containing endpointHost and bucketName, and the client is ready to accept verbs; the facade exposes named domain verbs and does not re-export the raw S3 client",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-28101-2",
+      "description": "Exactly one source-tree module inside the facade directory imports the S3 client (@aws-sdk/client-s3 or aws4fetch per ADR-2901); every other module that touches object storage imports the facade and calls its named domain verbs, verified by a targeted grep on the applied fixture.",
+      "given": "the applied project's source tree after apply",
+      "when": "grep 'from \\'@aws-sdk/client-s3\\'' or 'from \\'aws4fetch\\'' walks the tree outside the facade directory",
+      "then": "no match is found outside the facade directory; the facade's public surface exports named domain verbs only, no raw S3 client reference",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

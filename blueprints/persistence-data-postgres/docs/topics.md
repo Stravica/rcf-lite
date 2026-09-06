@@ -29,7 +29,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
 | observability-essentials | 7101-7899 | 8xx | shipped v2.0.0 | `statusPageContract` |
-| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
+| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.1 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
 | security-auth-oauth2 | 10101-10899 | 11xx | shipped v1.0.0 | `authModel` |
 | security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
@@ -44,6 +44,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 | application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 
 US 27101-27110 sit at the LOW end of the 27101-27899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a persistence-data-postgres REQ id into the number 27110 would collide against the shipped US-27110; band headroom (27111-27899) leaves that space.
 

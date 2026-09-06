@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-2901-object-storage-s3-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "S3 client adapter: @aws-sdk/client-s3 on Node targets; aws4fetch on Workers targets; elicited",
+  "context": "A project deploying object storage on an S3-shape endpoint has two mainstream client choices for the two dominant deploy targets. On Node targets, @aws-sdk/client-s3 (the modular AWS JavaScript SDK v3) is the reference client with a mature multipart transferer, presigned URL helper, and Cloudflare R2 compatibility. On Cloudflare Workers targets, aws4fetch is the lightweight fetch-native client that avoids the AWS SDK's Node polyfills and ships tiny. Both speak the S3 wire protocol; both handle SigV4; both cover the ops the v1.0.0 facade surface needs (PutObject, GetObject, DeleteObject, ListObjectsV2, presigned URL via query-string, CreateMultipartUpload / UploadPart / CompleteMultipartUpload / AbortMultipartUpload). The v1.0.0 facade design has to hold the adapter reference opaque at the facade boundary so the operator picks per deploy target and a future adapter (a GCS shim, an Azure Blob shim under a sibling blueprint) slots in without a facade re-shape.",
+  "decision": "The shipped v1.0.0 default on a Node target is @aws-sdk/client-s3 (AWS SDK v3, modular client-s3 package). The shipped v1.0.0 default on a Workers target is aws4fetch. Both are elicited at apply time under the adapter parameter; the operator picks based on the deploy target. Every S3 request goes through the elicited client; the facade module is the sole importer of either package in the source tree per REQ-001. The adapter reference is OPAQUE at this ADR: the facade imports the elicited adapter at the top of the module and any consumer wanting a different adapter (a GCS shim, an Azure Blob shim inside a sibling blueprint that mints on demand) replaces the import here without touching the outward interface.",
+  "consequences": "The project inherits the elicited adapter's mature request-signing surface, its presigned-URL helper, and its multipart-upload transferer. Standards trace clause: AWS S3 API (the de facto interop standard, no single normative RFC) and the Cloudflare R2 S3-compatibility notes at https://developers.cloudflare.com/r2/api/s3/api/ enumerating the supported ops (PutObject, GetObject, DeleteObject, ListObjectsV2, HeadObject, HeadBucket, CopyObject, multipart upload, ListMultipartUploads) and the deviations (no ACLs, no bucket policies, no Object Lock, no versioning, no lifecycle policies, SSE-C only). Projects deploying to MinIO for local dev pick the AWS SDK adapter transparently; MinIO covers the S3 surface for the shipped ops per the MinIO S3 compatibility posture at https://docs.min.io/community/minio-object-store/administration/object-management/object-lifecycle-management.html. A future GCS or Azure Blob sibling mints on demand under a different global topic on objectStorageContract (ADR-2904); the operator resolution surfaces as a topic conflict per the round-2 pattern.",
+  "alternativesConsidered": [
+    {
+      "name": "aws-sdk v2 as the shipped Node default",
+      "summary": "Ship the monolithic aws-sdk v2 npm package as the Node default.",
+      "reasonNotChosen": "aws-sdk v2 is in maintenance mode as of 2024; the modular v3 package @aws-sdk/client-s3 is the recommended surface for new work and ships smaller. Choosing v2 would drag every consumer to a maintenance-mode dependency at v1.0.0."
+    },
+    {
+      "name": "aws4fetch as the shipped Node default too",
+      "summary": "Ship aws4fetch on both Node and Workers targets to shrink the dependency footprint.",
+      "reasonNotChosen": "aws4fetch is fetch-native and Workers-friendly but lacks the presigned-URL helper and the multipart transferer the v1.0.0 REQ-003 and REQ-004 need out of the box; a Node target picking aws4fetch would need consumer-side glue for both, defeating the value of the shipped facade."
+    },
+    {
+      "name": "Ship a hand-rolled SigV4 signer with fetch",
+      "summary": "Roll our own SigV4 signer as the v1.0.0 default and skip both AWS SDK and aws4fetch.",
+      "reasonNotChosen": "SigV4 is well-specified but the surface area (request signing, presigned URL, multipart) exceeds a shelf blueprint's maintenance envelope. Two mature adapters exist; picking one per target and eliciting is the shelf pattern."
+    }
+  ],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

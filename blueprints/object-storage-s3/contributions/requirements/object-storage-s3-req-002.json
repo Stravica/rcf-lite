@@ -1,0 +1,18 @@
+{
+  "reqId": "object-storage-s3-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Put, get, delete, list contract on typed keys",
+  "description": "The facade exposes named domain verbs (putObject, getObject, deleteObject, listObjects) that take a typed key (a project-defined key namespace, not a raw string on the public surface where a typed alternative fits), a content-type string on put, and return either the object body (get), a boolean success (put, delete), or a paginated key listing (list). Every read and write goes through the S3 client's public request surface; no facade verb accepts a raw request object or a general-purpose passthrough from consumer code. The put verb emits objectPut with key, size, contentType, timestamp; the delete verb emits objectDeleted with key, timestamp.",
+  "category": "functional",
+  "domain": "object-storage",
+  "priority": "must",
+  "rationale": "Typed named domain verbs make the object-storage boundary auditable: consumer call sites are enumerable, and swapping the underlying adapter or endpoint has one place to change. A raw-request-passthrough on the public surface defeats the sole-reader discipline REQ-001 pins.",
+  "tags": [
+    "blueprint:object-storage-s3",
+    "category:02-put-get-delete-list"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

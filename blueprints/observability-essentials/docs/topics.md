@@ -43,7 +43,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
 | observability-essentials | 7101-7899 | 8xx | shipped v2.0.0 | `statusPageContract` |
-| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
+| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.1 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
 | security-auth-oauth2 | 10101-10899 | 11xx | shipped v1.0.0 | `authModel` |
 | security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
@@ -58,6 +58,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
 | application-file-upload | 23101-23899 | 24xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 
 US 7101-7110 sit at the LOW end of the 7101-7899 band on purpose. A project-side story that mechanically derives from an observability-essentials REQs id into the number `7110` would collide against observability-essentials-US-7110 in this package; the band leaves headroom at the HIGH end (US 7181-7899) so a project's own stories anchored to observability-essentials REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

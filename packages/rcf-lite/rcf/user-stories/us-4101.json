@@ -1,0 +1,69 @@
+{
+  "createdAt": "2026-09-06T17:50:03.129Z",
+  "updatedAt": "2026-09-06T17:50:03.129Z",
+  "asA": "shelf consumer applying the object-storage-s3 v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files with 21 contributions, six probes, and the T-2 side of the shared sample-app fixture that boots MinIO and applies the security-secrets-management shim, plus gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch",
+  "soThat": "a rcf-lite project applying this blueprint gets an S3-shape facade over @aws-sdk/client-s3 or aws4fetch with put/get/delete/list, presigned URLs with bounded TTL, multipart-upload above threshold, a lifecycle-event sink with metadata-only fields, and a compose-time refusal on missing security-secrets-management, with runtime-observable ACs proven by probes the HQ gate runs against a real MinIO container",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4101-1",
+      "description": "The shelf carries blueprints/object-storage-s3/blueprint.json declaring slug object-storage-s3, version 1.0.0, category object-storage, 21 contributions in the 6 REQ / 8 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.2; capabilities is [objectStorage]; suggestedCompanions declares logging and errorHandling with spec section 5.2 reasons; providesRoles is absent; requiresAppliedCapabilities is absent; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.",
+      "given": "the shelf tree after this blueprint lands",
+      "when": "jq queries against blueprints/object-storage-s3/blueprint.json",
+      "then": "jq .slug returns object-storage-s3; jq .version returns 1.0.0; jq .contributions | length returns 21; jq .capabilities returns [objectStorage]; jq .suggestedCompanions | length returns 2; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4101-2",
+      "description": "rcf define blueprint add ./blueprints/object-storage-s3 applies the 21 contributions cleanly on a fresh init project with security-secrets-management already applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.",
+      "given": "a fresh rcf init scratch project with security-secrets-management applied",
+      "when": "rcf define blueprint add ./blueprints/object-storage-s3 runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict",
+      "then": "every command exits 0; the scratch project's rcf tree contains the 21 contributions; no globalAdrTopic conflict is raised",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4101-3",
+      "description": "rcf define blueprint add ./blueprints/object-storage-s3 on a scratch project without security-secrets-management refuses with exit 3 and stable message id object-storage-s3-no-secrets on stderr per REQ-006 and spec section 5.2; the --allow-no-secrets-yet override lands the contributions with a note recorded on source.notes for later reconciliation.",
+      "given": "a fresh rcf init scratch project with no security-secrets-management applied",
+      "when": "rcf define blueprint add ./blueprints/object-storage-s3 runs against the scratch project, then the same command runs with --allow-no-secrets-yet",
+      "then": "the first invocation exits 3 with stderr containing object-storage-s3-no-secrets and naming security-secrets-management and the override flag; the scratch tree does not carry object-storage-s3 contributions after the refusal; the second invocation exits 0 and the applied manifest records a source.notes entry naming the missing predecessor",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4101-4",
+      "description": "The six probe modules under blueprints/object-storage-s3/contributions/probes/ each pass against a running MinIO container brought up from the shared sample-app fixture: facade-round-trip asserts facadeReady fires with endpointHost and bucketName; put-get-round-trip asserts 1 KiB round-trip byte-equal, list under prefix, and delete round-trip with objectDeleted; presigned-url asserts 200 within TTL, 403 on tampered signature, and floor refusal below 60 s; multipart-upload asserts 10 MiB round-trip byte-equal via multipart with no orphan in-flight uploads; event-secrecy asserts the whitelist and no PII fixture leak; r2-real-account-smoke exits 0 with accountBoundSkipped:true without CI_HAS_CLOUDFLARE_ACCOUNT or runs a real R2 round-trip when the env var is set. Each per-blueprint probe report at .rcf/reports/blueprints/object-storage-s3/<probe-name>.json carries aggregateVerdict pass.",
+      "given": "the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with docker compose up -d minio running and the rcf-test bucket created",
+      "when": "each of the six run-<probe-name>.mjs shims runs against the fixture in sequence",
+      "then": "every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4101-5",
+      "description": "The sample-app fixture's induced-failure switches surface each probe's negative-run behaviour: SIMULATE_PART_UPLOAD_FAIL=true drives the multipart-upload probe's AC-28104-2 abort-on-failure path; SIMULATE_PRESIGN_MALFORMED=true drives the presigned-url probe's tampered-signature 403 path; SIMULATE_403_ON_GET=true drives the put-get-round-trip probe's fail on AC-28102-1. Each switched-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts (except SIMULATE_PART_UPLOAD_FAIL which surfaces the pass-on-abort-shape).",
+      "given": "the shared fixture with MinIO running",
+      "when": "each named induced-failure switch is set in turn and the paired probe runs",
+      "then": "SIMULATE_PART_UPLOAD_FAIL true yields multipart-upload report with AC-28104-2 pass and no orphan uploads; SIMULATE_403_ON_GET true yields put-get-round-trip report with aggregateVerdict fail; SIMULATE_PRESIGN_MALFORMED true yields presigned-url first-fetch 403 and aggregateVerdict fail; the fixture README documents each switch and the paired probe",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4101-6",
+      "description": "The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains an object-storage-s3 row at US band 28101-28899 / ADR-TAC suffix block 29xx across every shipped blueprint's docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for objectStorage per infra round 5 spec section 5.6.",
+      "given": "the shelf tree after this blueprint lands",
+      "when": "grep queries walk every blueprint's docs/topics.md and the section 6a table",
+      "then": "packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | objectStorage |; every shipped blueprint's docs/topics.md carries a row beginning | object-storage-s3 | with the 28101-28899 band and 29xx suffix; blueprints/object-storage-s3/README.md, CHANGELOG.md, guide/object-storage-s3.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names docker and podman incantations and four wired induced-failure switches",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "usId": "US-4101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-041",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The object-storage-s3 blueprint ships on the shelf with five MinIO probes plus one accountBound R2 smoke"
+}

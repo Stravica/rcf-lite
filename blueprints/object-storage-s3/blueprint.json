@@ -1,0 +1,72 @@
+{
+  "slug": "object-storage-s3",
+  "version": "1.0.0",
+  "category": "object-storage",
+  "capabilities": ["objectStorage"],
+  "requiresAppliedCapabilities": {
+    "capabilities": ["secretsProvider"],
+    "allowSkipFlag": "allow-no-secrets-yet",
+    "refusalMessageId": "object-storage-s3-no-secrets"
+  },
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every lifecycle event (facadeReady, objectPut, objectDeleted, presignedIssued) writes through the applied logger; a logging companion supplies the factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A put failure, a get 404, a presigned-URL malformed request constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "contributions": [
+    { "id": "object-storage-s3-REQ-001", "kind": "req", "path": "requirements/object-storage-s3-req-001.json" },
+    { "id": "object-storage-s3-REQ-002", "kind": "req", "path": "requirements/object-storage-s3-req-002.json" },
+    { "id": "object-storage-s3-REQ-003", "kind": "req", "path": "requirements/object-storage-s3-req-003.json" },
+    { "id": "object-storage-s3-REQ-004", "kind": "req", "path": "requirements/object-storage-s3-req-004.json" },
+    { "id": "object-storage-s3-REQ-005", "kind": "req", "path": "requirements/object-storage-s3-req-005.json" },
+    { "id": "object-storage-s3-REQ-006", "kind": "req", "path": "requirements/object-storage-s3-req-006.json" },
+    { "id": "object-storage-s3-US-28101", "kind": "us", "path": "user-stories/object-storage-s3-us-28101.json" },
+    { "id": "object-storage-s3-US-28102", "kind": "us", "path": "user-stories/object-storage-s3-us-28102.json" },
+    { "id": "object-storage-s3-US-28103", "kind": "us", "path": "user-stories/object-storage-s3-us-28103.json" },
+    { "id": "object-storage-s3-US-28104", "kind": "us", "path": "user-stories/object-storage-s3-us-28104.json" },
+    { "id": "object-storage-s3-US-28105", "kind": "us", "path": "user-stories/object-storage-s3-us-28105.json" },
+    { "id": "object-storage-s3-US-28106", "kind": "us", "path": "user-stories/object-storage-s3-us-28106.json" },
+    { "id": "object-storage-s3-US-28107", "kind": "us", "path": "user-stories/object-storage-s3-us-28107.json" },
+    { "id": "object-storage-s3-US-28108", "kind": "us", "path": "user-stories/object-storage-s3-us-28108.json" },
+    { "id": "TAC-2901-object-storage-s3-facade", "kind": "tac", "path": "tacs/tac-2901-object-storage-s3-facade.json" },
+    { "id": "TAC-2902-object-storage-s3-multipart-uploader", "kind": "tac", "path": "tacs/tac-2902-object-storage-s3-multipart-uploader.json" },
+    { "id": "TAC-2903-object-storage-s3-event-sink", "kind": "tac", "path": "tacs/tac-2903-object-storage-s3-event-sink.json" },
+    {
+      "id": "ADR-2901-object-storage-s3-adapter",
+      "kind": "adr",
+      "path": "adrs/adr-2901-object-storage-s3-adapter.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "AWS S3 API and Cloudflare R2 S3-compatibility notes"
+    },
+    {
+      "id": "ADR-2902-object-storage-s3-presigned-ttl-floor",
+      "kind": "adr",
+      "path": "adrs/adr-2902-object-storage-s3-presigned-ttl-floor.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-2903-object-storage-s3-multipart-threshold",
+      "kind": "adr",
+      "path": "adrs/adr-2903-object-storage-s3-multipart-threshold.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-2904-object-storage-s3-contract",
+      "kind": "adr",
+      "path": "adrs/adr-2904-object-storage-s3-contract.json",
+      "scope": "global",
+      "topic": "objectStorageContract",
+      "standardsTraceClause": "AWS S3 API and Cloudflare R2 S3-compatibility notes"
+    }
+  ]
+}

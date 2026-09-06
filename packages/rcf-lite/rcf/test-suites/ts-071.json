@@ -1,0 +1,62 @@
+{
+  "createdAt": "2026-09-06T17:50:13.712Z",
+  "updatedAt": "2026-09-06T17:51:32.845Z",
+  "purpose": "Cover AC-4101-1..6 via unit tests over the shipped object-storage-s3 blueprint shape (contribution count, capabilities, suggestedCompanions, ADR standardsTraceClause), applies-clean-with-secrets and refuses-without behaviour, six Node-only probe module contract with anchorAcId cross-check, induced-failure switch documentation on the fixture README, and shelf-doc consistency (section 6a table row for objectStorage, shelf-wide docs/topics.md row for object-storage-s3 at 28101-28899 / 29xx).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-4101-1",
+    "AC-4101-2",
+    "AC-4101-3",
+    "AC-4101-4",
+    "AC-4101-5",
+    "AC-4101-6"
+  ],
+  "id": "TS-071",
+  "usId": "US-4101",
+  "title": "object-storage-s3 v1.0.0 shelf shape, apply-on-secrets-present, apply-refusal-on-bare, six-probe module contract, induced-failure switches and shelf-doc consistency",
+  "testCases": [
+    {
+      "id": "TC-071-blueprint-json-shape",
+      "acId": "AC-4101-1",
+      "description": "Cover AC-4101-1 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::blueprint.json declares 21 contributions with capabilities objectStorage, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-071-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-071-applies-clean-with-secrets",
+      "acId": "AC-4101-2",
+      "description": "Cover AC-4101-2 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::apply object-storage-s3 lands 21 contributions on a scratch project with security-secrets-management applied (TC-071-applies-clean-with-secrets)"
+    },
+    {
+      "id": "TC-071-apply-refusal-and-override",
+      "acId": "AC-4101-3",
+      "description": "Cover AC-4101-3 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::apply object-storage-s3 refuses on a bare fixture without security-secrets-management and lands with --allow-no-secrets-yet (TC-071-apply-refusal-and-override)"
+    },
+    {
+      "id": "TC-071-probe-anchor-ids-cross-check",
+      "acId": "AC-4101-4",
+      "description": "Cover AC-4101-4 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-071-probe-anchor-ids-cross-check)"
+    },
+    {
+      "id": "TC-071-fixture-and-switches",
+      "acId": "AC-4101-5",
+      "description": "Cover AC-4101-5 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::sample-app fixture ships docker-compose.yml, package.json, src/object-store.mjs, src/secrets.mjs, and its README documents docker and podman and the four wired induced-failure switches (TC-071-fixture-and-switches)"
+    },
+    {
+      "id": "TC-071-shelf-doc-consistency",
+      "acId": "AC-4101-6",
+      "description": "Cover AC-4101-6 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::section 6a table gains an objectStorage row and every shipped blueprint docs/topics.md gains an object-storage-s3 row at 28101-28899 / 29xx (TC-071-shelf-doc-consistency)"
+    }
+  ],
+  "status": "draft"
+}

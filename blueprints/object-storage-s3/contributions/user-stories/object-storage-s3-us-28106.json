@@ -1,0 +1,34 @@
+{
+  "usId": "object-storage-s3-US-28106",
+  "prdId": "PRD-001",
+  "reqId": "object-storage-s3-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Apply-time refusal on a project without security-secrets-management, with a stable message id and an override flag",
+  "asA": "operator preventing hardcoded credential pairs on a new project",
+  "iWant": "rcf define blueprint add object-storage-s3 to refuse composition when security-secrets-management is not applied",
+  "soThat": "credential storage is disciplined by default and the override is an explicit note the operator later reconciles",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-28106-1",
+      "description": "Given a fresh scratch project with no security-secrets-management applied, when rcf define blueprint add ./blueprints/object-storage-s3 runs, then the command exits 3 and stderr contains the stable message id object-storage-s3-no-secrets, the required predecessor blueprint name security-secrets-management, and the override flag --allow-no-secrets-yet; the scratch project's rcf tree does not carry object-storage-s3 contributions after the refusal.",
+      "given": "a fresh rcf init scratch project with no security-secrets-management applied",
+      "when": "rcf define blueprint add ./blueprints/object-storage-s3 runs against the scratch project",
+      "then": "the command exits 3; stderr contains the string object-storage-s3-no-secrets; stderr names security-secrets-management and the --allow-no-secrets-yet flag; the scratch tree has zero object-storage-s3 requirements after the refusal",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-28106-2",
+      "description": "Given the same fresh scratch project, when rcf define blueprint add ./blueprints/object-storage-s3 --allow-no-secrets-yet runs, then the command exits 0, the contributions land on the scratch tree, and the applied manifest records a source.notes entry naming the missing predecessor for later reconciliation.",
+      "given": "a fresh rcf init scratch project with no security-secrets-management applied",
+      "when": "rcf define blueprint add ./blueprints/object-storage-s3 --allow-no-secrets-yet runs against the scratch project",
+      "then": "the command exits 0; the applied manifest entry for object-storage-s3 carries a source.notes string naming the security-secrets-management predecessor and the --allow-no-secrets-yet override; the contributions land on disk",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

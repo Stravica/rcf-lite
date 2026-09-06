@@ -111,7 +111,7 @@ The shelf-wide band registry (recorded at ship, never predicted; kept in sync ac
 | persistence-data-sqlite | 5101-5899 | 6xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | delivery-ci-workflows | 6101-6899 | 7xx | shipped v2.0.0 (renamed from ci-pipeline) | `ciGates`, `strictCoverageGate`, `releaseArtefacts` |
 | observability-essentials | 7101-7899 | 8xx | shipped v1.0.0 | `healthProbes`, `readinessSemantics`, `statusPageContract` |
-| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.0 | `secretsSource` |
+| security-secrets-management | 8101-8899 | 9xx | shipped v1.0.1 | `secretsSource` |
 | security-auth-clerk | 9101-9899 | 10xx | shipped v1.0.0 | `authModel` |
 | security-auth-oauth2 | 10101-10899 | 11xx | shipped v1.0.0 | `authModel` |
 | security-auth-keycloak | 11101-11899 | 12xx | shipped v1.0.0 | `authModel` |
@@ -196,6 +196,7 @@ Identity blueprints declare identity or platform capabilities they provide via a
 | `tenancy` | The applied auth blueprint (or a paired tenancy blueprint) declares an organisation abstraction the console can switch across. | Reserved for a future `application-tenancy-orgs` blueprint; no shelf provider today. |
 | `auditLog` | The applied `logging` companion (or a dedicated audit-log blueprint) emits an event stream the console's audit view can read. | `observability-logging` from 1.1.0 (declares `capabilities: [auditLog]` explicitly; one grammar, no role-to-capability inference); a dedicated audit-log blueprint may claim it in future. |
 | `relationalStore` | The applied blueprint provides a Postgres-shape (row-oriented, ACID, SQL) durable relational store; a consumer blueprint that needs relational semantics reads this capability to configure its own surfaces. | `persistence-data-postgres` v1.0.0. Note: sqlite and D1 are also relational stores; they are not tagged here because their shipped composition contract owns `persistenceStore` at the global-topic level and any relational consumer resolves via that topic rather than through this capability. If a future consumer needs a strictly Postgres-shape declaration (no sqlite dialect), it reads `relationalStore` and this row grows. |
+| `objectStorage` | The applied blueprint provides an S3-API-shape object store; a consumer blueprint that stores large binary payloads (uploads, attachments, generated reports) reads this capability to obtain a facade or presigned-URL surface. | `object-storage-s3` v1.0.0. Reserved for a future `object-storage-native-gcs` or `object-storage-native-azure` sibling that would conflict on `objectStorageContract` at the global-topic level. |
 
 The sibling loader fields are:
 

@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-06T17:51:45.444Z",
+  "updatedAt": "2026-09-06T17:52:15.196Z",
+  "acIds": [
+    "AC-4101-1",
+    "AC-4101-2",
+    "AC-4101-3",
+    "AC-4101-4",
+    "AC-4101-5",
+    "AC-4101-6"
+  ],
+  "fbsId": "FBS-061",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 46,
+  "executionStatus": "notStarted",
+  "title": "object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)",
+  "summary": "T-2 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.2) minted with HQ reserved-block chain ids via --id (REQ-041 / US-4101 / TS-071 / FBS-061 / CN-203..205) after T-1 landed at 040/4001/070/060/200..202. Ships the object-storage-s3 v1.0.0 blueprint on the shelf with 21 contributions in the 6 REQ / 8 US 28101-28108 / 3 TAC 2901-2903 / 4 ADR 2901-2904 groups per spec section 5.2, six Node-only probes under blueprints/object-storage-s3/contributions/probes/ (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy, r2-real-account-smoke) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/object-storage-s3/, and the T-2 slice of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Five probes local-first (accountBound false); r2-real-account-smoke carries accountBound:true and records accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Declares capabilities [objectStorage], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent. Contributes ADR-2904 as scope:global on new topic objectStorageContract per spec section 5.2. Every ADR contribution entry carries standardsTraceClause per section 8a.2 (per HQ mid-flight ruling after PR #154 gate). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with an objectStorage row per spec section 5.6; appends one shelf-registry row for object-storage-s3 at 28101-28899 / 29xx to every shipped blueprint docs/topics.md. Refuses composition when security-secrets-management is not applied with exit 3 and stable message id object-storage-s3-no-secrets on stderr; --allow-no-secrets-yet override records a note on source.notes.",
+  "dependsOnFbsIds": []
+}

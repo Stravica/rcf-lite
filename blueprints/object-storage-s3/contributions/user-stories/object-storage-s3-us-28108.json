@@ -1,0 +1,34 @@
+{
+  "usId": "object-storage-s3-US-28108",
+  "prdId": "PRD-001",
+  "reqId": "object-storage-s3-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "R2 real-account smoke as an accountBound probe that skips cleanly without CI_HAS_CLOUDFLARE_ACCOUNT",
+  "asA": "gate reviewer running the ship gate without a Cloudflare-account CI secret",
+  "iWant": "r2-real-account-smoke to record accountBoundSkipped:true with verdict pass when CI_HAS_CLOUDFLARE_ACCOUNT is unset, and to run a real round-trip against R2 when it is set",
+  "soThat": "the gate stays green on contributors without a Cloudflare account and still proves the R2 adapter on a bound runner",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-28108-1",
+      "description": "Given CI_HAS_CLOUDFLARE_ACCOUNT is unset, when the r2-real-account-smoke.mjs shim runs, then the shim exits 0 and writes a per-blueprint report with one result carrying verdict pass, detail accountBound: skipped (no CI_HAS_CLOUDFLARE_ACCOUNT), and accountBoundSkipped: true; aggregateVerdict is pass.",
+      "given": "the environment with CI_HAS_CLOUDFLARE_ACCOUNT unset",
+      "when": "node blueprints/object-storage-s3/contributions/probes/run-r2-real-account-smoke.mjs runs",
+      "then": "the shim exits 0; the report at .rcf/reports/blueprints/object-storage-s3/r2-real-account-smoke.json carries aggregateVerdict pass and a single result with accountBoundSkipped true",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-28108-2",
+      "description": "Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint URL, bucket name, and credential pair (all from security-secrets-management), when the r2-real-account-smoke.mjs shim runs, then the facade opens against the R2 bucket, puts a 1 KiB payload, gets it back byte-equal, deletes the temporary object on exit, and the report carries aggregateVerdict pass with accountBoundSkipped absent or false.",
+      "given": "the environment with CI_HAS_CLOUDFLARE_ACCOUNT set and R2 credentials wired via security-secrets-management",
+      "when": "node blueprints/object-storage-s3/contributions/probes/run-r2-real-account-smoke.mjs runs",
+      "then": "the shim exits 0; the temporary object is deleted after the round-trip; the report carries aggregateVerdict pass and no accountBoundSkipped:true field",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

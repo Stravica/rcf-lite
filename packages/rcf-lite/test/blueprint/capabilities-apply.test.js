@@ -21,6 +21,13 @@ const SPA_BP = join(REPO_ROOT, 'blueprints', 'application-spa');
 const MAGIC_LINK_BP = join(REPO_ROOT, 'blueprints', 'security-auth-magic-link');
 const CLERK_BP = join(REPO_ROOT, 'blueprints', 'security-auth-clerk');
 const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
+// Infra round 5 T-2: object-storage-s3 declares requiresAppliedCapabilities
+// gating on secretsProvider (a capability that security-secrets-management
+// v1.0.1 declares). Extends the T-5 mechanism to the secretsProvider path
+// with allowSkipFlag "allow-no-secrets-yet" and refusalMessageId
+// "object-storage-s3-no-secrets".
+const OBJECT_STORAGE_BP = join(REPO_ROOT, 'blueprints', 'object-storage-s3');
+const SECRETS_BP = join(REPO_ROOT, 'blueprints', 'security-secrets-management');
 
 async function applyIn(scratch, source, opts = {}) {
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -65,6 +72,62 @@ test('apply honours allowNoAuthYet and writes sidecar with notes (TC-051-apply-a
   assert.equal(doc.allowNoAuthYet, true);
   assert.deepEqual(doc.appliedCapabilities, []);
   assert.match(doc.notes, /no auth yet/i);
+});
+
+test('object-storage-s3 apply refuses on a bare project with the object-storage-s3-no-secrets tag and names the override (TC-051-obj-storage-refuse)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-obj-bare-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  const result = await applyIn(scratch, OBJECT_STORAGE_BP);
+  assert.equal(result.kind, 'requiresAppliedCapabilities', JSON.stringify(result));
+  // First-line tag is the stable message id; dashboards/lints bind here.
+  assert.match(result.message, /\[object-storage-s3-no-secrets\]/);
+  assert.match(result.message, /object-storage-s3 requires an applied blueprint declaring/);
+  assert.match(result.message, /secretsProvider/);
+  assert.match(result.message, /security-secrets-management/);
+  assert.match(result.message, /--allow-no-secrets-yet/);
+});
+
+test('object-storage-s3 --allow-no-secrets-yet override writes sidecar with secrets-management-flavoured notes (TC-051-obj-storage-allow-skip)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-obj-skip-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  const result = await applyIn(scratch, OBJECT_STORAGE_BP, { allowNoAuthYet: true });
+  assert.equal(result.applied, true, JSON.stringify(result));
+  assert.equal(result.sidecarPath, 'rcf/blueprints/object-storage-s3.applied.json');
+  const raw = await readFile(join(scratch, result.sidecarPath), 'utf8');
+  const doc = JSON.parse(raw);
+  assert.equal(doc.slug, 'object-storage-s3');
+  assert.equal(doc.version, '1.0.0');
+  assert.equal(doc.allowNoAuthYet, true);
+  assert.deepEqual(doc.appliedCapabilities, []);
+  // Predecessor-family word is derived from the allowSkipFlag name;
+  // the secrets override reads "no secrets-management yet" not
+  // "no auth yet" so the note is legible for its predecessor family.
+  assert.match(doc.notes, /no secrets-management yet/);
+  assert.match(doc.notes, /--allow-no-secrets-yet/);
+  assert.match(doc.notes, /secretsProvider/);
+  assert.doesNotMatch(doc.notes, /no auth yet/,
+    'the sidecar note for the secrets-management override must not use the auth-family prose');
+});
+
+test('object-storage-s3 apply passes on a project with security-secrets-management v1.0.1 (secretsProvider) applied (TC-051-obj-storage-cap-satisfied)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-obj-happy-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  const first = await applyIn(scratch, SECRETS_BP);
+  assert.equal(first.applied, true, `security-secrets-management apply failed: ${JSON.stringify(first)}`);
+  const second = await applyIn(scratch, OBJECT_STORAGE_BP);
+  assert.equal(second.applied, true, `object-storage-s3 apply failed after secrets-management: ${JSON.stringify(second)}`);
+  assert.equal(second.slug, 'object-storage-s3');
+  // The sidecar records the discovered capability set; secretsProvider
+  // should appear because the applied secrets-management blueprint
+  // declares it at v1.0.1.
+  const raw = await readFile(join(scratch, second.sidecarPath), 'utf8');
+  const doc = JSON.parse(raw);
+  assert.ok(doc.appliedCapabilities.includes('secretsProvider'),
+    `expected appliedCapabilities to include secretsProvider; got ${JSON.stringify(doc.appliedCapabilities)}`);
+  // No override was passed on the happy path; the sidecar carries
+  // neither allowNoAuthYet nor a notes field.
+  assert.equal(doc.allowNoAuthYet, undefined);
+  assert.equal(doc.notes, undefined);
 });
 
 test('apply elicitation phase coerces answers by kind and refuses missing required (TC-051-elicit-answers)', async () => {

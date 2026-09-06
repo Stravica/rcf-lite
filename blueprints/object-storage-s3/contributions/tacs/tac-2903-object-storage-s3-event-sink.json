@@ -1,0 +1,36 @@
+{
+  "tacId": "TAC-2903-object-storage-s3-event-sink",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Lifecycle event sink",
+  "purpose": "The lifecycle-event sink contract the facade emits through, with a fixed metadata-only field discipline. Consumers wire the sink as a synchronous callback; the facade never invokes the sink with object body values, credential material, or PII fields drawn from the object body. The event-secrecy probe (AC-28105-1) asserts the whitelist against a PII fixture.",
+  "responsibilities": [
+    "Emit facadeReady exactly once per facade instance with { event, ts, endpointHost, bucketName } (AC-28101-1).",
+    "Emit objectPut on every successful put (single-part or multipart) with { event, ts, key, size, contentType } (AC-28102-1, AC-28104-1).",
+    "Emit objectDeleted on every successful delete with { event, ts, key } (AC-28102-2).",
+    "Emit presignedIssued on every presign with { event, ts, key, ttl } (AC-28103-1).",
+    "Never carry a body bytes field, a body checksum field, a userId field, a ssn field, an email field, or any string drawn from the object body itself (AC-28105-1).",
+    "Be synchronous and idempotent from the sink caller side; the facade does not await the sink return value."
+  ],
+  "internalStructure": "A callback function type onEvent(record) invoked by the facade with a minimum-shape record. Records are plain objects with only the whitelisted fields; the facade never spreads an S3 client response or an internal buffer into a record. The event-secrecy probe walks every field name and every field value on every emitted record.",
+  "interfaces": [
+    {
+      "name": "onEvent",
+      "kind": "callback",
+      "description": "onEvent(record: {event: 'facadeReady' | 'objectPut' | 'objectDeleted' | 'presignedIssued', ts: number, [k: string]: any}) -> void. Consumers pass the callback to createObjectStore; the facade calls it synchronously at the moment of the event."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Facade",
+      "kind": "tac",
+      "tacId": "TAC-2901-object-storage-s3-facade",
+      "description": "The facade owns the sink invocation; the sink itself is a caller-supplied callback with no dependencies of its own."
+    }
+  ],
+  "tradeoffs": "The whitelist is defined in prose and enforced by probe rather than by a schema, at v1.0.0. A rcf-schemas minor may promote the event-record shape into a shared schema; the round-2 amendment posture (deferred to two-consumer agreement) applies.",
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}

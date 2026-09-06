@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 26  covered: 26  covered-unresolved: 0  uncovered: 0
+Requirements: 27  covered: 27  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -222,3 +222,9 @@ REQ-040      yes      AC-4001-1   yes         TC-070-blueprint-json-shape
                       AC-4001-4   yes         TC-070-probe-anchor-ids-cross-check
                       AC-4001-5   yes         TC-070-fixture-and-switches
                       AC-4001-6   yes         TC-070-shelf-doc-consistency
+REQ-041      yes      AC-4101-1   yes         TC-071-blueprint-json-shape
+                      AC-4101-2   yes         TC-071-applies-clean-with-secrets
+                      AC-4101-3   yes         TC-071-apply-refusal-and-override
+                      AC-4101-4   yes         TC-071-probe-anchor-ids-cross-check
+                      AC-4101-5   yes         TC-071-fixture-and-switches
+                      AC-4101-6   yes         TC-071-shelf-doc-consistency

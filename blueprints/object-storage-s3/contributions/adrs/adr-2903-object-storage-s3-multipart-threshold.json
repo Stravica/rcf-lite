@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2903-object-storage-s3-multipart-threshold",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Multipart-upload threshold default 8 MiB, elicited",
+  "context": "S3-shape storage caps single-put PutObject at 5 GiB (per the S3 API) and R2 aligns; larger payloads require multipart-upload. Below the cap, single-part put is simpler (one round-trip, no in-flight abort concern); above ~8 MiB the AWS SDK's own multi-part-transferer switches to multipart by default (a shipped constant) because throughput improves and the multipart path parallelises. Consumer code should not have to reason about the threshold; the facade owns the switch.",
+  "decision": "The shipped default multipart threshold is 8 MiB (8388608 bytes), matching the AWS SDK's own default. The threshold is elicited at apply time (operator overrides with an eyeball on payload shape); the ceiling is the S3 API's 5 GiB single-put cap. Payloads at or below the threshold go through single-part PutObject; payloads above go through the multipart uploader (TAC-2902). The switch is invisible to consumer code: putObject accepts any size and the facade decides.",
+  "consequences": "Consumers get a size-oblivious put verb. The multipart uploader handles part sizing (default 8 MiB per part), part upload with stable PartNumber, complete-multipart-upload with ordered part list, and abort-on-failure. Standards trace clause: generic enterprise practice (the 8 MiB threshold is an AWS SDK convention, not a normative standard; the R2 doc at https://developers.cloudflare.com/r2/api/s3/api/ documents multipart part re-upload replaces the previous with loss-on-fail, which the README names as a gotcha). Operators uploading many small large-ish payloads (10 MB - 50 MB) may raise the threshold to shave one round-trip per put; operators uploading giant files (500 MB+) may lower the per-part size for backpressure.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship a lower threshold (5 MiB per part size default)",
+      "summary": "Match the S3 API's own minimum part size of 5 MiB as the threshold.",
+      "reasonNotChosen": "S3's 5 MiB minimum is a per-part minimum (except for the final part), not a threshold; at 5 MiB most single-put payloads land as multipart unnecessarily. 8 MiB is the AWS SDK's convention and hits the sweet spot."
+    },
+    {
+      "name": "Never multipart (single-put only)",
+      "summary": "Refuse payloads above 5 GiB; skip the multipart uploader in v1.0.0.",
+      "reasonNotChosen": "5 GiB is a hard cap on S3; consumer code needing larger payloads (backup exports, generated bundles) would work around the facade, defeating the sole-reader discipline. Multipart is a v1.0.0 must."
+    }
+  ],
+  "createdAt": "2026-09-06T18:00:00.000Z",
+  "updatedAt": "2026-09-06T18:00:00.000Z"
+}
