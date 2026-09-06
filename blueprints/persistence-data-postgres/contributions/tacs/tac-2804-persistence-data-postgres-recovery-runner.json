@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2804-persistence-data-postgres-recovery-runner",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Postgres scheduled-export runner",
+  "purpose": "The scheduled export runner that drives pg_dump against the live database, writes the artefact to the elicited destination, and emits backupExported with the artefact path and completion timestamp. Pairs with the deploy target's own point-in-time recovery on ADR-2804; the runner covers the portable-artefact half of the two-path recovery model.",
+  "responsibilities": [
+    "Invoke pg_dump via child_process.execFile against the elicited connection URL with an elicited pg_dump argument set (default: --no-owner --no-acl --format=plain) (AC-27105-1).",
+    "Stream the pg_dump stdout to a temporary file, atomically rename to the elicited destination path (a filesystem path in the shipped fixture; an operator-owned path in production) (AC-27105-1).",
+    "On successful completion, emit backupExported on the injected event sink with { artefactPath, completedAt } (AC-27105-1).",
+    "On pg_dump non-zero exit, emit backupExportFailed with the exit code and stderr tail, delete the partial temp file, exit non-zero.",
+    "Cadence is elicited (a cron string, a systemd timer spec, or off for CI-only invocation); the runner does not schedule itself; a project-side scheduler invokes it."
+  ],
+  "internalStructure": "One Node module exporting an exportDatabase({ connectionUrl, destination, onEvent, pgDumpArgs }) async function. The module resolves pg_dump on PATH via child_process.execFile, streams stdout to a temp file inside the destination's directory, and atomically renames on success. The recovery-drill helper in the same module invokes exportDatabase, brings up a fresh Postgres via docker compose or podman, streams the artefact into psql, and compares row-count and checksum on both databases.",
+  "interfaces": [
+    {
+      "name": "exportDatabase",
+      "kind": "read-write-api",
+      "description": "await exportDatabase({ connectionUrl, destination, onEvent, pgDumpArgs }) -> { artefactPath, completedAt }. Runs pg_dump, writes the artefact, fires backupExported."
+    },
+    {
+      "name": "recoveryDrill",
+      "kind": "read-write-api",
+      "description": "await recoveryDrill({ sourceUrl, destination, onEvent }) -> { count, checksum }. Runs exportDatabase, primes a fresh Postgres from the artefact, compares row-count and checksum on the fixture table, fires recoveryDrillPassed."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Postgres facade",
+      "kind": "tac",
+      "tacId": "TAC-2801-persistence-data-postgres-facade",
+      "description": "Shares the facade's event sink for backupExported and recoveryDrillPassed."
+    }
+  ],
+  "tradeoffs": "child_process.execFile against pg_dump requires the pg_dump binary to be on PATH (or a full path passed via config). On a container platform the runner ships a Postgres client image alongside the app for pg_dump availability; the guide names the CI-seam pattern. The runner does not implement WAL-shipping or a streaming backup; that path is the deploy target's own PITR obligation on ADR-2804.",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

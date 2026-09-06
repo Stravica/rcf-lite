@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2802-persistence-data-postgres-migration-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Numbered forward-only .sql migration files; one file one transaction; migration runner tool elicited",
+  "context": "The Postgres ecosystem has multiple migration tools (node-pg-migrate, sqitch, flyway, prisma migrate, drizzle-kit, knex migrations). Each imposes a different filename convention, a different bookkeeping strategy, and a different transaction shape. Blessing one blocks projects that already carry another; blessing none diffuses the shape across the shelf.",
+  "decision": "The shipped discipline is numbered forward-only .sql migration files under an elicited migrations directory (default ./migrations/). Each filename begins with a monotonically increasing integer that is unique across the directory (001_..., 002_..., 003_...); the file body is engine-native SQL. The in-tree runner applies each file inside its own transaction (BEGIN, run the file body, COMMIT on success or ROLLBACK on error); the runner records applied filenames in a schema_version bookkeeping table it maintains inside the same database. There are no down migrations; a rollback is a new numbered file inverting the earlier change. Which runner tool the project reaches for is elicited on this ADR (bespoke Node runner shipped in the fixture, node-pg-migrate, sqitch, flyway); recommendedDefault is the bespoke Node runner because it holds the fewest opinions and reads the migrations directory directly.",
+  "consequences": "The project gets a portable migration shape any Postgres client can apply (a plain .sql file with a leading integer). One file one transaction bounds the rollback surface cleanly but forbids atomic schema changes spanning two files; projects combine multi-step changes into one file. Numbered forward-only means the deploy pipeline's rollback story is a new migration, not a down step; the deploy runbook names this. Refusing to bless a runner tool keeps the shelf out of a maintenance stance; the operator picks whichever tool their team already carries and points it at the same directory. Standards trace clause: generic enterprise practice.",
+  "alternativesConsidered": [
+    {
+      "name": "Bless node-pg-migrate as the shipped runner",
+      "summary": "Ship node-pg-migrate as the v1.0.0 default; the applying project inherits its filename convention, its bookkeeping table shape, and its up/down direction.",
+      "reasonNotChosen": "node-pg-migrate is a fine tool but its filename convention differs from sqitch and flyway; blessing it forces a project already on sqitch to migrate their catalogue. The discipline (numbered forward-only, one file one transaction) is what carries between tools; blessing the discipline and eliciting the tool is cheaper for the operator."
+    },
+    {
+      "name": "Allow bidirectional migrations (up and down)",
+      "summary": "Ship the migration shape as pairs of .sql files (001_up.sql, 001_down.sql); the runner applies up in order and down in reverse.",
+      "reasonNotChosen": "Down migrations are a lie in production. Rolling back a shipped schema change with a down migration is safe only when the change did not add data-carrying columns or drop constraints in a way the down cannot invert. Forward-only migrations make the rollback path explicit (a new numbered file); the operator writes what actually inverts the change rather than trusting a mechanical down."
+    }
+  ],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

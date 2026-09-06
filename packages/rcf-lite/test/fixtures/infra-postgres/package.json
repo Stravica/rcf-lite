@@ -1,0 +1,17 @@
+{
+  "name": "infra-postgres-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sample-app fixture for the persistence-data-postgres blueprint. Boots postgres:17-alpine via docker compose, applies three toy forward-only migrations, exposes a facade over pg, and hosts induced-failure switches the six shipped probes drive against.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/store.mjs",
+    "migrate": "node src/migrate.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

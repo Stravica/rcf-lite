@@ -1,0 +1,25 @@
+{
+  "usId": "persistence-data-postgres-US-27107",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Advisory-lock helper is elicited off by default; when enabled it wraps pg_advisory_lock or pg_advisory_xact_lock per the elicited scope",
+  "asA": "developer building a workflow that needs cross-process coordination on a shared Postgres",
+  "iWant": "an optional advisory-lock helper on the facade that acquires and releases a session-level or transaction-level lock per an elicited key",
+  "soThat": "cross-process ordering is expressible through the engine's own primitive without a bespoke locks table",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27107-1",
+      "description": "The elicited advisoryLockHelper parameter has one of three values (off, session, transaction) with default off; when off the facade does not expose the helper on its public surface. When session or transaction, the facade exposes a withAdvisoryLock(key, callback) verb that acquires pg_advisory_lock (session) or pg_advisory_xact_lock (transaction) with the integer key, runs the callback, and releases the lock via pg_advisory_unlock on the session-level shape; the transaction-level shape releases automatically at COMMIT or ROLLBACK per the Postgres explicit-locking reference.",
+      "given": "the facade's public surface after apply, with the advisoryLockHelper elicit answered on each of the three permitted values",
+      "when": "the surface is inspected and the helper is invoked with a valid integer key on a supported answer",
+      "then": "the surface exposes withAdvisoryLock only when the answer is session or transaction; the helper acquires the correct lock verb per the answer, runs the callback, and releases (session) or lets COMMIT release (transaction); the sidecar records the elicited answer for later validation",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

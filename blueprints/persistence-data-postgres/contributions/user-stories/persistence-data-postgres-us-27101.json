@@ -1,0 +1,34 @@
+{
+  "usId": "persistence-data-postgres-US-27101",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "One facade module opens a pg.Pool on boot and emits facadeReady with the database name",
+  "asA": "developer whose Node process needs a durable Postgres store behind a swappable boundary",
+  "iWant": "one facade module to hold the pg client and expose named domain verbs, with a facadeReady lifecycle event on the first successful pool ready-check",
+  "soThat": "the boundary between the domain and the pg vendor surface is the only place that has to move when the driver changes and the boot ordering is observable via the event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27101-1",
+      "description": "On process boot, the facade opens a pg.Pool against the elicited connection URL; once the first successful pool ready-check completes, a facadeReady event fires on the injected event sink carrying the database name.",
+      "given": "a Node process with the facade module imported and its factory invoked",
+      "when": "the process boots and the facade's pool ready-check returns",
+      "then": "a facadeReady event fires on the injected event sink with a payload containing databaseName, and the pool is ready to accept queries; the facade exposes named domain verbs and does not re-export the raw pg client",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-27101-2",
+      "description": "Exactly one source-tree module inside the facade directory imports pg; every other module in the applied project's source tree that touches persistence imports the facade and calls its named domain verbs, verified by a targeted grep on the applied fixture.",
+      "given": "the applied project's source tree after apply",
+      "when": "grep 'from \\'pg\\'' or grep 'require(\\'pg\\')' walks the tree outside the facade directory",
+      "then": "no match is found outside the facade directory; the facade's public surface exports named domain verbs only, no raw pg reference",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

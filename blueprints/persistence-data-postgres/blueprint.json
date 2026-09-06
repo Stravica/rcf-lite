@@ -1,0 +1,56 @@
+{
+  "slug": "persistence-data-postgres",
+  "version": "1.0.0",
+  "category": "persistence",
+  "capabilities": ["relationalStore"],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every migration apply, every scheduled export completion, and every transaction rollback writes a request-scoped log line; a logging companion supplies the factory the pipeline calls."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A migration failure, a constraint violation, or a pool exhaustion constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "contributions": [
+    { "id": "persistence-data-postgres-REQ-001", "kind": "req", "path": "requirements/persistence-data-postgres-req-001.json" },
+    { "id": "persistence-data-postgres-REQ-002", "kind": "req", "path": "requirements/persistence-data-postgres-req-002.json" },
+    { "id": "persistence-data-postgres-REQ-003", "kind": "req", "path": "requirements/persistence-data-postgres-req-003.json" },
+    { "id": "persistence-data-postgres-REQ-004", "kind": "req", "path": "requirements/persistence-data-postgres-req-004.json" },
+    { "id": "persistence-data-postgres-REQ-005", "kind": "req", "path": "requirements/persistence-data-postgres-req-005.json" },
+    { "id": "persistence-data-postgres-REQ-006", "kind": "req", "path": "requirements/persistence-data-postgres-req-006.json" },
+    { "id": "persistence-data-postgres-REQ-007", "kind": "req", "path": "requirements/persistence-data-postgres-req-007.json" },
+    { "id": "persistence-data-postgres-US-27101", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27101.json" },
+    { "id": "persistence-data-postgres-US-27102", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27102.json" },
+    { "id": "persistence-data-postgres-US-27103", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27103.json" },
+    { "id": "persistence-data-postgres-US-27104", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27104.json" },
+    { "id": "persistence-data-postgres-US-27105", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27105.json" },
+    { "id": "persistence-data-postgres-US-27106", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27106.json" },
+    { "id": "persistence-data-postgres-US-27107", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27107.json" },
+    { "id": "persistence-data-postgres-US-27108", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27108.json" },
+    { "id": "persistence-data-postgres-US-27109", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27109.json" },
+    { "id": "persistence-data-postgres-US-27110", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27110.json" },
+    { "id": "TAC-2801-persistence-data-postgres-facade", "kind": "tac", "path": "tacs/tac-2801-persistence-data-postgres-facade.json" },
+    { "id": "TAC-2802-persistence-data-postgres-migration-runner", "kind": "tac", "path": "tacs/tac-2802-persistence-data-postgres-migration-runner.json" },
+    { "id": "TAC-2803-persistence-data-postgres-transaction-helper", "kind": "tac", "path": "tacs/tac-2803-persistence-data-postgres-transaction-helper.json" },
+    { "id": "TAC-2804-persistence-data-postgres-recovery-runner", "kind": "tac", "path": "tacs/tac-2804-persistence-data-postgres-recovery-runner.json" },
+    {
+      "id": "ADR-2801-persistence-data-postgres-driver",
+      "kind": "adr",
+      "path": "adrs/adr-2801-persistence-data-postgres-driver.json",
+      "scope": "global",
+      "topic": "persistenceStore"
+    },
+    {
+      "id": "ADR-2802-persistence-data-postgres-migration-shape",
+      "kind": "adr",
+      "path": "adrs/adr-2802-persistence-data-postgres-migration-shape.json",
+      "scope": "global",
+      "topic": "migrationDiscipline"
+    },
+    { "id": "ADR-2803-persistence-data-postgres-runner-mode", "kind": "adr", "path": "adrs/adr-2803-persistence-data-postgres-runner-mode.json" },
+    { "id": "ADR-2804-persistence-data-postgres-recovery", "kind": "adr", "path": "adrs/adr-2804-persistence-data-postgres-recovery.json" },
+    { "id": "ADR-2805-persistence-data-postgres-connection-pool-posture", "kind": "adr", "path": "adrs/adr-2805-persistence-data-postgres-connection-pool-posture.json" }
+  ]
+}

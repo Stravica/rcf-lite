@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2804-persistence-data-postgres-recovery",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Two-path recovery: scheduled pg_dump artefact PLUS vendor point-in-time recovery, both required, cadence elicited",
+  "context": "A shipped Postgres project has to survive two failure classes: a corrupted or lost cluster (a managed-Postgres outage, a self-managed disk failure, a bad DBA operation) and a data-integrity incident an operator wants to unwind by minutes or hours (a bug that deleted rows, a bad migration a rollback file cannot invert). pg_dump gives a portable off-cluster artefact; vendor PITR (a managed cluster's window, a self-managed cluster's WAL-archive posture) gives fine-grained restore points. Neither alone covers both failure classes.",
+  "decision": "The shipped recovery model requires both paths: (a) a scheduled pg_dump runner (TAC-2804) writes an artefact to the elicited destination on an elicited cadence, and (b) the deploy target's own point-in-time recovery is enabled with an elicited PITR window (a managed cluster's retention setting; a self-managed cluster's WAL-archive retention). Neither path is optional; a project that answers off to either fails the ADR's apply-time check. A recovery drill (US-27110) periodically primes a fresh Postgres from the artefact and compares row-count and checksum against the source; the drill's cadence is elicited.",
+  "consequences": "The project survives both failure classes: a portable off-cluster artefact for cluster loss and a fine-grained PITR window for data-integrity incidents. Storage cost is two-path (artefact bytes off-cluster plus WAL retention on-cluster); the operator sizes both per RTO/RPO. The drill catches artefact-shape drift (a pg_dump on a new engine version producing a different plain-format shape) before an incident forces a live restore. Standards trace clause: generic enterprise practice.",
+  "alternativesConsidered": [
+    {
+      "name": "pg_dump only",
+      "summary": "Ship pg_dump as the sole recovery path; skip vendor PITR.",
+      "reasonNotChosen": "A pg_dump artefact taken hourly can lose up to 59 minutes of writes; an operator restoring after a bad migration loses everything committed between the last dump and the incident. PITR bounds that loss to the WAL-shipping cadence."
+    },
+    {
+      "name": "PITR only",
+      "summary": "Rely on the deploy target's own PITR window; skip the pg_dump runner.",
+      "reasonNotChosen": "PITR does not survive cluster loss: if the managed cluster is gone, the retention window is gone with it. A portable off-cluster artefact is what carries across cluster loss."
+    }
+  ],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Postgres migration runner",
+  "purpose": "The in-tree runner that reads numbered forward-only .sql files from the elicited migrations directory, applies each inside its own transaction against the elicited connection URL, and tracks applied filenames in a schema_version bookkeeping table it maintains inside the same database. The runner mode (atBoot or ciStep) is elicited on ADR-2803; the runner tool (bespoke Node runner, node-pg-migrate, sqitch, flyway) is elicited on ADR-2802; the shipped fixture provides a bespoke Node runner as the reference implementation.",
+  "responsibilities": [
+    "Read the elicited migrations directory (default ./migrations/); enumerate .sql files sorted by their leading integer; reject a duplicate leading integer at load time (AC-27102-1).",
+    "Ensure the schema_version bookkeeping table exists on first invocation; upsert only via the applied-filename row it inserts on each successful file (AC-27102-1).",
+    "For each un-applied file, in order, issue client.query('BEGIN'), read the file body, execute it, insert the applied-filename row into schema_version, issue client.query('COMMIT') (AC-27102-1).",
+    "On any statement failure inside a file's transaction, issue client.query('ROLLBACK'), emit migrationApplyFailed with the failing filename, stop the runner, exit non-zero (AC-27109-1).",
+    "On successful completion of every file, emit migrationsApplied with the applied-filename list."
+  ],
+  "internalStructure": "One CLI-invokable Node module plus a library entry point the facade may call from atBoot mode. The module reads its config (connection URL, migrations directory, bookkeeping table name) from an elicited config source; enumerates the directory; loops over un-applied files; issues one BEGIN/apply/COMMIT per file; writes the schema_version row inside the same transaction so a mid-COMMIT crash never leaves a row behind for a file whose body did not land.",
+  "interfaces": [
+    {
+      "name": "run",
+      "kind": "cli",
+      "description": "node migrate.mjs applies every un-applied file in order; exits 0 on success, non-zero on any failure with the failing filename in stderr."
+    },
+    {
+      "name": "applyAll",
+      "kind": "read-write-api",
+      "description": "applyAll({ connectionUrl, migrationsDir, bookkeepingTable, onEvent }) -> Promise<{ applied: string[] }>. Library entry point the facade may call in atBoot mode."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Postgres facade",
+      "kind": "tac",
+      "tacId": "TAC-2801-persistence-data-postgres-facade",
+      "description": "The runner may share the facade's connection pool in atBoot mode; in ciStep mode it opens its own pg.Client directly against the elicited URL and disposes it on exit."
+    }
+  ],
+  "tradeoffs": "One file one transaction bounds the rollback surface cleanly but forbids a migration that spans two files atomically. Projects that need a schema change split across two files inside one transaction combine the change into one file. Numbered forward-only excludes down migrations by design; a rollback is a new numbered file inverting the earlier change, not a down step.",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

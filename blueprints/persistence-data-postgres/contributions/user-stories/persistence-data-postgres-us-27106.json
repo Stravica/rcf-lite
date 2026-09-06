@@ -1,0 +1,25 @@
+{
+  "usId": "persistence-data-postgres-US-27106",
+  "prdId": "PRD-001",
+  "reqId": "persistence-data-postgres-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Two facades at pool size 5 handle twenty concurrent queries with no timeout",
+  "asA": "developer running a long-lived Node process with a warm pg pool",
+  "iWant": "the shipped pool defaults to handle a burst of twenty concurrent queries across two facade instances at pool size 5 without timing out",
+  "soThat": "the pool posture per deploy target is proven at the shape the shipped defaults name, not just at the single-query level",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-27106-1",
+      "description": "Given two facade instances opened concurrently against the same Postgres at pool size 5 each, when twenty concurrent SELECT queries are issued across the two facades, then all twenty return with no timeout inside the shipped connectionTimeoutMillis (5000) and idleTimeoutMillis (30000) defaults, and the pool metric on each facade reports at most 5 in-use connections at any point.",
+      "given": "two facade instances opened against the same postgres:17-alpine container at pool size 5 each",
+      "when": "twenty SELECT queries are dispatched concurrently across the two facades via Promise.all",
+      "then": "all twenty promises resolve inside the connectionTimeoutMillis budget; no query throws; the observed maximum concurrent in-use pool connections on either facade is at most the configured pool size (5)",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

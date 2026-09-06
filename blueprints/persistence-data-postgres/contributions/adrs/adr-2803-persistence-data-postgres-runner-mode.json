@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2803-persistence-data-postgres-runner-mode",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Migration runner mode: atBoot on long-lived Node, ciStep on Workers-adjacent or container-scheduled targets; elicited",
+  "context": "A long-lived Node process can run migrations at boot before opening the first request; a Workers-adjacent or serverless target cannot because the boot happens per invocation and does not amortise the migration cost. A container platform running warm instances behaves like long-lived Node but a fresh-per-request container behaves like Workers.",
+  "decision": "The migration runner mode is elicited: atBoot (the facade invokes the runner on process start before opening the first query) or ciStep (the CI pipeline invokes the runner as a deploy step before promoting the artefact). Default atBoot for long-lived Node targets; default ciStep for Workers-adjacent, request-scoped container, or Hyperdrive-fronted (round-6) targets. The applying project answers the elicit at apply time; the sidecar records the answer.",
+  "consequences": "Long-lived Node targets get zero-config migrations that run before the first request; the operator sees the migrationsApplied event in the process log and knows the schema advanced. Workers-adjacent targets get a CI-step that runs against the deploy target's own connection before the artefact promotes; the operator sees the runner's stdout in the CI log. A project moving from long-lived Node to Workers-adjacent updates the elicit and re-applies; no code moves. Standards trace clause: generic enterprise practice.",
+  "alternativesConsidered": [
+    {
+      "name": "Always atBoot",
+      "summary": "Ship atBoot as the only mode; the operator schedules a boot on the CI runner for ciStep-like behaviour.",
+      "reasonNotChosen": "A Workers-adjacent deploy has no long-lived boot event to hang the runner on; the operator would have to build a boot shim just to run migrations, which is the ciStep in disguise. Eliciting the mode is cheaper."
+    },
+    {
+      "name": "Always ciStep",
+      "summary": "Ship ciStep as the only mode; a long-lived Node process reads schema_version at boot and refuses to open if it is behind.",
+      "reasonNotChosen": "Local development on long-lived Node loses zero-config migrations; every developer has to invoke the CI step by hand. atBoot as the default for long-lived Node keeps the developer flow ergonomic."
+    }
+  ],
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}

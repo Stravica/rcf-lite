@@ -1,0 +1,18 @@
+{
+  "reqId": "persistence-data-postgres-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Transactional atomicity: multi-statement writes through a transaction helper roll back on any error",
+  "description": "Multi-statement writes that require atomicity are issued through the facade's transaction helper, which wraps client.query('BEGIN') around a callback, awaits the callback's statements (each issued through pg.query with the prepared-statement discipline in REQ-003), and issues client.query('COMMIT') on the callback's successful completion. If any statement inside the callback throws (including a constraint violation the driver surfaces as an error), the helper issues client.query('ROLLBACK'), releases the client back to the pool, and emits a transactionRolledBack lifecycle event carrying the failing statement's zero-based index inside the callback. The helper does not swallow the underlying error; it re-throws after the rollback so the caller observes the failure and the facade's own error boundary constructs the internal error record.",
+  "category": "functional",
+  "domain": "persistence",
+  "priority": "must",
+  "rationale": "Postgres MVCC gives transactions a clean rollback surface; the helper's job is to make the rollback observable and to guarantee no partial commit lands on the shipped database. The zero-based statement index on the event is what lets the calling code (or a log line, or an error boundary) name which statement failed inside a batch of five without a stack-trace decode.",
+  "tags": [
+    "blueprint:persistence-data-postgres",
+    "category:04-transaction-helper"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T15:47:00.000Z",
+  "updatedAt": "2026-09-06T15:47:00.000Z"
+}
