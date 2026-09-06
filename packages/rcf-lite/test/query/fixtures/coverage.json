@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 26,
-    "covered": 26,
+    "requirements": 27,
+    "covered": 27,
     "coveredUnresolved": 0,
     "uncovered": 0
   },

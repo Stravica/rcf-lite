@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 45,
-    "notStarted": 17,
+    "items": 46,
+    "notStarted": 18,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 11,
+    "actionable": 12,
     "blocked": 6
   },
   "nextActionable": "FBS-013",
@@ -37,7 +37,8 @@
         "FBS-038",
         "FBS-039",
         "FBS-040",
-        "FBS-041"
+        "FBS-041",
+        "FBS-061"
       ]
     },
     {
@@ -637,6 +638,16 @@
       "blockedBy": [
         "FBS-043"
       ]
+    },
+    {
+      "fbsId": "FBS-061",
+      "buildOrder": 46,
+      "tier": 0,
+      "title": "object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
     }
   ]
 }

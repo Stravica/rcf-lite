@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-040">REQ-040</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -7780,6 +7780,321 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-041">
+  <summary><span class="summary-label">REQ-041 - Object-storage-s3 v1.0.0 blueprint on the shelf</span><span class="status draft">draft</span></summary>
+  <article id="REQ-041" class="doc doc-req">
+  <h3>REQ-041 - Object-storage-s3 v1.0.0 blueprint on the shelf</h3>
+  
+  <p><strong>Description:</strong> The rcf-lite shelf ships the object-storage-s3 v1.0.0 blueprint (blueprints/object-storage-s3/) with 21 contributions per the ratified infra round 5 spec section 5.2: 6 REQs (facade sole-reader over the S3 client; put / get / delete / list on typed keys; presigned GET URL with bounded TTL; multipart-upload above elicited threshold; four lifecycle events with metadata-only fields; credential-pair discipline via security-secrets-management), 8 USs 28101-28108 binding runtime-observable ACs, 3 TACs (2901 facade, 2902 multipart uploader, 2903 event sink), 4 ADRs (2901 adapter elicited between @aws-sdk/client-s3 and aws4fetch, 2902 presigned TTL default 15 minutes floor 1 minute, 2903 multipart threshold default 8 MiB, 2904 objectStorageContract scope global). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.2 reasons, providesRoles absent, capabilities [objectStorage], requiresAppliedCapabilities absent. Contributes ADR-2904 as scope:global on new topic objectStorageContract so future non-S3-shape siblings (object-storage-native-gcs, object-storage-native-azure) conflict here by design. Ships six Node-only probes under blueprints/object-storage-s3/contributions/probes/ (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy, r2-real-account-smoke) each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id, and matching run-&lt;probe-name&gt;.mjs shims writing per-blueprint reports at .rcf/reports/blueprints/object-storage-s3/&lt;probe-name&gt;.json per spec section 3.4. Five probes are local-first (accountBound false); r2-real-account-smoke carries accountBound:true and records the accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Ships the T-2 side of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ (T-3 shares the fixture and adds its own wrangler-dev src branch) with MinIO under docker compose, @aws-sdk/client-s3 as the fixture&#39;s own runtime dep, an S3 facade over MinIO, a security-secrets-management shim realising the secretRef opaque-string contract from a project-local .rcf/secrets/dev.env file, and a README naming docker and podman incantations plus four wired induced-failure switches. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for objectStorage per spec section 5.6. Appends one row for object-storage-s3 at US band 28101-28899 / ADR-TAC suffix block 29xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Refuses composition when security-secrets-management is not applied with exit 3 and stable message id object-storage-s3-no-secrets on stderr; --allow-no-secrets-yet override records a note on source.notes for later reconciliation. Minted with HQ&#39;s reserved round-5 chain-id block via --id (REQ-041 / US-4101 / TS-071 / FBS-061 / CN-203..205) after T-1 minted at 040 / 4001 / 070 / 060 / 200..202; the block reservation avoids next-id racing with HQ&#39;s train while T-1 sits open.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> application</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-041[&quot;REQ-041&lt;br/&gt;Object-storage-s3 v1.0.0 blueprint on the shelf&quot;]
+  US-4101[&quot;US-4101&lt;br/&gt;The object-storage-s3 blueprint ships on the ...&quot;]
+  REQ-041 --&gt; US-4101
+  AC-4101-1[&quot;AC-4101-1&quot;]
+  US-4101 --&gt; AC-4101-1
+  FBS-061[&quot;FBS-061&lt;br/&gt;object-storage-s3 v1.0.0 blueprint on the she...&quot;]
+  AC-4101-1 -.-&gt;|delivered by| FBS-061
+  CN-203[&quot;CN-203&lt;br/&gt;../../blueprints/object-storage-s3/blueprint....&quot;]
+  AC-4101-1 -.-&gt;|implemented by| CN-203
+  AC-4101-2[&quot;AC-4101-2&quot;]
+  US-4101 --&gt; AC-4101-2
+  AC-4101-2 -.-&gt;|delivered by| FBS-061
+  AC-4101-2 -.-&gt;|implemented by| CN-203
+  AC-4101-3[&quot;AC-4101-3&quot;]
+  US-4101 --&gt; AC-4101-3
+  AC-4101-3 -.-&gt;|delivered by| FBS-061
+  AC-4101-3 -.-&gt;|implemented by| CN-203
+  AC-4101-4[&quot;AC-4101-4&quot;]
+  US-4101 --&gt; AC-4101-4
+  AC-4101-4 -.-&gt;|delivered by| FBS-061
+  CN-204[&quot;CN-204&lt;br/&gt;../../blueprints/object-storage-s3/contributi...&quot;]
+  AC-4101-4 -.-&gt;|implemented by| CN-204
+  CN-205[&quot;CN-205&lt;br/&gt;../../packages/rcf-lite/test/fixtures/infra-s...&quot;]
+  AC-4101-4 -.-&gt;|implemented by| CN-205
+  AC-4101-5[&quot;AC-4101-5&quot;]
+  US-4101 --&gt; AC-4101-5
+  AC-4101-5 -.-&gt;|delivered by| FBS-061
+  AC-4101-5 -.-&gt;|implemented by| CN-204
+  AC-4101-5 -.-&gt;|implemented by| CN-205
+  AC-4101-6[&quot;AC-4101-6&quot;]
+  US-4101 --&gt; AC-4101-6
+  AC-4101-6 -.-&gt;|delivered by| FBS-061
+  AC-4101-6 -.-&gt;|implemented by| CN-205
+  click REQ-041 &quot;#REQ-041&quot;;
+  click US-4101 &quot;#US-4101&quot;;
+  click AC-4101-1 &quot;#AC-4101-1&quot;;
+  click FBS-061 &quot;#FBS-061&quot;;
+  click CN-203 &quot;#CN-203&quot;;
+  click AC-4101-2 &quot;#AC-4101-2&quot;;
+  click AC-4101-3 &quot;#AC-4101-3&quot;;
+  click AC-4101-4 &quot;#AC-4101-4&quot;;
+  click CN-204 &quot;#CN-204&quot;;
+  click CN-205 &quot;#CN-205&quot;;
+  click AC-4101-5 &quot;#AC-4101-5&quot;;
+  click AC-4101-6 &quot;#AC-4101-6&quot;;
+  class REQ-041 req;
+  class US-4101 us;
+  class AC-4101-1 ac;
+  class FBS-061 fbs;
+  class CN-203 cn;
+  class AC-4101-2 ac;
+  class AC-4101-3 ac;
+  class AC-4101-4 ac;
+  class CN-204 cn;
+  class CN-205 cn;
+  class AC-4101-5 ac;
+  class AC-4101-6 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T17:49:13.077Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T17:49:13.110Z&quot;,
+  &quot;description&quot;: &quot;The rcf-lite shelf ships the object-storage-s3 v1.0.0 blueprint (blueprints/object-storage-s3/) with 21 contributions per the ratified infra round 5 spec section 5.2: 6 REQs (facade sole-reader over the S3 client; put / get / delete / list on typed keys; presigned GET URL with bounded TTL; multipart-upload above elicited threshold; four lifecycle events with metadata-only fields; credential-pair discipline via security-secrets-management), 8 USs 28101-28108 binding runtime-observable ACs, 3 TACs (2901 facade, 2902 multipart uploader, 2903 event sink), 4 ADRs (2901 adapter elicited between @aws-sdk/client-s3 and aws4fetch, 2902 presigned TTL default 15 minutes floor 1 minute, 2903 multipart threshold default 8 MiB, 2904 objectStorageContract scope global). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.2 reasons, providesRoles absent, capabilities [objectStorage], requiresAppliedCapabilities absent. Contributes ADR-2904 as scope:global on new topic objectStorageContract so future non-S3-shape siblings (object-storage-native-gcs, object-storage-native-azure) conflict here by design. Ships six Node-only probes under blueprints/object-storage-s3/contributions/probes/ (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy, r2-real-account-smoke) each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id, and matching run-&lt;probe-name&gt;.mjs shims writing per-blueprint reports at .rcf/reports/blueprints/object-storage-s3/&lt;probe-name&gt;.json per spec section 3.4. Five probes are local-first (accountBound false); r2-real-account-smoke carries accountBound:true and records the accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Ships the T-2 side of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ (T-3 shares the fixture and adds its own wrangler-dev src branch) with MinIO under docker compose, @aws-sdk/client-s3 as the fixture&#39;s own runtime dep, an S3 facade over MinIO, a security-secrets-management shim realising the secretRef opaque-string contract from a project-local .rcf/secrets/dev.env file, and a README naming docker and podman incantations plus four wired induced-failure switches. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for objectStorage per spec section 5.6. Appends one row for object-storage-s3 at US band 28101-28899 / ADR-TAC suffix block 29xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Refuses composition when security-secrets-management is not applied with exit 3 and stable message id object-storage-s3-no-secrets on stderr; --allow-no-secrets-yet override records a note on source.notes for later reconciliation. Minted with HQ&#39;s reserved round-5 chain-id block via --id (REQ-041 / US-4101 / TS-071 / FBS-061 / CN-203..205) after T-1 minted at 040 / 4001 / 070 / 060 / 200..202; the block reservation avoids next-id racing with HQ&#39;s train while T-1 sits open.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;application&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;reqId&quot;: &quot;REQ-041&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Object-storage-s3 v1.0.0 blueprint on the shelf&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;,
+      &quot;httpApi&quot;,
+      &quot;auth&quot;,
+      &quot;persistence&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-06T17:49:13.108Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;put&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;get&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;delete&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;GET&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;credential&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;put&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;get&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;storage&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-4101">
+  <summary><span class="summary-label">US-4101 - The object-storage-s3 blueprint ships on the shelf with five MinIO probes plus one accountBound R2 smoke</span><span class="status draft">draft</span></summary>
+  <article id="US-4101" class="doc doc-us">
+  <h3>US-4101 - The object-storage-s3 blueprint ships on the shelf with five MinIO probes plus one accountBound R2 smoke</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the object-storage-s3 v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the shipped blueprint files with 21 contributions, six probes, and the T-2 side of the shared sample-app fixture that boots MinIO and applies the security-secrets-management shim, plus gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch</p>
+  <p><strong>So that:</strong> a rcf-lite project applying this blueprint gets an S3-shape facade over @aws-sdk/client-s3 or aws4fetch with put/get/delete/list, presigned URLs with bounded TTL, multipart-upload above threshold, a lifecycle-event sink with metadata-only fields, and a compose-time refusal on missing security-secrets-management, with runtime-observable ACs proven by probes the HQ gate runs against a real MinIO container</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-041">REQ-041</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-4101-1" class="ac-item"><strong>AC-4101-1</strong> - The shelf carries blueprints/object-storage-s3/blueprint.json declaring slug object-storage-s3, version 1.0.0, category object-storage, 21 contributions in the 6 REQ / 8 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.2; capabilities is [objectStorage]; suggestedCompanions declares logging and errorHandling with spec section 5.2 reasons; providesRoles is absent; requiresAppliedCapabilities is absent; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.
+<div class="ac-gwt"><p><em>Given</em> the shelf tree after this blueprint lands</p><p><em>When</em> jq queries against blueprints/object-storage-s3/blueprint.json</p><p><em>Then</em> jq .slug returns object-storage-s3; jq .version returns 1.0.0; jq .contributions | length returns 21; jq .capabilities returns [objectStorage]; jq .suggestedCompanions | length returns 2; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-061">FBS-061</a></p></li>
+<li id="AC-4101-2" class="ac-item"><strong>AC-4101-2</strong> - rcf define blueprint add ./blueprints/object-storage-s3 applies the 21 contributions cleanly on a fresh init project with security-secrets-management already applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.
+<div class="ac-gwt"><p><em>Given</em> a fresh rcf init scratch project with security-secrets-management applied</p><p><em>When</em> rcf define blueprint add ./blueprints/object-storage-s3 runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict</p><p><em>Then</em> every command exits 0; the scratch project&#39;s rcf tree contains the 21 contributions; no globalAdrTopic conflict is raised</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-061">FBS-061</a></p></li>
+<li id="AC-4101-3" class="ac-item"><strong>AC-4101-3</strong> - rcf define blueprint add ./blueprints/object-storage-s3 on a scratch project without security-secrets-management refuses with exit 3 and stable message id object-storage-s3-no-secrets on stderr per REQ-006 and spec section 5.2; the --allow-no-secrets-yet override lands the contributions with a note recorded on source.notes for later reconciliation.
+<div class="ac-gwt"><p><em>Given</em> a fresh rcf init scratch project with no security-secrets-management applied</p><p><em>When</em> rcf define blueprint add ./blueprints/object-storage-s3 runs against the scratch project, then the same command runs with --allow-no-secrets-yet</p><p><em>Then</em> the first invocation exits 3 with stderr containing object-storage-s3-no-secrets and naming security-secrets-management and the override flag; the scratch tree does not carry object-storage-s3 contributions after the refusal; the second invocation exits 0 and the applied manifest records a source.notes entry naming the missing predecessor</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-061">FBS-061</a></p></li>
+<li id="AC-4101-4" class="ac-item"><strong>AC-4101-4</strong> - The six probe modules under blueprints/object-storage-s3/contributions/probes/ each pass against a running MinIO container brought up from the shared sample-app fixture: facade-round-trip asserts facadeReady fires with endpointHost and bucketName; put-get-round-trip asserts 1 KiB round-trip byte-equal, list under prefix, and delete round-trip with objectDeleted; presigned-url asserts 200 within TTL, 403 on tampered signature, and floor refusal below 60 s; multipart-upload asserts 10 MiB round-trip byte-equal via multipart with no orphan in-flight uploads; event-secrecy asserts the whitelist and no PII fixture leak; r2-real-account-smoke exits 0 with accountBoundSkipped:true without CI_HAS_CLOUDFLARE_ACCOUNT or runs a real R2 round-trip when the env var is set. Each per-blueprint probe report at .rcf/reports/blueprints/object-storage-s3/&lt;probe-name&gt;.json carries aggregateVerdict pass.
+<div class="ac-gwt"><p><em>Given</em> the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with docker compose up -d minio running and the rcf-test bucket created</p><p><em>When</em> each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence</p><p><em>Then</em> every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-061">FBS-061</a></p></li>
+<li id="AC-4101-5" class="ac-item"><strong>AC-4101-5</strong> - The sample-app fixture&#39;s induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_PART_UPLOAD_FAIL=true drives the multipart-upload probe&#39;s AC-28104-2 abort-on-failure path; SIMULATE_PRESIGN_MALFORMED=true drives the presigned-url probe&#39;s tampered-signature 403 path; SIMULATE_403_ON_GET=true drives the put-get-round-trip probe&#39;s fail on AC-28102-1. Each switched-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts (except SIMULATE_PART_UPLOAD_FAIL which surfaces the pass-on-abort-shape).
+<div class="ac-gwt"><p><em>Given</em> the shared fixture with MinIO running</p><p><em>When</em> each named induced-failure switch is set in turn and the paired probe runs</p><p><em>Then</em> SIMULATE_PART_UPLOAD_FAIL true yields multipart-upload report with AC-28104-2 pass and no orphan uploads; SIMULATE_403_ON_GET true yields put-get-round-trip report with aggregateVerdict fail; SIMULATE_PRESIGN_MALFORMED true yields presigned-url first-fetch 403 and aggregateVerdict fail; the fixture README documents each switch and the paired probe</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-061">FBS-061</a></p></li>
+<li id="AC-4101-6" class="ac-item"><strong>AC-4101-6</strong> - The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains an object-storage-s3 row at US band 28101-28899 / ADR-TAC suffix block 29xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for objectStorage per infra round 5 spec section 5.6.
+<div class="ac-gwt"><p><em>Given</em> the shelf tree after this blueprint lands</p><p><em>When</em> grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table</p><p><em>Then</em> packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | objectStorage |; every shipped blueprint&#39;s docs/topics.md carries a row beginning | object-storage-s3 | with the 28101-28899 band and 29xx suffix; blueprints/object-storage-s3/README.md, CHANGELOG.md, guide/object-storage-s3.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names docker and podman incantations and four wired induced-failure switches</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-061">FBS-061</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T17:50:03.129Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T17:50:03.129Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the object-storage-s3 v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the shipped blueprint files with 21 contributions, six probes, and the T-2 side of the shared sample-app fixture that boots MinIO and applies the security-secrets-management shim, plus gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch&quot;,
+  &quot;soThat&quot;: &quot;a rcf-lite project applying this blueprint gets an S3-shape facade over @aws-sdk/client-s3 or aws4fetch with put/get/delete/list, presigned URLs with bounded TTL, multipart-upload above threshold, a lifecycle-event sink with metadata-only fields, and a compose-time refusal on missing security-secrets-management, with runtime-observable ACs proven by probes the HQ gate runs against a real MinIO container&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-4101-1&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/object-storage-s3/blueprint.json declaring slug object-storage-s3, version 1.0.0, category object-storage, 21 contributions in the 6 REQ / 8 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.2; capabilities is [objectStorage]; suggestedCompanions declares logging and errorHandling with spec section 5.2 reasons; providesRoles is absent; requiresAppliedCapabilities is absent; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.&quot;,
+      &quot;given&quot;: &quot;the shelf tree after this blueprint lands&quot;,
+      &quot;when&quot;: &quot;jq queries against blueprints/object-storage-s3/blueprint.json&quot;,
+      &quot;then&quot;: &quot;jq .slug returns object-storage-s3; jq .version returns 1.0.0; jq .contributions | length returns 21; jq .capabilities returns [objectStorage]; jq .suggestedCompanions | length returns 2; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4101-2&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/object-storage-s3 applies the 21 contributions cleanly on a fresh init project with security-secrets-management already applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.&quot;,
+      &quot;given&quot;: &quot;a fresh rcf init scratch project with security-secrets-management applied&quot;,
+      &quot;when&quot;: &quot;rcf define blueprint add ./blueprints/object-storage-s3 runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict&quot;,
+      &quot;then&quot;: &quot;every command exits 0; the scratch project&#39;s rcf tree contains the 21 contributions; no globalAdrTopic conflict is raised&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4101-3&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/object-storage-s3 on a scratch project without security-secrets-management refuses with exit 3 and stable message id object-storage-s3-no-secrets on stderr per REQ-006 and spec section 5.2; the --allow-no-secrets-yet override lands the contributions with a note recorded on source.notes for later reconciliation.&quot;,
+      &quot;given&quot;: &quot;a fresh rcf init scratch project with no security-secrets-management applied&quot;,
+      &quot;when&quot;: &quot;rcf define blueprint add ./blueprints/object-storage-s3 runs against the scratch project, then the same command runs with --allow-no-secrets-yet&quot;,
+      &quot;then&quot;: &quot;the first invocation exits 3 with stderr containing object-storage-s3-no-secrets and naming security-secrets-management and the override flag; the scratch tree does not carry object-storage-s3 contributions after the refusal; the second invocation exits 0 and the applied manifest records a source.notes entry naming the missing predecessor&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4101-4&quot;,
+      &quot;description&quot;: &quot;The six probe modules under blueprints/object-storage-s3/contributions/probes/ each pass against a running MinIO container brought up from the shared sample-app fixture: facade-round-trip asserts facadeReady fires with endpointHost and bucketName; put-get-round-trip asserts 1 KiB round-trip byte-equal, list under prefix, and delete round-trip with objectDeleted; presigned-url asserts 200 within TTL, 403 on tampered signature, and floor refusal below 60 s; multipart-upload asserts 10 MiB round-trip byte-equal via multipart with no orphan in-flight uploads; event-secrecy asserts the whitelist and no PII fixture leak; r2-real-account-smoke exits 0 with accountBoundSkipped:true without CI_HAS_CLOUDFLARE_ACCOUNT or runs a real R2 round-trip when the env var is set. Each per-blueprint probe report at .rcf/reports/blueprints/object-storage-s3/&lt;probe-name&gt;.json carries aggregateVerdict pass.&quot;,
+      &quot;given&quot;: &quot;the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with docker compose up -d minio running and the rcf-test bucket created&quot;,
+      &quot;when&quot;: &quot;each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence&quot;,
+      &quot;then&quot;: &quot;every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4101-5&quot;,
+      &quot;description&quot;: &quot;The sample-app fixture&#39;s induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_PART_UPLOAD_FAIL=true drives the multipart-upload probe&#39;s AC-28104-2 abort-on-failure path; SIMULATE_PRESIGN_MALFORMED=true drives the presigned-url probe&#39;s tampered-signature 403 path; SIMULATE_403_ON_GET=true drives the put-get-round-trip probe&#39;s fail on AC-28102-1. Each switched-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts (except SIMULATE_PART_UPLOAD_FAIL which surfaces the pass-on-abort-shape).&quot;,
+      &quot;given&quot;: &quot;the shared fixture with MinIO running&quot;,
+      &quot;when&quot;: &quot;each named induced-failure switch is set in turn and the paired probe runs&quot;,
+      &quot;then&quot;: &quot;SIMULATE_PART_UPLOAD_FAIL true yields multipart-upload report with AC-28104-2 pass and no orphan uploads; SIMULATE_403_ON_GET true yields put-get-round-trip report with aggregateVerdict fail; SIMULATE_PRESIGN_MALFORMED true yields presigned-url first-fetch 403 and aggregateVerdict fail; the fixture README documents each switch and the paired probe&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4101-6&quot;,
+      &quot;description&quot;: &quot;The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains an object-storage-s3 row at US band 28101-28899 / ADR-TAC suffix block 29xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for objectStorage per infra round 5 spec section 5.6.&quot;,
+      &quot;given&quot;: &quot;the shelf tree after this blueprint lands&quot;,
+      &quot;when&quot;: &quot;grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table&quot;,
+      &quot;then&quot;: &quot;packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | objectStorage |; every shipped blueprint&#39;s docs/topics.md carries a row beginning | object-storage-s3 | with the 28101-28899 band and 29xx suffix; blueprints/object-storage-s3/README.md, CHANGELOG.md, guide/object-storage-s3.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names docker and podman incantations and four wired induced-failure switches&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;usId&quot;: &quot;US-4101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-041&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The object-storage-s3 blueprint ships on the shelf with five MinIO probes plus one accountBound R2 smoke&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -8884,7 +9199,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -12463,6 +12778,82 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-043&quot;
   ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-061">
+  <summary><span class="summary-label">FBS-061 - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-061" class="doc doc-fbs">
+  <h3>FBS-061 - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</h3>
+  
+  <p><strong>Summary:</strong> T-2 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.2) minted with HQ reserved-block chain ids via --id (REQ-041 / US-4101 / TS-071 / FBS-061 / CN-203..205) after T-1 landed at 040/4001/070/060/200..202. Ships the object-storage-s3 v1.0.0 blueprint on the shelf with 21 contributions in the 6 REQ / 8 US 28101-28108 / 3 TAC 2901-2903 / 4 ADR 2901-2904 groups per spec section 5.2, six Node-only probes under blueprints/object-storage-s3/contributions/probes/ (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy, r2-real-account-smoke) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/object-storage-s3/, and the T-2 slice of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Five probes local-first (accountBound false); r2-real-account-smoke carries accountBound:true and records accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Declares capabilities [objectStorage], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent. Contributes ADR-2904 as scope:global on new topic objectStorageContract per spec section 5.2. Every ADR contribution entry carries standardsTraceClause per section 8a.2 (per HQ mid-flight ruling after PR #154 gate). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with an objectStorage row per spec section 5.6; appends one shelf-registry row for object-storage-s3 at 28101-28899 / 29xx to every shipped blueprint docs/topics.md. Refuses composition when security-secrets-management is not applied with exit 3 and stable message id object-storage-s3-no-secrets on stderr; --allow-no-secrets-yet override records a note on source.notes.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-4101-1">AC-4101-1</a><a class="ac-pill" href="#AC-4101-2">AC-4101-2</a><a class="ac-pill" href="#AC-4101-3">AC-4101-3</a><a class="ac-pill" href="#AC-4101-4">AC-4101-4</a><a class="ac-pill" href="#AC-4101-5">AC-4101-5</a><a class="ac-pill" href="#AC-4101-6">AC-4101-6</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-4101-1">AC-4101-1</a></strong> - The shelf carries blueprints/object-storage-s3/blueprint.json declaring slug object-storage-s3, version 1.0.0, category object-storage, 21 contributions in the 6 REQ / 8 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.2; capabilities is [objectStorage]; suggestedCompanions declares logging and errorHandling with spec section 5.2 reasons; providesRoles is absent; requiresAppliedCapabilities is absent; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.</p>
+  <p><em>Given</em> the shelf tree after this blueprint lands</p>
+  <p><em>When</em> jq queries against blueprints/object-storage-s3/blueprint.json</p>
+  <p><em>Then</em> jq .slug returns object-storage-s3; jq .version returns 1.0.0; jq .contributions | length returns 21; jq .capabilities returns [objectStorage]; jq .suggestedCompanions | length returns 2; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4101-2">AC-4101-2</a></strong> - rcf define blueprint add ./blueprints/object-storage-s3 applies the 21 contributions cleanly on a fresh init project with security-secrets-management already applied; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.</p>
+  <p><em>Given</em> a fresh rcf init scratch project with security-secrets-management applied</p>
+  <p><em>When</em> rcf define blueprint add ./blueprints/object-storage-s3 runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict</p>
+  <p><em>Then</em> every command exits 0; the scratch project&#39;s rcf tree contains the 21 contributions; no globalAdrTopic conflict is raised</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4101-3">AC-4101-3</a></strong> - rcf define blueprint add ./blueprints/object-storage-s3 on a scratch project without security-secrets-management refuses with exit 3 and stable message id object-storage-s3-no-secrets on stderr per REQ-006 and spec section 5.2; the --allow-no-secrets-yet override lands the contributions with a note recorded on source.notes for later reconciliation.</p>
+  <p><em>Given</em> a fresh rcf init scratch project with no security-secrets-management applied</p>
+  <p><em>When</em> rcf define blueprint add ./blueprints/object-storage-s3 runs against the scratch project, then the same command runs with --allow-no-secrets-yet</p>
+  <p><em>Then</em> the first invocation exits 3 with stderr containing object-storage-s3-no-secrets and naming security-secrets-management and the override flag; the scratch tree does not carry object-storage-s3 contributions after the refusal; the second invocation exits 0 and the applied manifest records a source.notes entry naming the missing predecessor</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4101-4">AC-4101-4</a></strong> - The six probe modules under blueprints/object-storage-s3/contributions/probes/ each pass against a running MinIO container brought up from the shared sample-app fixture: facade-round-trip asserts facadeReady fires with endpointHost and bucketName; put-get-round-trip asserts 1 KiB round-trip byte-equal, list under prefix, and delete round-trip with objectDeleted; presigned-url asserts 200 within TTL, 403 on tampered signature, and floor refusal below 60 s; multipart-upload asserts 10 MiB round-trip byte-equal via multipart with no orphan in-flight uploads; event-secrecy asserts the whitelist and no PII fixture leak; r2-real-account-smoke exits 0 with accountBoundSkipped:true without CI_HAS_CLOUDFLARE_ACCOUNT or runs a real R2 round-trip when the env var is set. Each per-blueprint probe report at .rcf/reports/blueprints/object-storage-s3/&lt;probe-name&gt;.json carries aggregateVerdict pass.</p>
+  <p><em>Given</em> the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with docker compose up -d minio running and the rcf-test bucket created</p>
+  <p><em>When</em> each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence</p>
+  <p><em>Then</em> every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4101-5">AC-4101-5</a></strong> - The sample-app fixture&#39;s induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_PART_UPLOAD_FAIL=true drives the multipart-upload probe&#39;s AC-28104-2 abort-on-failure path; SIMULATE_PRESIGN_MALFORMED=true drives the presigned-url probe&#39;s tampered-signature 403 path; SIMULATE_403_ON_GET=true drives the put-get-round-trip probe&#39;s fail on AC-28102-1. Each switched-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts (except SIMULATE_PART_UPLOAD_FAIL which surfaces the pass-on-abort-shape).</p>
+  <p><em>Given</em> the shared fixture with MinIO running</p>
+  <p><em>When</em> each named induced-failure switch is set in turn and the paired probe runs</p>
+  <p><em>Then</em> SIMULATE_PART_UPLOAD_FAIL true yields multipart-upload report with AC-28104-2 pass and no orphan uploads; SIMULATE_403_ON_GET true yields put-get-round-trip report with aggregateVerdict fail; SIMULATE_PRESIGN_MALFORMED true yields presigned-url first-fetch 403 and aggregateVerdict fail; the fixture README documents each switch and the paired probe</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4101-6">AC-4101-6</a></strong> - The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains an object-storage-s3 row at US band 28101-28899 / ADR-TAC suffix block 29xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for objectStorage per infra round 5 spec section 5.6.</p>
+  <p><em>Given</em> the shelf tree after this blueprint lands</p>
+  <p><em>When</em> grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table</p>
+  <p><em>Then</em> packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | objectStorage |; every shipped blueprint&#39;s docs/topics.md carries a row beginning | object-storage-s3 | with the 28101-28899 band and 29xx suffix; blueprints/object-storage-s3/README.md, CHANGELOG.md, guide/object-storage-s3.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names docker and podman incantations and four wired induced-failure switches</p>
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 46</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T17:51:45.444Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T17:52:15.196Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-4101-1&quot;,
+    &quot;AC-4101-2&quot;,
+    &quot;AC-4101-3&quot;,
+    &quot;AC-4101-4&quot;,
+    &quot;AC-4101-5&quot;,
+    &quot;AC-4101-6&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-061&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 46,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)&quot;,
+  &quot;summary&quot;: &quot;T-2 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.2) minted with HQ reserved-block chain ids via --id (REQ-041 / US-4101 / TS-071 / FBS-061 / CN-203..205) after T-1 landed at 040/4001/070/060/200..202. Ships the object-storage-s3 v1.0.0 blueprint on the shelf with 21 contributions in the 6 REQ / 8 US 28101-28108 / 3 TAC 2901-2903 / 4 ADR 2901-2904 groups per spec section 5.2, six Node-only probes under blueprints/object-storage-s3/contributions/probes/ (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy, r2-real-account-smoke) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/object-storage-s3/, and the T-2 slice of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Five probes local-first (accountBound false); r2-real-account-smoke carries accountBound:true and records accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Declares capabilities [objectStorage], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent. Contributes ADR-2904 as scope:global on new topic objectStorageContract per spec section 5.2. Every ADR contribution entry carries standardsTraceClause per section 8a.2 (per HQ mid-flight ruling after PR #154 gate). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with an objectStorage row per spec section 5.6; appends one shelf-registry row for object-storage-s3 at 28101-28899 / 29xx to every shipped blueprint docs/topics.md. Refuses composition when security-secrets-management is not applied with exit 3 and stable message id object-storage-s3-no-secrets on stderr; --allow-no-secrets-yet override records a note on source.notes.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
 </article>
@@ -17102,6 +17493,111 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;Cover AC-4001-6 via anatomy test&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/persistence-data-postgres-anatomy.test.js::section 6a table gains a relationalStore row and every shipped blueprint docs/topics.md gains a persistence-data-postgres row at 27101-27899 / 28xx (TC-070-shelf-doc-consistency)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-071">
+  <summary><span class="summary-label">TS-071 - object-storage-s3 v1.0.0 shelf shape, apply-on-secrets-present, apply-refusal-on-bare, six-probe module contract, induced-failure switches and shelf-doc consistency</span><span class="status draft">draft</span></summary>
+  <article id="TS-071" class="doc doc-ts">
+  <h3>TS-071 - object-storage-s3 v1.0.0 shelf shape, apply-on-secrets-present, apply-refusal-on-bare, six-probe module contract, induced-failure switches and shelf-doc consistency</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-4101">US-4101</a></p>
+  <p><strong>Purpose:</strong> Cover AC-4101-1..6 via unit tests over the shipped object-storage-s3 blueprint shape (contribution count, capabilities, suggestedCompanions, ADR standardsTraceClause), applies-clean-with-secrets and refuses-without behaviour, six Node-only probe module contract with anchorAcId cross-check, induced-failure switch documentation on the fixture README, and shelf-doc consistency (section 6a table row for objectStorage, shelf-wide docs/topics.md row for object-storage-s3 at 28101-28899 / 29xx).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-4101-1">AC-4101-1</a>, <a href="#AC-4101-2">AC-4101-2</a>, <a href="#AC-4101-3">AC-4101-3</a>, <a href="#AC-4101-4">AC-4101-4</a>, <a href="#AC-4101-5">AC-4101-5</a>, <a href="#AC-4101-6">AC-4101-6</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-071-blueprint-json-shape">
+  <p><strong>TC-071-blueprint-json-shape</strong> - covers <a href="#AC-4101-1">AC-4101-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4101-1 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/object-storage-s3-anatomy.test.js::blueprint.json declares 21 contributions with capabilities objectStorage, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-071-blueprint-json-shape)</code></p>
+</div>
+<div class="tc" id="TC-071-applies-clean-with-secrets">
+  <p><strong>TC-071-applies-clean-with-secrets</strong> - covers <a href="#AC-4101-2">AC-4101-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4101-2 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/object-storage-s3-anatomy.test.js::apply object-storage-s3 lands 21 contributions on a scratch project with security-secrets-management applied (TC-071-applies-clean-with-secrets)</code></p>
+</div>
+<div class="tc" id="TC-071-apply-refusal-and-override">
+  <p><strong>TC-071-apply-refusal-and-override</strong> - covers <a href="#AC-4101-3">AC-4101-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4101-3 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/object-storage-s3-anatomy.test.js::apply object-storage-s3 refuses on a bare fixture without security-secrets-management and lands with --allow-no-secrets-yet (TC-071-apply-refusal-and-override)</code></p>
+</div>
+<div class="tc" id="TC-071-probe-anchor-ids-cross-check">
+  <p><strong>TC-071-probe-anchor-ids-cross-check</strong> - covers <a href="#AC-4101-4">AC-4101-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4101-4 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/object-storage-s3-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-071-probe-anchor-ids-cross-check)</code></p>
+</div>
+<div class="tc" id="TC-071-fixture-and-switches">
+  <p><strong>TC-071-fixture-and-switches</strong> - covers <a href="#AC-4101-5">AC-4101-5</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4101-5 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/object-storage-s3-anatomy.test.js::sample-app fixture ships docker-compose.yml, package.json, src/object-store.mjs, src/secrets.mjs, and its README documents docker and podman and the four wired induced-failure switches (TC-071-fixture-and-switches)</code></p>
+</div>
+<div class="tc" id="TC-071-shelf-doc-consistency">
+  <p><strong>TC-071-shelf-doc-consistency</strong> - covers <a href="#AC-4101-6">AC-4101-6</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4101-6 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/object-storage-s3-anatomy.test.js::section 6a table gains an objectStorage row and every shipped blueprint docs/topics.md gains an object-storage-s3 row at 28101-28899 / 29xx (TC-071-shelf-doc-consistency)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T17:50:13.712Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T17:51:32.845Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-4101-1..6 via unit tests over the shipped object-storage-s3 blueprint shape (contribution count, capabilities, suggestedCompanions, ADR standardsTraceClause), applies-clean-with-secrets and refuses-without behaviour, six Node-only probe module contract with anchorAcId cross-check, induced-failure switch documentation on the fixture README, and shelf-doc consistency (section 6a table row for objectStorage, shelf-wide docs/topics.md row for object-storage-s3 at 28101-28899 / 29xx).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-4101-1&quot;,
+    &quot;AC-4101-2&quot;,
+    &quot;AC-4101-3&quot;,
+    &quot;AC-4101-4&quot;,
+    &quot;AC-4101-5&quot;,
+    &quot;AC-4101-6&quot;
+  ],
+  &quot;id&quot;: &quot;TS-071&quot;,
+  &quot;usId&quot;: &quot;US-4101&quot;,
+  &quot;title&quot;: &quot;object-storage-s3 v1.0.0 shelf shape, apply-on-secrets-present, apply-refusal-on-bare, six-probe module contract, induced-failure switches and shelf-doc consistency&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-071-blueprint-json-shape&quot;,
+      &quot;acId&quot;: &quot;AC-4101-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-4101-1 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/object-storage-s3-anatomy.test.js::blueprint.json declares 21 contributions with capabilities objectStorage, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-071-blueprint-json-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-071-applies-clean-with-secrets&quot;,
+      &quot;acId&quot;: &quot;AC-4101-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-4101-2 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/object-storage-s3-anatomy.test.js::apply object-storage-s3 lands 21 contributions on a scratch project with security-secrets-management applied (TC-071-applies-clean-with-secrets)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-071-apply-refusal-and-override&quot;,
+      &quot;acId&quot;: &quot;AC-4101-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-4101-3 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/object-storage-s3-anatomy.test.js::apply object-storage-s3 refuses on a bare fixture without security-secrets-management and lands with --allow-no-secrets-yet (TC-071-apply-refusal-and-override)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-071-probe-anchor-ids-cross-check&quot;,
+      &quot;acId&quot;: &quot;AC-4101-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-4101-4 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/object-storage-s3-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-071-probe-anchor-ids-cross-check)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-071-fixture-and-switches&quot;,
+      &quot;acId&quot;: &quot;AC-4101-5&quot;,
+      &quot;description&quot;: &quot;Cover AC-4101-5 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/object-storage-s3-anatomy.test.js::sample-app fixture ships docker-compose.yml, package.json, src/object-store.mjs, src/secrets.mjs, and its README documents docker and podman and the four wired induced-failure switches (TC-071-fixture-and-switches)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-071-shelf-doc-consistency&quot;,
+      &quot;acId&quot;: &quot;AC-4101-6&quot;,
+      &quot;description&quot;: &quot;Cover AC-4101-6 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/object-storage-s3-anatomy.test.js::section 6a table gains an objectStorage row and every shipped blueprint docs/topics.md gains an object-storage-s3 row at 28101-28899 / 29xx (TC-071-shelf-doc-consistency)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

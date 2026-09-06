@@ -49,11 +49,12 @@ Generation strategy: dependencyFirst
 | 43 | 2 | FBS-043 | application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture | notStarted | blocked | FBS-042 |
 | 44 | 3 | FBS-060 | persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture | notStarted | blocked | FBS-043 |
 | 45 | 3 | FBS-044 | application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture | notStarted | blocked | FBS-043 |
+| 46 | 0 | FBS-061 | object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice) | notStarted | actionable |  |
 
-Totals: items 45 | notStarted 17 | inProgress 0 | complete 13 | verified 15 | actionable 11 | blocked 6
+Totals: items 46 | notStarted 18 | inProgress 0 | complete 13 | verified 15 | actionable 12 | blocked 6
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044
