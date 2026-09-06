@@ -1,16 +1,16 @@
 # MCP-route smoke: application-empty-error-states probe pack
 
-Captured on 2026-09-06 against the shipped fixture with the pinned Playwright MCP as the browser driver, per authoring standard section 8c and the round 3 T-0 shipped runner. Every JSON file here is the raw output of the `rcf verify browser` command that produced the verdict; the top of each file includes any driver stderr lines and the JSON body follows.
+Captured on 2026-09-06 against the shipped fixture with the pinned Playwright MCP as the browser driver, per authoring standard section 8c and the round 3 T-0 shipped runner. Every JSON file here is the raw output of the `rcf verify browser` command that produced the verdict; the top of each file includes any driver stderr lines and the JSON body follows. Filenames follow the round-4 spec section 6 convention `pack-mcp-route.<ts>.json` for the baseline and `pack-mcp-route.negative-<switch>.<ts>.json` for the four negative runs; the timestamp is the `createdAt` value the runner stamped into each file (colons replaced with dashes for filesystem safety).
 
 ## Files
 
 | File | Command | Aggregate | Purpose |
 |---|---|---|---|
-| `mcp-route-smoke.json` | `rcf verify browser FBS-001 --url http://127.0.0.1:13802 --probe-pack application-empty-error-states --json` on the honest fixture | warn (agent-driver invariant, unrelated to this pack; every pack check passes) | Baseline: every check `pass` against the compliant fixture. |
-| `negative-stack-trace.json` | Same command with `EMPTY_ERROR_STATES_BREAK=stack-trace` on the fixture boot | block | `AC-22103-1` fails: server-error surface leaked backtrace-frame. |
-| `negative-leak-id.json` | Same command with `EMPTY_ERROR_STATES_BREAK=leak-id` | block | `AC-22102-1` AND `AC-22104-1` fail: forbidden and permission-denied leak the resource id. |
-| `negative-no-recovery.json` | Same command with `EMPTY_ERROR_STATES_BREAK=no-recovery` | block | `AC-22106-1` fails: empty-list dropped the `[data-recovery="create"]` control. |
-| `negative-no-live-region.json` | Same command with `EMPTY_ERROR_STATES_BREAK=no-live-region` | block | `AC-22105-1` fails: offline reconnect dropped the polite live-region wrapper. |
+| `pack-mcp-route.2026-09-06T15-54-49Z.json` | `rcf verify browser FBS-001 --url http://127.0.0.1:13802 --probe-pack application-empty-error-states --json` on the honest fixture | warn (agent-driver invariant, unrelated to this pack; every pack check passes) | Baseline: every check `pass` against the compliant fixture. |
+| `pack-mcp-route.negative-stack-trace.2026-09-06T15-55-45Z.json` | Same command with `EMPTY_ERROR_STATES_BREAK=stack-trace` on the fixture boot | block | `AC-22103-1` fails: server-error surface leaked backtrace-frame. |
+| `pack-mcp-route.negative-leak-id.2026-09-06T15-55-53Z.json` | Same command with `EMPTY_ERROR_STATES_BREAK=leak-id` | block | `AC-22102-1` AND `AC-22104-1` fail: forbidden and permission-denied leak the resource id. |
+| `pack-mcp-route.negative-no-recovery.2026-09-06T15-56-00Z.json` | Same command with `EMPTY_ERROR_STATES_BREAK=no-recovery` | block | `AC-22106-1` fails: empty-list dropped the `[data-recovery="create"]` control. |
+| `pack-mcp-route.negative-no-live-region.2026-09-06T15-56-07Z.json` | Same command with `EMPTY_ERROR_STATES_BREAK=no-live-region` | block | `AC-22105-1` fails: offline reconnect dropped the polite live-region wrapper. |
 
 ## Reproduce
 
