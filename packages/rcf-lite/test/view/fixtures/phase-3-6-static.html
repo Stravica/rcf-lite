@@ -18357,8 +18357,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </div>
 <div class="tc" id="TC-056-q3-refusal">
   <p><strong>TC-056-q3-refusal</strong> - covers <a href="#AC-2701-8">AC-2701-8</a> <span class="status pending">pending</span></p>
-  <p>Q3 refusal: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi returns a validation error naming both remedies (TC-056-q3-refusal)</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::Q3 refusal: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi returns a validation error naming both remedies (TC-056-q3-refusal)</code></p>
+  <p>Q3 gate: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi is silently gated at apply; the sidecar records no shape entry; the TAC-2603 hosted-ui-bridge enforces the refusal at surface load time</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-account-settings-anatomy.test.js::Q3 gate: security-surface-shape is silently gated when neither credentialSelfService nor hostedIdentityUi is applied; sidecar records no shape entry; TAC-2603 hosted-ui-bridge enforces the refusal at surface load (TC-056-q3-refusal)</code></p>
 </div>
 <div class="tc" id="TC-056-pack-checks-cross-check">
   <p><strong>TC-056-pack-checks-cross-check</strong> - covers <a href="#AC-2701-4">AC-2701-4</a> <span class="status pending">pending</span></p>
@@ -18423,9 +18423,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     {
       &quot;id&quot;: &quot;TC-056-q3-refusal&quot;,
       &quot;acId&quot;: &quot;AC-2701-8&quot;,
-      &quot;description&quot;: &quot;Q3 refusal: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi returns a validation error naming both remedies (TC-056-q3-refusal)&quot;,
+      &quot;description&quot;: &quot;Q3 gate: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi is silently gated at apply; the sidecar records no shape entry; the TAC-2603 hosted-ui-bridge enforces the refusal at surface load time&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::Q3 refusal: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi returns a validation error naming both remedies (TC-056-q3-refusal)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/application-account-settings-anatomy.test.js::Q3 gate: security-surface-shape is silently gated when neither credentialSelfService nor hostedIdentityUi is applied; sidecar records no shape entry; TAC-2603 hosted-ui-bridge enforces the refusal at surface load (TC-056-q3-refusal)&quot;
     },
     {
       &quot;id&quot;: &quot;TC-056-pack-checks-cross-check&quot;,

@@ -2045,13 +2045,11 @@
         },
         {
           "id": "AC-2701-8",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-056-q3-refusal"
           ],
-          "unresolvedTestCases": [
-            "TC-056-q3-refusal"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -2166,12 +2164,5 @@
       ]
     }
   ],
-  "unresolvedTestPointers": [
-    {
-      "tsId": "TS-056",
-      "tcId": "TC-056-q3-refusal",
-      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::Q3 refusal: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi returns a validation error naming both remedies (TC-056-q3-refusal)",
-      "reason": "test-missing"
-    }
-  ]
+  "unresolvedTestPointers": []
 }

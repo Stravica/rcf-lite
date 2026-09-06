@@ -230,7 +230,7 @@ REQ-027      yes      AC-2701-1   yes         TC-056-blueprint-json-shape
                       AC-2701-5   yes         TC-056-fixture-and-switches
                       AC-2701-6   yes         TC-056-negative-runs
                       AC-2701-7   yes         TC-056-shelf-doc-consistency
-                      AC-2701-8   unresolved  TC-056-q3-refusal[unresolved]
+                      AC-2701-8   yes         TC-056-q3-refusal
 REQ-040      yes      AC-4001-1   yes         TC-070-blueprint-json-shape
                       AC-4001-2   yes         TC-070-applies-clean-no-persistence
                       AC-4001-3   yes         TC-070-conflict-with-d1
@@ -243,6 +243,3 @@ REQ-041      yes      AC-4101-1   yes         TC-071-blueprint-json-shape
                       AC-4101-4   yes         TC-071-probe-anchor-ids-cross-check
                       AC-4101-5   yes         TC-071-fixture-and-switches
                       AC-4101-6   yes         TC-071-shelf-doc-consistency
-
-Unresolved test pointers (never counted as coverage):
-  TC-056-q3-refusal (TS-056): test/blueprint/application-account-settings-anatomy.test.js::Q3 refusal: security-surface-shape answered without applied credentialSelfService or hostedIdentityUi returns a validation error naming both remedies (TC-056-q3-refusal) - test-missing
