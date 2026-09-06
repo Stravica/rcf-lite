@@ -127,7 +127,20 @@ export default {
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
         await browser.goto(withUrl(runtimeUrl, '/upload?transport=multipart&seed=refused'));
-        const dom = await browser.evaluate(() => {
+        const dom = await browser.evaluate(async () => {
+          // Wait for the upload loop to run to completion (or for
+          // the deadline). We can't read the request log honestly
+          // before the loop has had a chance to run: on the
+          // ?break=send-refused negative branch the refused row's
+          // bytes only land after the loop reaches that row. The
+          // fixture completes a two-file demo set in roughly
+          // 2 * 3 * 120ms + jitter = ~800ms.
+          const deadline = Date.now() + 3000;
+          while (Date.now() < deadline) {
+            const slot = document.querySelector('[data-assertive-slot]');
+            if (slot && slot.textContent && slot.textContent.trim().length > 0) break;
+            await new Promise((r) => setTimeout(r, 100));
+          }
           const region = document.querySelector('[data-surface="file-upload"]');
           if (!region) return { present: false };
           const row = region.querySelector('[data-file-row][data-refused="true"]');
@@ -174,19 +187,28 @@ export default {
       description: 'the transport uploads in chunks; on the tus branch each PATCH request carries Upload-Offset, on the multipart branch [data-chunks-uploaded] on the DOM exceeds one',
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
-        const urlObj = new URL(withUrl(runtimeUrl, '/upload'));
-        const configuredTransport = urlObj.searchParams.get('transport');
+        // Read the transport preference off the base runtimeUrl's own
+        // query string (the withUrl helper resolves a fresh path
+        // against the base, which drops the query). The pack anchors
+        // on the base URL's ?transport= so a caller running the tus
+        // branch passes --url http://.../upload?transport=tus and the
+        // pack observes it here.
+        let configuredTransport = null;
+        try { configuredTransport = new URL(runtimeUrl).searchParams.get('transport'); } catch { /* runtimeUrl may be a bare path in tests */ }
         const transport = configuredTransport === 'tus' ? 'tus' : 'multipart';
         await browser.goto(withUrl(runtimeUrl, `/upload?transport=${transport}&seed=large&autostart=1`));
         const dom = await browser.evaluate(async () => {
-          // Wait for the upload to reach a state that has recorded
-          // at least one chunk; fixture completes quickly.
+          // Wait for the upload to complete (or for the deadline).
+          // The pack needs to observe the final chunk count, not the
+          // first: an early break at chunks > 0 would read 1 and
+          // spuriously fail the chunked-upload assertion on a fast
+          // fixture. The fixture completes a 5-chunk upload in
+          // roughly 5 * 120ms = 600ms.
           const deadline = Date.now() + 3000;
           while (Date.now() < deadline) {
             const row = document.querySelector('[data-file-row]');
-            const chunks = row ? Number(row.getAttribute('data-chunks-uploaded') ?? '0') : 0;
             const state = row ? row.getAttribute('data-file-state') : null;
-            if (chunks > 0 || state === 'complete') break;
+            if (state === 'complete') break;
             await new Promise((r) => setTimeout(r, 100));
           }
           const row = document.querySelector('[data-file-row]');
