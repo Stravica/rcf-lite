@@ -1,0 +1,18 @@
+{
+  "reqId": "jobs-background-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Scheduler contract: POSIX cron string and one-shot delayed",
+  "description": "The scheduler surface accepts two schedule shapes: a POSIX cron string (five fields, per POSIX cron) attached to a job definition for recurring runs, and a one-shot delayed schedule with an ISO-8601 fireAt or a positive delayMs. The scheduler publishes a message to the applied queue at the elicited fire time; the jobs runtime consumes and dispatches. The scheduler mode is elicited at apply time under ADR-3102 (inProcess, workerCron, external) and a reserved workflows value ships in the v1.1.0 minor per section 5.7 of the spec.",
+  "category": "functional",
+  "domain": "jobs",
+  "priority": "must",
+  "rationale": "POSIX cron is the widely understood recurring surface; one-shot delayed covers the deferred-send / retry-later case without a second contract. The elicited mode keeps the shipped facade portable across Node long-lived processes, Cloudflare Cron Triggers, and external cron runners without a facade re-shape.",
+  "tags": [
+    "blueprint:jobs-background",
+    "category:02-scheduler"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

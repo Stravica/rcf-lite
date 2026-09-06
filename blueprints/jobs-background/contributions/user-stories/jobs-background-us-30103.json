@@ -1,0 +1,25 @@
+{
+  "usId": "jobs-background-US-30103",
+  "prdId": "PRD-001",
+  "reqId": "jobs-background-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Scheduler accepts POSIX cron string and one-shot delayed",
+  "asA": "developer scheduling a job to run every minute (POSIX cron) or once after a delay",
+  "iWant": "the scheduler surface to accept both a POSIX cron string and a one-shot delayed shape (delayMs or fireAt) and publish the corresponding message to the applied queue at the elicited fire time",
+  "soThat": "one contract covers both recurring and deferred sends without a second scheduler surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-30103-1",
+      "description": "The scheduler under packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/scheduler.mjs accepts a POSIX cron string on a job definition (refresh-cache.mjs carries cron: '* * * * *') and publishes a message to the applied queue when the fake-clock advances past the fire time. The scheduler also accepts a one-shot delayed schedule (delayMs) and publishes when the fake-clock advances past the fireAt time.",
+      "given": "the fixture scheduler booted in inProcess mode with a fake-clock seam",
+      "when": "the fake clock advances one POSIX cron minute or past a scheduled delayMs",
+      "then": "one message per fire lands on the applied in-memory queue with the target job.name and an ISO-8601 timestamp",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3102-jobs-background-scheduler"],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-3104-jobs-background-timeout-floor",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Handler timeout: default 60 seconds, floor 1 second, ceiling bounded by the applied queue's consumer wall-clock",
+  "context": "A background-job handler has a bounded wall-clock in the applied queue's consumer. Cloudflare Queues caps consumer wall-clock at 15 minutes (900 seconds) per the platform limits documentation; a handler that runs past that mark is force-killed by the platform regardless of what timeoutMs the job-definition module declared. The jobs runtime enforces its own timeoutMs on the handler and treats a timed-out handler as a retryable error (a jobStarted followed by a jobFailed with retryable code, and the applied queue re-delivers per the retry contract).",
+  "decision": "The default handler timeoutMs is 60000 (60 seconds); the floor is 1000 (1 second); the ceiling is elicited per applied queue provider. For Cloudflare Queues the ceiling is 900000 (15 minutes) per the platform limits documentation. Job-definition modules that declare a timeoutMs above the ceiling refuse at boot with a clear error naming the ceiling and the applied provider. The elicited timeoutMs on a job definition is applied within the ceiling.",
+  "consequences": "The applying project inherits a handler-timeout discipline that respects the applied queue's own wall-clock. Standards trace clause: Cloudflare Queues consumer wall-clock ceiling per platform limits doc. A handler that needs longer than the applied provider's ceiling is a shape mismatch; the answer is either to split the handler into a state-machine driven by re-enqueues, or (at v1.1.0) adopt the workflows scheduler mode which lifts the per-run wall-clock via durable execution.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship a fixed 5-minute default timeout with no elicit",
+      "summary": "Hard-code a 5-minute default timeout on every job definition.",
+      "reasonNotChosen": "A shipped default of 60 seconds forces the applying project to make timeout an explicit choice on any long-running handler, which is the right posture for a shipped facade. 60 seconds is a common-enough handler wall-clock that most simple handlers do not need to opt out."
+    },
+    {
+      "name": "Ceiling as a global constant per shipped provider",
+      "summary": "Bake the 15-minute Cloudflare Queues ceiling into the blueprint code.",
+      "reasonNotChosen": "The ceiling depends on the applied queue provider; a future messaging-queue-postgres sibling would carry a different consumer wall-clock. The elicited ceiling per provider keeps the answer where the transport authority lives."
+    }
+  ],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

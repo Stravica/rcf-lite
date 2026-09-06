@@ -1,0 +1,18 @@
+{
+  "reqId": "jobs-background-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Retry contract: handler throws retryable error re-delivers via the applied queue; max-attempts elicited within the applied queue's own ceiling",
+  "description": "A handler that throws a retryable error causes the applied queue to redeliver the message per its own retry contract; the jobs runtime records the attempt counter on each jobStarted event and inherits max-attempts from the applied queue's own ceiling (Cloudflare Queues ceiling 100 per ADR-3003 in the messaging-queue-cloudflare blueprint). The elicited retryPolicy on a job definition ({ maxAttempts, backoff: constant | exponential | linear }) is applied within that ceiling. After maxAttempts terminal jobStarted events with the same jobId and incrementing attempt counter, jobFailed lands with the terminal error code and no further re-delivery.",
+  "category": "functional",
+  "domain": "jobs",
+  "priority": "must",
+  "rationale": "Retry inheritance from the applied queue keeps the transport authority in one place (the queue's own contract) while letting the job author express the domain retry surface (backoff shape, max-attempts within the ceiling).",
+  "tags": [
+    "blueprint:jobs-background",
+    "category:03-retry"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

@@ -1,0 +1,50 @@
+{
+  "tacId": "TAC-3102-jobs-background-scheduler",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Jobs-background scheduler",
+  "purpose": "The scheduler surface publishes messages to the applied queue on POSIX cron strings and one-shot delayed shapes. The scheduler mode is elicited (inProcess, workerCron, external) at ADR-3102; a reserved v1.1.0 workflows mode adds a fourth enum value per section 5.7 of the spec.",
+  "responsibilities": [
+    "Parse a POSIX cron string on a job definition and enqueue a message on each fire (AC-30103-1, AC-jobs-scheduledRunsOnCron).",
+    "Accept a one-shot delayed shape (delayMs or ISO-8601 fireAt) and enqueue the message when the elicited fire time is reached (AC-30103-1).",
+    "Expose a fake-clock seam so probes can drive the scheduler deterministically without wall-clock waits (AC-jobs-scheduledRunsOnCron).",
+    "Refuse workerCron mode when the applied queue has no cron surface (documented in the guide's Known limitations section)."
+  ],
+  "internalStructure": "One scheduler module carrying a start({ clock, publisher, onEvent }) entry point where clock is the injected clock (real system clock in production, the fake-clock seam under the probe). A long-lived setInterval per cron string in inProcess mode; a set of setTimeouts per one-shot delay. The fake-clock seam is a { now, advance(ms) } object the module reads instead of Date.now / setTimeout when injected.",
+  "interfaces": [
+    {
+      "name": "createScheduler",
+      "kind": "factory",
+      "description": "createScheduler({ mode, clock, publisher, onEvent }) -> Scheduler; mode is one of inProcess, workerCron, external."
+    },
+    {
+      "name": "scheduler.schedule",
+      "kind": "method",
+      "description": "schedule({ jobName, cron?: string, fireAt?: string, delayMs?: number, body?: any }): enqueues per the cron or delayed shape."
+    },
+    {
+      "name": "onEvent",
+      "kind": "callback",
+      "description": "Structured-event sink invoked with jobScheduled records: { event, jobId, jobName, attempts: 0, timestamp }."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Job-definition module",
+      "kind": "tac",
+      "tacId": "TAC-3101-jobs-background-job-definition",
+      "description": "The scheduler enqueues by jobName targeting a registered job-definition module."
+    },
+    {
+      "name": "Run log",
+      "kind": "tac",
+      "tacId": "TAC-3103-jobs-background-run-log",
+      "description": "jobScheduled events fire on the injected event sink."
+    }
+  ],
+  "tradeoffs": "The inProcess mode is unsuited to a Cloudflare Worker deploy (Worker instances have no long-lived setInterval); the workerCron mode addresses that at ADR-3102. The v1.1.0 workflows mode adds Cloudflare Workflows step.do orchestration without changing the outward scheduler contract.",
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

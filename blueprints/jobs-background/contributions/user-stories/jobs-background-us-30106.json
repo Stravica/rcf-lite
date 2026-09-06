@@ -1,0 +1,25 @@
+{
+  "usId": "jobs-background-US-30106",
+  "prdId": "PRD-001",
+  "reqId": "jobs-background-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Operator-facing surface elicited between cli, httpEndpoint and none",
+  "asA": "operator picking how ad-hoc runs and re-drives are invoked",
+  "iWant": "the elicited operator surface (cli, httpEndpoint or none) recorded at apply time",
+  "soThat": "the applying project builds one thin shim against the jobs-runtime contract without the blueprint prescribing a CLI framework or an HTTP router",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-30106-1",
+      "description": "The blueprint declares an elicited parameter operatorSurface with the three enum values cli, httpEndpoint, none in the ADR contribution set (implicit through ADR-3102 elicits section not shipped as a separate ADR because the operator-surface choice does not conflict on a shipped topic); the guide names all three values and the default posture (none for a fresh scaffold; the applying project promotes to cli or httpEndpoint under its own decision). The blueprint does NOT ship the CLI or the HTTP endpoint itself.",
+      "given": "the shipped blueprint files after this train lands",
+      "when": "grep queries walk the guide and README",
+      "then": "guide/jobs-background.md contains the substring operator-facing surface and names all three values cli, httpEndpoint, none; README.md names the same three values; neither ships a CLI binary nor an HTTP router",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3103-jobs-background-run-log"],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

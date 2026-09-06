@@ -1,0 +1,25 @@
+{
+  "usId": "jobs-background-US-30108",
+  "prdId": "PRD-001",
+  "reqId": "jobs-background-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Cross-cutting: scheduled fire on cron drives jobStarted through the elicited fire tolerance window",
+  "asA": "developer relying on a cron-scheduled job",
+  "iWant": "the scheduler to fire the message and the runtime to dispatch it within the elicited fire tolerance window (default 30 seconds), producing jobStarted and jobCompleted on the sink",
+  "soThat": "cron drift is bounded and observable",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-jobs-scheduledRunsOnCron",
+      "description": "With messaging-queue-cloudflare and jobs-background both applied on the shared sample-app fixture, the fake-clock-cron probe advances the fixture's fake clock forward through one POSIX cron minute for the refresh-cache job. Within the elicited fireToleranceMs window (default 30000 ms), a jobStarted event fires on the sink with jobName 'refresh-cache' and attempts 1; within the elicited timeoutMs (10000 ms for refresh-cache), a jobCompleted event fires.",
+      "given": "the fixture with the queue and jobs applied and the fake clock at second 0 of an every-minute POSIX cron",
+      "when": "the fake clock advances 60 seconds",
+      "then": "one jobStarted event fires within fireToleranceMs; one jobCompleted event fires within timeoutMs; both records match the whitelist",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3102-jobs-background-scheduler", "TAC-3103-jobs-background-run-log"],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

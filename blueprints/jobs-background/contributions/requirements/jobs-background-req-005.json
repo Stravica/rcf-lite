@@ -1,0 +1,18 @@
+{
+  "reqId": "jobs-background-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Job-run event log: jobScheduled, jobStarted, jobCompleted, jobFailed with metadata-only fields",
+  "description": "The jobs runtime fires four lifecycle events on the injected event sink: jobScheduled at the moment the scheduler enqueues a message; jobStarted at the moment the consumer begins dispatching a message to a handler; jobCompleted at the moment a handler returns without throwing; jobFailed at the moment the applied queue's max-attempts is exhausted with a terminal error code. Each event record carries only the metadata fields { jobId, jobName, attempts, duration, timestamp } (plus a terminalErrorCode on jobFailed). No job input fields, no handler output fields, no user id, no email, no SSN. The event whitelist is enforced at the sink boundary.",
+  "category": "functional",
+  "domain": "jobs",
+  "priority": "must",
+  "rationale": "A metadata-only event log lets the applying project route the events through its logging surface without leaking domain PII by default. Domain-side observability (recording the input, the output, the error surface) is the applying project's own concern under its logging companion.",
+  "tags": [
+    "blueprint:jobs-background",
+    "category:04-run-log"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

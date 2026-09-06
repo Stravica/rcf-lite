@@ -397,10 +397,13 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
             const flag = blueprint.requiresAppliedCapabilities?.allowSkipFlag ?? 'allow-no-auth-yet';
             const caps = (blueprint.requiresAppliedCapabilities?.capabilities ?? []).join(', ');
             // Predecessor-family prose is derived from the flag name so
-            // the note reads sensibly for both the auth override ("auth
-            // blueprint") and the secrets override ("secrets-management
-            // blueprint") without the runner learning the family list.
-            const family = flag.includes('secrets') ? 'secrets-management' : 'auth';
+            // the note reads sensibly for the auth override, the secrets
+            // override, and the queue override (infra round 5 T-4)
+            // without the runner learning the family list. New families
+            // extend by pattern-matching a substring of the flag name.
+            const family = flag.includes('secrets')
+              ? 'secrets-management'
+              : (flag.includes('queue') ? 'queue' : 'auth');
             return `no ${family} yet: applied under --${flag}; surfaces gated on ${caps} will refuse at runtime until a ${family} blueprint is applied.`;
           })()
         : undefined,

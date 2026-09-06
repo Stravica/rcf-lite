@@ -1,0 +1,25 @@
+{
+  "usId": "jobs-background-US-30104",
+  "prdId": "PRD-001",
+  "reqId": "jobs-background-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Retry: handler throws retryable error re-delivers via applied queue with attempts counter",
+  "asA": "developer authoring a job that can fail transiently",
+  "iWant": "the applied queue to redeliver a failed message per the job's elicited retryPolicy within the applied queue's max-attempts ceiling, with the attempt counter incrementing on each jobStarted event",
+  "soThat": "transient failures self-heal within maxAttempts and terminal failures are recorded once via jobFailed with a terminal error code",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-jobs-retryOnHandlerFailure",
+      "description": "With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture, the retry-and-fail probe schedules a job whose handler throws a retryable error; the applied in-memory queue redelivers the message per retryPolicy.maxAttempts. Three jobStarted events fire on the sink with the same jobId and attempts counter 1, 2, 3; after the third failure jobFailed fires with a terminal error code and no further re-delivery follows.",
+      "given": "the fixture with SIMULATE_HANDLER_THROW=true and the retry-and-fail probe running against the in-memory queue seam",
+      "when": "the failing job is scheduled",
+      "then": "three jobStarted records with the same jobId and attempts 1,2,3; one jobFailed with a terminalErrorCode; no fourth jobStarted",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3101-jobs-background-job-definition", "TAC-3103-jobs-background-run-log"],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

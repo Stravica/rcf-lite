@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-3102-jobs-background-scheduler-mode",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Scheduler mode elicited: inProcess, workerCron, external (workflows reserved for v1.1.0)",
+  "context": "The scheduler surface can be realised in three shipped shapes today and a fourth shipped shape at v1.1.0. inProcess: a long-lived Node process (setInterval per cron string, setTimeout per one-shot delay) publishing to the applied queue. workerCron: Cloudflare Cron Triggers wire the scheduled event to a Worker handler that publishes to the applied queue (see the Cloudflare Cron Triggers documentation as the vendor reference for the fields at Cron Triggers, worker-side scheduled handler surface). external: an external cron runner (a Kubernetes CronJob, a GitHub Actions schedule, a systemd timer) invokes an operator surface (or the Node process boot line) with a fire-now command. The v1.1.0 minor per section 5.7 of the spec adds a workflows value that wraps the job-definition contract inside Cloudflare Workflows step.do orchestration; the v1.0.0 facade keeps the mode ELICITED so the fourth enum value slots in without a facade re-shape.",
+  "decision": "The scheduler mode is elicited at apply time between inProcess, workerCron and external. The default recommendation (recommendedDefault: true, elicited: true) is inProcess for a Node long-lived server, workerCron for a Cloudflare Worker deploy, and external for a fleet of short-lived containers already carrying an external cron runner. When the applied queue provider has no cron surface at all (which Cloudflare Queues does not directly; the cron surface is on Cloudflare Workers, not on Queues), workerCron mode refuses at apply time and the guide names the alignment. The v1.1.0 minor bump adds a workflows value; the standardsTraceClause of the contribution entry cites the Cloudflare Cron Triggers documented worker cron surface.",
+  "consequences": "The applying project picks a scheduler mode per environment. Standards trace clause: Cloudflare Cron Triggers documented worker cron surface. workerCron mode inherits Cloudflare cron-trigger semantics (per-cron-string on the Worker's wrangler config, not per-job-cron on the runtime); the guide names this alignment. external mode carries no lock-in but shifts the schedule discipline into the external runner; the guide names the trade-off. The reserved v1.1.0 workflows value carries the durable-execution semantics per the round-6 Workflows adapter proposal.",
+  "alternativesConsidered": [
+    {
+      "name": "Hard-code inProcess as the shipped v1.0.0 default with no elicit",
+      "summary": "Ship inProcess as the only supported scheduler mode at v1.0.0.",
+      "reasonNotChosen": "A Cloudflare Worker deploy has no long-lived setInterval; hard-coding inProcess would refuse composition on the applied deploy-cloudflare-workers target the shared fixture uses. The elicited mode makes the shipped facade portable across the Node long-lived and Worker-cron shapes."
+    },
+    {
+      "name": "Ship the reserved workflows mode at v1.0.0",
+      "summary": "Include the Cloudflare Workflows step.do orchestration inline in the v1.0.0 shipped shape.",
+      "reasonNotChosen": "The round-6 Workflows adapter is on Baz per section 5.7 of the spec; v1.0.0 keeps the mode ELICITED at three values and the v1.1.0 minor adds workflows as the fourth. No topic conflict, no facade re-shape."
+    }
+  ],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}
