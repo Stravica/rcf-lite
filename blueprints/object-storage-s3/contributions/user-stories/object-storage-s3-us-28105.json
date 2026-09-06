@@ -10,7 +10,7 @@
   "soThat": "downstream loggers cannot leak object body bytes, user ids, or PII drawn from the object body",
   "acceptanceCriteria": [
     {
-      "id": "AC-objectstorage-eventSecrecy",
+      "id": "AC-28105-1",
       "description": "Given a lifecycle-event spy attached to the sink, when put, get, delete, and presign verbs run against a PII fixture (key users/1234/passport.jpg, body carrying the PII fixture text), then every event record on the sink carries only fields from the whitelist {event, key, size, contentType, ttl, timestamp, endpointHost, bucketName}; no field name matches userId or ssn or dob or email; no field value contains the PII fixture body text; no field value contains any part of the object body bytes.",
       "given": "the facade opened, a spy on the event sink, a PII fixture body PII-FIXTURE-DO-NOT-LOG",
       "when": "putObject(users/1234/passport.jpg, image/jpeg, <body containing PII-FIXTURE-DO-NOT-LOG>), then getObject, then presignGetUrl, then deleteObject",

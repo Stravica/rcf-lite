@@ -119,7 +119,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
     'r2-real-account-smoke must declare accountBound: true');
 });
 
-test('sample-app fixture ships docker-compose.yml, package.json, src/object-store.mjs, src/secrets.mjs, and its README documents docker and podman and the six induced-failure switches (TC-071-fixture-and-switches)', async () => {
+test('sample-app fixture ships docker-compose.yml, package.json, src/object-store.mjs, src/secrets.mjs, and its README documents docker and podman and the four wired induced-failure switches (TC-071-fixture-and-switches)', async () => {
   await stat(join(FIXTURE_ROOT, 'docker-compose.yml'));
   await stat(join(FIXTURE_ROOT, 'package.json'));
   await stat(join(FIXTURE_ROOT, 'src', 'object-store.mjs'));
@@ -131,11 +131,16 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     'SIMULATE_403_ON_GET',
     'SIMULATE_PART_UPLOAD_FAIL',
     'SIMULATE_PRESIGN_MALFORMED',
-    'SIMULATE_PII_ON_EVENT',
-    'SIMULATE_LARGE_PAYLOAD',
   ]) {
     assert.match(readme, new RegExp(sw), `fixture README must document ${sw}`);
   }
+  // SIMULATE_PII_ON_EVENT and SIMULATE_LARGE_PAYLOAD were removed at
+  // v1.0.0: the event-secrecy whitelist is code-enforced and the
+  // 10 MiB multipart probe already exercises the above-threshold path.
+  assert.doesNotMatch(readme, /SIMULATE_PII_ON_EVENT/,
+    'unwired switches must not appear in the fixture README (doc-truth)');
+  assert.doesNotMatch(readme, /SIMULATE_LARGE_PAYLOAD/,
+    'unwired switches must not appear in the fixture README (doc-truth)');
   assert.match(readme, /minio\/minio/);
   assert.match(readme, /podman/i);
   // object-store.mjs (TAC-2901 facade) is the sole reader of @aws-sdk/client-s3

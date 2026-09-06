@@ -10,7 +10,7 @@
   "soThat": "my consumer code stays vendor-neutral above the facade and observability wires cleanly",
   "acceptanceCriteria": [
     {
-      "id": "AC-objectstorage-putGetRoundTrip",
+      "id": "AC-28102-1",
       "description": "Given a putObject through the facade for a known key, a stable content-type, and a 1 KiB payload, when a subsequent getObject reads the key, then the returned bytes equal the put bytes and the content-type header matches; an objectPut lifecycle event fires with key, size=1024, contentType, timestamp.",
       "given": "the facade opened against a running S3-compatible engine and a bucket that exists",
       "when": "putObject(key, contentType='application/octet-stream', body=<1 KiB Buffer>) then getObject(key)",

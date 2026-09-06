@@ -5,7 +5,7 @@
  * a HeadBucket ready-check, asserts facadeReady fires on the injected
  * event sink with endpointHost and bucketName.
  *
- * Anchors AC-objectstorage-facadeReady.
+ * Anchors AC-28101-1.
  */
 
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
@@ -30,7 +30,7 @@ export default async function runProbe() {
     const endpointHost = new URL(endpoint).host;
     const pass = ready && ready.endpointHost === endpointHost && ready.bucketName === bucket;
     results.push({
-      anchorAcId: 'AC-objectstorage-facadeReady',
+      anchorAcId: 'AC-28101-1',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
         ? `facadeReady fired with endpointHost=${ready.endpointHost} bucketName=${ready.bucketName}`

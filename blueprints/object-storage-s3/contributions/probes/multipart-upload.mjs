@@ -6,7 +6,7 @@
  * 10485760. Asserts no in-flight multipart upload remains on the bucket
  * after completion.
  *
- * Anchors AC-objectstorage-multipartUpload, AC-28104-2.
+ * Anchors AC-28104-1, AC-28104-2.
  */
 
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
@@ -39,7 +39,7 @@ export default async function runProbe() {
     const putEvent = events.find((e) => e.event === 'objectPut' && e.key === key);
     const eventPass = putEvent && putEvent.size === SIZE;
     results.push({
-      anchorAcId: 'AC-objectstorage-multipartUpload',
+      anchorAcId: 'AC-28104-1',
       verdict: sizePass && eventPass ? 'pass' : 'fail',
       detail: sizePass && eventPass
         ? `10 MiB multipart round-trip byte-equal; objectPut fired with size=${putEvent.size}`
@@ -48,7 +48,7 @@ export default async function runProbe() {
     // no in-flight uploads after complete
     const inflight = await store.listMultipartUploads(key);
     results.push({
-      anchorAcId: 'AC-objectstorage-multipartUpload',
+      anchorAcId: 'AC-28104-1',
       verdict: inflight.length === 0 ? 'pass' : 'fail',
       detail: inflight.length === 0
         ? 'no in-flight multipart uploads after complete'

@@ -10,7 +10,7 @@
   "soThat": "my consumer code stays shape-stable across sizes and I do not leave orphan multipart uploads behind",
   "acceptanceCriteria": [
     {
-      "id": "AC-objectstorage-multipartUpload",
+      "id": "AC-28104-1",
       "description": "Given the elicited multipart threshold at 8 MiB (ADR-2903 default), when putObject is called with a 10 MiB payload, then the facade switches to multipart-upload (initiate, part-upload, complete), the get returns byte-equal 10485760 bytes back, and an objectPut event fires with size 10485760 and timestamp.",
       "given": "the facade opened against a running S3-compatible engine, threshold=8 MiB",
       "when": "putObject(key, contentType, body=<10 MiB Buffer>) then getObject(key)",

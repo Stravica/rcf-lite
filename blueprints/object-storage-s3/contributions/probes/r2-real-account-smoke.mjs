@@ -9,7 +9,7 @@
  * accountBound: true. Skipped in CI without CI_HAS_CLOUDFLARE_ACCOUNT
  * per infra round 5 spec section 3.5.
  *
- * Anchors AC-objectstorage-r2Smoke.
+ * Anchors AC-28108-1.
  */
 
 import { createObjectStore, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
@@ -21,7 +21,7 @@ export const accountBound = true;
 export default async function runProbe() {
   if (!process.env.CI_HAS_CLOUDFLARE_ACCOUNT) {
     return [{
-      anchorAcId: 'AC-objectstorage-r2Smoke',
+      anchorAcId: 'AC-28108-1',
       verdict: 'pass',
       detail: 'accountBound: skipped (no CI_HAS_CLOUDFLARE_ACCOUNT)',
       accountBoundSkipped: true,
@@ -30,7 +30,7 @@ export default async function runProbe() {
   const r2 = await secretsShim.getSecret('r2Endpoint');
   if (!r2) {
     return [{
-      anchorAcId: 'AC-objectstorage-r2Smoke',
+      anchorAcId: 'AC-28108-1',
       verdict: 'fail',
       detail: 'CI_HAS_CLOUDFLARE_ACCOUNT set but r2Endpoint secret missing (R2_ACCOUNT_ID and R2_BUCKET required via security-secrets-management)',
     }];
@@ -53,7 +53,7 @@ export default async function runProbe() {
     const got = await store.getObject(key);
     const pass = got.body.length === 1024 && got.body.equals(body);
     return [{
-      anchorAcId: 'AC-objectstorage-r2Smoke',
+      anchorAcId: 'AC-28108-1',
       verdict: pass ? 'pass' : 'fail',
       detail: pass ? `R2 round-trip byte-equal against ${r2.endpoint}/${r2.bucket}` : 'R2 round-trip failed byte equality',
     }];

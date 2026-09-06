@@ -5,7 +5,7 @@
  * built-in fetch, asserts 200 within TTL. Sleeps to TTL+2 seconds,
  * fetches again, asserts 403 or the storage-side 403-equivalent.
  *
- * Anchors AC-objectstorage-presignedUrl.
+ * Anchors AC-28103-1.
  */
 
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
@@ -39,7 +39,7 @@ export default async function runProbe() {
     const firstPass = first.status === 200 && firstBody.equals(body);
     const issued = events.find((e) => e.event === 'presignedIssued' && e.key === key && e.ttl === ttl);
     results.push({
-      anchorAcId: 'AC-objectstorage-presignedUrl',
+      anchorAcId: 'AC-28103-1',
       verdict: firstPass && issued ? 'pass' : 'fail',
       detail: firstPass && issued
         ? `fetch within TTL returned ${first.status} with matching body; presignedIssued fired with ttl=${ttl}`
@@ -66,7 +66,7 @@ export default async function runProbe() {
       await sleep((shortTtl + 2) * 1000);
       const second = await fetch(shortUrl2);
       results.push({
-        anchorAcId: 'AC-objectstorage-presignedUrl',
+        anchorAcId: 'AC-28103-1',
         verdict: second.status === 403 ? 'pass' : 'fail',
         detail: `after TTL fetch returned ${second.status} (expected 403)`,
       });
@@ -78,7 +78,7 @@ export default async function runProbe() {
       const tampered = shortUrl2.replace(/X-Amz-Signature=[^&]*/, 'X-Amz-Signature=deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef');
       const second = await fetch(tampered);
       results.push({
-        anchorAcId: 'AC-objectstorage-presignedUrl',
+        anchorAcId: 'AC-28103-1',
         verdict: second.status === 403 ? 'pass' : 'fail',
         detail: `tampered signature fetch returned ${second.status} (expected 403; set SIMULATE_PRESIGN_EXPIRE=true for full TTL wall-clock)`,
       });
@@ -88,7 +88,7 @@ export default async function runProbe() {
     let refusedBelowFloor = false;
     try { await store.presignGetUrl(key, 30); } catch { refusedBelowFloor = true; }
     results.push({
-      anchorAcId: 'AC-objectstorage-presignedUrl',
+      anchorAcId: 'AC-28103-1',
       verdict: refusedBelowFloor ? 'pass' : 'fail',
       detail: refusedBelowFloor ? 'presign below 60s floor refused per ADR-2902' : 'presign below floor did not refuse',
     });

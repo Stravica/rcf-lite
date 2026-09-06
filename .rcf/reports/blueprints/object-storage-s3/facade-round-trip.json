@@ -1,7 +1,7 @@
 {
   "slug": "object-storage-s3",
   "probeName": "facade-round-trip",
-  "runAt": "2026-09-06T18:00:45.025Z",
+  "runAt": "2026-09-06T18:42:15.191Z",
   "engine": {
     "kind": "s3",
     "image": "minio/minio",
@@ -9,7 +9,7 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-objectstorage-facadeReady",
+      "anchorAcId": "AC-28101-1",
       "verdict": "pass",
       "detail": "facadeReady fired with endpointHost=localhost:9000 bucketName=rcf-test"
     }

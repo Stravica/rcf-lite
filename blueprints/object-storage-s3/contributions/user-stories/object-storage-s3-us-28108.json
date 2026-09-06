@@ -10,7 +10,7 @@
   "soThat": "the gate stays green on contributors without a Cloudflare account and still proves the R2 adapter on a bound runner",
   "acceptanceCriteria": [
     {
-      "id": "AC-objectstorage-r2Smoke",
+      "id": "AC-28108-1",
       "description": "Given CI_HAS_CLOUDFLARE_ACCOUNT is unset, when the r2-real-account-smoke.mjs shim runs, then the shim exits 0 and writes a per-blueprint report with one result carrying verdict pass, detail accountBound: skipped (no CI_HAS_CLOUDFLARE_ACCOUNT), and accountBoundSkipped: true; aggregateVerdict is pass.",
       "given": "the environment with CI_HAS_CLOUDFLARE_ACCOUNT unset",
       "when": "node blueprints/object-storage-s3/contributions/probes/run-r2-real-account-smoke.mjs runs",

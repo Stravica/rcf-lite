@@ -62,14 +62,14 @@ The first line brings up MinIO, waits, installs the fixture's own `@aws-sdk/clie
 
 ## Induced-failure switches
 
-Six switches simulate failure modes the negative-run probes exercise:
+Four switches simulate failure modes the negative-run probes exercise. Each is wired end-to-end at v1.0.0 and each was proven fail-verdict on the shipped head:
 
-- `SIMULATE_MINIO_DOWN=true`: unbind the port before the probe runs (bring the container down); the `facade-round-trip` probe surfaces a HeadBucket connection error and aggregate verdict fail.
-- `SIMULATE_403_ON_GET=true`: the facade's `getObject` throws a synthetic AccessDenied 403 shape; the `put-get-round-trip` probe surfaces the fail on AC-objectstorage-putGetRoundTrip.
-- `SIMULATE_PART_UPLOAD_FAIL=true`: the multipart uploader refuses part 2 with a thrown error; the `multipart-upload` probe surfaces the AC-28104-2 pass (abort-on-failure + no orphan in-flight).
-- `SIMULATE_PRESIGN_MALFORMED=true`: the facade tampers the returned URL's X-Amz-Signature; the `presigned-url` probe surfaces the fail on AC-objectstorage-presignedUrl (first fetch returns 403 instead of 200).
-- `SIMULATE_PII_ON_EVENT=true`: reserved for a future negative-run path where the facade would leak a body-derived field into an event record; the `event-secrecy` probe would surface the fail on AC-objectstorage-eventSecrecy. Not wired at v1.0.0 (the facade's whitelist is enforced in code, not via a runtime switch); documented for symmetry with the six-switch enumeration in the spec.
-- `SIMULATE_LARGE_PAYLOAD=true`: reserved for a future path exercising the S3 5 GiB single-put cap; not wired at v1.0.0 (the shipped 10 MiB probe is above the 8 MiB multipart threshold and exercises the multipart path).
+- `SIMULATE_MINIO_DOWN=true`: unbind the port before the probe runs (`docker compose stop minio`); the `facade-round-trip` probe surfaces a HeadBucket connection error, aggregate verdict fail, node exit 1.
+- `SIMULATE_403_ON_GET=true`: the facade's `getObject` throws a synthetic AccessDenied 403 shape; the `put-get-round-trip` probe surfaces the fail on AC-28102-1, node exit 1.
+- `SIMULATE_PART_UPLOAD_FAIL=true`: the multipart uploader refuses part 2 with a thrown error; the `multipart-upload` probe surfaces the fail (the initial 10 MiB put propagates the mid-multipart error and the AbortMultipartUpload path runs in the facade before the rejection reaches the caller), node exit 1.
+- `SIMULATE_PRESIGN_MALFORMED=true`: the facade tampers the returned URL's X-Amz-Signature; the `presigned-url` probe's first fetch returns 403 instead of 200, aggregate verdict fail, node exit 1.
+
+Two additional switches from the spec's original enumeration (event-secrecy leak simulation and above-cap large-payload simulation) are not carried at v1.0.0: the event-secrecy whitelist is enforced in code (not via a runtime switch), and the 10 MiB multipart probe already exercises the above-threshold path. A future v1.1 may add either if a runtime-switched form yields something the shipped path does not already prove.
 
 ## Presigned URL wall-clock TTL test
 

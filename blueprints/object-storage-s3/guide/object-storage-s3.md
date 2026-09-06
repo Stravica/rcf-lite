@@ -93,7 +93,7 @@ The facade emits four events on the injected sink with a fixed metadata-only fie
 | `objectDeleted` | `event`, `ts`, `key` |
 | `presignedIssued` | `event`, `ts`, `key`, `ttl` |
 
-No record carries object body bytes, no body checksum, no user id field, no PII drawn from the object body. The `event-secrecy` probe (AC-objectstorage-eventSecrecy) drives put/get/presign/delete against a PII fixture (key `users/1234/passport.jpg`, body containing `PII-FIXTURE-DO-NOT-LOG`) and asserts the whitelist compliance at ship time.
+No record carries object body bytes, no body checksum, no user id field, no PII drawn from the object body. The `event-secrecy` probe (AC-28105-1) drives put/get/presign/delete against a PII fixture (key `users/1234/passport.jpg`, body containing `PII-FIXTURE-DO-NOT-LOG`) and asserts the whitelist compliance at ship time.
 
 ## R2 deviations from full S3
 

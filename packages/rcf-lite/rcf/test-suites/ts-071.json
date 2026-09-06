@@ -48,7 +48,7 @@
       "acId": "AC-4101-5",
       "description": "Cover AC-4101-5 via anatomy test",
       "status": "pending",
-      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::sample-app fixture ships docker-compose.yml, package.json, src/object-store.mjs, src/secrets.mjs, and its README documents docker and podman and the six induced-failure switches (TC-071-fixture-and-switches)"
+      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::sample-app fixture ships docker-compose.yml, package.json, src/object-store.mjs, src/secrets.mjs, and its README documents docker and podman and the four wired induced-failure switches (TC-071-fixture-and-switches)"
     },
     {
       "id": "TC-071-shelf-doc-consistency",

@@ -20,10 +20,10 @@
     },
     {
       "id": "AC-28107-2",
-      "description": "Given the shared fixture, when each induced-failure switch is set (SIMULATE_MINIO_DOWN, SIMULATE_403_ON_GET, SIMULATE_PART_UPLOAD_FAIL, SIMULATE_PRESIGN_MALFORMED, SIMULATE_PII_ON_EVENT, SIMULATE_LARGE_PAYLOAD) and the paired probe runs, then that probe's aggregate verdict flips from pass to fail on the AC anchored to the observation the switch corrupts.",
+      "description": "Given the shared fixture, when each of the four wired induced-failure switches is set (SIMULATE_MINIO_DOWN, SIMULATE_403_ON_GET, SIMULATE_PART_UPLOAD_FAIL, SIMULATE_PRESIGN_MALFORMED) and the paired probe runs, then that probe's aggregate verdict flips from pass to fail on the AC anchored to the observation the switch corrupts.",
       "given": "the shared fixture with MinIO running",
       "when": "each induced-failure switch is set in turn and the paired probe runs",
-      "then": "the paired probe exits non-zero and the aggregate verdict lands as fail on the anchored AC; the fixture README documents the paired switch and probe for each of the six switches",
+      "then": "the paired probe exits non-zero and the aggregate verdict lands as fail on the anchored AC; the fixture README documents the paired switch and probe for each of the four wired switches",
       "testable": true,
       "scope": "runtime"
     }

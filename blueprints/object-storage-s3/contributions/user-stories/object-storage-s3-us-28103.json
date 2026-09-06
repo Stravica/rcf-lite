@@ -10,7 +10,7 @@
   "soThat": "the browser fetches the object directly from the storage endpoint without holding my credentials, and my logs can bind to the issue event",
   "acceptanceCriteria": [
     {
-      "id": "AC-objectstorage-presignedUrl",
+      "id": "AC-28103-1",
       "description": "Given a presignGetUrl call with ttl=60 seconds for a known key, when the returned URL is fetched with Node built-in fetch within TTL, then the response status is 200 and the body bytes equal the object bytes; when the same URL is fetched after ttl+2 seconds, the response status is 403 (S3-shape AccessDenied) or the storage-side 403-equivalent; a presignedIssued event fires on the sink with key, ttl=60, timestamp.",
       "given": "an object previously put through the facade and the facade opened",
       "when": "presignGetUrl(key, ttl=60) then fetch(url) immediately, then wait ttl+2 seconds and fetch(url) again",

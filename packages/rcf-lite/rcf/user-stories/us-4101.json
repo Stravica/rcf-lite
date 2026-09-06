@@ -43,7 +43,7 @@
     },
     {
       "id": "AC-4101-5",
-      "description": "The sample-app fixture's induced-failure switches surface each probe's negative-run behaviour: SIMULATE_PART_UPLOAD_FAIL=true drives the multipart-upload probe's AC-28104-2 abort-on-failure path; SIMULATE_PRESIGN_MALFORMED=true drives the presigned-url probe's tampered-signature 403 path; SIMULATE_403_ON_GET=true drives the put-get-round-trip probe's fail on AC-objectstorage-putGetRoundTrip. Each switched-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts (except SIMULATE_PART_UPLOAD_FAIL which surfaces the pass-on-abort-shape).",
+      "description": "The sample-app fixture's induced-failure switches surface each probe's negative-run behaviour: SIMULATE_PART_UPLOAD_FAIL=true drives the multipart-upload probe's AC-28104-2 abort-on-failure path; SIMULATE_PRESIGN_MALFORMED=true drives the presigned-url probe's tampered-signature 403 path; SIMULATE_403_ON_GET=true drives the put-get-round-trip probe's fail on AC-28102-1. Each switched-run report carries aggregateVerdict fail on the AC anchored to the observation the switch corrupts (except SIMULATE_PART_UPLOAD_FAIL which surfaces the pass-on-abort-shape).",
       "given": "the shared fixture with MinIO running",
       "when": "each named induced-failure switch is set in turn and the paired probe runs",
       "then": "SIMULATE_PART_UPLOAD_FAIL true yields multipart-upload report with AC-28104-2 pass and no orphan uploads; SIMULATE_403_ON_GET true yields put-get-round-trip report with aggregateVerdict fail; SIMULATE_PRESIGN_MALFORMED true yields presigned-url first-fetch 403 and aggregateVerdict fail; the fixture README documents each switch and the paired probe",
@@ -55,7 +55,7 @@
       "description": "The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains an object-storage-s3 row at US band 28101-28899 / ADR-TAC suffix block 29xx across every shipped blueprint's docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for objectStorage per infra round 5 spec section 5.6.",
       "given": "the shelf tree after this blueprint lands",
       "when": "grep queries walk every blueprint's docs/topics.md and the section 6a table",
-      "then": "packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | objectStorage |; every shipped blueprint's docs/topics.md carries a row beginning | object-storage-s3 | with the 28101-28899 band and 29xx suffix; blueprints/object-storage-s3/README.md, CHANGELOG.md, guide/object-storage-s3.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names docker and podman incantations and six induced-failure switches",
+      "then": "packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | objectStorage |; every shipped blueprint's docs/topics.md carries a row beginning | object-storage-s3 | with the 28101-28899 band and 29xx suffix; blueprints/object-storage-s3/README.md, CHANGELOG.md, guide/object-storage-s3.md, docs/topics.md, and packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names docker and podman incantations and four wired induced-failure switches",
       "testable": true,
       "scope": "runtime"
     }

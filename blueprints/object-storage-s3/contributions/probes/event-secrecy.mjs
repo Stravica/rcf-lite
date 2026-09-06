@@ -9,7 +9,7 @@
  * contains the PII fixture text, a userId/ssn/dob/email field, or any
  * part of the object body bytes.
  *
- * Anchors AC-objectstorage-eventSecrecy.
+ * Anchors AC-28105-1.
  */
 
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
@@ -49,7 +49,7 @@ export default async function runProbe() {
       }
     }
     results.push({
-      anchorAcId: 'AC-objectstorage-eventSecrecy',
+      anchorAcId: 'AC-28105-1',
       verdict: nonWhitelistKeys.size === 0 ? 'pass' : 'fail',
       detail: nonWhitelistKeys.size === 0
         ? `every event carries only whitelisted fields (${[...WHITELIST].join(',')})`
@@ -64,7 +64,7 @@ export default async function runProbe() {
       }
     }
     results.push({
-      anchorAcId: 'AC-objectstorage-eventSecrecy',
+      anchorAcId: 'AC-28105-1',
       verdict: foundForbidden.length === 0 ? 'pass' : 'fail',
       detail: foundForbidden.length === 0
         ? 'no forbidden PII field name appeared on any event'
@@ -79,7 +79,7 @@ export default async function runProbe() {
       }
     }
     results.push({
-      anchorAcId: 'AC-objectstorage-eventSecrecy',
+      anchorAcId: 'AC-28105-1',
       verdict: leaks.length === 0 ? 'pass' : 'fail',
       detail: leaks.length === 0
         ? `no event value contained the PII fixture text ${PII_TEXT}`
@@ -90,7 +90,7 @@ export default async function runProbe() {
     const putEvent = events.find((e) => e.event === 'objectPut');
     const keyPass = putEvent && putEvent.key === key;
     results.push({
-      anchorAcId: 'AC-objectstorage-eventSecrecy',
+      anchorAcId: 'AC-28105-1',
       verdict: keyPass ? 'pass' : 'fail',
       detail: keyPass
         ? `objectPut carried the key ${key} as an opaque string; no userId extraction`

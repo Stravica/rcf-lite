@@ -10,7 +10,7 @@
   "soThat": "the boundary between my domain and the S3 vendor surface is the only place that has to move when the adapter changes, and boot ordering is observable via the event",
   "acceptanceCriteria": [
     {
-      "id": "AC-objectstorage-facadeReady",
+      "id": "AC-28101-1",
       "description": "On process boot, the facade opens an S3 client against the elicited endpoint URL and bucket name; once the first successful ready-check (a HeadBucket or equivalent metadata call) returns, a facadeReady event fires on the injected event sink with a payload containing endpoint host and bucket name.",
       "given": "a Node process with the facade module imported and its factory invoked",
       "when": "the process boots and the facade's ready-check returns",

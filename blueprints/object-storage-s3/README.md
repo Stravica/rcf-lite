@@ -52,12 +52,12 @@ Each probe is a Node module under `contributions/probes/` exporting the round-5 
 
 | Probe | Anchor AC | What it proves | accountBound |
 |---|---|---|---|
-| `facade-round-trip` | AC-objectstorage-facadeReady | Facade opens against MinIO; `facadeReady` fires with endpointHost and bucketName. | false |
-| `put-get-round-trip` | AC-objectstorage-putGetRoundTrip, AC-28102-2, AC-28102-3 | 1 KiB round-trip byte-equal; delete and list round-trip; `objectPut` and `objectDeleted` fire. | false |
-| `presigned-url` | AC-objectstorage-presignedUrl | Presign at 60 s TTL returns 200 within TTL, 403 on tampered signature (or full TTL wall-clock with `SIMULATE_PRESIGN_EXPIRE=true`); floor refusal at 30 s. | false |
-| `multipart-upload` | AC-objectstorage-multipartUpload, AC-28104-2 | 10 MiB payload above the 8 MiB threshold round-trips byte-equal via multipart; no orphan in-flight uploads after complete; abort-on-failure with `SIMULATE_PART_UPLOAD_FAIL=true`. | false |
-| `event-secrecy` | AC-objectstorage-eventSecrecy | Every event record carries only whitelisted metadata fields; no PII fixture text; no forbidden field name. | false |
-| `r2-real-account-smoke` | AC-objectstorage-r2Smoke | Real R2 round-trip when `CI_HAS_CLOUDFLARE_ACCOUNT` is set; records `accountBoundSkipped: true` when it is not. | true |
+| `facade-round-trip` | AC-28101-1 | Facade opens against MinIO; `facadeReady` fires with endpointHost and bucketName. | false |
+| `put-get-round-trip` | AC-28102-1, AC-28102-2, AC-28102-3 | 1 KiB round-trip byte-equal; delete and list round-trip; `objectPut` and `objectDeleted` fire. | false |
+| `presigned-url` | AC-28103-1 | Presign at 60 s TTL returns 200 within TTL, 403 on tampered signature (or full TTL wall-clock with `SIMULATE_PRESIGN_EXPIRE=true`); floor refusal at 30 s. | false |
+| `multipart-upload` | AC-28104-1, AC-28104-2 | 10 MiB payload above the 8 MiB threshold round-trips byte-equal via multipart; no orphan in-flight uploads after complete; abort-on-failure with `SIMULATE_PART_UPLOAD_FAIL=true`. | false |
+| `event-secrecy` | AC-28105-1 | Every event record carries only whitelisted metadata fields; no PII fixture text; no forbidden field name. | false |
+| `r2-real-account-smoke` | AC-28108-1 | Real R2 round-trip when `CI_HAS_CLOUDFLARE_ACCOUNT` is set; records `accountBoundSkipped: true` when it is not. | true |
 
 ## How to run the probes locally
 

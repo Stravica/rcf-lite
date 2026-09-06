@@ -6,7 +6,7 @@
  * prefix and lists them. Deletes the objects and asserts the delete
  * lifecycle event fires and the get returns a not-found shape.
  *
- * Anchors AC-objectstorage-putGetRoundTrip, AC-28102-2, AC-28102-3.
+ * Anchors AC-28102-1, AC-28102-2, AC-28102-3.
  */
 
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
@@ -39,7 +39,7 @@ export default async function runProbe() {
     const putEvent = events.find((e) => e.event === 'objectPut' && e.key === key);
     const eventPass = putEvent && putEvent.size === 1024 && putEvent.contentType === contentType;
     results.push({
-      anchorAcId: 'AC-objectstorage-putGetRoundTrip',
+      anchorAcId: 'AC-28102-1',
       verdict: roundTripPass && eventPass ? 'pass' : 'fail',
       detail: roundTripPass && eventPass
         ? `1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`

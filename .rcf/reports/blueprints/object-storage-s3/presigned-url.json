@@ -1,7 +1,7 @@
 {
   "slug": "object-storage-s3",
   "probeName": "presigned-url",
-  "runAt": "2026-09-06T18:00:53.426Z",
+  "runAt": "2026-09-06T18:42:15.434Z",
   "engine": {
     "kind": "s3",
     "image": "minio/minio",
@@ -9,17 +9,17 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-objectstorage-presignedUrl",
+      "anchorAcId": "AC-28103-1",
       "verdict": "pass",
       "detail": "fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=60"
     },
     {
-      "anchorAcId": "AC-objectstorage-presignedUrl",
+      "anchorAcId": "AC-28103-1",
       "verdict": "pass",
       "detail": "tampered signature fetch returned 403 (expected 403; set SIMULATE_PRESIGN_EXPIRE=true for full TTL wall-clock)"
     },
     {
-      "anchorAcId": "AC-objectstorage-presignedUrl",
+      "anchorAcId": "AC-28103-1",
       "verdict": "pass",
       "detail": "presign below 60s floor refused per ADR-2902"
     }
