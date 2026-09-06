@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2503-application-forms-wizard-step-indicator",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Step indicator shape defaults to task-list, with ARIA progressbar and breadcrumb as elicited alternatives",
+  "context": "Wizards indicate the operator's position through one of three widely-adopted shapes. A task-list (the GOV.UK Design System task list pattern) surfaces every step as a row with a completion state; the operator sees the whole shape at a glance and can jump to a specific step. An ARIA progressbar surfaces a single wrapper carrying aria-valuenow and aria-valuemax; the operator gets a compact completion count without a per-step enumeration. A breadcrumb surfaces the linear path with the current step highlighted; the operator sees the trail and can walk back but does not see the future steps' state. All three satisfy WCAG 2.2 SC 2.4.6 Headings and Labels; the choice is a per-project posture driven by the wizard's shape and the design system.",
+  "decision": "Adopt task-list as the recommended default; the shipped surface renders it with the ARIA progressbar wrapper on top per REQ-001 so every project gets the completion count for free. Projects that prefer a compact indicator elicit the aria-progressbar-only branch and the task-list rows collapse into the progressbar's aria-valuetext. Projects that prefer a trail elicit the breadcrumb branch and the task-list rows render as breadcrumb entries. recommendedDefault is true on task-list; elicited is true because the alternative is a real per-project answer.",
+  "consequences": "Projects on the default get the task-list plus the progressbar with no configuration; the pack anchors on the task-list surface and the progressbar wrapper. Projects electing aria-progressbar-only lose the per-step enumeration and the row jump; the pack skips AC-24106-1 (linear-vs-free row rendering has no rows). Projects electing breadcrumb keep the trail affordance and lose the future-state enumeration; the pack asserts the breadcrumb entries in place of the task-list rows.",
+  "alternativesConsidered": [
+    {
+      "name": "ARIA progressbar as the shipped default",
+      "summary": "Ship the compact progressbar and no task-list.",
+      "reasonNotChosen": "Loses the completion overview and the row-jump affordance; a wizard with three or more steps benefits materially from the task-list."
+    },
+    {
+      "name": "Breadcrumb as the shipped default",
+      "summary": "Ship the trail and no task-list.",
+      "reasonNotChosen": "Loses the future-step state enumeration; the operator cannot see at a glance what remains."
+    }
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

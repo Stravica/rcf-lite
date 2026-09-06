@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-153",
+  "path": "../../blueprints/application-forms-wizard/CHANGELOG.md",
+  "implementsAcIds": [
+    "AC-2601-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T19:05:40.121Z",
+  "updatedAt": "2026-09-06T19:05:40.121Z"
+}

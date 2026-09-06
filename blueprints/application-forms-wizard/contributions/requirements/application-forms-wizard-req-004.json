@@ -1,0 +1,18 @@
+{
+  "reqId": "application-forms-wizard-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Summary-review contract: a summary-list rendering per step with Change links returning to each step and retaining every other answer on save",
+  "description": "After every step is Completed (per REQ-001) the wizard renders a summary-review surface: one summary-list section per step, each row a definition-list entry naming the field label and the operator's answer, and a Change link per row that navigates to the step with the field focused. Editing on the target step and saving returns to the summary-review surface with every other answer retained; only the edited answer is updated. The summary-list shape follows the GOV.UK Design System summary-list pattern. Per WCAG 2.2 SC 3.3.4 Error Prevention (Legal, Financial, Data): the summary-review is the last checkpoint before submission and every answer is reversible up to submit.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec section 5.3, REQ 4.",
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "category:04-summary-review"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

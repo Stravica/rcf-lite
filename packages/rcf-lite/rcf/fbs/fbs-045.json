@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-06T19:04:36.272Z",
+  "updatedAt": "2026-09-06T20:09:17.380Z",
+  "acIds": [
+    "AC-2601-1",
+    "AC-2601-2",
+    "AC-2601-3",
+    "AC-2601-4",
+    "AC-2601-5",
+    "AC-2601-6",
+    "AC-2601-7"
+  ],
+  "fbsId": "FBS-045",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 47,
+  "executionStatus": "notStarted",
+  "title": "application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture",
+  "summary": "T-3 shelf-blueprint track of the ratified visual round 4 (spec 2026-09-06, section 5.3): the application-forms-wizard v1.0.0 blueprint on the shelf. Ships 19 contributions (5 REQs on the task-list contract with the closed GOV.UK vocabulary Cannot start yet plus Not started plus In progress plus Completed with an ARIA progressbar wrapper, the per-step validation timing rule on-blur before first submit then on-change after first failure and a full pass on submit reusing SPA forms-engine TAC-205 per WCAG 2.2 SC 3.3.1 and 3.3.3, the error-summary contract with a top-of-page summary and skip links per failed field with aria-invalid true on the field and aria-describedby to the per-field error message and focus moved to the summary heading on submit failure, the summary-review contract with a summary-list rendering per step with Change links returning to each step and every other answer retained on save per WCAG 2.2 SC 3.3.4, the save-and-return contract with a server-side draft table or a client-side local buffer with a per-write ISO-8601 sync tick with the pack refusing to ship if neither is wired per WCAG 2.2 SC 3.3.7; 8 USs 24101 to 24108 one per REQ plus three cross-cutting cases linear-vs-free navigation, in-progress list and no-in-progress empty state delegated to application-empty-error-states; 3 TACs 2501 task-list shell and 2502 error-summary contract and 2503 draft store; 3 ADRs 2501 navigation posture linear default with elicited free branch, 2502 save-and-return transport across server-draft-table and client-local-buffer elicited with NO recommendedDefault, 2503 step indicator across task-list ARIA progressbar and breadcrumb with recommendedDefault true on task-list), a Playwright probe pack whose four checks (AC-24101-1 task-list, AC-24103-1 error-summary, AC-24104-1 summary-review, AC-24105-1 save-and-return) each bind TAC-2501 or the operator-configured wizard-route glob with URLs composed by withUrl(runtimeUrl, path), and a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ realising the four wizard surfaces honestly on /task-list, /step/<n>, /summary and /in-progress plus both save-and-return transports server default and local elicited plus four break switches (?break=task-list-vocab, ?break=no-summary, ?break=no-retain, ?break=no-draft) driving the negative runs. suggestedCompanions logging and errorHandling; providesRoles absent; requiresAppliedCapabilities absent; capabilities absent. Eighth shipped consumer of T-0 probe-pack runner extension.",
+  "dependsOnFbsIds": [
+    "FBS-044"
+  ]
+}

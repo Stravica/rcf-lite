@@ -1,0 +1,28 @@
+{
+  "usId": "application-forms-wizard-US-24105",
+  "prdId": "PRD-001",
+  "reqId": "application-forms-wizard-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Save-and-return is wired via a server-side draft table or a client-side local buffer with a sync tick; the pack refuses to ship if neither is present",
+  "asA": "operator who has partially completed a wizard and will return later",
+  "iWant": "my partial answers persisted between steps and across sessions, either to a server-side draft table or to a local buffer that surfaces a sync tick when it writes",
+  "soThat": "closing the tab or losing the network mid-way does not force me to start again from the first step",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-24105-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "On ?draft-store=server, entering an answer on step 1 and advancing issues a POST /drafts request whose body carries the operator identifier, the wizard slug, the step slug and the answer field; a subsequent GET /drafts on the same operator returns the persisted answer (the pack drives step 1, types into a field, advances, then re-issues a fresh GET /drafts and reads the JSON body). On ?draft-store=local, the same input path writes into window.localStorage under a namespaced key (draft:<wizard-slug>:<step-slug>) and renders a [data-sync-tick] element carrying an ISO-8601 timestamp updated on every write. When both transports are absent (?draft-store=none) the pack fails at severity block naming the missing transport."
+    }
+  ],
+  "tacIds": [
+    "TAC-2503-application-forms-wizard-draft-store"
+  ],
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "contract:save-and-return"
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

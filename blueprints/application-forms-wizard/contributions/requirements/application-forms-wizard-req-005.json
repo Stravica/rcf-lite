@@ -1,0 +1,18 @@
+{
+  "reqId": "application-forms-wizard-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Save-and-return contract: a server-side draft table or a client-side local buffer with a sync tick; refuses to ship if neither is wired",
+  "description": "The wizard commits partial answers between steps to a draft store so an operator can leave the surface and return without losing progress. Two transports ship: a server-side draft table (POST /drafts persists per-operator per-wizard rows, GET /drafts hydrates on return) and a client-side local buffer (localStorage keyed by operator identifier and wizard slug with a per-write sync tick). ADR-2502 commits to no recommendedDefault because the abandoned-draft loss class is genuinely per-project. A wizard that ships without either transport is refused at build gate: the draft-store TAC is a required companion. Per WCAG 2.2 SC 3.3.7 Redundant Entry: information the operator has already entered is preserved across sessions and not re-solicited.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec section 5.3, REQ 5.",
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "category:05-save-and-return"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

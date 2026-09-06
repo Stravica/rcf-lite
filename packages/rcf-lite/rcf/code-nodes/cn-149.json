@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-149",
+  "path": "../../blueprints/application-forms-wizard/probe-packs/application-forms-wizard.pack.mjs",
+  "implementsAcIds": [
+    "AC-2601-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T19:05:39.449Z",
+  "updatedAt": "2026-09-06T19:05:39.449Z"
+}

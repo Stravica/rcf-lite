@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-2502-application-forms-wizard-save-and-return",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Save-and-return transport ships as server-side draft table or client-side local buffer with no recommendedDefault",
+  "context": "The abandoned-draft loss class is genuinely per-project. An application whose operators sign in on shared kiosks with rotating identities cannot rely on a local buffer keyed to the browser; the draft must live on a server-side draft table keyed to the operator identifier so the operator can walk to a different device and continue. An application whose operators run on a single personal device with intermittent connectivity is better served by a local buffer that survives a network drop and syncs on the next flush. A shipped default in either direction quietly ships the wrong loss class for at least one common posture, so this blueprint declines to pick one.",
+  "decision": "Ship two transports: server-draft-table (POST /drafts and GET /drafts against operator-configured endpoints) and client-local-buffer (localStorage keyed by wizard slug and step slug with a per-write ISO-8601 sync tick). ADR-2502 records the elicit as required, elicited is true, and no recommendedDefault is committed: a project applying application-forms-wizard MUST answer the elicit and the build gate refuses when neither transport is wired. The GOV.UK Design System save and return pattern informs the server branch; the local branch is generic enterprise practice.",
+  "consequences": "Projects with a server-side draft table get audit-trail-clean per-operator persistence at the price of a server endpoint and a persistence adapter. Projects with a client-side local buffer get zero-server-work persistence at the price of losing drafts when the operator switches device. A project that has not decided cannot silently ship on the shelf default because there is none; the elicit is a real gate. The pack drives both transports on the sample fixture and refuses on the ?draft-store=none branch to prove the missing-transport case fails at severity block.",
+  "alternativesConsidered": [
+    {
+      "name": "Server-only as the shipped default",
+      "summary": "Ship server-draft-table as the sole transport and refuse projects without a server endpoint.",
+      "reasonNotChosen": "Refuses to apply on a hobby SPA with no server; the shelf blueprint has to be reachable by every applied posture."
+    },
+    {
+      "name": "Local-only as the shipped default",
+      "summary": "Ship client-local-buffer as the sole transport and refuse projects with cross-device operators.",
+      "reasonNotChosen": "Ships the wrong loss class for kiosk-shape and multi-device operators; audit-trail-first projects cannot use it."
+    }
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

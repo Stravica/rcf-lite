@@ -1,0 +1,29 @@
+{
+  "usId": "application-forms-wizard-US-24104",
+  "prdId": "PRD-001",
+  "reqId": "application-forms-wizard-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "After every step is Completed the wizard renders a summary-review surface with one summary-list section per step and a Change link per row that retains every other answer on save",
+  "asA": "operator who has finished every step in the wizard",
+  "iWant": "a summary-review surface that lists every step's answers as a definition list, with a Change link per row that takes me back to the step with the field focused, and my other answers still present when I save",
+  "soThat": "I can review everything I entered before I submit, revise a single answer without losing the rest, and satisfy myself the submission is what I intended",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-24104-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given every step is Completed, /summary renders [data-surface=\"summary-review\"] with one [data-summary-list-section] per step; each section holds a <dl> summary list carrying [data-summary-row] entries with a <dt> label and a <dd> value; every row carries a [data-recovery=\"change\"] link whose href routes back to the step. After clicking a Change link, editing that field and saving, the operator returns to /summary and every other row's value is preserved verbatim. The pack drives /summary, reads the row count and dl structure, follows one Change link, updates one field, saves, and diffs the summary rows before and after to prove only the edited row changed."
+    }
+  ],
+  "tacIds": [
+    "TAC-2501-application-forms-wizard-task-list",
+    "TAC-2503-application-forms-wizard-draft-store"
+  ],
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "contract:summary-review"
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

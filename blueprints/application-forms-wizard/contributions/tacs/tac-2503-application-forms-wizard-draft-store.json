@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2503-application-forms-wizard-draft-store",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Wizard draft store",
+  "purpose": "Owns the save-and-return contract: the transport branch (server-side draft table or client-side local buffer), the sync tick on write, the hydrate-on-return path, and the in-progress list enumeration. Every AC on REQ-005 anchors on this TAC. Delegates the no-in-progress empty case to the application-empty-error-states empty-list state.",
+  "responsibilities": [
+    "On step advance persist the operator's partial answers per REQ-005 via the elicited transport (POST /drafts on server; localStorage write on local) (AC-24105-1).",
+    "On wizard entry hydrate the operator's answers from the draft store (GET /drafts on server; localStorage read on local) so the task-list computes the correct completion state (AC-24101-1, AC-24105-1).",
+    "Render a [data-sync-tick] element on the client-local branch carrying an ISO-8601 timestamp updated on every write (AC-24105-1).",
+    "Enumerate the operator's drafts on the /in-progress list surface (AC-24107-1) and delegate the zero-drafts case to the application-empty-error-states empty-list state (AC-24108-1).",
+    "Refuse to render the wizard when neither transport is wired (a project applying application-forms-wizard without a draft-store elicit answer fails at build gate per ADR-2502)."
+  ],
+  "internalStructure": "One draft-store module the shell mounts on wizard entry. On mount the module reads the ADR-2502 elicit answer, resolves the transport factory (server-draft-table or client-local-buffer), and exposes the four operations {read, write, list, remove} to the task-list and summary-review modules. The server branch POSTs and GETs against operator-configured /drafts endpoints; the local branch reads and writes window.localStorage under the namespaced key draft:<wizard-slug>:<step-slug>. Neither transport ships a sync engine; the flush semantics are those of the underlying transport (server persistence on POST, browser persistence on the local write).",
+  "interfaces": [
+    {
+      "name": "resolveTransport",
+      "kind": "factory",
+      "description": "resolveTransport({ elicit }) -> { read, write, list, remove }. Returns the transport bound to the elicited branch."
+    },
+    {
+      "name": "transportsEnum",
+      "kind": "shape",
+      "description": "The transport branches are the closed enum {server-draft-table, client-local-buffer}. A third branch is a v1.1.0 minor bump."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Applied application-empty-error-states blueprint",
+      "kind": "external",
+      "description": "The zero-drafts case on /in-progress delegates to the empty-list state contributed by application-empty-error-states (TAC-2301 state machine, [data-surface=\"empty-list\"] wrapper with a [data-recovery=\"create\"] control). A project applying application-forms-wizard without application-empty-error-states also applied sees the /in-progress empty branch render a fallback empty message, which fails the sibling's runtime enforcement pack."
+    }
+  ],
+  "tradeoffs": "Two transports keep the shelf blueprint reachable by every project shape (a hobby SPA with no server can ship the local branch; an enterprise SPA with an audit trail ships the server branch) at the price of a per-project elicit at apply time. Known mechanism-reach gap: the pack asserts POST /drafts and GET /drafts round-trip on the server branch and the localStorage write on the local branch, but does not additionally probe cross-tab hydration on the local branch or server-side dedupe on the server branch; both are v1.1.0 minor-bump candidates.",
+  "notes": "See README Known mechanism-reach gaps.",
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

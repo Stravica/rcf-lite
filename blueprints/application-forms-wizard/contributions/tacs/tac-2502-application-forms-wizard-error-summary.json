@@ -1,0 +1,40 @@
+{
+  "tacId": "TAC-2502-application-forms-wizard-error-summary",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Wizard error-summary contract",
+  "purpose": "Owns the top-of-page error-summary contract on submit refusal: the summary region, the skip-link binding per failed field, the aria-invalid and aria-describedby marking on the fields themselves, the focus move to the summary heading, and the validation-timing gate the SPA forms-engine drives per REQ-002. Every AC on REQ-002 and REQ-003 anchors on this TAC.",
+  "responsibilities": [
+    "Render [data-surface=\"error-summary\"] at the top of the step on submit refusal with a heading and one skip-link anchor per failed field (AC-24103-1).",
+    "Mark every failed field with aria-invalid=\"true\" and aria-describedby pointing at its per-field error message id (AC-24103-1).",
+    "Move focus to the summary heading on submit failure (AC-24103-1).",
+    "Delegate validation to the SPA forms-engine TAC-205 on the on-blur, on-change and on-submit triggers per REQ-002 (AC-24102-1); this TAC does not re-implement validation, it consumes the engine.",
+    "Clear aria-invalid on a field when its message clears and remove the anchor from the summary on the next successful submit."
+  ],
+  "internalStructure": "One error-summary module the shell mounts inside the step surface. On submit refusal the module reads the engine's error set, renders the anchor list, moves focus, and wires the anchor click to focus the corresponding field. On subsequent input events after the first failure the module re-runs the engine per-field and updates the message; on the next submit the module rebuilds the error set from scratch. Framework is not prescribed; the interfaces are what the project realises.",
+  "interfaces": [
+    {
+      "name": "renderSummary",
+      "kind": "factory",
+      "description": "renderSummary({ errors, headingId }) -> void. Renders the summary region and wires focus."
+    },
+    {
+      "name": "bindField",
+      "kind": "factory",
+      "description": "bindField({ field, message }) -> void. Sets aria-invalid and aria-describedby."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Applied SPA forms-engine",
+      "kind": "external",
+      "description": "The error-summary consumes the applied application-spa forms-engine (TAC-205 in that blueprint) to run per-field validation; this TAC does not ship its own engine. A project without application-spa applied wires an engine of its own choice against this TAC's interfaces (renderSummary and bindField)."
+    }
+  ],
+  "tradeoffs": "Consuming the SPA forms-engine keeps a project on the shelf free from a second overlapping engine but ties this TAC to the SPA blueprint's validation shape. Known mechanism-reach gap: the pack asserts the summary and the aria bindings but does not additionally probe the focus-order sweep across every field in the DOM after focus moves to the heading; a v1.1.0 minor bump can walk the tab order and diff.",
+  "notes": "See README Known mechanism-reach gaps.",
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}

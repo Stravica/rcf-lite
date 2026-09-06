@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-152",
+  "path": "../../blueprints/application-forms-wizard/guide/application-forms-wizard.md",
+  "implementsAcIds": [
+    "AC-2601-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T19:05:39.953Z",
+  "updatedAt": "2026-09-06T19:05:39.953Z"
+}

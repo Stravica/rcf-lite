@@ -1,0 +1,154 @@
+{
+  "createdAt": "2026-09-06T19:03:15.348Z",
+  "updatedAt": "2026-09-06T19:07:15.107Z",
+  "description": "The rcf-lite shelf ships the application-forms-wizard v1.0.0 blueprint (blueprints/application-forms-wizard/) with 19 contributions (5 REQs on the task-list contract with the closed GOV.UK vocabulary Cannot start yet plus Not started plus In progress plus Completed with an ARIA progressbar wrapper, the per-step validation timing rule on-blur before first submit then on-change after first failure and a full pass on submit reusing SPA forms-engine TAC-205 per WCAG 2.2 SC 3.3.1 and 3.3.3, the error-summary contract with a top-of-page summary and skip links per failed field with aria-invalid true on the field and aria-describedby to the per-field error message and focus moved to the summary heading on submit failure, the summary-review contract with a summary-list rendering per step with Change links returning to each step and every other answer retained on save per WCAG 2.2 SC 3.3.4, the save-and-return contract with a server-side draft table or a client-side local buffer with a per-write ISO-8601 sync tick with the pack refusing to ship if neither is wired per WCAG 2.2 SC 3.3.7; 8 USs 24101 to 24108 one per REQ plus three cross-cutting cases linear-vs-free navigation, in-progress list and no-in-progress empty state delegated to application-empty-error-states; 3 TACs 2501 task-list shell and 2502 error-summary contract and 2503 draft store; 3 ADRs 2501 navigation posture linear default with elicited free branch, 2502 save-and-return transport across server-draft-table and client-local-buffer elicited with NO recommendedDefault because the abandoned-draft loss class does not ship silently, 2503 step indicator across task-list ARIA progressbar and breadcrumb with recommendedDefault true on task-list). Declares suggestedCompanions logging and errorHandling with reasons from spec section 5.3; providesRoles absent; capabilities absent; requiresAppliedCapabilities absent. Ships a Playwright probe pack under blueprints/application-forms-wizard/probe-packs/application-forms-wizard.pack.mjs with four surface-observable checks anchored to TAC-2501 or an operator-configured wizard-route glob. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/ realising the four wizard surfaces honestly plus both save-and-return transports server default and local elicited plus four break switches so each check refuses on its own defect. Eighth shipped consumer of T-0 probe-pack runner extension. Consumes application-empty-error-states for the no-in-progress empty state on the /in-progress list surface.",
+  "reqId": "REQ-026",
+  "prdId": "PRD-001",
+  "title": "Application-forms-wizard v1.0.0 blueprint on the shelf with the task-list contract, error-summary contract, summary-review pattern, save-and-return draft store and Playwright probe pack",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-06T19:03:15.372Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "store"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "WCAG"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "aria-"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "aria-"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "rendering"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "WCAG"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "WCAG"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "nav"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "navigation"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "store"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "nav"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "navigation"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      }
+    ]
+  }
+}

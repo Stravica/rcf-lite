@@ -1,0 +1,28 @@
+{
+  "usId": "application-forms-wizard-US-24106",
+  "prdId": "PRD-001",
+  "reqId": "application-forms-wizard-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Linear-vs-free step navigation is a per-project elicit; the task-list respects it by disabling out-of-order entry on linear and permitting it on free",
+  "asA": "operator whose project has committed to a step order posture",
+  "iWant": "the task-list to disable step links whose prerequisites are unfinished when the project runs linear, or to permit any step at any time when the project runs free",
+  "soThat": "the surface matches the project's committed posture and does not let me enter a step whose prerequisites the domain forbids",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-24106-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "On the ?nav=linear branch, task-list rows whose [data-step-state] is Cannot start yet render as non-anchor spans (no clickable href) and the pack asserts a click on the row does not change the URL. On the ?nav=free branch every row renders as an anchor and a click on any row navigates to that step's route. ADR-2501 records the elicit and the shipped default is linear."
+    }
+  ],
+  "tacIds": [
+    "TAC-2501-application-forms-wizard-task-list"
+  ],
+  "tags": [
+    "blueprint:application-forms-wizard",
+    "case:linear-vs-free-navigation"
+  ],
+  "createdAt": "2026-09-06T18:00:00Z",
+  "updatedAt": "2026-09-06T18:00:00Z"
+}
