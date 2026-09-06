@@ -46,6 +46,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
 | application-file-upload | 23101-23899 | 24xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 
 Suffix-family ids (ADR, TAC): SPA numbers in the 2xx range, this package takes 3xx (ADR-301 to ADR-308, TAC-301 to TAC-306); the next blueprint should take 4xx.
 

@@ -46,6 +46,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
 | application-file-upload | 23101-23899 | 24xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 
 US 5101-5111 sit at the LOW end of the 5101-5899 band on purpose. A project-side story that mechanically derives from `persistence-data-sqlite-REQ-011` into the number `5111` would collide against persistence-data-sqlite-US-5111 in this package; the band leaves headroom at the HIGH end (US 5181-5899) so a project's own stories anchored to persistence-data-sqlite REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

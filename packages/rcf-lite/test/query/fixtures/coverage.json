@@ -1972,6 +1972,61 @@
           "unresolvedTestCases": []
         }
       ]
+    },
+    {
+      "id": "REQ-041",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-4101-1",
+          "covered": true,
+          "testCases": [
+            "TC-071-blueprint-json-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4101-2",
+          "covered": true,
+          "testCases": [
+            "TC-071-applies-clean-with-secrets"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4101-3",
+          "covered": true,
+          "testCases": [
+            "TC-071-apply-refusal-and-override"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4101-4",
+          "covered": true,
+          "testCases": [
+            "TC-071-probe-anchor-ids-cross-check"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4101-5",
+          "covered": true,
+          "testCases": [
+            "TC-071-fixture-and-switches"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4101-6",
+          "covered": true,
+          "testCases": [
+            "TC-071-shelf-doc-consistency"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
     }
   ],
   "unresolvedTestPointers": []

@@ -1,0 +1,28 @@
+{
+  "slug": "object-storage-s3",
+  "probeName": "put-get-round-trip",
+  "runAt": "2026-09-06T18:00:53.299Z",
+  "engine": {
+    "kind": "s3",
+    "image": "minio/minio",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-objectstorage-putGetRoundTrip",
+      "verdict": "pass",
+      "detail": "1 KiB round-trip byte-equal; objectPut fired with size=1024"
+    },
+    {
+      "anchorAcId": "AC-28102-3",
+      "verdict": "pass",
+      "detail": "list returned 3 keys with isTruncated=false"
+    },
+    {
+      "anchorAcId": "AC-28102-2",
+      "verdict": "pass",
+      "detail": "objectDeleted fired and get after delete returned NoSuchKey"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

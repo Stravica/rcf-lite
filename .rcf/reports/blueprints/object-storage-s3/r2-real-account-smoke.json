@@ -1,0 +1,19 @@
+{
+  "slug": "object-storage-s3",
+  "probeName": "r2-real-account-smoke",
+  "runAt": "2026-09-06T18:00:53.894Z",
+  "engine": {
+    "kind": "s3",
+    "image": "cloudflare-r2",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-objectstorage-r2Smoke",
+      "verdict": "pass",
+      "detail": "accountBound: skipped (no CI_HAS_CLOUDFLARE_ACCOUNT)",
+      "accountBoundSkipped": true
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

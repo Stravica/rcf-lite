@@ -44,6 +44,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 | application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
+| object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 
 US 27101-27110 sit at the LOW end of the 27101-27899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a persistence-data-postgres REQ id into the number 27110 would collide against the shipped US-27110; band headroom (27111-27899) leaves that space.
 

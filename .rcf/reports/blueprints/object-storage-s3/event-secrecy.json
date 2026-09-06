@@ -1,0 +1,33 @@
+{
+  "slug": "object-storage-s3",
+  "probeName": "event-secrecy",
+  "runAt": "2026-09-06T18:00:53.814Z",
+  "engine": {
+    "kind": "s3",
+    "image": "minio/minio",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-objectstorage-eventSecrecy",
+      "verdict": "pass",
+      "detail": "every event carries only whitelisted fields (event,ts,key,size,contentType,ttl,endpointHost,bucketName)"
+    },
+    {
+      "anchorAcId": "AC-objectstorage-eventSecrecy",
+      "verdict": "pass",
+      "detail": "no forbidden PII field name appeared on any event"
+    },
+    {
+      "anchorAcId": "AC-objectstorage-eventSecrecy",
+      "verdict": "pass",
+      "detail": "no event value contained the PII fixture text PII-FIXTURE-DO-NOT-LOG"
+    },
+    {
+      "anchorAcId": "AC-objectstorage-eventSecrecy",
+      "verdict": "pass",
+      "detail": "objectPut carried the key users/1234/passport.jpg as an opaque string; no userId extraction"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}
