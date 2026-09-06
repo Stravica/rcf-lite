@@ -6,13 +6,13 @@ S3-shape object storage on any S3-compatible endpoint: Cloudflare R2 (the shippe
 
 ## Apply this blueprint
 
-`security-secrets-management` MUST be applied first per REQ-006 (Baz decision 6). On a project that has not applied it:
+`security-secrets-management` v1.0.1+ MUST be applied first per REQ-006 (Baz decision 6). The blueprint declares `requiresAppliedCapabilities: {capabilities: ["secretsProvider"], allowSkipFlag: "allow-no-secrets-yet", refusalMessageId: "object-storage-s3-no-secrets"}` and the T-5 capability mechanism (visual round spec 5.5.1) enforces the refusal at apply time. On a project that has not applied secrets-management:
 
 ```sh
 rcf define blueprint add object-storage-s3
 ```
 
-exits 3 with the stable message id `object-storage-s3-no-secrets` on stderr; the message names `security-secrets-management` as the required predecessor and `--allow-no-secrets-yet` as the override for a scaffolding pass. Apply secrets-management first, then:
+exits 3 with `[object-storage-s3-no-secrets]` on stderr as the first-line tag; the message names the required capability (`secretsProvider`), the shipped predecessor (`security-secrets-management` v1.0.1+), and `--allow-no-secrets-yet` as the override for a scaffolding pass. The override applies the blueprint cleanly and records a `notes` line on `rcf/blueprints/object-storage-s3.applied.json` naming the missing predecessor so a later `rcf define validate` pass can flag the surface as not-yet-activated. Apply secrets-management first, then:
 
 ```sh
 rcf define blueprint add security-secrets-management

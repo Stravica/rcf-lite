@@ -44,7 +44,7 @@ Endpoint URL (R2 `https://<account-id>.r2.cloudflarestorage.com`, AWS S3 `https:
 
 ## Composition and conflicts
 
-Consumes `security-secrets-management` for the credential pair; the compose-test path refuses without it (exit 3 with stable message id `object-storage-s3-no-secrets`; override with `--allow-no-secrets-yet` records a note on `source.notes`). Contributes ADR-2904 as `scope: global` on new topic `objectStorageContract`; future `object-storage-native-gcs` or `object-storage-native-azure` siblings would conflict here by design. `capabilities: ["objectStorage"]`; `providesRoles: []`.
+Consumes `security-secrets-management` v1.0.1+ for the credential pair. Declares `requiresAppliedCapabilities: {capabilities: ["secretsProvider"], allowSkipFlag: "allow-no-secrets-yet", refusalMessageId: "object-storage-s3-no-secrets"}` per the T-5 capability mechanism (visual round spec 5.5.1). The apply verb refuses on a project without `secretsProvider` (exit 3, stderr carries `[object-storage-s3-no-secrets]` as the first-line tag and names the required capability, the shipped predecessor, and the override flag). `--allow-no-secrets-yet` overrides for a scaffolding pass and records a `notes` line on `rcf/blueprints/object-storage-s3.applied.json` for later reconciliation. Contributes ADR-2904 as `scope: global` on new topic `objectStorageContract`; future `object-storage-native-gcs` or `object-storage-native-azure` siblings would conflict here by design. `capabilities: ["objectStorage"]`; `providesRoles: []`.
 
 ## The six probes
 

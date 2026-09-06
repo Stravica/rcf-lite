@@ -190,6 +190,12 @@ const OPTION_SPEC = {
   // repeatable; --answers <file> reads a JSON object mapping elicit
   // ids to values. Both feed the elicitation phase in applyBlueprint.
   'allow-no-auth-yet': { type: 'boolean' },
+  // Infra round 5 T-2 (spec 5.2, Baz decision 6): object-storage-s3
+  // declares allowSkipFlag "allow-no-secrets-yet" so the override for
+  // its requiresAppliedCapabilities gate stays semantically aligned
+  // with the credential-pair discipline the spec names, rather than
+  // reusing the auth-flavoured flag.
+  'allow-no-secrets-yet': { type: 'boolean' },
   answer: { type: 'string', multiple: true },
   answers: { type: 'string' },
 };
@@ -339,7 +345,8 @@ export async function main(argv, deps = {}) {
     const result = await applyBlueprint({
       projectRoot, tree, source,
       namespaceOverride: parsed.values.namespace,
-      allowNoAuthYet: parsed.values['allow-no-auth-yet'] === true,
+      allowNoAuthYet: parsed.values['allow-no-auth-yet'] === true
+        || parsed.values['allow-no-secrets-yet'] === true,
       elicitAnswers,
       customAuthReadLine,
       // Library-qualified resolves rewire the applied identity under

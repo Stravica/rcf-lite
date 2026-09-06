@@ -44,17 +44,22 @@ test('blueprint.json declares 21 contributions with capabilities objectStorage, 
 });
 
 test('apply object-storage-s3 refuses on a bare fixture without security-secrets-management and lands with --allow-no-secrets-yet (TC-071-apply-refusal-and-override)', async () => {
-  // The compose-time refusal AC (AC-4101-3) is a runtime-scope AC exercised by
-  // an actual `rcf define blueprint add` invocation. This test asserts the
-  // anatomy pieces the mechanism reads: the loader's requiresAppliedCapabilities
-  // shape is absent here (per spec section 5.2 the refusal message id is
-  // wired via the blueprint metadata prose, not a schema field) and the
-  // README documents the override flag path. The full apply-refusal probe
-  // is the compose-test path invoked at gate time; this unit test asserts
-  // the surface exists.
+  // The compose-time refusal AC (AC-4101-3) is enforced via the T-5
+  // capability mechanism (visual round spec 5.5.1) as folded into this
+  // train by coordinator ruling: security-secrets-management v1.0.1
+  // declares capabilities: ["secretsProvider"], and object-storage-s3
+  // declares requiresAppliedCapabilities with allowSkipFlag
+  // "allow-no-secrets-yet" and refusalMessageId
+  // "object-storage-s3-no-secrets". The apply verb refuses on a bare
+  // project with exit 3 and stderr carrying [object-storage-s3-no-secrets];
+  // the --allow-no-secrets-yet override records a notes line on
+  // rcf/blueprints/object-storage-s3.applied.json.
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
-  assert.equal(doc.requiresAppliedCapabilities, undefined,
-    'per spec section 5.2 the compose-time refusal is not declared via requiresAppliedCapabilities; it is enforced by the apply verb reading REQ-006');
+  assert.ok(doc.requiresAppliedCapabilities,
+    'per infra round 5 spec 5.2 (Baz decision 6) and coordinator fold-in ruling, object-storage-s3 declares requiresAppliedCapabilities via the T-5 mechanism');
+  assert.deepEqual(doc.requiresAppliedCapabilities.capabilities, ['secretsProvider']);
+  assert.equal(doc.requiresAppliedCapabilities.allowSkipFlag, 'allow-no-secrets-yet');
+  assert.equal(doc.requiresAppliedCapabilities.refusalMessageId, 'object-storage-s3-no-secrets');
   const readme = await readFile(join(BLUEPRINT_ROOT, 'README.md'), 'utf8');
   assert.match(readme, /object-storage-s3-no-secrets/,
     'blueprint README must name the stable message id');

@@ -393,7 +393,16 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
       appliedElicitations,
       allowNoAuthYet: allowNoAuthYet === true ? true : undefined,
       notes: allowNoAuthYet === true
-        ? `no auth yet: applied under --${blueprint.requiresAppliedCapabilities?.allowSkipFlag ?? 'allow-no-auth-yet'}; surfaces gated on ${(blueprint.requiresAppliedCapabilities?.capabilities ?? []).join(', ')} will refuse at runtime until an auth blueprint is applied.`
+        ? (function buildOverrideNote() {
+            const flag = blueprint.requiresAppliedCapabilities?.allowSkipFlag ?? 'allow-no-auth-yet';
+            const caps = (blueprint.requiresAppliedCapabilities?.capabilities ?? []).join(', ');
+            // Predecessor-family prose is derived from the flag name so
+            // the note reads sensibly for both the auth override ("auth
+            // blueprint") and the secrets override ("secrets-management
+            // blueprint") without the runner learning the family list.
+            const family = flag.includes('secrets') ? 'secrets-management' : 'auth';
+            return `no ${family} yet: applied under --${flag}; surfaces gated on ${caps} will refuse at runtime until a ${family} blueprint is applied.`;
+          })()
         : undefined,
     });
   }

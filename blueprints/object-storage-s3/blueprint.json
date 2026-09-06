@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "category": "object-storage",
   "capabilities": ["objectStorage"],
+  "requiresAppliedCapabilities": {
+    "capabilities": ["secretsProvider"],
+    "allowSkipFlag": "allow-no-secrets-yet",
+    "refusalMessageId": "object-storage-s3-no-secrets"
+  },
   "suggestedCompanions": [
     {
       "role": "logging",

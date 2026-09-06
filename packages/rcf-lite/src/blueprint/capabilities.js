@@ -112,10 +112,32 @@ export function buildRefusalMessage({ slug, refusalMessageId, requiredCapabiliti
       `       rcf define blueprint add ${slug} --${allowSkipFlag}`,
     ].join('\n');
   }
+  if (refusalMessageId === 'object-storage-s3-no-secrets') {
+    return [
+      `[object-storage-s3-no-secrets] ${slug} requires an applied blueprint declaring`,
+      `at least one of: ${requiredCapabilities.join(', ')}.`,
+      `The shipped predecessor is security-secrets-management (v1.0.1+); the credential`,
+      `pair is a secretRef opaque string, never a value (infra round 5 spec 5.2, Baz`,
+      `decision 6).`,
+      '',
+      'Applied blueprints on this project:',
+      appliedBlock,
+      '',
+      'Suggested next steps:',
+      '  1. Apply security-secrets-management first:',
+      '       rcf define blueprint add security-secrets-management',
+      `  2. Or override for a scaffolding pass (records a note on source.notes so`,
+      `     later validation flags the surface as not-yet-activated):`,
+      `       rcf define blueprint add ${slug} --${allowSkipFlag}`,
+    ].join('\n');
+  }
   // Generic fallback. Names the required capabilities and applied set;
-  // the operator has enough to diagnose without a bespoke template.
+  // the operator has enough to diagnose without a bespoke template. The
+  // refusalMessageId is echoed on the first line as a stable dashboard-
+  // friendly tag downstream lint / dashboards can bind to.
+  const tag = refusalMessageId ? `[${refusalMessageId}] ` : '';
   return [
-    `${slug} requires an applied blueprint declaring at least one of:`,
+    `${tag}${slug} requires an applied blueprint declaring at least one of:`,
     `  ${requiredCapabilities.join(', ')}`,
     `or an operator override with --${allowSkipFlag}.`,
     '',
