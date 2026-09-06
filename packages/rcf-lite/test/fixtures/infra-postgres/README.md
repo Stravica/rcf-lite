@@ -44,7 +44,7 @@ Expected output: JSON on stdout with the three applied filenames and exit 0.
 
 ```sh
 docker compose up -d postgres && sleep 3 && node src/migrate.mjs
-node ../../../../blueprints/persistence-data-postgres/contributions/probes/run-facade-round-trip.mjs
+node ../../../../../blueprints/persistence-data-postgres/contributions/probes/run-facade-round-trip.mjs
 ```
 
 The first line brings up the container, waits for the health-check, and applies migrations. The second line runs the first probe; the remaining five probe shims live alongside it and follow the same shape.
