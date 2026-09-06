@@ -59,7 +59,7 @@ test('blueprint.json declares 19 contributions with no capabilities and no requi
   assert.ok(adrClauses.every((c) => typeof c === 'string' && c.length > 0), 'every ADR contribution carries standardsTraceClause');
 });
 
-test('application-empty-error-states: applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean)', async () => {
+test('applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'empty-error-states-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -76,7 +76,7 @@ test('application-empty-error-states: applies cleanly on a fresh init project an
   assert.equal(uss.length, 8);
 });
 
-test('application-empty-error-states: every pack check id matches a contributed AC id, description discipline holds, appliesTo binds tacIds AND route, withUrl helper used (TC-053-pack-checks-cross-check)', async () => {
+test('every pack check id matches a contributed AC id and appliesTo binds tacIds AND route (TC-053-pack-checks-cross-check)', async () => {
   const acIds = await readContributedAcIds({ blueprintAbsPath: BLUEPRINT_ROOT });
   const packMod = await import(pathToFileURL(PACK_ABS).href);
   const validation = validatePackModule({ mod: packMod, blueprintSlug: 'application-empty-error-states', packAbsPath: PACK_ABS });
@@ -126,7 +126,7 @@ test('application-empty-error-states: pack loader discovers the shipped pack aga
   assert.equal(packs[0].checks.length, 8);
 });
 
-test('application-empty-error-states sample-app fixture: sample-app fixture serves every one of the eight states on the default branch (TC-053-fixture-serves-states)', async () => {
+test('sample-app fixture serves every one of the eight states on the default branch (TC-053-fixture-serves-states)', async () => {
   const { server, port } = await startServer({ port: 0 });
   try {
     assert.deepEqual(NAMED_STATES, [
@@ -168,7 +168,7 @@ test('application-empty-error-states sample-app fixture: sample-app fixture serv
   }
 });
 
-test('application-empty-error-states sample-app fixture: break switches surface the four defects on the DOM (TC-053-negative-runs)', async () => {
+test('sample-app fixture break switches surface the four defects on the DOM (TC-053-negative-runs)', async () => {
   const { server, port } = await startServer({ port: 0 });
   try {
     // ?break=stack-trace: server-error re-adds a stack trace with a source-path and env-key shape.
@@ -200,7 +200,7 @@ test('application-empty-error-states sample-app fixture: break switches surface 
   }
 });
 
-test('application-empty-error-states: eight state slugs appear identically across README guide pack and docs (TC-053-state-enumeration-parity)', async () => {
+test('eight state slugs appear identically across README guide pack and docs (TC-053-state-enumeration-parity)', async () => {
   const readme = await readFile(README_ABS, 'utf8');
   const guide = await readFile(GUIDE_ABS, 'utf8');
   const topics = await readFile(TOPICS_ABS, 'utf8');
@@ -224,7 +224,7 @@ test('application-empty-error-states: eight state slugs appear identically acros
   assert.ok(/eight named states|eight-state|eight states/.test(guide), 'guide references the eight-state family');
 });
 
-test('application-empty-error-states: README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-1 row (TC-053-readme-gaps-and-changelog)', async () => {
+test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-1 row (TC-053-readme-gaps-and-changelog)', async () => {
   const readme = await readFile(README_ABS, 'utf8');
   const changelog = await readFile(CHANGELOG_ABS, 'utf8');
   const topics = await readFile(TOPICS_ABS, 'utf8');
