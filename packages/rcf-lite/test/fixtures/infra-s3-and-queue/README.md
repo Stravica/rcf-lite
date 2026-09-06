@@ -150,3 +150,50 @@ The remaining three probe shims (`run-retry-and-dlq.mjs`, `run-event-secrecy.mjs
 - Cloudflare Queues local development does not support consumer concurrency per https://developers.cloudflare.com/queues/configuration/local-development/. The concurrency assertion is the `accountBound: true` real-account smoke; the wrangler-dev-equivalent seam (in-memory driver) proves the facade contract but not concurrency.
 - Cloudflare Queues does not support Wrangler's remote mode (`wrangler dev --remote`) per the same page. A real-account run happens through a deployed Worker.
 - Cloudflare Queues per-message size cap is 128 KB per https://developers.cloudflare.com/queues/platform/limits/. A project sending larger payloads either chunks or moves the body out-of-band to `object-storage-s3` (the guide names both patterns).
+
+## T-4 side: jobs-background fixture
+
+The T-4 slice extends the fixture with a `jobs/` directory carrying two toy job-definition modules, `src/jobs-runtime.mjs` realising the runtime that reads applied capabilities from the sidecar and dispatches messages from the applied queue, `src/scheduler.mjs` realising the `inProcess` scheduler with a fake-clock seam, and `src/job-run-log.mjs` realising the T-4-owned event sink (whitelist `event, jobId, jobName, attempts, duration, timestamp` plus optional `terminalErrorCode`; the T-3 event sink at `src/event-sink.mjs` is untouched, its whitelist `event, ts, messageId, queueName, attempts` stays frozen at v1.0.0 per the round-5 spec). No new runtime dependencies land in the fixture's `package.json`; the jobs runtime is dependency-free Node code and composes on top of the T-3 in-memory queue seam.
+
+- `jobs/send-welcome-email.mjs`: toy one-shot delayed job. `name`, `handler`, `inputSchema` (opaque), `retryPolicy: { maxAttempts: 3, backoff: 'exponential' }`, `timeoutMs: 60000` (ADR-3104 default).
+- `jobs/refresh-cache.mjs`: toy POSIX cron job. Adds `cron: '* * * * *'`, `retryPolicy: { maxAttempts: 5, backoff: 'constant' }`, `timeoutMs: 10000`.
+- `src/jobs-runtime.mjs`: reads the `jobs/` directory at boot, registers job handlers by name, drives the driver's delivery loop, and fires the four lifecycle events (`jobScheduled`, `jobStarted`, `jobCompleted`, `jobFailed`) on the injected run-log sink.
+- `src/scheduler.mjs`: `inProcess` mode. Injects a `clock` seam (real system clock in production, the fake clock in probes) so `fake-clock-cron.mjs` drives POSIX cron fires deterministically without wall-clock waits. Registered schedules can be POSIX cron strings or one-shot delayed shapes.
+- `src/job-run-log.mjs`: T-4 event-sink whitelist enforced in code; refuses `jobFailed` records missing a `terminalErrorCode`.
+
+### T-4 elicited parameters realised
+
+- `jobsDir` (default `./jobs/`; the runtime reads modules from this directory at boot).
+- `defaultRetryPolicy` (`{ maxAttempts: 3, backoff: 'exponential' }` per REQ-002; each job may override).
+- `defaultTimeoutMs` (`60000` per ADR-3104).
+- `schedulerMode` (`inProcess`, `workerCron`, or `external` per ADR-3102; the fixture ships `inProcess` and reserves `workerCron` and `external` for real deployments).
+- `operatorSurface` (`cli`, `httpEndpoint`, or `none` per REQ-006; the fixture ships `none`).
+- `fireToleranceMs` (`30000` per US-30108; the tolerance window a cron fire is expected to hit).
+
+### T-4 induced-failure switches
+
+Two switches simulate the retry and PII-leak paths the T-4 probes exercise. Each is wired end-to-end in `src/jobs-runtime.mjs` and drives the paired probe:
+
+- `SIMULATE_HANDLER_THROW=true`: the runtime throws a retryable error on every dispatch regardless of the handler's own outcome; the `retry-and-fail` probe drives this path and asserts three `jobStarted` events with the same `jobId` and attempts `1, 2, 3` followed by a terminal `jobFailed` event with a `terminalErrorCode` matching `SIMULATE_HANDLER_THROW`.
+- `SIMULATE_PII_IN_JOB_INPUT=true`: the runtime dispatches with a PII fixture input `{ userId: 1234, ssn: "123-45-6789", email: "test@example.com" }`; the `event-secrecy` probe asserts the run-log whitelist blocks every PII input field from appearing in any event record.
+
+### Two-line gate-reviewer boot for T-4 probes
+
+The T-4 probes do not require Docker or a real `wrangler dev` process; the jobs-runtime plus in-memory queue-driver run in-process on Node 24. Boot line:
+
+```sh
+node ../../../../blueprints/jobs-background/contributions/probes/run-apply-time-refusal.mjs
+node ../../../../blueprints/jobs-background/contributions/probes/run-fake-clock-cron.mjs
+```
+
+The remaining three probe shims (`run-apply-time-override.mjs`, `run-retry-and-fail.mjs`, `run-event-secrecy.mjs`) follow the same pattern and each write a per-blueprint probe report at `.rcf/reports/blueprints/jobs-background/<probe-name>.json` per spec section 3.4.
+
+### Known limitations (per-AC mechanism-reach form, round-3 checklist 6.g)
+
+- AC-jobs-requiresQueue: PROVEN via the shipped `apply-time-refusal.mjs` probe against a bare scratch project on this shipped head (exit 3 and stable message-id assertions run in-process). No live-only gap.
+- AC-jobs-overrideRecorded: PROVEN via the shipped `apply-time-override.mjs` probe on this shipped head (sidecar note grep asserts `no queue yet` and `--allow-no-queue-yet` and family word `queue`). No live-only gap.
+- AC-jobs-scheduledRunsOnCron: PROVEN via `fake-clock-cron.mjs` on this shipped head against the in-memory queue-driver seam plus the injected fake-clock scheduler seam. LIVE `wrangler dev` cron-trigger firing under `workerCron` scheduler mode is the gate-reviewer's follow-up run per SDR-3-a; the shipped local seam proves the scheduler and runtime dispatch chain without a Cloudflare Queues account.
+- AC-jobs-retryOnHandlerFailure: PROVEN via `retry-and-fail.mjs` on this shipped head (three `jobStarted` records at attempts 1, 2, 3 followed by terminal `jobFailed`). The in-memory queue-driver re-delivery loop matches the Cloudflare Queues retry semantics per T-3's opaque-adapter clause; a live-account run against Cloudflare Queues is the T-3 real-account concurrency smoke's territory, not T-4's.
+- AC-jobs-eventSecrecy: PROVEN via `event-secrecy.mjs` on this shipped head (grep on the serialised run-log stream returns zero matches for every PII fixture literal). No live-only gap; the whitelist enforcement lives in code, not in a runtime environment.
+
+The reserved v1.1.0 `workflows` scheduler mode is documented in the guide but not shipped at v1.0.0; the `fake-clock-cron.mjs` probe adds a `workflows-scheduler` variant when the v1.1.0 minor lands per section 5.7 of the spec.
