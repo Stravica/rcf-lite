@@ -1,0 +1,23 @@
+{
+  "slug": "persistence-data-postgres",
+  "probeName": "prepared-statement-scan",
+  "runAt": "2026-09-06T17:46:06.795Z",
+  "engine": {
+    "kind": "source-scan",
+    "target": "infra-postgres/src",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-27103-1",
+      "verdict": "pass",
+      "detail": "16 .query call sites scanned across 3 facade file(s); every first argument is a static string literal or a template with no expressions"
+    },
+    {
+      "anchorAcId": "AC-27103-1",
+      "verdict": "pass",
+      "detail": "total .query call sites scanned: 16 (minimum 5 to consider the facade meaningfully covered by this scan)"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

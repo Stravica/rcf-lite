@@ -1,0 +1,23 @@
+{
+  "slug": "persistence-data-postgres",
+  "probeName": "facade-round-trip",
+  "runAt": "2026-09-06T17:46:06.561Z",
+  "engine": {
+    "kind": "postgres",
+    "image": "postgres:17-alpine",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-27101-1",
+      "verdict": "pass",
+      "detail": "facadeReady fired with databaseName=rcf_test"
+    },
+    {
+      "anchorAcId": "AC-27101-1",
+      "verdict": "pass",
+      "detail": "round-trip put id=1 and got name=probe-facade-round-trip"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

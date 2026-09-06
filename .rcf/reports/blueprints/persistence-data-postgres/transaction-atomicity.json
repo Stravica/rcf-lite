@@ -1,0 +1,28 @@
+{
+  "slug": "persistence-data-postgres",
+  "probeName": "transaction-atomicity",
+  "runAt": "2026-09-06T17:46:06.890Z",
+  "engine": {
+    "kind": "postgres",
+    "image": "postgres:17-alpine",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-27104-1",
+      "verdict": "pass",
+      "detail": "withTransaction re-threw underlying error code=23505"
+    },
+    {
+      "anchorAcId": "AC-27104-1",
+      "verdict": "pass",
+      "detail": "transactionRolledBack fired with statementIndex=1 code=23505"
+    },
+    {
+      "anchorAcId": "AC-27104-1",
+      "verdict": "pass",
+      "detail": "users table empty after rollback (no partial commit landed)"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}
