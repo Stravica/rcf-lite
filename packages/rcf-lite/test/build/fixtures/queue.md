@@ -46,7 +46,7 @@ Generation strategy: dependencyFirst
 | 40 | 0 | FBS-040 | application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry | notStarted | actionable |  |
 | 41 | 0 | FBS-041 | Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps | notStarted | actionable |  |
 | 42 | 1 | FBS-042 | application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture | notStarted | blocked | FBS-041 |
-| 43 | 2 | FBS-043 | application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture | notStarted | blocked | FBS-042 |
+| 43 | 2 | FBS-043 | persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture | notStarted | blocked | FBS-042 |
 
 Totals: items 43 | notStarted 15 | inProgress 0 | complete 13 | verified 15 | actionable 11 | blocked 4
 

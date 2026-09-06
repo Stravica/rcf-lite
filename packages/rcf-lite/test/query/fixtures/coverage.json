@@ -1809,7 +1809,7 @@
           "id": "AC-2401-2",
           "covered": true,
           "testCases": [
-            "TC-053-applies-clean"
+            "TC-053-applies-clean-no-persistence"
           ],
           "unresolvedTestCases": []
         },
@@ -1817,7 +1817,7 @@
           "id": "AC-2401-3",
           "covered": true,
           "testCases": [
-            "TC-053-pack-checks-cross-check"
+            "TC-053-conflict-with-d1"
           ],
           "unresolvedTestCases": []
         },
@@ -1825,7 +1825,7 @@
           "id": "AC-2401-4",
           "covered": true,
           "testCases": [
-            "TC-053-fixture-serves-states"
+            "TC-053-probe-anchor-ids-cross-check"
           ],
           "unresolvedTestCases": []
         },
@@ -1833,7 +1833,7 @@
           "id": "AC-2401-5",
           "covered": true,
           "testCases": [
-            "TC-053-negative-runs"
+            "TC-053-fixture-and-switches"
           ],
           "unresolvedTestCases": []
         },
@@ -1841,15 +1841,7 @@
           "id": "AC-2401-6",
           "covered": true,
           "testCases": [
-            "TC-053-state-enumeration-parity"
-          ],
-          "unresolvedTestCases": []
-        },
-        {
-          "id": "AC-2401-7",
-          "covered": true,
-          "testCases": [
-            "TC-053-readme-gaps-and-changelog"
+            "TC-053-shelf-doc-consistency"
           ],
           "unresolvedTestCases": []
         }

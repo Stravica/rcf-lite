@@ -23,6 +23,7 @@ The `application-notifications-` prefix is reserved for the sibling channel blue
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 | application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
 | application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
+| persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | application-notifications-email (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
 | application-notifications-push (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
 | application-notifications-webhook (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
