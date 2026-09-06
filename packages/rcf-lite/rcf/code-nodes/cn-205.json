@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-205",
+  "path": "../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs",
+  "implementsAcIds": [
+    "AC-4101-4",
+    "AC-4101-5",
+    "AC-4101-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:51:53.986Z",
+  "updatedAt": "2026-09-06T17:51:53.986Z"
+}

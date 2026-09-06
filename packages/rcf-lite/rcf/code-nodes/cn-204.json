@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-204",
+  "path": "../../blueprints/object-storage-s3/contributions/probes/facade-round-trip.mjs",
+  "implementsAcIds": [
+    "AC-4101-4",
+    "AC-4101-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T17:51:53.619Z",
+  "updatedAt": "2026-09-06T17:51:53.619Z"
+}
