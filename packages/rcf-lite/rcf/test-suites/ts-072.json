@@ -1,0 +1,62 @@
+{
+  "createdAt": "2026-09-06T19:17:48.415Z",
+  "updatedAt": "2026-09-06T19:18:05.472Z",
+  "purpose": "Cover AC-4201-1..6 via unit tests over the shipped messaging-queue-cloudflare blueprint shape (contribution count, capabilities, suggestedCompanions, ADR standardsTraceClause), applies-clean behaviour, REQ-004 dead_letter_queue grep and retention wording, six Node-only probe module contract with anchorAcId cross-check, induced-failure switch documentation on the fixture README, and shelf-doc consistency (section 6a table row for queue with reserved sibling note, shelf-wide docs/topics.md row for messaging-queue-cloudflare at 29101-29899 / 30xx).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-4201-1",
+    "AC-4201-2",
+    "AC-4201-3",
+    "AC-4201-4",
+    "AC-4201-5",
+    "AC-4201-6"
+  ],
+  "id": "TS-072",
+  "usId": "US-4201",
+  "title": "messaging-queue-cloudflare v1.0.0 shelf shape, apply-clean, DLQ REQ description grep, six-probe module contract, induced-failure switches and shelf-doc consistency",
+  "testCases": [
+    {
+      "id": "TC-072-blueprint-json-shape",
+      "acId": "AC-4201-1",
+      "description": "Cover AC-4201-1 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/messaging-queue-cloudflare-anatomy.test.js::blueprint.json declares 21 contributions with capabilities queue, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-072-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-072-applies-clean",
+      "acId": "AC-4201-2",
+      "description": "Cover AC-4201-2 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/messaging-queue-cloudflare-anatomy.test.js::apply messaging-queue-cloudflare lands 21 contributions on a scratch project (TC-072-applies-clean)"
+    },
+    {
+      "id": "TC-072-dlq-req-grep",
+      "acId": "AC-4201-3",
+      "description": "Cover AC-4201-3 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/messaging-queue-cloudflare-anatomy.test.js::REQ-004 description names dead_letter_queue and the 4-day DLQ retention with the Cloudflare DLQ doc URL (TC-072-dlq-req-grep)"
+    },
+    {
+      "id": "TC-072-probe-anchor-ids-cross-check",
+      "acId": "AC-4201-4",
+      "description": "Cover AC-4201-4 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/messaging-queue-cloudflare-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-072-probe-anchor-ids-cross-check)"
+    },
+    {
+      "id": "TC-072-fixture-and-switches",
+      "acId": "AC-4201-5",
+      "description": "Cover AC-4201-5 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/messaging-queue-cloudflare-anatomy.test.js::sample-app fixture ships wrangler.toml, src/producer.mjs, src/consumer.mjs, src/dlq-inspector.mjs, and its README documents wrangler dev and the three wired induced-failure switches (TC-072-fixture-and-switches)"
+    },
+    {
+      "id": "TC-072-shelf-doc-consistency",
+      "acId": "AC-4201-6",
+      "description": "Cover AC-4201-6 via anatomy test",
+      "status": "pending",
+      "testPointer": "test/blueprint/messaging-queue-cloudflare-anatomy.test.js::section 6a table gains a queue row with reserved messaging-queue-postgres sibling and every shipped blueprint docs/topics.md gains a messaging-queue-cloudflare row at 29101-29899 / 30xx (TC-072-shelf-doc-consistency)"
+    }
+  ],
+  "status": "draft"
+}

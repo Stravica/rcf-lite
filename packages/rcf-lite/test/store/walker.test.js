@@ -73,7 +73,14 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // application-account-settings v1.0.0 blueprint on the shelf plus
   // the four auth minors and the observability-logging minor bump
   // riding the same PR (28 -> 29).
-  assert.equal(tree.requirements.length, 30);
+  // Visual round 4 T-5 (w-2026-09-06-dave-019) added REQ-028 for the
+  // application-onboarding-tour v1.0.0 blueprint on the shelf (29 -> 30).
+  // Infra round 5 T-3 (w-2026-09-06-dave-022) added REQ-042 for the
+  // messaging-queue-cloudflare v1.0.0 blueprint on the shelf with four
+  // wrangler-dev-seam probes plus one accountBound real-account
+  // concurrency smoke. Reserved-block chain-id: REQ-042 / US-4201 /
+  // TS-072 / FBS-062 / CN-206..208 minted via --id (30 -> 31).
+  assert.equal(tree.requirements.length, 31);
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
   // `rcf define blueprint remove-resolution` verb the doctor and spec
   // section 9 name as the redundant-resolution remedy. Core companions
@@ -90,7 +97,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // reserved-block ruling) (55 -> 56).
   // Visual round 4 T-3 added US-2601 paired with REQ-026 (56 -> 57).
   // Visual round 4 T-4 added US-2701 paired with REQ-027 (57 -> 58).
-  assert.equal(tree.userStories.length, 59);
+  // Visual round 4 T-5 added US-2801 paired with REQ-028 (58 -> 59).
+  // Infra round 5 T-3 added US-4201 (derived from REQ-042 per dex
+  // reserved-block ruling) (59 -> 60).
+  assert.equal(tree.userStories.length, 60);
   assert.equal(tree.tacs.length, 8);
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -115,7 +125,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // reserved-block ruling (45 -> 46).
   // Visual round 4 T-3 added FBS-045 covering US-2601 (46 -> 47).
   // Visual round 4 T-4 added FBS-046 covering US-2701 (47 -> 48).
-  assert.equal(tree.fbsItems.length, 49);
+  // Visual round 4 T-5 added FBS-047 covering US-2801 (48 -> 49).
+  // Infra round 5 T-3 added FBS-062 covering US-4201 per dex
+  // reserved-block ruling (49 -> 50).
+  assert.equal(tree.fbsItems.length, 50);
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
@@ -137,7 +150,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // reserved-block ruling (55 -> 56).
   // Visual round 4 T-3 added TS-055 paired with US-2601 (56 -> 57).
   // Visual round 4 T-4 added TS-056 paired with US-2701 (57 -> 58).
-  assert.equal(tree.testSuites.length, 59);
+  // Visual round 4 T-5 added TS-057 paired with US-2801 (58 -> 59).
+  // Infra round 5 T-3 added TS-072 paired with US-4201 per dex
+  // reserved-block ruling (59 -> 60).
+  assert.equal(tree.testSuites.length, 60);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');
@@ -230,10 +246,10 @@ test('walkTree computes parentByChild by inverting child-borne parent fields', a
   assert.equal(tree.parentByChild.get('FBS-001'), 'BS-001');
 });
 
-test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-028 plus REQ-040, REQ-041)', async () => {
+test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-028 plus REQ-040, REQ-041, REQ-042)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   const reqChildren = tree.childrenByParent.get('PRD-001') ?? [];
-  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-040', 'REQ-041']);
+  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-040', 'REQ-041', 'REQ-042']);
   const tadChildren = tree.childrenByParent.get('TAD-001') ?? [];
   // TAD gathers both TAC and ADR children.
   for (const id of ['TAC-001', 'TAC-002', 'TAC-007', 'ADR-001', 'ADR-005']) {

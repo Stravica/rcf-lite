@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-06T19:18:14.898Z",
+  "updatedAt": "2026-09-06T19:18:59.490Z",
+  "acIds": [
+    "AC-4201-1",
+    "AC-4201-2",
+    "AC-4201-3",
+    "AC-4201-4",
+    "AC-4201-5",
+    "AC-4201-6"
+  ],
+  "fbsId": "FBS-062",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 47,
+  "executionStatus": "notStarted",
+  "title": "messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)",
+  "summary": "T-3 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.3) minted with dex reserved-block chain ids via --id (REQ-042 / US-4201 / TS-072 / FBS-062 / CN-206..208) after T-1 landed at 040/4001/070/060/200..202 and T-2 landed at 041/4101/071/061/203..205. Ships the messaging-queue-cloudflare v1.0.0 blueprint on the shelf with 21 contributions in the 6 REQ / 8 US 29101-29108 / 3 TAC 3001-3003 / 4 ADR 3001-3004 groups per spec section 5.3, six Node-only probes under blueprints/messaging-queue-cloudflare/contributions/probes/ (producer-facade-ready, publish-to-delivery, retry-and-dlq, event-secrecy, real-account-concurrency-smoke plus a shared probe-utils helper module) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/messaging-queue-cloudflare/, and the T-3 slice of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Four probes local-first (accountBound false); real-account-concurrency-smoke carries accountBound true and records accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Declares capabilities [queue], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent (composes on deploy-cloudflare-workers transitively via the wrangler binding, not through the capability mechanism). Contributes ADR-3002 as scope:global on new topic deliverySemantics per spec section 5.3. Every ADR contribution entry carries standardsTraceClause per section 8a.2 (per HQ mid-flight ruling after PR #154 gate). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with a queue row naming the reserved messaging-queue-postgres sibling (Baz decision 7) per spec section 5.6; appends one shelf-registry row for messaging-queue-cloudflare at 29101-29899 / 30xx to every shipped blueprint docs/topics.md.",
+  "dependsOnFbsIds": []
+}
