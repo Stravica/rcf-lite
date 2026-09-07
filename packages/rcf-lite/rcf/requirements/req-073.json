@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T14:11:37.377Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "reqId": "REQ-073",
+  "prdId": "PRD-001",
+  "title": "T-3 alarm surface fires alarm() exactly once per scheduled time and doAlarmFired carries objectName and scheduledTime",
+  "description": "T-3 alarm surface: a named object supports storage.setAlarm(scheduledTime) and an alarm() handler. The shipped alarm handler drains the persisted alarm from storage on each fire so a second alarm() call on the drained storage does not re-fire for the same schedule; the injected event sink records a doAlarmFired event with {objectName, scheduledTime} metadata fields on each fire (AC-33104-1, AC-33106-1).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T14:11:37.412Z"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T14:11:53.037Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "usId": "US-7001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-070",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 DO facade opens against env.CELL and env.HUB and emits namespaceReady",
+  "asA": "shelf consumer applying the platform-cloudflare-durable-objects v1.0.0 blueprint on a Workers project using the cf-platform fixture",
+  "iWant": "one DO facade module (src/do-facade.mjs) that opens against env.CELL and env.HUB on boot, wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload",
+  "soThat": "boot ordering is observable, the DO namespace seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7001-1",
+      "description": "On process boot, createDoFacadeInProcess (the in-process seam over the shipped facade code path) wires the injected event sink and emits a namespaceReady event on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. facade.cell(name) and facade.hub(name) return the registered SingleCellObject and HubObject instances.",
+      "given": "a facade wired with in-process SingleCellObject and HubObject instances and a spy event sink",
+      "when": "the facade ready() call resolves",
+      "then": "a namespaceReady event fires exactly once on the sink with the metadata-only payload; the registered handles return the instances",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ]
+}

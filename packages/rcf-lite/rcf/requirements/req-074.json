@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T14:11:37.592Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "reqId": "REQ-074",
+  "prdId": "PRD-001",
+  "title": "T-3 hibernatable WebSocket hub accepts clients via state.acceptWebSocket and the wake handler runs from cold reading the same storage",
+  "description": "T-3 hibernatable WebSocket hub: a named HubObject accepts websocket clients via state.acceptWebSocket, routes each webSocketMessage by JSON type field, and broadcasts to all connected sockets. Storage persists the last broadcast so a re-emerging client can catch up; on hibernate-and-wake the wake handler runs from a cold start, reads the same storage, and emits doWakeUp exactly once (idempotent-by-contract per ADR-3405) (AC-33105-1, AC-33110-1).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T14:11:37.625Z"
+  }
+}

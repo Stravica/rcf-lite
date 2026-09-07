@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T14:14:56.524Z",
+  "updatedAt": "2026-09-07T14:15:21.400Z",
+  "acIds": [
+    "AC-7001-1",
+    "AC-7002-1",
+    "AC-7101-1",
+    "AC-7201-1",
+    "AC-7301-1",
+    "AC-7401-1",
+    "AC-7402-1",
+    "AC-7501-1",
+    "AC-7601-1",
+    "AC-7701-1"
+  ],
+  "fbsId": "FBS-090",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 55,
+  "executionStatus": "notStarted",
+  "title": "T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test",
+  "summary": "HQ round-6 T-3: platform-cloudflare-durable-objects v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-durable-objects/ (30 contributions: 8 REQs, 12 USs on the shipped blueprint at ids US-33101..33112, 5 TACs, 5 ADRs). Adds cf-platform fixture DO extension (wrangler.toml [[durable_objects.bindings]] and [[migrations]] blocks additive over the T-0 [assets], T-1 [[kv_namespaces]] and T-2 [triggers] crons blocks; src/do-facade.mjs sole reader of env.CELL and env.HUB; src/do-single-cell.mjs and src/do-hub.mjs shipping SingleCellObject and HubObject classes; src/do-storage.mjs in-memory storage driver realising both sql and kv backends). Ships 7 Node-only probes under contributions/probes/ (namespace-facade-ready, single-cell-concurrent-increment, storage-round-trip, alarm-fires-once, websocket-hub-broadcast folding AC-33106-1 event-secrecy as an additional result, sole-reader-scan and real-account-storage-smoke that is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-durable-objects on every prior blueprint (32 files) and two capability rows on packages/rcf-lite/docs/blueprint-authoring.md section 6a table (strongConsistencyCell and hibernatableWebSocket). Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js covers TS-100..109. Repo chain: REQ-070..077 US-7001..7002 US-7101 US-7201 US-7301 US-7401..7402 US-7501 US-7601 US-7701 TS-100..109 FBS-090 CN-290..304 minted via rcf define create --id per HQ round-6 T-3 reserved-block ruling 2026-09-07. Base commit origin/main 20cc40d.",
+  "dependsOnFbsIds": []
+}

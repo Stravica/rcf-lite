@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:43.579Z",
+  "updatedAt": "2026-09-07T14:14:37.070Z",
+  "purpose": "Cover AC-7201-1 via anatomy test: storage round-trip on both sql and kv backends",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7201-1"
+  ],
+  "id": "TS-102",
+  "usId": "US-7201",
+  "title": "T-3 storage round-trip",
+  "testCases": [
+    {
+      "id": "TC-102-storage-round-trip",
+      "acId": "AC-7201-1",
+      "description": "AC-7201-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::storage round-trip covers put get delete list on both sql and kv backends (TC-102-storage-round-trip)"
+    }
+  ],
+  "status": "draft"
+}

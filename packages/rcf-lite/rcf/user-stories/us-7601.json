@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T14:11:54.530Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "usId": "US-7601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-076",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 sole-reader-scan probe surfaces every non-facade module that dereferences env.CELL or env.HUB",
+  "asA": "reviewer enforcing the sole-reader guarantee on env.CELL and env.HUB",
+  "iWant": "the sole-reader-scan probe to walk every .mjs/.js/.ts file under the fixture applied source root and assert only src/do-facade.mjs dereferences env.CELL or env.HUB in live source",
+  "soThat": "a legacy call site or an accidental new one surfaces at self-review, not at runtime",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7601-1",
+      "description": "The sole-reader-scan probe reads every .mjs/.js/.ts file under packages/rcf-lite/test/fixtures/cf-platform/src, strips block and line comments, matches literal env.CELL and env.HUB and reports every non-facade file with a live match as a leak. The clean-fixture scan surfaces zero leaks. Under SIMULATE_NON_FACADE_IMPORT=true a scratch leaker at $TMPDIR/t3-sole-reader-scratch is included in the scan; the scan surfaces the leak and returns fail.",
+      "given": "the cf-platform fixture applied source root, and optionally the SIMULATE_NON_FACADE_IMPORT switch",
+      "when": "the sole-reader-scan probe runs",
+      "then": "clean scan returns pass with zero leaks; simulate scan surfaces the injected leaker and returns fail",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ]
+}

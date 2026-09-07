@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:43.218Z",
+  "updatedAt": "2026-09-07T14:14:37.069Z",
+  "purpose": "Cover AC-7001-1 via anatomy test: DO facade ready() emits namespaceReady with metadata-only payload",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7001-1"
+  ],
+  "id": "TS-100",
+  "usId": "US-7001",
+  "title": "T-3 DO facade opens on boot and emits namespaceReady",
+  "testCases": [
+    {
+      "id": "TC-100-do-facade-ready",
+      "acId": "AC-7001-1",
+      "description": "AC-7001-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::DO facade opens on boot and emits namespaceReady with metadata-only payload (TC-100-do-facade-ready)"
+    }
+  ],
+  "status": "draft"
+}

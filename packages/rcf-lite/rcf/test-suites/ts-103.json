@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:43.758Z",
+  "updatedAt": "2026-09-07T14:14:37.070Z",
+  "purpose": "Cover AC-7301-1 via anatomy test: alarm fires once and drains storage",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7301-1"
+  ],
+  "id": "TS-103",
+  "usId": "US-7301",
+  "title": "T-3 alarm fires once",
+  "testCases": [
+    {
+      "id": "TC-103-alarm-fires-once",
+      "acId": "AC-7301-1",
+      "description": "AC-7301-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::alarm fires exactly once and drains storage (TC-103-alarm-fires-once)"
+    }
+  ],
+  "status": "draft"
+}

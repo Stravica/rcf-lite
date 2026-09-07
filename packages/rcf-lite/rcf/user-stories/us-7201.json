@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T14:11:53.463Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "usId": "US-7201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-072",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 storage round-trip covers put/get/delete/list on both SQL and KV backends",
+  "asA": "developer configuring the storage backend on a new SingleCellObject",
+  "iWant": "the shipped storage driver factory to round-trip put/get/delete/list on both SQL and KV backends",
+  "soThat": "the applied project can elicit the backend at apply time and the shipped code path exercises both branches without code changes",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7201-1",
+      "description": "createInMemoryDoStorage({backend: \"sql\"}) and createInMemoryDoStorage({backend: \"kv\"}) both round-trip put(\"k\",\"v\")->get(\"k\"), delete(\"k\") followed by get returning undefined, and list({prefix:\"p/\"}) returning a Map keyed by the prefix. driver.backend reports the chosen backend on each factory.",
+      "given": "two storage drivers, one on each backend",
+      "when": "put/get/delete/list operations are driven on each driver in turn",
+      "then": "both round-trip identically and driver.backend reports the elicited answer",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ]
+}

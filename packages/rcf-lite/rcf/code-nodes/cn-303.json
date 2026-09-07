@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-303",
+  "path": "../../blueprints/platform-cloudflare-durable-objects/contributions/probes/real-account-storage-smoke.mjs",
+  "implementsAcIds": [
+    "AC-7002-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T14:14:59.162Z",
+  "updatedAt": "2026-09-07T14:14:59.162Z"
+}

@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:44.480Z",
+  "updatedAt": "2026-09-07T14:14:37.070Z",
+  "purpose": "Cover AC-7601-1 via anatomy test: sole-reader-scan probe module exports the anchor and shape",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7601-1"
+  ],
+  "id": "TS-107",
+  "usId": "US-7601",
+  "title": "T-3 sole-reader-scan probe shape",
+  "testCases": [
+    {
+      "id": "TC-107-sole-reader-scan",
+      "acId": "AC-7601-1",
+      "description": "AC-7601-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::sole-reader-scan probe binds and surfaces no leaks on the clean fixture (TC-107-sole-reader-scan)"
+    }
+  ],
+  "status": "draft"
+}

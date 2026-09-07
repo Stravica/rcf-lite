@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:43.399Z",
+  "updatedAt": "2026-09-07T14:14:37.070Z",
+  "purpose": "Cover AC-7101-1 via anatomy test: two concurrent increments serialise in FIFO order and read returns sum",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7101-1"
+  ],
+  "id": "TS-101",
+  "usId": "US-7101",
+  "title": "T-3 single-cell concurrent increment",
+  "testCases": [
+    {
+      "id": "TC-101-single-cell-concurrent",
+      "acId": "AC-7101-1",
+      "description": "AC-7101-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::two concurrent increments serialise per instance and read returns the sum (TC-101-single-cell-concurrent)"
+    }
+  ],
+  "status": "draft"
+}

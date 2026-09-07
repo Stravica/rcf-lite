@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:44.660Z",
+  "updatedAt": "2026-09-07T14:14:37.070Z",
+  "purpose": "Cover AC-7701-1 via anatomy test: wrangler.toml carries DO bindings and migrations tag",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7701-1"
+  ],
+  "id": "TS-108",
+  "usId": "US-7701",
+  "title": "T-3 wrangler.toml DO bindings and migrations",
+  "testCases": [
+    {
+      "id": "TC-108-wrangler-do-bindings",
+      "acId": "AC-7701-1",
+      "description": "AC-7701-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::wrangler toml carries DO bindings and migrations tag additively over T-0 T-1 T-2 blocks (TC-108-wrangler-do-bindings)"
+    }
+  ],
+  "status": "draft"
+}

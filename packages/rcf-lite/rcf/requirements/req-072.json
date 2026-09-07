@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T14:11:37.164Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "reqId": "REQ-072",
+  "prdId": "PRD-001",
+  "title": "T-3 storage API provides typed put/get/delete on the object with an elicited backend (SQL or KV)",
+  "description": "T-3 storage API: the object's state.storage surface exposes typed put(key,value), get(key), delete(key) and list({prefix}) verbs. Storage backend is elicited (sql or kv per ADR-3403); the shipped storage driver factory is backend-agnostic and threads through the elicited answer as driver.backend. A storage-round-trip probe drives both backends via a fixture switch (AC-33103-1, AC-33111-1).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T14:11:37.197Z"
+  }
+}

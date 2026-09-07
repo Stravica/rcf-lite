@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-291",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/wrangler.toml",
+  "implementsAcIds": [
+    "AC-7701-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T14:14:56.902Z",
+  "updatedAt": "2026-09-07T14:14:56.902Z"
+}

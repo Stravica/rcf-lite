@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T14:11:38.018Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "reqId": "REQ-076",
+  "prdId": "PRD-001",
+  "title": "T-3 sole-reader guarantee enforced by AST scan: no non-facade module imports env.CELL or env.HUB",
+  "description": "T-3 sole-reader guarantee: the shipped sole-reader-scan probe reads every .mjs/.js/.ts file under the fixture's applied source root, strips block and line comments, and matches literal occurrences of env.CELL and env.HUB against the file path. The clean-fixture pass asserts src/do-facade.mjs is the ONLY file whose live source matches; any other file with a live match is a leak returned as fail (AC-33107-1).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T14:11:38.051Z"
+  }
+}

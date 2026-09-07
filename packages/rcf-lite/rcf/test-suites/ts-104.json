@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:43.939Z",
+  "updatedAt": "2026-09-07T14:14:37.070Z",
+  "purpose": "Cover AC-7401-1 via anatomy test: hub broadcast fans out within window",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7401-1"
+  ],
+  "id": "TS-104",
+  "usId": "US-7401",
+  "title": "T-3 hub broadcast within window",
+  "testCases": [
+    {
+      "id": "TC-104-hub-broadcast",
+      "acId": "AC-7401-1",
+      "description": "AC-7401-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::hub broadcast fans out to all connected clients within the elicited window (TC-104-hub-broadcast)"
+    }
+  ],
+  "status": "draft"
+}

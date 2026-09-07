@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T14:11:54.952Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "usId": "US-7002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-070",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 real-account storage smoke records accountBoundSkipped without env var",
+  "asA": "operator validating platform-cloudflare-durable-objects v1.0.0 against a real Cloudflare account",
+  "iWant": "the real-account-storage-smoke probe to record accountBoundSkipped and aggregate to pass when CI_HAS_CLOUDFLARE_ACCOUNT is unset",
+  "soThat": "the shipped account-bound seam matches the Clerk pattern (skip-in-CI when no account, run when one is available) per spec section 3.5",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7002-1",
+      "description": "The real-account-storage-smoke probe with CI_HAS_CLOUDFLARE_ACCOUNT unset returns a single result with anchorAcId AC-33112-1 and verdict pass; the report carries accountBoundSkipped=true and aggregates to pass; exit code 0. With CI_HAS_CLOUDFLARE_ACCOUNT=true but any of CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID or CF_API_TOKEN missing, the probe returns fail naming the missing keys.",
+      "given": "the real-account-storage-smoke probe module",
+      "when": "run without CI_HAS_CLOUDFLARE_ACCOUNT, and then with the env var but no paired creds",
+      "then": "the first run reports accountBoundSkipped and passes; the second reports the missing keys and fails",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:44.119Z",
+  "updatedAt": "2026-09-07T14:14:37.070Z",
+  "purpose": "Cover AC-7402-1 via anatomy test: hibernate-and-wake round-trip preserves storage",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7402-1"
+  ],
+  "id": "TS-105",
+  "usId": "US-7402",
+  "title": "T-3 hibernate-and-wake preserves storage",
+  "testCases": [
+    {
+      "id": "TC-105-hibernate-wake",
+      "acId": "AC-7402-1",
+      "description": "AC-7402-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::hibernate and wake round trip preserves storage and doWakeUp fires exactly once (TC-105-hibernate-wake)"
+    }
+  ],
+  "status": "draft"
+}

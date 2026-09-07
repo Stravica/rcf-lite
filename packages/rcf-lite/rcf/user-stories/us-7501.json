@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T14:11:54.320Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "usId": "US-7501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-075",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 lifecycle events on the shipped path carry only allowed metadata keys",
+  "asA": "reviewer verifying the platform-cloudflare-durable-objects v1.0.0 blueprint at mechanism reach",
+  "iWant": "every lifecycle event emitted on the shipped code path to carry only the allowed metadata keys and never a forbidden key",
+  "soThat": "a logging companion can render the sink directly without a per-blueprint scrub pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7501-1",
+      "description": "The event-secrecy result on the websocket-hub-broadcast probe scans every record emitted through the facade and both DO classes on the shipped path and asserts every top-level key is drawn from {event, key, size, ttl, timestamp, objectName, scheduledTime}. Under SIMULATE_PII_LEAK=true a wrapped sink forwards a synthetic body-bearing record; the probe surfaces the forbidden keys (body, ssn, userId) and returns fail on the AC-33106-1 result.",
+      "given": "a driven facade + single-cell + hub with an accumulating spy sink, and the SIMULATE_PII_LEAK switch",
+      "when": "the event-secrecy AC-33106-1 result runs on the shipped path and the simulate path",
+      "then": "the shipped path returns pass with zero forbidden keys; the simulate path surfaces the injected fields and returns fail",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ]
+}

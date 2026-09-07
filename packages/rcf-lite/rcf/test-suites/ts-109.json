@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:44.840Z",
+  "updatedAt": "2026-09-07T14:14:37.071Z",
+  "purpose": "Cover AC-7002-1 via anatomy test: real-account probe records accountBoundSkipped without env var",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7002-1"
+  ],
+  "id": "TS-109",
+  "usId": "US-7002",
+  "title": "T-3 real-account probe skipped without env var",
+  "testCases": [
+    {
+      "id": "TC-109-real-account-skip",
+      "acId": "AC-7002-1",
+      "description": "AC-7002-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::real-account storage smoke probe records accountBoundSkipped without env var (TC-109-real-account-skip)"
+    }
+  ],
+  "status": "draft"
+}

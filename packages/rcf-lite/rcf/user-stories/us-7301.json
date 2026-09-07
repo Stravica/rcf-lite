@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T14:11:53.683Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "usId": "US-7301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-073",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 alarm fires exactly once and doAlarmFired records objectName and scheduledTime",
+  "asA": "developer whose SingleCellObject schedules future work via storage.setAlarm",
+  "iWant": "the alarm() handler to fire exactly once per scheduled time and doAlarmFired to carry objectName and scheduledTime",
+  "soThat": "the applied project can observe alarm delivery through the metadata-only sink and trust the once-per-schedule contract",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7301-1",
+      "description": "A SingleCellObject with setAlarm(100) fires alarm() once. The handler drains the persisted alarm (storage.getAlarm returns null after) and emits doAlarmFired with objectName and scheduledTime. A second alarm() call on the drained storage records scheduledTime null (no re-fire for the same schedule).",
+      "given": "a SingleCellObject with setAlarm(100)",
+      "when": "alarm() is driven once and then again after the fire",
+      "then": "the first fire emits doAlarmFired with the scheduledTime; the second fire records scheduledTime null; storage.getAlarm returns null after the first fire",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T14:11:36.742Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "reqId": "REQ-070",
+  "prdId": "PRD-001",
+  "title": "T-3 platform-cloudflare-durable-objects v1.0.0 blueprint: the DO facade is the sole reader of env.CELL and env.HUB and opens on boot with namespaceReady",
+  "description": "T-3 platform-cloudflare-durable-objects v1.0.0: one DO facade module in the applied project source tree is the SOLE reader of env.CELL and env.HUB (per https://developers.cloudflare.com/durable-objects/). On process boot, the facade wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload; the facade exposes typed handles per named object (cellHandle(name), hubHandle(name)) and never exposes the raw binding to consumers. Chain: HQ round-6 T-3 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-070..079 / US-70xx..79xx / TS-100..109 / FBS-090..099 / CN-290..319).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T14:11:36.775Z"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T14:13:44.299Z",
+  "updatedAt": "2026-09-07T14:14:37.070Z",
+  "purpose": "Cover AC-7501-1 via anatomy test: event-secrecy on shipped path returns pass with zero forbidden keys",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-7501-1"
+  ],
+  "id": "TS-106",
+  "usId": "US-7501",
+  "title": "T-3 event-secrecy shipped path",
+  "testCases": [
+    {
+      "id": "TC-106-event-secrecy",
+      "acId": "AC-7501-1",
+      "description": "AC-7501-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::event-secrecy result on the hub broadcast probe returns pass on the shipped path (TC-106-event-secrecy)"
+    }
+  ],
+  "status": "draft"
+}
