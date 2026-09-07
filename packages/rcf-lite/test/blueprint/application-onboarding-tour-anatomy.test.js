@@ -26,7 +26,6 @@ const README_ABS = join(BLUEPRINT_ROOT, 'README.md');
 const CHANGELOG_ABS = join(BLUEPRINT_ROOT, 'CHANGELOG.md');
 const GUIDE_ABS = join(BLUEPRINT_ROOT, 'guide', 'application-onboarding-tour.md');
 const TOPICS_ABS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
-const PKG_CHANGELOG_ABS = join(REPO_ROOT, 'packages', 'rcf-lite', 'CHANGELOG.md');
 
 test('blueprint.json declares 17 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
@@ -264,13 +263,9 @@ test('README lists mechanism-reach gaps per AC and guide names WCAG SCs and the 
   assert.ok(/2\.4\.3 Focus Order.*https:\/\/www\.w3\.org\/WAI\/WCAG22/s.test(guide), 'guide names 2.4.3 Focus Order with URL');
   assert.ok(/2\.4\.11 Focus Not Obscured Minimum.*https:\/\/www\.w3\.org\/WAI\/WCAG22/s.test(guide), 'guide names 2.4.11 Focus Not Obscured Minimum with URL');
   assert.ok(/ARIA APG dialog-modal pattern.*https:\/\/www\.w3\.org\/WAI\/ARIA\/apg\/patterns\/dialog-modal\//s.test(guide), 'guide names the ARIA APG dialog-modal pattern with URL');
-  // Blueprint CHANGELOG has exactly one 1.0.0 entry.
+  // Blueprint CHANGELOG has exactly one 1.0.0 entry (positive check on the
+  // blueprint-owned CHANGELOG; the round-close release PR owns
+  // packages/rcf-lite/CHANGELOG.md and its release entry is asserted by the
+  // release recipe, not by this anatomy test).
   assert.equal((changelog.match(/^## 1\.0\.0 /gm) || []).length, 1, 'blueprint CHANGELOG carries one 1.0.0 entry');
-  // packages/rcf-lite/CHANGELOG.md must NOT carry an onboarding-tour entry in this PR (round-close release PR owns 0.22.0).
-  try {
-    const pkgLog = await readFile(PKG_CHANGELOG_ABS, 'utf8');
-    assert.ok(!/application-onboarding-tour/.test(pkgLog), 'packages/rcf-lite/CHANGELOG.md must NOT reference onboarding-tour in this PR');
-  } catch (e) {
-    if (e.code !== 'ENOENT') throw e;
-  }
 });
