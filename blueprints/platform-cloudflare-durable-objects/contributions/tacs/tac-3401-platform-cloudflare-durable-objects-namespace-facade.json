@@ -1,0 +1,31 @@
+{
+  "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-durable-objects namespace facade",
+  "purpose": "The single project-side module realising the DO namespace facade shape. It is the sole reader of env.CELL and env.HUB, wires the injected event sink at boot, emits namespaceReady on the first successful ready-check and exports typed handles (cellHandle(name), hubHandle(name)) plus an in-process variant (createDoFacadeInProcess) for probe drives. Consumers never touch env.CELL or env.HUB outside this module; the facade is the one place the vendor surface lives so a future DO adapter (a different platform, an in-process fake) slots in without a consumer re-shape.",
+  "responsibilities": [
+    "Export createDoFacade({env, eventSink, clock}) returning {ready, cellHandle, hubHandle} matching the Cloudflare Workers DO namespace-binding shape (AC-33101-1, AC-33107-1).",
+    "Own the ONLY references to env.CELL and env.HUB in the applied source tree (AC-33107-1).",
+    "Emit namespaceReady on the injected sink at ready-check with a metadata-only payload (AC-33101-1).",
+    "Export createDoFacadeInProcess({singleCell, hub, eventSink, clock}) that returns typed handles wired to already-constructed in-process instances so the probes exercise the shipped facade code path without a wrangler dev process."
+  ],
+  "internalStructure": "Two named factories in one module: createDoFacade wraps the Cloudflare env bindings; createDoFacadeInProcess wraps in-process class instances. Both share the same ready() lifecycle-event contract.",
+  "interfaces": [
+    {
+      "name": "createDoFacade",
+      "kind": "factory",
+      "summary": "DO namespace facade factory over env.CELL and env.HUB."
+    },
+    {
+      "name": "createDoFacadeInProcess",
+      "kind": "factory",
+      "summary": "In-process DO facade factory over already-constructed class instances (probe variant)."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Sample-app fixture for the deploy-cloudflare-workers v1.2.0 Workers-with-static-assets shape (T-0), the platform-cloudflare-kv v1.0.0 KV facade (T-1) and the platform-cloudflare-cron-triggers v1.0.0 scheduled handler (T-2). Shared canvas for T-3 DO and T-5 Turnstile sub-fixture.",
+  "description": "Sample-app fixture for the deploy-cloudflare-workers v1.2.0 Workers-with-static-assets shape (T-0), the platform-cloudflare-kv v1.0.0 KV facade (T-1) and the platform-cloudflare-cron-triggers v1.0.0 scheduled handler (T-2). Extends with the T-3 platform-cloudflare-durable-objects v1.0.0 DO facade, single-cell class, hub class and in-memory storage driver. Shared canvas for T-5 Turnstile sub-fixture.",
   "scripts": {
     "start": "wrangler dev",
     "kv-probe-facade-round-trip": "node ../../../../../blueprints/platform-cloudflare-kv/contributions/probes/run-facade-round-trip.mjs",
@@ -15,7 +15,14 @@
     "cron-probe-dispatcher-routing": "node ../../../../../blueprints/platform-cloudflare-cron-triggers/contributions/probes/run-dispatcher-routing.mjs",
     "cron-probe-skew-tolerance": "node ../../../../../blueprints/platform-cloudflare-cron-triggers/contributions/probes/run-skew-tolerance.mjs",
     "cron-probe-event-secrecy": "node ../../../../../blueprints/platform-cloudflare-cron-triggers/contributions/probes/run-event-secrecy.mjs",
-    "cron-probe-real-account-scheduled-smoke": "node ../../../../../blueprints/platform-cloudflare-cron-triggers/contributions/probes/run-real-account-scheduled-smoke.mjs"
+    "cron-probe-real-account-scheduled-smoke": "node ../../../../../blueprints/platform-cloudflare-cron-triggers/contributions/probes/run-real-account-scheduled-smoke.mjs",
+    "do-probe-namespace-facade-ready": "node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-namespace-facade-ready.mjs",
+    "do-probe-single-cell-concurrent-increment": "node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-single-cell-concurrent-increment.mjs",
+    "do-probe-storage-round-trip": "node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-storage-round-trip.mjs",
+    "do-probe-alarm-fires-once": "node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-alarm-fires-once.mjs",
+    "do-probe-websocket-hub-broadcast": "node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-websocket-hub-broadcast.mjs",
+    "do-probe-sole-reader-scan": "node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-sole-reader-scan.mjs",
+    "do-probe-real-account-storage-smoke": "node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-real-account-storage-smoke.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

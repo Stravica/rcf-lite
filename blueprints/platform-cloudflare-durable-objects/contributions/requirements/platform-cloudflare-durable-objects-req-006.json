@@ -1,0 +1,17 @@
+{
+  "reqId": "platform-cloudflare-durable-objects-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Lifecycle events fire at namespace and object level with metadata-only payloads",
+  "description": "The facade and the objects emit lifecycle events on the injected event sink: namespaceReady (facade), doAccept, doAlarmFired, doWakeUp, doHibernate (object). Every payload is metadata-only ({event, key, size, ttl, timestamp, ?objectName, ?scheduledTime}); no message payloads, no request bodies, no PII cross the sink boundary. A logging companion renders records directly without a per-blueprint scrub pass.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.3). Ships as v1.0.0 of platform-cloudflare-durable-objects.",
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

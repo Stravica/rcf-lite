@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33107",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Sole-reader-scan probe surfaces every non-facade module that dereferences env.CELL or env.HUB",
+  "asA": "reviewer enforcing the sole-reader guarantee on env.CELL and env.HUB",
+  "iWant": "the sole-reader-scan probe to walk every .mjs/.js/.ts file under the fixture's applied source root and assert only src/do-facade.mjs dereferences env.CELL or env.HUB",
+  "soThat": "a legacy call site or an accidental new one surfaces at self-review, not at runtime",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33107-1",
+      "description": "The sole-reader-scan probe reads every regular file under packages/rcf-lite/test/fixtures/cf-platform/src ending in .mjs, .js or .ts, matches literal occurrences of \"env.CELL\" and \"env.HUB\" against the file path, and reports every non-facade file that contains a match as a \"leak\". A clean fixture has exactly one leak-free file (do-facade.mjs) that contains the matches; every other file records zero matches. Under SIMULATE_NON_FACADE_IMPORT=true the probe additionally scans a synthetic scratch file whose body dereferences env.CELL outside the facade and surfaces the leak, returning aggregateVerdict: fail.",
+      "given": "the cf-platform fixture applied source root and, optionally, the SIMULATE_NON_FACADE_IMPORT scratch scenario",
+      "when": "the sole-reader-scan probe runs",
+      "then": "the clean-fixture pass reports zero non-facade leaks; the simulate pass surfaces the injected leak and returns fail",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

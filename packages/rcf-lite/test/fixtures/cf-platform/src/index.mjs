@@ -6,9 +6,19 @@
 // The KV binding is intentionally NOT dereferenced here: per
 // platform-cloudflare-kv REQ-001, the KV facade module
 // (src/kv-facade.mjs) is the SOLE reader of the binding on the
-// applied project. A consumer request handler wires the facade
-// factory at its own top-level, hands the returned facade to the
-// domain code, and never touches the raw binding directly.
+// applied project. Same discipline for the T-3 Durable Objects
+// bindings env.CELL and env.HUB: the DO facade module
+// (src/do-facade.mjs) is the SOLE reader per REQ-070. This entry
+// module never dereferences either DO binding or the KV binding.
+//
+// The T-3 DO classes are re-exported from this module so wrangler
+// dev resolves `class_name = "SingleCellObject"` and `class_name =
+// "HubObject"` on the [[durable_objects.bindings]] blocks without
+// a separate class-file discovery step per Cloudflare's runtime
+// contract (https://developers.cloudflare.com/durable-objects/).
+
+export { SingleCellObject } from './do-single-cell.mjs';
+export { HubObject } from './do-hub.mjs';
 
 export default {
   async fetch(request) {

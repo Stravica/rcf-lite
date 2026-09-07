@@ -1,0 +1,17 @@
+{
+  "reqId": "platform-cloudflare-durable-objects-REQ-004",
+  "prdId": "PRD-001",
+  "title": "The alarm surface fires alarm() exactly once per scheduled time and doAlarmFired carries object name and scheduled time",
+  "description": "A named object supports storage.setAlarm(scheduledTime) and an alarm() handler per https://developers.cloudflare.com/durable-objects/. Cloudflare's runtime guarantees alarm delivery once per scheduled time; the shipped class realises the handler and the injected event sink records a doAlarmFired event with {objectName, scheduledTime} metadata fields alongside the metadata-only lifecycle payload.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.3). Ships as v1.0.0 of platform-cloudflare-durable-objects.",
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

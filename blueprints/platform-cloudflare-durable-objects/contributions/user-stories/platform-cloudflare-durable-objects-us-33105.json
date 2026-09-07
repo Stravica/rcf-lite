@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33105",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Hub broadcast fans out a payload from client A to all connected clients within the elicited window",
+  "asA": "developer coordinating multiplayer websocket clients through one authoritative hub",
+  "iWant": "the HubObject to fan out a broadcast payload from one connected client to all connected clients within the elicited window",
+  "soThat": "the shipped hub shape delivers the coordinated-multiplayer contract without a hand-rolled broadcast layer",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33105-1",
+      "description": "A HubObject with two accepted fake websockets A and B, when driven with webSocketMessage(A, JSON.stringify({type:\"broadcast\", payload:\"ping\"})), delivers a JSON message to both A and B whose type is \"broadcast\" and payload is \"ping\" within 500ms elapsed on the fixture clock. The persisted lastBroadcast key in storage carries the serialised outbound payload.",
+      "given": "a HubObject with two accepted fake websocket sockets",
+      "when": "a broadcast message is sent from A",
+      "then": "both A and B receive the same broadcast within 500ms and storage.get(\"lastBroadcast\") returns the serialised payload",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3404-platform-cloudflare-durable-objects-websocket-hub"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

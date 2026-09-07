@@ -1,0 +1,105 @@
+// Shared helpers for platform-cloudflare-durable-objects probes.
+//
+// Runtime-dependency posture: probes import the fixture's DO
+// facade, single-cell class, hub class and in-memory storage
+// driver from the cf-platform fixture src/ tree so rcf-lite itself
+// gains no new runtime dependency. Six probes drive the shipped
+// code path in-process against the in-memory driver; one probe
+// (real-account-storage-smoke) opens the Cloudflare Workers API
+// when CI_HAS_CLOUDFLARE_ACCOUNT is set. Without the env var it
+// records accountBoundSkipped and aggregates to pass per spec
+// section 3.5.
+//
+// The wrangler dev seam is documented in the fixture README under
+// the "T-3 wrangler dev optional boot" section; the shipped probes
+// do NOT require a wrangler dev process to drive their assertions.
+
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+export const PROJECT_ROOT = resolve(HERE, '..', '..', '..', '..');
+export const FIXTURE_DIR = resolve(PROJECT_ROOT, 'packages/rcf-lite/test/fixtures/cf-platform');
+export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/platform-cloudflare-durable-objects');
+
+export function aggregate(results) {
+  if (results.some((r) => r.verdict === 'fail')) return 'fail';
+  if (results.some((r) => r.verdict === 'warn')) return 'warn';
+  return 'pass';
+}
+
+export async function writeReport({ probeName, engine, results, extra }) {
+  await mkdir(REPORT_DIR, { recursive: true });
+  const report = {
+    slug: 'platform-cloudflare-durable-objects',
+    probeName,
+    runAt: new Date().toISOString(),
+    engine,
+    results,
+    aggregateVerdict: aggregate(results),
+    ...(extra ?? {}),
+  };
+  const path = resolve(REPORT_DIR, `${probeName}.json`);
+  await writeFile(path, JSON.stringify(report, null, 2) + '\n', 'utf8');
+  return { report, path };
+}
+
+// Wraps a probe's async main body and reports. Never calls
+// process.exit after the large report write: sets process.exitCode
+// and lets Node drain stdout naturally.
+export async function runShim(probeName, engine, mainFn) {
+  try {
+    const { results, extra } = await mainFn();
+    const { report, path } = await writeReport({ probeName, engine, results, extra });
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+    process.stdout.write(`report written to ${path}\n`);
+    if (report.aggregateVerdict === 'fail') process.exitCode = 1;
+  } catch (err) {
+    const results = [{
+      anchorAcId: 'unknown',
+      verdict: 'fail',
+      detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
+    }];
+    const { report, path } = await writeReport({ probeName, engine, results });
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+    process.stderr.write(`probe error: ${err && err.stack ? err.stack : String(err)}\n`);
+    process.stderr.write(`report written to ${path}\n`);
+    process.exitCode = 1;
+  }
+}
+
+// A minimal fake WebSocket pair used by the hub probes. Each fake
+// exposes send(str) which buffers into inbound[] on the paired
+// fake; close(code, reason) is a no-op. The hub's state.getWebSockets()
+// returns the list of accepted fakes.
+export function createFakeSocketPair(name = 'ws') {
+  const inbound = [];
+  const closed = { flag: false };
+  const socket = {
+    name,
+    inbound,
+    closed,
+    send(str) {
+      // Route what the hub sends back into inbound so a probe can
+      // assert delivery. The pairing is per-socket; the hub calls
+      // send() on every socket it wants to reach.
+      inbound.push(str);
+    },
+    close(code, reason) {
+      closed.flag = true;
+      closed.code = code;
+      closed.reason = reason;
+    },
+  };
+  return socket;
+}
+
+export function createFakeState() {
+  const accepted = [];
+  return {
+    acceptWebSocket(ws) { accepted.push(ws); },
+    getWebSockets() { return accepted.slice(); },
+  };
+}

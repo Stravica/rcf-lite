@@ -1,0 +1,24 @@
+{
+  "tacId": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-durable-objects lifecycle event sink",
+  "purpose": "The one boundary for lifecycle event records across the facade and both DO classes. The sink is a plain function callback with a metadata-only record contract: {event, key, size, ttl, timestamp, ?objectName, ?scheduledTime}. Message bodies, request headers, cookies and PII never cross the sink; the event-secrecy probe asserts the record shape on every emitted event.",
+  "responsibilities": [
+    "Constrain every emitted record to the allowed key set (AC-33106-1).",
+    "Route through the applied logging companion without a per-blueprint scrub pass."
+  ],
+  "internalStructure": "A one-arg callback contract enforced by every emitter (facade, single-cell, hub). The record is a plain object built inline at every emit site; no derivation, no framework object graph.",
+  "interfaces": [
+    {
+      "name": "eventSink",
+      "kind": "contract",
+      "summary": "One-arg record-write callback shared by facade and DO classes."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

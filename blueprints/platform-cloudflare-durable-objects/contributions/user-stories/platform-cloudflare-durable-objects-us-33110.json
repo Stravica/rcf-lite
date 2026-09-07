@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33110",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Hibernate-and-wake round-trip preserves storage and re-emits doWakeUp exactly once",
+  "asA": "developer whose HubObject hibernates when idle and wakes on the next message",
+  "iWant": "the wake handler to run from cold and read the same lastBroadcast key from storage the pre-hibernate state persisted",
+  "soThat": "a re-emerging client can catch up on the missed broadcast without a full re-sync",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33110-1",
+      "description": "A HubObject that has processed a broadcast, hibernated (doHibernate emitted), and then woken (doWakeUp emitted once) resolves wake() with {lastBroadcast} equal to the serialised outbound payload the pre-hibernate broadcast persisted. A second wake() call resolves with {alreadyAwake: true, lastBroadcast: <same>} and does NOT emit a second doWakeUp. The wake handler is idempotent-by-contract per ADR-3405.",
+      "given": "a HubObject with one persisted lastBroadcast that has hibernated",
+      "when": "wake() is called once, then again",
+      "then": "the first wake emits doWakeUp once and returns lastBroadcast; the second wake reports alreadyAwake without a second event",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3404-platform-cloudflare-durable-objects-websocket-hub"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

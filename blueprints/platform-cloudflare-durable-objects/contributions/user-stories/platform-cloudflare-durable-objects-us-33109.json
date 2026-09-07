@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33109",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Single-cell increment returns the observed prior counter as a witness field",
+  "asA": "developer relying on per-instance FIFO serialisation for a mint or lock-shape operation",
+  "iWant": "each concurrent increment to return the observed prior-counter as a witness field",
+  "soThat": "a downstream assertion can prove the second write observed the first without racing against clock",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33109-1",
+      "description": "increment() resolves with a {counter, witness} pair where witness equals the counter value at the start of that call's serialised turn. Two concurrent increments starting from 0 report witnesses 0 and 1 (in FIFO order); a subsequent read reports counter 2. The witness field is present on every resolved increment, never on read or reset.",
+      "given": "a SingleCellObject at counter 0",
+      "when": "two concurrent increments fire",
+      "then": "the FIFO-first increment returns witness 0, the second returns witness 1, and read returns 2",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

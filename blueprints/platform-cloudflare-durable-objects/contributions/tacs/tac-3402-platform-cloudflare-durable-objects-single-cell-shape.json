@@ -1,0 +1,30 @@
+{
+  "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-durable-objects single-cell shape",
+  "purpose": "The named-object class realising the single-cell authoritative-state shape per Cloudflare's Durable Objects consistency model. Concurrent invocations against the same instance serialise via a per-instance promise queue (matching the DO runtime contract). The class exposes typed domain verbs (increment, read, reset) that wrap the injected storage driver.",
+  "responsibilities": [
+    "Serialise concurrent invocations against the same instance in FIFO order (AC-33102-1, AC-33109-1).",
+    "Round-trip storage on both SQL and KV backends via the injected driver factory (AC-33103-1, AC-33111-1).",
+    "Own storage.setAlarm and the alarm() handler with a metadata-only doAlarmFired event on the sink (AC-33104-1)."
+  ],
+  "internalStructure": "One class SingleCellObject with constructor({storage, eventSink, name, clock}), a private serialised queue, and methods increment/read/reset/setAlarm/alarm.",
+  "interfaces": [
+    {
+      "name": "SingleCellObject",
+      "kind": "class",
+      "summary": "Single-cell DO class realising strongly consistent authoritative-state shape."
+    },
+    {
+      "name": "createSingleCell",
+      "kind": "factory",
+      "summary": "Test-friendly factory that returns a new SingleCellObject."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

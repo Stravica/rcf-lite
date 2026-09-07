@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33101",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "DO facade opens on boot against env.CELL and env.HUB and emits namespaceReady",
+  "asA": "shelf consumer applying the platform-cloudflare-durable-objects v1.0.0 blueprint on a Workers project using the cf-platform fixture",
+  "iWant": "one DO facade module (src/do-facade.mjs) that opens against env.CELL and env.HUB on boot, wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload",
+  "soThat": "boot ordering is observable, the DO namespace seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33101-1",
+      "description": "On process boot, the DO facade opens against the elicited DO namespace bindings (env.CELL and env.HUB on the cf-platform fixture), wires the injected event sink and emits a namespaceReady event with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The facade module is the ONLY module in the fixture source tree that dereferences env.CELL or env.HUB.",
+      "given": "a Node or Worker process with the do-facade module imported and its factory invoked with the elicited configuration",
+      "when": "the process boots and the facade ready() call resolves",
+      "then": "a namespaceReady event fires on the injected event sink with the metadata-only payload; no other module dereferences env.CELL or env.HUB",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

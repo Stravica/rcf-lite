@@ -1,0 +1,17 @@
+{
+  "reqId": "platform-cloudflare-durable-objects-REQ-008",
+  "prdId": "PRD-001",
+  "title": "Migration-safe class exports: the DO class name is a stable string committed to wrangler config with a matching migrations table",
+  "description": "The DO class names (SingleCellObject, HubObject) are stable strings committed on the [[durable_objects.bindings]] blocks in wrangler.toml, and a paired [[migrations]] block records the class names under the mint tag (v1) per Cloudflare's migration documentation (https://developers.cloudflare.com/durable-objects/). A rename lands as a subsequent migration tag on the same list; a rename without a migration is a runtime error the shipped anatomy test catches at self-review.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.3). Ships as v1.0.0 of platform-cloudflare-durable-objects.",
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}
