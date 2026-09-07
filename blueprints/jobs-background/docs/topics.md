@@ -50,6 +50,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-cloudflare-cron-triggers | 32101-32899 | 33xx | shipped v1.0.0 | `scheduledTriggerContract` |
 | platform-cloudflare-durable-objects | 33101-33899 | 34xx | shipped v1.0.0 | `strongConsistencyCellContract`, `websocketHubContract` |
 | edge-cloudflare-access | 34101-34899 | 35xx | shipped v1.0.0 | `edgeAuthenticationGate` |
+| edge-cloudflare-turnstile | 35101-35899 | 36xx | shipped v1.0.0 | `humanVerificationGate` |
 
 US 30101-30109 sit at the LOW end of the 30101-30899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a jobs-background REQ id into the number 30110 would collide against a shipped US-30110; band headroom (30110-30899) leaves that space.
 

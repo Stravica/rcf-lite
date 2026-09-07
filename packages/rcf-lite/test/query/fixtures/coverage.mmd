@@ -1361,6 +1361,43 @@ flowchart LR
   REQ-086 --> AC-8602-1
   TC-119-admin-console-fallback["TC-119-admin-console-fallback"]
   AC-8602-1 -.-> TC-119-admin-console-fallback
+  REQ-090["REQ-090"]
+  AC-9001-1["AC-9001-1"]
+  REQ-090 --> AC-9001-1
+  TC-120-widget-mount-pass["TC-120-widget-mount-pass"]
+  AC-9001-1 -.-> TC-120-widget-mount-pass
+  AC-9002-1["AC-9002-1"]
+  REQ-090 --> AC-9002-1
+  TC-121-secret-shape-scan["TC-121-secret-shape-scan"]
+  AC-9002-1 -.-> TC-121-secret-shape-scan
+  REQ-091["REQ-091"]
+  AC-9101-1["AC-9101-1"]
+  REQ-091 --> AC-9101-1
+  TC-122-siteverify-pass["TC-122-siteverify-pass"]
+  AC-9101-1 -.-> TC-122-siteverify-pass
+  AC-9102-1["AC-9102-1"]
+  REQ-091 --> AC-9102-1
+  TC-123-siteverify-fail-secrecy["TC-123-siteverify-fail-secrecy"]
+  AC-9102-1 -.-> TC-123-siteverify-fail-secrecy
+  REQ-092["REQ-092"]
+  AC-9201-1["AC-9201-1"]
+  REQ-092 --> AC-9201-1
+  TC-124-guard-shape-refuse["TC-124-guard-shape-refuse"]
+  AC-9201-1 -.-> TC-124-guard-shape-refuse
+  REQ-093["REQ-093"]
+  AC-9301-1["AC-9301-1"]
+  REQ-093 --> AC-9301-1
+  TC-125-composition-wire["TC-125-composition-wire"]
+  AC-9301-1 -.-> TC-125-composition-wire
+  AC-9302-1["AC-9302-1"]
+  REQ-093 --> AC-9302-1
+  TC-126-magic-link-guard-refuse["TC-126-magic-link-guard-refuse"]
+  AC-9302-1 -.-> TC-126-magic-link-guard-refuse
+  REQ-094["REQ-094"]
+  AC-9401-1["AC-9401-1"]
+  REQ-094 --> AC-9401-1
+  TC-127-widget-mode-enum["TC-127-widget-mode-enum"]
+  AC-9401-1 -.-> TC-127-widget-mode-enum
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2071,6 +2108,27 @@ flowchart LR
   class TC-118-admin-console-gated-pack-check tc;
   class AC-8602-1 ac;
   class TC-119-admin-console-fallback tc;
+  class REQ-090 req;
+  class AC-9001-1 ac;
+  class TC-120-widget-mount-pass tc;
+  class AC-9002-1 ac;
+  class TC-121-secret-shape-scan tc;
+  class REQ-091 req;
+  class AC-9101-1 ac;
+  class TC-122-siteverify-pass tc;
+  class AC-9102-1 ac;
+  class TC-123-siteverify-fail-secrecy tc;
+  class REQ-092 req;
+  class AC-9201-1 ac;
+  class TC-124-guard-shape-refuse tc;
+  class REQ-093 req;
+  class AC-9301-1 ac;
+  class TC-125-composition-wire tc;
+  class AC-9302-1 ac;
+  class TC-126-magic-link-guard-refuse tc;
+  class REQ-094 req;
+  class AC-9401-1 ac;
+  class TC-127-widget-mode-enum tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

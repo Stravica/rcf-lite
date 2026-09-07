@@ -1,0 +1,63 @@
+{
+  "id": "bv-FBS-110-2026-09-07T20-17-56-669Z",
+  "fbsId": "FBS-110",
+  "createdAt": "2026-09-07T20:17:56.670Z",
+  "mode": "agentScreenshotCritique",
+  "runtimeProfile": "local-dev",
+  "runtimeUrl": "http://127.0.0.1:59375",
+  "routesChecked": [
+    {
+      "path": "/",
+      "screenshotPath": ".rcf/artefacts/fbs-110/placeholder.png",
+      "themeApplied": "light"
+    }
+  ],
+  "invariantChecks": [
+    {
+      "invariant": "sharedLayoutModule",
+      "verdict": "pass"
+    },
+    {
+      "invariant": "agentDriverWired",
+      "verdict": "pass",
+      "detail": "real Playwright chromium headless driving pack checks"
+    }
+  ],
+  "verdict": "pass",
+  "probePacks": [
+    {
+      "packName": "edge-cloudflare-turnstile",
+      "packVersion": "1.0.0",
+      "blueprintSlug": "edge-cloudflare-turnstile",
+      "applicable": true,
+      "aggregateVerdict": "pass",
+      "checks": [
+        {
+          "id": "AC-turnstile-widgetRendered",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "widget mounted; sitekey=1x00000000000000000000AA; cloudflareScripts=1; tokenPopulated=true tokenSample=[\"XXXX.DUM\"]; thirdParty=0"
+        },
+        {
+          "id": "AC-turnstile-serverVerified-pass",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "serverVerified-pass: fixture /api/submit returned status=200 body={\"received\":\"ok\"} (Cloudflare siteverify success:true with always-pass secret)"
+        },
+        {
+          "id": "AC-turnstile-serverVerified-fail",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "serverVerified-fail: fixture rejected status=400 errorCode=turnstile.siteverify-failed errorCodes=[\"invalid-input-response\"]; refusal body carries no sitekey"
+        },
+        {
+          "id": "AC-turnstile-magicLinkGuard",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "magic-link guard: missing-token refused 400 turnstile.token-missing; fail-secret refused 400 turnstile.siteverify-failed errorCodes=[\"invalid-input-response\"]"
+        }
+      ]
+    }
+  ],
+  "notes": "Driver: real Playwright chromium headless via packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile."
+}

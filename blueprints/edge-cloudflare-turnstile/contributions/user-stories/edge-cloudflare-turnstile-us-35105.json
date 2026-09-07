@@ -1,0 +1,36 @@
+{
+  "usId": "edge-cloudflare-turnstile-US-35105",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-turnstile-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Composition with security-auth-magic-link gates the magic-link mint surface behind the Turnstile guard",
+  "asA": "shelf consumer applying both security-auth-magic-link and edge-cloudflare-turnstile",
+  "iWant": "the magic-link mint surface to be registered under the Turnstile guard so a mint submit reads through the same token check as any other elicited surface, and a mint without a valid Turnstile token to be refused with 400 before the mint fires",
+  "soThat": "magic-link mint requests are protected by the same human-check as any other public form",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-35105-1",
+      "description": "The pack fixture ships a /api/magic-link mint stub route registered under the Turnstile guard. A source-tree read of the composition wire confirms the mint surface reads the Turnstile guard before invoking the magic-link mint.",
+      "given": "the pack fixture with both blueprints applied and /api/magic-link registered under the token-required guard",
+      "when": "the composition wire is walked in the source tree",
+      "then": "the magic-link mint surface reads the Turnstile guard before invoking the mint",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-35105-2",
+      "description": "A live POST to /api/magic-link without a Cf-Turnstile-Response field, and a POST carrying the always-fail response token that fails siteverify, are both refused with 400 by the Turnstile guard and no magic-link mint side-effect is observable. The Playwright pack check magicLinkGuard drives this against the fixture with a real browser.",
+      "given": "the pack fixture running with both blueprints applied and a real Playwright browser driving the fixture",
+      "when": "a magic-link mint submit is issued without a Turnstile response, or with the always-fail response token",
+      "then": "the Turnstile guard refuses with 400 and no magic-link mint side-effect is observable",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3603-edge-cloudflare-turnstile-magic-link-hook"
+  ],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

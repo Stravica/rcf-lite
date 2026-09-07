@@ -1,0 +1,32 @@
+{
+  "createdAt": "2026-09-07T19:54:01.626Z",
+  "updatedAt": "2026-09-07T20:18:17.970Z",
+  "description": "The applying operator elicits one of Cloudflare Turnstile documented widget modes: managed (default; renders challenge only when Cloudflare deems it necessary), non-interactive (always renders a non-interactive challenge) or invisible (mounts an invisible widget). The default mode is managed per the shipped ADR.",
+  "reqId": "REQ-094",
+  "prdId": "PRD-001",
+  "title": "T-5 edge-cloudflare-turnstile v1.0.0: widget mode is an elicited enum (managed, non-interactive, invisible) per Cloudflare documented modes; recommendedDefault is managed",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T19:54:01.664Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "renders"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "renders"
+      }
+    ]
+  }
+}

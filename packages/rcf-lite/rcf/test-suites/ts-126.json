@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T19:56:42.706Z",
+  "updatedAt": "2026-09-07T19:56:42.891Z",
+  "purpose": "Cover AC-9302-1 via anatomy test: magic-link mint refusal on missing and on always-fail token; no mint fires",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-9302-1"
+  ],
+  "id": "TS-126",
+  "usId": "US-9302",
+  "title": "T-5 AC-9302-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-126-magic-link-guard-refuse",
+      "acId": "AC-9302-1",
+      "description": "AC-9302-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::magic-link mint route refuses on missing token and on always-fail token (TC-126-magic-link-guard-refuse)"
+    }
+  ],
+  "status": "draft"
+}

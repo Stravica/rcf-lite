@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T19:56:41.965Z",
+  "updatedAt": "2026-09-07T19:56:42.150Z",
+  "purpose": "Cover AC-9201-1 via anatomy test: guard-shape source-tree scan asserts every elicited surface carries a token-required guard; a missing-token submit is refused with 400 by the pack fixture",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-9201-1"
+  ],
+  "id": "TS-124",
+  "usId": "US-9201",
+  "title": "T-5 AC-9201-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-124-guard-shape-refuse",
+      "acId": "AC-9201-1",
+      "description": "AC-9201-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::guard shape scan and pack-fixture missing-token submit refuses with 400 (TC-124-guard-shape-refuse)"
+    }
+  ],
+  "status": "draft"
+}

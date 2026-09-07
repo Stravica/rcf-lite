@@ -1,0 +1,18 @@
+{
+  "slug": "edge-cloudflare-turnstile",
+  "probeName": "event-secrecy",
+  "runAt": "2026-09-07T20:04:34.468Z",
+  "engine": {
+    "kind": "live-endpoint",
+    "image": "Cloudflare siteverify endpoint via probe-pack-edge-cloudflare-turnstile fixture; event sink asserted for secrecy",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-35108-1",
+      "verdict": "pass",
+      "detail": "event-secrecy: 2 events captured, keys=[sitekeyHash,outcome,timestamp] only; no token or secret leak; outcomes=[\"refused\",\"verified\"]; passResp=200 failResp=400"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

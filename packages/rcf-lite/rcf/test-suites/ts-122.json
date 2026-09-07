@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T19:56:41.203Z",
+  "updatedAt": "2026-09-07T19:56:41.407Z",
+  "purpose": "Cover AC-9101-1 via anatomy test: live POST to Cloudflare siteverify endpoint with pinned always-pass secret returns success:true; handler responds 200",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-9101-1"
+  ],
+  "id": "TS-122",
+  "usId": "US-9101",
+  "title": "T-5 AC-9101-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-122-siteverify-pass",
+      "acId": "AC-9101-1",
+      "description": "AC-9101-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::siteverify pass posts to Cloudflare with the always-pass secret and returns success true (TC-122-siteverify-pass)"
+    }
+  ],
+  "status": "draft"
+}

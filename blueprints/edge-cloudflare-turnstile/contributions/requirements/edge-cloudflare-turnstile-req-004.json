@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-turnstile-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Composition with security-auth-magic-link: when both applied, the magic-link mint surface refuses submit without a valid Turnstile token",
+  "description": "When security-auth-magic-link and edge-cloudflare-turnstile are both applied, the magic-link mint surface reads through the Turnstile guard: a mint submit without a valid Turnstile response is refused with 400 before the mint fires. Composition uses the TAC-3603 hook.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.5). Ships as v1.0.0 of edge-cloudflare-turnstile.",
+  "tags": [
+    "blueprint:edge-cloudflare-turnstile"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

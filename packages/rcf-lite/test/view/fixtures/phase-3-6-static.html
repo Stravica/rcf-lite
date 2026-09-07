@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a>, <a href="#REQ-080">REQ-080</a>, <a href="#REQ-081">REQ-081</a>, <a href="#REQ-082">REQ-082</a>, <a href="#REQ-083">REQ-083</a>, <a href="#REQ-084">REQ-084</a>, <a href="#REQ-085">REQ-085</a>, <a href="#REQ-086">REQ-086</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a>, <a href="#REQ-080">REQ-080</a>, <a href="#REQ-081">REQ-081</a>, <a href="#REQ-082">REQ-082</a>, <a href="#REQ-083">REQ-083</a>, <a href="#REQ-084">REQ-084</a>, <a href="#REQ-085">REQ-085</a>, <a href="#REQ-086">REQ-086</a>, <a href="#REQ-090">REQ-090</a>, <a href="#REQ-091">REQ-091</a>, <a href="#REQ-092">REQ-092</a>, <a href="#REQ-093">REQ-093</a>, <a href="#REQ-094">REQ-094</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -13563,6 +13563,868 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-090">
+  <summary><span class="summary-label">REQ-090 - T-5 edge-cloudflare-turnstile v1.0.0 blueprint: the Turnstile client widget mounts with an elicited sitekey and injects no third-party script beyond Cloudflare Turnstile JS host</span><span class="status draft">draft</span></summary>
+  <article id="REQ-090" class="doc doc-req">
+  <h3>REQ-090 - T-5 edge-cloudflare-turnstile v1.0.0 blueprint: the Turnstile client widget mounts with an elicited sitekey and injects no third-party script beyond Cloudflare Turnstile JS host</h3>
+  
+  <p><strong>Description:</strong> The applying project reaches Cloudflare Turnstile through a client widget mount that renders on elicited surfaces using the elicited TURNSTILE_SITEKEY. The mount injects only Cloudflare Turnstile JS (challenges.cloudflare.com/turnstile/v0/api.js) and no other third-party script. On submit the widget populates a hidden Cf-Turnstile-Response token field in the form payload. Chain: HQ round-6 T-5 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-090..099 / US-90xx..94xx / TS-120..129 / FBS-110..119 / CN-350..379).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-090[&quot;REQ-090&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0 blueprin...&quot;]
+  US-9001[&quot;US-9001&lt;br/&gt;T-5 widget mount: elicited sitekey renders Tu...&quot;]
+  REQ-090 --&gt; US-9001
+  AC-9001-1[&quot;AC-9001-1&quot;]
+  US-9001 --&gt; AC-9001-1
+  FBS-110[&quot;FBS-110&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs ...&quot;]
+  AC-9001-1 -.-&gt;|delivered by| FBS-110
+  CN-350[&quot;CN-350&lt;br/&gt;../../blueprints/edge-cloudflare-turnstile/bl...&quot;]
+  AC-9001-1 -.-&gt;|implemented by| CN-350
+  US-9002[&quot;US-9002&lt;br/&gt;T-5 secret shape: TURNSTILE_SECRET is read on...&quot;]
+  REQ-090 --&gt; US-9002
+  AC-9002-1[&quot;AC-9002-1&quot;]
+  US-9002 --&gt; AC-9002-1
+  AC-9002-1 -.-&gt;|delivered by| FBS-110
+  AC-9002-1 -.-&gt;|implemented by| CN-350
+  click REQ-090 &quot;#REQ-090&quot;;
+  click US-9001 &quot;#US-9001&quot;;
+  click AC-9001-1 &quot;#AC-9001-1&quot;;
+  click FBS-110 &quot;#FBS-110&quot;;
+  click CN-350 &quot;#CN-350&quot;;
+  click US-9002 &quot;#US-9002&quot;;
+  click AC-9002-1 &quot;#AC-9002-1&quot;;
+  class REQ-090 req;
+  class US-9001 us;
+  class AC-9001-1 ac;
+  class FBS-110 fbs;
+  class CN-350 cn;
+  class US-9002 us;
+  class AC-9002-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:54:00.724Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T20:18:17.227Z&quot;,
+  &quot;description&quot;: &quot;The applying project reaches Cloudflare Turnstile through a client widget mount that renders on elicited surfaces using the elicited TURNSTILE_SITEKEY. The mount injects only Cloudflare Turnstile JS (challenges.cloudflare.com/turnstile/v0/api.js) and no other third-party script. On submit the widget populates a hidden Cf-Turnstile-Response token field in the form payload. Chain: HQ round-6 T-5 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-090..099 / US-90xx..94xx / TS-120..129 / FBS-110..119 / CN-350..379).&quot;,
+  &quot;reqId&quot;: &quot;REQ-090&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-5 edge-cloudflare-turnstile v1.0.0 blueprint: the Turnstile client widget mounts with an elicited sitekey and injects no third-party script beyond Cloudflare Turnstile JS host&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;,
+      &quot;httpApi&quot;,
+      &quot;auth&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T19:54:00.763Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;renders&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;api&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;token&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;form&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-9001">
+  <summary><span class="summary-label">US-9001 - T-5 widget mount: elicited sitekey renders Turnstile widget with token populated on submit</span><span class="status draft">draft</span></summary>
+  <article id="US-9001" class="doc doc-us">
+  <h3>US-9001 - T-5 widget mount: elicited sitekey renders Turnstile widget with token populated on submit</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-turnstile v1.0.0 blueprint on a Workers project using the probe-pack-edge-cloudflare-turnstile fixture</p>
+  <p><strong>I want:</strong> the Turnstile widget to mount on my public form with the elicited TURNSTILE_SITEKEY, to inject only Cloudflare Turnstile JS (no other third-party script), and to populate the hidden Cf-Turnstile-Response token field on submit</p>
+  <p><strong>So that:</strong> every submit that reaches my server carries a Turnstile response my server-side verifier can check</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-090">REQ-090</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-9001-1" class="ac-item"><strong>AC-9001-1</strong> - When the fixture page loads with the always-pass test sitekey, the Turnstile widget mounts and an iframe is present whose src origin is https://challenges.cloudflare.com; the page loads no third-party script from any other origin; on submit the form payload carries a non-empty Cf-Turnstile-Response value.
+<div class="ac-gwt"><p><em>Given</em> the pack fixture form loaded with default sitekey pass and the pinned always-pass test sitekey</p><p><em>When</em> the widget renders and the operator submits</p><p><em>Then</em> the Turnstile widget is mounted, its iframe origin is Cloudflare Turnstile only, and the submit payload contains the Cf-Turnstile-Response token</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-110">FBS-110</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:54:01.850Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:38.973Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the edge-cloudflare-turnstile v1.0.0 blueprint on a Workers project using the probe-pack-edge-cloudflare-turnstile fixture&quot;,
+  &quot;iWant&quot;: &quot;the Turnstile widget to mount on my public form with the elicited TURNSTILE_SITEKEY, to inject only Cloudflare Turnstile JS (no other third-party script), and to populate the hidden Cf-Turnstile-Response token field on submit&quot;,
+  &quot;soThat&quot;: &quot;every submit that reaches my server carries a Turnstile response my server-side verifier can check&quot;,
+  &quot;usId&quot;: &quot;US-9001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-090&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-5 widget mount: elicited sitekey renders Turnstile widget with token populated on submit&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-9001-1&quot;,
+      &quot;description&quot;: &quot;When the fixture page loads with the always-pass test sitekey, the Turnstile widget mounts and an iframe is present whose src origin is https://challenges.cloudflare.com; the page loads no third-party script from any other origin; on submit the form payload carries a non-empty Cf-Turnstile-Response value.&quot;,
+      &quot;given&quot;: &quot;the pack fixture form loaded with default sitekey pass and the pinned always-pass test sitekey&quot;,
+      &quot;when&quot;: &quot;the widget renders and the operator submits&quot;,
+      &quot;then&quot;: &quot;the Turnstile widget is mounted, its iframe origin is Cloudflare Turnstile only, and the submit payload contains the Cf-Turnstile-Response token&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3601-edge-cloudflare-turnstile-widget-mount&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-9002">
+  <summary><span class="summary-label">US-9002 - T-5 secret shape: TURNSTILE_SECRET is read only via the applied secrets facade and never inlined in fixture source</span><span class="status draft">draft</span></summary>
+  <article id="US-9002" class="doc doc-us">
+  <h3>US-9002 - T-5 secret shape: TURNSTILE_SECRET is read only via the applied secrets facade and never inlined in fixture source</h3>
+  
+  <p><strong>As a:</strong> reviewer auditing the applied Workers project source for secret hygiene</p>
+  <p><strong>I want:</strong> the TURNSTILE_SECRET to be read through the elicited config or applied secrets facade, and to see no plain-text secret literal in the fixture source</p>
+  <p><strong>So that:</strong> the Turnstile secret is never committed to the applying project source tree</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-090">REQ-090</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-9002-1" class="ac-item"><strong>AC-9002-1</strong> - A source-tree AST scan of the pack fixture (packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile) asserts that TURNSTILE_SECRET is dereferenced only via process.env or an env-shaped facade and that no plain-string secret literal appears in the fixture source. The Node probe secret-shape-scan implements the assertion and exits 0 on the fixture.
+<div class="ac-gwt"><p><em>Given</em> the shipped pack fixture with the pinned test secret sourced from environment</p><p><em>When</em> the source-tree AST scan runs over the fixture</p><p><em>Then</em> the scan finds only env-shaped reads for TURNSTILE_SECRET and reports no plain-string secret literal</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-110">FBS-110</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:35.026Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:39.157Z&quot;,
+  &quot;asA&quot;: &quot;reviewer auditing the applied Workers project source for secret hygiene&quot;,
+  &quot;iWant&quot;: &quot;the TURNSTILE_SECRET to be read through the elicited config or applied secrets facade, and to see no plain-text secret literal in the fixture source&quot;,
+  &quot;soThat&quot;: &quot;the Turnstile secret is never committed to the applying project source tree&quot;,
+  &quot;usId&quot;: &quot;US-9002&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-090&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-5 secret shape: TURNSTILE_SECRET is read only via the applied secrets facade and never inlined in fixture source&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-9002-1&quot;,
+      &quot;description&quot;: &quot;A source-tree AST scan of the pack fixture (packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile) asserts that TURNSTILE_SECRET is dereferenced only via process.env or an env-shaped facade and that no plain-string secret literal appears in the fixture source. The Node probe secret-shape-scan implements the assertion and exits 0 on the fixture.&quot;,
+      &quot;given&quot;: &quot;the shipped pack fixture with the pinned test secret sourced from environment&quot;,
+      &quot;when&quot;: &quot;the source-tree AST scan runs over the fixture&quot;,
+      &quot;then&quot;: &quot;the scan finds only env-shaped reads for TURNSTILE_SECRET and reports no plain-string secret literal&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3602-edge-cloudflare-turnstile-server-verifier&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-091">
+  <summary><span class="summary-label">REQ-091 - T-5 edge-cloudflare-turnstile v1.0.0: server-side siteverify POSTs the response token to challenges.cloudflare.com/turnstile/v0/siteverify with the elicited secret</span><span class="status draft">draft</span></summary>
+  <article id="REQ-091" class="doc doc-req">
+  <h3>REQ-091 - T-5 edge-cloudflare-turnstile v1.0.0: server-side siteverify POSTs the response token to challenges.cloudflare.com/turnstile/v0/siteverify with the elicited secret</h3>
+  
+  <p><strong>Description:</strong> The applying project verifies every Turnstile response token server-side by POSTing {secret: TURNSTILE_SECRET, response: &lt;token&gt;} to https://challenges.cloudflare.com/turnstile/v0/siteverify per Cloudflare Turnstile documented endpoint. On success:true the handler proceeds; on success:false the handler rejects with 400 and the refusal body carries the error-codes[] value, not the sitekey or secret.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-091[&quot;REQ-091&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: server-...&quot;]
+  US-9101[&quot;US-9101&lt;br/&gt;T-5 server-side siteverify pass: the always-p...&quot;]
+  REQ-091 --&gt; US-9101
+  AC-9101-1[&quot;AC-9101-1&quot;]
+  US-9101 --&gt; AC-9101-1
+  FBS-110[&quot;FBS-110&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs ...&quot;]
+  AC-9101-1 -.-&gt;|delivered by| FBS-110
+  CN-350[&quot;CN-350&lt;br/&gt;../../blueprints/edge-cloudflare-turnstile/bl...&quot;]
+  AC-9101-1 -.-&gt;|implemented by| CN-350
+  US-9102[&quot;US-9102&lt;br/&gt;T-5 server-side siteverify fail: the always-f...&quot;]
+  REQ-091 --&gt; US-9102
+  AC-9102-1[&quot;AC-9102-1&quot;]
+  US-9102 --&gt; AC-9102-1
+  AC-9102-1 -.-&gt;|delivered by| FBS-110
+  AC-9102-1 -.-&gt;|implemented by| CN-350
+  click REQ-091 &quot;#REQ-091&quot;;
+  click US-9101 &quot;#US-9101&quot;;
+  click AC-9101-1 &quot;#AC-9101-1&quot;;
+  click FBS-110 &quot;#FBS-110&quot;;
+  click CN-350 &quot;#CN-350&quot;;
+  click US-9102 &quot;#US-9102&quot;;
+  click AC-9102-1 &quot;#AC-9102-1&quot;;
+  class REQ-091 req;
+  class US-9101 us;
+  class AC-9101-1 ac;
+  class FBS-110 fbs;
+  class CN-350 cn;
+  class US-9102 us;
+  class AC-9102-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:54:00.947Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T20:18:17.412Z&quot;,
+  &quot;description&quot;: &quot;The applying project verifies every Turnstile response token server-side by POSTing {secret: TURNSTILE_SECRET, response: &lt;token&gt;} to https://challenges.cloudflare.com/turnstile/v0/siteverify per Cloudflare Turnstile documented endpoint. On success:true the handler proceeds; on success:false the handler rejects with 400 and the refusal body carries the error-codes[] value, not the sitekey or secret.&quot;,
+  &quot;reqId&quot;: &quot;REQ-091&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-5 edge-cloudflare-turnstile v1.0.0: server-side siteverify POSTs the response token to challenges.cloudflare.com/turnstile/v0/siteverify with the elicited secret&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;httpApi&quot;,
+      &quot;auth&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T19:54:00.984Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;POST&quot;
+      },
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;token&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;token&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;POST&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;token&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;endpoint&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-9101">
+  <summary><span class="summary-label">US-9101 - T-5 server-side siteverify pass: the always-pass Turnstile secret returns success:true and the handler proceeds with 200</span><span class="status draft">draft</span></summary>
+  <article id="US-9101" class="doc doc-us">
+  <h3>US-9101 - T-5 server-side siteverify pass: the always-pass Turnstile secret returns success:true and the handler proceeds with 200</h3>
+  
+  <p><strong>As a:</strong> shelf consumer whose Worker verifies Turnstile tokens through the shipped verifier</p>
+  <p><strong>I want:</strong> a POST to challenges.cloudflare.com/turnstile/v0/siteverify with the pinned always-pass secret and any response token to return success true and my handler to respond 200</p>
+  <p><strong>So that:</strong> the Turnstile-verified path is exercised end-to-end against the real Cloudflare endpoint</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-091">REQ-091</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-9101-1" class="ac-item"><strong>AC-9101-1</strong> - A live POST to https://challenges.cloudflare.com/turnstile/v0/siteverify with secret=1x0000000000000000000000000000000AA and any response token returns success:true; the pack-fixture /api/submit handler proceeds with 200. The Node siteverify-fixture probe drives the live endpoint and asserts success:true.
+<div class="ac-gwt"><p><em>Given</em> the pack fixture running on 127.0.0.1 with the pinned always-pass secret in the environment</p><p><em>When</em> a form submit hits /api/submit carrying the always-pass response token</p><p><em>Then</em> the server-side POST to Cloudflare returns success:true and the handler responds 200</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-110">FBS-110</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:35.429Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:39.347Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer whose Worker verifies Turnstile tokens through the shipped verifier&quot;,
+  &quot;iWant&quot;: &quot;a POST to challenges.cloudflare.com/turnstile/v0/siteverify with the pinned always-pass secret and any response token to return success true and my handler to respond 200&quot;,
+  &quot;soThat&quot;: &quot;the Turnstile-verified path is exercised end-to-end against the real Cloudflare endpoint&quot;,
+  &quot;usId&quot;: &quot;US-9101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-091&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-5 server-side siteverify pass: the always-pass Turnstile secret returns success:true and the handler proceeds with 200&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-9101-1&quot;,
+      &quot;description&quot;: &quot;A live POST to https://challenges.cloudflare.com/turnstile/v0/siteverify with secret=1x0000000000000000000000000000000AA and any response token returns success:true; the pack-fixture /api/submit handler proceeds with 200. The Node siteverify-fixture probe drives the live endpoint and asserts success:true.&quot;,
+      &quot;given&quot;: &quot;the pack fixture running on 127.0.0.1 with the pinned always-pass secret in the environment&quot;,
+      &quot;when&quot;: &quot;a form submit hits /api/submit carrying the always-pass response token&quot;,
+      &quot;then&quot;: &quot;the server-side POST to Cloudflare returns success:true and the handler responds 200&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3602-edge-cloudflare-turnstile-server-verifier&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-9102">
+  <summary><span class="summary-label">US-9102 - T-5 server-side siteverify fail: the always-fail Turnstile secret returns success:false, the handler rejects 400, and event records carry no token or secret</span><span class="status draft">draft</span></summary>
+  <article id="US-9102" class="doc doc-us">
+  <h3>US-9102 - T-5 server-side siteverify fail: the always-fail Turnstile secret returns success:false, the handler rejects 400, and event records carry no token or secret</h3>
+  
+  <p><strong>As a:</strong> shelf consumer whose Worker fails safe on any Turnstile verification refusal</p>
+  <p><strong>I want:</strong> a POST to siteverify with the pinned always-fail secret to return success false, the handler to reject with 400, and every event record to carry only sitekeyHash, outcome and timestamp</p>
+  <p><strong>So that:</strong> the fail branch never leaks the secret or the response token into observability</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-091">REQ-091</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-9102-1" class="ac-item"><strong>AC-9102-1</strong> - A live POST to siteverify with secret=2x0000000000000000000000000000000AA returns success:false; the pack-fixture /api/submit handler rejects with 400 whose body carries the error-codes value, not the sitekey. The Node event-secrecy probe asserts that every event record captured on submit carries {sitekeyHash, outcome, timestamp} keys only and does not carry the token or the secret string.
+<div class="ac-gwt"><p><em>Given</em> the pack fixture running with the pinned always-fail secret in the environment and event-secrecy probe attached</p><p><em>When</em> a form submit hits /api/submit and the verifier calls siteverify</p><p><em>Then</em> siteverify returns success:false, the handler responds 400 with an error-codes body, and every event record carries only sitekeyHash, outcome and timestamp</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-110">FBS-110</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:35.831Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:39.532Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer whose Worker fails safe on any Turnstile verification refusal&quot;,
+  &quot;iWant&quot;: &quot;a POST to siteverify with the pinned always-fail secret to return success false, the handler to reject with 400, and every event record to carry only sitekeyHash, outcome and timestamp&quot;,
+  &quot;soThat&quot;: &quot;the fail branch never leaks the secret or the response token into observability&quot;,
+  &quot;usId&quot;: &quot;US-9102&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-091&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-5 server-side siteverify fail: the always-fail Turnstile secret returns success:false, the handler rejects 400, and event records carry no token or secret&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-9102-1&quot;,
+      &quot;description&quot;: &quot;A live POST to siteverify with secret=2x0000000000000000000000000000000AA returns success:false; the pack-fixture /api/submit handler rejects with 400 whose body carries the error-codes value, not the sitekey. The Node event-secrecy probe asserts that every event record captured on submit carries {sitekeyHash, outcome, timestamp} keys only and does not carry the token or the secret string.&quot;,
+      &quot;given&quot;: &quot;the pack fixture running with the pinned always-fail secret in the environment and event-secrecy probe attached&quot;,
+      &quot;when&quot;: &quot;a form submit hits /api/submit and the verifier calls siteverify&quot;,
+      &quot;then&quot;: &quot;siteverify returns success:false, the handler responds 400 with an error-codes body, and every event record carries only sitekeyHash, outcome and timestamp&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3602-edge-cloudflare-turnstile-server-verifier&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-092">
+  <summary><span class="summary-label">REQ-092 - T-5 edge-cloudflare-turnstile v1.0.0: refuse-if-token-missing guard on elicited surfaces rejects submit with 400 before any downstream logic</span><span class="status draft">draft</span></summary>
+  <article id="REQ-092" class="doc doc-req">
+  <h3>REQ-092 - T-5 edge-cloudflare-turnstile v1.0.0: refuse-if-token-missing guard on elicited surfaces rejects submit with 400 before any downstream logic</h3>
+  
+  <p><strong>Description:</strong> The applying project registers a token-required guard at every elicited surface. A submit whose payload lacks the Cf-Turnstile-Response field is rejected with 400 before any downstream handler runs. The refusal body carries a stable error-code, not the sitekey.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-092[&quot;REQ-092&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: refuse-...&quot;]
+  US-9201[&quot;US-9201&lt;br/&gt;T-5 refuse-if-token-missing guard: a submit w...&quot;]
+  REQ-092 --&gt; US-9201
+  AC-9201-1[&quot;AC-9201-1&quot;]
+  US-9201 --&gt; AC-9201-1
+  FBS-110[&quot;FBS-110&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs ...&quot;]
+  AC-9201-1 -.-&gt;|delivered by| FBS-110
+  CN-350[&quot;CN-350&lt;br/&gt;../../blueprints/edge-cloudflare-turnstile/bl...&quot;]
+  AC-9201-1 -.-&gt;|implemented by| CN-350
+  click REQ-092 &quot;#REQ-092&quot;;
+  click US-9201 &quot;#US-9201&quot;;
+  click AC-9201-1 &quot;#AC-9201-1&quot;;
+  click FBS-110 &quot;#FBS-110&quot;;
+  click CN-350 &quot;#CN-350&quot;;
+  class REQ-092 req;
+  class US-9201 us;
+  class AC-9201-1 ac;
+  class FBS-110 fbs;
+  class CN-350 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:54:01.170Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T20:18:17.597Z&quot;,
+  &quot;description&quot;: &quot;The applying project registers a token-required guard at every elicited surface. A submit whose payload lacks the Cf-Turnstile-Response field is rejected with 400 before any downstream handler runs. The refusal body carries a stable error-code, not the sitekey.&quot;,
+  &quot;reqId&quot;: &quot;REQ-092&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-5 edge-cloudflare-turnstile v1.0.0: refuse-if-token-missing guard on elicited surfaces rejects submit with 400 before any downstream logic&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;auth&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T19:54:01.209Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;token&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;token&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-9201">
+  <summary><span class="summary-label">US-9201 - T-5 refuse-if-token-missing guard: a submit without Cf-Turnstile-Response rejects with 400 before any downstream logic</span><span class="status draft">draft</span></summary>
+  <article id="US-9201" class="doc doc-us">
+  <h3>US-9201 - T-5 refuse-if-token-missing guard: a submit without Cf-Turnstile-Response rejects with 400 before any downstream logic</h3>
+  
+  <p><strong>As a:</strong> shelf consumer whose Worker refuses cheap submit-without-token attempts at the earliest possible boundary</p>
+  <p><strong>I want:</strong> the guard to reject every submit whose payload has no Cf-Turnstile-Response field with 400 before the downstream handler is entered</p>
+  <p><strong>So that:</strong> downstream handlers never execute against a missing-token submit</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-092">REQ-092</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-9201-1" class="ac-item"><strong>AC-9201-1</strong> - A source-tree scan of the pack fixture (guard-shape-scan) enumerates every elicited surface and asserts each carries a token-required guard registered at the route level. A live POST to /api/submit without a Cf-Turnstile-Response field is rejected with 400 and no downstream handler side-effect is observable. Refusal body carries a stable error-code, not the sitekey.
+<div class="ac-gwt"><p><em>Given</em> the pack fixture running with every elicited surface registered</p><p><em>When</em> a submit reaches the route without a Cf-Turnstile-Response value</p><p><em>Then</em> the guard rejects with 400 with an error-code body and no downstream handler runs</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-110">FBS-110</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:36.233Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:39.716Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer whose Worker refuses cheap submit-without-token attempts at the earliest possible boundary&quot;,
+  &quot;iWant&quot;: &quot;the guard to reject every submit whose payload has no Cf-Turnstile-Response field with 400 before the downstream handler is entered&quot;,
+  &quot;soThat&quot;: &quot;downstream handlers never execute against a missing-token submit&quot;,
+  &quot;usId&quot;: &quot;US-9201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-092&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-5 refuse-if-token-missing guard: a submit without Cf-Turnstile-Response rejects with 400 before any downstream logic&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-9201-1&quot;,
+      &quot;description&quot;: &quot;A source-tree scan of the pack fixture (guard-shape-scan) enumerates every elicited surface and asserts each carries a token-required guard registered at the route level. A live POST to /api/submit without a Cf-Turnstile-Response field is rejected with 400 and no downstream handler side-effect is observable. Refusal body carries a stable error-code, not the sitekey.&quot;,
+      &quot;given&quot;: &quot;the pack fixture running with every elicited surface registered&quot;,
+      &quot;when&quot;: &quot;a submit reaches the route without a Cf-Turnstile-Response value&quot;,
+      &quot;then&quot;: &quot;the guard rejects with 400 with an error-code body and no downstream handler runs&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3602-edge-cloudflare-turnstile-server-verifier&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-093">
+  <summary><span class="summary-label">REQ-093 - T-5 edge-cloudflare-turnstile v1.0.0: composition with security-auth-magic-link refuses magic-link mint without a valid Turnstile token</span><span class="status draft">draft</span></summary>
+  <article id="REQ-093" class="doc doc-req">
+  <h3>REQ-093 - T-5 edge-cloudflare-turnstile v1.0.0: composition with security-auth-magic-link refuses magic-link mint without a valid Turnstile token</h3>
+  
+  <p><strong>Description:</strong> When both security-auth-magic-link and edge-cloudflare-turnstile are applied, the magic-link mint surface reads through the Turnstile guard: a mint submit without a valid Turnstile response is refused with 400 before the mint fires. Composition uses the TAC-3603 hook on the shipped magic-link mint surface.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-093[&quot;REQ-093&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: composi...&quot;]
+  US-9301[&quot;US-9301&lt;br/&gt;T-5 composition with security-auth-magic-link...&quot;]
+  REQ-093 --&gt; US-9301
+  AC-9301-1[&quot;AC-9301-1&quot;]
+  US-9301 --&gt; AC-9301-1
+  FBS-110[&quot;FBS-110&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs ...&quot;]
+  AC-9301-1 -.-&gt;|delivered by| FBS-110
+  CN-350[&quot;CN-350&lt;br/&gt;../../blueprints/edge-cloudflare-turnstile/bl...&quot;]
+  AC-9301-1 -.-&gt;|implemented by| CN-350
+  US-9302[&quot;US-9302&lt;br/&gt;T-5 magic-link guard cross-cutting: a magic-l...&quot;]
+  REQ-093 --&gt; US-9302
+  AC-9302-1[&quot;AC-9302-1&quot;]
+  US-9302 --&gt; AC-9302-1
+  AC-9302-1 -.-&gt;|delivered by| FBS-110
+  AC-9302-1 -.-&gt;|implemented by| CN-350
+  click REQ-093 &quot;#REQ-093&quot;;
+  click US-9301 &quot;#US-9301&quot;;
+  click AC-9301-1 &quot;#AC-9301-1&quot;;
+  click FBS-110 &quot;#FBS-110&quot;;
+  click CN-350 &quot;#CN-350&quot;;
+  click US-9302 &quot;#US-9302&quot;;
+  click AC-9302-1 &quot;#AC-9302-1&quot;;
+  class REQ-093 req;
+  class US-9301 us;
+  class AC-9301-1 ac;
+  class FBS-110 fbs;
+  class CN-350 cn;
+  class US-9302 us;
+  class AC-9302-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:54:01.402Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T20:18:17.783Z&quot;,
+  &quot;description&quot;: &quot;When both security-auth-magic-link and edge-cloudflare-turnstile are applied, the magic-link mint surface reads through the Turnstile guard: a mint submit without a valid Turnstile response is refused with 400 before the mint fires. Composition uses the TAC-3603 hook on the shipped magic-link mint surface.&quot;,
+  &quot;reqId&quot;: &quot;REQ-093&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-5 edge-cloudflare-turnstile v1.0.0: composition with security-auth-magic-link refuses magic-link mint without a valid Turnstile token&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;auth&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T19:54:01.439Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;magic-link&quot;
+      },
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;magic-link&quot;
+      },
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;token&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;magic-link&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;magic-link&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;auth&quot;,
+        &quot;match&quot;: &quot;magic-link&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-9301">
+  <summary><span class="summary-label">US-9301 - T-5 composition with security-auth-magic-link: the magic-link mint surface reads through the Turnstile guard</span><span class="status draft">draft</span></summary>
+  <article id="US-9301" class="doc doc-us">
+  <h3>US-9301 - T-5 composition with security-auth-magic-link: the magic-link mint surface reads through the Turnstile guard</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying both security-auth-magic-link and edge-cloudflare-turnstile</p>
+  <p><strong>I want:</strong> the magic-link mint surface to be gated by the Turnstile guard so a mint submit reads through the same token check as any other elicited surface</p>
+  <p><strong>So that:</strong> magic-link mint requests are protected by the same human-check as any other public form on my project</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-093">REQ-093</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-9301-1" class="ac-item"><strong>AC-9301-1</strong> - The blueprint contribution ADR-3601 declares the composition contract on the humanVerificationGate topic; the pack fixture ships a magic-link mint stub route (/api/magic-link) registered with the Turnstile guard. A source-tree read of the composition wire confirms the mint surface calls through the Turnstile guard before invoking the magic-link mint.
+<div class="ac-gwt"><p><em>Given</em> the pack fixture with both blueprints applied and /api/magic-link registered with the token-required guard</p><p><em>When</em> the composition contract is walked in the source tree</p><p><em>Then</em> the magic-link mint surface reads the Turnstile token check before invoking the mint</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-110">FBS-110</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:36.636Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:39.901Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying both security-auth-magic-link and edge-cloudflare-turnstile&quot;,
+  &quot;iWant&quot;: &quot;the magic-link mint surface to be gated by the Turnstile guard so a mint submit reads through the same token check as any other elicited surface&quot;,
+  &quot;soThat&quot;: &quot;magic-link mint requests are protected by the same human-check as any other public form on my project&quot;,
+  &quot;usId&quot;: &quot;US-9301&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-093&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-5 composition with security-auth-magic-link: the magic-link mint surface reads through the Turnstile guard&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-9301-1&quot;,
+      &quot;description&quot;: &quot;The blueprint contribution ADR-3601 declares the composition contract on the humanVerificationGate topic; the pack fixture ships a magic-link mint stub route (/api/magic-link) registered with the Turnstile guard. A source-tree read of the composition wire confirms the mint surface calls through the Turnstile guard before invoking the magic-link mint.&quot;,
+      &quot;given&quot;: &quot;the pack fixture with both blueprints applied and /api/magic-link registered with the token-required guard&quot;,
+      &quot;when&quot;: &quot;the composition contract is walked in the source tree&quot;,
+      &quot;then&quot;: &quot;the magic-link mint surface reads the Turnstile token check before invoking the mint&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3603-edge-cloudflare-turnstile-magic-link-hook&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-9302">
+  <summary><span class="summary-label">US-9302 - T-5 magic-link guard cross-cutting: a magic-link mint submit without a valid Turnstile token is refused with 400 before the mint fires</span><span class="status draft">draft</span></summary>
+  <article id="US-9302" class="doc doc-us">
+  <h3>US-9302 - T-5 magic-link guard cross-cutting: a magic-link mint submit without a valid Turnstile token is refused with 400 before the mint fires</h3>
+  
+  <p><strong>As a:</strong> shelf consumer relying on the composition to gate magic-link mint attempts</p>
+  <p><strong>I want:</strong> a magic-link mint POST that carries no Turnstile response, or a mint POST whose Turnstile response fails siteverify, to be refused with 400 before the mint fires</p>
+  <p><strong>So that:</strong> no magic-link is minted for a submitter who did not complete a Turnstile challenge</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-093">REQ-093</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-9302-1" class="ac-item"><strong>AC-9302-1</strong> - A live POST to /api/magic-link on the pack fixture without a Cf-Turnstile-Response field, and a POST carrying the always-fail response token, are both refused with 400 by the Turnstile guard and no magic-link is minted. The Playwright pack check AC-turnstile-magicLinkGuard drives this against the fixture with a real browser.
+<div class="ac-gwt"><p><em>Given</em> the pack fixture running with both blueprints applied and a real Playwright browser driving the fixture</p><p><em>When</em> a magic-link mint submit is issued without a Turnstile response, or with the always-fail response token</p><p><em>Then</em> the Turnstile guard refuses with 400 and no magic-link mint side-effect is observable</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-110">FBS-110</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:37.055Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:40.090Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer relying on the composition to gate magic-link mint attempts&quot;,
+  &quot;iWant&quot;: &quot;a magic-link mint POST that carries no Turnstile response, or a mint POST whose Turnstile response fails siteverify, to be refused with 400 before the mint fires&quot;,
+  &quot;soThat&quot;: &quot;no magic-link is minted for a submitter who did not complete a Turnstile challenge&quot;,
+  &quot;usId&quot;: &quot;US-9302&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-093&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-5 magic-link guard cross-cutting: a magic-link mint submit without a valid Turnstile token is refused with 400 before the mint fires&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-9302-1&quot;,
+      &quot;description&quot;: &quot;A live POST to /api/magic-link on the pack fixture without a Cf-Turnstile-Response field, and a POST carrying the always-fail response token, are both refused with 400 by the Turnstile guard and no magic-link is minted. The Playwright pack check AC-turnstile-magicLinkGuard drives this against the fixture with a real browser.&quot;,
+      &quot;given&quot;: &quot;the pack fixture running with both blueprints applied and a real Playwright browser driving the fixture&quot;,
+      &quot;when&quot;: &quot;a magic-link mint submit is issued without a Turnstile response, or with the always-fail response token&quot;,
+      &quot;then&quot;: &quot;the Turnstile guard refuses with 400 and no magic-link mint side-effect is observable&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3603-edge-cloudflare-turnstile-magic-link-hook&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-094">
+  <summary><span class="summary-label">REQ-094 - T-5 edge-cloudflare-turnstile v1.0.0: widget mode is an elicited enum (managed, non-interactive, invisible) per Cloudflare documented modes; recommendedDefault is managed</span><span class="status draft">draft</span></summary>
+  <article id="REQ-094" class="doc doc-req">
+  <h3>REQ-094 - T-5 edge-cloudflare-turnstile v1.0.0: widget mode is an elicited enum (managed, non-interactive, invisible) per Cloudflare documented modes; recommendedDefault is managed</h3>
+  
+  <p><strong>Description:</strong> The applying operator elicits one of Cloudflare Turnstile documented widget modes: managed (default; renders challenge only when Cloudflare deems it necessary), non-interactive (always renders a non-interactive challenge) or invisible (mounts an invisible widget). The default mode is managed per the shipped ADR.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-094[&quot;REQ-094&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: widget ...&quot;]
+  US-9401[&quot;US-9401&lt;br/&gt;T-5 widget mode elicit: managed, non-interact...&quot;]
+  REQ-094 --&gt; US-9401
+  AC-9401-1[&quot;AC-9401-1&quot;]
+  US-9401 --&gt; AC-9401-1
+  FBS-110[&quot;FBS-110&lt;br/&gt;T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs ...&quot;]
+  AC-9401-1 -.-&gt;|delivered by| FBS-110
+  CN-350[&quot;CN-350&lt;br/&gt;../../blueprints/edge-cloudflare-turnstile/bl...&quot;]
+  AC-9401-1 -.-&gt;|implemented by| CN-350
+  click REQ-094 &quot;#REQ-094&quot;;
+  click US-9401 &quot;#US-9401&quot;;
+  click AC-9401-1 &quot;#AC-9401-1&quot;;
+  click FBS-110 &quot;#FBS-110&quot;;
+  click CN-350 &quot;#CN-350&quot;;
+  class REQ-094 req;
+  class US-9401 us;
+  class AC-9401-1 ac;
+  class FBS-110 fbs;
+  class CN-350 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:54:01.626Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T20:18:17.970Z&quot;,
+  &quot;description&quot;: &quot;The applying operator elicits one of Cloudflare Turnstile documented widget modes: managed (default; renders challenge only when Cloudflare deems it necessary), non-interactive (always renders a non-interactive challenge) or invisible (mounts an invisible widget). The default mode is managed per the shipped ADR.&quot;,
+  &quot;reqId&quot;: &quot;REQ-094&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-5 edge-cloudflare-turnstile v1.0.0: widget mode is an elicited enum (managed, non-interactive, invisible) per Cloudflare documented modes; recommendedDefault is managed&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T19:54:01.664Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;renders&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;renders&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-9401">
+  <summary><span class="summary-label">US-9401 - T-5 widget mode elicit: managed, non-interactive and invisible each render per Cloudflare documented widget modes and the elicited default is managed</span><span class="status draft">draft</span></summary>
+  <article id="US-9401" class="doc doc-us">
+  <h3>US-9401 - T-5 widget mode elicit: managed, non-interactive and invisible each render per Cloudflare documented widget modes and the elicited default is managed</h3>
+  
+  <p><strong>As a:</strong> shelf consumer selecting a Turnstile widget mode for my project</p>
+  <p><strong>I want:</strong> to elicit one of managed, non-interactive or invisible at apply time with managed as the recommendedDefault, and to see each mode render as Cloudflare documents</p>
+  <p><strong>So that:</strong> my applied surface matches the operational profile the site needs (interactive challenge, always non-interactive, or invisible background check)</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-094">REQ-094</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-9401-1" class="ac-item"><strong>AC-9401-1</strong> - The blueprint elicit widget-mode contributes an enum with values managed, non-interactive and invisible; recommendedDefault managed. The pack fixture accepts ?mode=&lt;managed|non-interactive|invisible&gt; and mounts the widget with the pinned test sitekeys that match Cloudflare documented mode variants (sitekey 1x0000000000000000000000AA for interactive-pass, 1x0000000000000000000000BB for invisible-pass). Each mode renders the Turnstile iframe from challenges.cloudflare.com and no third-party origin.
+<div class="ac-gwt"><p><em>Given</em> the pack fixture loaded with mode set to managed, non-interactive and invisible respectively</p><p><em>When</em> each variant renders</p><p><em>Then</em> each renders the Turnstile widget from Cloudflare Turnstile origin only and no third-party script is loaded</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-110">FBS-110</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:37.462Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:40.275Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer selecting a Turnstile widget mode for my project&quot;,
+  &quot;iWant&quot;: &quot;to elicit one of managed, non-interactive or invisible at apply time with managed as the recommendedDefault, and to see each mode render as Cloudflare documents&quot;,
+  &quot;soThat&quot;: &quot;my applied surface matches the operational profile the site needs (interactive challenge, always non-interactive, or invisible background check)&quot;,
+  &quot;usId&quot;: &quot;US-9401&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-094&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-5 widget mode elicit: managed, non-interactive and invisible each render per Cloudflare documented widget modes and the elicited default is managed&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-9401-1&quot;,
+      &quot;description&quot;: &quot;The blueprint elicit widget-mode contributes an enum with values managed, non-interactive and invisible; recommendedDefault managed. The pack fixture accepts ?mode=&lt;managed|non-interactive|invisible&gt; and mounts the widget with the pinned test sitekeys that match Cloudflare documented mode variants (sitekey 1x0000000000000000000000AA for interactive-pass, 1x0000000000000000000000BB for invisible-pass). Each mode renders the Turnstile iframe from challenges.cloudflare.com and no third-party origin.&quot;,
+      &quot;given&quot;: &quot;the pack fixture loaded with mode set to managed, non-interactive and invisible respectively&quot;,
+      &quot;when&quot;: &quot;each variant renders&quot;,
+      &quot;then&quot;: &quot;each renders the Turnstile widget from Cloudflare Turnstile origin only and no third-party script is loaded&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3601-edge-cloudflare-turnstile-widget-mount&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -13595,8 +14457,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <dt>eventModel</dt><dd>None. Operations are synchronous filesystem reads and writes.</dd></dl></section>
 <section class="field-list"><h4>Operational concerns</h4><dl><dt>healthChecks</dt><dd>Not applicable for a local binary; a validate command reports project health by validating every document and listing broken references.</dd>
 <dt>logging</dt><dd>Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics.</dd></dl></section>
-  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a>, <a href="#TAC-2214-application-admin-console-access-gated-signin-surface">TAC-2214-application-admin-console-access-gated-signin-surface</a>, <a href="#TAC-3501-edge-cloudflare-access-jwt-validator">TAC-3501-edge-cloudflare-access-jwt-validator</a>, <a href="#TAC-3502-edge-cloudflare-access-application-declaration">TAC-3502-edge-cloudflare-access-application-declaration</a>, <a href="#TAC-3503-edge-cloudflare-access-policy-shape">TAC-3503-edge-cloudflare-access-policy-shape</a>, <a href="#TAC-3504-edge-cloudflare-access-audit-sink">TAC-3504-edge-cloudflare-access-audit-sink</a></p></section>
-  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a>, <a href="#ADR-010">ADR-010</a>, <a href="#ADR-2214-application-admin-console-consume-zero-trust-gate">ADR-2214-application-admin-console-consume-zero-trust-gate</a>, <a href="#ADR-3501-edge-cloudflare-access-jwt-gate">ADR-3501-edge-cloudflare-access-jwt-gate</a>, <a href="#ADR-3502-edge-cloudflare-access-identity-provider">ADR-3502-edge-cloudflare-access-identity-provider</a>, <a href="#ADR-3503-edge-cloudflare-access-policy-scope">ADR-3503-edge-cloudflare-access-policy-scope</a>, <a href="#ADR-3504-edge-cloudflare-access-audit-retention">ADR-3504-edge-cloudflare-access-audit-retention</a></p></section>
+  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a>, <a href="#TAC-2214-application-admin-console-access-gated-signin-surface">TAC-2214-application-admin-console-access-gated-signin-surface</a>, <a href="#TAC-3501-edge-cloudflare-access-jwt-validator">TAC-3501-edge-cloudflare-access-jwt-validator</a>, <a href="#TAC-3502-edge-cloudflare-access-application-declaration">TAC-3502-edge-cloudflare-access-application-declaration</a>, <a href="#TAC-3503-edge-cloudflare-access-policy-shape">TAC-3503-edge-cloudflare-access-policy-shape</a>, <a href="#TAC-3504-edge-cloudflare-access-audit-sink">TAC-3504-edge-cloudflare-access-audit-sink</a>, <a href="#TAC-3601-edge-cloudflare-turnstile-widget-mount">TAC-3601-edge-cloudflare-turnstile-widget-mount</a>, <a href="#TAC-3602-edge-cloudflare-turnstile-server-verifier">TAC-3602-edge-cloudflare-turnstile-server-verifier</a>, <a href="#TAC-3603-edge-cloudflare-turnstile-magic-link-hook">TAC-3603-edge-cloudflare-turnstile-magic-link-hook</a></p></section>
+  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a>, <a href="#ADR-010">ADR-010</a>, <a href="#ADR-2214-application-admin-console-consume-zero-trust-gate">ADR-2214-application-admin-console-consume-zero-trust-gate</a>, <a href="#ADR-3501-edge-cloudflare-access-jwt-gate">ADR-3501-edge-cloudflare-access-jwt-gate</a>, <a href="#ADR-3502-edge-cloudflare-access-identity-provider">ADR-3502-edge-cloudflare-access-identity-provider</a>, <a href="#ADR-3503-edge-cloudflare-access-policy-scope">ADR-3503-edge-cloudflare-access-policy-scope</a>, <a href="#ADR-3504-edge-cloudflare-access-audit-retention">ADR-3504-edge-cloudflare-access-audit-retention</a>, <a href="#ADR-3601-edge-cloudflare-turnstile-verifier-contract">ADR-3601-edge-cloudflare-turnstile-verifier-contract</a>, <a href="#ADR-3602-edge-cloudflare-turnstile-widget-mode">ADR-3602-edge-cloudflare-turnstile-widget-mode</a>, <a href="#ADR-3603-edge-cloudflare-turnstile-refuse-shape">ADR-3603-edge-cloudflare-turnstile-refuse-shape</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;tadId&quot;: &quot;TAD-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -14411,6 +15273,96 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3601-edge-cloudflare-turnstile-widget-mount">
+  <summary><span class="summary-label">TAC-3601-edge-cloudflare-turnstile-widget-mount - Turnstile client widget mount with elicited sitekey and third-party script pin</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3601-edge-cloudflare-turnstile-widget-mount" class="doc doc-tac">
+  <h3>TAC-3601-edge-cloudflare-turnstile-widget-mount - Turnstile client widget mount with elicited sitekey and third-party script pin</h3>
+  
+  <p><strong>Purpose:</strong> Turnstile client widget mount module; injects only Cloudflare Turnstile JS (challenges.cloudflare.com); renders with the elicited TURNSTILE_SITEKEY; populates the hidden Cf-Turnstile-Response token field on submit.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Realise the shape named in the purpose statement.</li><li>Bind the anchored ACs on the shipped probes and the Playwright pack.</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:37.865Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:37.865Z&quot;,
+  &quot;purpose&quot;: &quot;Turnstile client widget mount module; injects only Cloudflare Turnstile JS (challenges.cloudflare.com); renders with the elicited TURNSTILE_SITEKEY; populates the hidden Cf-Turnstile-Response token field on submit.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Realise the shape named in the purpose statement.&quot;,
+    &quot;Bind the anchored ACs on the shipped probes and the Playwright pack.&quot;
+  ],
+  &quot;tacId&quot;: &quot;TAC-3601-edge-cloudflare-turnstile-widget-mount&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;name&quot;: &quot;Turnstile client widget mount with elicited sitekey and third-party script pin&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3602-edge-cloudflare-turnstile-server-verifier">
+  <summary><span class="summary-label">TAC-3602-edge-cloudflare-turnstile-server-verifier - Turnstile server-side siteverify verifier and refuse-if-token-missing guard</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3602-edge-cloudflare-turnstile-server-verifier" class="doc doc-tac">
+  <h3>TAC-3602-edge-cloudflare-turnstile-server-verifier - Turnstile server-side siteverify verifier and refuse-if-token-missing guard</h3>
+  
+  <p><strong>Purpose:</strong> Turnstile server-side siteverify verifier; POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify; on success:true proceeds, on success:false rejects 400 with error-codes body; token-required guard rejects missing-token submits with 400 before any downstream handler runs.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Realise the shape named in the purpose statement.</li><li>Bind the anchored ACs on the shipped probes and the Playwright pack.</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:38.049Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:38.049Z&quot;,
+  &quot;purpose&quot;: &quot;Turnstile server-side siteverify verifier; POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify; on success:true proceeds, on success:false rejects 400 with error-codes body; token-required guard rejects missing-token submits with 400 before any downstream handler runs.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Realise the shape named in the purpose statement.&quot;,
+    &quot;Bind the anchored ACs on the shipped probes and the Playwright pack.&quot;
+  ],
+  &quot;tacId&quot;: &quot;TAC-3602-edge-cloudflare-turnstile-server-verifier&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;name&quot;: &quot;Turnstile server-side siteverify verifier and refuse-if-token-missing guard&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3603-edge-cloudflare-turnstile-magic-link-hook">
+  <summary><span class="summary-label">TAC-3603-edge-cloudflare-turnstile-magic-link-hook - Composition hook into security-auth-magic-link mint surface</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3603-edge-cloudflare-turnstile-magic-link-hook" class="doc doc-tac">
+  <h3>TAC-3603-edge-cloudflare-turnstile-magic-link-hook - Composition hook into security-auth-magic-link mint surface</h3>
+  
+  <p><strong>Purpose:</strong> Composition hook on the security-auth-magic-link mint surface: the magic-link mint route reads through the Turnstile guard before invoking the mint; a missing or failed Turnstile token refuses the mint with 400.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Realise the shape named in the purpose statement.</li><li>Bind the anchored ACs on the shipped probes and the Playwright pack.</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:38.233Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:38.233Z&quot;,
+  &quot;purpose&quot;: &quot;Composition hook on the security-auth-magic-link mint surface: the magic-link mint route reads through the Turnstile guard before invoking the mint; a missing or failed Turnstile token refuses the mint with 400.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Realise the shape named in the purpose statement.&quot;,
+    &quot;Bind the anchored ACs on the shipped probes and the Playwright pack.&quot;
+  ],
+  &quot;tacId&quot;: &quot;TAC-3603-edge-cloudflare-turnstile-magic-link-hook&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;name&quot;: &quot;Composition hook into security-auth-magic-link mint surface&quot;
+}
+</pre></details>
+</article>
+</details>
 <h3 class="group-heading">Architectural decisions</h3>
 <details class="doc-details doc-adr-wrap" data-doc-id="ADR-001">
   <summary><span class="summary-label">ADR-001 - Local filesystem is the single source of truth</span><span class="status accepted">accepted</span></summary>
@@ -14947,6 +15899,90 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3601-edge-cloudflare-turnstile-verifier-contract">
+  <summary><span class="summary-label">ADR-3601-edge-cloudflare-turnstile-verifier-contract - Human verification gate: Cloudflare Turnstile siteverify (scope global, new topic humanVerificationGate)</span><span class="status proposed">proposed</span></summary>
+  <article id="ADR-3601-edge-cloudflare-turnstile-verifier-contract" class="doc doc-adr">
+  <h3>ADR-3601-edge-cloudflare-turnstile-verifier-contract - Human verification gate: Cloudflare Turnstile siteverify (scope global, new topic humanVerificationGate)</h3>
+  
+  <p><strong>Status:</strong> proposed</p>
+  <p><strong>Context:</strong> T-5 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-turnstile/contributions/adrs/adr-3601-edge-cloudflare-turnstile-verifier-contract.json contribution. Cloudflare Turnstile documents a client widget plus a server-side siteverify endpoint (https://challenges.cloudflare.com/turnstile/v0/siteverify) as the wire-shape contract per https://developers.cloudflare.com/turnstile/. Every applied Worker needs one project-wide answer to the humanVerificationGate topic; a future non-Cloudflare adapter (hCaptcha, reCAPTCHA) conflicts on the same topic by design.</p>
+  <p><strong>Decision:</strong> The shipped v1.0.0 default is Cloudflare Turnstile with server-side siteverify. The verifier POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify; on success:true the handler proceeds, on success:false the handler rejects 400 with the error-codes value. The humanVerificationGate topic scope is global on this blueprint. Standards trace clause: Cloudflare Turnstile siteverify endpoint documented shape.</p>
+  <p><strong>Consequences:</strong> The applying project inherits Cloudflare Turnstile documented widget-and-siteverify contract per https://developers.cloudflare.com/turnstile/. A future hCaptcha or reCAPTCHA sibling contributes the same humanVerificationGate topic with a different answer, forcing a deliberate operator-resolved conflict at the project ADR level.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:38.420Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:38.420Z&quot;,
+  &quot;context&quot;: &quot;T-5 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-turnstile/contributions/adrs/adr-3601-edge-cloudflare-turnstile-verifier-contract.json contribution. Cloudflare Turnstile documents a client widget plus a server-side siteverify endpoint (https://challenges.cloudflare.com/turnstile/v0/siteverify) as the wire-shape contract per https://developers.cloudflare.com/turnstile/. Every applied Worker needs one project-wide answer to the humanVerificationGate topic; a future non-Cloudflare adapter (hCaptcha, reCAPTCHA) conflicts on the same topic by design.&quot;,
+  &quot;decision&quot;: &quot;The shipped v1.0.0 default is Cloudflare Turnstile with server-side siteverify. The verifier POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify; on success:true the handler proceeds, on success:false the handler rejects 400 with the error-codes value. The humanVerificationGate topic scope is global on this blueprint. Standards trace clause: Cloudflare Turnstile siteverify endpoint documented shape.&quot;,
+  &quot;consequences&quot;: &quot;The applying project inherits Cloudflare Turnstile documented widget-and-siteverify contract per https://developers.cloudflare.com/turnstile/. A future hCaptcha or reCAPTCHA sibling contributes the same humanVerificationGate topic with a different answer, forcing a deliberate operator-resolved conflict at the project ADR level.&quot;,
+  &quot;adrId&quot;: &quot;ADR-3601-edge-cloudflare-turnstile-verifier-contract&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;proposed&quot;,
+  &quot;title&quot;: &quot;Human verification gate: Cloudflare Turnstile siteverify (scope global, new topic humanVerificationGate)&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3602-edge-cloudflare-turnstile-widget-mode">
+  <summary><span class="summary-label">ADR-3602-edge-cloudflare-turnstile-widget-mode - Widget mode is an elicited enum {managed, non-interactive, invisible}; recommendedDefault managed</span><span class="status proposed">proposed</span></summary>
+  <article id="ADR-3602-edge-cloudflare-turnstile-widget-mode" class="doc doc-adr">
+  <h3>ADR-3602-edge-cloudflare-turnstile-widget-mode - Widget mode is an elicited enum {managed, non-interactive, invisible}; recommendedDefault managed</h3>
+  
+  <p><strong>Status:</strong> proposed</p>
+  <p><strong>Context:</strong> Cloudflare Turnstile documents three widget modes per https://developers.cloudflare.com/turnstile/: managed (Cloudflare decides when to show a challenge), non-interactive (always shows a non-interactive challenge) and invisible (mounts an invisible widget). The choice is a per-surface operational profile.</p>
+  <p><strong>Decision:</strong> Widget mode is elicited (elicited: true). Values: managed, non-interactive, invisible. recommendedDefault: managed. The applied-sidecar records the operator answer per applying surface. Standards trace clause: Cloudflare Turnstile documented widget modes.</p>
+  <p><strong>Consequences:</strong> The elicitation forces an explicit answer on every apply. The pack fixture accepts mode=managed, non-interactive or invisible and pins the invisible-widget test sitekeys (1x0000000000000000000000BB, 2x0000000000000000000000BB) alongside the managed pass/fail sitekeys so every mode is exercised.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:38.606Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:38.606Z&quot;,
+  &quot;context&quot;: &quot;Cloudflare Turnstile documents three widget modes per https://developers.cloudflare.com/turnstile/: managed (Cloudflare decides when to show a challenge), non-interactive (always shows a non-interactive challenge) and invisible (mounts an invisible widget). The choice is a per-surface operational profile.&quot;,
+  &quot;decision&quot;: &quot;Widget mode is elicited (elicited: true). Values: managed, non-interactive, invisible. recommendedDefault: managed. The applied-sidecar records the operator answer per applying surface. Standards trace clause: Cloudflare Turnstile documented widget modes.&quot;,
+  &quot;consequences&quot;: &quot;The elicitation forces an explicit answer on every apply. The pack fixture accepts mode=managed, non-interactive or invisible and pins the invisible-widget test sitekeys (1x0000000000000000000000BB, 2x0000000000000000000000BB) alongside the managed pass/fail sitekeys so every mode is exercised.&quot;,
+  &quot;adrId&quot;: &quot;ADR-3602-edge-cloudflare-turnstile-widget-mode&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;proposed&quot;,
+  &quot;title&quot;: &quot;Widget mode is an elicited enum {managed, non-interactive, invisible}; recommendedDefault managed&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3603-edge-cloudflare-turnstile-refuse-shape">
+  <summary><span class="summary-label">ADR-3603-edge-cloudflare-turnstile-refuse-shape - Refuse-if-token-missing status is 400 with an error-code body (no sitekey leak); siteverify failure carries the documented error-codes value</span><span class="status proposed">proposed</span></summary>
+  <article id="ADR-3603-edge-cloudflare-turnstile-refuse-shape" class="doc doc-adr">
+  <h3>ADR-3603-edge-cloudflare-turnstile-refuse-shape - Refuse-if-token-missing status is 400 with an error-code body (no sitekey leak); siteverify failure carries the documented error-codes value</h3>
+  
+  <p><strong>Status:</strong> proposed</p>
+  <p><strong>Context:</strong> Cloudflare Turnstile siteverify returns success:false with error-codes on failure; documented codes at https://developers.cloudflare.com/turnstile/. The applying project needs a stable refusal shape that never leaks the sitekey or the secret.</p>
+  <p><strong>Decision:</strong> Refuse-if-token-missing status is 400. Refusal body carries a stable error-code (turnstile.token-missing for the guard branch, or the Cloudflare error-codes first entry for the siteverify-failure branch). Refusal body never carries the sitekey, the secret or the response token value. Standards trace clause: Cloudflare Turnstile documented error codes.</p>
+  <p><strong>Consequences:</strong> The 400 status is machine-observable at every applied surface; downstream observability records the outcome by error-code, not by sitekey. Event records ship sitekeyHash, outcome and timestamp only (event-secrecy probe asserts this).</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:38.789Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:38.789Z&quot;,
+  &quot;context&quot;: &quot;Cloudflare Turnstile siteverify returns success:false with error-codes on failure; documented codes at https://developers.cloudflare.com/turnstile/. The applying project needs a stable refusal shape that never leaks the sitekey or the secret.&quot;,
+  &quot;decision&quot;: &quot;Refuse-if-token-missing status is 400. Refusal body carries a stable error-code (turnstile.token-missing for the guard branch, or the Cloudflare error-codes first entry for the siteverify-failure branch). Refusal body never carries the sitekey, the secret or the response token value. Standards trace clause: Cloudflare Turnstile documented error codes.&quot;,
+  &quot;consequences&quot;: &quot;The 400 status is machine-observable at every applied surface; downstream observability records the outcome by error-code, not by sitekey. Event records ship sitekeyHash, outcome and timestamp only (event-secrecy probe asserts this).&quot;,
+  &quot;adrId&quot;: &quot;ADR-3603-edge-cloudflare-turnstile-refuse-shape&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;proposed&quot;,
+  &quot;title&quot;: &quot;Refuse-if-token-missing status is 400 with an error-code body (no sitekey leak); siteverify failure carries the documented error-codes value&quot;
+}
+</pre></details>
+</article>
+</details>
 
     </section>
     <section id="tab-build" role="tabpanel" hidden>
@@ -14957,7 +15993,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li><li><strong>58.</strong> <a href="#FBS-110">FBS-110</a> - <span class="status notStarted">notStarted</span> - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -19588,6 +20624,104 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;title&quot;: &quot;T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs&quot;,
   &quot;summary&quot;: &quot;HQ round-6 T-4: application-admin-console v1.1.0 additive minor riding the edge-cloudflare-access PR (round-4 T-4 capability-minor pattern). Bumps blueprint.json to 1.1.0 with 6 new contributions: REQ-014, US-21815, US-21816, TAC-2214, ADR-2214 (scope global on new topic adminConsoleSignInSurface) and pack check AC-21815-1. Extends probe-pack-application-admin-console fixture with /admin/sign-in route. Updates admin-console CHANGELOG with v1.1.0 entry and guide with Access-gate consumption section. Q4 default: consumption is OPTIONAL. Repo chain: REQ-086, US-8601..8602, TAC-2214, ADR-2214.&quot;,
   &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-110">
+  <summary><span class="summary-label">FBS-110 - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-110" class="doc doc-fbs">
+  <h3>FBS-110 - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</h3>
+  
+  <p><strong>Summary:</strong> HQ round-6 T-5: edge-cloudflare-turnstile v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-turnstile/. Ships client widget mount (TAC-3601), server-side siteverify verifier plus refuse-if-token-missing guard (TAC-3602) and composition hook into security-auth-magic-link mint surface (TAC-3603). Four Node-only probes: secret-shape-scan, siteverify-fixture (drives live https://challenges.cloudflare.com/turnstile/v0/siteverify with pinned test keys), guard-shape-scan, event-secrecy. One Playwright pack (edge-cloudflare-turnstile.pack.mjs) with four checks: widgetRendered, serverVerified-pass, serverVerified-fail, magicLinkGuard. Dedicated pack fixture at packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile/ (Node HTTP server, pinned test sitekeys plus secrets from Cloudflare public testing page, magic-link mint stub, break switches for missing-token and other-origin). README, guide with widget-mount snippet plus siteverify curl plus composition example, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep; section 6a humanCheck row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-090..094, US-9001, 9002, 9101, 9102, 9201, 9301, 9302, 9401, TS-120..127 plus TCs, FBS-110, CN-350, TAC-3601..3603, ADR-3601..3603 minted via rcf define create --id per HQ round-6 T-5 reserved-block ruling 2026-09-07. Base commit origin/main 4e25a16.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-9001-1">AC-9001-1</a><a class="ac-pill" href="#AC-9002-1">AC-9002-1</a><a class="ac-pill" href="#AC-9101-1">AC-9101-1</a><a class="ac-pill" href="#AC-9102-1">AC-9102-1</a><a class="ac-pill" href="#AC-9201-1">AC-9201-1</a><a class="ac-pill" href="#AC-9301-1">AC-9301-1</a><a class="ac-pill" href="#AC-9302-1">AC-9302-1</a><a class="ac-pill" href="#AC-9401-1">AC-9401-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-9001-1">AC-9001-1</a></strong> - When the fixture page loads with the always-pass test sitekey, the Turnstile widget mounts and an iframe is present whose src origin is https://challenges.cloudflare.com; the page loads no third-party script from any other origin; on submit the form payload carries a non-empty Cf-Turnstile-Response value.</p>
+  <p><em>Given</em> the pack fixture form loaded with default sitekey pass and the pinned always-pass test sitekey</p>
+  <p><em>When</em> the widget renders and the operator submits</p>
+  <p><em>Then</em> the Turnstile widget is mounted, its iframe origin is Cloudflare Turnstile only, and the submit payload contains the Cf-Turnstile-Response token</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-9002-1">AC-9002-1</a></strong> - A source-tree AST scan of the pack fixture (packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile) asserts that TURNSTILE_SECRET is dereferenced only via process.env or an env-shaped facade and that no plain-string secret literal appears in the fixture source. The Node probe secret-shape-scan implements the assertion and exits 0 on the fixture.</p>
+  <p><em>Given</em> the shipped pack fixture with the pinned test secret sourced from environment</p>
+  <p><em>When</em> the source-tree AST scan runs over the fixture</p>
+  <p><em>Then</em> the scan finds only env-shaped reads for TURNSTILE_SECRET and reports no plain-string secret literal</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-9101-1">AC-9101-1</a></strong> - A live POST to https://challenges.cloudflare.com/turnstile/v0/siteverify with secret=1x0000000000000000000000000000000AA and any response token returns success:true; the pack-fixture /api/submit handler proceeds with 200. The Node siteverify-fixture probe drives the live endpoint and asserts success:true.</p>
+  <p><em>Given</em> the pack fixture running on 127.0.0.1 with the pinned always-pass secret in the environment</p>
+  <p><em>When</em> a form submit hits /api/submit carrying the always-pass response token</p>
+  <p><em>Then</em> the server-side POST to Cloudflare returns success:true and the handler responds 200</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-9102-1">AC-9102-1</a></strong> - A live POST to siteverify with secret=2x0000000000000000000000000000000AA returns success:false; the pack-fixture /api/submit handler rejects with 400 whose body carries the error-codes value, not the sitekey. The Node event-secrecy probe asserts that every event record captured on submit carries {sitekeyHash, outcome, timestamp} keys only and does not carry the token or the secret string.</p>
+  <p><em>Given</em> the pack fixture running with the pinned always-fail secret in the environment and event-secrecy probe attached</p>
+  <p><em>When</em> a form submit hits /api/submit and the verifier calls siteverify</p>
+  <p><em>Then</em> siteverify returns success:false, the handler responds 400 with an error-codes body, and every event record carries only sitekeyHash, outcome and timestamp</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-9201-1">AC-9201-1</a></strong> - A source-tree scan of the pack fixture (guard-shape-scan) enumerates every elicited surface and asserts each carries a token-required guard registered at the route level. A live POST to /api/submit without a Cf-Turnstile-Response field is rejected with 400 and no downstream handler side-effect is observable. Refusal body carries a stable error-code, not the sitekey.</p>
+  <p><em>Given</em> the pack fixture running with every elicited surface registered</p>
+  <p><em>When</em> a submit reaches the route without a Cf-Turnstile-Response value</p>
+  <p><em>Then</em> the guard rejects with 400 with an error-code body and no downstream handler runs</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-9301-1">AC-9301-1</a></strong> - The blueprint contribution ADR-3601 declares the composition contract on the humanVerificationGate topic; the pack fixture ships a magic-link mint stub route (/api/magic-link) registered with the Turnstile guard. A source-tree read of the composition wire confirms the mint surface calls through the Turnstile guard before invoking the magic-link mint.</p>
+  <p><em>Given</em> the pack fixture with both blueprints applied and /api/magic-link registered with the token-required guard</p>
+  <p><em>When</em> the composition contract is walked in the source tree</p>
+  <p><em>Then</em> the magic-link mint surface reads the Turnstile token check before invoking the mint</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-9302-1">AC-9302-1</a></strong> - A live POST to /api/magic-link on the pack fixture without a Cf-Turnstile-Response field, and a POST carrying the always-fail response token, are both refused with 400 by the Turnstile guard and no magic-link is minted. The Playwright pack check AC-turnstile-magicLinkGuard drives this against the fixture with a real browser.</p>
+  <p><em>Given</em> the pack fixture running with both blueprints applied and a real Playwright browser driving the fixture</p>
+  <p><em>When</em> a magic-link mint submit is issued without a Turnstile response, or with the always-fail response token</p>
+  <p><em>Then</em> the Turnstile guard refuses with 400 and no magic-link mint side-effect is observable</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-9401-1">AC-9401-1</a></strong> - The blueprint elicit widget-mode contributes an enum with values managed, non-interactive and invisible; recommendedDefault managed. The pack fixture accepts ?mode=&lt;managed|non-interactive|invisible&gt; and mounts the widget with the pinned test sitekeys that match Cloudflare documented mode variants (sitekey 1x0000000000000000000000AA for interactive-pass, 1x0000000000000000000000BB for invisible-pass). Each mode renders the Turnstile iframe from challenges.cloudflare.com and no third-party origin.</p>
+  <p><em>Given</em> the pack fixture loaded with mode set to managed, non-interactive and invisible respectively</p>
+  <p><em>When</em> each variant renders</p>
+  <p><em>Then</em> each renders the Turnstile widget from Cloudflare Turnstile origin only and no third-party script is loaded</p>
+</div></section>
+  
+  <section class="field-list"><h4>Design substage</h4>
+  <p><strong>UI-bearing:</strong> true</p>
+  <p><strong>Design stage complete:</strong> false</p>
+  <p><strong>Journeys:</strong> 0</p>
+  <p><strong>Nav model:</strong> (none) (0 route(s))</p>
+  <p><strong>Theme and a11y:</strong> (none)</p>
+</section>
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 58</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:43.448Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T20:06:57.412Z&quot;,
+  &quot;summary&quot;: &quot;HQ round-6 T-5: edge-cloudflare-turnstile v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-turnstile/. Ships client widget mount (TAC-3601), server-side siteverify verifier plus refuse-if-token-missing guard (TAC-3602) and composition hook into security-auth-magic-link mint surface (TAC-3603). Four Node-only probes: secret-shape-scan, siteverify-fixture (drives live https://challenges.cloudflare.com/turnstile/v0/siteverify with pinned test keys), guard-shape-scan, event-secrecy. One Playwright pack (edge-cloudflare-turnstile.pack.mjs) with four checks: widgetRendered, serverVerified-pass, serverVerified-fail, magicLinkGuard. Dedicated pack fixture at packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile/ (Node HTTP server, pinned test sitekeys plus secrets from Cloudflare public testing page, magic-link mint stub, break switches for missing-token and other-origin). README, guide with widget-mount snippet plus siteverify curl plus composition example, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep; section 6a humanCheck row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-090..094, US-9001, 9002, 9101, 9102, 9201, 9301, 9302, 9401, TS-120..127 plus TCs, FBS-110, CN-350, TAC-3601..3603, ADR-3601..3603 minted via rcf define create --id per HQ round-6 T-5 reserved-block ruling 2026-09-07. Base commit origin/main 4e25a16.&quot;,
+  &quot;dependsOnFbsIds&quot;: [],
+  &quot;acIds&quot;: [
+    &quot;AC-9001-1&quot;,
+    &quot;AC-9002-1&quot;,
+    &quot;AC-9101-1&quot;,
+    &quot;AC-9102-1&quot;,
+    &quot;AC-9201-1&quot;,
+    &quot;AC-9301-1&quot;,
+    &quot;AC-9302-1&quot;,
+    &quot;AC-9401-1&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-110&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 58,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks&quot;,
+  &quot;uiBearing&quot;: true
 }
 </pre></details>
 </article>
@@ -26660,6 +27794,326 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;AC-8502-1 anatomy proof under real-account probe module and shim (accountBoundSkipped path in unit)&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::real-account-gated-url probe records accountBoundSkipped when env vars absent (TC-119-real-account-gated-url-skipped)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-120">
+  <summary><span class="summary-label">TS-120 - T-5 AC-9001-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-120" class="doc doc-ts">
+  <h3>TS-120 - T-5 AC-9001-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-9001">US-9001</a></p>
+  <p><strong>Purpose:</strong> Cover AC-9001-1 via anatomy test: pack fixture renders Turnstile widget with always-pass sitekey; iframe origin Cloudflare only; no third-party script; hidden Cf-Turnstile-Response token populates on submit</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-9001-1">AC-9001-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-120-widget-mount-pass">
+  <p><strong>TC-120-widget-mount-pass</strong> - covers <a href="#AC-9001-1">AC-9001-1</a> <span class="status pending">pending</span></p>
+  <p>AC-9001-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::widget mount fixture renders the Turnstile iframe from Cloudflare origin only and populates the token on submit (TC-120-widget-mount-pass)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:40.460Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:40.645Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-9001-1 via anatomy test: pack fixture renders Turnstile widget with always-pass sitekey; iframe origin Cloudflare only; no third-party script; hidden Cf-Turnstile-Response token populates on submit&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-9001-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-120&quot;,
+  &quot;usId&quot;: &quot;US-9001&quot;,
+  &quot;title&quot;: &quot;T-5 AC-9001-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-120-widget-mount-pass&quot;,
+      &quot;acId&quot;: &quot;AC-9001-1&quot;,
+      &quot;description&quot;: &quot;AC-9001-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::widget mount fixture renders the Turnstile iframe from Cloudflare origin only and populates the token on submit (TC-120-widget-mount-pass)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-121">
+  <summary><span class="summary-label">TS-121 - T-5 AC-9002-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-121" class="doc doc-ts">
+  <h3>TS-121 - T-5 AC-9002-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-9002">US-9002</a></p>
+  <p><strong>Purpose:</strong> Cover AC-9002-1 via anatomy test: secret-shape source-tree scan reports zero inline literals; every TURNSTILE_SECRET read is env-shaped</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-9002-1">AC-9002-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-121-secret-shape-scan">
+  <p><strong>TC-121-secret-shape-scan</strong> - covers <a href="#AC-9002-1">AC-9002-1</a> <span class="status pending">pending</span></p>
+  <p>AC-9002-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::secret-shape scan reports env-shaped reads only and no inline literals in the pack fixture (TC-121-secret-shape-scan)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:40.831Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:41.018Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-9002-1 via anatomy test: secret-shape source-tree scan reports zero inline literals; every TURNSTILE_SECRET read is env-shaped&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-9002-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-121&quot;,
+  &quot;usId&quot;: &quot;US-9002&quot;,
+  &quot;title&quot;: &quot;T-5 AC-9002-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-121-secret-shape-scan&quot;,
+      &quot;acId&quot;: &quot;AC-9002-1&quot;,
+      &quot;description&quot;: &quot;AC-9002-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::secret-shape scan reports env-shaped reads only and no inline literals in the pack fixture (TC-121-secret-shape-scan)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-122">
+  <summary><span class="summary-label">TS-122 - T-5 AC-9101-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-122" class="doc doc-ts">
+  <h3>TS-122 - T-5 AC-9101-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-9101">US-9101</a></p>
+  <p><strong>Purpose:</strong> Cover AC-9101-1 via anatomy test: live POST to Cloudflare siteverify endpoint with pinned always-pass secret returns success:true; handler responds 200</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-9101-1">AC-9101-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-122-siteverify-pass">
+  <p><strong>TC-122-siteverify-pass</strong> - covers <a href="#AC-9101-1">AC-9101-1</a> <span class="status pending">pending</span></p>
+  <p>AC-9101-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::siteverify pass posts to Cloudflare with the always-pass secret and returns success true (TC-122-siteverify-pass)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:41.203Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:41.407Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-9101-1 via anatomy test: live POST to Cloudflare siteverify endpoint with pinned always-pass secret returns success:true; handler responds 200&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-9101-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-122&quot;,
+  &quot;usId&quot;: &quot;US-9101&quot;,
+  &quot;title&quot;: &quot;T-5 AC-9101-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-122-siteverify-pass&quot;,
+      &quot;acId&quot;: &quot;AC-9101-1&quot;,
+      &quot;description&quot;: &quot;AC-9101-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::siteverify pass posts to Cloudflare with the always-pass secret and returns success true (TC-122-siteverify-pass)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-123">
+  <summary><span class="summary-label">TS-123 - T-5 AC-9102-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-123" class="doc doc-ts">
+  <h3>TS-123 - T-5 AC-9102-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-9102">US-9102</a></p>
+  <p><strong>Purpose:</strong> Cover AC-9102-1 via anatomy test: live POST to Cloudflare siteverify endpoint with pinned always-fail secret returns success:false; handler responds 400; event records shape carries no token or secret</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-9102-1">AC-9102-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-123-siteverify-fail-secrecy">
+  <p><strong>TC-123-siteverify-fail-secrecy</strong> - covers <a href="#AC-9102-1">AC-9102-1</a> <span class="status pending">pending</span></p>
+  <p>AC-9102-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::siteverify fail returns success false and event records carry sitekeyHash outcome and timestamp only (TC-123-siteverify-fail-secrecy)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:41.594Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:41.779Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-9102-1 via anatomy test: live POST to Cloudflare siteverify endpoint with pinned always-fail secret returns success:false; handler responds 400; event records shape carries no token or secret&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-9102-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-123&quot;,
+  &quot;usId&quot;: &quot;US-9102&quot;,
+  &quot;title&quot;: &quot;T-5 AC-9102-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-123-siteverify-fail-secrecy&quot;,
+      &quot;acId&quot;: &quot;AC-9102-1&quot;,
+      &quot;description&quot;: &quot;AC-9102-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::siteverify fail returns success false and event records carry sitekeyHash outcome and timestamp only (TC-123-siteverify-fail-secrecy)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-124">
+  <summary><span class="summary-label">TS-124 - T-5 AC-9201-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-124" class="doc doc-ts">
+  <h3>TS-124 - T-5 AC-9201-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-9201">US-9201</a></p>
+  <p><strong>Purpose:</strong> Cover AC-9201-1 via anatomy test: guard-shape source-tree scan asserts every elicited surface carries a token-required guard; a missing-token submit is refused with 400 by the pack fixture</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-9201-1">AC-9201-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-124-guard-shape-refuse">
+  <p><strong>TC-124-guard-shape-refuse</strong> - covers <a href="#AC-9201-1">AC-9201-1</a> <span class="status pending">pending</span></p>
+  <p>AC-9201-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::guard shape scan and pack-fixture missing-token submit refuses with 400 (TC-124-guard-shape-refuse)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:41.965Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:42.150Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-9201-1 via anatomy test: guard-shape source-tree scan asserts every elicited surface carries a token-required guard; a missing-token submit is refused with 400 by the pack fixture&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-9201-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-124&quot;,
+  &quot;usId&quot;: &quot;US-9201&quot;,
+  &quot;title&quot;: &quot;T-5 AC-9201-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-124-guard-shape-refuse&quot;,
+      &quot;acId&quot;: &quot;AC-9201-1&quot;,
+      &quot;description&quot;: &quot;AC-9201-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::guard shape scan and pack-fixture missing-token submit refuses with 400 (TC-124-guard-shape-refuse)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-125">
+  <summary><span class="summary-label">TS-125 - T-5 AC-9301-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-125" class="doc doc-ts">
+  <h3>TS-125 - T-5 AC-9301-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-9301">US-9301</a></p>
+  <p><strong>Purpose:</strong> Cover AC-9301-1 via anatomy test: composition contract is realised in the pack fixture magic-link mint route; the mint reads the Turnstile guard before invoking the mint</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-9301-1">AC-9301-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-125-composition-wire">
+  <p><strong>TC-125-composition-wire</strong> - covers <a href="#AC-9301-1">AC-9301-1</a> <span class="status pending">pending</span></p>
+  <p>AC-9301-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::composition wire on the pack fixture magic-link mint reads the Turnstile guard first (TC-125-composition-wire)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:42.335Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:42.521Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-9301-1 via anatomy test: composition contract is realised in the pack fixture magic-link mint route; the mint reads the Turnstile guard before invoking the mint&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-9301-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-125&quot;,
+  &quot;usId&quot;: &quot;US-9301&quot;,
+  &quot;title&quot;: &quot;T-5 AC-9301-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-125-composition-wire&quot;,
+      &quot;acId&quot;: &quot;AC-9301-1&quot;,
+      &quot;description&quot;: &quot;AC-9301-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::composition wire on the pack fixture magic-link mint reads the Turnstile guard first (TC-125-composition-wire)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-126">
+  <summary><span class="summary-label">TS-126 - T-5 AC-9302-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-126" class="doc doc-ts">
+  <h3>TS-126 - T-5 AC-9302-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-9302">US-9302</a></p>
+  <p><strong>Purpose:</strong> Cover AC-9302-1 via anatomy test: magic-link mint refusal on missing and on always-fail token; no mint fires</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-9302-1">AC-9302-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-126-magic-link-guard-refuse">
+  <p><strong>TC-126-magic-link-guard-refuse</strong> - covers <a href="#AC-9302-1">AC-9302-1</a> <span class="status pending">pending</span></p>
+  <p>AC-9302-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::magic-link mint route refuses on missing token and on always-fail token (TC-126-magic-link-guard-refuse)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:42.706Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:42.891Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-9302-1 via anatomy test: magic-link mint refusal on missing and on always-fail token; no mint fires&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-9302-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-126&quot;,
+  &quot;usId&quot;: &quot;US-9302&quot;,
+  &quot;title&quot;: &quot;T-5 AC-9302-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-126-magic-link-guard-refuse&quot;,
+      &quot;acId&quot;: &quot;AC-9302-1&quot;,
+      &quot;description&quot;: &quot;AC-9302-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::magic-link mint route refuses on missing token and on always-fail token (TC-126-magic-link-guard-refuse)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-127">
+  <summary><span class="summary-label">TS-127 - T-5 AC-9401-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-127" class="doc doc-ts">
+  <h3>TS-127 - T-5 AC-9401-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-9401">US-9401</a></p>
+  <p><strong>Purpose:</strong> Cover AC-9401-1 via anatomy test: pack fixture accepts mode=managed, mode=non-interactive and mode=invisible and each renders with a Cloudflare-origin iframe only</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-9401-1">AC-9401-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-127-widget-mode-enum">
+  <p><strong>TC-127-widget-mode-enum</strong> - covers <a href="#AC-9401-1">AC-9401-1</a> <span class="status pending">pending</span></p>
+  <p>AC-9401-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::widget mode enum honours managed non-interactive and invisible on the pack fixture (TC-127-widget-mode-enum)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T19:56:43.076Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T19:56:43.260Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-9401-1 via anatomy test: pack fixture accepts mode=managed, mode=non-interactive and mode=invisible and each renders with a Cloudflare-origin iframe only&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-9401-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-127&quot;,
+  &quot;usId&quot;: &quot;US-9401&quot;,
+  &quot;title&quot;: &quot;T-5 AC-9401-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-127-widget-mode-enum&quot;,
+      &quot;acId&quot;: &quot;AC-9401-1&quot;,
+      &quot;description&quot;: &quot;AC-9401-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::widget mode enum honours managed non-interactive and invisible on the pack fixture (TC-127-widget-mode-enum)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

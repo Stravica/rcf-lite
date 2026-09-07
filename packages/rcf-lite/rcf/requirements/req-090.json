@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-09-07T19:54:00.724Z",
+  "updatedAt": "2026-09-07T20:18:17.227Z",
+  "description": "The applying project reaches Cloudflare Turnstile through a client widget mount that renders on elicited surfaces using the elicited TURNSTILE_SITEKEY. The mount injects only Cloudflare Turnstile JS (challenges.cloudflare.com/turnstile/v0/api.js) and no other third-party script. On submit the widget populates a hidden Cf-Turnstile-Response token field in the form payload. Chain: HQ round-6 T-5 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-090..099 / US-90xx..94xx / TS-120..129 / FBS-110..119 / CN-350..379).",
+  "reqId": "REQ-090",
+  "prdId": "PRD-001",
+  "title": "T-5 edge-cloudflare-turnstile v1.0.0 blueprint: the Turnstile client widget mounts with an elicited sitekey and injects no third-party script beyond Cloudflare Turnstile JS host",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T19:54:00.763Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "renders"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "api"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "token"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      }
+    ]
+  }
+}

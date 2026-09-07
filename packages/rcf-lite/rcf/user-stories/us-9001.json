@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T19:54:01.850Z",
+  "updatedAt": "2026-09-07T19:56:38.973Z",
+  "asA": "shelf consumer applying the edge-cloudflare-turnstile v1.0.0 blueprint on a Workers project using the probe-pack-edge-cloudflare-turnstile fixture",
+  "iWant": "the Turnstile widget to mount on my public form with the elicited TURNSTILE_SITEKEY, to inject only Cloudflare Turnstile JS (no other third-party script), and to populate the hidden Cf-Turnstile-Response token field on submit",
+  "soThat": "every submit that reaches my server carries a Turnstile response my server-side verifier can check",
+  "usId": "US-9001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-090",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-5 widget mount: elicited sitekey renders Turnstile widget with token populated on submit",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9001-1",
+      "description": "When the fixture page loads with the always-pass test sitekey, the Turnstile widget mounts and an iframe is present whose src origin is https://challenges.cloudflare.com; the page loads no third-party script from any other origin; on submit the form payload carries a non-empty Cf-Turnstile-Response value.",
+      "given": "the pack fixture form loaded with default sitekey pass and the pinned always-pass test sitekey",
+      "when": "the widget renders and the operator submits",
+      "then": "the Turnstile widget is mounted, its iframe origin is Cloudflare Turnstile only, and the submit payload contains the Cf-Turnstile-Response token",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3601-edge-cloudflare-turnstile-widget-mount"
+  ]
+}

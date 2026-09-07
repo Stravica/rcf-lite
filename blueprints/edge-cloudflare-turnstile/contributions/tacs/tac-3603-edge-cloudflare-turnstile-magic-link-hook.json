@@ -1,0 +1,25 @@
+{
+  "tacId": "TAC-3603-edge-cloudflare-turnstile-magic-link-hook",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Composition hook into security-auth-magic-link mint surface",
+  "purpose": "When security-auth-magic-link is applied alongside edge-cloudflare-turnstile, this hook registers the magic-link mint route under the Turnstile guard so a mint submit reads through the same token check. A missing or failed Turnstile response refuses the mint with 400 before the mint fires (AC-35105-1, AC-35105-2).",
+  "responsibilities": [
+    "Register the magic-link mint route under the Turnstile guard at composition apply time.",
+    "Refuse a mint submit without a valid Turnstile token with 400 before the mint fires.",
+    "Emit a mint-refused event record with the same {sitekeyHash, outcome, timestamp} shape as any other guard refusal."
+  ],
+  "internalStructure": "A thin registration hook that wraps the shipped magic-link mint handler with the Turnstile guard middleware. In the pack fixture the wiring is a one-line composeWithMagicLink({guard, mintHandler}) invocation on the route registration.",
+  "interfaces": [
+    {
+      "name": "composeWithMagicLink",
+      "kind": "function",
+      "summary": "Register the magic-link mint route under the Turnstile guard."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 57,
-    "notStarted": 29,
+    "items": 58,
+    "notStarted": 30,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 19,
+    "actionable": 20,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -45,7 +45,8 @@
         "FBS-080",
         "FBS-090",
         "FBS-100",
-        "FBS-101"
+        "FBS-101",
+        "FBS-110"
       ]
     },
     {
@@ -781,6 +782,16 @@
       "buildOrder": 57,
       "tier": 0,
       "title": "T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-110",
+      "buildOrder": 58,
+      "tier": 0,
+      "title": "T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

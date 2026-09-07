@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T19:56:40.831Z",
+  "updatedAt": "2026-09-07T19:56:41.018Z",
+  "purpose": "Cover AC-9002-1 via anatomy test: secret-shape source-tree scan reports zero inline literals; every TURNSTILE_SECRET read is env-shaped",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-9002-1"
+  ],
+  "id": "TS-121",
+  "usId": "US-9002",
+  "title": "T-5 AC-9002-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-121-secret-shape-scan",
+      "acId": "AC-9002-1",
+      "description": "AC-9002-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::secret-shape scan reports env-shaped reads only and no inline literals in the pack fixture (TC-121-secret-shape-scan)"
+    }
+  ],
+  "status": "draft"
+}

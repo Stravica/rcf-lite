@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T19:56:40.460Z",
+  "updatedAt": "2026-09-07T19:56:40.645Z",
+  "purpose": "Cover AC-9001-1 via anatomy test: pack fixture renders Turnstile widget with always-pass sitekey; iframe origin Cloudflare only; no third-party script; hidden Cf-Turnstile-Response token populates on submit",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-9001-1"
+  ],
+  "id": "TS-120",
+  "usId": "US-9001",
+  "title": "T-5 AC-9001-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-120-widget-mount-pass",
+      "acId": "AC-9001-1",
+      "description": "AC-9001-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::widget mount fixture renders the Turnstile iframe from Cloudflare origin only and populates the token on submit (TC-120-widget-mount-pass)"
+    }
+  ],
+  "status": "draft"
+}

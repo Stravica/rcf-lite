@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-turnstile-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Server-side siteverify: POST to https://challenges.cloudflare.com/turnstile/v0/siteverify with the elicited secret; success:true proceeds, failure rejects 400",
+  "description": "The applying project verifies every Turnstile response token server-side by POSTing {secret: TURNSTILE_SECRET, response: token} to https://challenges.cloudflare.com/turnstile/v0/siteverify. On success:true the handler proceeds; on success:false the handler rejects with 400 and the refusal body carries the documented error-codes value, not the sitekey or the secret.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.5). Ships as v1.0.0 of edge-cloudflare-turnstile.",
+  "tags": [
+    "blueprint:edge-cloudflare-turnstile"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

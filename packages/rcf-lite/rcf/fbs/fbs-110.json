@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T19:56:43.448Z",
+  "updatedAt": "2026-09-07T20:06:57.412Z",
+  "summary": "HQ round-6 T-5: edge-cloudflare-turnstile v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-turnstile/. Ships client widget mount (TAC-3601), server-side siteverify verifier plus refuse-if-token-missing guard (TAC-3602) and composition hook into security-auth-magic-link mint surface (TAC-3603). Four Node-only probes: secret-shape-scan, siteverify-fixture (drives live https://challenges.cloudflare.com/turnstile/v0/siteverify with pinned test keys), guard-shape-scan, event-secrecy. One Playwright pack (edge-cloudflare-turnstile.pack.mjs) with four checks: widgetRendered, serverVerified-pass, serverVerified-fail, magicLinkGuard. Dedicated pack fixture at packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile/ (Node HTTP server, pinned test sitekeys plus secrets from Cloudflare public testing page, magic-link mint stub, break switches for missing-token and other-origin). README, guide with widget-mount snippet plus siteverify curl plus composition example, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep; section 6a humanCheck row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-090..094, US-9001, 9002, 9101, 9102, 9201, 9301, 9302, 9401, TS-120..127 plus TCs, FBS-110, CN-350, TAC-3601..3603, ADR-3601..3603 minted via rcf define create --id per HQ round-6 T-5 reserved-block ruling 2026-09-07. Base commit origin/main 4e25a16.",
+  "dependsOnFbsIds": [],
+  "acIds": [
+    "AC-9001-1",
+    "AC-9002-1",
+    "AC-9101-1",
+    "AC-9102-1",
+    "AC-9201-1",
+    "AC-9301-1",
+    "AC-9302-1",
+    "AC-9401-1"
+  ],
+  "fbsId": "FBS-110",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 58,
+  "executionStatus": "notStarted",
+  "title": "T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks",
+  "uiBearing": true
+}

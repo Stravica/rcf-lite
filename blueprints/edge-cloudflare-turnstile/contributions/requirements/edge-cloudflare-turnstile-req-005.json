@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-turnstile-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Widget mode elicit: managed, non-interactive, invisible per Cloudflare Turnstile documented modes; recommendedDefault managed",
+  "description": "The applying operator elicits one of Cloudflare Turnstile documented widget modes: managed (default; challenge shown only when Cloudflare deems it necessary), non-interactive (always shows a non-interactive challenge) or invisible (mounts an invisible widget). The default mode is managed per ADR-3602.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.5). Ships as v1.0.0 of edge-cloudflare-turnstile.",
+  "tags": [
+    "blueprint:edge-cloudflare-turnstile"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

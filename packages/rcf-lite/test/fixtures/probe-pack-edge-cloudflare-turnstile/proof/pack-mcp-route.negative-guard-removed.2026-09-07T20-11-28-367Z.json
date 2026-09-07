@@ -1,0 +1,36 @@
+{
+  "id": "bv-FBS-110-neg-guard-removed",
+  "fbsId": "FBS-110",
+  "createdAt": "2026-09-07T20:11:28.367Z",
+  "mode": "agentScreenshotCritique",
+  "runtimeProfile": "local-dev",
+  "runtimeUrl": "http://127.0.0.1:58571",
+  "invariantChecks": [
+    {
+      "invariant": "sharedLayoutModule",
+      "verdict": "pass"
+    },
+    {
+      "invariant": "agentDriverWired",
+      "verdict": "pass"
+    }
+  ],
+  "verdict": "block",
+  "probePacks": [
+    {
+      "packName": "edge-cloudflare-turnstile",
+      "packVersion": "1.0.0",
+      "blueprintSlug": "edge-cloudflare-turnstile",
+      "applicable": true,
+      "aggregateVerdict": "block",
+      "checks": [
+        {
+          "id": "AC-turnstile-magicLinkGuard",
+          "verdict": "fail",
+          "detail": "magic-link guard unexpected: missing status=200 body={\"mint\":\"ok\",\"note\":\"stub mint; production would enqueue the magic-link email here\"}; fail status=400 body={\"errorCode\":\"turnstile.siteverify-failed\",\"errorCodes\":[\"invalid-input-response\"]}"
+        }
+      ]
+    }
+  ],
+  "notes": "Negative proof: mutation=guard-removed; expected check AC-turnstile-magicLinkGuard FAIL to prove the check fires on the broken thing."
+}

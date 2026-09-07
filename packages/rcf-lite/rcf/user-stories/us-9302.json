@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T19:56:37.055Z",
+  "updatedAt": "2026-09-07T19:56:40.090Z",
+  "asA": "shelf consumer relying on the composition to gate magic-link mint attempts",
+  "iWant": "a magic-link mint POST that carries no Turnstile response, or a mint POST whose Turnstile response fails siteverify, to be refused with 400 before the mint fires",
+  "soThat": "no magic-link is minted for a submitter who did not complete a Turnstile challenge",
+  "usId": "US-9302",
+  "prdId": "PRD-001",
+  "reqId": "REQ-093",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-5 magic-link guard cross-cutting: a magic-link mint submit without a valid Turnstile token is refused with 400 before the mint fires",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9302-1",
+      "description": "A live POST to /api/magic-link on the pack fixture without a Cf-Turnstile-Response field, and a POST carrying the always-fail response token, are both refused with 400 by the Turnstile guard and no magic-link is minted. The Playwright pack check AC-turnstile-magicLinkGuard drives this against the fixture with a real browser.",
+      "given": "the pack fixture running with both blueprints applied and a real Playwright browser driving the fixture",
+      "when": "a magic-link mint submit is issued without a Turnstile response, or with the always-fail response token",
+      "then": "the Turnstile guard refuses with 400 and no magic-link mint side-effect is observable",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3603-edge-cloudflare-turnstile-magic-link-hook"
+  ]
+}

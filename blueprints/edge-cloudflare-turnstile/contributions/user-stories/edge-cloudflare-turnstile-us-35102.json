@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-turnstile-US-35102",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-turnstile-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Server-side siteverify with the always-pass secret returns success true and the handler proceeds with 200",
+  "asA": "shelf consumer whose Worker verifies every Turnstile token server-side",
+  "iWant": "a POST to https://challenges.cloudflare.com/turnstile/v0/siteverify with the pinned always-pass secret (1x0000000000000000000000000000000AA) and any response token to return success:true and the handler to respond 200",
+  "soThat": "the verified path is exercised end-to-end against the live Cloudflare endpoint on every gate run",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-35102-1",
+      "description": "A live POST to https://challenges.cloudflare.com/turnstile/v0/siteverify with secret=1x0000000000000000000000000000000AA and any response token returns success:true; the pack-fixture /api/submit handler proceeds with 200 and the shipped Node probe siteverify-fixture asserts success:true.",
+      "given": "the pack fixture running on 127.0.0.1 on a free port with the pinned always-pass secret in the environment",
+      "when": "a submit hits /api/submit with any response token",
+      "then": "the server-side POST to siteverify returns success:true and the handler responds 200",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3602-edge-cloudflare-turnstile-server-verifier"
+  ],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

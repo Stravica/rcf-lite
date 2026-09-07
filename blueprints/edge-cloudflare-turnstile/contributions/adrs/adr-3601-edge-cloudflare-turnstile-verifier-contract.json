@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3601-edge-cloudflare-turnstile-verifier-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Human verification gate: Cloudflare Turnstile with server-side siteverify (scope global, new topic humanVerificationGate)",
+  "context": "An applying project that mounts a public-facing form (contact, subscribe, magic-link mint, low-cost-per-request public API) needs a human verification gate that keeps unattended bots off the form. Cloudflare Turnstile is the CF-native answer: a client widget that emits a response token and a server-side siteverify endpoint (https://challenges.cloudflare.com/turnstile/v0/siteverify) that returns success:true or success:false with error-codes per https://developers.cloudflare.com/turnstile/. Every applied Worker needs one project-wide answer to the humanVerificationGate topic; a future non-Cloudflare sibling (hCaptcha, reCAPTCHA) would conflict on the same topic by design.",
+  "decision": "The shipped v1.0.0 default is Cloudflare Turnstile with server-side siteverify. The verifier POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify per the Cloudflare Turnstile documented endpoint shape. On success:true the handler proceeds; on success:false the handler rejects 400 with the error-codes value in the refusal body. The humanVerificationGate topic scope is global on this blueprint; the topic string is humanVerificationGate (lower camel case, one concept per topic, no version suffix). Standards trace clause: Cloudflare Turnstile siteverify endpoint documented shape.",
+  "consequences": "The applying project inherits Cloudflare Turnstile documented widget-and-siteverify contract per https://developers.cloudflare.com/turnstile/. A future hCaptcha or reCAPTCHA sibling contributes the same humanVerificationGate topic with a different answer, forcing a DELIBERATE operator-resolved conflict at the project ADR level. The pack fixture pins Cloudflare public test keys per https://developers.cloudflare.com/turnstile/troubleshooting/testing/ so the pack does not need real Turnstile credentials to run.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

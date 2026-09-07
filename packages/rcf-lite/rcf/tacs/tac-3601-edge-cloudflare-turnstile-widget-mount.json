@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T19:56:37.865Z",
+  "updatedAt": "2026-09-07T19:56:37.865Z",
+  "purpose": "Turnstile client widget mount module; injects only Cloudflare Turnstile JS (challenges.cloudflare.com); renders with the elicited TURNSTILE_SITEKEY; populates the hidden Cf-Turnstile-Response token field on submit.",
+  "responsibilities": [
+    "Realise the shape named in the purpose statement.",
+    "Bind the anchored ACs on the shipped probes and the Playwright pack."
+  ],
+  "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Turnstile client widget mount with elicited sitekey and third-party script pin"
+}

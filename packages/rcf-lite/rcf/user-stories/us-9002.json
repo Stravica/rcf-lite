@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T19:56:35.026Z",
+  "updatedAt": "2026-09-07T19:56:39.157Z",
+  "asA": "reviewer auditing the applied Workers project source for secret hygiene",
+  "iWant": "the TURNSTILE_SECRET to be read through the elicited config or applied secrets facade, and to see no plain-text secret literal in the fixture source",
+  "soThat": "the Turnstile secret is never committed to the applying project source tree",
+  "usId": "US-9002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-090",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-5 secret shape: TURNSTILE_SECRET is read only via the applied secrets facade and never inlined in fixture source",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9002-1",
+      "description": "A source-tree AST scan of the pack fixture (packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile) asserts that TURNSTILE_SECRET is dereferenced only via process.env or an env-shaped facade and that no plain-string secret literal appears in the fixture source. The Node probe secret-shape-scan implements the assertion and exits 0 on the fixture.",
+      "given": "the shipped pack fixture with the pinned test secret sourced from environment",
+      "when": "the source-tree AST scan runs over the fixture",
+      "then": "the scan finds only env-shaped reads for TURNSTILE_SECRET and reports no plain-string secret literal",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3602-edge-cloudflare-turnstile-server-verifier"
+  ]
+}

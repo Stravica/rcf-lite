@@ -1,0 +1,53 @@
+{
+  "createdAt": "2026-09-07T19:54:00.947Z",
+  "updatedAt": "2026-09-07T20:18:17.412Z",
+  "description": "The applying project verifies every Turnstile response token server-side by POSTing {secret: TURNSTILE_SECRET, response: <token>} to https://challenges.cloudflare.com/turnstile/v0/siteverify per Cloudflare Turnstile documented endpoint. On success:true the handler proceeds; on success:false the handler rejects with 400 and the refusal body carries the error-codes[] value, not the sitekey or secret.",
+  "reqId": "REQ-091",
+  "prdId": "PRD-001",
+  "title": "T-5 edge-cloudflare-turnstile v1.0.0: server-side siteverify POSTs the response token to challenges.cloudflare.com/turnstile/v0/siteverify with the elicited secret",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "httpApi",
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T19:54:00.984Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "POST"
+      },
+      {
+        "source": "title",
+        "shape": "auth",
+        "match": "token"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "token"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "POST"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "token"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "endpoint"
+      }
+    ]
+  }
+}
