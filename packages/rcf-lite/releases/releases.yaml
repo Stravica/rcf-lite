@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.22.0"
+latest: "0.23.0"
 releases:
+  - version: "0.23.0"
+    date: "2026-09-07"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.23.0 adds the infrastructure spine four blueprints wide: a Postgres store with a facade contract and forward-only migrations, an S3-shape object store with a Cloudflare R2 first adapter, a Cloudflare Queues producer and consumer with dead-letter semantics, and a background-jobs discipline that refuses to apply until a queue is applied."
+      - "Each blueprint verifies against the real engine with node-only probes, and the four surfaces compose through the capability mechanism the round-3 admin console shipped."
+      - "Also in this release: the deploy-cloudflare-workers blueprint bumps 1.1.0 to 1.2.0 to bless the Workers-with-static-assets shape as the SPA-on-Workers deploy shape, and a CLI stdout-flush fix so large outputs are not truncated at the pipe buffer."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.22.0"
     date: "2026-09-07"
     breaking: false
