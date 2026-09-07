@@ -1,0 +1,17 @@
+{
+  "reqId": "platform-cloudflare-cron-triggers-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Multiple cron expressions route to distinct handlers via the expression-router dispatcher",
+  "description": "The applying project wires two or more cron expressions to distinct handlers through the dispatcher module. The dispatcher accepts an ordered map of {expression, handler} pairs and, on every scheduled invocation, matches the incoming Cron Trigger event's cron expression against the map. The matched handler receives a bounded context {expression, scheduledTime, sink} and is invoked exactly once. An unmatched expression records a cronUnmatched lifecycle event with metadata-only payload and the scheduled invocation returns without side effect. The dispatcher mode is elicited (single-handler for the trivial single-cron project; expression-routed for multi-cron; recommended default expression-routed when the elicited cron-expressions list has more than one entry) per ADR-3302.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.2). Ships as v1.0.0 of platform-cloudflare-cron-triggers.",
+  "tags": [
+    "blueprint:platform-cloudflare-cron-triggers"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

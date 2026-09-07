@@ -1,0 +1,25 @@
+{
+  "usId": "platform-cloudflare-cron-triggers-US-32101",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-cron-triggers-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The scheduled() handler opens against the elicited cron triggers on boot and emits cronReady",
+  "asA": "developer whose Worker needs to schedule work on a cron cadence behind a swappable boundary",
+  "iWant": "one scheduled() handler module to hold the Cron Trigger event reference, wire the dispatcher and the event sink, and emit a cronReady lifecycle event on the first successful ready-check",
+  "soThat": "the boundary between my domain and the vendor's scheduled seam is the only place that has to move when the dispatcher shape changes, and boot ordering is observable via the event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-32101-1",
+      "description": "On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected event sink; the ready() call fires cronReady on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The scheduled handler does NOT dereference other bindings on env; env.CACHE (the T-1 KV binding) is not read by this module.",
+      "given": "a Node or Worker process with the scheduled handler module imported and its factory invoked with the elicited configuration",
+      "when": "the process boots and the scheduled handler ready() call resolves",
+      "then": "a cronReady event fires on the injected event sink with the metadata-only payload; the module does not dereference env.CACHE",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

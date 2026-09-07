@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3302-platform-cloudflare-cron-triggers-dispatcher-mode",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Dispatcher mode: single-handler or expression-routed; recommended default expression-routed when more than one cron expression is elicited",
+  "context": "The scheduled() handler must route every Cron Trigger event to some handler. The trivial single-cron project has one expression and one handler; the multi-cron project has two or more expressions and expects distinct handlers. Hand-rolled conditionals inside the scheduled handler are brittle and spread the routing concern across the applying project. The dispatcher factors this concern into one seam.",
+  "decision": "Ship two dispatcher modes as an elicited answer. single-handler routes every fire to one handler (used when the elicited cron-expressions list has one entry). expression-routed maps each expression string-equal to a distinct handler (used when the list has more than one entry). The recommended default is expression-routed when the elicited cron-expressions list has more than one entry, otherwise single-handler. The elicit records the operator's answer in rcf/blueprints/platform-cloudflare-cron-triggers.applied.json under cron-dispatcher-mode; the createDispatcher factory reads that answer at apply time and constructs the routes accordingly.",
+  "consequences": "The applied project observes a bounded dispatch shape: exactly one handler per fire in single-handler mode; exactly one handler per matched expression in expression-routed mode; a cronUnmatched event on any other input. A future third dispatch mode (matching on wildcarded expression sets, dispatching to a handler pool) would extend the enum with a new value and a new dispatcher variant; the applied answer's value stays the operator's choice.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

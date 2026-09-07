@@ -1,0 +1,34 @@
+{
+  "usId": "platform-cloudflare-cron-triggers-US-32102",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-cron-triggers-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The dispatcher routes multiple cron expressions to distinct handlers by expression match",
+  "asA": "developer whose Worker needs to schedule two or more distinct workloads on distinct cron cadences",
+  "iWant": "one dispatcher module that accepts an ordered map of {expression, handler} pairs and, on every scheduled invocation, routes to the matched handler with a bounded context {expression, scheduledTime, sink}",
+  "soThat": "one wrangler.toml [triggers] crons block with multiple cron expressions maps cleanly to distinct handler code paths without hand-rolled conditionals",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-32102-1",
+      "description": "createDispatcher({routes, eventSink, skewToleranceMs, softBudgetMs, clock?}) returns a dispatch(event) function. Calling dispatch({cron, scheduledTime}) invokes exactly the handler whose expression string-equals the cron field, passes {expression, scheduledTime, sink} to it, and returns without invoking any other route's handler.",
+      "given": "a dispatcher wired with two routes and two spy handlers",
+      "when": "dispatch is called with a specific expression matching one route",
+      "then": "only the matched spy handler is invoked exactly once with the bounded context",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-32102-2",
+      "description": "Calling dispatch({cron: expressionNotInRoutes, scheduledTime}) does NOT invoke any handler, fires a cronUnmatched event on the sink with metadata {event, expression, scheduledTime, outcome: unmatched, duration: 0} and returns without side effect.",
+      "given": "a dispatcher wired with two routes and two spy handlers",
+      "when": "dispatch is called with an expression not in the routes",
+      "then": "no spy is called, a cronUnmatched event fires, and dispatch returns without side effect",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3302-platform-cloudflare-cron-triggers-expression-router"],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

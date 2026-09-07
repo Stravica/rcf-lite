@@ -1,0 +1,34 @@
+{
+  "usId": "platform-cloudflare-cron-triggers-US-32104",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-cron-triggers-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Soft budget: a handler running past the elicited budget fires cronStalled and continues",
+  "asA": "operator observing long-running scheduled work on a Worker",
+  "iWant": "the dispatcher to fire cronStalled at the moment a handler's observed duration crosses the elicited soft budget, without terminating the handler",
+  "soThat": "the applied logging companion surfaces stalled fires as a first-class signal, and the Worker's own CPU budget stays the vendor's concern",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-32104-1",
+      "description": "With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, dispatching fires exactly one cronStalled event on the sink with {event, expression, scheduledTime, outcome: stalled, duration: >=100, softBudgetMs: 100} at the moment the observed duration crosses 100ms.",
+      "given": "a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time",
+      "when": "an event is dispatched",
+      "then": "exactly one cronStalled event fires with the observed duration at or past the budget",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-32104-2",
+      "description": "With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, the dispatcher does NOT terminate the handler on the soft-budget breach; the handler runs to completion and a final cronFired event follows the cronStalled record with the total observed duration.",
+      "given": "a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time",
+      "when": "an event is dispatched",
+      "then": "the handler runs to completion and a cronFired follows the cronStalled record",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3302-platform-cloudflare-cron-triggers-expression-router", "TAC-3303-platform-cloudflare-cron-triggers-event-sink"],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

@@ -22,3 +22,13 @@ run_worker_first = true
 binding = "CACHE"
 id = "cf_platform_fixture_cache_id_placeholder"
 preview_id = "cf_platform_fixture_cache_preview_placeholder"
+
+# Cloudflare round 6 T-2 Cron Triggers for platform-cloudflare-cron-triggers.
+# Two expressions declared to exercise the expression-router dispatcher: the
+# minute cadence drives the wrangler-test-scheduled probe against src/scheduled.mjs;
+# the five-minute cadence is a distinct route the dispatcher-routing probe drives
+# in-process (never scheduled by wrangler dev). The elicited answer written into
+# an applied project's wrangler.toml is the operator's own list; the fixture
+# defaults are the multi-cron shape the dispatcher was built for.
+[triggers]
+crons = ["* * * * *", "*/5 * * * *"]

@@ -1,0 +1,34 @@
+{
+  "usId": "platform-cloudflare-cron-triggers-US-32103",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-cron-triggers-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Skew tolerance: fires inside the elicited window are onTime; outside record cronSkewed with delta",
+  "asA": "operator observing the timeliness of scheduled work on a Worker",
+  "iWant": "the dispatcher to classify every fire against the elicited skew window and record cronSkewed for late fires with the delta",
+  "soThat": "the applied logging companion surfaces cron drift as a first-class signal without every handler having to keep its own clock",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-32103-1",
+      "description": "With skewToleranceMs=30000 and a clock aligned to scheduledTime, dispatching a scheduled event fires cronFired with {event, expression, scheduledTime, outcome: onTime, duration: >=0} on the sink; no cronSkewed event fires for that dispatch.",
+      "given": "a dispatcher configured with skewToleranceMs=30000 and a clock aligned to scheduledTime",
+      "when": "an event is dispatched",
+      "then": "a cronFired event fires with outcome onTime and no cronSkewed fires",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-32103-2",
+      "description": "With skewToleranceMs=30000 and a clock advanced 60000ms past scheduledTime, dispatching a scheduled event fires cronSkewed with {event, expression, scheduledTime, outcome: skewed, duration: >=0, deltaMs: 60000} on the sink; the routed handler still runs to completion.",
+      "given": "a dispatcher configured with skewToleranceMs=30000 and a clock advanced 60000ms past scheduledTime",
+      "when": "an event is dispatched",
+      "then": "a cronSkewed event fires with the observed delta and the handler still runs",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3302-platform-cloudflare-cron-triggers-expression-router", "TAC-3303-platform-cloudflare-cron-triggers-event-sink"],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

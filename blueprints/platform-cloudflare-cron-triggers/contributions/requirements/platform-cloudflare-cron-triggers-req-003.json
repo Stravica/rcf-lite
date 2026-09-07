@@ -1,0 +1,17 @@
+{
+  "reqId": "platform-cloudflare-cron-triggers-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Skew tolerance: fires observed inside the elicited window are onTime; outside record cronSkewed with the delta",
+  "description": "The applying project elicits a skew-tolerance window (default 30 seconds per ADR-3303; floor 5 seconds; ceiling 300 seconds) governing how the dispatcher classifies a scheduled fire's timeliness. The dispatcher observes the handler start time against the event's scheduledTime. If the observed start lies within the window, the fire's outcome is onTime and a cronFired event carries {expression, scheduledTime, outcome, duration}. If the observed start lies outside the window, a cronSkewed event fires with the delta (observed minus scheduled, in milliseconds) and the outcome is skewed; the routed handler still runs to completion. Cloudflare Cron Triggers are documented as scheduling on a best-effort basis; the skew-tolerance window is the applied project's own observability lever, not a vendor guarantee.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.2). Ships as v1.0.0 of platform-cloudflare-cron-triggers.",
+  "tags": [
+    "blueprint:platform-cloudflare-cron-triggers"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

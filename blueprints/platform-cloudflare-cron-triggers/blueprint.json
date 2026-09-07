@@ -1,0 +1,85 @@
+{
+  "slug": "platform-cloudflare-cron-triggers",
+  "version": "1.0.0",
+  "category": "platform",
+  "capabilities": ["scheduledTrigger"],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every scheduled fire emits a metadata-only lifecycle event through the applied logger; a logging companion supplies the sink factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A handler failure inside a scheduled invocation constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "cron-expressions",
+      "prompt": "Cron expressions to schedule (comma-separated list of POSIX cron strings; each expression pairs with one handler under the dispatcher; recommended shape at least one).",
+      "kind": "string",
+      "default": "* * * * *"
+    },
+    {
+      "id": "cron-dispatcher-mode",
+      "prompt": "Dispatcher mode: single-handler routes every fire to one handler; expression-routed maps each expression to a distinct handler (per ADR-3302; recommended default expression-routed when more than one cron expression is elicited).",
+      "kind": "enum",
+      "options": ["single-handler", "expression-routed"],
+      "default": "expression-routed"
+    },
+    {
+      "id": "cron-skew-tolerance-seconds",
+      "prompt": "Skew tolerance in seconds; fires observed within the window are onTime, fires outside record cronSkewed with the delta (per ADR-3303; floor 5 seconds, ceiling 300 seconds).",
+      "kind": "string",
+      "default": "30"
+    },
+    {
+      "id": "cron-soft-budget-seconds",
+      "prompt": "Soft budget per handler in seconds; a handler running past this budget logs cronStalled but is not terminated by the dispatcher (Cloudflare's platform concern retains termination). Recommended default 30.",
+      "kind": "string",
+      "default": "30"
+    }
+  ],
+  "contributions": [
+    { "id": "platform-cloudflare-cron-triggers-REQ-001", "kind": "req", "path": "requirements/platform-cloudflare-cron-triggers-req-001.json" },
+    { "id": "platform-cloudflare-cron-triggers-REQ-002", "kind": "req", "path": "requirements/platform-cloudflare-cron-triggers-req-002.json" },
+    { "id": "platform-cloudflare-cron-triggers-REQ-003", "kind": "req", "path": "requirements/platform-cloudflare-cron-triggers-req-003.json" },
+    { "id": "platform-cloudflare-cron-triggers-REQ-004", "kind": "req", "path": "requirements/platform-cloudflare-cron-triggers-req-004.json" },
+    { "id": "platform-cloudflare-cron-triggers-US-32101", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32101.json" },
+    { "id": "platform-cloudflare-cron-triggers-US-32102", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32102.json" },
+    { "id": "platform-cloudflare-cron-triggers-US-32103", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32103.json" },
+    { "id": "platform-cloudflare-cron-triggers-US-32104", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32104.json" },
+    { "id": "platform-cloudflare-cron-triggers-US-32105", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32105.json" },
+    { "id": "platform-cloudflare-cron-triggers-US-32106", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32106.json" },
+    { "id": "platform-cloudflare-cron-triggers-US-32107", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32107.json" },
+    { "id": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler", "kind": "tac", "path": "tacs/tac-3301-platform-cloudflare-cron-triggers-scheduled-handler.json" },
+    { "id": "TAC-3302-platform-cloudflare-cron-triggers-expression-router", "kind": "tac", "path": "tacs/tac-3302-platform-cloudflare-cron-triggers-expression-router.json" },
+    { "id": "TAC-3303-platform-cloudflare-cron-triggers-event-sink", "kind": "tac", "path": "tacs/tac-3303-platform-cloudflare-cron-triggers-event-sink.json" },
+    {
+      "id": "ADR-3301-platform-cloudflare-cron-triggers-scheduled-trigger-contract",
+      "kind": "adr",
+      "path": "adrs/adr-3301-platform-cloudflare-cron-triggers-scheduled-trigger-contract.json",
+      "scope": "global",
+      "topic": "scheduledTriggerContract",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Workers Cron Triggers documented shape"
+    },
+    {
+      "id": "ADR-3302-platform-cloudflare-cron-triggers-dispatcher-mode",
+      "kind": "adr",
+      "path": "adrs/adr-3302-platform-cloudflare-cron-triggers-dispatcher-mode.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-3303-platform-cloudflare-cron-triggers-skew-tolerance-default",
+      "kind": "adr",
+      "path": "adrs/adr-3303-platform-cloudflare-cron-triggers-skew-tolerance-default.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}
