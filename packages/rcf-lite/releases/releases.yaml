@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.23.0"
+latest: "0.24.0"
 releases:
+  - version: "0.24.0"
+    date: "2026-09-08"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.24.0 opens the Cloudflare line with six blueprints in one round: a Workers KV facade, cron triggers with an expression-router, durable objects covering strong-consistency and hibernatable WebSocket shapes, a Zero-Trust Access gate the admin console consumes, Turnstile with the pinned test keys running under a Playwright pack, and edge rate limiting with a committed manifest."
+      - "Each blueprint verifies against the real Cloudflare engine through node-only probes, and the admin console reads the Access-gate capability to switch its sign-in surface."
+      - "Also in this release: application-admin-console bumps 1.0.0 to 1.1.0 to consume the zeroTrustGate capability, and the authoring standard section 6a capability table gains seven new rows."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.23.0"
     date: "2026-09-07"
     breaking: false
