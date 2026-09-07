@@ -1,0 +1,18 @@
+{
+  "reqId": "jobs-background-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Operator-facing surface (elicited): cli, httpEndpoint, or none",
+  "description": "The operator-facing surface for triggering ad-hoc runs, inspecting the run log, and re-driving a failed job is elicited at apply time between three shipped shapes: cli (a Node CLI shim the applying project builds against the jobs runtime), httpEndpoint (a small HTTP surface the applying project mounts through its own HTTP shape), or none (no operator surface; the run log is the only observability). The blueprint does not ship the CLI or the HTTP endpoint itself; it ships the contract they build against so the applying project can hoist a thin surface without a facade re-shape.",
+  "category": "functional",
+  "domain": "jobs",
+  "priority": "must",
+  "rationale": "Operator surfaces sit above the run-log contract but their exact shape varies by applying project (CLI-first estates vs HTTP-first APIs). The elicited choice records the answer without prescribing a UI framework or an HTTP router.",
+  "tags": [
+    "blueprint:jobs-background",
+    "category:05-operator-surface"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

@@ -1,0 +1,27 @@
+{
+  "adrId": "ADR-3101-jobs-background-model",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "scope": "global",
+  "topic": "backgroundJobModel",
+  "title": "Background-job model: retry-and-schedule as the shipped shape (scope global, new topic backgroundJobModel)",
+  "context": "A background-job discipline ships one of several models at the shipped-shape boundary: retry-and-schedule (cron + one-shot delayed, per-message retry, terminal DLQ) as this blueprint ships; stateful-workflow (Temporal-shape or Airflow-shape durable execution with multi-step state); durable-execution (Cloudflare Workflows step.do orchestration). The retry-and-schedule model composes cleanly on an applied queue capability; a stateful-workflow sibling would own its own persistent state store and its own scheduling contract. jobs-background claims the backgroundJobModel topic at scope global so future stateful-workflow siblings (a Temporal-shape or Airflow-shape blueprint) surface a DELIBERATE conflict and the operator picks one per project via a project-level ADR.",
+  "decision": "The shipped v1.0.0 shape is retry-and-schedule. The scheduler contract (POSIX cron plus one-shot delayed per REQ-003) and the retry contract (per-message re-delivery within the applied queue's max-attempts ceiling per REQ-004) are the two axes; the run-log at four moments per REQ-005 is the observability surface. The backgroundJobModel topic scope is global on this blueprint; the topic string is backgroundJobModel (lower camel case, one concept per topic, no version suffix, per the round-2 rules-for-new-topics clause). The round-6 Workflows adapter (per spec section 5.7 and round-6 decision (b)) lives INSIDE this blueprint as a v1.1.0 minor scheduler-mode value (workflows) at ADR-3102, not as a sibling; the topic backgroundJobModel is NOT re-claimed by the workflows mode. A future stateful-workflow sibling (a Temporal-shape blueprint) claims backgroundJobModel with a different answer and forces a DELIBERATE conflict.",
+  "consequences": "The applying project gets a retry-and-schedule background-job surface with metadata-only observability. Standards trace clause: generic enterprise practice for the job-definition and scheduler contracts. Future stateful-workflow siblings (Temporal-shape, Airflow-shape) will surface DELIBERATE conflicts on this topic; the operator resolves by picking one background-job model per project via a project-level ADR. The round-6 Workflows minor bump inside jobs-background is NOT a sibling; it is an elicited scheduler-mode value at ADR-3102 that keeps the backgroundJobModel topic answer unchanged.",
+  "alternativesConsidered": [
+    {
+      "name": "Ship stateful-workflow as the v1.0.0 default",
+      "summary": "Ship a Temporal-shape durable execution model as the primary v1.0.0 background-job surface with multi-step state.",
+      "reasonNotChosen": "Temporal-shape workflows require a persistent state store the applying project has to host; the round-5 shipped shape targets a directed producer-to-consumer worklist behind an applied queue. Stateful-workflow is a future sibling on the same topic, not the v1.0.0 default."
+    },
+    {
+      "name": "Ship durable-execution (Cloudflare Workflows) as the v1.0.0 default",
+      "summary": "Ship Cloudflare Workflows step.do as the primary v1.0.0 scheduler.",
+      "reasonNotChosen": "Cloudflare Workflows is a Cloudflare-only orchestration; the round-5 shipped shape targets a portable retry-and-schedule model over an applied queue capability that any queue provider can supply. Workflows is a scheduler-mode alternative at ADR-3102 (reserved for v1.1.0), not a topic-claim alternative."
+    }
+  ],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

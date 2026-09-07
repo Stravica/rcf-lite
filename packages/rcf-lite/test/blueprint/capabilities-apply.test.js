@@ -28,6 +28,13 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 // "object-storage-s3-no-secrets".
 const OBJECT_STORAGE_BP = join(REPO_ROOT, 'blueprints', 'object-storage-s3');
 const SECRETS_BP = join(REPO_ROOT, 'blueprints', 'security-secrets-management');
+// Infra round 5 T-4: jobs-background declares requiresAppliedCapabilities
+// gating on queue (a capability that messaging-queue-cloudflare v1.0.0
+// declares). Extends the T-5 mechanism to the queue-capability path with
+// allowSkipFlag "allow-no-queue-yet" and refusalMessageId
+// "jobs-background-no-queue".
+const JOBS_BACKGROUND_BP = join(REPO_ROOT, 'blueprints', 'jobs-background');
+const MESSAGING_QUEUE_BP = join(REPO_ROOT, 'blueprints', 'messaging-queue-cloudflare');
 
 async function applyIn(scratch, source, opts = {}) {
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -262,4 +269,75 @@ test('apply on a custom-auth project supports interactive TTY prompts via a read
   assert.equal(result.appliedElicitations['custom-auth-provides-role-model'], false);
   assert.equal(result.appliedElicitations['custom-auth-provides-tenancy'], false);
   assert.equal(result.appliedElicitations['custom-auth-provides-audit-log'], true);
+});
+
+test('jobs-background apply refuses on a bare project with the jobs-background-no-queue tag, names messaging-queue-cloudflare and the --allow-no-queue-yet override (TC-051-jobs-background-refuse)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-jobs-bare-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  const result = await applyIn(scratch, JOBS_BACKGROUND_BP);
+  assert.equal(result.kind, 'requiresAppliedCapabilities', JSON.stringify(result));
+  // First-line tag is the stable message id; dashboards/lints bind here.
+  assert.match(result.message, /\[jobs-background-no-queue\]/);
+  assert.match(result.message, /jobs-background requires an applied blueprint declaring/);
+  assert.match(result.message, /queue/);
+  assert.match(result.message, /messaging-queue-cloudflare/);
+  assert.match(result.message, /--allow-no-queue-yet/);
+});
+
+test('jobs-background --allow-no-queue-yet override writes sidecar with queue-family notes (TC-051-jobs-background-allow-skip)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-jobs-skip-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  const result = await applyIn(scratch, JOBS_BACKGROUND_BP, { allowNoAuthYet: true });
+  assert.equal(result.applied, true, JSON.stringify(result));
+  assert.equal(result.sidecarPath, 'rcf/blueprints/jobs-background.applied.json');
+  const raw = await readFile(join(scratch, result.sidecarPath), 'utf8');
+  const doc = JSON.parse(raw);
+  assert.equal(doc.slug, 'jobs-background');
+  assert.equal(doc.version, '1.0.0');
+  assert.equal(doc.allowNoAuthYet, true);
+  assert.deepEqual(doc.appliedCapabilities, []);
+  // Family word derives from allowSkipFlag; the queue override must read
+  // "no queue yet" not "no auth yet" nor "no secrets-management yet".
+  assert.match(doc.notes, /no queue yet/);
+  assert.match(doc.notes, /--allow-no-queue-yet/);
+  assert.match(doc.notes, /queue/);
+  assert.doesNotMatch(doc.notes, /no auth yet/,
+    'the sidecar note for the queue-family override must not use the auth-family prose');
+  assert.doesNotMatch(doc.notes, /no secrets-management yet/,
+    'the sidecar note for the queue-family override must not use the secrets-management prose');
+});
+
+test('jobs-background apply passes on a project with messaging-queue-cloudflare (queue) applied (TC-051-jobs-background-cap-satisfied)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-jobs-happy-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  const first = await applyIn(scratch, MESSAGING_QUEUE_BP);
+  assert.equal(first.applied, true, `messaging-queue-cloudflare apply failed: ${JSON.stringify(first)}`);
+  const second = await applyIn(scratch, JOBS_BACKGROUND_BP);
+  assert.equal(second.applied, true, `jobs-background apply failed after messaging-queue-cloudflare: ${JSON.stringify(second)}`);
+  assert.equal(second.slug, 'jobs-background');
+  const raw = await readFile(join(scratch, second.sidecarPath), 'utf8');
+  const doc = JSON.parse(raw);
+  assert.ok(doc.appliedCapabilities.includes('queue'),
+    `expected appliedCapabilities to include queue; got ${JSON.stringify(doc.appliedCapabilities)}`);
+  assert.equal(doc.allowNoAuthYet, undefined);
+  assert.equal(doc.notes, undefined);
+});
+
+test('jobs-background legacy --allow-no-auth-yet also unblocks the queue-capability override (TC-051-jobs-background-legacy-flag)', async () => {
+  const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-jobs-legacy-'));
+  await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  // The runner applies the OR-of-flags shape (allowNoAuthYet piped from
+  // --allow-no-auth-yet OR --allow-no-secrets-yet OR --allow-no-queue-yet).
+  // A caller passing the legacy auth-family flag on a jobs-background
+  // apply STILL unblocks the queue-capability gate. This is the shipped
+  // backward-compatible posture; the note text still reads under the
+  // queue-family because the family derivation comes from allowSkipFlag,
+  // not from which flag the operator typed.
+  const result = await applyIn(scratch, JOBS_BACKGROUND_BP, { allowNoAuthYet: true });
+  assert.equal(result.applied, true, JSON.stringify(result));
+  const raw = await readFile(join(scratch, result.sidecarPath), 'utf8');
+  const doc = JSON.parse(raw);
+  assert.equal(doc.slug, 'jobs-background');
+  assert.match(doc.notes, /no queue yet/);
+  assert.match(doc.notes, /--allow-no-queue-yet/);
 });

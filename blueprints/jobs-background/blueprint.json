@@ -1,0 +1,149 @@
+{
+  "slug": "jobs-background",
+  "version": "1.0.0",
+  "category": "jobs",
+  "capabilities": [
+    "backgroundJobs"
+  ],
+  "requiresAppliedCapabilities": {
+    "capabilities": [
+      "queue"
+    ],
+    "allowSkipFlag": "allow-no-queue-yet",
+    "refusalMessageId": "jobs-background-no-queue"
+  },
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every jobStarted / jobCompleted / jobFailed event writes through the applied logger; a logging companion supplies the factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A jobFailed constructs an internal error record with the terminal error code and the correlation id; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "contributions": [
+    {
+      "id": "jobs-background-REQ-001",
+      "kind": "req",
+      "path": "requirements/jobs-background-req-001.json"
+    },
+    {
+      "id": "jobs-background-REQ-002",
+      "kind": "req",
+      "path": "requirements/jobs-background-req-002.json"
+    },
+    {
+      "id": "jobs-background-REQ-003",
+      "kind": "req",
+      "path": "requirements/jobs-background-req-003.json"
+    },
+    {
+      "id": "jobs-background-REQ-004",
+      "kind": "req",
+      "path": "requirements/jobs-background-req-004.json"
+    },
+    {
+      "id": "jobs-background-REQ-005",
+      "kind": "req",
+      "path": "requirements/jobs-background-req-005.json"
+    },
+    {
+      "id": "jobs-background-REQ-006",
+      "kind": "req",
+      "path": "requirements/jobs-background-req-006.json"
+    },
+    {
+      "id": "jobs-background-US-30101",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30101.json"
+    },
+    {
+      "id": "jobs-background-US-30102",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30102.json"
+    },
+    {
+      "id": "jobs-background-US-30103",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30103.json"
+    },
+    {
+      "id": "jobs-background-US-30104",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30104.json"
+    },
+    {
+      "id": "jobs-background-US-30105",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30105.json"
+    },
+    {
+      "id": "jobs-background-US-30106",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30106.json"
+    },
+    {
+      "id": "jobs-background-US-30107",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30107.json"
+    },
+    {
+      "id": "jobs-background-US-30108",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30108.json"
+    },
+    {
+      "id": "jobs-background-US-30109",
+      "kind": "us",
+      "path": "user-stories/jobs-background-us-30109.json"
+    },
+    {
+      "id": "TAC-3101-jobs-background-job-definition",
+      "kind": "tac",
+      "path": "tacs/tac-3101-jobs-background-job-definition.json"
+    },
+    {
+      "id": "TAC-3102-jobs-background-scheduler",
+      "kind": "tac",
+      "path": "tacs/tac-3102-jobs-background-scheduler.json"
+    },
+    {
+      "id": "TAC-3103-jobs-background-run-log",
+      "kind": "tac",
+      "path": "tacs/tac-3103-jobs-background-run-log.json"
+    },
+    {
+      "id": "ADR-3101-jobs-background-model",
+      "kind": "adr",
+      "path": "adrs/adr-3101-jobs-background-model.json",
+      "scope": "global",
+      "topic": "backgroundJobModel",
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-3102-jobs-background-scheduler-mode",
+      "kind": "adr",
+      "path": "adrs/adr-3102-jobs-background-scheduler-mode.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Cloudflare Cron Triggers documented worker cron surface"
+    },
+    {
+      "id": "ADR-3103-jobs-background-requires-applied-capabilities",
+      "kind": "adr",
+      "path": "adrs/adr-3103-jobs-background-requires-applied-capabilities.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "visual round spec section 5.5.2 (the T-5 capability-consumer mechanism)"
+    },
+    {
+      "id": "ADR-3104-jobs-background-timeout-floor",
+      "kind": "adr",
+      "path": "adrs/adr-3104-jobs-background-timeout-floor.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Cloudflare Queues consumer wall-clock ceiling per platform limits doc"
+    }
+  ]
+}

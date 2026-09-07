@@ -1,0 +1,50 @@
+{
+  "tacId": "TAC-3101-jobs-background-job-definition",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Jobs-background job-definition module contract",
+  "purpose": "The shape every job-definition module in the applying project's jobs directory exports. One shape carries name, handler, inputSchema (opaque per project), retryPolicy, and timeoutMs. The jobs runtime registers every job at boot on the applied queue consumer and dispatches by name.",
+  "responsibilities": [
+    "Declare a job by exporting { name, handler, inputSchema, retryPolicy, timeoutMs } (AC-30102-1, AC-jobs-retryOnHandlerFailure).",
+    "Bound handler wall-clock via timeoutMs; jobs runtime cancels a handler that exceeds timeoutMs and treats it as a retryable error (AC-jobs-retryOnHandlerFailure).",
+    "Respect the applied queue's max-attempts ceiling; retryPolicy.maxAttempts must not exceed the ceiling (AC-jobs-retryOnHandlerFailure).",
+    "Refuse composition on a bare project via the requiresAppliedCapabilities gate (AC-jobs-requiresQueue)."
+  ],
+  "internalStructure": "Each job module in the applying project's jobs/ directory (default ./jobs/, elicited) exports a plain object. The jobs runtime scans the directory at boot, validates the shape, and registers handlers keyed by name on the applied queue consumer's dispatch table. Dispatch is by message.name; no runtime type reflection.",
+  "interfaces": [
+    {
+      "name": "jobModule.default",
+      "kind": "shape",
+      "description": "The default export shape: { name: string, handler: async (input) => any, inputSchema: opaque, retryPolicy: { maxAttempts: positive integer, backoff: 'exponential' | 'constant' | 'linear' }, timeoutMs: positive integer }."
+    },
+    {
+      "name": "registerJobs",
+      "kind": "factory",
+      "description": "The jobs runtime entry point: registerJobs({ jobsDir, queueConsumer, onEvent }) reads jobModule files, validates the shape, and registers dispatch handlers."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Scheduler",
+      "kind": "tac",
+      "tacId": "TAC-3102-jobs-background-scheduler",
+      "description": "The scheduler enqueues messages by job name; the job-definition module is the target."
+    },
+    {
+      "name": "Run log",
+      "kind": "tac",
+      "tacId": "TAC-3103-jobs-background-run-log",
+      "description": "The runtime fires the four lifecycle events on the injected event sink for every dispatch."
+    },
+    {
+      "name": "Applied queue capability",
+      "kind": "external",
+      "description": "Composed on the applied blueprint declaring capabilities: [queue] via the T-5 mechanism; refuses apply on a bare project per REQ-001."
+    }
+  ],
+  "tradeoffs": "The v1.0.0 job-definition shape does not prescribe an inputSchema validator; the applying project owns validation. A later minor could add an optional validate hook if a shipped validation library becomes the shelf default. The dispatch table is by job name; two modules exporting the same name collide at boot and refuse.",
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

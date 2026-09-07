@@ -196,6 +196,12 @@ const OPTION_SPEC = {
   // with the credential-pair discipline the spec names, rather than
   // reusing the auth-flavoured flag.
   'allow-no-secrets-yet': { type: 'boolean' },
+  // Infra round 5 T-4 (spec 5.4, Baz decision 5): jobs-background
+  // declares allowSkipFlag "allow-no-queue-yet" so the override for
+  // its requiresAppliedCapabilities gate stays semantically aligned
+  // with the queue-capability discipline the spec names, rather than
+  // reusing the auth or secrets flavoured flags.
+  'allow-no-queue-yet': { type: 'boolean' },
   answer: { type: 'string', multiple: true },
   answers: { type: 'string' },
 };
@@ -346,7 +352,8 @@ export async function main(argv, deps = {}) {
       projectRoot, tree, source,
       namespaceOverride: parsed.values.namespace,
       allowNoAuthYet: parsed.values['allow-no-auth-yet'] === true
-        || parsed.values['allow-no-secrets-yet'] === true,
+        || parsed.values['allow-no-secrets-yet'] === true
+        || parsed.values['allow-no-queue-yet'] === true,
       elicitAnswers,
       customAuthReadLine,
       // Library-qualified resolves rewire the applied identity under

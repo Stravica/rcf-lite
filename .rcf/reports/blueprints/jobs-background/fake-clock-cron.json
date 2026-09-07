@@ -1,0 +1,47 @@
+{
+  "slug": "jobs-background",
+  "probeName": "fake-clock-cron",
+  "runAt": "2026-09-06T20:54:42.724Z",
+  "engine": {
+    "kind": "queues+scheduler",
+    "image": "cloudflare/wrangler-dev-equivalent (in-memory driver) + inProcess scheduler with injected fake clock",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-jobs-scheduledRunsOnCron",
+      "verdict": "pass",
+      "detail": "fires=1; jobStarted refresh-cache attempts=1 within fireToleranceMs=30000; jobCompleted duration=0ms within timeoutMs=10000"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "extra": {
+    "events": [
+      {
+        "event": "jobScheduled",
+        "jobId": "job-000001",
+        "jobName": "refresh-cache",
+        "attempts": 0,
+        "duration": 0,
+        "timestamp": "1970-01-01T00:01:00.000Z"
+      },
+      {
+        "event": "jobStarted",
+        "jobId": "job-000001",
+        "jobName": "refresh-cache",
+        "attempts": 1,
+        "duration": 0,
+        "timestamp": "2026-09-06T20:54:42.724Z"
+      },
+      {
+        "event": "jobCompleted",
+        "jobId": "job-000001",
+        "jobName": "refresh-cache",
+        "attempts": 1,
+        "duration": 0,
+        "timestamp": "2026-09-06T20:54:42.724Z"
+      }
+    ],
+    "fireToleranceMs": 30000
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-216",
+  "path": "../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/jobs-runtime.mjs",
+  "implementsAcIds": [
+    "AC-4301-5",
+    "AC-4301-6",
+    "AC-4301-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T10:16:41.065Z",
+  "updatedAt": "2026-09-07T10:16:41.065Z"
+}

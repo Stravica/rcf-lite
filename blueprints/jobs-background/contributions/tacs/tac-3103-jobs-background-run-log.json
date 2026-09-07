@@ -1,0 +1,49 @@
+{
+  "tacId": "TAC-3103-jobs-background-run-log",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Jobs-background run-log event sink",
+  "purpose": "The lifecycle-event sink for jobScheduled, jobStarted, jobCompleted and jobFailed events. The event whitelist { jobId, jobName, attempts, duration, timestamp } (plus terminalErrorCode on jobFailed) is enforced at this sink boundary; no domain job input, no handler output, no user id, no email, no SSN.",
+  "responsibilities": [
+    "Emit the four lifecycle events at the four moments in the runtime (AC-jobs-scheduledRunsOnCron, AC-jobs-retryOnHandlerFailure, AC-jobs-eventSecrecy).",
+    "Enforce the metadata-only whitelist at the sink boundary regardless of what the domain job body carries (AC-jobs-eventSecrecy).",
+    "Carry the attempts counter on every jobStarted and jobFailed record so the retry chain is observable (AC-jobs-retryOnHandlerFailure)."
+  ],
+  "internalStructure": "One event-sink adapter module exporting createRunLog({ upstream }) -> RunLog whose method fire({ event, ... }) filters through the whitelist and forwards to the upstream sink (the logging companion supplies the upstream). The sink is stateless per event; the runtime holds no history.",
+  "interfaces": [
+    {
+      "name": "createRunLog",
+      "kind": "factory",
+      "description": "createRunLog({ upstream }) -> RunLog; upstream is the applied logger companion's event sink."
+    },
+    {
+      "name": "runLog.fire",
+      "kind": "method",
+      "description": "fire({ event, jobId, jobName, attempts, duration, timestamp, terminalErrorCode? }): validates the whitelist and forwards the record; unknown fields are dropped."
+    },
+    {
+      "name": "eventEnvelope",
+      "kind": "shape",
+      "description": "The record shape: { event: 'jobScheduled' | 'jobStarted' | 'jobCompleted' | 'jobFailed', jobId: string, jobName: string, attempts: non-negative integer, duration: non-negative number, timestamp: ISO-8601 string, terminalErrorCode?: string (only on jobFailed) }."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Job-definition module",
+      "kind": "tac",
+      "tacId": "TAC-3101-jobs-background-job-definition",
+      "description": "Every dispatched handler produces two events (jobStarted, jobCompleted or jobFailed)."
+    },
+    {
+      "name": "Scheduler",
+      "kind": "tac",
+      "tacId": "TAC-3102-jobs-background-scheduler",
+      "description": "The scheduler fires jobScheduled at enqueue time."
+    }
+  ],
+  "tradeoffs": "The whitelist is strict; a project that needs additional structured metadata (a correlation id, a tenant id) hoists a companion-side envelope through the applied logger rather than widening this contract. That keeps the shipped surface small and defensible against PII leaks; the price is one more integration step for projects with rich domain context.",
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

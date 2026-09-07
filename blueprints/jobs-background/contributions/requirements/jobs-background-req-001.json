@@ -1,0 +1,18 @@
+{
+  "reqId": "jobs-background-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Requires an applied queue capability; refuses apply on a bare project with exit 3 and the stable message id jobs-background-no-queue",
+  "description": "The jobs-background blueprint composes on an applied queue capability via the T-5 mechanism from the visual round. The apply verb refuses on a bare project (no applied blueprint declares capabilities: [queue]) with exit code 3 and a stable, dashboard-friendly message id jobs-background-no-queue on the first stderr line. The refusal message also names the shipped provider messaging-queue-cloudflare and the override flag --allow-no-queue-yet explicitly, per infra round 5 spec section 10 Q3 default asserting BOTH exit code AND stable message id. The override flag records a note on the sidecar rcf/blueprints/jobs-background.applied.json under the queue family so rcf define validate later flags surfaces gated on queue that never activated.",
+  "category": "functional",
+  "domain": "jobs",
+  "priority": "must",
+  "rationale": "A stable message id is the operator-facing surface an autolint or dashboard binds to; asserting it in the probe pins the id against silent drift. The override flag lets a project scaffold without the queue applied yet, provided the note lands so a later validation pass can flag the gap. The queue provider is named explicitly so an operator hitting the refusal has the shipped answer in hand without a shelf-wide grep.",
+  "tags": [
+    "blueprint:jobs-background",
+    "category:00-composition"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

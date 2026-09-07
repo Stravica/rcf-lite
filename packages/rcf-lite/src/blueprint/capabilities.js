@@ -129,6 +129,31 @@ export function buildRefusalMessage({ slug, refusalMessageId, requiredCapabiliti
       `       rcf define blueprint add ${slug} --${allowSkipFlag}`,
     ].join('\n');
   }
+  if (refusalMessageId === 'jobs-background-no-queue') {
+    // Infra round 5 T-4 (spec 5.4, Baz decision 5). Names the shipped
+    // queue provider explicitly (messaging-queue-cloudflare v1.0.0) so
+    // an operator hitting the refusal has the shipped answer in hand
+    // without a shelf-wide grep. Q3 default per spec section 10: the
+    // refusal asserts both exit code AND stable message id.
+    return [
+      `[jobs-background-no-queue] ${slug} requires an applied blueprint declaring`,
+      `at least one of: ${requiredCapabilities.join(', ')}`,
+      `or an operator override with --${allowSkipFlag}.`,
+      `The shipped provider is messaging-queue-cloudflare (v1.0.0+); a future`,
+      `messaging-queue-postgres sibling (Baz decision 7) will provide the same`,
+      `capability when demand mints it.`,
+      '',
+      'Applied blueprints on this project:',
+      appliedBlock,
+      '',
+      'Suggested next steps:',
+      '  1. Apply messaging-queue-cloudflare first:',
+      '       rcf define blueprint add messaging-queue-cloudflare',
+      `  2. Or override for a scaffolding pass (records a note on the applied`,
+      `     sidecar so later validation flags the surface as not-yet-activated):`,
+      `       rcf define blueprint add ${slug} --${allowSkipFlag}`,
+    ].join('\n');
+  }
   if (refusalMessageId === 'object-storage-s3-no-secrets') {
     return [
       `[object-storage-s3-no-secrets] ${slug} requires an applied blueprint declaring`,

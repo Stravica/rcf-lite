@@ -1,0 +1,22 @@
+{
+  "slug": "jobs-background",
+  "probeName": "apply-time-refusal",
+  "runAt": "2026-09-06T20:54:32.160Z",
+  "engine": {
+    "kind": "cli",
+    "tool": "rcf define blueprint add (bare scratch project)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-jobs-requiresQueue",
+      "verdict": "pass",
+      "detail": "exit=3; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "extra": {
+    "exitCode": 3,
+    "stderrFirstLine": "[jobs-background-no-queue] jobs-background requires an applied blueprint declaring"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "slug": "jobs-background",
+  "probeName": "apply-time-override",
+  "runAt": "2026-09-06T20:54:35.191Z",
+  "engine": {
+    "kind": "cli",
+    "tool": "rcf define blueprint add --allow-no-queue-yet (bare scratch project)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-jobs-overrideRecorded",
+      "verdict": "pass",
+      "detail": "exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "extra": {
+    "sidecar": {
+      "slug": "jobs-background",
+      "version": "1.0.0",
+      "appliedAt": "2026-09-06T20:54:35.051Z",
+      "appliedCapabilities": [],
+      "appliedElicitations": {},
+      "allowNoAuthYet": true,
+      "notes": "no queue yet: applied under --allow-no-queue-yet; surfaces gated on queue will refuse at runtime until a queue blueprint is applied."
+    }
+  }
+}

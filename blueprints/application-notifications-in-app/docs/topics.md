@@ -30,6 +30,7 @@ The `application-notifications-` prefix is reserved for the sibling channel blue
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
+| jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
 | application-notifications-email (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
 | application-notifications-push (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
 | application-notifications-webhook (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |

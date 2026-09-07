@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-09-07T10:15:20.121Z",
+  "updatedAt": "2026-09-07T10:15:59.868Z",
+  "purpose": "Cover AC-4301-1..7 via unit tests over the shipped jobs-background blueprint shape (contribution count, capabilities, suggestedCompanions, requiresAppliedCapabilities gate shape, ADR standardsTraceClause), the four capabilities-apply.test.js cases (bare-project refusal with tag and messaging-queue-cloudflare name, --allow-no-queue-yet override with queue-family sidecar note, happy path with messaging-queue-cloudflare applied producing appliedCapabilities including queue, and backward-compatible --allow-no-auth-yet also unblocks the override), the five-probe module contract with anchorAcId cross-check, the two induced-failure switch documentation on the fixture README, and shelf-doc consistency (section 6a table row for backgroundJobs, shelf-wide docs/topics.md row for jobs-background at 30101-30899 / 31xx).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-4301-1",
+    "AC-4301-2",
+    "AC-4301-3",
+    "AC-4301-4",
+    "AC-4301-5",
+    "AC-4301-6",
+    "AC-4301-7"
+  ],
+  "id": "TS-076",
+  "usId": "US-4301",
+  "title": "Jobs-background v1.0.0 shelf shape, apply-time refusal and override paths (via capabilities-apply tests), five-probe module contract, induced-failure switches, and shelf-doc consistency",
+  "testCases": [
+    {
+      "id": "TC-076-blueprint-json-shape",
+      "acId": "AC-4301-1",
+      "description": "blueprint.json declares 22 contributions with capabilities backgroundJobs, requiresAppliedCapabilities on queue with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue, and standardsTraceClause on every ADR entry",
+      "status": "pending",
+      "testPointer": "test/blueprint/jobs-background-anatomy.test.js::blueprint.json declares 22 contributions with capabilities backgroundJobs, requiresAppliedCapabilities on queue with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue, and standardsTraceClause on every ADR entry (TC-076-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-076-bare-refusal",
+      "acId": "AC-4301-2",
+      "description": "jobs-background apply refuses on a bare project with the jobs-background-no-queue tag, names messaging-queue-cloudflare and the --allow-no-queue-yet override",
+      "status": "pending",
+      "testPointer": "test/blueprint/capabilities-apply.test.js::jobs-background apply refuses on a bare project with the jobs-background-no-queue tag, names messaging-queue-cloudflare and the --allow-no-queue-yet override (TC-051-jobs-background-refuse)"
+    },
+    {
+      "id": "TC-076-override-sidecar",
+      "acId": "AC-4301-3",
+      "description": "jobs-background --allow-no-queue-yet override writes sidecar with queue-family notes",
+      "status": "pending",
+      "testPointer": "test/blueprint/capabilities-apply.test.js::jobs-background --allow-no-queue-yet override writes sidecar with queue-family notes (TC-051-jobs-background-allow-skip)"
+    },
+    {
+      "id": "TC-076-happy-path-caps",
+      "acId": "AC-4301-4",
+      "description": "jobs-background apply passes on a project with messaging-queue-cloudflare (queue) applied",
+      "status": "pending",
+      "testPointer": "test/blueprint/capabilities-apply.test.js::jobs-background apply passes on a project with messaging-queue-cloudflare (queue) applied (TC-051-jobs-background-cap-satisfied)"
+    },
+    {
+      "id": "TC-076-probe-anchor-ids-cross-check",
+      "acId": "AC-4301-5",
+      "description": "every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id",
+      "status": "pending",
+      "testPointer": "test/blueprint/jobs-background-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-076-probe-anchor-ids-cross-check)"
+    },
+    {
+      "id": "TC-076-fixture-and-switches",
+      "acId": "AC-4301-6",
+      "description": "sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.mjs and src/scheduler.mjs and its README documents the two wired induced-failure switches SIMULATE_HANDLER_THROW and SIMULATE_PII_IN_JOB_INPUT",
+      "status": "pending",
+      "testPointer": "test/blueprint/jobs-background-anatomy.test.js::sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.mjs and src/scheduler.mjs and its README documents the two wired induced-failure switches SIMULATE_HANDLER_THROW and SIMULATE_PII_IN_JOB_INPUT (TC-076-fixture-and-switches)"
+    },
+    {
+      "id": "TC-076-shelf-doc-consistency",
+      "acId": "AC-4301-7",
+      "description": "section 6a table gains a backgroundJobs row naming jobs-background and reserved sibling posture; every shipped blueprint docs/topics.md gains a jobs-background row at 30101-30899 / 31xx",
+      "status": "pending",
+      "testPointer": "test/blueprint/jobs-background-anatomy.test.js::section 6a table gains a backgroundJobs row naming jobs-background and reserved sibling posture; every shipped blueprint docs/topics.md gains a jobs-background row at 30101-30899 / 31xx (TC-076-shelf-doc-consistency)"
+    }
+  ],
+  "status": "draft"
+}

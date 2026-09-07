@@ -1,0 +1,39 @@
+{
+  "createdAt": "2026-09-06T20:28:34.000Z",
+  "updatedAt": "2026-09-07T10:18:08.299Z",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "description": "The rcf-lite shelf ships the jobs-background v1.0.0 blueprint (blueprints/jobs-background/) with 22 contributions per the ratified infra round 5 spec section 5.4: 6 REQs (requires an applied queue capability via the T-5 mechanism and refuses apply on a bare project with exit 3 plus stable message id jobs-background-no-queue; job-definition contract carrying name, handler, input schema opaque per project, retry policy, timeout; scheduler contract carrying POSIX cron string and one-shot delayed; retry contract inheriting the applied queue's max-attempts ceiling; job-run event log at four moments jobScheduled jobStarted jobCompleted jobFailed with metadata-only fields; operator-facing surface elicited between cli httpEndpoint none), 9 USs 30101-30109 binding runtime-observable ACs (one US per REQ plus three cross-cutting cases apply-time refusal on bare scheduled fire on cron and retry-then-DLQ), 3 TACs (3101 job-definition module 3102 scheduler 3103 run log), 4 ADRs (3101 scope:global on new topic backgroundJobModel retry-and-schedule as the shipped shape; 3102 scheduler mode elicited between inProcess workerCron and external with a reserved v1.1.0 workflows slot per spec section 5.7 and round-6 proposal decision b; 3103 requires capabilities:[queue] with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue; 3104 default handler timeout 60 seconds floor 1 second ceiling bounded by the applied queue's consumer wall-clock which for Cloudflare Queues is 15 minutes per limits doc). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.4 reasons, providesRoles absent, capabilities [backgroundJobs], requiresAppliedCapabilities {capabilities:[queue],allowSkipFlag:allow-no-queue-yet,refusalMessageId:jobs-background-no-queue} per Baz decision 5 verbatim. Contributes ADR-3101 as scope:global on new topic backgroundJobModel with retry-and-schedule as the shipped shape so future stateful-workflow siblings (Temporal-shape Airflow-shape) conflict here by design; the round-6 Workflows minor bump inside jobs-background itself does NOT mint a sibling per spec section 5.6 (it lives inside the same blueprint as an elicited scheduler mode value at ADR-3102). Ships five probe modules under blueprints/jobs-background/contributions/probes/ each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id and matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/jobs-background/: apply-time-refusal.mjs (bare project rcf define blueprint add refuses exit 3 with tag jobs-background-no-queue on stderr and names messaging-queue-cloudflare explicitly per Q3 default asserting both exit code and message id), apply-time-override.mjs (same bare project with --allow-no-queue-yet exits 0 and sidecar rcf/blueprints/jobs-background.applied.json records a note naming the missing capability and the override flag; the spec section 5.4 prose reference to manifest.blueprints[jobs-background].source.notes is superseded by the shipped T-5 mechanism which writes the note on the sidecar because the applied-blueprint-record schema is closed), fake-clock-cron.mjs (with messaging-queue-cloudflare and jobs-background both applied on the shared sample-app fixture drives the in-memory queue seam from T-3 through one fake-clock cron minute and asserts jobStarted fires within the elicited fire-tolerance window plus jobCompleted within the elicited timeout), retry-and-fail.mjs (schedules a job with a handler throwing under SIMULATE_HANDLER_THROW drives through maxAttempts re-deliveries and asserts jobStarted fires 3 times with matching job-id and incrementing attempt counter plus jobFailed fires with terminal code), event-secrecy.mjs (schedules a job with PII fixture input drives to completion and asserts every event record carries only {jobId,jobName,attempts,duration,timestamp} whitelist and NO input fields NO output fields NO user id NO SSN NO email). All five probes accountBound false. Extends the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ (T-2/T-3 have already landed the fixture directory) with a jobs/ directory carrying two toy job-definition modules (send-welcome-email.mjs with retry policy {maxAttempts:3,backoff:exponential} timeout 60 seconds and refresh-cache.mjs with retry policy {maxAttempts:5,backoff:constant} timeout 10 seconds cron every-minute), src/jobs-runtime.mjs realising the runtime that reads applied queue capability from the sidecar registers job handlers with the queue consumer dispatches per message fires the four lifecycle events per REQ-005 and respects the elicited timeout and retry policy per job definition, src/scheduler.mjs realising the inProcess scheduler with a fake-clock seam the fake-clock-cron probe drives, package.json start:jobs script, and README extension naming the two toy jobs the jobs/ directory convention the fake-clock switch the elicited parameters the induced-failure switches SIMULATE_HANDLER_THROW and SIMULATE_PII_IN_JOB_INPUT and the gate-reviewer two-line boot. Extends packages/rcf-lite/src/cli/blueprint.js OPTION_SPEC with allow-no-queue-yet boolean flag piped into allowNoAuthYet, and packages/rcf-lite/src/blueprint/apply.js buildOverrideNote family derivation to detect queue from the flag name (so sidecar notes read no queue yet: applied under --allow-no-queue-yet). Extends packages/rcf-lite/test/blueprint/capabilities-apply.test.js with four cases covering jobs-background bare refusal (tag and messaging-queue-cloudflare name assertions), --allow-no-queue-yet override (sidecar notes queue-family assertion), happy path with messaging-queue-cloudflare applied (appliedCapabilities includes queue), and legacy allow-no-auth-yet also unblocks the override (backward-compatible OR piping). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for backgroundJobs naming the reserved sibling posture per spec section 5.6. Appends one row for jobs-background at US band 30101-30899 / ADR-TAC suffix block 31xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Minted with dex reserved-block chain ids via --id per HQ mid-flight ruling on repo-chain id blocks per train (REQ-043 / US-4301 / TS-076 / FBS-064 / CN-214..217 (originally TS-073 / FBS-063 / CN-209..212, re-minted at next-free after HQ round-6 T-0 PR #164 landed on origin/main 321371e and consumed the original block; REQ-043 and US-4301 did not collide and are unchanged) continuing the block after T-3 landed at 042/4201/072/062/206..208). Wrangler is not on this build host so probes run against the in-memory queue-driver seam T-3 landed on the fixture (SDR-3-a coordinator ruling accepted the in-memory realisation of the Cloudflare Queues binding shape); the live wrangler-dev cron-trigger path is enumerated as a per-AC mechanism-reach gap in the README per round-3 checklist 6.g form.",
+  "reqId": "REQ-043",
+  "prdId": "PRD-001",
+  "title": "Jobs-background v1.0.0 blueprint on the shelf",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-06T20:28:34.000Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "endpoint"
+      }
+    ]
+  }
+}

@@ -59,6 +59,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
+| jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
 
 US 11101-11113 sit at the LOW end of the 11101-11899 band on purpose. A project-side story that mechanically derives from a security-auth-keycloak REQ id into the number `11113` would collide against security-auth-keycloak-US-11113 in this package; the band leaves headroom at the HIGH end (US 11181-11899) so a project's own stories anchored to security-auth-keycloak REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

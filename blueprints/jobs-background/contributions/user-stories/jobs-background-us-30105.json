@@ -1,0 +1,25 @@
+{
+  "usId": "jobs-background-US-30105",
+  "prdId": "PRD-001",
+  "reqId": "jobs-background-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Job-run event log: four moments with metadata-only whitelist",
+  "asA": "operator observing background-job activity through the run log",
+  "iWant": "each event record to carry only the whitelisted metadata fields { jobId, jobName, attempts, duration, timestamp } (plus terminalErrorCode on jobFailed), and NO job input, NO handler output, NO user id, NO email, NO SSN",
+  "soThat": "domain PII cannot leak through the run log by accident even if the job carries PII in its input by design",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-jobs-eventSecrecy",
+      "description": "With SIMULATE_PII_IN_JOB_INPUT=true set on the shared sample-app fixture, the event-secrecy probe schedules a job whose input carries a PII fixture body { userId: 1234, ssn: '123-45-6789', email: 'test@example.com' } and drives it through completion. Every event record on the sink (jobScheduled, jobStarted, jobCompleted) carries the whitelist { jobId, jobName, attempts, duration, timestamp } and NO input fields, NO output fields, NO literal 1234, NO literal '123-45-6789', NO literal 'test@example.com'.",
+      "given": "the fixture with SIMULATE_PII_IN_JOB_INPUT=true and the event-secrecy probe running against the in-memory queue seam",
+      "when": "the PII-input job is scheduled",
+      "then": "every event record whitelisted; grep on the serialised event stream returns zero matches for the PII fixture text",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3103-jobs-background-run-log"],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

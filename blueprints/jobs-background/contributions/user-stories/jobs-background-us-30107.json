@@ -1,0 +1,25 @@
+{
+  "usId": "jobs-background-US-30107",
+  "prdId": "PRD-001",
+  "reqId": "jobs-background-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Cross-cutting: --allow-no-queue-yet override records a sidecar note",
+  "asA": "operator scaffolding a project that will apply the queue later",
+  "iWant": "the --allow-no-queue-yet override to write a sidecar note under the queue family so rcf define validate later flags surfaces that never activated",
+  "soThat": "a scaffolding pass is possible without silently shipping an ungated jobs surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-jobs-overrideRecorded",
+      "description": "On a fresh init scratch project with NO queue provider applied, rcf define blueprint add ./blueprints/jobs-background --allow-no-queue-yet exits 0 and writes the sidecar rcf/blueprints/jobs-background.applied.json with slug jobs-background, allowNoAuthYet true, appliedCapabilities [], and a notes field containing the substring 'no queue yet' and the substring '--allow-no-queue-yet' and the substring 'queue'. The notes must NOT contain the substring 'no auth yet' nor 'no secrets-management yet' (the family derivation on the flag name must resolve to queue, not the auth or secrets families).",
+      "given": "a fresh rcf init scratch project with no applied blueprints",
+      "when": "rcf define blueprint add ./blueprints/jobs-background --allow-no-queue-yet runs",
+      "then": "exit code is 0; rcf/blueprints/jobs-background.applied.json exists; slug is jobs-background; allowNoAuthYet is true; appliedCapabilities is []; notes contains 'no queue yet', '--allow-no-queue-yet' and 'queue'; notes does NOT contain 'no auth yet' nor 'no secrets-management yet'",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3101-jobs-background-job-definition"],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}

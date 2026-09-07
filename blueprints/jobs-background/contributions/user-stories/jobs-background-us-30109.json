@@ -1,0 +1,25 @@
+{
+  "usId": "jobs-background-US-30109",
+  "prdId": "PRD-001",
+  "reqId": "jobs-background-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Cross-cutting: retry-then-DLQ handoff when maxAttempts is exhausted",
+  "asA": "operator observing a terminally failing job",
+  "iWant": "the applied queue's DLQ to receive the message after maxAttempts is exhausted, and jobFailed to fire on the sink with a terminal error code",
+  "soThat": "a terminally failing job lands on the queue's DLQ (as ratified by the T-3 messaging-queue-cloudflare DLQ contract) and the run log records the terminal event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-30109-1",
+      "description": "The retry-and-fail probe's report, after the three failing jobStarted events and the terminal jobFailed event, records that the underlying in-memory queue driver invoked the DLQ producer path (dlqOverflow flag on the driver's introspection API) for the failing message id. The DLQ handoff is a T-3 concern; jobs-background only asserts the terminal jobFailed event fires and the DLQ path is exercised, not the DLQ delivery contents (T-3 covers that).",
+      "given": "the fixture with SIMULATE_HANDLER_THROW=true and the T-3 in-memory queue seam active",
+      "when": "the retry-and-fail probe runs to completion",
+      "then": "the probe report carries dlqInvoked true; the sink shows jobFailed with terminalErrorCode; the retry-and-fail run report at .rcf/reports/blueprints/jobs-background/retry-and-fail.json carries aggregateVerdict pass",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3103-jobs-background-run-log"],
+  "createdAt": "2026-09-06T20:30:00.000Z",
+  "updatedAt": "2026-09-06T20:30:00.000Z"
+}
