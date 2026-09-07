@@ -8,7 +8,10 @@
     "start": "node src/object-store.mjs",
     "create-bucket": "node src/create-bucket.mjs",
     "queue-probe-facade-ready": "node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-producer-facade-ready.mjs",
-    "queue-probe-publish-to-delivery": "node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-publish-to-delivery.mjs"
+    "queue-probe-publish-to-delivery": "node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-publish-to-delivery.mjs",
+    "queue-probe-retry-and-dlq": "node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-retry-and-dlq.mjs",
+    "queue-probe-event-secrecy": "node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-event-secrecy.mjs",
+    "queue-probe-real-account-concurrency-smoke": "node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-real-account-concurrency-smoke.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.720.0",

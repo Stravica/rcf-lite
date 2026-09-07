@@ -51,7 +51,31 @@ export function createConsumer({ handler, onEvent, dlqProducer, env = process.en
       }
       if (outcome === 'ack') {
         msg.ack();
-        sink({ event: 'messageAcked', ts: new Date().toISOString(), messageId: msg.id, queueName: batch.queue, attempts: msg.attempts });
+        // Standard code path: hand the sink adapter only whitelist fields.
+        // Under SIMULATE_LEAK_BODY_TO_SINK the consumer deliberately hands
+        // a body-bearing payload (with header values and consumer-context
+        // fields) to the sink adapter to exercise the whitelist boundary
+        // at TAC-3003. The shipped adapter (src/event-sink.mjs) strips the
+        // forbidden fields; the event-secrecy probe asserts they are gone.
+        // A reviewer who disables the whitelist and reruns the probe with
+        // this switch set observes the probe fail, which is what proves
+        // the switch drives the boundary rather than a defensive fake.
+        if (env.SIMULATE_LEAK_BODY_TO_SINK === 'true') {
+          sink({
+            event: 'messageAcked',
+            ts: new Date().toISOString(),
+            messageId: msg.id,
+            queueName: batch.queue,
+            attempts: msg.attempts,
+            body: msg.body,
+            headers: msg.headers,
+            userId: msg.body && msg.body.userId,
+            ssn: msg.body && msg.body.ssn,
+            consumerContext: { workerId: 'wrangler-dev-fixture', handlerName: 'ackHandler' },
+          });
+        } else {
+          sink({ event: 'messageAcked', ts: new Date().toISOString(), messageId: msg.id, queueName: batch.queue, attempts: msg.attempts });
+        }
       } else if (outcome === 'retry') {
         msg.retry();
         // messageDeadLettered surfaces here when the retry would exceed

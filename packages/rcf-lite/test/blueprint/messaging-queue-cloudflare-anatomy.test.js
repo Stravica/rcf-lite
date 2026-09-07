@@ -110,6 +110,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
 
 test('sample-app fixture ships wrangler.toml, src/producer.mjs, src/consumer.mjs, src/dlq-inspector.mjs, and its README documents wrangler dev and the three wired induced-failure switches (TC-072-fixture-and-switches)', async () => {
   await stat(join(FIXTURE_ROOT, 'wrangler.toml'));
+  await stat(join(FIXTURE_ROOT, 'src', 'worker.mjs'));
   await stat(join(FIXTURE_ROOT, 'src', 'producer.mjs'));
   await stat(join(FIXTURE_ROOT, 'src', 'consumer.mjs'));
   await stat(join(FIXTURE_ROOT, 'src', 'dlq-inspector.mjs'));
