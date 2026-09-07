@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T09:12:10.596Z",
+  "updatedAt": "2026-09-07T09:12:58.000Z",
+  "acIds": [
+    "AC-2901-1",
+    "AC-2901-2",
+    "AC-2901-3",
+    "AC-2902-1",
+    "AC-2902-2",
+    "AC-3001-1",
+    "AC-3001-2",
+    "AC-3001-3"
+  ],
+  "fbsId": "FBS-063",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 51,
+  "executionStatus": "notStarted",
+  "title": "T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite",
+  "summary": "T-0 shelf-blueprint minor-bump track of the ratified Cloudflare round 6 spec (2026-09-06 section 5.0) minted with the HQ sequential chain-id block via --id (REQ-029 REQ-030 US-2901 US-2902 US-3001 TS-073 TS-074 TS-075 FBS-063 CN-209) after HQ round-4 T-5 landed at REQ-028 US-2801 TS-057 FBS-047 and Dex round-5 T-3 landed at REQ-042 US-4201 TS-072 FBS-062 CN-206..208 per HQ mid-flight ruling on repo-chain id blocks per train. Ships the deploy-cloudflare-workers v1.2.0 additive-minor delta on the shipped v1.1.0 blueprint (seven new contributions in the existing 12xx US band and 13xx suffix: 2 REQs REQ-013 and REQ-014; 3 USs US-12113 US-12114 US-12115; 1 ADR ADR-1306 with the verbatim Cloudflare Pages landing-page quote and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06); 1 probe module assets-manifest-scan.mjs with anchorAcId AC-12113-1 and accountBound false; 2 new elicits assets-directory string default empty and run-worker-first boolean default false, both on top-level elicits[]). Ships the cf-platform shared sample-app fixture at packages/rcf-lite/test/fixtures/cf-platform/ (wrangler.toml with [assets] directory = ./dist and run_worker_first = true, dist/index.html, src/index.mjs Worker entry, package.json declaring wrangler devDependency and wrangler dev start, run-assets-manifest-scan.mjs shim, README with the two induced-failure switches SIMULATE_MIXED_SHAPE and SIMULATE_EMPTY_ASSETS documented). Adds one anatomy test file at packages/rcf-lite/test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js covering the 8 TCs on TS-073 TS-074 TS-075 (blueprint shape, probe contract and scan-pass, chain-slice cross-check, elicits shape, fixture files, ADR body and clause, guide section and URLs, three-state probed verdicts). Updates the blueprint README.md with a v1.2.0 delta section, ships a new blueprint CHANGELOG.md with the v1.2.0 entry, adds the guide section titled Workers-with-static-assets: the SPA-on-Workers shape linking the Cloudflare migrate-from-Pages guide and citing the static-assets docs page, bumps the deploy-cloudflare-workers row on blueprints/deploy-cloudflare-workers/docs/topics.md and on blueprints/application-spa/docs/topics.md from shipped v1.0.0 to shipped v1.2.0. Existing v1.1.0 contributions carry through unchanged; no capability minted; no new global topic; no runtime dependency added; the section 6a capability table under packages/rcf-lite/docs/blueprint-authoring.md is NOT touched (T-1 through T-6 own that). The loader's supported when block only accepts requiresCapability arrays, so the spec's intended when-elicitedNonEmpty predicate on run-worker-first is NOT shipped and is named under CONCERNS on the PR.",
+  "dependsOnFbsIds": []
+}

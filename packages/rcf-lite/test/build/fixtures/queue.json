@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 50,
-    "notStarted": 22,
+    "items": 51,
+    "notStarted": 23,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 13,
+    "actionable": 14,
     "blocked": 9
   },
   "nextActionable": "FBS-013",
@@ -39,7 +39,8 @@
         "FBS-040",
         "FBS-041",
         "FBS-061",
-        "FBS-062"
+        "FBS-062",
+        "FBS-063"
       ]
     },
     {
@@ -700,6 +701,16 @@
       "buildOrder": 50,
       "tier": 0,
       "title": "messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-063",
+      "buildOrder": 51,
+      "tier": 0,
+      "title": "T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

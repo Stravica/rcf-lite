@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-09-07T09:11:05.463Z",
+  "updatedAt": "2026-09-07T09:11:05.463Z",
+  "asA": "shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint on a project migrating from Cloudflare Pages",
+  "iWant": "an ADR blessing the Workers-with-static-assets shape as the ratified SPA-on-Workers deploy shape over Pages (ADR-1306-deploy-cloudflare-workers-spa-shape) carrying the verbatim Cloudflare Pages landing-page recommendation, a guide section titled Workers-with-static-assets: the SPA-on-Workers shape that links the Cloudflare migrate-from-Pages guide, and the SPA fallback discipline elicited via run_worker_first so a truthy answer emits run_worker_first = true under the [assets] block on the generated wrangler.toml",
+  "soThat": "a project can read the ratified shape decision with its standards trace to Cloudflare's own landing-page recommendation and know exactly how to migrate its Pages routing to Workers",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-3001-1",
+      "description": "The ADR contribution entry ADR-1306-deploy-cloudflare-workers-spa-shape sits under contributions/adrs/adr-1306-deploy-cloudflare-workers-spa-shape.json and validates against the rcf-schemas 0.6.1 ADR shape (required fields adrId prdId tadId version status title context decision consequences createdAt updatedAt; optional alternativesConsidered supersededBy relatedAdrs). Its body carries the verbatim Cloudflare Pages landing-page quote Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare's primary platform for building applications. Start new projects with Workers., alongside a decision blessing Workers-with-static-assets as the SPA-on-Workers deploy shape and consequences naming the two new elicits assets-directory and run-worker-first. The ADR contribution entry in blueprint.json carries recommendedDefault true, elicited false and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06). The ADR body does NOT carry standardsTraceClause (per section 8a.2 the clause belongs on the contribution entry).",
+      "given": "the shipped ADR contribution",
+      "when": "jq queries against blueprint.json contribution entry and the ADR JSON body",
+      "then": "the blueprint.json entry carries standardsTraceClause set to the 2026-09-06 landing-page recommendation clause; the ADR body carries the verbatim Cloudflare Pages landing-page quote in context or decision; the ADR body does not carry standardsTraceClause; the ADR body validates against the 0.6.1 ADR schema",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-3001-2",
+      "description": "The guide at blueprints/deploy-cloudflare-workers/guide/deploy-cloudflare-workers.md gains a new section titled Workers-with-static-assets: the SPA-on-Workers shape with the verbatim Cloudflare landing-page quote, the two elicit signatures (assets-directory string default empty; run-worker-first boolean default false), a copy-paste wrangler.toml snippet showing the [assets] block with directory and the run_worker_first hint, and a link to the Cloudflare migrate-from-Pages guide at https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/. The Cloudflare Workers static-assets doc at https://developers.cloudflare.com/workers/static-assets/ is cited in the same section. Both URLs return 200 at gate time.",
+      "given": "the updated guide file",
+      "when": "grep the guide for the new section heading and the two Cloudflare URLs",
+      "then": "the section heading appears once with the exact title; the migrate-from-Pages URL and the static-assets doc URL appear at least once each; both URLs return HTTP 200 on a plain curl -fsSI",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-3001-3",
+      "description": "The spec's second canonical AC spaFallbackShape is realised in the blueprint contributions as AC-12113-2 on US-12113 with a runtime-observable then clause anchored to TAC-1302-deploy-cloudflare-workers-wrangler-manifest. The shipped probe assets-manifest-scan.mjs asserts run_worker_first presence and value under the [assets] block against the elicited answer. On the cf-platform fixture (which bakes run_worker_first = true) the probe returns verdict pass and the report carries a detail record naming runWorkerFirst true. On the SIMULATE_MIXED_SHAPE=true branch the fixture inserts a pages_build_output_dir field and the probe returns verdict fail naming the offending pages_build_output_dir line. On the SIMULATE_EMPTY_ASSETS=true branch the fixture removes the [assets] block and the probe returns verdict pass with an empty-directory record (bare-Worker shape).",
+      "given": "the shipped probe module and the cf-platform fixture with induced-failure switches",
+      "when": "run-assets-manifest-scan.mjs drives the probe on each of the three fixture states",
+      "then": "aggregateVerdict pass on the canonical state; aggregateVerdict fail on SIMULATE_MIXED_SHAPE with detail naming pages_build_output_dir; aggregateVerdict pass on SIMULATE_EMPTY_ASSETS with the empty-directory record",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:deploy-cloudflare-workers"
+  ],
+  "usId": "US-3001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-030",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-0 ADR-1306-deploy-cloudflare-workers-spa-shape, guide section with migrate-from-Pages link, and probed spaFallbackShape with induced-failure switches"
+}

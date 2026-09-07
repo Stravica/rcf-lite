@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 31,
-    "covered": 31,
+    "requirements": 33,
+    "covered": 33,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -2119,6 +2119,84 @@
           "covered": true,
           "testCases": [
             "TC-057-changelog-guide-and-mechanism-reach"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-029",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-2901-1",
+          "covered": true,
+          "testCases": [
+            "TC-073-blueprint-json-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2901-2",
+          "covered": true,
+          "testCases": [
+            "TC-073-probe-module-and-scan-pass"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2901-3",
+          "covered": true,
+          "testCases": [
+            "TC-073-chain-slice-cross-check"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2902-1",
+          "covered": true,
+          "testCases": [
+            "TC-074-elicits-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2902-2",
+          "covered": true,
+          "testCases": [
+            "TC-074-cf-platform-fixture-files"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-030",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-3001-1",
+          "covered": true,
+          "testCases": [
+            "TC-075-adr-1306-body-and-clause"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-3001-2",
+          "covered": true,
+          "testCases": [
+            "TC-075-guide-section-and-urls"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-3001-3",
+          "covered": true,
+          "testCases": [
+            "TC-075-probed-spa-fallback-shape"
           ],
           "unresolvedTestCases": []
         }

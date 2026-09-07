@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-cloudflare-workers-REQ-013",
+  "prdId": "PRD-001",
+  "title": "Workers-with-static-assets shape: an [assets] directory declared under wrangler blesses static assets served by the Worker",
+  "description": "The blueprint blesses the Workers-with-static-assets deploy shape as the ratified SPA-on-Workers shape (per ADR-1306, quoting the Cloudflare Pages landing-page recommendation verbatim). A project answering the elicited `assets-directory` parameter with a non-empty path emits an `[assets]` block on `wrangler.toml` whose `directory` value carries the elicited path (for example `directory = \"./dist\"`). Cloudflare's Workers runtime serves files from that directory at the edge before the Worker fetch handler runs (unless `run_worker_first` is set truthy per REQ-014). A project answering with an empty path keeps the bare-Worker shape (no `[assets]` block, no static-asset lookup). The wrangler manifest MUST NOT carry any Pages-only field (`pages_build_output_dir`) alongside `[assets]`; the two shapes are mutually exclusive per Cloudflare's static-assets doc.",
+  "category": "technical",
+  "domain": "deploy",
+  "priority": "must",
+  "rationale": "Cloudflare's own Pages landing page tells new projects to start with Workers; the Workers-with-static-assets shape is the primary SPA-on-Workers deploy shape. Blessing it here means a rcf-lite project choosing SPA-on-Workers gets a single, ratified wrangler shape rather than a hand-rolled convention. The mutual exclusion of `[assets]` and `pages_build_output_dir` keeps a project from silently drifting into a mixed-shape wrangler that Cloudflare's runtime refuses at deploy time.",
+  "tags": [
+    "blueprint:deploy-cloudflare-workers",
+    "category:13-static-assets"
+  ],
+  "version": "1.2.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T00:00:00Z",
+  "updatedAt": "2026-09-07T00:00:00Z"
+}

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-211",
+  "path": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js",
+  "implementsAcIds": [
+    "AC-2901-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T09:24:56.130Z",
+  "updatedAt": "2026-09-07T09:24:56.130Z"
+}

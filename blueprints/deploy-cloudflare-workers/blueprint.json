@@ -1,48 +1,246 @@
 {
   "slug": "deploy-cloudflare-workers",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "category": "deploy",
   "contributions": [
-    { "id": "deploy-cloudflare-workers-REQ-001", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-001.json" },
-    { "id": "deploy-cloudflare-workers-REQ-002", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-002.json" },
-    { "id": "deploy-cloudflare-workers-REQ-003", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-003.json" },
-    { "id": "deploy-cloudflare-workers-REQ-004", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-004.json" },
-    { "id": "deploy-cloudflare-workers-REQ-005", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-005.json" },
-    { "id": "deploy-cloudflare-workers-REQ-006", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-006.json" },
-    { "id": "deploy-cloudflare-workers-REQ-007", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-007.json" },
-    { "id": "deploy-cloudflare-workers-REQ-008", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-008.json" },
-    { "id": "deploy-cloudflare-workers-REQ-009", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-009.json" },
-    { "id": "deploy-cloudflare-workers-REQ-010", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-010.json" },
-    { "id": "deploy-cloudflare-workers-REQ-011", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-011.json" },
-    { "id": "deploy-cloudflare-workers-REQ-012", "kind": "req", "path": "requirements/deploy-cloudflare-workers-req-012.json" },
-    { "id": "deploy-cloudflare-workers-US-12101", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12101.json" },
-    { "id": "deploy-cloudflare-workers-US-12102", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12102.json" },
-    { "id": "deploy-cloudflare-workers-US-12103", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12103.json" },
-    { "id": "deploy-cloudflare-workers-US-12104", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12104.json" },
-    { "id": "deploy-cloudflare-workers-US-12105", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12105.json" },
-    { "id": "deploy-cloudflare-workers-US-12106", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12106.json" },
-    { "id": "deploy-cloudflare-workers-US-12107", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12107.json" },
-    { "id": "deploy-cloudflare-workers-US-12108", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12108.json" },
-    { "id": "deploy-cloudflare-workers-US-12109", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12109.json" },
-    { "id": "deploy-cloudflare-workers-US-12110", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12110.json" },
-    { "id": "deploy-cloudflare-workers-US-12111", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12111.json" },
-    { "id": "deploy-cloudflare-workers-US-12112", "kind": "us", "path": "user-stories/deploy-cloudflare-workers-us-12112.json" },
-    { "id": "TAC-1301-deploy-cloudflare-workers-deploy-adapter", "kind": "tac", "path": "tacs/tac-1301-deploy-cloudflare-workers-deploy-adapter.json" },
-    { "id": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest", "kind": "tac", "path": "tacs/tac-1302-deploy-cloudflare-workers-wrangler-manifest.json" },
-    { "id": "TAC-1303-deploy-cloudflare-workers-preview-url-resolver", "kind": "tac", "path": "tacs/tac-1303-deploy-cloudflare-workers-preview-url-resolver.json" },
-    { "id": "TAC-1304-deploy-cloudflare-workers-promote-gate", "kind": "tac", "path": "tacs/tac-1304-deploy-cloudflare-workers-promote-gate.json" },
-    { "id": "TAC-1305-deploy-cloudflare-workers-served-surface-verifier", "kind": "tac", "path": "tacs/tac-1305-deploy-cloudflare-workers-served-surface-verifier.json" },
-    { "id": "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows", "kind": "tac", "path": "tacs/tac-1306-deploy-cloudflare-workers-deploy-ci-workflows.json" },
+    {
+      "id": "deploy-cloudflare-workers-REQ-001",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-001.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-002",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-002.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-003",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-003.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-004",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-004.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-005",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-005.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-006",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-006.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-007",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-007.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-008",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-008.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-009",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-009.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-010",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-010.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-011",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-011.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-012",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-012.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12101",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12101.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12102",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12102.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12103",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12103.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12104",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12104.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12105",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12105.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12106",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12106.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12107",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12107.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12108",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12108.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12109",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12109.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12110",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12110.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12111",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12111.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12112",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12112.json"
+    },
+    {
+      "id": "TAC-1301-deploy-cloudflare-workers-deploy-adapter",
+      "kind": "tac",
+      "path": "tacs/tac-1301-deploy-cloudflare-workers-deploy-adapter.json"
+    },
+    {
+      "id": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+      "kind": "tac",
+      "path": "tacs/tac-1302-deploy-cloudflare-workers-wrangler-manifest.json"
+    },
+    {
+      "id": "TAC-1303-deploy-cloudflare-workers-preview-url-resolver",
+      "kind": "tac",
+      "path": "tacs/tac-1303-deploy-cloudflare-workers-preview-url-resolver.json"
+    },
+    {
+      "id": "TAC-1304-deploy-cloudflare-workers-promote-gate",
+      "kind": "tac",
+      "path": "tacs/tac-1304-deploy-cloudflare-workers-promote-gate.json"
+    },
+    {
+      "id": "TAC-1305-deploy-cloudflare-workers-served-surface-verifier",
+      "kind": "tac",
+      "path": "tacs/tac-1305-deploy-cloudflare-workers-served-surface-verifier.json"
+    },
+    {
+      "id": "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows",
+      "kind": "tac",
+      "path": "tacs/tac-1306-deploy-cloudflare-workers-deploy-ci-workflows.json"
+    },
     {
       "id": "ADR-1301-deploy-cloudflare-workers-deployment-target",
       "kind": "adr",
       "path": "adrs/adr-1301-deploy-cloudflare-workers-deployment-target.json",
       "scope": "global",
-      "topic": "deploymentTarget"
+      "topic": "deploymentTarget",
+      "standardsTraceClause": "generic enterprise practice"
     },
-    { "id": "ADR-1302-deploy-cloudflare-workers-default-vendor", "kind": "adr", "path": "adrs/adr-1302-deploy-cloudflare-workers-default-vendor.json" },
-    { "id": "ADR-1303-deploy-cloudflare-workers-preview-vs-production", "kind": "adr", "path": "adrs/adr-1303-deploy-cloudflare-workers-preview-vs-production.json" },
-    { "id": "ADR-1304-deploy-cloudflare-workers-rollback-is-promote", "kind": "adr", "path": "adrs/adr-1304-deploy-cloudflare-workers-rollback-is-promote.json" },
-    { "id": "ADR-1305-deploy-cloudflare-workers-dev-mode-drift", "kind": "adr", "path": "adrs/adr-1305-deploy-cloudflare-workers-dev-mode-drift.json" }
+    {
+      "id": "ADR-1302-deploy-cloudflare-workers-default-vendor",
+      "kind": "adr",
+      "path": "adrs/adr-1302-deploy-cloudflare-workers-default-vendor.json",
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-1303-deploy-cloudflare-workers-preview-vs-production",
+      "kind": "adr",
+      "path": "adrs/adr-1303-deploy-cloudflare-workers-preview-vs-production.json",
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-1304-deploy-cloudflare-workers-rollback-is-promote",
+      "kind": "adr",
+      "path": "adrs/adr-1304-deploy-cloudflare-workers-rollback-is-promote.json",
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-1305-deploy-cloudflare-workers-dev-mode-drift",
+      "kind": "adr",
+      "path": "adrs/adr-1305-deploy-cloudflare-workers-dev-mode-drift.json",
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-013",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-013.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-REQ-014",
+      "kind": "req",
+      "path": "requirements/deploy-cloudflare-workers-req-014.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12113",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12113.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12114",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12114.json"
+    },
+    {
+      "id": "deploy-cloudflare-workers-US-12115",
+      "kind": "us",
+      "path": "user-stories/deploy-cloudflare-workers-us-12115.json"
+    },
+    {
+      "id": "ADR-1306-deploy-cloudflare-workers-spa-shape",
+      "kind": "adr",
+      "path": "adrs/adr-1306-deploy-cloudflare-workers-spa-shape.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Pages landing-page recommendation (2026-09-06)"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "assets-directory",
+      "prompt": "Assets directory: the path (relative to the Worker source root) whose files Cloudflare serves at the edge as static assets under the Workers-with-static-assets shape. An empty answer keeps the bare-Worker shape (no [assets] block on the generated wrangler.toml). A non-empty answer emits [assets] directory = the answered path.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "run-worker-first",
+      "prompt": "Run Worker first: whether the Worker fetch handler runs BEFORE static asset lookup for every request. True emits run_worker_first = true under the [assets] block (right for a SPA whose Worker owns arbitrary routing or whose auth middleware must gate every path). False (default) omits the field and lets Cloudflare's runtime serve a matching static asset before the Worker runs. Only meaningful when assets-directory is non-empty; the loader-side when-elicitedNonEmpty predicate is a mechanism follow-up.",
+      "kind": "boolean",
+      "default": false
+    }
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every promote and every served-surface verify writes a structured deploy log record and a probe verdict; a logging companion supplies the record factory the deploy adapter and the verifier both call."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A promote refusal (bad version id, verifier fail, mixed-shape wrangler manifest) constructs an internal error record; an error-handling companion supplies the record factory and the boundary at which the deploy adapter's refusals surface to the operator."
+    }
   ]
 }

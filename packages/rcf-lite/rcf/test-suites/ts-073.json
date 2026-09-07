@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-07T09:11:24.816Z",
+  "updatedAt": "2026-09-07T09:12:00.080Z",
+  "purpose": "Cover AC-2901-1..3 via unit tests over the shipped deploy-cloudflare-workers v1.2.0 blueprint shape (12 REQs 15 USs 6 TACs 6 ADRs, no capabilities, suggestedCompanions logging and errorHandling unchanged, standardsTraceClause on ADR-1306 contribution entry), the assets-manifest-scan probe module contract and passing run against the cf-platform fixture, and the repo chain-slice counts and validate-clean.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-2901-1",
+    "AC-2901-2",
+    "AC-2901-3"
+  ],
+  "id": "TS-073",
+  "usId": "US-2901",
+  "title": "T-0 deploy-cloudflare-workers v1.2.0 shelf shape, apply-clean, chain-slice cross-check",
+  "testCases": [
+    {
+      "id": "TC-073-blueprint-json-shape",
+      "acId": "AC-2901-1",
+      "description": "Cover AC-2901-1 via anatomy test: blueprint.json declares slug deploy-cloudflare-workers, version 1.2.0, category deploy; contributions split 12 req, 15 us, 6 tac, 6 adr; suggestedCompanions unchanged; standardsTraceClause non-null on every ADR contribution entry including ADR-1306",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::blueprint.json declares 41 contributions with v1.2.0, delta shape and unchanged v1.1.0 companions (TC-073-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-073-probe-module-and-scan-pass",
+      "acId": "AC-2901-2",
+      "description": "Cover AC-2901-2 via anatomy test: assets-manifest-scan.mjs exports the section 3.2 verdict envelope with anchorAcId AC-12113-1 and accountBound false; the shim run-assets-manifest-scan.mjs on the cf-platform fixture exits 0 and the report carries aggregateVerdict pass with directory ./dist and no pages_build_output_dir field",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::assets-manifest-scan probe module contract and cf-platform fixture scan-pass (TC-073-probe-module-and-scan-pass)"
+    },
+    {
+      "id": "TC-073-chain-slice-cross-check",
+      "acId": "AC-2901-3",
+      "description": "Cover AC-2901-3 via anatomy test: the repo chain adds REQ-029 REQ-030 US-2901 US-2902 US-3001 TS-073 TS-074 TS-075 FBS-063 CN-209, every US carries at least one AC, every AC has a covering TC on a paired TS with a resolvable test-pointer, and rcf define validate reports the tree clean",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::T-0 chain slice adds two REQs three USs three TSs one FBS and one CN under the HQ block (TC-073-chain-slice-cross-check)"
+    }
+  ],
+  "status": "draft"
+}
