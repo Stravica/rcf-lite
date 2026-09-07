@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-kv",
   "probeName": "facade-round-trip",
-  "runAt": "2026-09-07T10:25:54.547Z",
+  "runAt": "2026-09-07T11:36:45.825Z",
   "engine": {
     "kind": "kv",
     "image": "in-memory KV driver realising Workers KV binding shape",
@@ -11,7 +11,7 @@
     {
       "anchorAcId": "AC-5001-1",
       "verdict": "pass",
-      "detail": "facadeReady fired once with key=null size=0 ttl=null timestamp=2026-09-07T10:25:54.546Z"
+      "detail": "facadeReady fired once with key=null size=0 ttl=null timestamp=2026-09-07T11:36:45.824Z"
     },
     {
       "anchorAcId": "AC-5101-1",

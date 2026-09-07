@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 52,
-    "notStarted": 24,
+    "items": 53,
+    "notStarted": 25,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
     "actionable": 15,
-    "blocked": 9
+    "blocked": 10
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -51,7 +51,8 @@
         "FBS-017",
         "FBS-019",
         "FBS-025",
-        "FBS-042"
+        "FBS-042",
+        "FBS-064"
       ]
     },
     {
@@ -718,8 +719,22 @@
       "blockedBy": []
     },
     {
-      "fbsId": "FBS-070",
+      "fbsId": "FBS-064",
       "buildOrder": 52,
+      "tier": 1,
+      "title": "jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-062"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-062"
+      ]
+    },
+    {
+      "fbsId": "FBS-070",
+      "buildOrder": 53,
       "tier": 0,
       "title": "T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test",
       "executionStatus": "notStarted",
