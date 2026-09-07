@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T21:41:04.389Z",
+  "updatedAt": "2026-09-07T21:41:04.389Z",
+  "asA": "operator reading drift-audit reports and rate-limit event records through the applied logging companion",
+  "iWant": "every drift-audit record to carry only metadata-safe fields, never a full IP, request body or user agent string",
+  "soThat": "the audit trail is safe to store, forward and read without additional PII scrubbing",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10701-1",
+      "description": "The event-secrecy probe drives the drift-audit runner with a synthetic input pair; every record carries only {ruleId, clientIpHash, outcome, timestamp, diff}; SIMULATE_EVENT_LEAK_IP=true injects a full IP into the outcome so the probe surfaces the leak.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
+  ],
+  "usId": "US-10701",
+  "prdId": "PRD-001",
+  "reqId": "REQ-103",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-6 drift-audit event records carry ruleId, clientIpHash, outcome, timestamp, diff only; no full IP, body or user-agent"
+}

@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T21:40:45.647Z",
+  "updatedAt": "2026-09-07T21:40:45.647Z",
+  "purpose": "T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3702-edge-cloudflare-rate-limiting-management-surface-doc.json contribution. Defines the operator-facing management surface documentation shape: both a wrangler command flow and a Cloudflare dashboard flow for applying one rule from a manifest file to the elicited zone. Anchors AC-10101-1 and AC-10401-1.",
+  "internalStructure": "One guide file at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md with three named sections: Manifest, Management surface (wrangler and dashboard subsections), Composition with security-auth-magic-link.",
+  "responsibilities": [
+    "Ship the guide with both wrangler and dashboard flows plus the composition example (AC-10101-1, AC-10401-1)."
+  ],
+  "tacId": "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Operator-facing management surface documentation (wrangler and dashboard flows)"
+}

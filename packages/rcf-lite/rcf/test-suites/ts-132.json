@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:28.913Z",
+  "updatedAt": "2026-09-07T21:41:29.200Z",
+  "purpose": "Cover AC-10201-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-10201-1"
+  ],
+  "id": "TS-132",
+  "usId": "US-10201",
+  "title": "T-6 AC-10201-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-132-real-account-burst-and-429-or-skipped",
+      "acId": "AC-10201-1",
+      "description": "AC-10201-1 anatomy proof (T-6 rate-limiting slice, TC-132-real-account-burst-and-429-or-skipped)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10201-1 anatomy proof (TC-132-real-account-burst-and-429-or-skipped)"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:30.086Z",
+  "updatedAt": "2026-09-07T21:41:30.375Z",
+  "purpose": "Cover AC-10401-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-10401-1"
+  ],
+  "id": "TS-134",
+  "usId": "US-10401",
+  "title": "T-6 AC-10401-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-134-composition-guide-section",
+      "acId": "AC-10401-1",
+      "description": "AC-10401-1 anatomy proof (T-6 rate-limiting slice, TC-134-composition-guide-section)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10401-1 anatomy proof (TC-134-composition-guide-section)"
+    }
+  ],
+  "status": "draft"
+}

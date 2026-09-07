@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T21:40:46.520Z",
+  "updatedAt": "2026-09-07T21:40:46.520Z",
+  "context": "T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3702-edge-cloudflare-rate-limiting-layering.json contribution. The security-auth-magic-link blueprint ships a per-email per-minute application-level rate limiter on the mint surface; edge-cloudflare-rate-limiting ships a zone-level IP-per-URL rate rule at the CF edge. Without an explicit layering ADR the operator can mistake the two rules for overlapping.",
+  "decision": "When both blueprints apply, the zone rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin; the magic-link per-email rate limiter continues at the mint-surface. The two rules operate on different characteristic sets (IP-per-URL vs per-email per-minute) and are additive. recommendedDefault: true. Standards trace clause: generic enterprise practice.",
+  "consequences": "The composition is documented in the guide with a copy-paste example. The applied recorder records both blueprints so the operator sees the two-rule shape at apply time; drift into overlap is caught in the drift-audit runner.",
+  "adrId": "ADR-3702-edge-cloudflare-rate-limiting-layering",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Layering with security-auth-magic-link: zone rule OVER the per-email application rule"
+}

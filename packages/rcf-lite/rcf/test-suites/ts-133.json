@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:29.506Z",
+  "updatedAt": "2026-09-07T21:41:29.793Z",
+  "purpose": "Cover AC-10301-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-10301-1"
+  ],
+  "id": "TS-133",
+  "usId": "US-10301",
+  "title": "T-6 AC-10301-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-133-drift-audit-runner-diff",
+      "acId": "AC-10301-1",
+      "description": "AC-10301-1 anatomy proof (T-6 rate-limiting slice, TC-133-drift-audit-runner-diff)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10301-1 anatomy proof (TC-133-drift-audit-runner-diff)"
+    }
+  ],
+  "status": "draft"
+}

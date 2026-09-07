@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T21:41:02.422Z",
+  "updatedAt": "2026-09-07T21:41:02.422Z",
+  "asA": "shelf consumer applying the edge-cloudflare-rate-limiting v1.0.0 blueprint on a Workers project using the cf-edge fixture",
+  "iWant": "the elicited manifest directory to hold at least one committed JSON file per rate-limit rule, each carrying the seven documented fields and no plaintext secret",
+  "soThat": "the rules are source-controlled and reviewable and the operator has a stable source of truth to apply to the live zone",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10001-1",
+      "description": "The cf-edge fixture's cloudflare/rate-limits/ directory holds at least one JSON file per rule; every file parses; every file carries id, expression, threshold, period, characteristics, action, duration; no file body carries a plaintext bearer token, private key or inline CF_API_TOKEN reference.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
+  ],
+  "usId": "US-10001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-100",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-6 rate-limit manifest present in cf-edge cloudflare/rate-limits/ carrying seven required fields without plaintext secrets"
+}

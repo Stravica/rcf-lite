@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T21:41:04.062Z",
+  "updatedAt": "2026-09-07T21:41:04.062Z",
+  "asA": "operator committing new rate-limit rule files under the elicited manifest directory",
+  "iWant": "the shipped JSON Schema to validate every rule file and the manifest-schema-validate probe to surface any file that violates the shape",
+  "soThat": "invalid manifest changes are caught in the fixture probe rather than at operator apply time",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10601-1",
+      "description": "The manifest-schema-validate probe validates every manifest file against the shipped rate-limit-rule.schema.json (draft-07); valid files pass; a manifest file missing threshold (SIMULATE_SCHEMA_INVALID=true) fails validation with the offending field named in the detail.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
+  ],
+  "usId": "US-10601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-100",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-6 manifest schema validates every rule file against the shipped draft-07 schema and refuses invalid shapes"
+}

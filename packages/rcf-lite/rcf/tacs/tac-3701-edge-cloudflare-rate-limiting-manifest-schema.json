@@ -1,0 +1,16 @@
+{
+  "createdAt": "2026-09-07T21:40:45.360Z",
+  "updatedAt": "2026-09-07T21:40:45.360Z",
+  "purpose": "T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3701-edge-cloudflare-rate-limiting-manifest-schema.json contribution. Defines the JSON Schema shape and the manifest directory layout for the local rate-limit rules manifest per https://developers.cloudflare.com/waf/rate-limiting-rules/. Anchors AC-10001-1, AC-10601-1, AC-10801-1 (and AC-36101-1, AC-36106-1, AC-36108-1 on the shipped blueprint).",
+  "internalStructure": "One JSON Schema file at blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json (draft-07); one shipped example manifest directory in the cf-edge fixture with two files.",
+  "responsibilities": [
+    "Ship a draft-07 JSON Schema for the rate-limit rule manifest file (AC-10001-1, AC-10601-1).",
+    "Ship the layout the manifest-presence probe scans (AC-10001-1, AC-10801-1)."
+  ],
+  "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Rate-limit rule manifest schema and manifest layout"
+}

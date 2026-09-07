@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:28.334Z",
+  "updatedAt": "2026-09-07T21:41:28.623Z",
+  "purpose": "Cover AC-10101-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-10101-1"
+  ],
+  "id": "TS-131",
+  "usId": "US-10101",
+  "title": "T-6 AC-10101-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-131-guide-management-surface-doc",
+      "acId": "AC-10101-1",
+      "description": "AC-10101-1 anatomy proof (T-6 rate-limiting slice, TC-131-guide-management-surface-doc)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10101-1 anatomy proof (TC-131-guide-management-surface-doc)"
+    }
+  ],
+  "status": "draft"
+}

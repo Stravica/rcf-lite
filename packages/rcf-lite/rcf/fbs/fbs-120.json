@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:48.747Z",
+  "updatedAt": "2026-09-07T21:42:15.451Z",
+  "acIds": [
+    "AC-10001-1",
+    "AC-10101-1",
+    "AC-10201-1",
+    "AC-10301-1",
+    "AC-10401-1",
+    "AC-10601-1",
+    "AC-10701-1",
+    "AC-10801-1"
+  ],
+  "fbsId": "FBS-120",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 59,
+  "executionStatus": "notStarted",
+  "title": "T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches",
+  "summary": "HQ round-6 T-6: edge-cloudflare-rate-limiting v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-rate-limiting/. Ships local rate-limit rules manifest (TAC-3701 draft-07 JSON Schema plus cf-edge fixture files cloudflare/rate-limits/example.json and api-writes.json), operator-facing management surface documentation with wrangler and dashboard flows (TAC-3702, guide), and the drift-audit runner realisation in the cf-edge fixture (TAC-3703, src/drift-audit-runner.mjs). Four Node-only probes under blueprints/edge-cloudflare-rate-limiting/contributions/probes/: manifest-presence (AC-10001-1/AC-10801-1 under SIMULATE_MANIFEST_MISSING), manifest-schema-validate (AC-10601-1; SIMULATE_SCHEMA_INVALID negative), event-secrecy (AC-10701-1; SIMULATE_EVENT_LEAK_IP negative) and real-account-burst-and-429 (AC-10201-1; accountBound: true, records accountBoundSkipped without CI_HAS_CLOUDFLARE_ACCOUNT per ruling 6). Blueprint README, guide, docs/topics.md, CHANGELOG; shelf-wide topics.md sweep adding the edge-cloudflare-rate-limiting row across every prior blueprint's docs/topics.md; section 6a edgeRateLimit row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-100..104, US-10001, 10101, 10201, 10301, 10401, 10601, 10701, 10801, TS-130..137 plus TCs, FBS-120, CN-380, TAC-3701..3703, ADR-3701..3704 minted via rcf define create --id per HQ round-6 T-6 reserved-block ruling 2026-09-07. Base commit origin/main 5a22ca6.",
+  "dependsOnFbsIds": []
+}

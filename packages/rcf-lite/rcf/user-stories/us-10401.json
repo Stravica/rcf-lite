@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T21:41:03.736Z",
+  "updatedAt": "2026-09-07T21:41:03.736Z",
+  "asA": "operator applying both edge-cloudflare-rate-limiting and security-auth-magic-link on the same project",
+  "iWant": "the guide to name the ADR-3702 layering explicitly with a copy-paste example",
+  "soThat": "I understand the two-rule shape at apply time rather than by trial and error",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10401-1",
+      "description": "The guide contains a Composition with security-auth-magic-link section referencing ADR-3702, naming the two characteristic sets (IP-per-URL and per-email per-minute) verbatim, and showing a copy-paste example of both blueprints applied.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
+  ],
+  "usId": "US-10401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-104",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-6 composition with security-auth-magic-link: zone rule layers over the per-email application rule per ADR-3702, documented in the guide"
+}

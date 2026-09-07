@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T21:38:52.452Z",
+  "updatedAt": "2026-09-07T21:38:52.452Z",
+  "description": "The blueprint ships a scheduled drift-audit runner (TAC-3703) the applying project can wire behind the elicited rate-limit-drift-audit-cadence per ADR-3704. When enabled, the runner fetches the live rate-limiting rules on the elicited zone via the Cloudflare API, diffs against the local manifest, and constructs one drift-audit record per mismatched rule. Records write through the applied logger with the metadata-only shape {ruleId, clientIpHash, outcome, timestamp, diff}; no record carries a full IP, a request body or a user agent. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.",
+  "reqId": "REQ-103",
+  "prdId": "PRD-001",
+  "title": "T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: drift-audit runner reads live zone rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only records",
+  "category": "functional",
+  "domain": "todo",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft"
+}

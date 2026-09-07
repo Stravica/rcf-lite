@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:27.755Z",
+  "updatedAt": "2026-09-07T21:41:28.044Z",
+  "purpose": "Cover AC-10001-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-10001-1"
+  ],
+  "id": "TS-130",
+  "usId": "US-10001",
+  "title": "T-6 AC-10001-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-130-manifest-presence-pass",
+      "acId": "AC-10001-1",
+      "description": "AC-10001-1 anatomy proof (T-6 rate-limiting slice, TC-130-manifest-presence-pass)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10001-1 anatomy proof (TC-130-manifest-presence-pass)"
+    }
+  ],
+  "status": "draft"
+}

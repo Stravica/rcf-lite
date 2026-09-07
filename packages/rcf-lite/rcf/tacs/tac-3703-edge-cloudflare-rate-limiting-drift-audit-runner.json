@@ -1,0 +1,16 @@
+{
+  "createdAt": "2026-09-07T21:40:45.943Z",
+  "updatedAt": "2026-09-07T21:40:45.943Z",
+  "purpose": "T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3703-edge-cloudflare-rate-limiting-drift-audit-runner.json contribution. Defines the drift-audit runner: factory shape createDriftAuditRunner({env, eventSink, fetch, clock, cadence, manifestLoader}) that fetches live rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only drift records. Anchors AC-10301-1 and AC-10701-1.",
+  "internalStructure": "One runner module realised in the cf-edge fixture at packages/rcf-lite/test/fixtures/cf-edge/src/drift-audit-runner.mjs. The applying project copies the shape from the blueprint guide; the fixture module is the shape probes drive.",
+  "responsibilities": [
+    "Ship the drift-audit runner factory (AC-10301-1).",
+    "Emit metadata-only audit records via the injected sink, Object.frozen at the boundary (AC-10701-1)."
+  ],
+  "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Drift-audit runner: read live zone rules via the Cloudflare API and diff against the local manifest"
+}

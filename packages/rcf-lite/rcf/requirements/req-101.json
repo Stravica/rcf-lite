@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T21:38:51.792Z",
+  "updatedAt": "2026-09-07T21:38:51.792Z",
+  "description": "The blueprint ships no committed script that writes rules to the live Cloudflare zone. The applying project's operator applies each rule via a documented wrangler command flow or a Cloudflare dashboard flow per TAC-3702 and the guide. The elicited rate-limit-management-surface value records the flow the operator chose; the guide covers both. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.",
+  "reqId": "REQ-101",
+  "prdId": "PRD-001",
+  "title": "T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: operator-facing management surface documented as a wrangler command flow or Cloudflare dashboard flow the operator applies from the manifest",
+  "category": "functional",
+  "domain": "todo",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft"
+}

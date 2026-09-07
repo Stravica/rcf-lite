@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T21:41:03.086Z",
+  "updatedAt": "2026-09-07T21:41:03.086Z",
+  "asA": "operator running the real-account burst probe against a scheduled HQ-owned URL",
+  "iWant": "the probe to fire an undici burst above the rule threshold and observe the (N+1)th and subsequent requests return HTTP 429 with Retry-After and Cf-Ray, or record accountBoundSkipped in CI",
+  "soThat": "the over-threshold behaviour is verified against a real Cloudflare account when the account is available, and CI without an account records the honest verdict per ruling 6",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10201-1",
+      "description": "With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_RATE_LIMIT_URL set, the burst probe returns 429 with Retry-After and Cf-Ray on over-threshold requests; without either env var it records accountBoundSkipped: true and aggregates to pass per spec section 3.5 and ruling 6.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
+  ],
+  "usId": "US-10201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-102",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-6 real-account burst returns 429 with Retry-After and Cf-Ray on over-threshold requests, or accountBoundSkipped in CI per ruling 6"
+}
