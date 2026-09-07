@@ -166,6 +166,11 @@
       "path": "user-stories/platform-cloudflare-durable-objects-us-33112.json"
     },
     {
+      "id": "platform-cloudflare-durable-objects-US-33113",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33113.json"
+    },
+    {
       "id": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
       "kind": "tac",
       "path": "tacs/tac-3401-platform-cloudflare-durable-objects-namespace-facade.json"

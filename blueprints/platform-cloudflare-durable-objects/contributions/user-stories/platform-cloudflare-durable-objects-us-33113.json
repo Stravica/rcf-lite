@@ -1,0 +1,25 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33113",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Wrangler-seam probe drives two concurrent increments against the DO through env.CELL and one WebSocket upgrade through env.HUB, both routed via the DO facade so the sole-reader guarantee holds",
+  "asA": "reviewer verifying the platform-cloudflare-durable-objects v1.0.0 blueprint under a real workerd runtime",
+  "iWant": "the wrangler-seam probe to spawn wrangler dev on the cf-platform fixture, issue two concurrent POST /cell/<id>/increment requests against a route in src/index.mjs that reaches env.CELL through the DO facade (createDoFacade({env}).cellFetch), and open one WebSocket upgrade against /hub/<id>/connect that reaches env.HUB through the facade (createDoFacade({env}).hubFetch), asserting per-instance serialisation on the increments and one broadcast frame on the WebSocket",
+  "soThat": "the shipped DO facade + SingleCellObject + HubObject code path is proven against workerd, not only against the in-memory storage driver and the fake websocket state that the six in-process probes drive",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33113-1",
+      "description": "The wrangler-seam probe, when the fixture has been prepared with `pnpm install --ignore-workspace` so the wrangler devDependency is on the tree, spawns `wrangler dev --local --port 0` from the cf-platform fixture, waits bounded 45 seconds for the CLI to bind, then (a) issues two concurrent POST /cell/<id>/increment requests against a fetch route in src/index.mjs that calls createDoFacade({env, eventSink}).cellFetch(<id>, request), asserting the two responses observe per-instance serialisation (sorted counters == [1, 2], sorted witnesses == [0, 1], each request read the other's write) and (b) opens one WebSocket upgrade against /hub/<id>/connect via createDoFacade({env, eventSink}).hubFetch(<id>, request), asserting one broadcast frame arrives on connect with payload 'hello-from-hub'. The probe kills wrangler cleanly on exit. Warn semantics per section 3.1 pass-with-skip: if wrangler is not installed or fails to bind within the cap, the probe returns aggregateVerdict warn (never fail); a handler thrown at the workerd boundary is a genuine fail. The additional result on the same probe run covers AC-33108-1 by grepping the fixture wrangler.toml for the two [[durable_objects.bindings]] pairs and the [[migrations]] tag/new_classes pair; the grep result is deterministic and does not require wrangler.",
+      "given": "the cf-platform fixture with the wrangler devDependency installed and the shipped DO classes exported from src/index.mjs",
+      "when": "the wrangler-seam probe runs",
+      "then": "wrangler dev binds; two concurrent increments through env.CELL observe per-instance serialisation; one WebSocket upgrade through env.HUB receives a broadcast frame; the wrangler.toml grep confirms both binding pairs and the migrations tag/new_classes; wrangler exits cleanly",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3401-platform-cloudflare-durable-objects-namespace-facade"],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T16:10:00.000Z"
+}

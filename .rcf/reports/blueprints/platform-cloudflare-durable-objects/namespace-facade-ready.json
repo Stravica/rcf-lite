@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-durable-objects",
   "probeName": "namespace-facade-ready",
-  "runAt": "2026-09-07T14:11:20.371Z",
+  "runAt": "2026-09-07T16:08:52.548Z",
   "engine": {
     "kind": "in-process",
     "image": "in-process DO facade on cf-platform fixture",
@@ -11,7 +11,7 @@
     {
       "anchorAcId": "AC-33101-1",
       "verdict": "pass",
-      "detail": "namespaceReady fired once; payload keys drawn from allowed set {event,key,size,ttl,timestamp}; key=null size=0 ttl=null timestamp=2026-09-07T14:11:20.371Z"
+      "detail": "namespaceReady fired once; payload keys drawn from allowed set {event,key,size,ttl,timestamp}; key=null size=0 ttl=null timestamp=2026-09-07T16:08:52.547Z"
     },
     {
       "anchorAcId": "AC-33101-1",

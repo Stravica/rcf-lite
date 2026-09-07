@@ -9,18 +9,56 @@
 // hibernation posture (`hibernate-after-idle` window) is elicited
 // per ADR-3405.
 //
-// The class is dependency-free of the wrangler runtime for the
-// probe drives: a fake state object supplies `acceptWebSocket`,
-// `getWebSockets` and `storage`; the probe uses a fake websocket
-// pair (send-through-buffer) so `websocket-hub-broadcast.mjs`
-// exercises the shipped code path without a real ws connection.
+// Two construction paths:
+//
+//   - DO runtime: `new HubObject(state, env)` per the Cloudflare
+//     Workers Durable Object contract. `state.acceptWebSocket` and
+//     `state.getWebSockets` are provided by the runtime.
+//   - Test / factory: `new HubObject({state, storage, eventSink,
+//     name, hibernateAfterIdleMs, clock})` for in-process probe
+//     drives against a fake state and fake websocket pairs.
+//
+// `fetch(request)` is the DO-runtime entry point routed through
+// the facade's `hubFetch(name, request)`. On a WebSocket upgrade
+// request the handler creates a `WebSocketPair`, calls
+// `state.acceptWebSocket(server)` (hibernatable mode) and returns
+// a 101 upgrade with the client half. It sends one broadcast
+// frame on connect so the wrangler-seam probe receives a message
+// deterministically. Non-upgrade requests receive a 400.
 //
 // The wake handler contract is IDEMPOTENT: repeated wakes on the
 // same last-persisted message must not double-emit downstream
 // state, per ADR-3405.
 
 export class HubObject {
-  constructor({ state, storage, eventSink, name, hibernateAfterIdleMs, clock } = {}) {
+  constructor(a, _env) {
+    let state;
+    let storage;
+    let eventSink;
+    let name;
+    let hibernateAfterIdleMs;
+    let clock;
+    if (a && typeof a.eventSink === 'function') {
+      // Test / factory path.
+      state = a.state;
+      storage = a.storage;
+      eventSink = a.eventSink;
+      name = typeof a.name === 'string' ? a.name : 'hub';
+      hibernateAfterIdleMs = typeof a.hibernateAfterIdleMs === 'number' ? a.hibernateAfterIdleMs : 30000;
+      clock = typeof a.clock === 'function' ? a.clock : () => Date.now();
+    } else if (a && typeof a.acceptWebSocket === 'function') {
+      // DO runtime path: `a` is DurableObjectState.
+      state = a;
+      storage = a.storage;
+      eventSink = (rec) => {
+        try { console.log(`[do-hub] ${JSON.stringify(rec)}`); } catch (_err) { /* best effort */ }
+      };
+      name = (a.id && typeof a.id.name === 'string') ? a.id.name : 'hub';
+      hibernateAfterIdleMs = 30000;
+      clock = () => Date.now();
+    } else {
+      throw new Error('HubObject: state.acceptWebSocket is required');
+    }
     if (!state || typeof state.acceptWebSocket !== 'function') {
       throw new Error('HubObject: state.acceptWebSocket is required');
     }
@@ -31,9 +69,9 @@ export class HubObject {
     this.state = state;
     this.storage = storage;
     this.eventSink = eventSink;
-    this.name = typeof name === 'string' ? name : 'hub';
-    this.hibernateAfterIdleMs = typeof hibernateAfterIdleMs === 'number' ? hibernateAfterIdleMs : 30000;
-    this.clock = typeof clock === 'function' ? clock : () => Date.now();
+    this.name = name;
+    this.hibernateAfterIdleMs = hibernateAfterIdleMs;
+    this.clock = clock;
     this._lastActivity = this.clock();
     this._woke = false;
   }
@@ -41,8 +79,6 @@ export class HubObject {
   async accept(ws) {
     this.state.acceptWebSocket(ws);
     this._lastActivity = this.clock();
-    // Record the accept as a metadata-only event; helpful for the
-    // audit trail without leaking connection headers.
     this.eventSink({
       event: 'doAccept',
       key: null,
@@ -63,14 +99,11 @@ export class HubObject {
     }
     const type = parsed && typeof parsed.type === 'string' ? parsed.type : 'text';
     if (type === 'broadcast') {
-      // Fan out to every connected socket, including the sender per the
-      // hub shape trade-off (echo confirms delivery; the guide names it).
       const sockets = this.state.getWebSockets();
       const outbound = JSON.stringify({ type: 'broadcast', payload: parsed.payload ?? null });
       for (const peer of sockets) {
         try { peer.send(outbound); } catch (_err) { /* dead socket, dropped */ }
       }
-      // Persist the last broadcast so hibernate-and-wake can restore it.
       await this.storage.put('lastBroadcast', outbound);
       return { fanOut: sockets.length };
     }
@@ -91,10 +124,6 @@ export class HubObject {
     try { ws.close(code, reason); } catch (_err) { /* best effort */ }
   }
 
-  // Called by the fixture harness when the object goes idle past
-  // the hibernate-after-idle window. In a real DO the runtime
-  // hibernates and the wake handler runs from cold on the next
-  // message; the fixture simulates both halves in-process.
   async hibernate() {
     await this.storage.put('_hibernatedAt', this.clock());
     this.eventSink({
@@ -108,8 +137,6 @@ export class HubObject {
   }
 
   async wake() {
-    // Idempotent wake: repeated wakes on the same last-persisted
-    // message do not double-emit downstream.
     if (this._woke) {
       return { alreadyAwake: true, lastBroadcast: await this.storage.get('lastBroadcast') };
     }
@@ -124,6 +151,37 @@ export class HubObject {
       objectName: this.name,
     });
     return { lastBroadcast };
+  }
+
+  // DO runtime entry point. workerd routes stub.fetch(request) to
+  // this method. WebSocket upgrade requests receive a 101 with the
+  // client half of a WebSocketPair; the server half is accepted
+  // via `state.acceptWebSocket` (hibernatable mode). One broadcast
+  // frame is sent immediately so the wrangler-seam probe receives
+  // a deterministic message on connect.
+  async fetch(request) {
+    const upgrade = request.headers.get('Upgrade');
+    if (upgrade && upgrade.toLowerCase() === 'websocket') {
+      // `WebSocketPair` is a global provided by the workerd runtime.
+      const pair = new WebSocketPair();
+      const [client, server] = Object.values(pair);
+      this.state.acceptWebSocket(server);
+      // Send one broadcast frame on connect so the wrangler-seam
+      // probe sees a deterministic message without needing to send
+      // one first (which would require a second websocket client).
+      try {
+        server.send(JSON.stringify({ type: 'broadcast', payload: 'hello-from-hub' }));
+      } catch (_err) {
+        // Some runtimes require the socket be fully accepted before
+        // send is legal; the failure is not a probe defect.
+      }
+      // Persist so a subsequent hibernate-and-wake sees the record.
+      try {
+        await this.storage.put('lastBroadcast', JSON.stringify({ type: 'broadcast', payload: 'hello-from-hub' }));
+      } catch (_err) { /* best effort */ }
+      return new Response(null, { status: 101, webSocket: client });
+    }
+    return new Response('websocket upgrade required', { status: 400 });
   }
 }
 

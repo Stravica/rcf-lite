@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-durable-objects",
   "probeName": "sole-reader-scan",
-  "runAt": "2026-09-07T14:11:20.489Z",
+  "runAt": "2026-09-07T16:08:52.674Z",
   "engine": {
     "kind": "in-process",
     "image": "source-tree AST-lite scan on cf-platform fixture",

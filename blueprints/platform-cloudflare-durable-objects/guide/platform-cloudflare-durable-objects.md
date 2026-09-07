@@ -182,6 +182,42 @@ a real Cloudflare account with a real DO namespace when
 records `accountBoundSkipped: true`, aggregates to `pass`, and
 exits 0 per spec section 3.5 (Clerk pattern).
 
+## Wrangler-seam probe
+
+The eighth probe, `wrangler-seam.mjs`, spawns `wrangler dev
+--local` on the cf-platform fixture and drives the shipped DO
+facade + SingleCellObject + HubObject code path against a real
+workerd runtime:
+
+- Two concurrent `POST /cell/<id>/increment` requests route
+  through `src/index.mjs` -> `createDoFacade({env,
+  eventSink}).cellFetch(<id>, request)` -> the shipped
+  SingleCellObject class. The probe asserts per-instance
+  serialisation (sorted counters equal `[1, 2]`, sorted
+  witnesses equal `[0, 1]`; each request observed the other's
+  write).
+- One WebSocket upgrade against `/hub/<id>/connect` routes
+  through the same facade to `env.HUB` and receives one
+  broadcast frame from the HubObject fetch handler on connect
+  (payload `hello-from-hub`).
+- An additional `AC-33108-1` result on the same run greps the
+  fixture `wrangler.toml` for both `[[durable_objects.bindings]]`
+  binding pairs and the `[[migrations]]` `tag = "v1"` with
+  `new_classes`; the grep is deterministic and does not require
+  wrangler.
+
+Warn semantics per section 3.1 pass-with-skip: if the wrangler
+devDependency is missing under the fixture's `node_modules`, or
+if the CLI does not bind within the cap, the probe returns
+`aggregateVerdict: warn` (never fail). A handler thrown at the
+workerd boundary is a genuine `fail`.
+
+The routing layer in `src/index.mjs` never dereferences
+`env.CELL` or `env.HUB` directly; every DO call routes through
+`createDoFacade({env, eventSink}).cellFetch` /
+`.hubFetch` so the sole-reader guarantee still holds. The
+sole-reader-scan probe covers the boundary.
+
 ## The v1.0.0 boundary: what defers to v1.1.0
 
 Per spec section 5.3, the following items are OUT of v1.0.0 and

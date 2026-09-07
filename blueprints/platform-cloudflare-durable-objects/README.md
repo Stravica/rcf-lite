@@ -99,9 +99,9 @@ new HubObject({ state, storage, eventSink, name, hibernateAfterIdleMs?, clock? }
   the hibernate-after-idle window on the hub shape. The wake
   handler is idempotent-by-contract per the same ADR.
 
-## The seven probes
+## The eight probes
 
-The seven probes live under `contributions/probes/`. Each has a
+The eight probes live under `contributions/probes/`. Each has a
 matching `run-<probe-name>.mjs` shim that writes a per-blueprint
 report to `.rcf/reports/blueprints/platform-cloudflare-durable-objects/<probe-name>.json`
 under the fixture root.
@@ -115,6 +115,7 @@ under the fixture root.
 | `websocket-hub-broadcast.mjs` | `AC-33105-1` | false | Broadcast from A reaches A and B within 500 ms; storage persists `lastBroadcast`. Also covers `AC-33110-1` (hibernate-and-wake) and `AC-33106-1` (event-secrecy on the shipped path). |
 | `sole-reader-scan.mjs` | `AC-33107-1` | false | Every `.mjs`/`.js`/`.ts` file under the fixture applied source root is scanned; only `src/do-facade.mjs` may dereference `env.CELL` or `env.HUB` in live source. |
 | `real-account-storage-smoke.mjs` | `AC-33112-1` | true | Facade round-trip against a real Cloudflare DO namespace when `CI_HAS_CLOUDFLARE_ACCOUNT=true`; otherwise records `accountBoundSkipped` and passes per spec section 3.5. |
+| `wrangler-seam.mjs` | `AC-33113-1` | false | Spawns `wrangler dev --local` on the fixture and drives two concurrent `POST /cell/<id>/increment` requests through the DO facade against `env.CELL`, asserting per-instance serialisation (counters `[1, 2]`, witnesses `[0, 1]`); opens one WebSocket upgrade against `/hub/<id>/connect` through the facade against `env.HUB`, asserting one broadcast frame arrives on connect. Also carries an additional `AC-33108-1` result that greps `wrangler.toml` for both binding pairs and the migrations tag/new_classes. Warn semantics per section 3.1 pass-with-skip if wrangler is not installed or fails to bind. |
 
 ## Two-line gate-reviewer boot
 
@@ -128,19 +129,25 @@ node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions
 node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-websocket-hub-broadcast.mjs
 node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-sole-reader-scan.mjs
 node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-real-account-storage-smoke.mjs
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-wrangler-seam.mjs
 ```
 
 Each returns exit 0 with `aggregateVerdict: pass`. The seventh
 records `accountBoundSkipped: true` without the CI env var per
 spec section 3.5.
 
-The optional wrangler-dev boot (documented in the fixture README
-under the T-3 sections) is not required for the shipped probes:
-the in-memory driver realises the DO storage surface deterministically
-and the shipped facade code path is exercised without a wrangler
-process. A real-account round-trip lives on the
-`real-account-storage-smoke` probe and is skipped by default per
-the Clerk pattern.
+The wrangler-dev boot (documented in the fixture README
+under the T-3 sections) is required for the eighth probe
+(`wrangler-seam.mjs`), which spawns `wrangler dev --local` on
+the fixture to drive the shipped DO facade + SingleCellObject +
+HubObject code path against a real workerd runtime. The six
+local probes drive the shipped code path in-process against the
+in-memory DO storage driver and a fake WebSocket state; a
+real-account round-trip lives on the `real-account-storage-smoke`
+probe and is skipped by default per the Clerk pattern. Prepare
+the fixture once with `pnpm install --ignore-workspace`; the
+wrangler-seam probe returns warn per spec section 3.1 pass-with-skip
+if the CLI is missing or fails to bind within the cap.
 
 ## The v1.0.0 boundary
 

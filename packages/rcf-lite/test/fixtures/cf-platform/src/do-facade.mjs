@@ -1,25 +1,21 @@
 // Sole reader of the Cloudflare Durable Objects namespace bindings
-// (`env.CELL` for the single-cell shape and `env.HUB` for the
-// hibernatable-WebSocket hub) per REQ-070. The facade opens on
-// boot, exports typed handles for each named object (`get('name')`
-// on each namespace), fires `namespaceReady` on the injected event
-// sink and later fires `doWakeUp`, `doAlarmFired` and `doHibernate`
-// as the objects report through the sink. Every event payload is
-// metadata-only ({event, key, size, ttl, timestamp, ?objectName,
-// ?scheduledTime}) per REQ-075.
+// (single-cell and hub) per REQ-070. The facade opens on
+// boot, exports typed handles for each named object and typed
+// fetch helpers that forward a request to the DO stub, fires
+// `namespaceReady` on the injected event sink and later fires
+// `doWakeUp`, `doAlarmFired` and `doHibernate` as the objects
+// report through the sink. Every event payload is metadata-only
+// per REQ-075.
 //
 // Consumers of DO from the applied project code call the facade's
-// typed verbs; no other module dereferences `env.CELL` or `env.HUB`.
-// The sole-reader guarantee is enforced by the shipped
-// sole-reader-scan probe (AST scan across the fixture's applied
-// source root; every non-facade module that imports the binding is
-// a hit).
+// typed handles or the typed fetch helpers; no other module
+// dereferences the DO namespace bindings. The sole-reader guarantee
+// is enforced by the shipped sole-reader-scan probe (AST scan across
+// the fixture's applied source root; every non-facade module that
+// contains a live match on the DO binding names is a hit).
 //
-// The facade is a plain factory over `{env, eventSink, clock}`. It
-// does not construct the SingleCellObject or HubObject classes
-// directly (those are Cloudflare-instantiated Durable Objects at
-// runtime); it wraps the returned stub with a typed handle the
-// consumer calls. For the in-process probes, an alternate factory
+// The facade is a plain factory over `{env, eventSink, clock}`. For
+// the in-process probes, an alternate factory
 // (`createDoFacadeInProcess`) accepts an already-constructed
 // single-cell and hub instance so the shipped facade code path is
 // exercised without a wrangler dev process.
@@ -49,7 +45,10 @@ export function createDoFacade({ env, eventSink, clock } = {}) {
     const stub = cell.get(cell.idFromName(name));
     return {
       name,
-      async fetch(path, init) { return stub.fetch(path, init); },
+      async fetch(path, init) {
+        const url = new URL(String(path || '/'), 'https://do-facade.internal').toString();
+        return stub.fetch(url, init);
+      },
     };
   }
 
@@ -57,11 +56,28 @@ export function createDoFacade({ env, eventSink, clock } = {}) {
     const stub = hub.get(hub.idFromName(name));
     return {
       name,
-      async fetch(path, init) { return stub.fetch(path, init); },
+      async fetch(path, init) {
+        const url = new URL(String(path || '/'), 'https://do-facade.internal').toString();
+        return stub.fetch(url, init);
+      },
     };
   }
 
-  return { ready, cellHandle, hubHandle };
+  // Forward the caller's Request to the named single-cell DO stub.
+  // Used by the outer Worker fetch handler so the routing layer
+  // never dereferences the DO binding directly (sole-reader
+  // guarantee).
+  async function cellFetch(name, request) {
+    const stub = cell.get(cell.idFromName(name));
+    return stub.fetch(request);
+  }
+
+  async function hubFetch(name, request) {
+    const stub = hub.get(hub.idFromName(name));
+    return stub.fetch(request);
+  }
+
+  return { ready, cellHandle, hubHandle, cellFetch, hubFetch };
 }
 
 // In-process variant used by the probes: no wrangler dev, no real

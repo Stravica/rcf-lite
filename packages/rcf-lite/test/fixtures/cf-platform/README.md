@@ -204,7 +204,7 @@ cloudflare-cron-triggers-anatomy.test.js` binds `TS-090` through
 `TS-096` to the T-2 fixture files, the scheduled handler, the
 dispatcher and the five probe modules.
 
-## Two-line gate-reviewer boot for the seven T-3 local probes
+## Two-line gate-reviewer boot for the seven T-3 in-process probes
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-platform
@@ -236,11 +236,14 @@ Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
 `accountBoundSkipped: true`, aggregates to `pass`, and exits 0
 per spec section 3.5.
 
-## T-3 optional wrangler dev boot
+## T-3 wrangler dev boot
 
-The seven local probes above do NOT require `wrangler dev`. If a
-reviewer wants to exercise the DO bindings against a real wrangler
-runtime, boot the fixture in a separate shell:
+The eighth T-3 probe (`wrangler-seam.mjs`) spawns `wrangler dev
+--local` itself against the fixture; the six pre-wrangler local
+probes drive the shipped DO facade + classes in-process against
+the in-memory driver and a fake WebSocket state. To exercise the
+DO bindings against a real wrangler runtime by hand, boot the
+fixture in a separate shell:
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-platform
@@ -282,3 +285,24 @@ modules; each probe cleans up its state on exit.
 ## Chain-slice pointers (T-3)
 
 - The T-3 anatomy test at `packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js` binds `TS-100` through `TS-109` to the T-3 fixture files, the DO facade, the SingleCellObject class, the HubObject class, the in-memory DO storage driver and the seven probe modules.
+
+## Two-line gate-reviewer boot for the T-3 wrangler-seam probe
+
+```
+cd packages/rcf-lite/test/fixtures/cf-platform
+pnpm install --ignore-workspace
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-wrangler-seam.mjs
+```
+
+The probe spawns `wrangler dev --local --port 0` on the fixture,
+waits bounded 45 seconds for the CLI to bind, then drives two
+concurrent `POST /cell/<id>/increment` requests against
+`env.CELL` via the DO facade and one WebSocket upgrade against
+`/hub/<id>/connect` via `env.HUB` (also through the facade),
+then kills wrangler on exit. Returns `aggregateVerdict: pass` on
+the shipped path with three result rows (AC-33108-1 wrangler.toml
+grep, AC-33113-1 serialisation observed under workerd, AC-33105-1
+one WebSocket broadcast frame received on connect). Warn per
+spec section 3.1 pass-with-skip if the wrangler devDependency is
+missing or the CLI fails to bind; a handler thrown at the workerd
+boundary is a genuine fail.

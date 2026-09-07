@@ -226,6 +226,15 @@ test('real-account storage smoke probe records accountBoundSkipped without env v
   }
 });
 
+// TS wrangler-seam (US-33113): wrangler-seam probe module exports the expected anchor and shape.
+
+test('wrangler-seam probe module exports anchorAcId AC-33113-1 and shape (TC-wrangler-seam-shape)', async () => {
+  const mod = await import(pathToFileURL(join(PROBES_DIR, 'wrangler-seam.mjs')).href);
+  assert.equal(mod.anchorAcId, 'AC-33113-1');
+  assert.equal(mod.accountBound, false);
+  assert.equal(typeof mod.default, 'function');
+});
+
 // Blueprint shape.
 
 test('blueprint.json declares slug, version, capabilities, elicits, contributions', async () => {
@@ -237,9 +246,9 @@ test('blueprint.json declares slug, version, capabilities, elicits, contribution
   assert.equal(Array.isArray(bp.elicits), true);
   assert.equal(bp.elicits.length, 7);
   assert.equal(Array.isArray(bp.contributions), true);
-  assert.equal(bp.contributions.length, 30, `expected 30 contributions (8 REQ + 12 US + 5 TAC + 5 ADR); observed ${bp.contributions.length}`);
+  assert.equal(bp.contributions.length, 31, `expected 31 contributions (8 REQ + 13 US + 5 TAC + 5 ADR); observed ${bp.contributions.length}`);
   const kinds = bp.contributions.reduce((acc, c) => { acc[c.kind] = (acc[c.kind] ?? 0) + 1; return acc; }, {});
-  assert.deepEqual(kinds, { req: 8, us: 12, tac: 5, adr: 5 });
+  assert.deepEqual(kinds, { req: 8, us: 13, tac: 5, adr: 5 });
 });
 
 test('every contribution file referenced from blueprint.json exists', async () => {
@@ -260,6 +269,7 @@ test('README, CHANGELOG, guide, docs/topics.md exist and mention the eight REQs 
   assert.match(readme, /namespace-facade-ready\.mjs/);
   assert.match(readme, /websocket-hub-broadcast\.mjs/);
   assert.match(readme, /real-account-storage-smoke\.mjs/);
+  assert.match(readme, /wrangler-seam\.mjs/);
   assert.match(changelog, /1\.0\.0 \(2026-09-07\)/);
   assert.match(guide, /Decision tree/);
   assert.match(topics, /strongConsistencyCellContract/);
@@ -284,7 +294,7 @@ test('section 6a of blueprint-authoring.md carries the hibernatableWebSocket cap
 
 test('every probe exports anchorAcId and accountBound as a boolean', async () => {
   const probeFiles = (await readdir(PROBES_DIR)).filter((f) => f.endsWith('.mjs') && !f.startsWith('run-') && f !== 'probe-utils.mjs');
-  assert.equal(probeFiles.length, 7, `expected 7 probe modules; observed ${probeFiles.length}`);
+  assert.equal(probeFiles.length, 8, `expected 8 probe modules (six local + real-account + wrangler-seam); observed ${probeFiles.length}`);
   for (const f of probeFiles) {
     const mod = await import(pathToFileURL(join(PROBES_DIR, f)).href);
     assert.equal(typeof mod.anchorAcId, 'string', `probe ${f} must export anchorAcId string`);

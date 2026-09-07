@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-durable-objects",
   "probeName": "single-cell-concurrent-increment",
-  "runAt": "2026-09-07T14:11:20.395Z",
+  "runAt": "2026-09-07T16:08:52.579Z",
   "engine": {
     "kind": "in-process",
     "image": "in-process SingleCellObject on cf-platform fixture",
