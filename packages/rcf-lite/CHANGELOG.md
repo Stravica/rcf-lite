@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-09-07
+
+rcf-lite 0.22.0 fills the visual shelf with five application blueprints (empty and error states, file upload with a WCAG keyboard gate, a multi-step forms wizard, a self-service account settings area, and a first-run onboarding tour). Account settings reuses the admin-console capability-gating mechanism, so the five settings surfaces only render when the applied auth blueprint declares the capability. The four shipped auth blueprints and the logging blueprint pick up additive capability declarations in the same release.
+
+Also present on the shelf at this version, ahead of their own 0.23.0 release notes: `persistence-data-postgres` 1.0.0, `object-storage-s3` 1.0.0, and the `security-secrets-management` 1.0.1 minor.
+
+### Added
+
+- **Visual round 4 T-1: `application-empty-error-states` v1.0.0 on the shelf (PR #154).** Ships the eight-state contract (not-found, forbidden, server-error, offline, permission-denied, empty-list, no-search-results, error-boundary), one Playwright probe pack with eight surface-observable checks, three TACs, three ADRs, an RFC 9110 status contract, WCAG 2.2 AA compliance, and the offline write-buffer contract for reconnection.
+- **Visual round 4 T-2: `application-file-upload` v1.0.0 on the shelf (PR #156).** Ships the WCAG 2.5.7 keyboard-alternative gate, a chunked and resumable transport contract, MIME-type, size and virus-scan refusal, tus.io as the elicited alternative transport, four pack checks, and four break switches. Informational: shortened ADR id suffixes on file-upload; elicits declared via ADR entry flags on non-capability blueprints; tus fail-message ordering.
+- **Visual round 4 T-3: `application-forms-wizard` v1.0.0 on the shelf (PR #158).** Ships the GOV.UK task-list and summary-list patterns, per-step validation timing, an error-summary with skip-links, and a save-and-return contract that refuses to ship a default because the draft-store transport is elicited.
+- **Visual round 4 T-4: `application-account-settings` v1.0.0 on the shelf (PR #160).** Ships the five conditional surfaces (profile, security, sessions, notification preferences, theme), reusing the admin-console capability-gating mechanism, a bare-SPA refusal with the `--allow-no-auth-yet` override, a hosted-UI bridge, and five pack checks. Informational: the theme check reads the attribute only.
+- **Visual round 4 T-4 auth minors, in the same PR (PR #160).** `security-auth-clerk` 1.3.0, `security-auth-keycloak` 1.2.0, `security-auth-oauth2` 1.2.0, `security-auth-magic-link` 1.2.0 and `observability-logging` 1.2.0. Additive `capabilities[]` declarations for `credentialSelfService`, `sessionInventory` and `hostedIdentityUi` per vendor and provider; the settings blueprint discovers the applied capability set at apply time and only offers the surfaces the applied auth supports.
+- **Visual round 4 T-5: `application-onboarding-tour` v1.0.0 on the shelf (PR #161).** Ships an ARIA APG dialog-modal tooltip-as-dialog, keyboard-only Escape and focus-return contract, a checklist-on-dashboard collapse-to-settings fallback, completion-state persistence with per-principal or local-storage layers, and four pack checks.
+
+
 ## [0.21.0] - 2026-09-05
 
 rcf-lite 0.21.0 adds five visual-feature blueprints to the shelf (data table, charts, dashboard with packaged design guidance, in-app notifications, admin console) and the mechanism that proves them: a blueprint can now ship a Playwright probe pack that rcf verify runs against your running app in a real browser, and the ship gate refuses while a surface check fails. The admin console only offers the surfaces your applied auth blueprint can support. Blueprints can now ask you questions at apply time. The schema floor moves to rcf-schemas 0.6.1.
