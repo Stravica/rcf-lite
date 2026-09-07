@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T19:56:35.831Z",
+  "updatedAt": "2026-09-07T19:56:39.532Z",
+  "asA": "shelf consumer whose Worker fails safe on any Turnstile verification refusal",
+  "iWant": "a POST to siteverify with the pinned always-fail secret to return success false, the handler to reject with 400, and every event record to carry only sitekeyHash, outcome and timestamp",
+  "soThat": "the fail branch never leaks the secret or the response token into observability",
+  "usId": "US-9102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-091",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-5 server-side siteverify fail: the always-fail Turnstile secret returns success:false, the handler rejects 400, and event records carry no token or secret",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9102-1",
+      "description": "A live POST to siteverify with secret=2x0000000000000000000000000000000AA returns success:false; the pack-fixture /api/submit handler rejects with 400 whose body carries the error-codes value, not the sitekey. The Node event-secrecy probe asserts that every event record captured on submit carries {sitekeyHash, outcome, timestamp} keys only and does not carry the token or the secret string.",
+      "given": "the pack fixture running with the pinned always-fail secret in the environment and event-secrecy probe attached",
+      "when": "a form submit hits /api/submit and the verifier calls siteverify",
+      "then": "siteverify returns success:false, the handler responds 400 with an error-codes body, and every event record carries only sitekeyHash, outcome and timestamp",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3602-edge-cloudflare-turnstile-server-verifier"
+  ]
+}

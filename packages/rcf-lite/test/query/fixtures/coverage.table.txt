@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 58  covered: 58  covered-unresolved: 0  uncovered: 0
+Requirements: 63  covered: 63  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -313,3 +313,11 @@ REQ-085      yes      AC-8501-1   yes         TC-117-admin-console-gate-surface
                       AC-8502-1   yes         TC-119-real-account-gated-url-skipped
 REQ-086      yes      AC-8601-1   yes         TC-118-admin-console-gated-pack-check
                       AC-8602-1   yes         TC-119-admin-console-fallback
+REQ-090      yes      AC-9001-1   yes         TC-120-widget-mount-pass
+                      AC-9002-1   yes         TC-121-secret-shape-scan
+REQ-091      yes      AC-9101-1   yes         TC-122-siteverify-pass
+                      AC-9102-1   yes         TC-123-siteverify-fail-secrecy
+REQ-092      yes      AC-9201-1   yes         TC-124-guard-shape-refuse
+REQ-093      yes      AC-9301-1   yes         TC-125-composition-wire
+                      AC-9302-1   yes         TC-126-magic-link-guard-refuse
+REQ-094      yes      AC-9401-1   yes         TC-127-widget-mode-enum

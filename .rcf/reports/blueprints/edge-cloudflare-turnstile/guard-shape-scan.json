@@ -1,0 +1,28 @@
+{
+  "slug": "edge-cloudflare-turnstile",
+  "probeName": "guard-shape-scan",
+  "runAt": "2026-09-07T20:04:55.600Z",
+  "engine": {
+    "kind": "source-tree-plus-live",
+    "image": "source AST scan plus live POST against probe-pack-edge-cloudflare-turnstile fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-35104-1",
+      "verdict": "pass",
+      "detail": "guard-shape scan: GUARDED_SURFACES declared, tokenRequiredGuard called on POST handlers, surface-check gate present before guard call"
+    },
+    {
+      "anchorAcId": "AC-35104-1",
+      "verdict": "pass",
+      "detail": "guard rejected missing-token submit on /api/submit with status=400 errorCode=turnstile.token-missing"
+    },
+    {
+      "anchorAcId": "AC-35104-1",
+      "verdict": "pass",
+      "detail": "guard rejected missing-token submit on /api/magic-link with status=400 errorCode=turnstile.token-missing"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

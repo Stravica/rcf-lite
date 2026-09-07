@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T19:56:38.049Z",
+  "updatedAt": "2026-09-07T19:56:38.049Z",
+  "purpose": "Turnstile server-side siteverify verifier; POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify; on success:true proceeds, on success:false rejects 400 with error-codes body; token-required guard rejects missing-token submits with 400 before any downstream handler runs.",
+  "responsibilities": [
+    "Realise the shape named in the purpose statement.",
+    "Bind the anchored ACs on the shipped probes and the Playwright pack."
+  ],
+  "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Turnstile server-side siteverify verifier and refuse-if-token-missing guard"
+}

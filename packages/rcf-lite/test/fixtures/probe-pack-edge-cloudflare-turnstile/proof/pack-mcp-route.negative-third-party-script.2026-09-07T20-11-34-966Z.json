@@ -1,0 +1,36 @@
+{
+  "id": "bv-FBS-110-neg-third-party-script",
+  "fbsId": "FBS-110",
+  "createdAt": "2026-09-07T20:11:34.967Z",
+  "mode": "agentScreenshotCritique",
+  "runtimeProfile": "local-dev",
+  "runtimeUrl": "http://127.0.0.1:58575",
+  "invariantChecks": [
+    {
+      "invariant": "sharedLayoutModule",
+      "verdict": "pass"
+    },
+    {
+      "invariant": "agentDriverWired",
+      "verdict": "pass"
+    }
+  ],
+  "verdict": "block",
+  "probePacks": [
+    {
+      "packName": "edge-cloudflare-turnstile",
+      "packVersion": "1.0.0",
+      "blueprintSlug": "edge-cloudflare-turnstile",
+      "applicable": true,
+      "aggregateVerdict": "block",
+      "checks": [
+        {
+          "id": "AC-turnstile-widgetRendered",
+          "verdict": "fail",
+          "detail": "third-party script(s) present beyond Cloudflare Turnstile: [\"https://example.com/not-cloudflare.js\"]"
+        }
+      ]
+    }
+  ],
+  "notes": "Negative proof: mutation=third-party-script; expected check AC-turnstile-widgetRendered FAIL to prove the check fires on the broken thing."
+}

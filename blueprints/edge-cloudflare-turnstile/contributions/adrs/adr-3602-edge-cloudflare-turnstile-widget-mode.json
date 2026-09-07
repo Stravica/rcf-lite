@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3602-edge-cloudflare-turnstile-widget-mode",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Widget mode is elicited as an enum (managed, non-interactive, invisible); recommendedDefault managed",
+  "context": "Cloudflare Turnstile documents three widget modes per https://developers.cloudflare.com/turnstile/: managed (Cloudflare decides when to show a challenge, minimising user friction), non-interactive (always renders a non-interactive challenge for uniform behaviour) and invisible (mounts an invisible widget). Each mode is a per-surface operational profile; the elicit forces the operator to name the intent.",
+  "decision": "Widget mode is elicited (elicited: true). Values: managed, non-interactive, invisible per Cloudflare Turnstile documented modes. recommendedDefault: managed. The applied-sidecar records the operator answer per applying surface. Standards trace clause: Cloudflare Turnstile documented widget modes.",
+  "consequences": "The elicitation forces an explicit answer on every apply. The pack fixture accepts ?mode=<managed|non-interactive|invisible> and pins the invisible-widget test sitekeys (1x00000000000000000000BB and 2x00000000000000000000BB per https://developers.cloudflare.com/turnstile/troubleshooting/testing/) alongside the managed pass/fail sitekeys so every mode is exercised on the gate.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

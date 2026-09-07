@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T19:56:43.076Z",
+  "updatedAt": "2026-09-07T19:56:43.260Z",
+  "purpose": "Cover AC-9401-1 via anatomy test: pack fixture accepts mode=managed, mode=non-interactive and mode=invisible and each renders with a Cloudflare-origin iframe only",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-9401-1"
+  ],
+  "id": "TS-127",
+  "usId": "US-9401",
+  "title": "T-5 AC-9401-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-127-widget-mode-enum",
+      "acId": "AC-9401-1",
+      "description": "AC-9401-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::widget mode enum honours managed non-interactive and invisible on the pack fixture (TC-127-widget-mode-enum)"
+    }
+  ],
+  "status": "draft"
+}

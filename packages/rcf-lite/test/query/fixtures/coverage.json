@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 58,
-    "covered": 58,
+    "requirements": 63,
+    "covered": 63,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -2921,6 +2921,105 @@
           "covered": true,
           "testCases": [
             "TC-119-admin-console-fallback"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-090",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-9001-1",
+          "covered": true,
+          "testCases": [
+            "TC-120-widget-mount-pass"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-9002-1",
+          "covered": true,
+          "testCases": [
+            "TC-121-secret-shape-scan"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-091",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-9101-1",
+          "covered": true,
+          "testCases": [
+            "TC-122-siteverify-pass"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-9102-1",
+          "covered": true,
+          "testCases": [
+            "TC-123-siteverify-fail-secrecy"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-092",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-9201-1",
+          "covered": true,
+          "testCases": [
+            "TC-124-guard-shape-refuse"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-093",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-9301-1",
+          "covered": true,
+          "testCases": [
+            "TC-125-composition-wire"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-9302-1",
+          "covered": true,
+          "testCases": [
+            "TC-126-magic-link-guard-refuse"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-094",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-9401-1",
+          "covered": true,
+          "testCases": [
+            "TC-127-widget-mode-enum"
           ],
           "unresolvedTestCases": []
         }

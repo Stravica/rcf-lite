@@ -53,6 +53,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-cloudflare-cron-triggers | 32101-32899 | 33xx | shipped v1.0.0 | `scheduledTriggerContract` |
 | platform-cloudflare-durable-objects | 33101-33899 | 34xx | shipped v1.0.0 | `strongConsistencyCellContract`, `websocketHubContract` |
 | edge-cloudflare-access | 34101-34899 | 35xx | shipped v1.0.0 | `edgeAuthenticationGate` |
+| edge-cloudflare-turnstile | 35101-35899 | 36xx | shipped v1.0.0 | `humanVerificationGate` |
 
 US 3101-3111 sit at the LOW end of the 3101-3899 band on purpose. A project-side story that mechanically derives from `security-auth-magic-link-REQ-011` into the number `3111` would collide against security-auth-magic-link-US-3111 in this package; the band leaves headroom at the HIGH end (US 3181-3899) so a project's own stories anchored to security-auth-magic-link REQs can allocate without conflict.
 

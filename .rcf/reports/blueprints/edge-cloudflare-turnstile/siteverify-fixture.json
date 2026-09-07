@@ -1,0 +1,23 @@
+{
+  "slug": "edge-cloudflare-turnstile",
+  "probeName": "siteverify-fixture",
+  "runAt": "2026-09-07T20:03:42.853Z",
+  "engine": {
+    "kind": "live-endpoint",
+    "image": "Cloudflare siteverify endpoint challenges.cloudflare.com/turnstile/v0/siteverify via probe-pack-edge-cloudflare-turnstile fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-35102-1",
+      "verdict": "pass",
+      "detail": "siteverify pass via https://challenges.cloudflare.com/turnstile/v0/siteverify with always-pass secret returned success:true; fixture /api/submit responded status=200 body={\"received\":\"ok\"}"
+    },
+    {
+      "anchorAcId": "AC-35102-1",
+      "verdict": "pass",
+      "detail": "siteverify fail via https://challenges.cloudflare.com/turnstile/v0/siteverify with always-fail secret returned success:false; fixture /api/submit responded status=400 errorCode=turnstile.siteverify-failed errorCodes=[\"invalid-input-response\"]"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

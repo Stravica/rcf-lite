@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T19:56:38.233Z",
+  "updatedAt": "2026-09-07T19:56:38.233Z",
+  "purpose": "Composition hook on the security-auth-magic-link mint surface: the magic-link mint route reads through the Turnstile guard before invoking the mint; a missing or failed Turnstile token refuses the mint with 400.",
+  "responsibilities": [
+    "Realise the shape named in the purpose statement.",
+    "Bind the anchored ACs on the shipped probes and the Playwright pack."
+  ],
+  "tacId": "TAC-3603-edge-cloudflare-turnstile-magic-link-hook",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Composition hook into security-auth-magic-link mint surface"
+}

@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T19:56:36.636Z",
+  "updatedAt": "2026-09-07T19:56:39.901Z",
+  "asA": "shelf consumer applying both security-auth-magic-link and edge-cloudflare-turnstile",
+  "iWant": "the magic-link mint surface to be gated by the Turnstile guard so a mint submit reads through the same token check as any other elicited surface",
+  "soThat": "magic-link mint requests are protected by the same human-check as any other public form on my project",
+  "usId": "US-9301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-093",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-5 composition with security-auth-magic-link: the magic-link mint surface reads through the Turnstile guard",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9301-1",
+      "description": "The blueprint contribution ADR-3601 declares the composition contract on the humanVerificationGate topic; the pack fixture ships a magic-link mint stub route (/api/magic-link) registered with the Turnstile guard. A source-tree read of the composition wire confirms the mint surface calls through the Turnstile guard before invoking the magic-link mint.",
+      "given": "the pack fixture with both blueprints applied and /api/magic-link registered with the token-required guard",
+      "when": "the composition contract is walked in the source tree",
+      "then": "the magic-link mint surface reads the Turnstile token check before invoking the mint",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3603-edge-cloudflare-turnstile-magic-link-hook"
+  ]
+}

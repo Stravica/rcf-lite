@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-turnstile-US-35106",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-turnstile-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Widget mode is elicited as an enum (managed, non-interactive, invisible); default managed and each mode renders per Cloudflare documented modes",
+  "asA": "shelf consumer selecting a Turnstile widget mode for the applied surface",
+  "iWant": "to elicit one of managed, non-interactive or invisible at apply time with managed as the recommendedDefault, and to see each mode render as Cloudflare documents",
+  "soThat": "the applied widget mode matches the operational profile my site needs",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-35106-1",
+      "description": "The blueprint elicit widget-mode is enum with values managed, non-interactive, invisible; recommendedDefault managed per ADR-3602. The pack fixture accepts ?mode=<managed|non-interactive|invisible> and mounts the widget with the pinned invisible-widget test sitekeys (1x00000000000000000000BB, 2x00000000000000000000BB per https://developers.cloudflare.com/turnstile/troubleshooting/testing/). Each mode renders the Turnstile iframe from https://challenges.cloudflare.com and no other origin.",
+      "given": "the pack fixture loaded with mode=managed, mode=non-interactive and mode=invisible respectively",
+      "when": "each variant renders",
+      "then": "each renders the Turnstile widget from Cloudflare Turnstile origin only and no third-party script is loaded",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3601-edge-cloudflare-turnstile-widget-mount"
+  ],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T19:56:36.233Z",
+  "updatedAt": "2026-09-07T19:56:39.716Z",
+  "asA": "shelf consumer whose Worker refuses cheap submit-without-token attempts at the earliest possible boundary",
+  "iWant": "the guard to reject every submit whose payload has no Cf-Turnstile-Response field with 400 before the downstream handler is entered",
+  "soThat": "downstream handlers never execute against a missing-token submit",
+  "usId": "US-9201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-092",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-5 refuse-if-token-missing guard: a submit without Cf-Turnstile-Response rejects with 400 before any downstream logic",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9201-1",
+      "description": "A source-tree scan of the pack fixture (guard-shape-scan) enumerates every elicited surface and asserts each carries a token-required guard registered at the route level. A live POST to /api/submit without a Cf-Turnstile-Response field is rejected with 400 and no downstream handler side-effect is observable. Refusal body carries a stable error-code, not the sitekey.",
+      "given": "the pack fixture running with every elicited surface registered",
+      "when": "a submit reaches the route without a Cf-Turnstile-Response value",
+      "then": "the guard rejects with 400 with an error-code body and no downstream handler runs",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3602-edge-cloudflare-turnstile-server-verifier"
+  ]
+}

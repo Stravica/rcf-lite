@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T19:56:42.335Z",
+  "updatedAt": "2026-09-07T19:56:42.521Z",
+  "purpose": "Cover AC-9301-1 via anatomy test: composition contract is realised in the pack fixture magic-link mint route; the mint reads the Turnstile guard before invoking the mint",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-9301-1"
+  ],
+  "id": "TS-125",
+  "usId": "US-9301",
+  "title": "T-5 AC-9301-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-125-composition-wire",
+      "acId": "AC-9301-1",
+      "description": "AC-9301-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::composition wire on the pack fixture magic-link mint reads the Turnstile guard first (TC-125-composition-wire)"
+    }
+  ],
+  "status": "draft"
+}

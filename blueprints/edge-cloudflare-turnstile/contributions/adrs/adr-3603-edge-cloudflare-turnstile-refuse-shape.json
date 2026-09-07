@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3603-edge-cloudflare-turnstile-refuse-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Refuse-if-token-missing status is 400 with an error-code body (no sitekey leak); siteverify failure carries the documented error-codes value",
+  "context": "Cloudflare Turnstile siteverify returns {success: false, error-codes: [...]} on failure per https://developers.cloudflare.com/turnstile/. The applying project needs a stable refusal shape that never leaks the sitekey, the secret or the response token into an error body or event record.",
+  "decision": "Refuse-if-token-missing status is 400. Refusal body carries a stable error-code: turnstile.token-missing for the guard branch, or the Cloudflare error-codes[0] for the siteverify-failure branch. Refusal body never carries the sitekey, the secret or the response token value. Standards trace clause: Cloudflare Turnstile documented error codes.",
+  "consequences": "The 400 status is machine-observable at every applied surface; downstream observability records the outcome by error-code, not by sitekey. Event records ship {sitekeyHash, outcome, timestamp} only; the event-secrecy probe asserts this shape (AC-35108-1).",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

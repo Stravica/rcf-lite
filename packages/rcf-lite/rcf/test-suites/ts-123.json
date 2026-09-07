@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T19:56:41.594Z",
+  "updatedAt": "2026-09-07T19:56:41.779Z",
+  "purpose": "Cover AC-9102-1 via anatomy test: live POST to Cloudflare siteverify endpoint with pinned always-fail secret returns success:false; handler responds 400; event records shape carries no token or secret",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-9102-1"
+  ],
+  "id": "TS-123",
+  "usId": "US-9102",
+  "title": "T-5 AC-9102-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-123-siteverify-fail-secrecy",
+      "acId": "AC-9102-1",
+      "description": "AC-9102-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::siteverify fail returns success false and event records carry sitekeyHash outcome and timestamp only (TC-123-siteverify-fail-secrecy)"
+    }
+  ],
+  "status": "draft"
+}

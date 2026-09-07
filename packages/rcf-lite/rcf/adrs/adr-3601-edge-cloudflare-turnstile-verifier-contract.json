@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T19:56:38.420Z",
+  "updatedAt": "2026-09-07T19:56:38.420Z",
+  "context": "T-5 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-turnstile/contributions/adrs/adr-3601-edge-cloudflare-turnstile-verifier-contract.json contribution. Cloudflare Turnstile documents a client widget plus a server-side siteverify endpoint (https://challenges.cloudflare.com/turnstile/v0/siteverify) as the wire-shape contract per https://developers.cloudflare.com/turnstile/. Every applied Worker needs one project-wide answer to the humanVerificationGate topic; a future non-Cloudflare adapter (hCaptcha, reCAPTCHA) conflicts on the same topic by design.",
+  "decision": "The shipped v1.0.0 default is Cloudflare Turnstile with server-side siteverify. The verifier POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify; on success:true the handler proceeds, on success:false the handler rejects 400 with the error-codes value. The humanVerificationGate topic scope is global on this blueprint. Standards trace clause: Cloudflare Turnstile siteverify endpoint documented shape.",
+  "consequences": "The applying project inherits Cloudflare Turnstile documented widget-and-siteverify contract per https://developers.cloudflare.com/turnstile/. A future hCaptcha or reCAPTCHA sibling contributes the same humanVerificationGate topic with a different answer, forcing a deliberate operator-resolved conflict at the project ADR level.",
+  "adrId": "ADR-3601-edge-cloudflare-turnstile-verifier-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Human verification gate: Cloudflare Turnstile siteverify (scope global, new topic humanVerificationGate)"
+}

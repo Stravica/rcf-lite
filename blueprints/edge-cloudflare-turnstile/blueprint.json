@@ -1,0 +1,161 @@
+{
+  "slug": "edge-cloudflare-turnstile",
+  "version": "1.0.0",
+  "category": "edge",
+  "capabilities": [
+    "humanCheck"
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every siteverify call and every refuse-if-token-missing rejection writes through the applied logger; a logging companion supplies the sink factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A siteverify network failure, a malformed token or a missing sitekey and secret constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    },
+    {
+      "role": "secretsManagement",
+      "reason": "The paired TURNSTILE_SITEKEY and TURNSTILE_SECRET are stored in the operator applied secretsManagement companion; the applied vault seam receives the elicited values at apply time and injects them at deploy."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "turnstile-sitekey",
+      "prompt": "Cloudflare Turnstile sitekey the widget renders with. See https://developers.cloudflare.com/turnstile/ for issuing. Test sitekeys are pinned in the shipped fixture per https://developers.cloudflare.com/turnstile/troubleshooting/testing/.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "turnstile-secret",
+      "prompt": "Cloudflare Turnstile secret the server-side verifier posts to siteverify with. Never inline; stored via the applied secretsManagement companion or your environment.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "turnstile-widget-mode",
+      "prompt": "Cloudflare Turnstile widget mode per ADR-3602 and https://developers.cloudflare.com/turnstile/. managed (recommendedDefault; Cloudflare decides when to show the challenge); non-interactive (always shows a non-interactive challenge); invisible (mounts an invisible widget).",
+      "kind": "enum",
+      "options": [
+        "managed",
+        "non-interactive",
+        "invisible"
+      ],
+      "default": "managed"
+    },
+    {
+      "id": "turnstile-guarded-surfaces",
+      "prompt": "List of applied route ids the token-required guard registers on. Every guarded surface refuses missing-token submits with 400 before any downstream handler runs.",
+      "kind": "string",
+      "default": ""
+    }
+  ],
+  "contributions": [
+    {
+      "id": "edge-cloudflare-turnstile-REQ-001",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-turnstile-req-001.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-REQ-002",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-turnstile-req-002.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-REQ-003",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-turnstile-req-003.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-REQ-004",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-turnstile-req-004.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-REQ-005",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-turnstile-req-005.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-US-35101",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-turnstile-us-35101.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-US-35102",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-turnstile-us-35102.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-US-35103",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-turnstile-us-35103.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-US-35104",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-turnstile-us-35104.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-US-35105",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-turnstile-us-35105.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-US-35106",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-turnstile-us-35106.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-US-35107",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-turnstile-us-35107.json"
+    },
+    {
+      "id": "edge-cloudflare-turnstile-US-35108",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-turnstile-us-35108.json"
+    },
+    {
+      "id": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
+      "kind": "tac",
+      "path": "tacs/tac-3601-edge-cloudflare-turnstile-widget-mount.json"
+    },
+    {
+      "id": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+      "kind": "tac",
+      "path": "tacs/tac-3602-edge-cloudflare-turnstile-server-verifier.json"
+    },
+    {
+      "id": "TAC-3603-edge-cloudflare-turnstile-magic-link-hook",
+      "kind": "tac",
+      "path": "tacs/tac-3603-edge-cloudflare-turnstile-magic-link-hook.json"
+    },
+    {
+      "id": "ADR-3601-edge-cloudflare-turnstile-verifier-contract",
+      "kind": "adr",
+      "path": "adrs/adr-3601-edge-cloudflare-turnstile-verifier-contract.json",
+      "scope": "global",
+      "topic": "humanVerificationGate",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Turnstile siteverify endpoint documented shape"
+    },
+    {
+      "id": "ADR-3602-edge-cloudflare-turnstile-widget-mode",
+      "kind": "adr",
+      "path": "adrs/adr-3602-edge-cloudflare-turnstile-widget-mode.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Cloudflare Turnstile documented widget modes"
+    },
+    {
+      "id": "ADR-3603-edge-cloudflare-turnstile-refuse-shape",
+      "kind": "adr",
+      "path": "adrs/adr-3603-edge-cloudflare-turnstile-refuse-shape.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Turnstile documented error codes"
+    }
+  ]
+}

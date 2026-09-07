@@ -61,11 +61,12 @@ Generation strategy: dependencyFirst
 | 55 | 0 | FBS-090 | T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test | notStarted | actionable |  |
 | 56 | 0 | FBS-100 | T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test | notStarted | actionable |  |
 | 57 | 0 | FBS-101 | T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs | notStarted | actionable |  |
+| 58 | 0 | FBS-110 | T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks | notStarted | actionable |  |
 
-Totals: items 57 | notStarted 29 | inProgress 0 | complete 13 | verified 15 | actionable 19 | blocked 10
+Totals: items 58 | notStarted 30 | inProgress 0 | complete 13 | verified 15 | actionable 20 | blocked 10
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044

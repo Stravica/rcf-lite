@@ -1,0 +1,36 @@
+{
+  "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Turnstile server-side siteverify verifier and refuse-if-token-missing guard",
+  "purpose": "The server-side verifier module. POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify per Cloudflare Turnstile documented endpoint. On success:true proceeds; on success:false rejects 400 with error-codes body per ADR-3603. The refuse-if-token-missing guard is the sole reader of the Cf-Turnstile-Response payload field and rejects missing-token submits with 400 before any downstream handler runs.",
+  "responsibilities": [
+    "Own the ONLY reference to https://challenges.cloudflare.com/turnstile/v0/siteverify in the applied source tree (AC-35102-1, AC-35103-1).",
+    "Read TURNSTILE_SECRET only via env-shaped facade; refuse any inline literal (AC-35107-1).",
+    "Register the token-required guard at every elicited surface (AC-35104-1).",
+    "Emit event records with {sitekeyHash, outcome, timestamp} keys only; never carry the token or the secret (AC-35108-1)."
+  ],
+  "internalStructure": "One module (server verifier) exporting createTurnstileVerifier({env, eventSink, fetch}) returning {verify, guard}. The guard middleware rejects missing-token submits with a stable error-code before the verify branch runs. The event record is Object.frozen at the boundary so no downstream handler enriches it with a stray token slice.",
+  "interfaces": [
+    {
+      "name": "createTurnstileVerifier",
+      "kind": "factory",
+      "summary": "Turnstile server-side verifier over env.TURNSTILE_SECRET."
+    },
+    {
+      "name": "verifier.verify",
+      "kind": "method",
+      "summary": "POST {secret, response} to siteverify; returns {success, errorCodes}."
+    },
+    {
+      "name": "verifier.guard",
+      "kind": "method",
+      "summary": "Middleware that reads Cf-Turnstile-Response and rejects missing-token submits with 400."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

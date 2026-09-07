@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-turnstile-US-35108",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-turnstile-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Event records carry sitekeyHash, outcome and timestamp only; no token and no secret",
+  "asA": "reviewer auditing the applied Workers project for observability hygiene",
+  "iWant": "every event record produced by a Turnstile verification to carry sitekeyHash, outcome and timestamp only and never carry the token or the secret value",
+  "soThat": "the observability tier never sees the raw Turnstile response or the Turnstile secret",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-35108-1",
+      "description": "The Node probe event-secrecy drives siteverify against Cloudflare with the pinned test keys and asserts every event record carries {sitekeyHash, outcome, timestamp} keys only; no record carries the token, no record carries the secret, and no forbidden substring is present in the serialised record.",
+      "given": "the pack fixture running with the event-secrecy probe attached and the pinned test keys in the environment",
+      "when": "the probe drives one pass and one fail through the verifier",
+      "then": "every emitted event carries only sitekeyHash, outcome and timestamp",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3602-edge-cloudflare-turnstile-server-verifier"
+  ],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

@@ -61,6 +61,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-cloudflare-cron-triggers | 32101-32899 | 33xx | shipped v1.0.0 | `scheduledTriggerContract` |
 | platform-cloudflare-durable-objects | 33101-33899 | 34xx | shipped v1.0.0 | `strongConsistencyCellContract`, `websocketHubContract` |
 | edge-cloudflare-access | 34101-34899 | 35xx | shipped v1.0.0 | `edgeAuthenticationGate` |
+| edge-cloudflare-turnstile | 35101-35899 | 36xx | shipped v1.0.0 | `humanVerificationGate` |
 
 SPA v1.1.0 stays on the LOW end of its band: v1.0.0 occupied US-1101 through US-1128; v1.1.0 adds US-1129 and US-1130, leaving headroom above 1130 for future minor bumps and for project-side stories that mechanically derive to the 11xx numeric range.
 

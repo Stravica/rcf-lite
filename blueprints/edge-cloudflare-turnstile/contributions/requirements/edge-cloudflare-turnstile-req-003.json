@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-turnstile-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Refuse-if-token-missing guard on elicited surfaces: a submit without a token is rejected with 400 before any downstream logic",
+  "description": "The applying project registers a token-required guard at every elicited surface. A submit whose payload lacks the Cf-Turnstile-Response field is rejected with 400 before any downstream handler runs. The refusal body carries a stable error-code (turnstile.token-missing), not the sitekey.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.5). Ships as v1.0.0 of edge-cloudflare-turnstile.",
+  "tags": [
+    "blueprint:edge-cloudflare-turnstile"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}

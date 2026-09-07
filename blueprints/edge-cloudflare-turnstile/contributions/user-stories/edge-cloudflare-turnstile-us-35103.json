@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-turnstile-US-35103",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-turnstile-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Server-side siteverify with the always-fail secret returns success false, the handler rejects 400, refusal body carries error-codes and no sitekey",
+  "asA": "shelf consumer whose Worker fails safe on every Turnstile refusal",
+  "iWant": "a POST to siteverify with the pinned always-fail secret to return success:false, the handler to reject with 400, and the refusal body to carry the documented error-codes value and never the sitekey",
+  "soThat": "every failure branch produces a stable machine-observable outcome and never leaks the sitekey or the response token",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-35103-1",
+      "description": "A live POST to siteverify with secret=2x0000000000000000000000000000000AA (always-fail secret per https://developers.cloudflare.com/turnstile/troubleshooting/testing/) returns success:false; the pack-fixture /api/submit handler rejects with 400 whose body carries the error-codes value (invalid-input-response) and no sitekey or secret substring.",
+      "given": "the pack fixture running with the pinned always-fail secret in the environment",
+      "when": "a submit hits /api/submit with any response token and the verifier calls siteverify",
+      "then": "siteverify returns success:false and the handler responds 400 with an error-codes body and no sitekey leak",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3602-edge-cloudflare-turnstile-server-verifier"
+  ],
+  "createdAt": "2026-09-07T20:00:00.000Z",
+  "updatedAt": "2026-09-07T20:00:00.000Z"
+}
