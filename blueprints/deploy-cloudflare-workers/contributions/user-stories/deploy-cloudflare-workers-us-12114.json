@@ -1,0 +1,27 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12114",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-013",
+  "version": "1.2.0",
+  "status": "approved",
+  "title": "assets-directory elicitation: the operator picks the static-assets root at blueprint add",
+  "asA": "operator applying deploy-cloudflare-workers on a fresh project",
+  "iWant": "the blueprint to prompt me for the static-assets directory at blueprint add and remember my answer on my project's sidecar so re-apply picks it back up",
+  "soThat": "my wrangler.toml reflects my project's build output shape without me having to hand-edit the [assets] block",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12114-1",
+      "description": "The blueprint.json elicits[] block declares an entry with id assets-directory, kind string, default empty. The blueprint loader accepts the entry (validateElicits shape gate on src/blueprint/loader.js). The CLI accepts --answer assets-directory=<path> at blueprint add; the applied sidecar records the answered value on appliedElicitations.assets-directory. When the operator does not pass --answer assets-directory, the effective value is the empty-string default and the wrangler generator emits no [assets] block.",
+      "given": "a fresh rcf init scratch project after rcf define blueprint add ./blueprints/deploy-cloudflare-workers --answer assets-directory=./public --answer run-worker-first=false",
+      "when": "the applied sidecar records the operator's answers and a wrangler.toml is generated",
+      "then": "appliedElicitations.assets-directory equals ./public; the generated wrangler.toml carries [assets] directory = \"./public\" and no run_worker_first field; the manifest carries no pages_build_output_dir field",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
+  ],
+  "createdAt": "2026-09-07T00:00:00Z",
+  "updatedAt": "2026-09-07T00:00:00Z"
+}

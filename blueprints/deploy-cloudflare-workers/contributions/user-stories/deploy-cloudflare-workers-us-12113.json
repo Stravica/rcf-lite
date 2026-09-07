@@ -1,0 +1,36 @@
+{
+  "usId": "deploy-cloudflare-workers-US-12113",
+  "prdId": "PRD-001",
+  "reqId": "deploy-cloudflare-workers-REQ-013",
+  "version": "1.2.0",
+  "status": "approved",
+  "title": "SPA-on-Workers deploy shape: [assets] block emitted with the elicited directory and the run_worker_first hint",
+  "asA": "operator deploying a SPA on Cloudflare Workers",
+  "iWant": "the generated wrangler.toml to carry an [assets] block whose directory matches my elicited answer and whose run_worker_first field carries my elicited SPA fallback choice",
+  "soThat": "my SPA-on-Workers project ships with a single, ratified wrangler shape and my static assets and my auth-gated routes both behave the way Cloudflare's runtime documents them",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12113-1",
+      "description": "Given the operator answers assets-directory with a non-empty path P at blueprint add, when the wrangler manifest generator emits wrangler.toml, then the manifest contains exactly one [assets] block whose directory field equals P (with the leading `./` preserved when the operator answered `./P`) and the manifest carries no pages_build_output_dir field. When the operator answers assets-directory with an empty string or leaves the elicit unanswered, the manifest carries no [assets] block and no pages_build_output_dir field. Anchored to TAC-1302-deploy-cloudflare-workers-wrangler-manifest; probed by assets-manifest-scan.mjs (source-tree scan against the applied fixture wrangler.toml) with anchorAcId AC-12113-1.",
+      "given": "an applied fixture whose operator answered assets-directory = ./dist at blueprint add",
+      "when": "the probe module assets-manifest-scan.mjs parses the fixture wrangler.toml",
+      "then": "the parsed structure contains an assets table whose directory string equals ./dist and no top-level pages_build_output_dir key; the probe returns verdict pass",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-12113-2",
+      "description": "Given the operator answers run-worker-first with true alongside a non-empty assets-directory, when the manifest is generated, then the [assets] block carries run_worker_first = true. Given the operator answers run-worker-first with false or leaves it unanswered, when the manifest is generated, then the [assets] block does NOT carry a run_worker_first key (Cloudflare's runtime treats the absent field as the default asset-lookup-first shape). Anchored to TAC-1302; probed by assets-manifest-scan.mjs with anchorAcId AC-12113-1 (the same module surfaces both facets of the shape).",
+      "given": "an applied fixture whose operator answered assets-directory = ./dist and run-worker-first = true",
+      "when": "the probe module parses the fixture wrangler.toml",
+      "then": "the parsed [assets] table carries run_worker_first equal to true; when the fixture is switched with SIMULATE_EMPTY_ASSETS=true the run_worker_first field is absent (the whole [assets] block is absent) and the probe still returns verdict pass because the bare-Worker shape is legal",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
+  ],
+  "createdAt": "2026-09-07T00:00:00Z",
+  "updatedAt": "2026-09-07T00:00:00Z"
+}

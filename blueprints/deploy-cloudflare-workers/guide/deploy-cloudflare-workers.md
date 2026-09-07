@@ -72,3 +72,28 @@ A project applies the blueprint on a fresh tree, declares its Worker in `wrangle
 ## Cost-honesty paragraph
 
 Shipping this doc set costs the project the following. Every ship to production is now a two-step act (merge to main, then an operator-triggered promote) instead of a single-step merge-to-production; the discipline is intentional and adds a small friction to prototype-shaped work where merge-to-production is fine. The default Cloudflare Workers vendor commits the project to an edge-runtime shape; a project whose runtime needs a long-lived process cannot use the default and has to supersede ADR-1302. The served-surface verifier fails CI on real drift; a project that wants faster promotes buys them by tightening the probe set or by accepting a larger risk of a failed promote, neither is free. The three URL kinds (per-version-id, stable alias, production) are three hostnames the project has to reason about; a project that would rather have one hostname loses the class of leaks-through-collapsed-URL the blueprint's ADR-1303 closes. The wrangler manifest becomes a piece of documentation the project maintains as part of its normal change flow; a project that would rather push deploy config into ad-hoc shell scripts loses the manifest's own validation gate. The deploy-log record is a stream the project now maintains; wiring it to a real sink (a status page, a SIEM, a data warehouse) is a project cost the blueprint does not carry. The blueprint says nothing about the vendor's own dashboard workflows, about DNS and TLS provisioning outside the vendor's own custom-hostname primitive, about compliance reporting on deploy events, or about staged canary or blue-green rollouts; a project that needs any of those spends its own build cycles on them and this blueprint does not save it any work there.
+
+## Workers-with-static-assets: the SPA-on-Workers shape
+
+Cloudflare's own Pages landing page states, verbatim (fetched 2026-09-06): "Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare's primary platform for building applications. Start new projects with Workers." The `deploy-cloudflare-workers` v1.2.0 bump follows the recommendation: new SPA-on-Workers projects apply this blueprint in the Workers-with-static-assets shape rather than reaching for Cloudflare Pages. `ADR-1306-deploy-cloudflare-workers-spa-shape` is the ratified decision and carries the verbatim quote on its body plus the standards trace on the contribution entry (`standardsTraceClause: Cloudflare Pages landing-page recommendation (2026-09-06)`). Cloudflare's Workers static-assets docs at `https://developers.cloudflare.com/workers/static-assets/` are the operational reference for the shape; the migrate-from-Pages walkthrough at `https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/` is the path for a project on Pages that wants to jump.
+
+The bump adds two elicits on the top-level `elicits[]` block:
+
+- `assets-directory` (kind `string`, default empty): the path (relative to the Worker source root) whose files Cloudflare serves at the edge as static assets. An empty answer keeps the bare-Worker shape (no `[assets]` block on the generated `wrangler.toml`); a non-empty answer emits `[assets] directory = "<answered path>"`.
+- `run-worker-first` (kind `boolean`, default `false`): the SPA fallback discipline. A truthy answer emits `run_worker_first = true` under the `[assets]` block; a falsy or unanswered answer omits the field, leaving Cloudflare's runtime to serve a matching static asset before the Worker fetch handler runs. The elicit is only meaningful when `assets-directory` is non-empty (a Worker with no assets has nothing to serve first); the loader-side `when-elicitedNonEmpty` predicate the spec calls for is a mechanism follow-up, so the elicit fires unconditionally today.
+
+Copy-paste `wrangler.toml` snippet for the ratified shape:
+
+```
+name = "my-spa-worker"
+main = "src/index.mjs"
+compatibility_date = "2026-09-06"
+
+[assets]
+directory = "./dist"
+run_worker_first = true
+```
+
+The `[assets]` block and Pages' `pages_build_output_dir` field are mutually exclusive per Cloudflare's static-assets doc; the T-0 probe `assets-manifest-scan.mjs` (`accountBound: false`, `anchorAcId: AC-12113-1`) refuses on a manifest that carries both. A project on the bare-Worker shape (no static assets served at the edge) leaves both elicits unanswered and the probe reports the bare shape as passing.
+
+Migrating from Cloudflare Pages: read Cloudflare's own walkthrough at `https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/`, apply this blueprint at v1.2.0 with `assets-directory` set to the build-output directory the Pages project pointed at (typically `./dist`, `./build`, or `./public`), pick `run-worker-first` per the project's routing shape, and drop the Pages workflow. The Workers-with-static-assets shape covers the SPA and API surfaces the Pages workflow covered; the promote and rollback verbs on this blueprint carry through unchanged.
