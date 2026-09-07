@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-kv-US-31106",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Cache-aside helper: past-TTL read miss triggers a second origin call",
+  "asA": "developer relying on cache-aside for staleness bounds",
+  "iWant": "the cache-aside helper to re-invoke origin after the elicited TTL elapses",
+  "soThat": "the applied project observes a bounded staleness ceiling that matches the elicited TTL",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31106-1",
+      "description": "After the TTL elapses (in-memory driver clock advances past the expiration), cache-aside.getOr(key, originFn) finds nothing and invokes originFn a second time. The invocation counter reaches 2 and the returned value comes from origin.",
+      "given": "a key past its TTL",
+      "when": "getOr(key, originFn) runs after clock advance past TTL",
+      "then": "the invocation counter reaches 2; the returned value comes from origin",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3202-platform-cloudflare-kv-cache-aside"
+  ],
+  "createdAt": "2026-09-07T10:27:19.000Z",
+  "updatedAt": "2026-09-07T10:27:19.000Z"
+}

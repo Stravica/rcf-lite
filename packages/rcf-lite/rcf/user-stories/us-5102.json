@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T10:18:40.958Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "usId": "US-5102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-051",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 list with prefix returns every key under the prefix with metadata shape intact",
+  "asA": "shelf consumer applying platform-cloudflare-kv v1.0.0",
+  "iWant": "facade.list({prefix}) to return every key under a prefix with the metadata shape intact",
+  "soThat": "the applied project can enumerate feature flags, sessions, or any prefix-scoped collection through one seam",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5102-1",
+      "description": "The list-with-prefix probe puts 10 keys under the prefix flags/ (each with a metadata blob) and calls facade.list({prefix: flags/}). The result returns all 10 keys, each entry carrying {name, metadata}, and every name preserves the domain-visible key (without the fixture keyPrefix if one was set).",
+      "given": "10 keys put under a shared prefix through the facade",
+      "when": "facade.list({prefix: flags/}) runs",
+      "then": "the result carries 10 entries with correct name and metadata fields; the aggregate probe verdict is pass",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-kv"
+  ]
+}

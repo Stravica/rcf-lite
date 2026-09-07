@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -9931,6 +9931,789 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-050">
+  <summary><span class="summary-label">REQ-050 - T-1 platform-cloudflare-kv v1.0.0 blueprint: the KV facade module is the sole reader of the KV binding and opens on boot with facadeReady</span><span class="status draft">draft</span></summary>
+  <article id="REQ-050" class="doc doc-req">
+  <h3>REQ-050 - T-1 platform-cloudflare-kv v1.0.0 blueprint: the KV facade module is the sole reader of the KV binding and opens on boot with facadeReady</h3>
+  
+  <p><strong>Description:</strong> T-1 platform-cloudflare-kv v1.0.0: one KV facade module in the applied project source tree is the SOLE reader of the Cloudflare Workers KV binding (env.CACHE in the fixture; the elicited binding name in a real project). Every other module that touches KV imports the facade and calls its typed domain verbs (get, getWithMetadata, put, delete, list); no other module dereferences the raw KV binding. On process boot, the facade opens against the bound namespace with a bounded list(limit:1) ready-check and emits a facadeReady lifecycle event on the injected event sink. Chain: HQ round-6 T-1 reserved-block, id block REQ-050..054 / US-5001..5401 / TS-080..087 / FBS-070 / CN-230..234 per HQ chain-block ruling 2026-09-07T10:12Z.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-050[&quot;REQ-050&lt;br/&gt;T-1 platform-cloudflare-kv v1.0.0 blueprint: ...&quot;]
+  US-5001[&quot;US-5001&lt;br/&gt;T-1 KV facade opens against the elicited KV b...&quot;]
+  REQ-050 --&gt; US-5001
+  AC-5001-1[&quot;AC-5001-1&quot;]
+  US-5001 --&gt; AC-5001-1
+  FBS-070[&quot;FBS-070&lt;br/&gt;T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 U...&quot;]
+  AC-5001-1 -.-&gt;|delivered by| FBS-070
+  CN-230[&quot;CN-230&lt;br/&gt;../../blueprints/platform-cloudflare-kv/bluep...&quot;]
+  AC-5001-1 -.-&gt;|implemented by| CN-230
+  CN-231[&quot;CN-231&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-5001-1 -.-&gt;|implemented by| CN-231
+  US-5002[&quot;US-5002&lt;br/&gt;T-1 KV facade module is the sole reader of th...&quot;]
+  REQ-050 --&gt; US-5002
+  AC-5002-1[&quot;AC-5002-1&quot;]
+  US-5002 --&gt; AC-5002-1
+  AC-5002-1 -.-&gt;|delivered by| FBS-070
+  AC-5002-1 -.-&gt;|implemented by| CN-230
+  AC-5002-1 -.-&gt;|implemented by| CN-231
+  click REQ-050 &quot;#REQ-050&quot;;
+  click US-5001 &quot;#US-5001&quot;;
+  click AC-5001-1 &quot;#AC-5001-1&quot;;
+  click FBS-070 &quot;#FBS-070&quot;;
+  click CN-230 &quot;#CN-230&quot;;
+  click CN-231 &quot;#CN-231&quot;;
+  click US-5002 &quot;#US-5002&quot;;
+  click AC-5002-1 &quot;#AC-5002-1&quot;;
+  class REQ-050 req;
+  class US-5001 us;
+  class AC-5001-1 ac;
+  class FBS-070 fbs;
+  class CN-230 cn;
+  class CN-231 cn;
+  class US-5002 us;
+  class AC-5002-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:25.168Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-050&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-1 platform-cloudflare-kv v1.0.0 blueprint: the KV facade module is the sole reader of the KV binding and opens on boot with facadeReady&quot;,
+  &quot;description&quot;: &quot;T-1 platform-cloudflare-kv v1.0.0: one KV facade module in the applied project source tree is the SOLE reader of the Cloudflare Workers KV binding (env.CACHE in the fixture; the elicited binding name in a real project). Every other module that touches KV imports the facade and calls its typed domain verbs (get, getWithMetadata, put, delete, list); no other module dereferences the raw KV binding. On process boot, the facade opens against the bound namespace with a bounded list(limit:1) ready-check and emits a facadeReady lifecycle event on the injected event sink. Chain: HQ round-6 T-1 reserved-block, id block REQ-050..054 / US-5001..5401 / TS-080..087 / FBS-070 / CN-230..234 per HQ chain-block ruling 2026-09-07T10:12Z.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T10:18:25.198Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-5001">
+  <summary><span class="summary-label">US-5001 - T-1 KV facade opens against the elicited KV binding on boot and emits facadeReady</span><span class="status draft">draft</span></summary>
+  <article id="US-5001" class="doc doc-us">
+  <h3>US-5001 - T-1 KV facade opens against the elicited KV binding on boot and emits facadeReady</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-cloudflare-kv v1.0.0 blueprint on a Workers project using the cf-platform fixture</p>
+  <p><strong>I want:</strong> one KV facade module (src/kv-facade.mjs) that opens against the elicited KV binding on process boot and emits a facadeReady lifecycle event with a metadata-only payload</p>
+  <p><strong>So that:</strong> boot ordering is observable, the ready-check seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-050">REQ-050</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-5001-1" class="ac-item"><strong>AC-5001-1</strong> - On process boot, the facade opens against the elicited KV binding (env.CACHE on the fixture) with a bounded list(limit:1) ready-check; once the ready-check resolves, a facadeReady event fires on the injected event sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The facade exposes typed named domain verbs (get, getWithMetadata, put, delete, list) and does NOT re-export the raw KV binding.
+<div class="ac-gwt"><p><em>Given</em> a Node or Worker process with the facade module imported and its factory invoked with the elicited binding</p><p><em>When</em> the process boots and the facade ready() call resolves</p><p><em>Then</em> a facadeReady event fires on the injected event sink with the metadata-only payload; the facade exposes named domain verbs only; the raw binding is not re-exported</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:40.349Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;usId&quot;: &quot;US-5001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-050&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-1 KV facade opens against the elicited KV binding on boot and emits facadeReady&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-cloudflare-kv v1.0.0 blueprint on a Workers project using the cf-platform fixture&quot;,
+  &quot;iWant&quot;: &quot;one KV facade module (src/kv-facade.mjs) that opens against the elicited KV binding on process boot and emits a facadeReady lifecycle event with a metadata-only payload&quot;,
+  &quot;soThat&quot;: &quot;boot ordering is observable, the ready-check seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-5001-1&quot;,
+      &quot;description&quot;: &quot;On process boot, the facade opens against the elicited KV binding (env.CACHE on the fixture) with a bounded list(limit:1) ready-check; once the ready-check resolves, a facadeReady event fires on the injected event sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The facade exposes typed named domain verbs (get, getWithMetadata, put, delete, list) and does NOT re-export the raw KV binding.&quot;,
+      &quot;given&quot;: &quot;a Node or Worker process with the facade module imported and its factory invoked with the elicited binding&quot;,
+      &quot;when&quot;: &quot;the process boots and the facade ready() call resolves&quot;,
+      &quot;then&quot;: &quot;a facadeReady event fires on the injected event sink with the metadata-only payload; the facade exposes named domain verbs only; the raw binding is not re-exported&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-kv&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-5002">
+  <summary><span class="summary-label">US-5002 - T-1 KV facade module is the sole reader of the KV binding grep-verified on the applied fixture tree</span><span class="status draft">draft</span></summary>
+  <article id="US-5002" class="doc doc-us">
+  <h3>US-5002 - T-1 KV facade module is the sole reader of the KV binding grep-verified on the applied fixture tree</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
+  <p><strong>I want:</strong> the KV binding reference (env.CACHE) to appear in exactly one source module (src/kv-facade.mjs)</p>
+  <p><strong>So that:</strong> the vendor surface is diffused across zero call sites outside the facade, and a future adapter swap lands without moving any AC</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-050">REQ-050</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-5002-1" class="ac-item"><strong>AC-5002-1</strong> - A grep for env.CACHE in the applied fixture src/ tree returns exactly one file: src/kv-facade.mjs. No other module dereferences the raw KV binding. The public surface of src/kv-facade.mjs exports the createKvFacade factory only; the raw env.CACHE reference never crosses the module boundary.
+<div class="ac-gwt"><p><em>Given</em> the applied project source tree after apply</p><p><em>When</em> grep -rn env.CACHE walks the src/ tree</p><p><em>Then</em> the search returns one file src/kv-facade.mjs and no other match</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:40.551Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;usId&quot;: &quot;US-5002&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-050&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-1 KV facade module is the sole reader of the KV binding grep-verified on the applied fixture tree&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying platform-cloudflare-kv v1.0.0&quot;,
+  &quot;iWant&quot;: &quot;the KV binding reference (env.CACHE) to appear in exactly one source module (src/kv-facade.mjs)&quot;,
+  &quot;soThat&quot;: &quot;the vendor surface is diffused across zero call sites outside the facade, and a future adapter swap lands without moving any AC&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-5002-1&quot;,
+      &quot;description&quot;: &quot;A grep for env.CACHE in the applied fixture src/ tree returns exactly one file: src/kv-facade.mjs. No other module dereferences the raw KV binding. The public surface of src/kv-facade.mjs exports the createKvFacade factory only; the raw env.CACHE reference never crosses the module boundary.&quot;,
+      &quot;given&quot;: &quot;the applied project source tree after apply&quot;,
+      &quot;when&quot;: &quot;grep -rn env.CACHE walks the src/ tree&quot;,
+      &quot;then&quot;: &quot;the search returns one file src/kv-facade.mjs and no other match&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-kv&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-051">
+  <summary><span class="summary-label">REQ-051 - T-1 typed put get delete list verbs with metadata field pattern realise the Workers KV binding shape behind the facade</span><span class="status draft">draft</span></summary>
+  <article id="REQ-051" class="doc doc-req">
+  <h3>REQ-051 - T-1 typed put get delete list verbs with metadata field pattern realise the Workers KV binding shape behind the facade</h3>
+  
+  <p><strong>Description:</strong> T-1 typed put get delete list realise the Workers KV binding shape behind the facade. put(key, value, {ttl, metadata}) writes with expirationTtl and metadata to the binding; get(key) returns null on miss; getWithMetadata(key) returns {value, metadata}; delete(key) is idempotent; list({prefix, limit, cursor}) paginates keys with metadata shape intact per the Cloudflare KV binding contract at https://developers.cloudflare.com/kv/api/. Metadata is a JSON-serialisable object; the shipped default metadata field pattern is {v: number} (elicited).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-051[&quot;REQ-051&lt;br/&gt;T-1 typed put get delete list verbs with meta...&quot;]
+  US-5101[&quot;US-5101&lt;br/&gt;T-1 typed put get delete round-trip against t...&quot;]
+  REQ-051 --&gt; US-5101
+  AC-5101-1[&quot;AC-5101-1&quot;]
+  US-5101 --&gt; AC-5101-1
+  FBS-070[&quot;FBS-070&lt;br/&gt;T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 U...&quot;]
+  AC-5101-1 -.-&gt;|delivered by| FBS-070
+  CN-233[&quot;CN-233&lt;br/&gt;../../blueprints/platform-cloudflare-kv/contr...&quot;]
+  AC-5101-1 -.-&gt;|implemented by| CN-233
+  AC-5101-2[&quot;AC-5101-2&quot;]
+  US-5101 --&gt; AC-5101-2
+  AC-5101-2 -.-&gt;|delivered by| FBS-070
+  AC-5101-2 -.-&gt;|implemented by| CN-233
+  US-5102[&quot;US-5102&lt;br/&gt;T-1 list with prefix returns every key under ...&quot;]
+  REQ-051 --&gt; US-5102
+  AC-5102-1[&quot;AC-5102-1&quot;]
+  US-5102 --&gt; AC-5102-1
+  AC-5102-1 -.-&gt;|delivered by| FBS-070
+  AC-5102-1 -.-&gt;|implemented by| CN-233
+  click REQ-051 &quot;#REQ-051&quot;;
+  click US-5101 &quot;#US-5101&quot;;
+  click AC-5101-1 &quot;#AC-5101-1&quot;;
+  click FBS-070 &quot;#FBS-070&quot;;
+  click CN-233 &quot;#CN-233&quot;;
+  click AC-5101-2 &quot;#AC-5101-2&quot;;
+  click US-5102 &quot;#US-5102&quot;;
+  click AC-5102-1 &quot;#AC-5102-1&quot;;
+  class REQ-051 req;
+  class US-5101 us;
+  class AC-5101-1 ac;
+  class FBS-070 fbs;
+  class CN-233 cn;
+  class AC-5101-2 ac;
+  class US-5102 us;
+  class AC-5102-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:25.373Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-051&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-1 typed put get delete list verbs with metadata field pattern realise the Workers KV binding shape behind the facade&quot;,
+  &quot;description&quot;: &quot;T-1 typed put get delete list realise the Workers KV binding shape behind the facade. put(key, value, {ttl, metadata}) writes with expirationTtl and metadata to the binding; get(key) returns null on miss; getWithMetadata(key) returns {value, metadata}; delete(key) is idempotent; list({prefix, limit, cursor}) paginates keys with metadata shape intact per the Cloudflare KV binding contract at https://developers.cloudflare.com/kv/api/. Metadata is a JSON-serialisable object; the shipped default metadata field pattern is {v: number} (elicited).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T10:18:25.402Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-5101">
+  <summary><span class="summary-label">US-5101 - T-1 typed put get delete round-trip against the KV driver realises the Workers KV binding shape</span><span class="status draft">draft</span></summary>
+  <article id="US-5101" class="doc doc-us">
+  <h3>US-5101 - T-1 typed put get delete round-trip against the KV driver realises the Workers KV binding shape</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
+  <p><strong>I want:</strong> typed put and get verbs that round-trip a value through the KV driver realising the Workers KV binding shape</p>
+  <p><strong>So that:</strong> the applied project can persist a small piece of state and read it back deterministically, in the same shape the real Workers KV binding would present</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-051">REQ-051</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-5101-1" class="ac-item"><strong>AC-5101-1</strong> - facade.put(key, value) writes a value; facade.get(key) returns the same bytes; both operations emit their paired lifecycle events (kvWrite on put, kvHit on get). The round-trip works against the in-memory KV driver in the fixture (kv-driver.mjs) whose binding shape matches the real Workers KV binding contract per https://developers.cloudflare.com/kv/api/.
+<div class="ac-gwt"><p><em>Given</em> the facade wired to the in-memory KV driver in the cf-platform fixture</p><p><em>When</em> the facade-round-trip probe puts a fixture key/value and reads it back</p><p><em>Then</em> the read returns the same bytes; the event sink records one kvWrite and one kvHit; the probe report aggregates to pass</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+<li id="AC-5101-2" class="ac-item"><strong>AC-5101-2</strong> - facade.delete(key) removes a value; a subsequent facade.get(key) returns null and emits kvMiss.
+<div class="ac-gwt"><p><em>Given</em> a key previously put via the facade</p><p><em>When</em> facade.delete(key) then facade.get(key)</p><p><em>Then</em> the delete emits kvWrite; the get returns null and emits kvMiss</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:40.753Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;usId&quot;: &quot;US-5101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-051&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-1 typed put get delete round-trip against the KV driver realises the Workers KV binding shape&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying platform-cloudflare-kv v1.0.0&quot;,
+  &quot;iWant&quot;: &quot;typed put and get verbs that round-trip a value through the KV driver realising the Workers KV binding shape&quot;,
+  &quot;soThat&quot;: &quot;the applied project can persist a small piece of state and read it back deterministically, in the same shape the real Workers KV binding would present&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-5101-1&quot;,
+      &quot;description&quot;: &quot;facade.put(key, value) writes a value; facade.get(key) returns the same bytes; both operations emit their paired lifecycle events (kvWrite on put, kvHit on get). The round-trip works against the in-memory KV driver in the fixture (kv-driver.mjs) whose binding shape matches the real Workers KV binding contract per https://developers.cloudflare.com/kv/api/.&quot;,
+      &quot;given&quot;: &quot;the facade wired to the in-memory KV driver in the cf-platform fixture&quot;,
+      &quot;when&quot;: &quot;the facade-round-trip probe puts a fixture key/value and reads it back&quot;,
+      &quot;then&quot;: &quot;the read returns the same bytes; the event sink records one kvWrite and one kvHit; the probe report aggregates to pass&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-5101-2&quot;,
+      &quot;description&quot;: &quot;facade.delete(key) removes a value; a subsequent facade.get(key) returns null and emits kvMiss.&quot;,
+      &quot;given&quot;: &quot;a key previously put via the facade&quot;,
+      &quot;when&quot;: &quot;facade.delete(key) then facade.get(key)&quot;,
+      &quot;then&quot;: &quot;the delete emits kvWrite; the get returns null and emits kvMiss&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-kv&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-5102">
+  <summary><span class="summary-label">US-5102 - T-1 list with prefix returns every key under the prefix with metadata shape intact</span><span class="status draft">draft</span></summary>
+  <article id="US-5102" class="doc doc-us">
+  <h3>US-5102 - T-1 list with prefix returns every key under the prefix with metadata shape intact</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
+  <p><strong>I want:</strong> facade.list({prefix}) to return every key under a prefix with the metadata shape intact</p>
+  <p><strong>So that:</strong> the applied project can enumerate feature flags, sessions, or any prefix-scoped collection through one seam</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-051">REQ-051</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-5102-1" class="ac-item"><strong>AC-5102-1</strong> - The list-with-prefix probe puts 10 keys under the prefix flags/ (each with a metadata blob) and calls facade.list({prefix: flags/}). The result returns all 10 keys, each entry carrying {name, metadata}, and every name preserves the domain-visible key (without the fixture keyPrefix if one was set).
+<div class="ac-gwt"><p><em>Given</em> 10 keys put under a shared prefix through the facade</p><p><em>When</em> facade.list({prefix: flags/}) runs</p><p><em>Then</em> the result carries 10 entries with correct name and metadata fields; the aggregate probe verdict is pass</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:40.958Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;usId&quot;: &quot;US-5102&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-051&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-1 list with prefix returns every key under the prefix with metadata shape intact&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying platform-cloudflare-kv v1.0.0&quot;,
+  &quot;iWant&quot;: &quot;facade.list({prefix}) to return every key under a prefix with the metadata shape intact&quot;,
+  &quot;soThat&quot;: &quot;the applied project can enumerate feature flags, sessions, or any prefix-scoped collection through one seam&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-5102-1&quot;,
+      &quot;description&quot;: &quot;The list-with-prefix probe puts 10 keys under the prefix flags/ (each with a metadata blob) and calls facade.list({prefix: flags/}). The result returns all 10 keys, each entry carrying {name, metadata}, and every name preserves the domain-visible key (without the fixture keyPrefix if one was set).&quot;,
+      &quot;given&quot;: &quot;10 keys put under a shared prefix through the facade&quot;,
+      &quot;when&quot;: &quot;facade.list({prefix: flags/}) runs&quot;,
+      &quot;then&quot;: &quot;the result carries 10 entries with correct name and metadata fields; the aggregate probe verdict is pass&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-kv&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-052">
+  <summary><span class="summary-label">REQ-052 - T-1 cache-aside helper reads local first falls back to origin and writes back with elicited TTL floor 1 second</span><span class="status draft">draft</span></summary>
+  <article id="REQ-052" class="doc doc-req">
+  <h3>REQ-052 - T-1 cache-aside helper reads local first falls back to origin and writes back with elicited TTL floor 1 second</h3>
+  
+  <p><strong>Description:</strong> T-1 cache-aside helper wraps a domain-origin call with the facade. getOr(key, originFn, {ttl}) reads local first via facade.get; on hit returns the cached value with source cache; on miss invokes originFn, writes back through facade.put with the effective TTL (elicited default 60 seconds per ADR-3202; floor 1 second enforced at this seam; no upper ceiling per Cloudflare KV documented per-namespace limits at https://developers.cloudflare.com/kv/platform/limits/), and returns the fresh value with source origin.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-052[&quot;REQ-052&lt;br/&gt;T-1 cache-aside helper reads local first fall...&quot;]
+  US-5201[&quot;US-5201&lt;br/&gt;T-1 cache-aside helper: hit-then-miss with a ...&quot;]
+  REQ-052 --&gt; US-5201
+  AC-5201-1[&quot;AC-5201-1&quot;]
+  US-5201 --&gt; AC-5201-1
+  FBS-070[&quot;FBS-070&lt;br/&gt;T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 U...&quot;]
+  AC-5201-1 -.-&gt;|delivered by| FBS-070
+  CN-232[&quot;CN-232&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-5201-1 -.-&gt;|implemented by| CN-232
+  AC-5201-2[&quot;AC-5201-2&quot;]
+  US-5201 --&gt; AC-5201-2
+  AC-5201-2 -.-&gt;|delivered by| FBS-070
+  AC-5201-2 -.-&gt;|implemented by| CN-232
+  click REQ-052 &quot;#REQ-052&quot;;
+  click US-5201 &quot;#US-5201&quot;;
+  click AC-5201-1 &quot;#AC-5201-1&quot;;
+  click FBS-070 &quot;#FBS-070&quot;;
+  click CN-232 &quot;#CN-232&quot;;
+  click AC-5201-2 &quot;#AC-5201-2&quot;;
+  class REQ-052 req;
+  class US-5201 us;
+  class AC-5201-1 ac;
+  class FBS-070 fbs;
+  class CN-232 cn;
+  class AC-5201-2 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:25.579Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-052&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-1 cache-aside helper reads local first falls back to origin and writes back with elicited TTL floor 1 second&quot;,
+  &quot;description&quot;: &quot;T-1 cache-aside helper wraps a domain-origin call with the facade. getOr(key, originFn, {ttl}) reads local first via facade.get; on hit returns the cached value with source cache; on miss invokes originFn, writes back through facade.put with the effective TTL (elicited default 60 seconds per ADR-3202; floor 1 second enforced at this seam; no upper ceiling per Cloudflare KV documented per-namespace limits at https://developers.cloudflare.com/kv/platform/limits/), and returns the fresh value with source origin.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T10:18:25.608Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-5201">
+  <summary><span class="summary-label">US-5201 - T-1 cache-aside helper: hit-then-miss with a fake clock proves one origin call within TTL and a second past TTL</span><span class="status draft">draft</span></summary>
+  <article id="US-5201" class="doc doc-us">
+  <h3>US-5201 - T-1 cache-aside helper: hit-then-miss with a fake clock proves one origin call within TTL and a second past TTL</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
+  <p><strong>I want:</strong> the cache-aside helper to read from KV first and fall back to origin on miss, writing back with the elicited TTL</p>
+  <p><strong>So that:</strong> the origin surface (a database, a downstream service) is spared one call per cached hit within TTL</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-052">REQ-052</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-5201-1" class="ac-item"><strong>AC-5201-1</strong> - On first call, cache-aside.getOr(key, originFn) finds nothing in the facade, invokes originFn once, writes back with the elicited TTL, and returns the fresh value with source origin. On second call within TTL, the read is served from the facade (source cache) and originFn is NOT invoked (the invocation counter stays at 1).
+<div class="ac-gwt"><p><em>Given</em> a fresh key and an origin function that increments a counter each call</p><p><em>When</em> getOr(key, originFn) runs twice within TTL</p><p><em>Then</em> the invocation counter reaches 1; both calls return the same value; the second read reports source cache</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+<li id="AC-5201-2" class="ac-item"><strong>AC-5201-2</strong> - After the TTL elapses (in-memory driver clock advances past the expiration), cache-aside.getOr(key, originFn) finds nothing and invokes originFn a second time. The invocation counter reaches 2.
+<div class="ac-gwt"><p><em>Given</em> a key past its TTL</p><p><em>When</em> getOr(key, originFn) runs after clock advance past TTL</p><p><em>Then</em> the invocation counter reaches 2; the returned value comes from origin</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:41.162Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;usId&quot;: &quot;US-5201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-052&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-1 cache-aside helper: hit-then-miss with a fake clock proves one origin call within TTL and a second past TTL&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying platform-cloudflare-kv v1.0.0&quot;,
+  &quot;iWant&quot;: &quot;the cache-aside helper to read from KV first and fall back to origin on miss, writing back with the elicited TTL&quot;,
+  &quot;soThat&quot;: &quot;the origin surface (a database, a downstream service) is spared one call per cached hit within TTL&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-5201-1&quot;,
+      &quot;description&quot;: &quot;On first call, cache-aside.getOr(key, originFn) finds nothing in the facade, invokes originFn once, writes back with the elicited TTL, and returns the fresh value with source origin. On second call within TTL, the read is served from the facade (source cache) and originFn is NOT invoked (the invocation counter stays at 1).&quot;,
+      &quot;given&quot;: &quot;a fresh key and an origin function that increments a counter each call&quot;,
+      &quot;when&quot;: &quot;getOr(key, originFn) runs twice within TTL&quot;,
+      &quot;then&quot;: &quot;the invocation counter reaches 1; both calls return the same value; the second read reports source cache&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-5201-2&quot;,
+      &quot;description&quot;: &quot;After the TTL elapses (in-memory driver clock advances past the expiration), cache-aside.getOr(key, originFn) finds nothing and invokes originFn a second time. The invocation counter reaches 2.&quot;,
+      &quot;given&quot;: &quot;a key past its TTL&quot;,
+      &quot;when&quot;: &quot;getOr(key, originFn) runs after clock advance past TTL&quot;,
+      &quot;then&quot;: &quot;the invocation counter reaches 2; the returned value comes from origin&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-kv&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-053">
+  <summary><span class="summary-label">REQ-053 - T-1 lifecycle events facadeReady kvHit kvMiss kvWrite carry metadata-only fields key size ttl timestamp</span><span class="status draft">draft</span></summary>
+  <article id="REQ-053" class="doc doc-req">
+  <h3>REQ-053 - T-1 lifecycle events facadeReady kvHit kvMiss kvWrite carry metadata-only fields key size ttl timestamp</h3>
+  
+  <p><strong>Description:</strong> T-1 lifecycle events. The facade emits facadeReady on the injected sink once the ready-check returns; kvHit on a get that resolves to a non-null value; kvMiss on a get that resolves to null; kvWrite on put and delete. Every event record carries EXACTLY the fields {event, key, size, ttl, timestamp}: no body bytes, no metadata bag pass-through, no user id beyond the key itself. The event-secrecy probe drives this at REQ-053 mechanism reach.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-053[&quot;REQ-053&lt;br/&gt;T-1 lifecycle events facadeReady kvHit kvMiss...&quot;]
+  US-5301[&quot;US-5301&lt;br/&gt;T-1 lifecycle events fire on facadeReady kvHi...&quot;]
+  REQ-053 --&gt; US-5301
+  AC-5301-1[&quot;AC-5301-1&quot;]
+  US-5301 --&gt; AC-5301-1
+  FBS-070[&quot;FBS-070&lt;br/&gt;T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 U...&quot;]
+  AC-5301-1 -.-&gt;|delivered by| FBS-070
+  CN-231[&quot;CN-231&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-5301-1 -.-&gt;|implemented by| CN-231
+  US-5302[&quot;US-5302&lt;br/&gt;T-1 event secrecy: no body bytes no PII no us...&quot;]
+  REQ-053 --&gt; US-5302
+  AC-5302-1[&quot;AC-5302-1&quot;]
+  US-5302 --&gt; AC-5302-1
+  AC-5302-1 -.-&gt;|delivered by| FBS-070
+  CN-234[&quot;CN-234&lt;br/&gt;../../blueprints/platform-cloudflare-kv/contr...&quot;]
+  AC-5302-1 -.-&gt;|implemented by| CN-234
+  click REQ-053 &quot;#REQ-053&quot;;
+  click US-5301 &quot;#US-5301&quot;;
+  click AC-5301-1 &quot;#AC-5301-1&quot;;
+  click FBS-070 &quot;#FBS-070&quot;;
+  click CN-231 &quot;#CN-231&quot;;
+  click US-5302 &quot;#US-5302&quot;;
+  click AC-5302-1 &quot;#AC-5302-1&quot;;
+  click CN-234 &quot;#CN-234&quot;;
+  class REQ-053 req;
+  class US-5301 us;
+  class AC-5301-1 ac;
+  class FBS-070 fbs;
+  class CN-231 cn;
+  class US-5302 us;
+  class AC-5302-1 ac;
+  class CN-234 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:25.784Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-053&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-1 lifecycle events facadeReady kvHit kvMiss kvWrite carry metadata-only fields key size ttl timestamp&quot;,
+  &quot;description&quot;: &quot;T-1 lifecycle events. The facade emits facadeReady on the injected sink once the ready-check returns; kvHit on a get that resolves to a non-null value; kvMiss on a get that resolves to null; kvWrite on put and delete. Every event record carries EXACTLY the fields {event, key, size, ttl, timestamp}: no body bytes, no metadata bag pass-through, no user id beyond the key itself. The event-secrecy probe drives this at REQ-053 mechanism reach.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T10:18:25.813Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-5301">
+  <summary><span class="summary-label">US-5301 - T-1 lifecycle events fire on facadeReady kvHit kvMiss kvWrite with metadata-only payload</span><span class="status draft">draft</span></summary>
+  <article id="US-5301" class="doc doc-us">
+  <h3>US-5301 - T-1 lifecycle events fire on facadeReady kvHit kvMiss kvWrite with metadata-only payload</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
+  <p><strong>I want:</strong> the facade to emit facadeReady kvHit kvMiss kvWrite events with metadata-only payload on the injected sink</p>
+  <p><strong>So that:</strong> the applied logging companion can render KV activity without ever writing a body byte to the log stream</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-053">REQ-053</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-5301-1" class="ac-item"><strong>AC-5301-1</strong> - Each lifecycle event emitted by the facade carries EXACTLY the whitelist {event, key, size, ttl, timestamp}. No body value, no metadata blob, no additional field ever appears on the record the sink receives.
+<div class="ac-gwt"><p><em>Given</em> the facade wired to a spy event sink, with a mix of put/get/delete/list operations</p><p><em>When</em> the operations run</p><p><em>Then</em> the sink records each event with only the whitelist keys; any extra key trips the probe</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:41.367Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;usId&quot;: &quot;US-5301&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-053&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-1 lifecycle events fire on facadeReady kvHit kvMiss kvWrite with metadata-only payload&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying platform-cloudflare-kv v1.0.0&quot;,
+  &quot;iWant&quot;: &quot;the facade to emit facadeReady kvHit kvMiss kvWrite events with metadata-only payload on the injected sink&quot;,
+  &quot;soThat&quot;: &quot;the applied logging companion can render KV activity without ever writing a body byte to the log stream&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-5301-1&quot;,
+      &quot;description&quot;: &quot;Each lifecycle event emitted by the facade carries EXACTLY the whitelist {event, key, size, ttl, timestamp}. No body value, no metadata blob, no additional field ever appears on the record the sink receives.&quot;,
+      &quot;given&quot;: &quot;the facade wired to a spy event sink, with a mix of put/get/delete/list operations&quot;,
+      &quot;when&quot;: &quot;the operations run&quot;,
+      &quot;then&quot;: &quot;the sink records each event with only the whitelist keys; any extra key trips the probe&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-kv&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-5302">
+  <summary><span class="summary-label">US-5302 - T-1 event secrecy: no body bytes no PII no user id beyond the key ever reach the event sink</span><span class="status draft">draft</span></summary>
+  <article id="US-5302" class="doc doc-us">
+  <h3>US-5302 - T-1 event secrecy: no body bytes no PII no user id beyond the key ever reach the event sink</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
+  <p><strong>I want:</strong> the event-secrecy probe to prove no body bytes or PII ever reach the event sink</p>
+  <p><strong>So that:</strong> the operator can trust that a KV that holds a PII fixture (users/1234/profile with SSN) never leaks the body to the log stream even under a mutation-run</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-053">REQ-053</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-5302-1" class="ac-item"><strong>AC-5302-1</strong> - The event-secrecy probe puts, gets and deletes a PII fixture (key users/1234/profile, body {ssn: REDACTED-fixture}); every event record on the sink carries only the whitelist and no substring of the SSN, no substring of the user id beyond the key itself, and no substring of the body. A mutation-run turning on SIMULATE_PII_LEAK flips the probe to fail with the leaked field named.
+<div class="ac-gwt"><p><em>Given</em> the facade wired to a spy sink with a PII fixture</p><p><em>When</em> put/get/delete operations run on the PII key</p><p><em>Then</em> the recorded events contain only the whitelist; PII-substring scan returns zero hits; the mutation-run under SIMULATE_PII_LEAK trips the probe to fail</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:41.585Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;usId&quot;: &quot;US-5302&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-053&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-1 event secrecy: no body bytes no PII no user id beyond the key ever reach the event sink&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying platform-cloudflare-kv v1.0.0&quot;,
+  &quot;iWant&quot;: &quot;the event-secrecy probe to prove no body bytes or PII ever reach the event sink&quot;,
+  &quot;soThat&quot;: &quot;the operator can trust that a KV that holds a PII fixture (users/1234/profile with SSN) never leaks the body to the log stream even under a mutation-run&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-5302-1&quot;,
+      &quot;description&quot;: &quot;The event-secrecy probe puts, gets and deletes a PII fixture (key users/1234/profile, body {ssn: REDACTED-fixture}); every event record on the sink carries only the whitelist and no substring of the SSN, no substring of the user id beyond the key itself, and no substring of the body. A mutation-run turning on SIMULATE_PII_LEAK flips the probe to fail with the leaked field named.&quot;,
+      &quot;given&quot;: &quot;the facade wired to a spy sink with a PII fixture&quot;,
+      &quot;when&quot;: &quot;put/get/delete operations run on the PII key&quot;,
+      &quot;then&quot;: &quot;the recorded events contain only the whitelist; PII-substring scan returns zero hits; the mutation-run under SIMULATE_PII_LEAK trips the probe to fail&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-kv&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-054">
+  <summary><span class="summary-label">REQ-054 - T-1 eventual-consistency note in the guide: a write may not appear on a global read within the same request and the elicited TTL sets the staleness ceiling</span><span class="status draft">draft</span></summary>
+  <article id="REQ-054" class="doc doc-req">
+  <h3>REQ-054 - T-1 eventual-consistency note in the guide: a write may not appear on a global read within the same request and the elicited TTL sets the staleness ceiling</h3>
+  
+  <p><strong>Description:</strong> T-1 eventual-consistency note: Workers KV is eventually consistent per the Cloudflare KV consistency documentation at https://developers.cloudflare.com/kv/concepts/how-kv-works/. A write may not appear on a global read within the same request; the elicited cache-aside TTL (default 60 seconds per Cloudflare-documented cache TTL default) sets the staleness ceiling readers observe. The guide surfaces the note and the decision-tree cross-reference to platform-cloudflare-durable-objects for strong-consistency needs (round-6 T-3 owns the DO adapter).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-054[&quot;REQ-054&lt;br/&gt;T-1 eventual-consistency note in the guide: a...&quot;]
+  US-5401[&quot;US-5401&lt;br/&gt;T-1 real-account eventual-consistency smoke: ...&quot;]
+  REQ-054 --&gt; US-5401
+  AC-5401-1[&quot;AC-5401-1&quot;]
+  US-5401 --&gt; AC-5401-1
+  FBS-070[&quot;FBS-070&lt;br/&gt;T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 U...&quot;]
+  AC-5401-1 -.-&gt;|delivered by| FBS-070
+  CN-234[&quot;CN-234&lt;br/&gt;../../blueprints/platform-cloudflare-kv/contr...&quot;]
+  AC-5401-1 -.-&gt;|implemented by| CN-234
+  click REQ-054 &quot;#REQ-054&quot;;
+  click US-5401 &quot;#US-5401&quot;;
+  click AC-5401-1 &quot;#AC-5401-1&quot;;
+  click FBS-070 &quot;#FBS-070&quot;;
+  click CN-234 &quot;#CN-234&quot;;
+  class REQ-054 req;
+  class US-5401 us;
+  class AC-5401-1 ac;
+  class FBS-070 fbs;
+  class CN-234 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:25.999Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-054&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-1 eventual-consistency note in the guide: a write may not appear on a global read within the same request and the elicited TTL sets the staleness ceiling&quot;,
+  &quot;description&quot;: &quot;T-1 eventual-consistency note: Workers KV is eventually consistent per the Cloudflare KV consistency documentation at https://developers.cloudflare.com/kv/concepts/how-kv-works/. A write may not appear on a global read within the same request; the elicited cache-aside TTL (default 60 seconds per Cloudflare-documented cache TTL default) sets the staleness ceiling readers observe. The guide surfaces the note and the decision-tree cross-reference to platform-cloudflare-durable-objects for strong-consistency needs (round-6 T-3 owns the DO adapter).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T10:18:26.039Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-5401">
+  <summary><span class="summary-label">US-5401 - T-1 real-account eventual-consistency smoke: write eventually appears on a global read within a bounded 60-second cap or records accountBoundSkipped in CI</span><span class="status draft">draft</span></summary>
+  <article id="US-5401" class="doc doc-us">
+  <h3>US-5401 - T-1 real-account eventual-consistency smoke: write eventually appears on a global read within a bounded 60-second cap or records accountBoundSkipped in CI</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0 in CI with real Cloudflare credentials</p>
+  <p><strong>I want:</strong> the real-account eventual-consistency smoke to open the facade against a real KV namespace and observe the write eventually appearing on a global read</p>
+  <p><strong>So that:</strong> the applied project has one probe that exercises the real vendor surface (not just the in-memory driver) and closes the mechanism-reach gap between fixture and production</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-054">REQ-054</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-5401-1" class="ac-item"><strong>AC-5401-1</strong> - When CI_HAS_CLOUDFLARE_ACCOUNT is set (with CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID and CF_API_TOKEN), the real-account probe opens the facade against the real KV namespace via the Workers KV REST API, writes a fixture key, polls the same key with bounded 60-second cap, and asserts the value eventually returns. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true and the aggregate flips to pass per spec section 3.5. The probe cleans up its written key on exit.
+<div class="ac-gwt"><p><em>Given</em> the real-account smoke shim with or without CI_HAS_CLOUDFLARE_ACCOUNT</p><p><em>When</em> the shim runs</p><p><em>Then</em> with the env var: the write eventually returns within 60 seconds and the aggregate is pass; without: the aggregate is pass and the report records accountBoundSkipped true</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-070">FBS-070</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:18:41.795Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:10.276Z&quot;,
+  &quot;usId&quot;: &quot;US-5401&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-054&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-1 real-account eventual-consistency smoke: write eventually appears on a global read within a bounded 60-second cap or records accountBoundSkipped in CI&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying platform-cloudflare-kv v1.0.0 in CI with real Cloudflare credentials&quot;,
+  &quot;iWant&quot;: &quot;the real-account eventual-consistency smoke to open the facade against a real KV namespace and observe the write eventually appearing on a global read&quot;,
+  &quot;soThat&quot;: &quot;the applied project has one probe that exercises the real vendor surface (not just the in-memory driver) and closes the mechanism-reach gap between fixture and production&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-5401-1&quot;,
+      &quot;description&quot;: &quot;When CI_HAS_CLOUDFLARE_ACCOUNT is set (with CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID and CF_API_TOKEN), the real-account probe opens the facade against the real KV namespace via the Workers KV REST API, writes a fixture key, polls the same key with bounded 60-second cap, and asserts the value eventually returns. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true and the aggregate flips to pass per spec section 3.5. The probe cleans up its written key on exit.&quot;,
+      &quot;given&quot;: &quot;the real-account smoke shim with or without CI_HAS_CLOUDFLARE_ACCOUNT&quot;,
+      &quot;when&quot;: &quot;the shim runs&quot;,
+      &quot;then&quot;: &quot;with the env var: the write eventually returns within 60 seconds and the aggregate is pass; without: the aggregate is pass and the report records accountBoundSkipped true&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-kv&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -11035,7 +11818,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -15209,6 +15992,110 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-062&quot;
   ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-070">
+  <summary><span class="summary-label">FBS-070 - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-070" class="doc doc-fbs">
+  <h3>FBS-070 - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</h3>
+  
+  <p><strong>Summary:</strong> HQ round-6 T-1: platform-cloudflare-kv v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-kv/ (19 contributions: 5 REQs, 8 USs, 3 TACs, 3 ADRs; contributions target 22 to 26 is guidance; sits below at 19 with well-scoped 8-US coverage per spec section 5.1). Adds cf-platform fixture extension (wrangler.toml [[kv_namespaces]] block, src/kv-facade.mjs sole reader, src/cache-aside.mjs helper, src/kv-driver.mjs in-memory driver realising the Workers KV binding shape). Ships 5 Node-only probes under contributions/probes/ (facade-round-trip, cache-aside-hit-then-miss, event-secrecy, list-with-prefix, real-account-eventual-consistency-smoke; the last is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-kv on every other blueprint (29 files) and one keyValueStore row on packages/rcf-lite/docs/blueprint-authoring.md section 6a table. Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js covers TS-080..087. Repo chain: REQ-050..054 US-5001..5401 TS-080..087 FBS-070 CN-230..234 minted via rcf define create --id per HQ round-6 T-1 reserved-block ruling 2026-09-07T10:12Z. Base commit origin/main 321371e6.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-5001-1">AC-5001-1</a><a class="ac-pill" href="#AC-5002-1">AC-5002-1</a><a class="ac-pill" href="#AC-5101-1">AC-5101-1</a><a class="ac-pill" href="#AC-5101-2">AC-5101-2</a><a class="ac-pill" href="#AC-5102-1">AC-5102-1</a><a class="ac-pill" href="#AC-5201-1">AC-5201-1</a><a class="ac-pill" href="#AC-5201-2">AC-5201-2</a><a class="ac-pill" href="#AC-5301-1">AC-5301-1</a><a class="ac-pill" href="#AC-5302-1">AC-5302-1</a><a class="ac-pill" href="#AC-5401-1">AC-5401-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-5001-1">AC-5001-1</a></strong> - On process boot, the facade opens against the elicited KV binding (env.CACHE on the fixture) with a bounded list(limit:1) ready-check; once the ready-check resolves, a facadeReady event fires on the injected event sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The facade exposes typed named domain verbs (get, getWithMetadata, put, delete, list) and does NOT re-export the raw KV binding.</p>
+  <p><em>Given</em> a Node or Worker process with the facade module imported and its factory invoked with the elicited binding</p>
+  <p><em>When</em> the process boots and the facade ready() call resolves</p>
+  <p><em>Then</em> a facadeReady event fires on the injected event sink with the metadata-only payload; the facade exposes named domain verbs only; the raw binding is not re-exported</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5002-1">AC-5002-1</a></strong> - A grep for env.CACHE in the applied fixture src/ tree returns exactly one file: src/kv-facade.mjs. No other module dereferences the raw KV binding. The public surface of src/kv-facade.mjs exports the createKvFacade factory only; the raw env.CACHE reference never crosses the module boundary.</p>
+  <p><em>Given</em> the applied project source tree after apply</p>
+  <p><em>When</em> grep -rn env.CACHE walks the src/ tree</p>
+  <p><em>Then</em> the search returns one file src/kv-facade.mjs and no other match</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5101-1">AC-5101-1</a></strong> - facade.put(key, value) writes a value; facade.get(key) returns the same bytes; both operations emit their paired lifecycle events (kvWrite on put, kvHit on get). The round-trip works against the in-memory KV driver in the fixture (kv-driver.mjs) whose binding shape matches the real Workers KV binding contract per https://developers.cloudflare.com/kv/api/.</p>
+  <p><em>Given</em> the facade wired to the in-memory KV driver in the cf-platform fixture</p>
+  <p><em>When</em> the facade-round-trip probe puts a fixture key/value and reads it back</p>
+  <p><em>Then</em> the read returns the same bytes; the event sink records one kvWrite and one kvHit; the probe report aggregates to pass</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5101-2">AC-5101-2</a></strong> - facade.delete(key) removes a value; a subsequent facade.get(key) returns null and emits kvMiss.</p>
+  <p><em>Given</em> a key previously put via the facade</p>
+  <p><em>When</em> facade.delete(key) then facade.get(key)</p>
+  <p><em>Then</em> the delete emits kvWrite; the get returns null and emits kvMiss</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5102-1">AC-5102-1</a></strong> - The list-with-prefix probe puts 10 keys under the prefix flags/ (each with a metadata blob) and calls facade.list({prefix: flags/}). The result returns all 10 keys, each entry carrying {name, metadata}, and every name preserves the domain-visible key (without the fixture keyPrefix if one was set).</p>
+  <p><em>Given</em> 10 keys put under a shared prefix through the facade</p>
+  <p><em>When</em> facade.list({prefix: flags/}) runs</p>
+  <p><em>Then</em> the result carries 10 entries with correct name and metadata fields; the aggregate probe verdict is pass</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5201-1">AC-5201-1</a></strong> - On first call, cache-aside.getOr(key, originFn) finds nothing in the facade, invokes originFn once, writes back with the elicited TTL, and returns the fresh value with source origin. On second call within TTL, the read is served from the facade (source cache) and originFn is NOT invoked (the invocation counter stays at 1).</p>
+  <p><em>Given</em> a fresh key and an origin function that increments a counter each call</p>
+  <p><em>When</em> getOr(key, originFn) runs twice within TTL</p>
+  <p><em>Then</em> the invocation counter reaches 1; both calls return the same value; the second read reports source cache</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5201-2">AC-5201-2</a></strong> - After the TTL elapses (in-memory driver clock advances past the expiration), cache-aside.getOr(key, originFn) finds nothing and invokes originFn a second time. The invocation counter reaches 2.</p>
+  <p><em>Given</em> a key past its TTL</p>
+  <p><em>When</em> getOr(key, originFn) runs after clock advance past TTL</p>
+  <p><em>Then</em> the invocation counter reaches 2; the returned value comes from origin</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5301-1">AC-5301-1</a></strong> - Each lifecycle event emitted by the facade carries EXACTLY the whitelist {event, key, size, ttl, timestamp}. No body value, no metadata blob, no additional field ever appears on the record the sink receives.</p>
+  <p><em>Given</em> the facade wired to a spy event sink, with a mix of put/get/delete/list operations</p>
+  <p><em>When</em> the operations run</p>
+  <p><em>Then</em> the sink records each event with only the whitelist keys; any extra key trips the probe</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5302-1">AC-5302-1</a></strong> - The event-secrecy probe puts, gets and deletes a PII fixture (key users/1234/profile, body {ssn: REDACTED-fixture}); every event record on the sink carries only the whitelist and no substring of the SSN, no substring of the user id beyond the key itself, and no substring of the body. A mutation-run turning on SIMULATE_PII_LEAK flips the probe to fail with the leaked field named.</p>
+  <p><em>Given</em> the facade wired to a spy sink with a PII fixture</p>
+  <p><em>When</em> put/get/delete operations run on the PII key</p>
+  <p><em>Then</em> the recorded events contain only the whitelist; PII-substring scan returns zero hits; the mutation-run under SIMULATE_PII_LEAK trips the probe to fail</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-5401-1">AC-5401-1</a></strong> - When CI_HAS_CLOUDFLARE_ACCOUNT is set (with CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID and CF_API_TOKEN), the real-account probe opens the facade against the real KV namespace via the Workers KV REST API, writes a fixture key, polls the same key with bounded 60-second cap, and asserts the value eventually returns. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true and the aggregate flips to pass per spec section 3.5. The probe cleans up its written key on exit.</p>
+  <p><em>Given</em> the real-account smoke shim with or without CI_HAS_CLOUDFLARE_ACCOUNT</p>
+  <p><em>When</em> the shim runs</p>
+  <p><em>Then</em> with the env var: the write eventually returns within 60 seconds and the aggregate is pass; without: the aggregate is pass and the report records accountBoundSkipped true</p>
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 53</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:33.274Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:20:33.274Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5001-1&quot;,
+    &quot;AC-5002-1&quot;,
+    &quot;AC-5101-1&quot;,
+    &quot;AC-5101-2&quot;,
+    &quot;AC-5102-1&quot;,
+    &quot;AC-5201-1&quot;,
+    &quot;AC-5201-2&quot;,
+    &quot;AC-5301-1&quot;,
+    &quot;AC-5302-1&quot;,
+    &quot;AC-5401-1&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-070&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 53,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test&quot;,
+  &quot;summary&quot;: &quot;HQ round-6 T-1: platform-cloudflare-kv v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-kv/ (19 contributions: 5 REQs, 8 USs, 3 TACs, 3 ADRs; contributions target 22 to 26 is guidance; sits below at 19 with well-scoped 8-US coverage per spec section 5.1). Adds cf-platform fixture extension (wrangler.toml [[kv_namespaces]] block, src/kv-facade.mjs sole reader, src/cache-aside.mjs helper, src/kv-driver.mjs in-memory driver realising the Workers KV binding shape). Ships 5 Node-only probes under contributions/probes/ (facade-round-trip, cache-aside-hit-then-miss, event-secrecy, list-with-prefix, real-account-eventual-consistency-smoke; the last is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-kv on every other blueprint (29 files) and one keyValueStore row on packages/rcf-lite/docs/blueprint-authoring.md section 6a table. Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js covers TS-080..087. Repo chain: REQ-050..054 US-5001..5401 TS-080..087 FBS-070 CN-230..234 minted via rcf define create --id per HQ round-6 T-1 reserved-block ruling 2026-09-07T10:12Z. Base commit origin/main 321371e6.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
 </article>
@@ -20753,6 +21640,352 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;section 6a table gains a backgroundJobs row naming jobs-background and reserved sibling posture; every shipped blueprint docs/topics.md gains a jobs-background row at 30101-30899 / 31xx&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/jobs-background-anatomy.test.js::section 6a table gains a backgroundJobs row naming jobs-background and reserved sibling posture; every shipped blueprint docs/topics.md gains a jobs-background row at 30101-30899 / 31xx (TC-076-shelf-doc-consistency)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-080">
+  <summary><span class="summary-label">TS-080 - T-1 facade opens on boot and emits facadeReady</span><span class="status draft">draft</span></summary>
+  <article id="TS-080" class="doc doc-ts">
+  <h3>TS-080 - T-1 facade opens on boot and emits facadeReady</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-5001">US-5001</a></p>
+  <p><strong>Purpose:</strong> Cover AC-5001-1 via anatomy test: the shipped kv-facade module&#39;s ready() call opens against the KV binding and emits facadeReady with the metadata-only payload</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-5001-1">AC-5001-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-080-ac-5001-1-facade-ready">
+  <p><strong>TC-080-ac-5001-1-facade-ready</strong> - covers <a href="#AC-5001-1">AC-5001-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5001-1 via anatomy test: kv-facade.mjs ready() call emits facadeReady with metadata-only payload</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade opens on boot and emits facadeReady with metadata-only payload (TC-080-facade-ready)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:31.862Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:00.649Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-5001-1 via anatomy test: the shipped kv-facade module&#39;s ready() call opens against the KV binding and emits facadeReady with the metadata-only payload&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5001-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-080&quot;,
+  &quot;usId&quot;: &quot;US-5001&quot;,
+  &quot;title&quot;: &quot;T-1 facade opens on boot and emits facadeReady&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-080-ac-5001-1-facade-ready&quot;,
+      &quot;acId&quot;: &quot;AC-5001-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-5001-1 via anatomy test: kv-facade.mjs ready() call emits facadeReady with metadata-only payload&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade opens on boot and emits facadeReady with metadata-only payload (TC-080-facade-ready)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-081">
+  <summary><span class="summary-label">TS-081 - T-1 KV binding sole-reader grep on the applied fixture</span><span class="status draft">draft</span></summary>
+  <article id="TS-081" class="doc doc-ts">
+  <h3>TS-081 - T-1 KV binding sole-reader grep on the applied fixture</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-5002">US-5002</a></p>
+  <p><strong>Purpose:</strong> Cover AC-5002-1 via anatomy test: a grep on the cf-platform fixture src/ tree for env.CACHE returns exactly src/kv-facade.mjs</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-5002-1">AC-5002-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-081-ac-5002-1-sole-reader">
+  <p><strong>TC-081-ac-5002-1-sole-reader</strong> - covers <a href="#AC-5002-1">AC-5002-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5002-1 via anatomy test: grep for env.CACHE in cf-platform src/ returns exactly src/kv-facade.mjs</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::env.CACHE binding is dereferenced in exactly one fixture source file (TC-081-sole-reader)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:32.039Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:00.826Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-5002-1 via anatomy test: a grep on the cf-platform fixture src/ tree for env.CACHE returns exactly src/kv-facade.mjs&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5002-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-081&quot;,
+  &quot;usId&quot;: &quot;US-5002&quot;,
+  &quot;title&quot;: &quot;T-1 KV binding sole-reader grep on the applied fixture&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-081-ac-5002-1-sole-reader&quot;,
+      &quot;acId&quot;: &quot;AC-5002-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-5002-1 via anatomy test: grep for env.CACHE in cf-platform src/ returns exactly src/kv-facade.mjs&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::env.CACHE binding is dereferenced in exactly one fixture source file (TC-081-sole-reader)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-082">
+  <summary><span class="summary-label">TS-082 - T-1 facade round-trip put get delete via in-memory KV driver</span><span class="status draft">draft</span></summary>
+  <article id="TS-082" class="doc doc-ts">
+  <h3>TS-082 - T-1 facade round-trip put get delete via in-memory KV driver</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-5101">US-5101</a></p>
+  <p><strong>Purpose:</strong> Cover AC-5101-1 and AC-5101-2 via facade-round-trip probe run and anatomy test cross-check</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-5101-1">AC-5101-1</a>, <a href="#AC-5101-2">AC-5101-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-082-ac-5101-1-round-trip">
+  <p><strong>TC-082-ac-5101-1-round-trip</strong> - covers <a href="#AC-5101-1">AC-5101-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5101-1 via facade-round-trip probe run and anatomy report cross-check</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade-round-trip probe passes on the fixture kv-driver (TC-082-round-trip)</code></p>
+</div>
+<div class="tc" id="TC-082-ac-5101-2-delete-then-null">
+  <p><strong>TC-082-ac-5101-2-delete-then-null</strong> - covers <a href="#AC-5101-2">AC-5101-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5101-2 via facade-round-trip probe: delete then get returns null and emits kvMiss</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade-round-trip probe verifies delete-then-null branch (TC-082-delete-null)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:32.213Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:01.181Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-5101-1 and AC-5101-2 via facade-round-trip probe run and anatomy test cross-check&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5101-1&quot;,
+    &quot;AC-5101-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-082&quot;,
+  &quot;usId&quot;: &quot;US-5101&quot;,
+  &quot;title&quot;: &quot;T-1 facade round-trip put get delete via in-memory KV driver&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-082-ac-5101-1-round-trip&quot;,
+      &quot;acId&quot;: &quot;AC-5101-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-5101-1 via facade-round-trip probe run and anatomy report cross-check&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade-round-trip probe passes on the fixture kv-driver (TC-082-round-trip)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-082-ac-5101-2-delete-then-null&quot;,
+      &quot;acId&quot;: &quot;AC-5101-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-5101-2 via facade-round-trip probe: delete then get returns null and emits kvMiss&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade-round-trip probe verifies delete-then-null branch (TC-082-delete-null)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-083">
+  <summary><span class="summary-label">TS-083 - T-1 list with prefix returns 10 keys with metadata shape</span><span class="status draft">draft</span></summary>
+  <article id="TS-083" class="doc doc-ts">
+  <h3>TS-083 - T-1 list with prefix returns 10 keys with metadata shape</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-5102">US-5102</a></p>
+  <p><strong>Purpose:</strong> Cover AC-5102-1 via list-with-prefix probe run and anatomy test cross-check</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-5102-1">AC-5102-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-083-ac-5102-1-list-prefix">
+  <p><strong>TC-083-ac-5102-1-list-prefix</strong> - covers <a href="#AC-5102-1">AC-5102-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5102-1 via list-with-prefix probe: 10 keys under flags/ all returned with metadata shape</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::list-with-prefix probe passes on 10 keys under a shared prefix (TC-083-list-prefix)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:32.390Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:01.358Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-5102-1 via list-with-prefix probe run and anatomy test cross-check&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5102-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-083&quot;,
+  &quot;usId&quot;: &quot;US-5102&quot;,
+  &quot;title&quot;: &quot;T-1 list with prefix returns 10 keys with metadata shape&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-083-ac-5102-1-list-prefix&quot;,
+      &quot;acId&quot;: &quot;AC-5102-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-5102-1 via list-with-prefix probe: 10 keys under flags/ all returned with metadata shape&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::list-with-prefix probe passes on 10 keys under a shared prefix (TC-083-list-prefix)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-084">
+  <summary><span class="summary-label">TS-084 - T-1 cache-aside hit-then-miss under a fake clock past TTL</span><span class="status draft">draft</span></summary>
+  <article id="TS-084" class="doc doc-ts">
+  <h3>TS-084 - T-1 cache-aside hit-then-miss under a fake clock past TTL</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-5201">US-5201</a></p>
+  <p><strong>Purpose:</strong> Cover AC-5201-1 and AC-5201-2 via cache-aside-hit-then-miss probe run and anatomy test cross-check</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-5201-1">AC-5201-1</a>, <a href="#AC-5201-2">AC-5201-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-084-ac-5201-1-hit-within-ttl">
+  <p><strong>TC-084-ac-5201-1-hit-within-ttl</strong> - covers <a href="#AC-5201-1">AC-5201-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5201-1 via cache-aside-hit-then-miss probe: within-TTL second read is a cache hit and origin is called once</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::cache-aside-hit-then-miss probe: within-TTL cached branch (TC-084-hit-within-ttl)</code></p>
+</div>
+<div class="tc" id="TC-084-ac-5201-2-miss-past-ttl">
+  <p><strong>TC-084-ac-5201-2-miss-past-ttl</strong> - covers <a href="#AC-5201-2">AC-5201-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5201-2 via cache-aside-hit-then-miss probe: past-TTL read miss triggers a second origin call</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::cache-aside-hit-then-miss probe: past-TTL miss branch (TC-084-miss-past-ttl)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:32.566Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:01.711Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-5201-1 and AC-5201-2 via cache-aside-hit-then-miss probe run and anatomy test cross-check&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5201-1&quot;,
+    &quot;AC-5201-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-084&quot;,
+  &quot;usId&quot;: &quot;US-5201&quot;,
+  &quot;title&quot;: &quot;T-1 cache-aside hit-then-miss under a fake clock past TTL&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-084-ac-5201-1-hit-within-ttl&quot;,
+      &quot;acId&quot;: &quot;AC-5201-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-5201-1 via cache-aside-hit-then-miss probe: within-TTL second read is a cache hit and origin is called once&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::cache-aside-hit-then-miss probe: within-TTL cached branch (TC-084-hit-within-ttl)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-084-ac-5201-2-miss-past-ttl&quot;,
+      &quot;acId&quot;: &quot;AC-5201-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-5201-2 via cache-aside-hit-then-miss probe: past-TTL read miss triggers a second origin call&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::cache-aside-hit-then-miss probe: past-TTL miss branch (TC-084-miss-past-ttl)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-085">
+  <summary><span class="summary-label">TS-085 - T-1 lifecycle events carry the metadata-only whitelist</span><span class="status draft">draft</span></summary>
+  <article id="TS-085" class="doc doc-ts">
+  <h3>TS-085 - T-1 lifecycle events carry the metadata-only whitelist</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-5301">US-5301</a></p>
+  <p><strong>Purpose:</strong> Cover AC-5301-1 via anatomy test that walks the shipped facade and asserts every event record&#39;s shape</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-5301-1">AC-5301-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-085-ac-5301-1-metadata-only">
+  <p><strong>TC-085-ac-5301-1-metadata-only</strong> - covers <a href="#AC-5301-1">AC-5301-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5301-1 via anatomy test: every event record on the sink carries only {event, key, size, ttl, timestamp}</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::lifecycle events carry only the metadata-only whitelist (TC-085-metadata-only)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:32.741Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:01.888Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-5301-1 via anatomy test that walks the shipped facade and asserts every event record&#39;s shape&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5301-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-085&quot;,
+  &quot;usId&quot;: &quot;US-5301&quot;,
+  &quot;title&quot;: &quot;T-1 lifecycle events carry the metadata-only whitelist&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-085-ac-5301-1-metadata-only&quot;,
+      &quot;acId&quot;: &quot;AC-5301-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-5301-1 via anatomy test: every event record on the sink carries only {event, key, size, ttl, timestamp}&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::lifecycle events carry only the metadata-only whitelist (TC-085-metadata-only)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-086">
+  <summary><span class="summary-label">TS-086 - T-1 event secrecy: no body bytes or PII reach the sink</span><span class="status draft">draft</span></summary>
+  <article id="TS-086" class="doc doc-ts">
+  <h3>TS-086 - T-1 event secrecy: no body bytes or PII reach the sink</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-5302">US-5302</a></p>
+  <p><strong>Purpose:</strong> Cover AC-5302-1 via event-secrecy probe with two-layer assertions and a mutation-run under SIMULATE_PII_LEAK</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-5302-1">AC-5302-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-086-ac-5302-1-event-secrecy">
+  <p><strong>TC-086-ac-5302-1-event-secrecy</strong> - covers <a href="#AC-5302-1">AC-5302-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5302-1 via event-secrecy probe: no body bytes / PII / user id reach the sink even under a mutation-run</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEAK (TC-086-event-secrecy)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:32.919Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:02.065Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-5302-1 via event-secrecy probe with two-layer assertions and a mutation-run under SIMULATE_PII_LEAK&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5302-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-086&quot;,
+  &quot;usId&quot;: &quot;US-5302&quot;,
+  &quot;title&quot;: &quot;T-1 event secrecy: no body bytes or PII reach the sink&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-086-ac-5302-1-event-secrecy&quot;,
+      &quot;acId&quot;: &quot;AC-5302-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-5302-1 via event-secrecy probe: no body bytes / PII / user id reach the sink even under a mutation-run&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEAK (TC-086-event-secrecy)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-087">
+  <summary><span class="summary-label">TS-087 - T-1 real-account eventual-consistency smoke aggregates pass or skipped</span><span class="status draft">draft</span></summary>
+  <article id="TS-087" class="doc doc-ts">
+  <h3>TS-087 - T-1 real-account eventual-consistency smoke aggregates pass or skipped</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-5401">US-5401</a></p>
+  <p><strong>Purpose:</strong> Cover AC-5401-1 via anatomy test asserting the probe records accountBoundSkipped without CI_HAS_CLOUDFLARE_ACCOUNT and passes in the CI-configured path</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-5401-1">AC-5401-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-087-ac-5401-1-real-account-smoke">
+  <p><strong>TC-087-ac-5401-1-real-account-smoke</strong> - covers <a href="#AC-5401-1">AC-5401-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-5401-1 via anatomy test: without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true and aggregates pass</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::real-account eventual-consistency smoke records accountBoundSkipped without the env var (TC-087-real-account-smoke)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T10:20:33.096Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:02.240Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-5401-1 via anatomy test asserting the probe records accountBoundSkipped without CI_HAS_CLOUDFLARE_ACCOUNT and passes in the CI-configured path&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-5401-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-087&quot;,
+  &quot;usId&quot;: &quot;US-5401&quot;,
+  &quot;title&quot;: &quot;T-1 real-account eventual-consistency smoke aggregates pass or skipped&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-087-ac-5401-1-real-account-smoke&quot;,
+      &quot;acId&quot;: &quot;AC-5401-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-5401-1 via anatomy test: without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true and aggregates pass&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::real-account eventual-consistency smoke records accountBoundSkipped without the env var (TC-087-real-account-smoke)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

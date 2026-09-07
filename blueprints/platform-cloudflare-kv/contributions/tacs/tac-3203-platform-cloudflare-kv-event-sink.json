@@ -1,0 +1,25 @@
+{
+  "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-kv event sink boundary",
+  "purpose": "The event sink is the boundary between the KV facade and the applied logging companion (or a spy sink in the local probes). The facade emits four events (facadeReady, kvHit, kvMiss, kvWrite) whose payloads are metadata-only: {event, key, size, ttl, timestamp}. No body bytes, no metadata blob, no user id beyond the key itself ever crosses this boundary.",
+  "responsibilities": [
+    "Accept exactly the whitelist {event, key, size, ttl, timestamp} on every record emitted by the facade (AC-31107-1).",
+    "Never forward a body byte, a metadata blob, or any additional field appended by a downstream mutation (AC-31108-1).",
+    "Serialise events in emit order so a downstream logging companion can observe the causal ordering per-operation."
+  ],
+  "internalStructure": "The facade calls the sink as a function reference; the sink either accumulates records (spy in probes) or forwards them into the applied logging companion. The shape is enforced at the facade side by constructing each record explicitly from the metadata-only fields.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "factory",
+      "summary": "Platform-cloudflare-kv event sink boundary factory exported from the applied fixture module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T10:28:32.000Z",
+  "updatedAt": "2026-09-07T10:28:32.000Z"
+}

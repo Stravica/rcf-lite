@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T10:18:40.349Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "usId": "US-5001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-050",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 KV facade opens against the elicited KV binding on boot and emits facadeReady",
+  "asA": "shelf consumer applying the platform-cloudflare-kv v1.0.0 blueprint on a Workers project using the cf-platform fixture",
+  "iWant": "one KV facade module (src/kv-facade.mjs) that opens against the elicited KV binding on process boot and emits a facadeReady lifecycle event with a metadata-only payload",
+  "soThat": "boot ordering is observable, the ready-check seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5001-1",
+      "description": "On process boot, the facade opens against the elicited KV binding (env.CACHE on the fixture) with a bounded list(limit:1) ready-check; once the ready-check resolves, a facadeReady event fires on the injected event sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The facade exposes typed named domain verbs (get, getWithMetadata, put, delete, list) and does NOT re-export the raw KV binding.",
+      "given": "a Node or Worker process with the facade module imported and its factory invoked with the elicited binding",
+      "when": "the process boots and the facade ready() call resolves",
+      "then": "a facadeReady event fires on the injected event sink with the metadata-only payload; the facade exposes named domain verbs only; the raw binding is not re-exported",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-kv"
+  ]
+}

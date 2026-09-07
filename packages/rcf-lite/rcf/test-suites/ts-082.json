@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-07T10:20:32.213Z",
+  "updatedAt": "2026-09-07T10:21:01.181Z",
+  "purpose": "Cover AC-5101-1 and AC-5101-2 via facade-round-trip probe run and anatomy test cross-check",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-5101-1",
+    "AC-5101-2"
+  ],
+  "id": "TS-082",
+  "usId": "US-5101",
+  "title": "T-1 facade round-trip put get delete via in-memory KV driver",
+  "testCases": [
+    {
+      "id": "TC-082-ac-5101-1-round-trip",
+      "acId": "AC-5101-1",
+      "description": "Cover AC-5101-1 via facade-round-trip probe run and anatomy report cross-check",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade-round-trip probe passes on the fixture kv-driver (TC-082-round-trip)"
+    },
+    {
+      "id": "TC-082-ac-5101-2-delete-then-null",
+      "acId": "AC-5101-2",
+      "description": "Cover AC-5101-2 via facade-round-trip probe: delete then get returns null and emits kvMiss",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade-round-trip probe verifies delete-then-null branch (TC-082-delete-null)"
+    }
+  ],
+  "status": "draft"
+}

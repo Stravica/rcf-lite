@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T10:20:31.862Z",
+  "updatedAt": "2026-09-07T10:21:00.649Z",
+  "purpose": "Cover AC-5001-1 via anatomy test: the shipped kv-facade module's ready() call opens against the KV binding and emits facadeReady with the metadata-only payload",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-5001-1"
+  ],
+  "id": "TS-080",
+  "usId": "US-5001",
+  "title": "T-1 facade opens on boot and emits facadeReady",
+  "testCases": [
+    {
+      "id": "TC-080-ac-5001-1-facade-ready",
+      "acId": "AC-5001-1",
+      "description": "Cover AC-5001-1 via anatomy test: kv-facade.mjs ready() call emits facadeReady with metadata-only payload",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::facade opens on boot and emits facadeReady with metadata-only payload (TC-080-facade-ready)"
+    }
+  ],
+  "status": "draft"
+}

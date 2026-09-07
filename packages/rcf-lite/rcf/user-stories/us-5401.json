@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T10:18:41.795Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "usId": "US-5401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-054",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 real-account eventual-consistency smoke: write eventually appears on a global read within a bounded 60-second cap or records accountBoundSkipped in CI",
+  "asA": "shelf consumer applying platform-cloudflare-kv v1.0.0 in CI with real Cloudflare credentials",
+  "iWant": "the real-account eventual-consistency smoke to open the facade against a real KV namespace and observe the write eventually appearing on a global read",
+  "soThat": "the applied project has one probe that exercises the real vendor surface (not just the in-memory driver) and closes the mechanism-reach gap between fixture and production",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5401-1",
+      "description": "When CI_HAS_CLOUDFLARE_ACCOUNT is set (with CF_ACCOUNT_ID, CF_KV_NAMESPACE_ID and CF_API_TOKEN), the real-account probe opens the facade against the real KV namespace via the Workers KV REST API, writes a fixture key, polls the same key with bounded 60-second cap, and asserts the value eventually returns. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true and the aggregate flips to pass per spec section 3.5. The probe cleans up its written key on exit.",
+      "given": "the real-account smoke shim with or without CI_HAS_CLOUDFLARE_ACCOUNT",
+      "when": "the shim runs",
+      "then": "with the env var: the write eventually returns within 60 seconds and the aggregate is pass; without: the aggregate is pass and the report records accountBoundSkipped true",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-kv"
+  ]
+}

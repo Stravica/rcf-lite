@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T10:18:25.168Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "reqId": "REQ-050",
+  "prdId": "PRD-001",
+  "title": "T-1 platform-cloudflare-kv v1.0.0 blueprint: the KV facade module is the sole reader of the KV binding and opens on boot with facadeReady",
+  "description": "T-1 platform-cloudflare-kv v1.0.0: one KV facade module in the applied project source tree is the SOLE reader of the Cloudflare Workers KV binding (env.CACHE in the fixture; the elicited binding name in a real project). Every other module that touches KV imports the facade and calls its typed domain verbs (get, getWithMetadata, put, delete, list); no other module dereferences the raw KV binding. On process boot, the facade opens against the bound namespace with a bounded list(limit:1) ready-check and emits a facadeReady lifecycle event on the injected event sink. Chain: HQ round-6 T-1 reserved-block, id block REQ-050..054 / US-5001..5401 / TS-080..087 / FBS-070 / CN-230..234 per HQ chain-block ruling 2026-09-07T10:12Z.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T10:18:25.198Z"
+  }
+}

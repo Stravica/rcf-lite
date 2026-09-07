@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 34  covered: 34  covered-unresolved: 0  uncovered: 0
+Requirements: 39  covered: 39  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -272,3 +272,13 @@ REQ-043      yes      AC-4301-1   yes         TC-076-blueprint-json-shape
                       AC-4301-5   yes         TC-076-probe-anchor-ids-cross-check
                       AC-4301-6   yes         TC-076-fixture-and-switches
                       AC-4301-7   yes         TC-076-shelf-doc-consistency
+REQ-050      yes      AC-5001-1   yes         TC-080-ac-5001-1-facade-ready
+                      AC-5002-1   yes         TC-081-ac-5002-1-sole-reader
+REQ-051      yes      AC-5101-1   yes         TC-082-ac-5101-1-round-trip
+                      AC-5101-2   yes         TC-082-ac-5101-2-delete-then-null
+                      AC-5102-1   yes         TC-083-ac-5102-1-list-prefix
+REQ-052      yes      AC-5201-1   yes         TC-084-ac-5201-1-hit-within-ttl
+                      AC-5201-2   yes         TC-084-ac-5201-2-miss-past-ttl
+REQ-053      yes      AC-5301-1   yes         TC-085-ac-5301-1-metadata-only
+                      AC-5302-1   yes         TC-086-ac-5302-1-event-secrecy
+REQ-054      yes      AC-5401-1   yes         TC-087-ac-5401-1-real-account-smoke

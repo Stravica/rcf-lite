@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-07T10:18:40.753Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "usId": "US-5101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-051",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 typed put get delete round-trip against the KV driver realises the Workers KV binding shape",
+  "asA": "shelf consumer applying platform-cloudflare-kv v1.0.0",
+  "iWant": "typed put and get verbs that round-trip a value through the KV driver realising the Workers KV binding shape",
+  "soThat": "the applied project can persist a small piece of state and read it back deterministically, in the same shape the real Workers KV binding would present",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5101-1",
+      "description": "facade.put(key, value) writes a value; facade.get(key) returns the same bytes; both operations emit their paired lifecycle events (kvWrite on put, kvHit on get). The round-trip works against the in-memory KV driver in the fixture (kv-driver.mjs) whose binding shape matches the real Workers KV binding contract per https://developers.cloudflare.com/kv/api/.",
+      "given": "the facade wired to the in-memory KV driver in the cf-platform fixture",
+      "when": "the facade-round-trip probe puts a fixture key/value and reads it back",
+      "then": "the read returns the same bytes; the event sink records one kvWrite and one kvHit; the probe report aggregates to pass",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5101-2",
+      "description": "facade.delete(key) removes a value; a subsequent facade.get(key) returns null and emits kvMiss.",
+      "given": "a key previously put via the facade",
+      "when": "facade.delete(key) then facade.get(key)",
+      "then": "the delete emits kvWrite; the get returns null and emits kvMiss",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-kv"
+  ]
+}

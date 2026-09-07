@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T10:20:32.390Z",
+  "updatedAt": "2026-09-07T10:21:01.358Z",
+  "purpose": "Cover AC-5102-1 via list-with-prefix probe run and anatomy test cross-check",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-5102-1"
+  ],
+  "id": "TS-083",
+  "usId": "US-5102",
+  "title": "T-1 list with prefix returns 10 keys with metadata shape",
+  "testCases": [
+    {
+      "id": "TC-083-ac-5102-1-list-prefix",
+      "acId": "AC-5102-1",
+      "description": "Cover AC-5102-1 via list-with-prefix probe: 10 keys under flags/ all returned with metadata shape",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::list-with-prefix probe passes on 10 keys under a shared prefix (TC-083-list-prefix)"
+    }
+  ],
+  "status": "draft"
+}

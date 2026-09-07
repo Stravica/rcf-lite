@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T10:18:41.585Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "usId": "US-5302",
+  "prdId": "PRD-001",
+  "reqId": "REQ-053",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 event secrecy: no body bytes no PII no user id beyond the key ever reach the event sink",
+  "asA": "shelf consumer applying platform-cloudflare-kv v1.0.0",
+  "iWant": "the event-secrecy probe to prove no body bytes or PII ever reach the event sink",
+  "soThat": "the operator can trust that a KV that holds a PII fixture (users/1234/profile with SSN) never leaks the body to the log stream even under a mutation-run",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5302-1",
+      "description": "The event-secrecy probe puts, gets and deletes a PII fixture (key users/1234/profile, body {ssn: REDACTED-fixture}); every event record on the sink carries only the whitelist and no substring of the SSN, no substring of the user id beyond the key itself, and no substring of the body. A mutation-run turning on SIMULATE_PII_LEAK flips the probe to fail with the leaked field named.",
+      "given": "the facade wired to a spy sink with a PII fixture",
+      "when": "put/get/delete operations run on the PII key",
+      "then": "the recorded events contain only the whitelist; PII-substring scan returns zero hits; the mutation-run under SIMULATE_PII_LEAK trips the probe to fail",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-kv"
+  ]
+}

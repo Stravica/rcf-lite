@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T10:20:32.741Z",
+  "updatedAt": "2026-09-07T10:21:01.888Z",
+  "purpose": "Cover AC-5301-1 via anatomy test that walks the shipped facade and asserts every event record's shape",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-5301-1"
+  ],
+  "id": "TS-085",
+  "usId": "US-5301",
+  "title": "T-1 lifecycle events carry the metadata-only whitelist",
+  "testCases": [
+    {
+      "id": "TC-085-ac-5301-1-metadata-only",
+      "acId": "AC-5301-1",
+      "description": "Cover AC-5301-1 via anatomy test: every event record on the sink carries only {event, key, size, ttl, timestamp}",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::lifecycle events carry only the metadata-only whitelist (TC-085-metadata-only)"
+    }
+  ],
+  "status": "draft"
+}

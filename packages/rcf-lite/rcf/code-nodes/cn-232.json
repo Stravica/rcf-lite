@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-232",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/src/cache-aside.mjs",
+  "implementsAcIds": [
+    "AC-5201-1",
+    "AC-5201-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T10:21:02.776Z",
+  "updatedAt": "2026-09-07T10:21:02.776Z"
+}

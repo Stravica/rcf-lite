@@ -50,6 +50,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
 | jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
+| platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |
 
 US 27101-27110 sit at the LOW end of the 27101-27899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a persistence-data-postgres REQ id into the number 27110 would collide against the shipped US-27110; band headroom (27111-27899) leaves that space.
 

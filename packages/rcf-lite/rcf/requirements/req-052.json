@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T10:18:25.579Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "reqId": "REQ-052",
+  "prdId": "PRD-001",
+  "title": "T-1 cache-aside helper reads local first falls back to origin and writes back with elicited TTL floor 1 second",
+  "description": "T-1 cache-aside helper wraps a domain-origin call with the facade. getOr(key, originFn, {ttl}) reads local first via facade.get; on hit returns the cached value with source cache; on miss invokes originFn, writes back through facade.put with the effective TTL (elicited default 60 seconds per ADR-3202; floor 1 second enforced at this seam; no upper ceiling per Cloudflare KV documented per-namespace limits at https://developers.cloudflare.com/kv/platform/limits/), and returns the fresh value with source origin.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T10:18:25.608Z"
+  }
+}

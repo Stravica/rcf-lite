@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-234",
+  "path": "../../blueprints/platform-cloudflare-kv/contributions/probes/event-secrecy.mjs",
+  "implementsAcIds": [
+    "AC-5302-1",
+    "AC-5401-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T10:21:03.129Z",
+  "updatedAt": "2026-09-07T10:21:03.129Z"
+}

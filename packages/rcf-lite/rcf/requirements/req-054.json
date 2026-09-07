@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T10:18:25.999Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "reqId": "REQ-054",
+  "prdId": "PRD-001",
+  "title": "T-1 eventual-consistency note in the guide: a write may not appear on a global read within the same request and the elicited TTL sets the staleness ceiling",
+  "description": "T-1 eventual-consistency note: Workers KV is eventually consistent per the Cloudflare KV consistency documentation at https://developers.cloudflare.com/kv/concepts/how-kv-works/. A write may not appear on a global read within the same request; the elicited cache-aside TTL (default 60 seconds per Cloudflare-documented cache TTL default) sets the staleness ceiling readers observe. The guide surfaces the note and the decision-tree cross-reference to platform-cloudflare-durable-objects for strong-consistency needs (round-6 T-3 owns the DO adapter).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T10:18:26.039Z"
+  }
+}

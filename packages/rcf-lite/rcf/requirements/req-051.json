@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T10:18:25.373Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "reqId": "REQ-051",
+  "prdId": "PRD-001",
+  "title": "T-1 typed put get delete list verbs with metadata field pattern realise the Workers KV binding shape behind the facade",
+  "description": "T-1 typed put get delete list realise the Workers KV binding shape behind the facade. put(key, value, {ttl, metadata}) writes with expirationTtl and metadata to the binding; get(key) returns null on miss; getWithMetadata(key) returns {value, metadata}; delete(key) is idempotent; list({prefix, limit, cursor}) paginates keys with metadata shape intact per the Cloudflare KV binding contract at https://developers.cloudflare.com/kv/api/. Metadata is a JSON-serialisable object; the shipped default metadata field pattern is {v: number} (elicited).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T10:18:25.402Z"
+  }
+}

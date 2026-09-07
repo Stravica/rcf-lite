@@ -2,6 +2,13 @@
 // text response on the root path so the wrangler dev boot is
 // self-verifying; every other path falls through to the static
 // assets pipeline configured under wrangler.toml [assets].
+//
+// The KV binding is intentionally NOT dereferenced here: per
+// platform-cloudflare-kv REQ-001, the KV facade module
+// (src/kv-facade.mjs) is the SOLE reader of the binding on the
+// applied project. A consumer request handler wires the facade
+// factory at its own top-level, hands the returned facade to the
+// domain code, and never touches the raw binding directly.
 
 export default {
   async fetch(request) {

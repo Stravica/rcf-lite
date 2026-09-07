@@ -49,6 +49,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
 | jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
+| platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |
 
 US 8101-8110 sit at the LOW end of the 8101-8899 band on purpose. A project-side story that mechanically derives from a security-secrets-management REQ id into the number `8110` would collide against security-secrets-management-US-8110 in this package; the band leaves headroom at the HIGH end (US 8181-8899) so a project's own stories anchored to security-secrets-management REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

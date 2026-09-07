@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T10:20:33.096Z",
+  "updatedAt": "2026-09-07T10:21:02.240Z",
+  "purpose": "Cover AC-5401-1 via anatomy test asserting the probe records accountBoundSkipped without CI_HAS_CLOUDFLARE_ACCOUNT and passes in the CI-configured path",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-5401-1"
+  ],
+  "id": "TS-087",
+  "usId": "US-5401",
+  "title": "T-1 real-account eventual-consistency smoke aggregates pass or skipped",
+  "testCases": [
+    {
+      "id": "TC-087-ac-5401-1-real-account-smoke",
+      "acId": "AC-5401-1",
+      "description": "Cover AC-5401-1 via anatomy test: without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true and aggregates pass",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::real-account eventual-consistency smoke records accountBoundSkipped without the env var (TC-087-real-account-smoke)"
+    }
+  ],
+  "status": "draft"
+}

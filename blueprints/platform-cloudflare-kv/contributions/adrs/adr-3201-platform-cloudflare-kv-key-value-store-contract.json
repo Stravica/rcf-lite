@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3201-platform-cloudflare-kv-key-value-store-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Key-value store contract: Cloudflare Workers KV as the shipped shape (scope global, new topic keyValueStoreContract)",
+  "context": "An applying Workers project has one native key-value store answer today: Cloudflare Workers KV. The binding is declared through wrangler configuration ([[kv_namespaces]] with binding, id and preview_id) and the shipped runtime binds env.<binding> to an object with get, getWithMetadata, put, delete and list per https://developers.cloudflare.com/kv/api/. KV is eventually consistent: a write may not appear on a global read within the same request, and changes may take up to 60 seconds or more to be visible in other network locations as their cached versions time out (https://developers.cloudflare.com/kv/concepts/how-kv-works/). The v1.0.0 facade must hold the adapter reference opaque at the facade boundary so a future non-Cloudflare adapter or an in-memory adapter for tests slots in without a facade re-shape, and so the round-6 Durable Objects sibling (T-3) is the shipped answer for strong-consistency needs.",
+  "decision": "The shipped v1.0.0 default is Cloudflare Workers KV, wired through wrangler config ([[kv_namespaces]] with binding, id and preview_id) per https://developers.cloudflare.com/kv/. The facade module (TAC-3201) is the sole holder of the KV binding reference per REQ-001. The keyValueStoreContract topic scope is global on this blueprint; the topic string is keyValueStoreContract (lower camelCase, one concept per topic, no version suffix, per the round-2 rules-for-new-topics clause on the shelf registry). A future non-KV adapter (a Redis-shape store, a strong-consistency DO cell for a single-owner use case) would contribute the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR per the round-2 conflict pattern.",
+  "consequences": "The applying project inherits Workers KV wire-format, the platform-assigned per-namespace limits (https://developers.cloudflare.com/kv/platform/limits/) and the documented eventual-consistency semantics. Standards trace clause: Cloudflare Workers KV documented consistency model (per https://developers.cloudflare.com/kv/concepts/how-kv-works/). Consumer code needing strong-consistency semantics reaches for the round-6 T-3 platform-cloudflare-durable-objects sibling instead; the guide carries the decision-tree cross-reference.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T10:28:32.000Z",
+  "updatedAt": "2026-09-07T10:28:32.000Z"
+}

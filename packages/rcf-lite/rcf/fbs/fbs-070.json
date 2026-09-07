@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T10:20:33.274Z",
+  "updatedAt": "2026-09-07T10:20:33.274Z",
+  "acIds": [
+    "AC-5001-1",
+    "AC-5002-1",
+    "AC-5101-1",
+    "AC-5101-2",
+    "AC-5102-1",
+    "AC-5201-1",
+    "AC-5201-2",
+    "AC-5301-1",
+    "AC-5302-1",
+    "AC-5401-1"
+  ],
+  "fbsId": "FBS-070",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 53,
+  "executionStatus": "notStarted",
+  "title": "T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test",
+  "summary": "HQ round-6 T-1: platform-cloudflare-kv v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-kv/ (19 contributions: 5 REQs, 8 USs, 3 TACs, 3 ADRs; contributions target 22 to 26 is guidance; sits below at 19 with well-scoped 8-US coverage per spec section 5.1). Adds cf-platform fixture extension (wrangler.toml [[kv_namespaces]] block, src/kv-facade.mjs sole reader, src/cache-aside.mjs helper, src/kv-driver.mjs in-memory driver realising the Workers KV binding shape). Ships 5 Node-only probes under contributions/probes/ (facade-round-trip, cache-aside-hit-then-miss, event-secrecy, list-with-prefix, real-account-eventual-consistency-smoke; the last is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-kv on every other blueprint (29 files) and one keyValueStore row on packages/rcf-lite/docs/blueprint-authoring.md section 6a table. Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js covers TS-080..087. Repo chain: REQ-050..054 US-5001..5401 TS-080..087 FBS-070 CN-230..234 minted via rcf define create --id per HQ round-6 T-1 reserved-block ruling 2026-09-07T10:12Z. Base commit origin/main 321371e6.",
+  "dependsOnFbsIds": []
+}

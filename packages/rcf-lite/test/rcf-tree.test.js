@@ -126,7 +126,12 @@ const expectedCounts = {
   // jobs-background v1.0.0 blueprint on the shelf with five Node-only
   // probes wired to the T-3 in-memory queue seam and the CLI
   // --allow-no-queue-yet override for the T-5 mechanism (33 -> 34).
-  req: 34,
+  // Cloudflare round 6 T-1 (w-2026-09-06-dave-026) added REQ-050..054
+  // for the platform-cloudflare-kv v1.0.0 blueprint (reserved-block
+  // per HQ ruling 2026-09-07T10:12Z: REQ-050..054 / US-5001..5401 /
+  // TS-080..087 / FBS-070 / CN-230..234, all minted via --id).
+  // Post-#163 merge on main: (34 -> 39).
+  req: 39,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -155,7 +160,7 @@ const expectedCounts = {
   // per HQ sequential chain-id block (60 -> 63).
   // Infra round 5 T-4 added US-4301 (derived from REQ-043 per dex
   // reserved-block ruling) (63 -> 64).
-  userStory: 64,
+  userStory: 72,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -199,7 +204,7 @@ const expectedCounts = {
   // 51). Originally minted as FBS-063 pre-#164; re-minted as FBS-064
   // via `rcf define create fbs --id` after HQ round-6 T-0 consumed
   // the original id (51 -> 52).
-  fbs: 52,
+  fbs: 53,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -302,7 +307,7 @@ const expectedCounts = {
   // Originally minted as CN-209..212 pre-#164; re-minted as
   // CN-214..217 via `rcf define create cn --id` after HQ round-6 T-0
   // consumed the original block (200 -> 204).
-  codeNode: 204,
+  codeNode: 209,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -333,7 +338,7 @@ const expectedCounts = {
   // reserved-block ruling. Originally minted as TS-073 pre-#164;
   // re-minted as TS-076 via `rcf define create ts --id` after HQ
   // round-6 T-0 consumed the original id (63 -> 64).
-  testSuite: 64,
+  testSuite: 72,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

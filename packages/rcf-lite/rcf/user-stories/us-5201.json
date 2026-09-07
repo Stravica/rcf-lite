@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-07T10:18:41.162Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "usId": "US-5201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-052",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 cache-aside helper: hit-then-miss with a fake clock proves one origin call within TTL and a second past TTL",
+  "asA": "shelf consumer applying platform-cloudflare-kv v1.0.0",
+  "iWant": "the cache-aside helper to read from KV first and fall back to origin on miss, writing back with the elicited TTL",
+  "soThat": "the origin surface (a database, a downstream service) is spared one call per cached hit within TTL",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5201-1",
+      "description": "On first call, cache-aside.getOr(key, originFn) finds nothing in the facade, invokes originFn once, writes back with the elicited TTL, and returns the fresh value with source origin. On second call within TTL, the read is served from the facade (source cache) and originFn is NOT invoked (the invocation counter stays at 1).",
+      "given": "a fresh key and an origin function that increments a counter each call",
+      "when": "getOr(key, originFn) runs twice within TTL",
+      "then": "the invocation counter reaches 1; both calls return the same value; the second read reports source cache",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-5201-2",
+      "description": "After the TTL elapses (in-memory driver clock advances past the expiration), cache-aside.getOr(key, originFn) finds nothing and invokes originFn a second time. The invocation counter reaches 2.",
+      "given": "a key past its TTL",
+      "when": "getOr(key, originFn) runs after clock advance past TTL",
+      "then": "the invocation counter reaches 2; the returned value comes from origin",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-kv"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T10:18:41.367Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "usId": "US-5301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-053",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 lifecycle events fire on facadeReady kvHit kvMiss kvWrite with metadata-only payload",
+  "asA": "shelf consumer applying platform-cloudflare-kv v1.0.0",
+  "iWant": "the facade to emit facadeReady kvHit kvMiss kvWrite events with metadata-only payload on the injected sink",
+  "soThat": "the applied logging companion can render KV activity without ever writing a body byte to the log stream",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-5301-1",
+      "description": "Each lifecycle event emitted by the facade carries EXACTLY the whitelist {event, key, size, ttl, timestamp}. No body value, no metadata blob, no additional field ever appears on the record the sink receives.",
+      "given": "the facade wired to a spy event sink, with a mix of put/get/delete/list operations",
+      "when": "the operations run",
+      "then": "the sink records each event with only the whitelist keys; any extra key trips the probe",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-kv"
+  ]
+}

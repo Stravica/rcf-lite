@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 52,
-    "notStarted": 24,
+    "items": 53,
+    "notStarted": 25,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 14,
+    "actionable": 15,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -40,7 +40,8 @@
         "FBS-041",
         "FBS-061",
         "FBS-062",
-        "FBS-063"
+        "FBS-063",
+        "FBS-070"
       ]
     },
     {
@@ -730,6 +731,16 @@
       "blockedBy": [
         "FBS-062"
       ]
+    },
+    {
+      "fbsId": "FBS-070",
+      "buildOrder": 53,
+      "tier": 0,
+      "title": "T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
     }
   ]
 }
