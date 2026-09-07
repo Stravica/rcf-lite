@@ -1,0 +1,18 @@
+{
+  "reqId": "platform-cloudflare-kv-REQ-003",
+  "prdId": "PRD-001",
+  "title": "The cache-aside helper reads local first, falls back to origin, writes back with elicited TTL floor 1 second",
+  "description": "The blueprint ships a cache-aside helper (src/cache-aside.mjs on the applied fixture) that wraps a domain-origin call with a facade read. getOr(key, originFn, {ttl?}) reads local first via facade.get; on hit returns the cached value with source \"cache\"; on miss invokes originFn, writes back via facade.put with the effective TTL (elicited default 60 seconds per ADR-3202; floor 1 second enforced at this seam so a misconfigured project cannot ship a sub-second TTL through cache-aside), and returns the fresh value with source \"origin\". No upper ceiling is imposed by the helper; the Cloudflare KV per-namespace limits at https://developers.cloudflare.com/kv/platform/limits/ are the vendor ceiling.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.1). Ships as v1.0.0 of platform-cloudflare-kv.",
+  "tags": [
+    "blueprint:platform-cloudflare-kv",
+    "category:003-the"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T10:26:28.000Z",
+  "updatedAt": "2026-09-07T10:26:28.000Z"
+}

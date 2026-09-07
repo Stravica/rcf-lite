@@ -11,3 +11,14 @@ compatibility_date = "2026-09-06"
 [assets]
 directory = "./dist"
 run_worker_first = true
+
+# Cloudflare round 6 T-1 KV namespace binding for platform-cloudflare-kv.
+# The binding name is elicited (fixture default is CACHE); the id and
+# preview_id are placeholders for the fixture and are wired to real
+# namespace ids in a project via wrangler kv namespace create at apply
+# time. The facade module (src/kv-facade.mjs) is the sole reader of
+# env.CACHE per REQ-001.
+[[kv_namespaces]]
+binding = "CACHE"
+id = "cf_platform_fixture_cache_id_placeholder"
+preview_id = "cf_platform_fixture_cache_preview_placeholder"

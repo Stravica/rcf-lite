@@ -1,0 +1,87 @@
+{
+  "slug": "platform-cloudflare-kv",
+  "version": "1.0.0",
+  "category": "platform",
+  "capabilities": ["keyValueStore"],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every KV facade operation emits a metadata-only lifecycle event through the applied logger; a logging companion supplies the sink factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A KV read or write failure constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "kv-binding-name",
+      "prompt": "What is the KV namespace binding name to use in wrangler.toml? (default: CACHE)",
+      "kind": "string",
+      "default": "CACHE"
+    },
+    {
+      "id": "kv-default-cache-ttl-seconds",
+      "prompt": "Default cache-aside TTL in seconds (floor 1, per ADR-3202; the shipped default aligns with the Cloudflare KV documented 60-second cache TTL)",
+      "kind": "string",
+      "default": "60"
+    },
+    {
+      "id": "kv-metadata-field-pattern",
+      "prompt": "Default metadata field pattern on put and getWithMetadata (JSON serialisable object; recommended default {v: number} for a per-key schema version)",
+      "kind": "string",
+      "default": "{\"v\":1}"
+    },
+    {
+      "id": "kv-key-naming-convention",
+      "prompt": "Key naming convention: prefixed (domain prefix like users/, flags/) or flat (per ADR-3203; recommended default prefixed)",
+      "kind": "enum",
+      "options": ["prefixed", "flat"],
+      "default": "prefixed"
+    }
+  ],
+  "contributions": [
+    { "id": "platform-cloudflare-kv-REQ-001", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-001.json" },
+    { "id": "platform-cloudflare-kv-REQ-002", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-002.json" },
+    { "id": "platform-cloudflare-kv-REQ-003", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-003.json" },
+    { "id": "platform-cloudflare-kv-REQ-004", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-004.json" },
+    { "id": "platform-cloudflare-kv-REQ-005", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-005.json" },
+    { "id": "platform-cloudflare-kv-US-31101", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31101.json" },
+    { "id": "platform-cloudflare-kv-US-31102", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31102.json" },
+    { "id": "platform-cloudflare-kv-US-31103", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31103.json" },
+    { "id": "platform-cloudflare-kv-US-31104", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31104.json" },
+    { "id": "platform-cloudflare-kv-US-31105", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31105.json" },
+    { "id": "platform-cloudflare-kv-US-31106", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31106.json" },
+    { "id": "platform-cloudflare-kv-US-31107", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31107.json" },
+    { "id": "platform-cloudflare-kv-US-31108", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31108.json" },
+    { "id": "TAC-3201-platform-cloudflare-kv-facade", "kind": "tac", "path": "tacs/tac-3201-platform-cloudflare-kv-facade.json" },
+    { "id": "TAC-3202-platform-cloudflare-kv-cache-aside", "kind": "tac", "path": "tacs/tac-3202-platform-cloudflare-kv-cache-aside.json" },
+    { "id": "TAC-3203-platform-cloudflare-kv-event-sink", "kind": "tac", "path": "tacs/tac-3203-platform-cloudflare-kv-event-sink.json" },
+    {
+      "id": "ADR-3201-platform-cloudflare-kv-key-value-store-contract",
+      "kind": "adr",
+      "path": "adrs/adr-3201-platform-cloudflare-kv-key-value-store-contract.json",
+      "scope": "global",
+      "topic": "keyValueStoreContract",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Workers KV documented consistency model"
+    },
+    {
+      "id": "ADR-3202-platform-cloudflare-kv-default-cache-ttl",
+      "kind": "adr",
+      "path": "adrs/adr-3202-platform-cloudflare-kv-default-cache-ttl.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-3203-platform-cloudflare-kv-key-naming-convention",
+      "kind": "adr",
+      "path": "adrs/adr-3203-platform-cloudflare-kv-key-naming-convention.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}

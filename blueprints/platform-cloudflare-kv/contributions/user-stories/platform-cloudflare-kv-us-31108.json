@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-kv-US-31108",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Event secrecy: no body bytes or PII reach the sink under a mutation-run",
+  "asA": "operator running the event-secrecy probe on a PII fixture",
+  "iWant": "the probe to prove zero body / PII / user id substring leaves the facade via the sink under both the shipped code path and a mutation-run",
+  "soThat": "the estate can trust the facade never leaks the body to the log stream even when a downstream change tries to",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31108-1",
+      "description": "The event-secrecy probe puts, gets and deletes a PII fixture (key users/1234/profile, body containing REDACTED-fixture SSN); every event record on the sink carries only the whitelist and no substring of the SSN, no substring of the user id beyond the key itself, and no substring of the body. A mutation-run turning on SIMULATE_PII_LEAK flips the probe to fail with the leaked field named.",
+      "given": "the facade wired to a spy sink with a PII fixture",
+      "when": "put/get/delete operations run on the PII key with the mutation-run switch off then on",
+      "then": "the recorded events contain only the whitelist; PII-substring scan returns zero hits; the mutation-run under SIMULATE_PII_LEAK trips the probe to fail",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3203-platform-cloudflare-kv-event-sink"
+  ],
+  "createdAt": "2026-09-07T10:27:19.000Z",
+  "updatedAt": "2026-09-07T10:27:19.000Z"
+}

@@ -1,0 +1,27 @@
+{
+  "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-kv facade",
+  "purpose": "The single project-side module that dereferences the Cloudflare Workers KV binding (env.<binding>), exposes narrow named domain verbs (get, getWithMetadata, put, delete, list) to consumer code, and emits structured lifecycle events to the event sink (TAC-3203). Consumers never touch the raw binding outside this module; the facade is the one place the vendor surface lives. The KV driver reference is opaque at this boundary so a future adapter (a different vendor, an in-memory driver for tests) slots in without a facade re-shape.",
+  "responsibilities": [
+    "Open the facade on boot against the elicited KV binding via a bounded list(limit:1) ready-check; hold no other reference to the KV vendor surface; export no symbol that leaks the raw binding (AC-31101-1, AC-31102-1).",
+    "Expose named domain verbs (get, getWithMetadata, put, delete, list) as returned methods on the factory result; refuse a raw-binding passthrough on the public surface (AC-31101-1).",
+    "Emit facadeReady exactly once per facade instance on the injected event sink (AC-31101-1); serialise pre-ready operations behind the ready-check.",
+    "Emit kvHit / kvMiss / kvWrite per operation, all metadata-only per TAC-3203 (AC-31107-1, AC-31108-1).",
+    "Apply the elicited keyPrefix (a per-app namespace disambiguator) transparently on every operation so the domain code sees prefix-free keys and the storage layer sees fully qualified keys (elicited answer per ADR-3203)."
+  ],
+  "internalStructure": "One module exporting a createKvFacade({ binding, eventSink, keyPrefix?, defaultCacheTtl? }) factory returning a KvFacade whose methods are the named domain verbs. The binding dereference lives at the top of this module; the factory captures the binding, wires the sink, and hands back closures. Consumers call the facade methods for the process lifetime; the raw binding never crosses the module boundary.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "factory",
+      "summary": "Platform-cloudflare-kv facade factory exported from the applied fixture module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T10:28:32.000Z",
+  "updatedAt": "2026-09-07T10:28:32.000Z"
+}

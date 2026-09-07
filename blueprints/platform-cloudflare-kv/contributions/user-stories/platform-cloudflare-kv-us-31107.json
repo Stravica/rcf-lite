@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-kv-US-31107",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Lifecycle events carry only the metadata-only whitelist",
+  "asA": "operator running the applied logging companion against the KV facade",
+  "iWant": "every lifecycle event on the injected sink to carry only {event, key, size, ttl, timestamp} and nothing else",
+  "soThat": "the log stream can render KV activity without ever writing a body byte or a metadata blob",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31107-1",
+      "description": "Each lifecycle event emitted by the facade carries EXACTLY the whitelist {event, key, size, ttl, timestamp}. No body value, no metadata blob, no additional field ever appears on the record the sink receives. A whitelist scan on the recorded events returns zero forbidden keys.",
+      "given": "the facade wired to a spy event sink, with a mix of put/get/delete/list operations",
+      "when": "the operations run",
+      "then": "the sink records each event with only the whitelist keys; any extra key trips the probe",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3203-platform-cloudflare-kv-event-sink"
+  ],
+  "createdAt": "2026-09-07T10:27:19.000Z",
+  "updatedAt": "2026-09-07T10:27:19.000Z"
+}

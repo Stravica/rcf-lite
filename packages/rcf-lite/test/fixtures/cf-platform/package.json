@@ -1,11 +1,16 @@
 {
   "name": "cf-platform-fixture",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Sample-app fixture for the deploy-cloudflare-workers v1.2.0 Workers-with-static-assets shape (T-0 of the Cloudflare round 6 spec). Shared by T-1 KV, T-2 cron, T-3 DO and T-5 Turnstile sub-fixture.",
+  "description": "Sample-app fixture for the deploy-cloudflare-workers v1.2.0 Workers-with-static-assets shape (T-0) and the platform-cloudflare-kv v1.0.0 KV facade (T-1). Shared canvas for T-2 cron, T-3 DO and T-5 Turnstile sub-fixture.",
   "scripts": {
-    "start": "wrangler dev"
+    "start": "wrangler dev",
+    "kv-probe-facade-round-trip": "node ../../../../../blueprints/platform-cloudflare-kv/contributions/probes/run-facade-round-trip.mjs",
+    "kv-probe-cache-aside-hit-then-miss": "node ../../../../../blueprints/platform-cloudflare-kv/contributions/probes/run-cache-aside-hit-then-miss.mjs",
+    "kv-probe-event-secrecy": "node ../../../../../blueprints/platform-cloudflare-kv/contributions/probes/run-event-secrecy.mjs",
+    "kv-probe-list-with-prefix": "node ../../../../../blueprints/platform-cloudflare-kv/contributions/probes/run-list-with-prefix.mjs",
+    "kv-probe-real-account-eventual-consistency-smoke": "node ../../../../../blueprints/platform-cloudflare-kv/contributions/probes/run-real-account-eventual-consistency-smoke.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

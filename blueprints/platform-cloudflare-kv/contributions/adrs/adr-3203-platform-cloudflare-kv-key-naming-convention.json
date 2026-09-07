@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3203-platform-cloudflare-kv-key-naming-convention",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Key naming convention: prefix-per-domain shipped, flat allowed",
+  "context": "KV keys are string-typed and globally addressed within a namespace. Two shipped shapes exist for a small-to-medium application: flat (keys are their own domain identifier, no prefix) and prefixed (keys carry a domain prefix such as users/, flags/, sessions/). The shipped shape must be one; the elicited answer supports the other for projects that already carry a naming discipline.",
+  "decision": "Ship prefixed as the default (recommendedDefault: prefixed). The facade accepts an elicited keyPrefix; when set, every operation transparently rewrites the key with the prefix on the storage boundary and the domain code sees prefix-free keys. When the elicited answer is flat, the facade passes the key through verbatim. The prefix disambiguation is what makes list({prefix}) predictable across multiple domain concepts sharing one namespace.",
+  "consequences": "The applying project chooses the shape at apply time. The default prefixed shape is the shape the round-6 spec section 5.1 example ACs assume (users/1234/profile, flags/feature-0). A project already keyed flat re-elicits and the facade passes keys through.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T10:28:32.000Z",
+  "updatedAt": "2026-09-07T10:28:32.000Z"
+}

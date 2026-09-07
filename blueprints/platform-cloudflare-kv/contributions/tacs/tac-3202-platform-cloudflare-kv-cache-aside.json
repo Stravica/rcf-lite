@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-kv cache-aside helper",
+  "purpose": "The cache-aside helper wraps a domain-origin call with the facade. It is the shipped shape for a read-through cache: reads local first, invokes origin on miss, writes back with the elicited TTL, and returns the fresh value. TTL floor (1 second) is enforced at this seam so a misconfigured project cannot ship a sub-second TTL through cache-aside (ADR-3202).",
+  "responsibilities": [
+    "Read local first via facade.get(key); on hit, return the cached value with source cache (AC-31105-1).",
+    "On miss, invoke originFn once; write back via facade.put with the effective TTL (elicited default 60 seconds per ADR-3202); return the fresh value with source origin (AC-31105-1).",
+    "After the TTL elapses, re-invoke origin on the next read (AC-31106-1).",
+    "Enforce the TTL floor of 1 second on every call; no per-call TTL below 1 second reaches the facade (ADR-3202)."
+  ],
+  "internalStructure": "One module exporting a createCacheAside({ facade, defaultTtl }) factory returning an object with a getOr(key, originFn, options?) method. The helper closes over the facade and the default TTL; per-call TTL overrides are floored to 1 second.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "factory",
+      "summary": "Platform-cloudflare-kv cache-aside helper factory exported from the applied fixture module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T10:28:32.000Z",
+  "updatedAt": "2026-09-07T10:28:32.000Z"
+}

@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3202-platform-cloudflare-kv-default-cache-ttl",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Default cache-aside TTL: 60 seconds shipped, floor 1 second, no ceiling",
+  "context": "The cache-aside helper writes back to KV with an expirationTtl on every miss; the applied project elicits the default TTL. Cloudflare documents a default cache TTL of 60 seconds on the read path (https://developers.cloudflare.com/kv/concepts/how-kv-works/); aligning the cache-aside default with the vendor default keeps two staleness ceilings synchronised.",
+  "decision": "Ship 60 seconds as the elicited default TTL for cache-aside. The helper enforces a 1-second floor on every per-call TTL (a misconfigured project cannot ship a sub-second TTL through the cache-aside seam). No upper ceiling is imposed by the helper; the Cloudflare KV documented per-namespace limits at https://developers.cloudflare.com/kv/platform/limits/ are the vendor ceiling. The elicited answer is written into the applied project as the defaultCacheTtl argument on the facade factory; per-call overrides use cache.getOr(key, originFn, {ttl}).",
+  "consequences": "The applied project observes a bounded staleness ceiling that matches the elicited TTL. A project needing shorter staleness re-elicits with a smaller value at apply time; a project needing longer staleness re-elicits with a larger value. The 1-second floor prevents an accidental cache-thrash pattern where the writeback expires before the next read arrives.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T10:28:32.000Z",
+  "updatedAt": "2026-09-07T10:28:32.000Z"
+}

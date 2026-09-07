@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-kv-US-31102",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The KV binding reference is dereferenced in exactly one module on the applied fixture",
+  "asA": "operator applying platform-cloudflare-kv v1.0.0",
+  "iWant": "a grep for env.<binding> on the applied fixture src/ tree to return exactly the facade module and no other file",
+  "soThat": "the vendor surface is diffused across zero call sites outside the facade, and a future adapter swap lands without moving any AC",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31102-1",
+      "description": "A grep for env.CACHE in the cf-platform fixture src/ tree returns exactly one file: src/kv-facade.mjs. No other module dereferences the raw KV binding. The public surface of src/kv-facade.mjs exports the createKvFacade factory only; the raw env.CACHE reference never crosses the module boundary.",
+      "given": "the applied project source tree after apply",
+      "when": "grep -rn env.CACHE walks the src/ tree",
+      "then": "the search returns one file src/kv-facade.mjs and no other match",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3201-platform-cloudflare-kv-facade"
+  ],
+  "createdAt": "2026-09-07T10:27:19.000Z",
+  "updatedAt": "2026-09-07T10:27:19.000Z"
+}

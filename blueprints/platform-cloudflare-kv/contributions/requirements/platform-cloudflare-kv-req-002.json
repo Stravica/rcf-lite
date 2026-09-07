@@ -1,0 +1,18 @@
+{
+  "reqId": "platform-cloudflare-kv-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Typed put get delete list verbs with the metadata field pattern realise the Workers KV binding shape behind the facade",
+  "description": "The facade exposes typed named domain verbs put(key, value, {ttl?, metadata?}), get(key), getWithMetadata(key), delete(key) and list({prefix?, limit?, cursor?}) whose contracts map directly onto the Cloudflare Workers KV binding shape per https://developers.cloudflare.com/kv/api/. put writes with expirationTtl (per the elicited default TTL from ADR-3202) and metadata (per the elicited default metadata field pattern; ship default {v: number}); get returns null on miss; getWithMetadata returns {value, metadata}; delete is idempotent; list paginates keys with metadata shape intact. Metadata is a JSON-serialisable object; the facade never rewrites it before storage.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.1). Ships as v1.0.0 of platform-cloudflare-kv.",
+  "tags": [
+    "blueprint:platform-cloudflare-kv",
+    "category:002-typed"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T10:26:28.000Z",
+  "updatedAt": "2026-09-07T10:26:28.000Z"
+}

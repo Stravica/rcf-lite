@@ -29,6 +29,7 @@ The blueprint claims no new global topics at v1.0.0. Account-settings is a consu
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
 | jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
+| platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |
 
 The shelf-wide band registry lives in `packages/rcf-lite/docs/blueprint-authoring.md` section 5.
 

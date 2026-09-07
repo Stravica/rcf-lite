@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-kv-US-31104",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "facade.list({prefix}) returns every key under a prefix with metadata shape intact",
+  "asA": "developer maintaining a set of prefix-scoped feature flags",
+  "iWant": "facade.list({prefix: flags/}) to return every key under the prefix with metadata shape",
+  "soThat": "the applied project can enumerate a prefix-scoped collection through one seam",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31104-1",
+      "description": "The list-with-prefix probe puts 10 keys under the prefix flags/ (each with a metadata blob) and calls facade.list({prefix: flags/}). The result returns all 10 keys, each entry carrying {name, metadata}, and every name preserves the domain-visible key. A decoy key outside the prefix is NOT included.",
+      "given": "10 keys put under a shared prefix through the facade plus one decoy outside the prefix",
+      "when": "facade.list({prefix: flags/}) runs",
+      "then": "the result carries 10 entries with correct name and metadata fields; the decoy is absent; the aggregate probe verdict is pass",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3201-platform-cloudflare-kv-facade"
+  ],
+  "createdAt": "2026-09-07T10:27:19.000Z",
+  "updatedAt": "2026-09-07T10:27:19.000Z"
+}

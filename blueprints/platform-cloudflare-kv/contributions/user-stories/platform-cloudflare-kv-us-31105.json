@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-kv-US-31105",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Cache-aside helper: within-TTL second read is a cache hit and origin is called once",
+  "asA": "developer wrapping a downstream origin call with cache-aside",
+  "iWant": "cache-aside.getOr to invoke origin once on miss, write back with the elicited TTL, and serve subsequent within-TTL reads from cache",
+  "soThat": "the origin surface (a database, a downstream service) is spared one call per cached hit within TTL",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31105-1",
+      "description": "On first call, cache-aside.getOr(key, originFn) finds nothing in the facade, invokes originFn once, writes back with the elicited TTL, and returns the fresh value with source origin. On the second call within TTL, the read is served from the facade (source cache) and originFn is NOT invoked (the invocation counter stays at 1).",
+      "given": "a fresh key and an origin function that increments a counter each call",
+      "when": "getOr(key, originFn) runs twice within TTL",
+      "then": "the invocation counter reaches 1; both calls return the same value; the second read reports source cache",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3202-platform-cloudflare-kv-cache-aside"
+  ],
+  "createdAt": "2026-09-07T10:27:19.000Z",
+  "updatedAt": "2026-09-07T10:27:19.000Z"
+}

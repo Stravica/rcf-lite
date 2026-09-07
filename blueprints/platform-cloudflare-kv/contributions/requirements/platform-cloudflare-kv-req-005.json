@@ -1,0 +1,18 @@
+{
+  "reqId": "platform-cloudflare-kv-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Eventual-consistency note in the guide: a write may not appear on a global read within the same request and the elicited TTL sets the staleness ceiling",
+  "description": "Workers KV is eventually consistent per https://developers.cloudflare.com/kv/concepts/how-kv-works/. The guide surfaces the note (a write may not appear on a global read within the same request; changes may take up to 60 seconds or more to be visible in other network locations as cached versions time out) and states that the elicited cache-aside TTL (default 60 seconds per Cloudflare-documented cache TTL default) sets the staleness ceiling readers observe. The guide also carries a decision-tree cross-reference to platform-cloudflare-durable-objects (round-6 T-3) for cases needing stronger-consistency semantics; DO is the shipped answer when a key must have exactly one owner and every read must reflect the most recent write.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.1). Ships as v1.0.0 of platform-cloudflare-kv.",
+  "tags": [
+    "blueprint:platform-cloudflare-kv",
+    "category:005-eventual-consistency"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T10:26:28.000Z",
+  "updatedAt": "2026-09-07T10:26:28.000Z"
+}

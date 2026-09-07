@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-kv-US-31101",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The KV facade opens against the elicited binding on boot and emits facadeReady",
+  "asA": "developer whose Worker or Node service needs a small durable KV surface behind a swappable boundary",
+  "iWant": "one KV facade module to hold the Cloudflare Workers KV binding reference and expose typed domain verbs (get, getWithMetadata, put, delete, list), with a facadeReady lifecycle event on the first successful ready-check",
+  "soThat": "the boundary between my domain and the vendor surface is the only place that has to move when the adapter changes, and boot ordering is observable via the event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31101-1",
+      "description": "On process boot, the facade opens against the elicited KV binding (env.CACHE on the fixture); once the ready-check resolves, a facadeReady event fires on the injected event sink with a payload of exactly {event, key, size, ttl, timestamp}. The facade exposes typed named domain verbs (get, getWithMetadata, put, delete, list) and does NOT re-export the raw binding.",
+      "given": "a Node or Worker process with the facade module imported and its factory invoked with the elicited binding",
+      "when": "the process boots and the facade ready() call resolves",
+      "then": "a facadeReady event fires on the injected event sink with the metadata-only payload; the facade exposes named domain verbs only; the raw binding is not re-exported",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3201-platform-cloudflare-kv-facade"
+  ],
+  "createdAt": "2026-09-07T10:27:19.000Z",
+  "updatedAt": "2026-09-07T10:27:19.000Z"
+}
