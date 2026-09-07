@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-rate-limiting-US-36107",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-rate-limiting-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Drift-audit records carry metadata-only fields (ruleId, clientIpHash, outcome, timestamp) with no full IP, no body, no user agent",
+  "asA": "operator on the applying project reading drift-audit reports and rate-limit event records through the applied logging companion",
+  "iWant": "every drift-audit record and every rate-limit event record to carry only metadata-safe fields (ruleId, clientIpHash, outcome, timestamp, plus the drift diff fields where applicable), never a full client IP, never a request body, never a user agent string",
+  "soThat": "the audit trail is safe to store, forward and read without additional PII scrubbing at the audit sink",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-36107-1",
+      "description": "The event-secrecy probe drives a synthetic drift-audit payload constructed from a fixture rule and a fake live-zone response; every record on the sink carries only {ruleId, clientIpHash, outcome, timestamp} plus (for drift records) a diff array with the schema-safe fields; the probe asserts NO full IP (regex 4-octet dotted quad or v6 group), NO request body key, NO user-agent key; the SIMULATE_EVENT_LEAK_IP=true switch injects a full IP into the drift record and the probe returns aggregateVerdict: fail with the leaked key named in the detail.",
+      "given": "the shipped drift-audit runner and a synthetic input pair",
+      "when": "the event-secrecy probe drives the runner and inspects the resulting records",
+      "then": "every record carries only the metadata-safe fields; SIMULATE_EVENT_LEAK_IP=true surfaces a leaked key and the aggregate verdict is fail",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
+  ],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

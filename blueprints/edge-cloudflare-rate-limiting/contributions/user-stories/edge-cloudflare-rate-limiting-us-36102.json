@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-rate-limiting-US-36102",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-rate-limiting-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Guide documents the operator-facing management surface with both wrangler and dashboard flows",
+  "asA": "operator on the applying project preparing to push rate-limit rules from the local manifest to the live Cloudflare zone",
+  "iWant": "a documented step-by-step flow that walks me through both a wrangler command sequence and a Cloudflare dashboard sequence for applying each manifest rule",
+  "soThat": "I can pick the flow that suits the project's operating discipline and reproduce the apply from the manifest at any cadence without inventing a bespoke tool",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-36102-1",
+      "description": "The blueprint guide at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md documents an operator-facing management surface with both a wrangler command flow and a Cloudflare dashboard flow; each flow names the exact steps to apply one rule from a manifest file to the elicited zone; the guide references https://developers.cloudflare.com/waf/rate-limiting-rules/ as the vendor doc for the rule shape.",
+      "given": "the shipped guide file in the blueprint tree",
+      "when": "the anatomy test scans the guide for the wrangler headings, the dashboard headings and the vendor URL",
+      "then": "both flow headings are present and the vendor URL appears",
+      "testable": true,
+      "scope": "documentation"
+    }
+  ],
+  "tacIds": [
+    "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
+  ],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

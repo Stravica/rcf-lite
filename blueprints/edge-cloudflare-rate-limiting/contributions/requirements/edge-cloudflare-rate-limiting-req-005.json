@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-rate-limiting-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Composition with security-auth-magic-link: the zone-level rate rule layers over the per-email application rule",
+  "description": "When both edge-cloudflare-rate-limiting and security-auth-magic-link are applied on the same project, the composition follows ADR-3702: the zone-level rate rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin Worker; the per-email application rate limiter that security-auth-magic-link ships continues to run on requests that pass the edge gate, applying per-email per-minute limits at the mint-surface. Zone rule layers OVER the application rule; the two operate on different characteristic sets (IP-per-URL at the zone, email at the application) and never overlap on the same characteristic. The guide names the composition explicitly with a copy-paste example. Applying both blueprints without the ADR-3702 layering understanding would leave two rate rules operating on the same characteristic and shadowing each other; ADR-3702 states the layering explicitly and the applied recorder records both blueprints so the operator sees the two-rule shape at apply time.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "should",
+  "rationale": "Ratified in the Cloudflare round 6 spec (cloudflare-round-6-spec-2026-09-06.md section 5.6). Ships as v1.0.0 of edge-cloudflare-rate-limiting.",
+  "tags": [
+    "blueprint:edge-cloudflare-rate-limiting"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

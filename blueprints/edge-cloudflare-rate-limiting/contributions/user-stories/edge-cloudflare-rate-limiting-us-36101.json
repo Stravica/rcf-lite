@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-rate-limiting-US-36101",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-rate-limiting-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Rules manifest present in the applying project as one JSON file per rule under the elicited manifest directory",
+  "asA": "shelf consumer applying the edge-cloudflare-rate-limiting v1.0.0 blueprint on a Workers project using the cf-edge fixture",
+  "iWant": "the elicited rate-limit-rules-dir to contain at least one committed JSON file per rate-limit rule the applying project intends to run, each file matching the elicited rule shape and none referencing a secret in plaintext",
+  "soThat": "the applying project's rate-limit rules are source-controlled and reviewable, and the operator has a stable source of truth to apply to the live zone through the wrangler or dashboard flow",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-36101-1",
+      "description": "The rate-limit manifest directory (default cloudflare/rate-limits/) exists in the applied project and holds at least one JSON file per rule; every file parses as JSON and carries the seven documented Cloudflare WAF rate-limiting rules fields (id, expression, threshold, period, characteristics, action, duration); no file body contains a plaintext Cloudflare API token or the elicited zone id (the zone id is elicited and stored via the applied secretsManagement companion).",
+      "given": "the cf-edge fixture with the two committed manifest files under cloudflare/rate-limits/",
+      "when": "the manifest-presence probe scans the fixture directory",
+      "then": "every manifest file parses, every file carries the seven required fields, and no file references a secret in plaintext",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
+  ],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Drift-audit cadence: off, daily or hourly (elicited; recommendedDefault daily)",
+  "context": "Rate-limit rules live on the Cloudflare account, not in the project git tree. An operator that changes a rule on the dashboard without a matching manifest update leaves the source of truth behind; a manifest edit that is not applied to the live zone leaves the live behaviour behind. Both directions of drift are runtime-observable but only if the applying project runs the drift-audit runner at a cadence.",
+  "decision": "The drift-audit cadence is elicited (rate-limit-drift-audit-cadence) with three options: off (disables the runner), daily (24-hour cadence), hourly (60-minute cadence). recommendedDefault: daily. elicited: true. Standards trace clause: generic enterprise practice.",
+  "consequences": "daily is the safe default for the typical operator (a manifest change that misses the live zone is surfaced within 24 hours through the applied logging companion's audit sink). hourly is the safe default for a high-cadence operation (the applying project makes rule changes multiple times a week and wants a same-day signal). off is safe only when the operator has an alternative drift-check discipline (a manual review after every change); the elicit prompts for the operator's choice at apply time.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

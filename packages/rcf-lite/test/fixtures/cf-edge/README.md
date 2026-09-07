@@ -125,3 +125,72 @@ Warn semantics per spec section 3.1 pass-with-skip: the probe
 returns `aggregateVerdict: warn` (never `fail`) if the wrangler
 devDependency is missing or the CLI does not bind within the cap.
 A handler thrown at the workerd boundary is a genuine `fail`.
+
+## Rate-limits manifest (round 6 T-6 extension)
+
+The T-6 blueprint `edge-cloudflare-rate-limiting` v1.0.0 extends
+this fixture with a local rate-limit rules manifest and a drift-audit
+runner realisation. The T-4 Access shape is unchanged; the T-6
+additions are additive.
+
+- `cloudflare/rate-limits/example.json` and
+  `cloudflare/rate-limits/api-writes.json` are the two shipped
+  manifest files, one JSON document per rule per ADR-3703. Each
+  file carries the seven documented Cloudflare WAF rate-limiting
+  rules fields (id, expression, threshold, period, characteristics,
+  action, duration) per
+  https://developers.cloudflare.com/waf/rate-limiting-rules/.
+- `blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json`
+  is the shipped JSON Schema (draft-07). The
+  `manifest-schema-validate` probe validates every file in
+  `cloudflare/rate-limits/` against this schema.
+- `src/drift-audit-runner.mjs` realises TAC-3703 in the fixture.
+  It exports `createDriftAuditRunner({env, eventSink, fetch, clock,
+  cadence, manifestLoader})` per the TAC's factory shape and is
+  driven by the probes with a fake fetch (no live Cloudflare API
+  call from the shelf).
+- The zone id is read from `env.CF_ZONE_ID` (never inlined in a
+  manifest file). A production project stores the zone id via the
+  applied `security-secrets-management` companion; the fixture
+  leaves it empty.
+
+### Rate-limits environment
+
+| Var | Purpose | Default |
+| --- | --- | --- |
+| `CF_ZONE_ID` | Cloudflare zone id the drift-audit runner fetches rules for. Never inlined in a manifest file. | unset |
+| `CF_API_TOKEN` | Cloudflare API token the drift-audit runner sends as a bearer credential (real-account only). Never inlined in a manifest file. | unset |
+| `CF_RATE_LIMIT_URL` | Scheduled HQ-owned URL the `real-account-burst-and-429` probe fires against under `CI_HAS_CLOUDFLARE_ACCOUNT=true`. | unset |
+| `CI_HAS_CLOUDFLARE_ACCOUNT` | Gate for the `real-account-burst-and-429` probe per spec section 3.5 and ruling 6. Without it the probe records `accountBoundSkipped: true` and aggregates to `pass`. | unset |
+| `SIMULATE_MANIFEST_MISSING` | Move one manifest file to a scratch location so `manifest-presence` surfaces the missing basename in the detail. | unset |
+| `SIMULATE_SCHEMA_INVALID` | Write a manifest file with a missing `threshold` field so `manifest-schema-validate` surfaces the invalid file. | unset |
+| `SIMULATE_EVENT_LEAK_IP` | Inject a full client IP into every drift record so `event-secrecy` surfaces the leaked key. | unset |
+
+Every switch restores the fixture tree before the probe exits;
+mutation checks in the anatomy test verify the negative path.
+
+### Two-line gate-reviewer boot for the T-6 local probes
+
+```
+cd packages/rcf-lite/test/fixtures/cf-edge
+node ../../../../../blueprints/edge-cloudflare-rate-limiting/contributions/probes/run-manifest-presence.mjs
+```
+
+Repeat with `run-manifest-schema-validate.mjs` and
+`run-event-secrecy.mjs`. Each prints a report envelope and writes
+its report to
+`.rcf/reports/blueprints/edge-cloudflare-rate-limiting/<probe-name>.json`
+under the repo root.
+
+### Real-account burst probe
+
+```
+cd packages/rcf-lite/test/fixtures/cf-edge
+CI_HAS_CLOUDFLARE_ACCOUNT=true \
+CF_RATE_LIMIT_URL=https://rcf-lite-ci-rate-limit-smoke.example.test/api/ \
+node ../../../../../blueprints/edge-cloudflare-rate-limiting/contributions/probes/run-real-account-burst-and-429.mjs
+```
+
+Without both env vars the probe records `accountBoundSkipped: true`
+per ruling 6 and aggregates to `pass`; this is the accepted CI
+verdict.

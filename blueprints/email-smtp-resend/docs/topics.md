@@ -50,6 +50,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-cloudflare-durable-objects | 33101-33899 | 34xx | shipped v1.0.0 | `strongConsistencyCellContract`, `websocketHubContract` |
 | edge-cloudflare-access | 34101-34899 | 35xx | shipped v1.0.0 | `edgeAuthenticationGate` |
 | edge-cloudflare-turnstile | 35101-35899 | 36xx | shipped v1.0.0 | `humanVerificationGate` |
+| edge-cloudflare-rate-limiting | 36101-36899 | 37xx | shipped v1.0.0 | `edgeThrottleContract` |
 
 US 4101-4106 sit at the LOW end of the 4101-4899 band on purpose. A project-side story that mechanically derives from an email-smtp-resend REQ id into the number `4106` (leading `4` + sequence `106`) would collide against email-smtp-resend-US-4106 in this package; the band leaves headroom at the HIGH end (US 4181-4899) so a project's own stories anchored to email-smtp-resend REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

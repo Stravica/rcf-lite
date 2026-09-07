@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-rate-limiting-US-36105",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-rate-limiting-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Composition with security-auth-magic-link: zone rate rule layers over the per-email application rule",
+  "asA": "operator applying both edge-cloudflare-rate-limiting and security-auth-magic-link on the same project",
+  "iWant": "the guide to name the ADR-3702 layering explicitly, showing that the zone rule refuses IP-per-URL bursts at the CF edge before they reach the origin and the security-auth-magic-link per-email application rule continues to run on requests that pass the edge gate",
+  "soThat": "I understand the composition at apply time rather than discovering that both blueprints operate on separate characteristic sets by trial and error",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-36105-1",
+      "description": "The guide contains a section titled Composition with security-auth-magic-link that names ADR-3702 explicitly, states the zone rule characteristic (IP-per-URL) and the application rule characteristic (per-email per-minute) verbatim, and shows a copy-paste example of both blueprints applied on the same project.",
+      "given": "the shipped guide at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md",
+      "when": "the anatomy test scans the guide for the composition section and ADR-3702 reference",
+      "then": "the section heading, ADR-3702 reference, both characteristic strings and the copy-paste example are present",
+      "testable": true,
+      "scope": "documentation"
+    }
+  ],
+  "tacIds": [
+    "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
+  ],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

@@ -1,0 +1,25 @@
+{
+  "tacId": "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Operator-facing management surface documentation (wrangler and Cloudflare dashboard flows)",
+  "purpose": "The shipped guide at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md documents both a wrangler command flow and a Cloudflare dashboard flow for applying one rule from a manifest file to the elicited zone. The guide is the sole management-surface artefact the blueprint ships; no committed script writes rules to the live zone. The elicited rate-limit-management-surface value records the flow the operator chose. The guide also names the composition with security-auth-magic-link per ADR-3702 and shows a copy-paste example. This TAC anchors AC-36102-1 and AC-36105-1.",
+  "responsibilities": [
+    "Ship a guide with a wrangler command flow and a Cloudflare dashboard flow, both walking through the apply of one rule from a manifest file (AC-36102-1).",
+    "Reference https://developers.cloudflare.com/waf/rate-limiting-rules/ as the vendor doc for the rule shape (AC-36102-1).",
+    "Ship a Composition with security-auth-magic-link section naming ADR-3702 explicitly, stating the zone rule characteristic (IP-per-URL) and the application rule characteristic (per-email per-minute) with a copy-paste example (AC-36105-1)."
+  ],
+  "internalStructure": "One guide file (guide/edge-cloudflare-rate-limiting.md) with three named sections: Manifest, Management surface (wrangler and dashboard subsections) and Composition with security-auth-magic-link. Every section links back to the corresponding REQ and ADR.",
+  "interfaces": [
+    {
+      "name": "guide/edge-cloudflare-rate-limiting.md",
+      "kind": "documentation",
+      "summary": "Operator-facing management surface guide with both wrangler and dashboard flows plus the composition example."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

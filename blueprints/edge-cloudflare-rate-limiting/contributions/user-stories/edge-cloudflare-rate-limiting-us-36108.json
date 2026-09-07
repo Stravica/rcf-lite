@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-rate-limiting-US-36108",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-rate-limiting-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Manifest-presence probe refuses a missing manifest file and names the missing file in the detail",
+  "asA": "operator on the applying project accidentally deleting or moving a manifest file under the elicited manifest directory",
+  "iWant": "the manifest-presence probe to surface the missing file at fixture probe time rather than at operator apply time against a live zone",
+  "soThat": "a manifest under-population defect is caught in the CI probe rather than lingering until an operator notices a missing rule at the dashboard",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-36108-1",
+      "description": "Given the cf-edge fixture with the SIMULATE_MANIFEST_MISSING=true switch, one committed manifest file is treated as absent by the probe; the manifest-presence probe returns aggregateVerdict: fail with the missing file's basename named in the detail; without the switch the probe passes and both manifest files are inspected.",
+      "given": "the cf-edge fixture with two committed manifest files and the SIMULATE_MANIFEST_MISSING=true switch",
+      "when": "the manifest-presence probe scans the fixture manifest directory",
+      "then": "the probe returns aggregateVerdict: fail and the missing file basename is present in the detail",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
+  ],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

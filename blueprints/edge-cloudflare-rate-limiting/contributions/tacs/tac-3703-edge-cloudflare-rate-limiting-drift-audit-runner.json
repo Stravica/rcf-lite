@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Drift-audit runner: read live zone rules via the Cloudflare API and diff against the local manifest",
+  "purpose": "The single project-side module realising the scheduled drift-audit runner. It fetches the live rate-limiting rules on the elicited zone via the Cloudflare API (GET /client/v4/zones/{zone_id}/rulesets), diffs the returned rule set against the local manifest file-by-file, and constructs one drift-audit record per mismatched rule. Records write through the applied logger's audit sink with the metadata-only shape {ruleId, clientIpHash, outcome, timestamp, diff}; no record carries a full IP, a request body or a user agent (event-secrecy discipline per REQ-004 and AC-36107-1). The runner is factory-driven for testability: probes and the anatomy test inject a fake fetch that returns a synthetic live-zone response. This TAC anchors AC-36104-1 and AC-36107-1.",
+  "responsibilities": [
+    "Export createDriftAuditRunner({env, eventSink, fetch, clock, cadence}) returning {runOnce, schedule, stop} matching the drift-audit shape (AC-36104-1).",
+    "Diff every manifest rule against every live rule and construct one drift record per mismatched rule, with the metadata-only shape {ruleId, outcome, timestamp, diff} (AC-36104-1, AC-36107-1).",
+    "Emit exactly one audit event per drift record on the injected sink, Object.frozen at the boundary (AC-36107-1).",
+    "Refuse to run when the elicited cadence is off (AC-36104-1)."
+  ],
+  "internalStructure": "One shipped runner module the blueprint contributes at guide-installation time (the runner code is copy-paste from the guide into the applying project; the shipped fixture at packages/rcf-lite/test/fixtures/cf-edge/src/drift-audit-runner.mjs realises the shape the guide names). The runner constructs one drift record per mismatched rule; the record is Object.frozen at the boundary so a downstream handler cannot enrich it with a leaked field.",
+  "interfaces": [
+    {
+      "name": "createDriftAuditRunner",
+      "kind": "factory",
+      "summary": "Drift-audit runner factory over env, eventSink, fetch, clock and the elicited cadence."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

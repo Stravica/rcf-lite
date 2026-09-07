@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-rate-limiting-REQ-002",
+  "prdId": "PRD-001",
+  "title": "The operator-facing management surface is a documented wrangler or Cloudflare-dashboard flow that applies the local manifest to the live zone",
+  "description": "The blueprint ships no committed script that writes rules to the live Cloudflare zone. The applying project's operator applies the manifest to the elicited zone through one of two documented flows per TAC-3702 and the guide: a wrangler-based flow (the guide names the exact wrangler subcommands the operator runs; commits an audit trail through the wrangler history) or a Cloudflare-dashboard flow (the guide walks the dashboard screens the operator clicks per https://developers.cloudflare.com/waf/rate-limiting-rules/). The elicited rate-limit-management-surface value records the flow the operator chose; the guide's copy-paste walkthrough covers both. The intent is a management surface an operator can hand-run at a known cadence and reproduce from the manifest without inventing a bespoke deploy tool.",
+  "category": "operational",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (cloudflare-round-6-spec-2026-09-06.md section 5.6). Ships as v1.0.0 of edge-cloudflare-rate-limiting.",
+  "tags": [
+    "blueprint:edge-cloudflare-rate-limiting"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

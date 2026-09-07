@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-rate-limiting-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Over-threshold behaviour: the (N+1)th and subsequent requests within the elicited duration return 429 with Retry-After and Cf-Ray, and the origin never sees them",
+  "description": "Given a rule that permits N requests per period on a characteristic set, when a client sends the (N+1)th request within that period, Cloudflare's zone-level rate limiter refuses the request at the edge for the elicited duration. The refusal response is HTTP 429 with a Retry-After header naming a value consistent with the elicited duration and a Cf-Ray header identifying the CF edge that served the refusal per the Cloudflare WAF rate-limiting rules documented shape at https://developers.cloudflare.com/waf/rate-limiting-rules/. The origin Worker never sees the refused requests. This is the runtime observable AC-rateLimiting-overThresholdBlocks binds; the runtime verification is the real-account burst probe per REQ-004's account-bound category, and per ruling 6 the local CI records accountBound: skipped without CI_HAS_CLOUDFLARE_ACCOUNT.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (cloudflare-round-6-spec-2026-09-06.md section 5.6). Ships as v1.0.0 of edge-cloudflare-rate-limiting.",
+  "tags": [
+    "blueprint:edge-cloudflare-rate-limiting"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

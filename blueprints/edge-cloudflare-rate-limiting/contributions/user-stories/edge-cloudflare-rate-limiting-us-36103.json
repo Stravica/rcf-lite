@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-rate-limiting-US-36103",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-rate-limiting-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Over-threshold burst returns 429 with Retry-After and Cf-Ray on the (N+1)th request within the elicited duration",
+  "asA": "operator running the real-account burst probe against a scheduled HQ-owned URL configured with the manifest rule",
+  "iWant": "the probe to fire an undici burst above the rule threshold and observe the (N+1)th and subsequent requests return HTTP 429 with a Retry-After header consistent with the elicited duration and a Cf-Ray header for the CF edge that served the refusal",
+  "soThat": "the shipped over-threshold behaviour is verified against a real Cloudflare account and, in CI without CI_HAS_CLOUDFLARE_ACCOUNT, the probe records accountBound: skipped per ruling 6",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-36103-1",
+      "description": "When CI_HAS_CLOUDFLARE_ACCOUNT is true and CF_RATE_LIMIT_URL is set to a scheduled HQ-owned URL configured with the manifest rule, the real-account-burst-and-429 probe fires the elicited threshold plus one requests within the rule period and observes the (N+1)th and subsequent requests within the elicited duration return HTTP 429 with a Retry-After header value consistent with the elicited duration and a Cf-Ray header naming the CF edge; when either env var is absent the probe records accountBoundSkipped: true and the aggregate verdict is pass per spec section 3.5 and ruling 6.",
+      "given": "a scheduled HQ-owned URL configured with the manifest rule (or the accountBound: skipped fallback in CI)",
+      "when": "the real-account-burst-and-429 probe fires the burst (or records the skip)",
+      "then": "the probe returns 429 with the two required headers on the over-threshold requests, or records accountBoundSkipped: true and aggregates to pass",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
+  ],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}
