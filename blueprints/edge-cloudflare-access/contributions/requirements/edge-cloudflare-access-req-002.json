@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-access-REQ-002",
+  "prdId": "PRD-001",
+  "title": "An Access application is declared with an elicited hostname or self-hosted-app id and an elicited policy shape from the enum",
+  "description": "The blueprint elicits either an Access application hostname or a self-hosted-app id (one of the two) plus the JWT audience tag and JWKS URL, plus a policy shape from the enum (email-domain, service-token-only, service-token-plus-email-domain, group-membership). Applying the blueprint records the elicited values on rcf/blueprints/edge-cloudflare-access.applied.json; the shipped guide walks the operator through issuing the paired policy in the Cloudflare Zero Trust dashboard (screen-by-screen) and documents the alternative API path against api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.4). Ships as v1.0.0 of edge-cloudflare-access.",
+  "tags": [
+    "blueprint:edge-cloudflare-access"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

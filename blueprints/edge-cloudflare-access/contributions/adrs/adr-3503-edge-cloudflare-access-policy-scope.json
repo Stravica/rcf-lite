@@ -1,0 +1,12 @@
+{
+  "adrId": "ADR-3503-edge-cloudflare-access-policy-scope",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Policy scope: application-level (recommended default) or per-path elicited",
+  "context": "A Cloudflare Access application binds to a hostname or self-hosted-app id and a set of paths. Policies attach at the application level (one policy protects every path) or per-path (different policies for /admin vs /public). Application-level scope is the most common shape and the least surprising; per-path scope is a legitimate answer for a mixed-audience surface.",
+  "decision": "The shipped recommendedDefault is application-level (recommendedDefault: true). The elicited alternative is per-path (elicited: true). The guide's dashboard walk-through covers both paths; the API alternative differs only in the path selector on the policy issuance call. Standards trace clause: Cloudflare Access policy actions and rule selectors (per https://developers.cloudflare.com/cloudflare-one/policies/access/).",
+  "consequences": "A fresh project applying the blueprint gets one application-level policy protecting every path (the simplest deployment); an operator opting into per-path scope elicits a route table and issues one policy per route selector. The validator does not branch on the scope at runtime (the Cloudflare edge enforces the policy).",
+  "alternativesConsidered": []
+}

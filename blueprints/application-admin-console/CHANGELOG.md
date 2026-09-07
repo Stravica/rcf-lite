@@ -1,5 +1,17 @@
 # application-admin-console CHANGELOG
 
+## 1.1.0 (2026-09-07)
+
+### Added
+
+- Consume the `zeroTrustGate` capability optionally at apply-time via the shipped `readAppliedCapabilities()` helper (the T-5 visual-round mechanism). When `zeroTrustGate` is in the applied capability set, `/admin/sign-in` renders the Access-gated sign-in surface: `[data-surface=access-gated]` with no local login form, plus a `[data-role=principal-read]` element carrying the principal email read from `request.auth`. When `zeroTrustGate` is absent the surface falls back to the local `security-auth-*` surface with `[data-surface=local-login]` and the existing local form. Additive minor: `requiresAppliedCapabilities.capabilities[]` stays `["principalDirectory"]` (Q4 default per Cloudflare round 6 spec section 5.4.1: making Access-gate hard is a v2.0 change).
+- 6 new contributions on the admin-console shelf entry: 1 REQ (`application-admin-console-REQ-014`), 2 USs (`application-admin-console-US-21815` Access-gated sign-in, `application-admin-console-US-21816` fallback branch), 1 TAC (`TAC-2214-application-admin-console-access-gated-signin-surface`), 1 ADR (`ADR-2214-application-admin-console-consume-zero-trust-gate`, scope global on new topic `adminConsoleSignInSurface` with `standardsTraceClause: visual round spec section 5.5.2 (the T-5 mechanism)` and `recommendedDefault: true`) and 1 pack check (`AC-21815-1`) on the existing `application-admin-console.pack.mjs`.
+- Sign-in route extension on the shipped `packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/` fixture: a new `/admin/sign-in` route that renders the Access-gated or local-login surface based on the applied caps (`?caps=zeroTrustGate` picks the gated branch). The existing `?caps=` combinations are preserved; the `AC-21815-1` pack check exercises both branches.
+
+### Composition
+
+- Rides the T-4 PR alongside `edge-cloudflare-access` v1.0.0 (round-4 T-4 capability-minor pattern). The Access-gated surface reads `request.auth.email`, which the shipped `edge-cloudflare-access` JWT validator sets after JWKS verification.
+
 ## 1.0.0 (visual round T-5, spec 2026-09-04)
 
 - First ratified version of the shelf's admin-console blueprint. Six REQs (console shell with no dead links, conditional users, conditional roles with Owner + Admin + Member + Viewer baseline, conditional orgs, conditional audit-log, access-denied plus request-access), nine USs 21101-21109 binding 16 runtime-observable ACs, four TACs 2201-2204 (shell, capability discovery, permission matrix, audit view consuming datatable), four ADRs 2201-2204 (capability vocabulary, baseline roles, invite transport, audit retention). No new global topics.

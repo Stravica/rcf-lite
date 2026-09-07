@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:19.333Z",
+  "updatedAt": "2026-09-07T16:53:12.077Z",
+  "purpose": "Cover AC-8501-1 via anatomy test: extended admin-console fixture DOM inspection on both caps combinations",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8501-1"
+  ],
+  "id": "TS-117",
+  "usId": "US-8501",
+  "title": "T-4 admin-console composition: sign-in surface flips per applied capability set",
+  "testCases": [
+    {
+      "id": "TC-117-admin-console-gate-surface",
+      "acId": "AC-8501-1",
+      "description": "AC-8501-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::extended admin-console pack fixture flips sign-in surface per applied capability set (TC-117-admin-console-gate-surface)"
+    }
+  ],
+  "status": "draft"
+}

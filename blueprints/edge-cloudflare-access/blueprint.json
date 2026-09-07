@@ -1,0 +1,197 @@
+{
+  "slug": "edge-cloudflare-access",
+  "version": "1.0.0",
+  "category": "edge",
+  "capabilities": [
+    "zeroTrustGate"
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every validate-pass, validate-reject and bypass event emits an audit record with metadata-only fields; a logging companion supplies the sink factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A JWKS fetch failure, a signature mismatch, an expired-JWT branch and a missing header each construct a rejection outcome; an error-handling companion supplies the record factory and the boundary."
+    },
+    {
+      "role": "secretsManagement",
+      "reason": "The paired break-glass service-auth secret and the JWKS-URL projection to production are stored in the operator's applied secretsManagement companion; the applied vault seam receives the elicited values at apply time and injects them at deploy."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "access-application-host",
+      "prompt": "Cloudflare Access application hostname the Zero Trust policy is attached to (recommended for hostname-scoped applications). Supply this OR access-selfhosted-app-id.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "access-selfhosted-app-id",
+      "prompt": "Cloudflare Access self-hosted application id (recommended for API-managed applications). Supply this OR access-application-host.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "access-audience",
+      "prompt": "JWT audience tag the Access policy issues; the validator refuses tokens whose aud claim does not match this string.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "access-jwks-url",
+      "prompt": "JWKS endpoint URL the validator fetches keys from. Cloudflare Access publishes this at https://<team>.cloudflareaccess.com/cdn-cgi/access/certs.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "access-policy-shape",
+      "prompt": "Access policy shape per TAC-3503. email-domain restricts by @<domain>; service-token-only allows only the elicited bypass-service-auth pair; service-token-plus-email-domain permits both; group-membership binds to an identity-provider group claim (recommended for enterprise SSO).",
+      "kind": "enum",
+      "options": [
+        "email-domain",
+        "service-token-only",
+        "service-token-plus-email-domain",
+        "group-membership"
+      ],
+      "default": "email-domain"
+    },
+    {
+      "id": "access-bypass-service-auth-id",
+      "prompt": "Break-glass service-auth id (per ADR-3502 elicit-only; leave blank to disable break-glass). Recorded on rcf/blueprints/edge-cloudflare-access.applied.json; the paired secret goes through security-secrets-management.",
+      "kind": "string",
+      "default": ""
+    }
+  ],
+  "contributions": [
+    {
+      "id": "edge-cloudflare-access-REQ-001",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-access-req-001.json"
+    },
+    {
+      "id": "edge-cloudflare-access-REQ-002",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-access-req-002.json"
+    },
+    {
+      "id": "edge-cloudflare-access-REQ-003",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-access-req-003.json"
+    },
+    {
+      "id": "edge-cloudflare-access-REQ-004",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-access-req-004.json"
+    },
+    {
+      "id": "edge-cloudflare-access-REQ-005",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-access-req-005.json"
+    },
+    {
+      "id": "edge-cloudflare-access-REQ-006",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-access-req-006.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34101",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34101.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34102",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34102.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34103",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34103.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34104",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34104.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34105",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34105.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34106",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34106.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34107",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34107.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34108",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34108.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34109",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34109.json"
+    },
+    {
+      "id": "TAC-3501-edge-cloudflare-access-jwt-validator",
+      "kind": "tac",
+      "path": "tacs/tac-3501-edge-cloudflare-access-jwt-validator.json"
+    },
+    {
+      "id": "TAC-3502-edge-cloudflare-access-application-declaration",
+      "kind": "tac",
+      "path": "tacs/tac-3502-edge-cloudflare-access-application-declaration.json"
+    },
+    {
+      "id": "TAC-3503-edge-cloudflare-access-policy-shape",
+      "kind": "tac",
+      "path": "tacs/tac-3503-edge-cloudflare-access-policy-shape.json"
+    },
+    {
+      "id": "TAC-3504-edge-cloudflare-access-audit-sink",
+      "kind": "tac",
+      "path": "tacs/tac-3504-edge-cloudflare-access-audit-sink.json"
+    },
+    {
+      "id": "ADR-3501-edge-cloudflare-access-jwt-gate",
+      "kind": "adr",
+      "path": "adrs/adr-3501-edge-cloudflare-access-jwt-gate.json",
+      "scope": "global",
+      "topic": "edgeAuthenticationGate",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Access policy actions and rule selectors"
+    },
+    {
+      "id": "ADR-3502-edge-cloudflare-access-identity-provider",
+      "kind": "adr",
+      "path": "adrs/adr-3502-edge-cloudflare-access-identity-provider.json",
+      "recommendedDefault": false,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-3503-edge-cloudflare-access-policy-scope",
+      "kind": "adr",
+      "path": "adrs/adr-3503-edge-cloudflare-access-policy-scope.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Cloudflare Access policy actions and rule selectors"
+    },
+    {
+      "id": "ADR-3504-edge-cloudflare-access-audit-retention",
+      "kind": "adr",
+      "path": "adrs/adr-3504-edge-cloudflare-access-audit-retention.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}

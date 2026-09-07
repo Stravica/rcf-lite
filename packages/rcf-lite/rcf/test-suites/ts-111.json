@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:18.228Z",
+  "updatedAt": "2026-09-07T16:53:10.972Z",
+  "purpose": "Cover AC-8002-1 via anatomy test: missing, expired, mis-signed each 401 with allowed audit keys only",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8002-1"
+  ],
+  "id": "TS-111",
+  "usId": "US-8002",
+  "title": "T-4 JWT validator: reject cases return 401 with metadata-only audit event",
+  "testCases": [
+    {
+      "id": "TC-111-jwt-validator-reject",
+      "acId": "AC-8002-1",
+      "description": "AC-8002-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::JWT validator rejects missing expired and mis-signed with metadata-only audit event (TC-111-jwt-validator-reject)"
+    }
+  ],
+  "status": "draft"
+}

@@ -227,6 +227,44 @@ function renderDenied(caps, breakSwitch) {
 </main>${clientScript()}</body></html>`;
 }
 
+
+function renderSignIn(caps, principalEmail, breakSwitch) {
+  // T-4 admin-console v1.1.0 delta (Cloudflare round 6 spec section 5.4.1):
+  // when zeroTrustGate is in the applied capability set, render the
+  // Access-gated surface (no local form, principal reads from request.auth
+  // via [data-role=principal-read]); when absent, fall back to a
+  // security-auth-* local login surface (Q4 default: consumption is
+  // OPTIONAL, principalDirectory remains the sole hard requirement).
+  const dropPrincipalRead = breakSwitch === 'principal-read';
+  const dropLocalForm = breakSwitch === 'local-login-form';
+  if (caps.has('zeroTrustGate')) {
+    const principalHtml = dropPrincipalRead
+      ? ''
+      : `<p data-role="principal-read" aria-label="Signed in principal">${escapeHtml(principalEmail)}</p>`;
+    return `<!doctype html><html lang="en"><head>${renderShellHead('Sign in')}</head><body>${renderNav(caps)}<main>
+<div data-surface="access-gated" role="region" aria-labelledby="signInHeading">
+  <h1 id="signInHeading">Signed in via Cloudflare Access</h1>
+  <p>The Cloudflare Access edge validated your identity. This page carries no local login form; the principal comes from request.auth.</p>
+  ${principalHtml}
+</div>
+</main>${clientScript()}</body></html>`;
+  }
+  const formHtml = dropLocalForm
+    ? ''
+    : `<form data-role="local-login-form" method="post" action="/admin/sign-in">
+  <label>Email <input type="email" name="email" data-field="email" required></label>
+  <label>Password <input type="password" name="password" data-field="password" required></label>
+  <button type="submit" data-action="local-sign-in">Sign in</button>
+</form>`;
+  return `<!doctype html><html lang="en"><head>${renderShellHead('Sign in')}</head><body>${renderNav(caps)}<main>
+<div data-surface="local-login" role="region" aria-labelledby="signInHeading">
+  <h1 id="signInHeading">Sign in</h1>
+  <p>Use your project credentials from the applied security-auth blueprint.</p>
+  ${formHtml}
+</div>
+</main>${clientScript()}</body></html>`;
+}
+
 function renderNotFound(caps) {
   return `<!doctype html><html lang="en"><head>${renderShellHead('Not found')}</head><body>${renderNav(caps)}<main>
 <h1>Route not found</h1>
@@ -306,6 +344,10 @@ const server = http.createServer(async (req, res) => {
     case '/admin/audit':
       if (!caps.has('auditLog')) return htmlResponse(res, renderNotFound(caps));
       return htmlResponse(res, renderAuditPage(caps, breakSwitch));
+    case '/admin/sign-in': {
+      const principalEmail = reqUrl.searchParams.get('principalEmail') ?? process.env.ADMIN_CONSOLE_PRINCIPAL_EMAIL ?? 'principal@example.com';
+      return htmlResponse(res, renderSignIn(caps, principalEmail, breakSwitch));
+    }
     default:
       return htmlResponse(res, renderNotFound(caps));
   }
@@ -313,6 +355,8 @@ const server = http.createServer(async (req, res) => {
 
 const port = Number(process.env.PORT ?? 3000);
 server.listen(port, () => {
-  // Contract: emit LISTENING once bound so a caller can grep for it.
-  process.stdout.write(`LISTENING ${port}\n`);
+  const addr = server.address();
+  const bound = typeof addr === 'object' && addr ? addr.port : port;
+  process.stdout.write(`LISTENING ${bound}
+`);
 });

@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T16:49:11.871Z",
+  "updatedAt": "2026-09-07T17:14:19.252Z",
+  "reqId": "REQ-081",
+  "prdId": "PRD-001",
+  "title": "T-4 edge-cloudflare-access v1.0.0: an Access application is declared with an elicited hostname or self-hosted-app id and an elicited policy shape from the enum",
+  "description": "The blueprint elicits either an Access application hostname or a self-hosted-app id, plus the JWT audience, JWKS URL and a policy shape from the enum. Applying the blueprint records the values on rcf/blueprints/edge-cloudflare-access.applied.json.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "1.0.0",
+  "status": "approved",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T16:49:11.906Z"
+  }
+}

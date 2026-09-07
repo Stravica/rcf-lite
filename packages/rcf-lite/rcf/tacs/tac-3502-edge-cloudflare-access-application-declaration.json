@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T16:53:44.112Z",
+  "updatedAt": "2026-09-07T17:03:09.831Z",
+  "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "purpose": "Access application declaration surface: elicited hostname or self-hosted-app id plus JWT audience, JWKS URL, policy shape and optional break-glass service-auth pair; recorded on the applied-sidecar.",
+  "responsibilities": [
+    "Realise the shape named in the purpose statement.",
+    "Bind the anchored ACs on the shipped probes and the extended admin-console pack."
+  ],
+  "name": "Access application declaration surface"
+}

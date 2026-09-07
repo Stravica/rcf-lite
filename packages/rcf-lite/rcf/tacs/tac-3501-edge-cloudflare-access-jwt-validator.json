@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T16:53:43.928Z",
+  "updatedAt": "2026-09-07T17:03:09.639Z",
+  "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "purpose": "Access JWT validator module; sole reader of the Cf-Access-Jwt-Assertion header; JWKS fetch cached per kid; principal reduces to {email, sub, groups}.",
+  "responsibilities": [
+    "Realise the shape named in the purpose statement.",
+    "Bind the anchored ACs on the shipped probes and the extended admin-console pack."
+  ],
+  "name": "Access JWT validator with JWKS fetch and cache"
+}

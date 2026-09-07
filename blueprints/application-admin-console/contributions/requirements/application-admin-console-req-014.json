@@ -1,0 +1,17 @@
+{
+  "reqId": "application-admin-console-REQ-014",
+  "prdId": "PRD-001",
+  "title": "Consume zeroTrustGate optionally when applied alongside a zeroTrustGate provider",
+  "description": "application-admin-console v1.1.0 reads the appliedCapabilities set at apply-time via the shipped readAppliedCapabilities() helper (the T-5 visual-round mechanism). When zeroTrustGate is present alongside the sole hard requirement principalDirectory, the admin-console renders the Access-gated sign-in surface (no local login form; principal reads from request.auth via [data-role=principal-read]). When zeroTrustGate is absent the admin-console falls back to the local security-auth-* sign-in surface unchanged from v1.0.0. Q4 default per spec section 5.4.1: consumption is OPTIONAL; requiresAppliedCapabilities.capabilities[] remains [principalDirectory] (making Access-gate hard is a v2.0 change).",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.4.1) alongside edge-cloudflare-access v1.0.0. Round-4 T-4 capability-minor pattern: the admin-console minor rides the edge-cloudflare-access PR.",
+  "tags": [
+    "blueprint:application-admin-console"
+  ],
+  "version": "1.1.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

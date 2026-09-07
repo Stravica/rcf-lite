@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:18.597Z",
+  "updatedAt": "2026-09-07T16:53:11.340Z",
+  "purpose": "Cover AC-8101-1 via anatomy test: blueprint.json elicits block carries the expected ids and default values",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8101-1"
+  ],
+  "id": "TS-113",
+  "usId": "US-8101",
+  "title": "T-4 Access application declaration: elicits access-application-host/id and access-policy-shape",
+  "testCases": [
+    {
+      "id": "TC-113-elicits-application-declaration",
+      "acId": "AC-8101-1",
+      "description": "AC-8101-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::blueprint json elicits Access application host or self-hosted id plus policy shape enum (TC-113-elicits-application-declaration)"
+    }
+  ],
+  "status": "draft"
+}

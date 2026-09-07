@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T16:53:44.850Z",
+  "updatedAt": "2026-09-07T17:03:08.874Z",
+  "adrId": "ADR-3502-edge-cloudflare-access-identity-provider",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Identity provider for the Access application is elicited (recommendedDefault null)",
+  "context": "Cloudflare Access supports many identity providers (OTP, Google, GitHub, Okta, Entra ID, SAML, OIDC, mTLS); the choice is an enterprise-integration decision.",
+  "decision": "Identity provider is elicited (elicited: true). No recommended default; the applied-sidecar records the operator's answer.",
+  "consequences": "The elicitation forces an explicit operator answer at apply. Standards trace clause: generic enterprise practice."
+}

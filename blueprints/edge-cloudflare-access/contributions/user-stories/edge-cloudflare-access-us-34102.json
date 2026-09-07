@@ -1,0 +1,28 @@
+{
+  "usId": "edge-cloudflare-access-US-34102",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-access-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Missing, expired or mis-signed JWT rejects 401 with a metadata-only audit event",
+  "asA": "shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture",
+  "iWant": "requests carrying a missing, expired or mis-signed JWT to reject with 401 and emit exactly one metadata-only audit event on the shipped audit sink",
+  "soThat": "unauthenticated traffic cannot reach the downstream handler and every reject is observable without leaking the token value",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-34102-1",
+      "description": "The three reject subcases (missing header, expired exp, mis-signed) each return HTTP 401 and emit exactly one audit event whose keys are drawn from {email, outcome, timestamp, path} with no token substring, no header names beyond path, and no additional keys.",
+      "given": "a Worker fetch handler wired with createAccessValidator(...).middleware and one of the three reject subcases",
+      "when": "the request dispatches through the validator",
+      "then": "the validator returns 401 and emits one audit event whose outcome is drawn from {missing, expired, invalid} with the allowed-key shape",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3501-edge-cloudflare-access-jwt-validator",
+    "TAC-3504-edge-cloudflare-access-audit-sink"
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

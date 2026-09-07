@@ -1,0 +1,25 @@
+{
+  "tacId": "TAC-3504-edge-cloudflare-access-audit-sink",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Access audit sink with metadata-only shape",
+  "purpose": "Names the audit-event contract every validator outcome writes through the injected sink. The record shape is exactly {email, outcome, timestamp, path}; the sink boundary Object.freezes the record so a downstream handler cannot enrich it with a stray token slice. Retention and long-term storage are delegated to the applied logging companion per ADR-3504.",
+  "responsibilities": [
+    "Emit exactly one audit event per validate outcome on the injected sink (AC-34106-1).",
+    "Freeze the record at the boundary so no downstream handler can add a token substring or header value (AC-34106-1).",
+    "Support four outcomes: validated (pass), missing, expired, invalid (reject) and bypass (break-glass)."
+  ],
+  "internalStructure": "One helper (auditRecord) inside src/jwt-validator.mjs constructing the frozen four-key record. The sink itself is a caller-supplied function; a production consumer wires this to the applied logging companion (whose retention policy binds).",
+  "interfaces": [
+    {
+      "name": "eventSink",
+      "kind": "callback",
+      "summary": "A function accepting one audit record per validator outcome."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

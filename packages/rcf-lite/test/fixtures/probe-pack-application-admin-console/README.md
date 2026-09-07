@@ -48,3 +48,35 @@ curl -s http://127.0.0.1:4321/admin/users | head -20
 ```
 
 Two-line boot: start the server, hit `/admin/users` to confirm the surface renders.
+
+## T-4 admin-console v1.1.0 extension (Cloudflare round 6, spec section 5.4.1)
+
+Two new pieces ship with the extension:
+
+- `?caps=zeroTrustGate` (composed with the existing caps): flips the
+  `/admin/sign-in` route's surface. With `zeroTrustGate` in the caps
+  list, the sign-in page renders `[data-surface=access-gated]` with
+  no local form and a `[data-role=principal-read]` element carrying
+  the principal email (read from `request.auth` in a real
+  deployment; supplied via `?principalEmail=...` or the
+  `ADMIN_CONSOLE_PRINCIPAL_EMAIL` env var in the fixture). Without
+  `zeroTrustGate` the sign-in page renders `[data-surface=local-login]`
+  with a local email/password form.
+- `/admin/sign-in` route: added by the v1.1.0 minor. Serves the
+  Access-gated or local-login surface based on the applied caps.
+  Break switches: `?break=principal-read` drops the principal-read
+  element on the gated branch; `?break=local-login-form` drops the
+  form on the fallback branch. The shipped pack check `AC-21815-1`
+  in `application-admin-console.pack.mjs` fires only when
+  `zeroTrustGate` is applied and asserts the mutually exclusive
+  surface presence.
+
+### Two-line boot for the T-4 gate reviewer
+
+```
+PORT=4322 ADMIN_CONSOLE_CAPS=principalDirectory,roleModel,auditLog,zeroTrustGate node server.js
+curl -s "http://127.0.0.1:4322/admin/sign-in" | head -20
+```
+
+Expected: the response body carries `data-surface="access-gated"`
+and no `data-surface="local-login"`.

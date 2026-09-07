@@ -1,0 +1,33 @@
+{
+  "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Access application declaration surface",
+  "purpose": "The apply-time surface that captures the operator's Access application declaration: hostname or self-hosted-app id, JWT audience, JWKS URL, policy shape and (optionally) the break-glass service-auth pair. The declaration lands verbatim on rcf/blueprints/edge-cloudflare-access.applied.json so the shipped guide's dashboard walk-through and API alternative both operate on the same values.",
+  "responsibilities": [
+    "Elicit access-application-host OR access-selfhosted-app-id (exactly one is required at apply).",
+    "Elicit access-audience, access-jwks-url and access-policy-shape (from the enum in TAC-3503).",
+    "Elicit access-bypass-service-auth-id (blank disables break-glass); delegate the paired secret to the applied security-secrets-management vault seam.",
+    "Persist the elicited values on the applied-sidecar for the guide walk-through, the composition read from admin-console v1.1.0 and the sole-reader-scan probe."
+  ],
+  "internalStructure": "Declarative: the blueprint.json elicits[] block plus the applied-sidecar. The blueprint declares no runtime code path for the declaration surface itself; every consumer of the declaration reads the applied-sidecar via the shared readAppliedCapabilities helper.",
+  "interfaces": [
+    {
+      "name": "rcf/blueprints/edge-cloudflare-access.applied.json",
+      "kind": "artifact",
+      "summary": "The apply-time sidecar carrying the elicited declaration."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "TAC-3503 policy shape enum",
+      "kind": "tac",
+      "tacId": "TAC-3503-edge-cloudflare-access-policy-shape",
+      "description": "The policy-shape elicitation resolves to one of the enum values named in TAC-3503."
+    }
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

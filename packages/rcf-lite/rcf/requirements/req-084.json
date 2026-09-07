@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T16:49:12.520Z",
+  "updatedAt": "2026-09-07T17:14:19.838Z",
+  "reqId": "REQ-084",
+  "prdId": "PRD-001",
+  "title": "T-4 edge-cloudflare-access v1.0.0: break-glass posture with an elicited bypass-service-auth token pair for CI-signed automation",
+  "description": "The operator elicits a break-glass service-auth id; the paired secret is delegated to the applied secretsManagement companion. Requests presenting the paired CF-Access-Client-Id and CF-Access-Client-Secret headers authenticate with outcome=bypass.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "1.0.0",
+  "status": "approved",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T16:49:12.555Z"
+  }
+}

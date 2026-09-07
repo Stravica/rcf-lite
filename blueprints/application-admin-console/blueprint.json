@@ -1,6 +1,6 @@
 {
   "slug": "application-admin-console",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "application",
   "requiresAppliedCapabilities": {
     "capabilities": [
@@ -221,6 +221,39 @@
       "path": "adrs/adr-2204-application-admin-console-audit-retention.json",
       "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "application-admin-console-REQ-014",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-014.json"
+    },
+    {
+      "id": "application-admin-console-US-21815",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21815.json"
+    },
+    {
+      "id": "application-admin-console-US-21816",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21816.json"
+    },
+    {
+      "id": "TAC-2214-application-admin-console-access-gated-signin-surface",
+      "kind": "tac",
+      "path": "tacs/tac-2214-application-admin-console-access-gated-signin-surface.json"
+    },
+    {
+      "id": "ADR-2214-application-admin-console-consume-zero-trust-gate",
+      "kind": "adr",
+      "path": "adrs/adr-2214-application-admin-console-consume-zero-trust-gate.json",
+      "scope": "global",
+      "topic": "adminConsoleSignInSurface",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "visual round spec section 5.5.2 (the T-5 mechanism)"
     }
+  ],
+  "optionalCapabilities": [
+    "zeroTrustGate"
   ]
 }

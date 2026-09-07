@@ -38,7 +38,7 @@ function withUrl(runtimeUrl, path) {
 
 export default {
   packName: 'application-admin-console',
-  version: '1.0.0',
+  version: '1.1.0',
   blueprintSlug: 'application-admin-console',
   // Applies to any FBS that realises the console shell TAC or whose
   // navModel routes name an admin path. Names both `tacIds` and `route`
@@ -176,6 +176,31 @@ export default {
           return { verdict: 'fail', detail: 'audit entries missing columns: ' + JSON.stringify(missing) + ' present=' + JSON.stringify(dom.firstRowColumns) };
         }
         return { verdict: 'pass', detail: 'auditRows=' + dom.ids.length + ' columns=' + JSON.stringify(dom.firstRowColumns) };
+      },
+    },
+      {
+      id: 'AC-21815-1',
+      severity: 'block',
+      description: 'Access-gated sign-in surface renders when zeroTrustGate is applied: [data-surface=access-gated] present, [data-surface=local-login] absent, and [data-role=principal-read] carries the principal email read from request.auth (T-4 admin-console v1.1.0 delta, Cloudflare round 6 spec 5.4.1)',
+      appliesTo: async ({ projectRoot }) => {
+        const caps = await readAppliedCapabilities(projectRoot);
+        return caps.includes('zeroTrustGate');
+      },
+      run: async ({ browser, runtimeUrl }) => {
+        if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
+        await browser.goto(withUrl(runtimeUrl, '/admin/sign-in?caps=principalDirectory,roleModel,auditLog,zeroTrustGate'));
+        const dom = await browser.evaluate(() => {
+          const gated = document.querySelector('[data-surface="access-gated"]');
+          const local = document.querySelector('[data-surface="local-login"]');
+          const principalRead = document.querySelector('[data-role="principal-read"]');
+          const principalText = principalRead ? principalRead.textContent.trim() : null;
+          return { gatedPresent: !!gated, localPresent: !!local, principalReadPresent: !!principalRead, principalText };
+        });
+        if (!dom.gatedPresent) return { verdict: 'fail', detail: 'Access-gated sign-in surface missing: [data-surface="access-gated"] not found on /admin/sign-in under applied zeroTrustGate' };
+        if (dom.localPresent) return { verdict: 'fail', detail: 'Access-gated sign-in surface leak: [data-surface="local-login"] rendered alongside access-gated under applied zeroTrustGate' };
+        if (!dom.principalReadPresent) return { verdict: 'fail', detail: '[data-role="principal-read"] element missing on the Access-gated surface' };
+        if (!dom.principalText || dom.principalText.length === 0) return { verdict: 'fail', detail: '[data-role="principal-read"] element carries an empty principal (expected the email read from request.auth)' };
+        return { verdict: 'pass', detail: 'Access-gated surface renders: gatedPresent=true localPresent=false principalRead="' + dom.principalText + '"' };
       },
     },
   ],

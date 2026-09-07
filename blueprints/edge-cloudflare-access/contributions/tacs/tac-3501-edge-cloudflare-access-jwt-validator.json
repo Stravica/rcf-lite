@@ -1,0 +1,31 @@
+{
+  "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Access JWT validator with JWKS fetch and cache",
+  "purpose": "The single project-side module realising the Access JWT validator middleware. It is the sole reader of the Cf-Access-Jwt-Assertion header per REQ-001. Fetches the JWKS from env.ACCESS_JWKS_URL, caches keys per-kid for the elicited cache window, verifies the JWT against the cached key matching the header's kid, reduces the principal into request.auth as {email, sub, groups} and returns 401 on any validate-failure with a metadata-only audit event on the injected sink. Consumers never touch the header outside this module; the middleware is the one place the vendor surface lives so a future adapter (Google Cloud IAP, Duo Access) slots in without a consumer re-shape.",
+  "responsibilities": [
+    "Export createAccessValidator({env, eventSink, fetch, clock, bypassServiceAuth}) returning {validate, middleware} matching the Cloudflare Access JWT validation shape (AC-34101-1, AC-34102-1).",
+    "Own the ONLY reference to the Cf-Access-Jwt-Assertion header string in the applied source tree (AC-34103-1).",
+    "Emit exactly one audit event per validate outcome on the injected sink with the metadata-only shape {email, outcome, timestamp, path} (AC-34106-1).",
+    "Recognise the CF-Access-Client-Id / CF-Access-Client-Secret paired headers as break-glass when the elicited bypass-service-auth pair is applied, and route through with outcome=bypass (AC-34107-1)."
+  ],
+  "internalStructure": "One module (src/jwt-validator.mjs) exporting createAccessValidator. The middleware wires a fetch-shaped JWKS fetcher, a per-kid Map cache with a 60-second TTL and an audit sink boundary. The audit record is Object.frozen at the boundary so a downstream handler cannot enrich it with a stray token slice.",
+  "interfaces": [
+    {
+      "name": "createAccessValidator",
+      "kind": "factory",
+      "summary": "Access JWT validator factory over env.ACCESS_JWKS_URL and env.ACCESS_AUDIENCE."
+    },
+    {
+      "name": "validator.middleware",
+      "kind": "method",
+      "summary": "Handler-shaped middleware that either returns a rejection Response or attaches request.auth and returns rejected:false."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

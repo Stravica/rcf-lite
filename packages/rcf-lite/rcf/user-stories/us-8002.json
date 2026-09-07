@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T16:49:29.726Z",
+  "updatedAt": "2026-09-07T16:51:26.402Z",
+  "usId": "US-8002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-080",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-4 JWT validator: missing, expired or mis-signed JWT rejects 401 with metadata-only audit event",
+  "asA": "shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture",
+  "iWant": "requests carrying a missing, expired or mis-signed JWT to reject with 401 and emit exactly one metadata-only audit event on the shipped audit sink",
+  "soThat": "unauthenticated traffic cannot reach the downstream handler and every reject is observable without leaking the token value or headers",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-8002-1",
+      "description": "The three reject subcases (missing header, expired exp, mis-signed) each return HTTP 401 and emit exactly one audit event whose keys are drawn from {email, outcome, timestamp, path} with no token substring, no header names beyond path, and no additional keys.",
+      "given": "a Worker fetch handler wired with the createAccessValidator middleware and one of the three reject subcases",
+      "when": "the request dispatches through the validator",
+      "then": "the validator resolves 401, emits one audit event with outcome in {missing, expired, invalid} and the record body carries only the four allowed keys",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ]
+}

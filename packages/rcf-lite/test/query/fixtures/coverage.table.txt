@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 51  covered: 51  covered-unresolved: 0  uncovered: 0
+Requirements: 58  covered: 58  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -302,3 +302,14 @@ REQ-074      yes      AC-7401-1   yes         TC-104-hub-broadcast
 REQ-075      yes      AC-7501-1   yes         TC-106-event-secrecy
 REQ-076      yes      AC-7601-1   yes         TC-107-sole-reader-scan
 REQ-077      yes      AC-7701-1   yes         TC-108-wrangler-do-bindings
+REQ-080      yes      AC-8001-1   yes         TC-110-jwt-validator-pass
+                      AC-8002-1   yes         TC-111-jwt-validator-reject
+                      AC-8003-1   yes         TC-112-sole-reader-boundary
+REQ-081      yes      AC-8101-1   yes         TC-113-elicits-application-declaration
+REQ-082      yes      AC-8201-1   yes         TC-114-guide-policy-issuance
+REQ-083      yes      AC-8301-1   yes         TC-115-audit-metadata-secrecy
+REQ-084      yes      AC-8401-1   yes         TC-116-break-glass-bypass
+REQ-085      yes      AC-8501-1   yes         TC-117-admin-console-gate-surface
+                      AC-8502-1   yes         TC-119-real-account-gated-url-skipped
+REQ-086      yes      AC-8601-1   yes         TC-118-admin-console-gated-pack-check
+                      AC-8602-1   yes         TC-119-admin-console-fallback

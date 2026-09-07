@@ -1310,6 +1310,57 @@ flowchart LR
   REQ-077 --> AC-7701-1
   TC-108-wrangler-do-bindings["TC-108-wrangler-do-bindings"]
   AC-7701-1 -.-> TC-108-wrangler-do-bindings
+  REQ-080["REQ-080"]
+  AC-8001-1["AC-8001-1"]
+  REQ-080 --> AC-8001-1
+  TC-110-jwt-validator-pass["TC-110-jwt-validator-pass"]
+  AC-8001-1 -.-> TC-110-jwt-validator-pass
+  AC-8002-1["AC-8002-1"]
+  REQ-080 --> AC-8002-1
+  TC-111-jwt-validator-reject["TC-111-jwt-validator-reject"]
+  AC-8002-1 -.-> TC-111-jwt-validator-reject
+  AC-8003-1["AC-8003-1"]
+  REQ-080 --> AC-8003-1
+  TC-112-sole-reader-boundary["TC-112-sole-reader-boundary"]
+  AC-8003-1 -.-> TC-112-sole-reader-boundary
+  REQ-081["REQ-081"]
+  AC-8101-1["AC-8101-1"]
+  REQ-081 --> AC-8101-1
+  TC-113-elicits-application-declaration["TC-113-elicits-application-declaration"]
+  AC-8101-1 -.-> TC-113-elicits-application-declaration
+  REQ-082["REQ-082"]
+  AC-8201-1["AC-8201-1"]
+  REQ-082 --> AC-8201-1
+  TC-114-guide-policy-issuance["TC-114-guide-policy-issuance"]
+  AC-8201-1 -.-> TC-114-guide-policy-issuance
+  REQ-083["REQ-083"]
+  AC-8301-1["AC-8301-1"]
+  REQ-083 --> AC-8301-1
+  TC-115-audit-metadata-secrecy["TC-115-audit-metadata-secrecy"]
+  AC-8301-1 -.-> TC-115-audit-metadata-secrecy
+  REQ-084["REQ-084"]
+  AC-8401-1["AC-8401-1"]
+  REQ-084 --> AC-8401-1
+  TC-116-break-glass-bypass["TC-116-break-glass-bypass"]
+  AC-8401-1 -.-> TC-116-break-glass-bypass
+  REQ-085["REQ-085"]
+  AC-8501-1["AC-8501-1"]
+  REQ-085 --> AC-8501-1
+  TC-117-admin-console-gate-surface["TC-117-admin-console-gate-surface"]
+  AC-8501-1 -.-> TC-117-admin-console-gate-surface
+  AC-8502-1["AC-8502-1"]
+  REQ-085 --> AC-8502-1
+  TC-119-real-account-gated-url-skipped["TC-119-real-account-gated-url-skipped"]
+  AC-8502-1 -.-> TC-119-real-account-gated-url-skipped
+  REQ-086["REQ-086"]
+  AC-8601-1["AC-8601-1"]
+  REQ-086 --> AC-8601-1
+  TC-118-admin-console-gated-pack-check["TC-118-admin-console-gated-pack-check"]
+  AC-8601-1 -.-> TC-118-admin-console-gated-pack-check
+  AC-8602-1["AC-8602-1"]
+  REQ-086 --> AC-8602-1
+  TC-119-admin-console-fallback["TC-119-admin-console-fallback"]
+  AC-8602-1 -.-> TC-119-admin-console-fallback
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1991,6 +2042,35 @@ flowchart LR
   class REQ-077 req;
   class AC-7701-1 ac;
   class TC-108-wrangler-do-bindings tc;
+  class REQ-080 req;
+  class AC-8001-1 ac;
+  class TC-110-jwt-validator-pass tc;
+  class AC-8002-1 ac;
+  class TC-111-jwt-validator-reject tc;
+  class AC-8003-1 ac;
+  class TC-112-sole-reader-boundary tc;
+  class REQ-081 req;
+  class AC-8101-1 ac;
+  class TC-113-elicits-application-declaration tc;
+  class REQ-082 req;
+  class AC-8201-1 ac;
+  class TC-114-guide-policy-issuance tc;
+  class REQ-083 req;
+  class AC-8301-1 ac;
+  class TC-115-audit-metadata-secrecy tc;
+  class REQ-084 req;
+  class AC-8401-1 ac;
+  class TC-116-break-glass-bypass tc;
+  class REQ-085 req;
+  class AC-8501-1 ac;
+  class TC-117-admin-console-gate-surface tc;
+  class AC-8502-1 ac;
+  class TC-119-real-account-gated-url-skipped tc;
+  class REQ-086 req;
+  class AC-8601-1 ac;
+  class TC-118-admin-console-gated-pack-check tc;
+  class AC-8602-1 ac;
+  class TC-119-admin-console-fallback tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

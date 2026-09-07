@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T16:49:12.304Z",
+  "updatedAt": "2026-09-07T17:14:19.647Z",
+  "reqId": "REQ-083",
+  "prdId": "PRD-001",
+  "title": "T-4 edge-cloudflare-access v1.0.0: the audit event carries metadata-only fields email, outcome, timestamp and path with no token value or headers",
+  "description": "Every validate outcome emits one audit event on the injected sink with the metadata-only shape {email, outcome, timestamp, path}. The record is Object.frozen at the boundary; no downstream module can enrich it with a stray token slice.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "1.0.0",
+  "status": "approved",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T16:49:12.339Z"
+  }
+}

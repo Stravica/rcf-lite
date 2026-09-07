@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T16:53:44.665Z",
+  "updatedAt": "2026-09-07T17:03:08.688Z",
+  "adrId": "ADR-3501-edge-cloudflare-access-jwt-gate",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Edge authentication gate: Cloudflare Access Zero-Trust JWT-assertion gate (scope global, new topic edgeAuthenticationGate)",
+  "context": "T-4 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-access/contributions/adrs/adr-3501-edge-cloudflare-access-jwt-gate.json contribution. The chain slice is the audit trail for the JWT-gate decision (scope global on new topic edgeAuthenticationGate). Cloudflare Access enforces the Zero-Trust policy at the CF edge and passes a signed JWT to the origin Worker in the Cf-Access-Jwt-Assertion header per https://developers.cloudflare.com/cloudflare-one/policies/access/. Every applied Worker needs one project-wide answer to the edgeAuthenticationGate topic; a future non-Cloudflare adapter conflicts on the same topic by design.",
+  "decision": "The shipped v1.0.0 default is Cloudflare Access's Zero-Trust JWT-assertion gate. The JWT validator (TAC-3501) is the sole reader of the Cf-Access-Jwt-Assertion header and reduces the principal into request.auth. The edgeAuthenticationGate topic scope is global on this blueprint; the topic string is edgeAuthenticationGate (lower camel case). Standards trace clause: Cloudflare Access policy actions and rule selectors.",
+  "consequences": "The applying project inherits Cloudflare's documented Access policy model and the JWT rotation cadence published at https://<team>.cloudflareaccess.com/cdn-cgi/access/certs. Consumers deploying to a non-Cloudflare edge reach for a sibling adapter blueprint that lands as a v1.x minor on this shelf."
+}

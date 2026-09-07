@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:19.149Z",
+  "updatedAt": "2026-09-07T16:53:11.893Z",
+  "purpose": "Cover AC-8401-1 via anatomy test: paired headers observed, principal service:<id>, audit outcome=bypass with allowed keys",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8401-1"
+  ],
+  "id": "TS-116",
+  "usId": "US-8401",
+  "title": "T-4 break-glass posture: bypass-service-auth pair authenticates and audits as outcome=bypass",
+  "testCases": [
+    {
+      "id": "TC-116-break-glass-bypass",
+      "acId": "AC-8401-1",
+      "description": "AC-8401-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::break-glass bypass-service-auth pair authenticates and audits outcome bypass with allowed keys (TC-116-break-glass-bypass)"
+    }
+  ],
+  "status": "draft"
+}

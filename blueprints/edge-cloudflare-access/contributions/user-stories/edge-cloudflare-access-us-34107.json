@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-access-US-34107",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-access-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Break-glass posture: an elicited bypass-service-auth pair authenticates CI automation",
+  "asA": "operator running CI-signed automation against an Access-gated Worker",
+  "iWant": "an elicited bypass-service-auth token pair that the validator recognises and passes through as an authenticated principal",
+  "soThat": "CI can hit the gated Worker without a browser flow while every bypass leaves a distinct audit trace",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-34107-1",
+      "description": "When the request presents the elicited service-auth id and secret (as CF-Access-Client-Id and CF-Access-Client-Secret headers), the validator observes the pair, records outcome=bypass in the audit event with the metadata-only shape, and delegates to the handler as authenticated with request.auth.email='service:'+id. Break-glass is disabled unless the elicited pair is applied.",
+      "given": "the createAccessValidator wired with an elicited bypass-service-auth pair and a request presenting the paired headers",
+      "when": "the request dispatches through the validator",
+      "then": "the handler receives request.auth with the service principal and the audit sink records outcome=bypass with allowed keys only",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3501-edge-cloudflare-access-jwt-validator"
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

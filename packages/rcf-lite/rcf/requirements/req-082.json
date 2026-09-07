@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T16:49:12.089Z",
+  "updatedAt": "2026-09-07T17:14:19.438Z",
+  "reqId": "REQ-082",
+  "prdId": "PRD-001",
+  "title": "T-4 edge-cloudflare-access v1.0.0: the operator issues a Zero Trust policy via the dashboard or the API path documented in the guide",
+  "description": "The shipped guide documents two paths for issuing the Zero Trust policy: a dashboard walk-through screen-by-screen and a curl example against api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies per https://developers.cloudflare.com/cloudflare-one/policies/access/.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "1.0.0",
+  "status": "approved",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T16:49:12.123Z"
+  }
+}

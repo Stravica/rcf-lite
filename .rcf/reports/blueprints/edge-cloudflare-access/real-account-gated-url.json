@@ -1,0 +1,20 @@
+{
+  "slug": "edge-cloudflare-access",
+  "probeName": "real-account-gated-url",
+  "runAt": "2026-09-07T17:05:58.131Z",
+  "engine": {
+    "kind": "real-account",
+    "image": "live fetch against Cloudflare Access-configured hostname",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-34109-1",
+      "verdict": "pass",
+      "accountBoundSkipped": true,
+      "detail": "accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=false CF_ACCESS_HOST=unset; per spec section 3.5 pass-with-skip."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "accountBoundSkipped": true
+}

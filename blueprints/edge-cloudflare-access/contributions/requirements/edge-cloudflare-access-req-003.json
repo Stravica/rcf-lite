@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-access-REQ-003",
+  "prdId": "PRD-001",
+  "title": "The operator issues a Zero Trust policy via the guide's dashboard walk-through or the alternative API path",
+  "description": "The shipped guide documents two paths for issuing the Zero Trust policy that the shipped validator enforces: (1) a screen-by-screen walk-through of the Cloudflare Zero Trust dashboard for the operator picking hostname-scoped or self-hosted applications, per https://developers.cloudflare.com/cloudflare-one/policies/access/; and (2) a curl example against https://api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies for the operator preferring API automation. The API path is idempotent per Cloudflare's documented semantics; the dashboard path is not.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.4). Ships as v1.0.0 of edge-cloudflare-access.",
+  "tags": [
+    "blueprint:edge-cloudflare-access"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

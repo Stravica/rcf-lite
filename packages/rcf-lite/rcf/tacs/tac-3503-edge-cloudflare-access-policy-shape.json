@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T16:53:44.296Z",
+  "updatedAt": "2026-09-07T17:03:10.018Z",
+  "tacId": "TAC-3503-edge-cloudflare-access-policy-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "purpose": "Access policy shape enum with four values: email-domain, service-token-only, service-token-plus-email-domain, group-membership; drives the guide walk-through and the API alternative.",
+  "responsibilities": [
+    "Realise the shape named in the purpose statement.",
+    "Bind the anchored ACs on the shipped probes and the extended admin-console pack."
+  ],
+  "name": "Access policy shape enum and its issuance flow"
+}

@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T16:49:30.372Z",
+  "updatedAt": "2026-09-07T16:51:53.022Z",
+  "usId": "US-8201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-082",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-4 operator issues a Zero Trust policy via the guide's dashboard walk-through or the alternative API path",
+  "asA": "operator applying the edge-cloudflare-access v1.0.0 blueprint",
+  "iWant": "the guide to walk me through issuing the Zero Trust policy on the Cloudflare dashboard AND to document the alternative API path",
+  "soThat": "the policy issuance flow is unambiguous whether I use the dashboard or the API",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-8201-1",
+      "description": "The shipped guide/edge-cloudflare-access.md carries a section Zero Trust dashboard walk-through with numbered steps naming each screen; and a section API alternative with a curl example against https://api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies; the vendor URL https://developers.cloudflare.com/cloudflare-one/policies/access/ is cited from ADR-3501 and the guide.",
+      "given": "the shipped guide file",
+      "when": "the anatomy test greps for the two section headings, the curl example and the vendor URL",
+      "then": "each string matches at least once in the file",
+      "testable": true,
+      "scope": "library"
+    }
+  ]
+}

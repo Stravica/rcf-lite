@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T16:49:30.802Z",
+  "updatedAt": "2026-09-07T16:51:27.332Z",
+  "usId": "US-8401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-084",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-4 break-glass posture: an elicited bypass-service-auth token pair signs CI automation requests through the validator",
+  "asA": "operator running CI-signed automation against an Access-gated Worker",
+  "iWant": "an elicited bypass-service-auth token pair that the validator recognises and passes through as an authenticated principal",
+  "soThat": "CI can hit the gated Worker without a browser flow while every bypass leaves a distinct audit trace",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-8401-1",
+      "description": "When the request presents the elicited service-auth id and secret (as CF-Access-Client-Id and CF-Access-Client-Secret headers), the validator observes the pair, records outcome=bypass in the audit event with the same metadata-only shape, and delegates to the handler as authenticated with request.auth.email='service:'+id. Break-glass is disabled unless the elicited pair is applied.",
+      "given": "the createAccessValidator wired with an elicited bypass-service-auth pair and a request presenting the paired headers",
+      "when": "the request dispatches through the validator",
+      "then": "the handler receives request.auth with the service principal and the audit sink records outcome=bypass, with allowed keys only",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ]
+}
