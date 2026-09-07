@@ -250,7 +250,7 @@
       "topic": "adminConsoleSignInSurface",
       "recommendedDefault": true,
       "elicited": false,
-      "standardsTraceClause": "visual round spec section 5.5.2 (the T-5 mechanism)"
+      "standardsTraceClause": "Cloudflare round 6 spec section 5.4 (admin-console v1.1.0 delta)"
     }
   ],
   "optionalCapabilities": [

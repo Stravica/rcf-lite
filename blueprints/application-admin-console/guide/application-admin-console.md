@@ -50,4 +50,4 @@ Fall-back apply-line (no Access; the v1.1.0 admin-console behaves identically to
 rcf define blueprint add application-admin-console --version 1.1.0
 ```
 
-Standards trace clause for the ADR: `visual round spec section 5.5.2 (the T-5 mechanism)`.
+Standards trace clause for the ADR: `Cloudflare round 6 spec section 5.4 (admin-console v1.1.0 delta)`.
