@@ -43,6 +43,9 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
 | application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
+| application-forms-wizard | 24101-24899 | 25xx | shipped v1.0.0 | none |
+| application-account-settings | 25101-25899 | 26xx | shipped v1.0.0 | none |
+| application-onboarding-tour | 26101-26899 | 27xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 
