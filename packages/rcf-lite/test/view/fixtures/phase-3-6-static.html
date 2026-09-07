@@ -14432,7 +14432,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Description:</strong> The applying project holds its rate-limit rule set as a set of JSON documents under the elicited rate-limit-rules-dir (default cloudflare/rate-limits/), one file per rule per ADR-3703. Every manifest file declares the seven documented fields the Cloudflare WAF rate-limiting rules contract names per https://developers.cloudflare.com/waf/rate-limiting-rules/: id, expression, threshold, period, characteristics, action, duration. The zone id is elicited and stored via secretsManagement; no rule references a secret in plaintext. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-100..109 / TS-130..139 / FBS-120..129 / CN-380..409). Round-6 T-6 track of Cloudflare-round-6-spec-2026-09-06 section 5.6.</p>
   <p><strong>Category:</strong> functional</p>
-  <p><strong>Domain:</strong> todo</p>
+  <p><strong>Domain:</strong> functional</p>
   <p><strong>Priority:</strong> must</p>
   
   
@@ -14491,13 +14491,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-07T21:38:51.465Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-07T21:38:51.465Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:23.440Z&quot;,
   &quot;description&quot;: &quot;The applying project holds its rate-limit rule set as a set of JSON documents under the elicited rate-limit-rules-dir (default cloudflare/rate-limits/), one file per rule per ADR-3703. Every manifest file declares the seven documented fields the Cloudflare WAF rate-limiting rules contract names per https://developers.cloudflare.com/waf/rate-limiting-rules/: id, expression, threshold, period, characteristics, action, duration. The zone id is elicited and stored via secretsManagement; no rule references a secret in plaintext. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-100..109 / TS-130..139 / FBS-120..129 / CN-380..409). Round-6 T-6 track of Cloudflare-round-6-spec-2026-09-06 section 5.6.&quot;,
   &quot;reqId&quot;: &quot;REQ-100&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: rate-limit rule manifest committed under cloudflare/rate-limits/, one JSON file per rule, matching the elicited rule shape without plaintext secrets&quot;,
   &quot;category&quot;: &quot;functional&quot;,
-  &quot;domain&quot;: &quot;todo&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
   &quot;priority&quot;: &quot;must&quot;,
   &quot;version&quot;: &quot;0.1.0&quot;,
   &quot;status&quot;: &quot;draft&quot;
@@ -14641,7 +14641,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Description:</strong> The blueprint ships no committed script that writes rules to the live Cloudflare zone. The applying project&#39;s operator applies each rule via a documented wrangler command flow or a Cloudflare dashboard flow per TAC-3702 and the guide. The elicited rate-limit-management-surface value records the flow the operator chose; the guide covers both. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.</p>
   <p><strong>Category:</strong> functional</p>
-  <p><strong>Domain:</strong> todo</p>
+  <p><strong>Domain:</strong> functional</p>
   <p><strong>Priority:</strong> must</p>
   
   
@@ -14680,13 +14680,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-07T21:38:51.792Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-07T21:38:51.792Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:23.637Z&quot;,
   &quot;description&quot;: &quot;The blueprint ships no committed script that writes rules to the live Cloudflare zone. The applying project&#39;s operator applies each rule via a documented wrangler command flow or a Cloudflare dashboard flow per TAC-3702 and the guide. The elicited rate-limit-management-surface value records the flow the operator chose; the guide covers both. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.&quot;,
   &quot;reqId&quot;: &quot;REQ-101&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: operator-facing management surface documented as a wrangler command flow or Cloudflare dashboard flow the operator applies from the manifest&quot;,
   &quot;category&quot;: &quot;functional&quot;,
-  &quot;domain&quot;: &quot;todo&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
   &quot;priority&quot;: &quot;must&quot;,
   &quot;version&quot;: &quot;0.1.0&quot;,
   &quot;status&quot;: &quot;draft&quot;
@@ -14744,7 +14744,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Description:</strong> Given a rule that permits N requests per period on a characteristic set, when a client sends the (N+1)th request within that period, Cloudflare refuses the request at the edge for the elicited duration. The refusal response is HTTP 429 with a Retry-After header consistent with the elicited duration and a Cf-Ray header identifying the CF edge per https://developers.cloudflare.com/waf/rate-limiting-rules/. The origin Worker never sees the refused requests. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.</p>
   <p><strong>Category:</strong> functional</p>
-  <p><strong>Domain:</strong> todo</p>
+  <p><strong>Domain:</strong> functional</p>
   <p><strong>Priority:</strong> must</p>
   
   
@@ -14783,13 +14783,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-07T21:38:52.126Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-07T21:38:52.126Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:23.824Z&quot;,
   &quot;description&quot;: &quot;Given a rule that permits N requests per period on a characteristic set, when a client sends the (N+1)th request within that period, Cloudflare refuses the request at the edge for the elicited duration. The refusal response is HTTP 429 with a Retry-After header consistent with the elicited duration and a Cf-Ray header identifying the CF edge per https://developers.cloudflare.com/waf/rate-limiting-rules/. The origin Worker never sees the refused requests. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.&quot;,
   &quot;reqId&quot;: &quot;REQ-102&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: over-threshold behaviour returns 429 with Retry-After and Cf-Ray for the (N+1)th and subsequent requests within the elicited duration&quot;,
   &quot;category&quot;: &quot;functional&quot;,
-  &quot;domain&quot;: &quot;todo&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
   &quot;priority&quot;: &quot;must&quot;,
   &quot;version&quot;: &quot;0.1.0&quot;,
   &quot;status&quot;: &quot;draft&quot;
@@ -14847,7 +14847,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Description:</strong> The blueprint ships a scheduled drift-audit runner (TAC-3703) the applying project can wire behind the elicited rate-limit-drift-audit-cadence per ADR-3704. When enabled, the runner fetches the live rate-limiting rules on the elicited zone via the Cloudflare API, diffs against the local manifest, and constructs one drift-audit record per mismatched rule. Records write through the applied logger with the metadata-only shape {ruleId, clientIpHash, outcome, timestamp, diff}; no record carries a full IP, a request body or a user agent. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.</p>
   <p><strong>Category:</strong> functional</p>
-  <p><strong>Domain:</strong> todo</p>
+  <p><strong>Domain:</strong> functional</p>
   <p><strong>Priority:</strong> must</p>
   
   
@@ -14896,13 +14896,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-07T21:38:52.452Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-07T21:38:52.452Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:24.011Z&quot;,
   &quot;description&quot;: &quot;The blueprint ships a scheduled drift-audit runner (TAC-3703) the applying project can wire behind the elicited rate-limit-drift-audit-cadence per ADR-3704. When enabled, the runner fetches the live rate-limiting rules on the elicited zone via the Cloudflare API, diffs against the local manifest, and constructs one drift-audit record per mismatched rule. Records write through the applied logger with the metadata-only shape {ruleId, clientIpHash, outcome, timestamp, diff}; no record carries a full IP, a request body or a user agent. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.&quot;,
   &quot;reqId&quot;: &quot;REQ-103&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: drift-audit runner reads live zone rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only records&quot;,
   &quot;category&quot;: &quot;functional&quot;,
-  &quot;domain&quot;: &quot;todo&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
   &quot;priority&quot;: &quot;must&quot;,
   &quot;version&quot;: &quot;0.1.0&quot;,
   &quot;status&quot;: &quot;draft&quot;
@@ -15003,7 +15003,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Description:</strong> When both edge-cloudflare-rate-limiting and security-auth-magic-link are applied on the same project, the zone-level rate rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin; the security-auth-magic-link per-email application rate limiter continues to run at the mint-surface. The two rules operate on different characteristic sets (IP-per-URL vs per-email per-minute) and are additive. ADR-3702 records the layering. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.</p>
   <p><strong>Category:</strong> functional</p>
-  <p><strong>Domain:</strong> todo</p>
+  <p><strong>Domain:</strong> functional</p>
   <p><strong>Priority:</strong> must</p>
   
   
@@ -15042,13 +15042,13 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-07T21:38:52.795Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-07T21:38:52.795Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:24.201Z&quot;,
   &quot;description&quot;: &quot;When both edge-cloudflare-rate-limiting and security-auth-magic-link are applied on the same project, the zone-level rate rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin; the security-auth-magic-link per-email application rate limiter continues to run at the mint-surface. The two rules operate on different characteristic sets (IP-per-URL vs per-email per-minute) and are additive. ADR-3702 records the layering. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.&quot;,
   &quot;reqId&quot;: &quot;REQ-104&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: composition with security-auth-magic-link layers the zone rule over the per-email application rule per ADR-3702&quot;,
   &quot;category&quot;: &quot;functional&quot;,
-  &quot;domain&quot;: &quot;todo&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
   &quot;priority&quot;: &quot;must&quot;,
   &quot;version&quot;: &quot;0.1.0&quot;,
   &quot;status&quot;: &quot;draft&quot;
