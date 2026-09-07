@@ -48,6 +48,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
+| jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
 | platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |
 
 US 31101-31108 sit at the LOW end of the 31101-31899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a platform-cloudflare-kv REQ id into the number 31110 would collide against a shipped US-31110; band headroom (31109-31899) leaves that space.
