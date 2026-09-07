@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T12:28:01.537Z",
+  "updatedAt": "2026-09-07T12:28:01.537Z",
+  "asA": "shelf consumer applying the platform-cloudflare-cron-triggers v1.0.0 blueprint on a Workers project using the cf-platform fixture",
+  "iWant": "one scheduled() handler module (src/scheduled.mjs) that opens against the elicited cron triggers on process boot, wires the dispatcher and event sink, and emits a cronReady lifecycle event with a metadata-only payload",
+  "soThat": "boot ordering is observable, the scheduled seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6001-1",
+      "description": "On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected event sink, and emits a cronReady event on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The scheduled handler does NOT dereference the KV binding (env.CACHE stays owned by the T-1 facade).",
+      "given": "a Node or Worker process with the scheduled handler module imported and its factory invoked with the elicited configuration",
+      "when": "the process boots and the scheduled handler ready() call resolves",
+      "then": "a cronReady event fires on the injected event sink with the metadata-only payload; the module does not dereference env.CACHE",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-cron-triggers"
+  ],
+  "usId": "US-6001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-060",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 scheduled() handler opens against the elicited cron triggers on boot and emits cronReady"
+}

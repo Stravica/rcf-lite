@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T12:29:11.616Z",
+  "updatedAt": "2026-09-07T12:29:45.765Z",
+  "purpose": "Cover AC-6003-1 via anatomy test: shipped real-account-scheduled-smoke probe returns accountBoundSkipped and exits 0 without CI_HAS_CLOUDFLARE_ACCOUNT",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-6003-1"
+  ],
+  "id": "TS-092",
+  "usId": "US-6003",
+  "title": "T-2 real-account live-cron smoke probe pass-with-skip",
+  "testCases": [
+    {
+      "id": "TC-092-real-account-smoke-skip",
+      "acId": "AC-6003-1",
+      "description": "Cover AC-6003-1 via anatomy test: real-account-scheduled-smoke probe records accountBoundSkipped: true and aggregates to pass without CI_HAS_CLOUDFLARE_ACCOUNT",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::real-account live-cron smoke probe records accountBoundSkipped without env var (TC-092-real-account-smoke-skip)"
+    }
+  ],
+  "status": "draft"
+}

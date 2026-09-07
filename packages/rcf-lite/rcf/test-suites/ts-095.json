@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-07T12:29:12.153Z",
+  "updatedAt": "2026-09-07T12:29:46.836Z",
+  "purpose": "Cover AC-6301-1 and AC-6301-2 via anatomy test: shipped skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts cronStalled fires without terminating the handler; the handler resolves and a final cronFired follows",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-6301-1",
+    "AC-6301-2"
+  ],
+  "id": "TS-095",
+  "usId": "US-6301",
+  "title": "T-2 soft-budget verdict on skew-tolerance probe passes cronStalled without termination",
+  "testCases": [
+    {
+      "id": "TC-095-soft-budget-fires",
+      "acId": "AC-6301-1",
+      "description": "Cover AC-6301-1 via anatomy test: skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts exactly one cronStalled fires with the observed duration >= budget",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::soft-budget breach fires cronStalled once on the shipped dispatcher (TC-095-soft-budget-fires)"
+    },
+    {
+      "id": "TC-095-soft-budget-continues",
+      "acId": "AC-6301-2",
+      "description": "Cover AC-6301-2 via anatomy test: skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts the handler runs to completion; a final cronFired follows the cronStalled record",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::soft-budget breach does not terminate the handler and a final cronFired follows (TC-095-soft-budget-continues)"
+    }
+  ],
+  "status": "draft"
+}

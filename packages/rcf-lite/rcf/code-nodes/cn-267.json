@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-267",
+  "path": "../../blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs",
+  "implementsAcIds": [
+    "AC-6003-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T12:30:07.781Z",
+  "updatedAt": "2026-09-07T12:30:07.781Z"
+}

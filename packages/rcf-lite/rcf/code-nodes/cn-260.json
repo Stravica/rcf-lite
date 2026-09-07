@@ -1,0 +1,21 @@
+{
+  "cnId": "CN-260",
+  "path": "../../blueprints/platform-cloudflare-cron-triggers/blueprint.json",
+  "implementsAcIds": [
+    "AC-6001-1",
+    "AC-6002-1",
+    "AC-6003-1",
+    "AC-6101-1",
+    "AC-6101-2",
+    "AC-6201-1",
+    "AC-6201-2",
+    "AC-6301-1",
+    "AC-6301-2",
+    "AC-6302-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T12:30:06.513Z",
+  "updatedAt": "2026-09-07T12:30:06.513Z"
+}

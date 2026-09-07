@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T12:29:11.435Z",
+  "updatedAt": "2026-09-07T12:29:45.586Z",
+  "purpose": "Cover AC-6002-1 via anatomy test: shipped wrangler-test-scheduled probe module drives wrangler dev --test-scheduled on the cf-platform fixture and asserts cronFired fires",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-6002-1"
+  ],
+  "id": "TS-091",
+  "usId": "US-6002",
+  "title": "T-2 wrangler-test-scheduled probe passes on the fixture",
+  "testCases": [
+    {
+      "id": "TC-091-wrangler-test-scheduled",
+      "acId": "AC-6002-1",
+      "description": "Cover AC-6002-1 via anatomy test: wrangler-test-scheduled probe runs against the cf-platform fixture and returns aggregateVerdict pass or warn on a wrangler regression",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::wrangler-test-scheduled probe binds and drives cronFired on the cf-platform fixture (TC-091-wrangler-test-scheduled)"
+    }
+  ],
+  "status": "draft"
+}

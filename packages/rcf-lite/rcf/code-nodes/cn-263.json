@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-263",
+  "path": "../../blueprints/platform-cloudflare-cron-triggers/contributions/probes/wrangler-test-scheduled.mjs",
+  "implementsAcIds": [
+    "AC-6002-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T12:30:07.051Z",
+  "updatedAt": "2026-09-07T12:30:07.051Z"
+}

@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-262",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/src/dispatcher.mjs",
+  "implementsAcIds": [
+    "AC-6101-1",
+    "AC-6101-2",
+    "AC-6201-1",
+    "AC-6201-2",
+    "AC-6301-1",
+    "AC-6301-2",
+    "AC-6302-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T12:30:06.871Z",
+  "updatedAt": "2026-09-07T12:30:06.871Z"
+}

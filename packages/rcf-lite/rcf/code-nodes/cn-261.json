@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-261",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/src/scheduled.mjs",
+  "implementsAcIds": [
+    "AC-6001-1",
+    "AC-6002-1",
+    "AC-6003-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T12:30:06.692Z",
+  "updatedAt": "2026-09-07T12:30:06.692Z"
+}

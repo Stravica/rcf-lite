@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T12:28:01.742Z",
+  "updatedAt": "2026-09-07T12:28:01.742Z",
+  "asA": "reviewer verifying the platform-cloudflare-cron-triggers v1.0.0 blueprint at mechanism reach",
+  "iWant": "the wrangler-test-scheduled probe to spawn wrangler dev --test-scheduled on the cf-platform fixture, drive its scheduled-fire route with a cron expression declared in wrangler.toml, assert a cronFired event fires on the sink and wrangler exits cleanly",
+  "soThat": "the shipped scheduled() handler is proven wired to the vendor's CLI seam, not only to an in-process spy",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6002-1",
+      "description": "The wrangler-test-scheduled probe spawns wrangler dev --test-scheduled from the cf-platform fixture, waits bounded 30 seconds for the CLI to bind, drives its scheduled-fire route with an expression from wrangler.toml's [triggers] crons block, asserts a cronFired event fires on the injected sink with metadata {expression, scheduledTime, outcome, duration}, kills wrangler cleanly on exit, and returns aggregateVerdict: pass. On a shipped wrangler regression that prevents --test-scheduled from binding, the probe returns aggregateVerdict: warn with the observed CLI stderr quoted and the mechanism-reach gap noted, per section 3.1 pass-with-skip conventions.",
+      "given": "wrangler installed as a devDependency on the cf-platform fixture and the [triggers] crons block declared in wrangler.toml",
+      "when": "the probe runs from the fixture directory",
+      "then": "wrangler dev --test-scheduled binds, the scheduled-fire route drives a cronFired event and wrangler exits cleanly",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-cron-triggers"
+  ],
+  "usId": "US-6002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-060",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 wrangler dev --test-scheduled fires cronFired on the fixture handler"
+}

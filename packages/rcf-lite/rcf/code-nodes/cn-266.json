@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-266",
+  "path": "../../blueprints/platform-cloudflare-cron-triggers/contributions/probes/event-secrecy.mjs",
+  "implementsAcIds": [
+    "AC-6302-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T12:30:07.601Z",
+  "updatedAt": "2026-09-07T12:30:07.601Z"
+}

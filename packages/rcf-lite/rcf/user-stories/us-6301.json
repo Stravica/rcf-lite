@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-07T12:28:02.582Z",
+  "updatedAt": "2026-09-07T12:28:02.582Z",
+  "asA": "operator observing long-running scheduled work on a Worker",
+  "iWant": "the dispatcher to fire cronStalled at the moment a handler's observed duration crosses the elicited soft budget, without terminating the handler",
+  "soThat": "the applied logging companion surfaces stalled fires as a first-class signal, and the Worker's own CPU budget remains the vendor's concern",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6301-1",
+      "description": "With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, dispatching fires exactly one cronStalled event on the sink with {expression, scheduledTime, outcome: stalled, duration: >=100, softBudgetMs: 100} at the moment the observed duration crosses 100ms.",
+      "given": "a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms fake-clock",
+      "when": "an event is dispatched",
+      "then": "a cronStalled event fires exactly once with the observed duration at or past the budget",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6301-2",
+      "description": "With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, the dispatcher does NOT terminate the handler on the soft-budget breach; the handler runs to completion, resolves, and a final cronFired event follows the cronStalled record with the total duration.",
+      "given": "a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms fake-clock",
+      "when": "an event is dispatched",
+      "then": "the handler runs to completion and a cronFired follows the cronStalled record",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-cron-triggers"
+  ],
+  "usId": "US-6301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-063",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 soft budget: a handler running past the elicited budget logs cronStalled and continues"
+}
