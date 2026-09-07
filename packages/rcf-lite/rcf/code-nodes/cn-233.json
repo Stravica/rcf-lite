@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-233",
+  "path": "../../blueprints/platform-cloudflare-kv/contributions/probes/facade-round-trip.mjs",
+  "implementsAcIds": [
+    "AC-5101-1",
+    "AC-5101-2",
+    "AC-5102-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T10:21:02.953Z",
+  "updatedAt": "2026-09-07T10:21:02.953Z"
+}

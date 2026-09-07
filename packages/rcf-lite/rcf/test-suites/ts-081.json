@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T10:20:32.039Z",
+  "updatedAt": "2026-09-07T10:21:00.826Z",
+  "purpose": "Cover AC-5002-1 via anatomy test: a grep on the cf-platform fixture src/ tree for env.CACHE returns exactly src/kv-facade.mjs",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-5002-1"
+  ],
+  "id": "TS-081",
+  "usId": "US-5002",
+  "title": "T-1 KV binding sole-reader grep on the applied fixture",
+  "testCases": [
+    {
+      "id": "TC-081-ac-5002-1-sole-reader",
+      "acId": "AC-5002-1",
+      "description": "Cover AC-5002-1 via anatomy test: grep for env.CACHE in cf-platform src/ returns exactly src/kv-facade.mjs",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::env.CACHE binding is dereferenced in exactly one fixture source file (TC-081-sole-reader)"
+    }
+  ],
+  "status": "draft"
+}

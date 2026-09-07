@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-07T10:20:32.566Z",
+  "updatedAt": "2026-09-07T10:21:01.711Z",
+  "purpose": "Cover AC-5201-1 and AC-5201-2 via cache-aside-hit-then-miss probe run and anatomy test cross-check",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-5201-1",
+    "AC-5201-2"
+  ],
+  "id": "TS-084",
+  "usId": "US-5201",
+  "title": "T-1 cache-aside hit-then-miss under a fake clock past TTL",
+  "testCases": [
+    {
+      "id": "TC-084-ac-5201-1-hit-within-ttl",
+      "acId": "AC-5201-1",
+      "description": "Cover AC-5201-1 via cache-aside-hit-then-miss probe: within-TTL second read is a cache hit and origin is called once",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::cache-aside-hit-then-miss probe: within-TTL cached branch (TC-084-hit-within-ttl)"
+    },
+    {
+      "id": "TC-084-ac-5201-2-miss-past-ttl",
+      "acId": "AC-5201-2",
+      "description": "Cover AC-5201-2 via cache-aside-hit-then-miss probe: past-TTL read miss triggers a second origin call",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::cache-aside-hit-then-miss probe: past-TTL miss branch (TC-084-miss-past-ttl)"
+    }
+  ],
+  "status": "draft"
+}

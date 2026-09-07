@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T10:20:32.919Z",
+  "updatedAt": "2026-09-07T10:21:02.065Z",
+  "purpose": "Cover AC-5302-1 via event-secrecy probe with two-layer assertions and a mutation-run under SIMULATE_PII_LEAK",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-5302-1"
+  ],
+  "id": "TS-086",
+  "usId": "US-5302",
+  "title": "T-1 event secrecy: no body bytes or PII reach the sink",
+  "testCases": [
+    {
+      "id": "TC-086-ac-5302-1-event-secrecy",
+      "acId": "AC-5302-1",
+      "description": "Cover AC-5302-1 via event-secrecy probe: no body bytes / PII / user id reach the sink even under a mutation-run",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEAK (TC-086-event-secrecy)"
+    }
+  ],
+  "status": "draft"
+}

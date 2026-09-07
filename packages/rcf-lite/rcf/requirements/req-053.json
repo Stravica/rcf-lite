@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T10:18:25.784Z",
+  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "reqId": "REQ-053",
+  "prdId": "PRD-001",
+  "title": "T-1 lifecycle events facadeReady kvHit kvMiss kvWrite carry metadata-only fields key size ttl timestamp",
+  "description": "T-1 lifecycle events. The facade emits facadeReady on the injected sink once the ready-check returns; kvHit on a get that resolves to a non-null value; kvMiss on a get that resolves to null; kvWrite on put and delete. Every event record carries EXACTLY the fields {event, key, size, ttl, timestamp}: no body bytes, no metadata bag pass-through, no user id beyond the key itself. The event-secrecy probe drives this at REQ-053 mechanism reach.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T10:18:25.813Z"
+  }
+}

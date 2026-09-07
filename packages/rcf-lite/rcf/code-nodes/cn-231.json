@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-231",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/src/kv-facade.mjs",
+  "implementsAcIds": [
+    "AC-5001-1",
+    "AC-5002-1",
+    "AC-5301-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T10:21:02.591Z",
+  "updatedAt": "2026-09-07T10:21:02.591Z"
+}
