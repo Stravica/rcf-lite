@@ -1262,6 +1262,54 @@ flowchart LR
   REQ-063 --> AC-6302-1
   TC-096-event-secrecy["TC-096-event-secrecy"]
   AC-6302-1 -.-> TC-096-event-secrecy
+  REQ-070["REQ-070"]
+  AC-7001-1["AC-7001-1"]
+  REQ-070 --> AC-7001-1
+  TC-100-do-facade-ready["TC-100-do-facade-ready"]
+  AC-7001-1 -.-> TC-100-do-facade-ready
+  AC-7002-1["AC-7002-1"]
+  REQ-070 --> AC-7002-1
+  TC-109-real-account-skip["TC-109-real-account-skip"]
+  AC-7002-1 -.-> TC-109-real-account-skip
+  REQ-071["REQ-071"]
+  AC-7101-1["AC-7101-1"]
+  REQ-071 --> AC-7101-1
+  TC-101-single-cell-concurrent["TC-101-single-cell-concurrent"]
+  AC-7101-1 -.-> TC-101-single-cell-concurrent
+  REQ-072["REQ-072"]
+  AC-7201-1["AC-7201-1"]
+  REQ-072 --> AC-7201-1
+  TC-102-storage-round-trip["TC-102-storage-round-trip"]
+  AC-7201-1 -.-> TC-102-storage-round-trip
+  REQ-073["REQ-073"]
+  AC-7301-1["AC-7301-1"]
+  REQ-073 --> AC-7301-1
+  TC-103-alarm-fires-once["TC-103-alarm-fires-once"]
+  AC-7301-1 -.-> TC-103-alarm-fires-once
+  REQ-074["REQ-074"]
+  AC-7401-1["AC-7401-1"]
+  REQ-074 --> AC-7401-1
+  TC-104-hub-broadcast["TC-104-hub-broadcast"]
+  AC-7401-1 -.-> TC-104-hub-broadcast
+  AC-7402-1["AC-7402-1"]
+  REQ-074 --> AC-7402-1
+  TC-105-hibernate-wake["TC-105-hibernate-wake"]
+  AC-7402-1 -.-> TC-105-hibernate-wake
+  REQ-075["REQ-075"]
+  AC-7501-1["AC-7501-1"]
+  REQ-075 --> AC-7501-1
+  TC-106-event-secrecy["TC-106-event-secrecy"]
+  AC-7501-1 -.-> TC-106-event-secrecy
+  REQ-076["REQ-076"]
+  AC-7601-1["AC-7601-1"]
+  REQ-076 --> AC-7601-1
+  TC-107-sole-reader-scan["TC-107-sole-reader-scan"]
+  AC-7601-1 -.-> TC-107-sole-reader-scan
+  REQ-077["REQ-077"]
+  AC-7701-1["AC-7701-1"]
+  REQ-077 --> AC-7701-1
+  TC-108-wrangler-do-bindings["TC-108-wrangler-do-bindings"]
+  AC-7701-1 -.-> TC-108-wrangler-do-bindings
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1915,6 +1963,34 @@ flowchart LR
   class TC-095-soft-budget-continues tc;
   class AC-6302-1 ac;
   class TC-096-event-secrecy tc;
+  class REQ-070 req;
+  class AC-7001-1 ac;
+  class TC-100-do-facade-ready tc;
+  class AC-7002-1 ac;
+  class TC-109-real-account-skip tc;
+  class REQ-071 req;
+  class AC-7101-1 ac;
+  class TC-101-single-cell-concurrent tc;
+  class REQ-072 req;
+  class AC-7201-1 ac;
+  class TC-102-storage-round-trip tc;
+  class REQ-073 req;
+  class AC-7301-1 ac;
+  class TC-103-alarm-fires-once tc;
+  class REQ-074 req;
+  class AC-7401-1 ac;
+  class TC-104-hub-broadcast tc;
+  class AC-7402-1 ac;
+  class TC-105-hibernate-wake tc;
+  class REQ-075 req;
+  class AC-7501-1 ac;
+  class TC-106-event-secrecy tc;
+  class REQ-076 req;
+  class AC-7601-1 ac;
+  class TC-107-sole-reader-scan tc;
+  class REQ-077 req;
+  class AC-7701-1 ac;
+  class TC-108-wrangler-do-bindings tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

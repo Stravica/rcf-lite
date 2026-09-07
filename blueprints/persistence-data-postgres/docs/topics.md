@@ -52,6 +52,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
 | platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |
 | platform-cloudflare-cron-triggers | 32101-32899 | 33xx | shipped v1.0.0 | `scheduledTriggerContract` |
+| platform-cloudflare-durable-objects | 33101-33899 | 34xx | shipped v1.0.0 | `strongConsistencyCellContract`, `websocketHubContract` |
 
 US 27101-27110 sit at the LOW end of the 27101-27899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a persistence-data-postgres REQ id into the number 27110 would collide against the shipped US-27110; band headroom (27111-27899) leaves that space.
 

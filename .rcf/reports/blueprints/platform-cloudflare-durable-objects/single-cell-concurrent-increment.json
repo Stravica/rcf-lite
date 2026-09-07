@@ -1,0 +1,23 @@
+{
+  "slug": "platform-cloudflare-durable-objects",
+  "probeName": "single-cell-concurrent-increment",
+  "runAt": "2026-09-07T14:11:20.395Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process SingleCellObject on cf-platform fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-33102-1",
+      "verdict": "pass",
+      "detail": "two concurrent increments serialised in FIFO order; counters=[1,2] witnesses=[0,1] final read=2"
+    },
+    {
+      "anchorAcId": "AC-33109-1",
+      "verdict": "pass",
+      "detail": "every increment returned a numeric witness (a=0, b=1)"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}
