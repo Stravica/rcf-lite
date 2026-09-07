@@ -1,0 +1,67 @@
+{
+  "createdAt": "2026-09-07T09:09:31.409Z",
+  "updatedAt": "2026-09-07T09:09:31.438Z",
+  "description": "T-0 SPA fallback discipline half of the Cloudflare round 6 T-0 delta (2026-09-06 section 5.0). The blueprint gains one new REQ contribution (deploy-cloudflare-workers-REQ-014 SPA fallback discipline via elicited run_worker_first: when true, the Worker script runs before asset lookup for arbitrary routing; when false or unanswered, static asset lookup runs first and the Worker handles only unmatched paths), one new US contribution (deploy-cloudflare-workers-US-12115 migrate-from-Pages guidance in the guide section) that links the Cloudflare migrate-from-Pages guide from the ADR-1306 verbatim landing-page quote, one new elicit (run-worker-first kind boolean default false; the spec's intended when-predicate {elicitedNonEmpty: [assets-directory]} is NOT shipped this round because the loader's supported when block only accepts requiresCapability arrays per src/blueprint/loader.js validateElicits, and the elicit fires unconditionally with the guide teaching that a non-empty assets-directory is what makes run_worker_first meaningful; the loader extension is captured under CONCERNS on the PR, not blocking T-0). The T-0 probe module assets-manifest-scan.mjs anchors AC-2902-1 (the spaFallbackShape canonical AC) via a Node-only source-tree scan of the applied fixture wrangler.toml. The one new ADR ADR-1306-deploy-cloudflare-workers-spa-shape carries the verbatim Cloudflare Pages landing-page quote (Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare's primary platform for building applications. Start new projects with Workers.), standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06, recommendedDefault true. HQ sequential chain-id block: REQ-030 / US-3001 / TS-075 minted via --id.",
+  "category": "functional",
+  "domain": "deploy",
+  "priority": "must",
+  "reqId": "REQ-030",
+  "prdId": "PRD-001",
+  "title": "T-0 SPA fallback discipline via run_worker_first elicit and migrate-from-Pages guidance on deploy-cloudflare-workers v1.2.0",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T09:09:31.437Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      }
+    ]
+  }
+}

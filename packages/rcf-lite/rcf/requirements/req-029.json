@@ -1,0 +1,57 @@
+{
+  "createdAt": "2026-09-07T09:09:31.207Z",
+  "updatedAt": "2026-09-07T09:09:31.236Z",
+  "description": "T-0 track of the ratified Cloudflare round 6 spec (2026-09-06 section 5.0). The rcf-lite shelf bumps the deploy-cloudflare-workers blueprint from v1.1.0 to v1.2.0 with an additive-minor delta that blesses the Workers-with-static-assets shape as the SPA-on-Workers deploy shape. The blueprint gains two new REQ contributions (deploy-cloudflare-workers-REQ-013 for the Workers-with-static-assets shape and deploy-cloudflare-workers-REQ-014 for the SPA fallback discipline via run_worker_first), three new US contributions in the existing 12xx band (deploy-cloudflare-workers-US-12113 SPA-on-Workers deploy; deploy-cloudflare-workers-US-12114 assets-directory elicitation; deploy-cloudflare-workers-US-12115 migrate-from-Pages guidance), one new ADR contribution (ADR-1306-deploy-cloudflare-workers-spa-shape carrying the verbatim Cloudflare Pages landing-page recommendation, standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06, recommendedDefault true), one new source-tree scan probe module (assets-manifest-scan.mjs, accountBound false, anchorAcId matching the assetsBlockEmitted AC) that parses the applied fixture wrangler.toml and asserts the [assets] block presence, the run_worker_first presence and absence of any Pages-only pages_build_output_dir field, and two new elicited parameters on blueprint.json elicits[] (assets-directory kind string default empty for the bare-Worker shape; run-worker-first kind boolean default false). The shipped v1.1.0 contribution set (REQs 001 through 012, USs 12101 through 12112, TACs 1301 through 1306, ADRs 1301 through 1305, deploymentTarget global topic, suggestedCompanions logging and errorHandling) carries through unchanged. No capability minted, no new global topic, no runtime dependency added. Ships packages/rcf-lite/test/fixtures/cf-platform/ as the shared sample-app fixture that T-1 through T-3 and T-5 extend. HQ sequential chain-id block: REQ-029 / US-2901 / US-2902 / TS-073 / TS-074 / FBS-063 / CN-209 minted via --id after HQ round-4 T-5 landed at REQ-028 and Dex round-5 T-3 landed at REQ-042 per HQ mid-flight ruling on repo-chain id blocks per train.",
+  "category": "functional",
+  "domain": "deploy",
+  "priority": "must",
+  "reqId": "REQ-029",
+  "prdId": "PRD-001",
+  "title": "The rcf-lite shelf bumps the deploy-cloudflare-workers blueprint from v1.1.0 to v1.2.0 with an additive-minor delta that blesses the Workers-with-static-assets shape and ships the cf-platform shared sample-app fixture",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T09:09:31.235Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      }
+    ]
+  }
+}

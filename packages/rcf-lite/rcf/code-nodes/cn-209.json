@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-209",
+  "path": "../../blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs",
+  "implementsAcIds": [
+    "AC-2901-2",
+    "AC-2902-2",
+    "AC-3001-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T09:13:02.458Z",
+  "updatedAt": "2026-09-07T09:13:02.458Z"
+}

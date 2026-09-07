@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-212",
+  "path": "../../blueprints/deploy-cloudflare-workers/contributions/adrs/adr-1306-deploy-cloudflare-workers-spa-shape.json",
+  "implementsAcIds": [
+    "AC-3001-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T09:24:56.304Z",
+  "updatedAt": "2026-09-07T09:24:56.304Z"
+}

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-213",
+  "path": "../../blueprints/deploy-cloudflare-workers/guide/deploy-cloudflare-workers.md",
+  "implementsAcIds": [
+    "AC-3001-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T09:24:56.479Z",
+  "updatedAt": "2026-09-07T09:24:56.479Z"
+}

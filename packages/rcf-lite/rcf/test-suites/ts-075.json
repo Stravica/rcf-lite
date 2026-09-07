@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-07T09:11:25.167Z",
+  "updatedAt": "2026-09-07T09:12:00.950Z",
+  "purpose": "Cover AC-3001-1..3 via unit tests over the ADR-1306 body validity and standardsTraceClause on the contribution entry, the guide's new SPA-on-Workers section with the two Cloudflare URLs (fetched 200 at gate time), and the probe module driven on the three fixture states (canonical, SIMULATE_MIXED_SHAPE fails naming pages_build_output_dir, SIMULATE_EMPTY_ASSETS passes with the empty-directory record).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-3001-1",
+    "AC-3001-2",
+    "AC-3001-3"
+  ],
+  "id": "TS-075",
+  "usId": "US-3001",
+  "title": "T-0 deploy-cloudflare-workers v1.2.0 ADR-1306, guide section, and probed spaFallbackShape with induced-failure switches",
+  "testCases": [
+    {
+      "id": "TC-075-adr-1306-body-and-clause",
+      "acId": "AC-3001-1",
+      "description": "Cover AC-3001-1 via anatomy test: ADR-1306 body validates against rcf-schemas 0.6.1 (required fields present, no standardsTraceClause on body), the body carries the verbatim Cloudflare Pages landing-page quote in context or decision, and the blueprint.json contribution entry carries standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06) with recommendedDefault true and elicited false",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::ADR-1306 body validates against 0.6.1 with verbatim Cloudflare quote and standardsTraceClause on the contribution entry (TC-075-adr-1306-body-and-clause)"
+    },
+    {
+      "id": "TC-075-guide-section-and-urls",
+      "acId": "AC-3001-2",
+      "description": "Cover AC-3001-2 via anatomy test: the guide file carries the new Workers-with-static-assets: the SPA-on-Workers shape section with both the migrate-from-Pages guide URL and the static-assets docs URL. The urls-fetched log (fetched at ship time) records both URLs at HTTP 200.",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::guide section Workers-with-static-assets adds the two Cloudflare URLs and the elicit signatures and the wrangler.toml snippet (TC-075-guide-section-and-urls)"
+    },
+    {
+      "id": "TC-075-probed-spa-fallback-shape",
+      "acId": "AC-3001-3",
+      "description": "Cover AC-3001-3 via anatomy test: the assets-manifest-scan probe run against the cf-platform fixture returns verdict pass on the canonical state; SIMULATE_MIXED_SHAPE=true returns verdict fail with a detail naming pages_build_output_dir; SIMULATE_EMPTY_ASSETS=true returns verdict pass with the empty-directory record for the bare-Worker shape",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::assets-manifest-scan drives three fixture states and produces the expected pass fail pass verdicts (TC-075-probed-spa-fallback-shape)"
+    }
+  ],
+  "status": "draft"
+}

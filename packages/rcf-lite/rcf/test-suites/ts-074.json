@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-07T09:11:24.993Z",
+  "updatedAt": "2026-09-07T09:12:00.427Z",
+  "purpose": "Cover AC-2902-1..2 via unit tests over the top-level elicits[] shape (id, kind, default, loader shape gate) and the cf-platform fixture files (wrangler.toml, dist/, src/, package.json, run-assets-manifest-scan.mjs, README naming the switches).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-2902-1",
+    "AC-2902-2"
+  ],
+  "id": "TS-074",
+  "usId": "US-2902",
+  "title": "T-0 deploy-cloudflare-workers v1.2.0 elicits: assets-directory and run-worker-first on blueprint.json elicits[] and cf-platform fixture",
+  "testCases": [
+    {
+      "id": "TC-074-elicits-shape",
+      "acId": "AC-2902-1",
+      "description": "Cover AC-2902-1 via anatomy test: blueprint.json elicits[] declares exactly two new entries assets-directory and run-worker-first with the correct id, kind and default; neither carries providesCapability; the loader loads blueprint.json without a validation error",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::elicits[] declares assets-directory string default empty and run-worker-first boolean default false and loader accepts blueprint.json (TC-074-elicits-shape)"
+    },
+    {
+      "id": "TC-074-cf-platform-fixture-files",
+      "acId": "AC-2902-2",
+      "description": "Cover AC-2902-2 via anatomy test: the cf-platform fixture ships wrangler.toml with the [assets] block, dist/index.html, src/index.mjs, package.json with wrangler dev script and wrangler as a devDependency, run-assets-manifest-scan.mjs shim and README naming the wrangler dev boot line, the elicit answers and the two induced-failure switches",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::cf-platform fixture ships wrangler.toml dist index.html src index.mjs package.json shim and README with SIMULATE_MIXED_SHAPE and SIMULATE_EMPTY_ASSETS switches (TC-074-cf-platform-fixture-files)"
+    }
+  ],
+  "status": "draft"
+}

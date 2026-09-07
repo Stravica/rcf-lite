@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-09-07T09:11:05.053Z",
+  "updatedAt": "2026-09-07T09:11:05.053Z",
+  "asA": "shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint on a fresh SPA-on-Workers project",
+  "iWant": "the shipped v1.2.0 blueprint files (blueprint.json version 1.2.0 with the seven-contribution delta on top of the v1.1.0 shipped set; two new REQ contributions deploy-cloudflare-workers-REQ-013 and REQ-014; three new US contributions in the existing 12xx band deploy-cloudflare-workers-US-12113 SPA-on-Workers deploy, US-12114 assets-directory elicitation, US-12115 migrate-from-Pages guidance; one new ADR contribution ADR-1306-deploy-cloudflare-workers-spa-shape with the verbatim Cloudflare Pages landing-page quote and standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06; one new probe module assets-manifest-scan.mjs anchored to AC-2901-2 assetsBlockEmitted; two new elicits assets-directory and run-worker-first) proven against the cf-platform shared sample-app fixture",
+  "soThat": "a rcf-lite project applying deploy-cloudflare-workers v1.2.0 gets a Workers-with-static-assets shape ratified over Pages for greenfield SPA-on-Workers projects (per the Cloudflare Pages landing-page recommendation, verbatim quoted on ADR-1306), an elicited [assets] directory in wrangler.toml, a probed assertion of the emitted assets block, an unchanged v1.1.0 contribution set (12 REQs, 12 USs, 6 TACs, 5 ADRs, deploymentTarget global topic, suggestedCompanions logging and errorHandling), and a shared sample-app fixture that T-1 through T-3 and T-5 extend later",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2901-1",
+      "description": "The shelf carries blueprints/deploy-cloudflare-workers/blueprint.json declaring slug deploy-cloudflare-workers, version 1.2.0, category deploy; the contributions array holds 41 entries splitting 14 req + 15 us + 6 tac + 6 adr (the probe is NOT a contribution kind under the loader's CONTRIBUTABLE_KINDS gate; assets-manifest-scan.mjs ships under contributions/probes/ as a source file only, cross-referenced from the shipped README and the applied fixture shim); the delta over v1.1.0 is six contribution-kind entries plus the probe module: 2 REQs REQ-013 and REQ-014, 3 USs US-12113 US-12114 US-12115, 1 ADR ADR-1306 with recommendedDefault true and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06) on the contribution entry, 1 probe contribution assets-manifest-scan with anchorAcId AC-12113-1 and accountBound false; providesRoles absent, capabilities absent, requiresAppliedCapabilities absent, suggestedCompanions unchanged with logging and errorHandling; the top-level elicits[] gains the two new entries assets-directory and run-worker-first; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.",
+      "given": "the shelf tree after this blueprint delta lands",
+      "when": "jq queries against blueprints/deploy-cloudflare-workers/blueprint.json",
+      "then": "jq .slug returns deploy-cloudflare-workers; jq .version returns 1.2.0; jq .contributions returns an array whose kinds split 14 req, 15 us, 6 tac, 6 adr (total 41 entries); the probe module lives under blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs and is NOT listed as a contribution; jq .capabilities returns null; jq .suggestedCompanions maps to logging and errorHandling; jq .elicits returns an array containing assets-directory and run-worker-first; jq .contributions[] where kind is adr yields standardsTraceClause non-null for every entry",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2901-2",
+      "description": "The canonical AC assetsBlockEmitted (from spec section 5.0 example ACs) is realised as blueprint contribution AC-12113-1 on US-12113 with a runtime-observable then clause. The shipped probe blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs exports a Node module whose default export is a scan verb returning the section 3.2 verdict envelope {verdict, detail, anchorAcId, aggregateVerdict} with anchorAcId AC-12113-1 and accountBound false; the module parses the applied fixture wrangler.toml, asserts the [assets] block directory matches the elicited assets-directory answer, and asserts the absence of any pages_build_output_dir field.",
+      "given": "the cf-platform sample-app fixture at packages/rcf-lite/test/fixtures/cf-platform/ with wrangler.toml carrying [assets] directory = ./dist and no pages_build_output_dir field",
+      "when": "the shim run-assets-manifest-scan.mjs drives the probe module against the fixture wrangler.toml",
+      "then": "the process exits 0 and the written report at .rcf/reports/blueprints/deploy-cloudflare-workers/assets-manifest-scan.json carries aggregateVerdict pass with a detail record naming directory ./dist and no pages_build_output_dir field on the parsed wrangler.toml",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-2901-3",
+      "description": "The rcf-lite repo chain is extended with the T-0 delta and validates clean; the chain adds two REQs REQ-029 and REQ-030 under PRD-001, three USs US-2901 US-2902 US-3001, three test suites TS-073 TS-074 TS-075, one FBS FBS-063, and one CN CN-209 anchoring the assets-manifest-scan.mjs probe module; every US carries at least one AC; every AC is covered by a TC on the paired TS with a resolvable test-pointer to test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js. Repo counts bump: requirements 31 to 33, userStories 60 to 63, fbs 50 to 51, testSuite 60 to 63, codeNode 195 to 196.",
+      "given": "the extended repo chain on the T-0 branch after all define create commands have run",
+      "when": "node bin/rcf.js define validate runs from packages/rcf-lite",
+      "then": "the CLI reports rcf define validate: tree is clean and both node bin/rcf.js audit coverage --strict and node bin/rcf.js audit eval coverage --strict exit 0",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:deploy-cloudflare-workers"
+  ],
+  "usId": "US-2901",
+  "prdId": "PRD-001",
+  "reqId": "REQ-029",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-0 delta on deploy-cloudflare-workers v1.2.0 shelf: seven-contribution additive minor bump plus cf-platform fixture with the assets-manifest-scan probe passing"
+}

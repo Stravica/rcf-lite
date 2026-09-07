@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-07T09:11:05.250Z",
+  "updatedAt": "2026-09-07T09:11:05.250Z",
+  "asA": "shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint who wants the two new elicits to appear in the operator elicit prompt with sane defaults",
+  "iWant": "the blueprint.json top-level elicits[] to declare both new entries (assets-directory kind string default empty; run-worker-first kind boolean default false), the CLI to accept --answer assets-directory=<path> and --answer run-worker-first=<bool> at blueprint add, and the generated wrangler.toml under the applied project to reflect the answered values",
+  "soThat": "a project answering assets-directory=./dist gets [assets] directory = \"./dist\" emitted in its wrangler.toml, a project not answering assets-directory keeps the bare-Worker shape without any [assets] block, and the two elicits do not affect any shipped v1.1.0 contribution",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2902-1",
+      "description": "The blueprint.json elicits[] block gains exactly two new entries: assets-directory with id assets-directory, kind string, default empty string, prompt describing the applied static-assets root; run-worker-first with id run-worker-first, kind boolean, default false, prompt describing the SPA fallback discipline that a truthy answer runs the Worker before asset lookup. The two elicits pass the loader's validateElicits shape gate on src/blueprint/loader.js (id kebab-slug, kind one of enum|string|boolean, default matches kind). Neither elicit carries providesCapability (both are shape choices not custom-auth discovery). The spec's intended when-predicate {elicitedNonEmpty: [assets-directory]} on run-worker-first is NOT shipped this round because the loader's supported when block only accepts requiresCapability arrays; the guide names the shape trade and CONCERNS on the PR names the smallest loader extension to close the gap.",
+      "given": "the shipped blueprint.json at blueprints/deploy-cloudflare-workers/blueprint.json",
+      "when": "jq .elicits returns the top-level array and the loader loads blueprint.json without a validation error",
+      "then": "the array contains exactly two entries whose ids are assets-directory and run-worker-first, with the shapes above; jq validation and the loader both accept the shape",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-2902-2",
+      "description": "The cf-platform fixture at packages/rcf-lite/test/fixtures/cf-platform/ ships a wrangler.toml with [assets] directory = \"./dist\" and run_worker_first = true baked into the [assets] block. The fixture ships dist/index.html so the assets directory exists on disk. The fixture ships src/index.mjs as the minimal Worker entry, a package.json declaring wrangler as a devDependency and start = wrangler dev, a run-assets-manifest-scan.mjs shim requiring the probe module from blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs, and a README naming the wrangler dev boot line, the two elicit answers baked into wrangler.toml, and the two induced-failure switches SIMULATE_MIXED_SHAPE (inserts a pages_build_output_dir field so the probe surfaces the mixed-shape refusal) and SIMULATE_EMPTY_ASSETS (removes the [assets] block so the probe records the bare-Worker shape and passes with an empty-directory record).",
+      "given": "the cf-platform fixture tree after this T-0 slice lands",
+      "when": "ls -R the fixture directory",
+      "then": "the fixture ships wrangler.toml with the [assets] block, dist/index.html, src/index.mjs, package.json with wrangler dev, run-assets-manifest-scan.mjs and README.md with the switches and boot line documented",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:deploy-cloudflare-workers"
+  ],
+  "usId": "US-2902",
+  "prdId": "PRD-001",
+  "reqId": "REQ-029",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-0 assets-directory and run-worker-first elicits on blueprint.json top-level elicits[] and baked into the cf-platform fixture wrangler.toml"
+}
