@@ -5,4 +5,3 @@ coverage/
 .vault/
 *.log
 .npmrc.local
-.rcf/reports/

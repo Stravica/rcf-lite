@@ -1,0 +1,27 @@
+{
+  "slug": "edge-cloudflare-rate-limiting",
+  "probeName": "event-secrecy",
+  "runAt": "2026-09-07T23:04:20.063Z",
+  "engine": {
+    "kind": "event-sink-accumulation",
+    "image": "cf-edge fixture drift-audit runner driven with synthetic manifest and fake fetch (in-process)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-36107-1",
+      "verdict": "pass",
+      "detail": "drift-audit runner produced 1 record(s); every record carries only ruleId, clientIpHash, outcome, timestamp, diff and no full IP, body or user-agent field appears."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "recordCount": 1,
+  "driftCount": 1,
+  "allowedKeys": [
+    "ruleId",
+    "clientIpHash",
+    "outcome",
+    "timestamp",
+    "diff"
+  ]
+}

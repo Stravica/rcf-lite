@@ -1,0 +1,31 @@
+{
+  "slug": "edge-cloudflare-rate-limiting",
+  "probeName": "manifest-presence",
+  "runAt": "2026-09-07T23:04:20.017Z",
+  "engine": {
+    "kind": "source-scan",
+    "image": "cf-edge fixture manifest directory (in-process JSON read)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-36101-1",
+      "verdict": "pass",
+      "detail": "2 manifest file(s) inspected; every file carries the 7 required fields and no plaintext secret pattern was found."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "manifestFileCount": 2,
+  "manifestFiles": [
+    {
+      "name": "api-writes.json",
+      "ruleId": "api-writes-per-ip-per-path"
+    },
+    {
+      "name": "example.json",
+      "ruleId": "public-api-per-ip"
+    }
+  ],
+  "missingFieldFileCount": 0,
+  "plaintextHitFileCount": 0
+}
