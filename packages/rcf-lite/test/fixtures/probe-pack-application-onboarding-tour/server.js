@@ -1,0 +1,321 @@
+// Dependency-free sample app for the application-onboarding-tour blueprint
+// probe pack. Framework-free by design: one Node HTTP server, a tiny inline
+// client script that mounts the tour tooltip and the checklist.
+//
+// Environment:
+//   PORT                              HTTP port (default 3000). Never bind 4200.
+//   TOUR_APPS                         Comma-separated applied-blueprint slug
+//                                     list mirroring the pack's sidecar
+//                                     appliedBlueprints[]. Default: (empty).
+//   TOUR_STORE                        Elicited completion-state store.
+//                                     Default: spa-local-storage. Values:
+//                                     spa-local-storage | spa-session-storage
+//                                     | server-side-per-principal.
+//   TOUR_ANCHOR                       Elicited checklist-anchor.
+//                                     Default: derived from TOUR_APPS
+//                                     (dashboard-top when application-dashboard
+//                                     is applied, settings-page otherwise).
+//
+// Query switches:
+//   ?apps=<list>                   Override apps for one page load.
+//   ?store=<value>                 Override completion store for one load.
+//   ?first-run=<0|1>               Force first-run detection.
+//   ?complete=1                    Auto-complete the tour on load (drives the
+//                                  persistence check without a full walk).
+//   ?anchor=<value>                Override the checklist anchor.
+//   ?break=no-role                 Drop role="dialog" on the tooltip.
+//   ?break=focus-escape            Do NOT trap Tab inside the tooltip.
+//   ?break=no-collapse             Render the checklist without a <details>
+//                                  wrapper, breaking the collapse contract.
+//   ?break=no-persist              Skip the completion write.
+
+import http from 'node:http';
+
+const PORT = Number(process.env.PORT ?? 3000);
+if (PORT === 4200) {
+  console.error('refusing to bind PORT=4200 (workspace server owns that port)');
+  process.exit(2);
+}
+const DEFAULT_APPS = String(process.env.TOUR_APPS ?? '');
+const DEFAULT_STORE = String(process.env.TOUR_STORE ?? 'spa-local-storage');
+const DEFAULT_ANCHOR = process.env.TOUR_ANCHOR;
+
+const STEPS = [
+  { id: 'step-1', anchor: '#anchor-1', heading: 'Welcome to your dashboard', body: 'This is the highest-value surface a returning principal reaches.' },
+  { id: 'step-2', anchor: '#anchor-2', heading: 'Manage your account', body: 'Reach your profile, security and sessions from the settings surface.' },
+  { id: 'step-3', anchor: '#anchor-3', heading: 'Restart this tour', body: 'Use the restart-tour control on the settings surface to see this again.' },
+];
+
+function csvSet(csv) {
+  return new Set(String(csv || '').split(',').map((s) => s.trim()).filter(Boolean));
+}
+
+function parseQuery(url) {
+  const q = url.searchParams;
+  const apps = csvSet(q.get('apps') ?? DEFAULT_APPS);
+  const store = q.get('store') ?? DEFAULT_STORE;
+  const firstRun = q.get('first-run') === '1';
+  const complete = q.get('complete') === '1';
+  const anchorOverride = q.get('anchor');
+  const breakSwitch = q.get('break') ?? '';
+  const derivedAnchor = apps.has('application-dashboard') ? 'dashboard-top' : 'settings-page';
+  const anchor = anchorOverride || DEFAULT_ANCHOR || derivedAnchor;
+  return { apps, store, firstRun, complete, breakSwitch, anchor };
+}
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function commonStyles() {
+  return `
+  body { font-family: system-ui, sans-serif; margin: 1rem; }
+  main { max-width: 60rem; }
+  details[data-role="onboarding-tour-checklist"] { border: 1px solid #ccc; padding: 0.5rem 1rem; margin: 1rem 0; }
+  details[data-role="onboarding-tour-checklist"] summary { cursor: pointer; font-weight: 600; }
+  [data-role="onboarding-tour-tooltip"] {
+    position: fixed; top: 5rem; left: 5rem;
+    max-width: 320px; padding: 1rem; background: #fff;
+    border: 2px solid #333; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+  [data-role="onboarding-tour-tooltip"] h2 { margin-top: 0; }
+  [data-role="onboarding-tour-tooltip"] nav { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+  [data-role="onboarding-tour-completion-marker"] { display: none; }
+  #anchor-1, #anchor-2, #anchor-3 { display: inline-block; padding: 0.25rem 0.5rem; border: 1px dashed #999; margin: 0.25rem; }
+  button { font: inherit; padding: 0.25rem 0.75rem; }
+  `;
+}
+
+function stepsPayload() {
+  return JSON.stringify(STEPS);
+}
+
+function tourClientScript({ store, breakSwitch, firstRun, complete }) {
+  // Escape switches so nothing breaks inside the string literal.
+  const s = JSON.stringify(store);
+  const b = JSON.stringify(breakSwitch);
+  const fr = JSON.stringify(firstRun);
+  const co = JSON.stringify(complete);
+  return `<script>
+(function () {
+  var steps = ${stepsPayload()};
+  var STORE = ${s};
+  var BREAK = ${b};
+  var FIRST_RUN = ${fr};
+  var COMPLETE = ${co};
+  var COMPLETION_KEY = 'onboarding-tour:completion';
+
+  function readCompletion() {
+    try {
+      if (STORE === 'spa-local-storage') return window.localStorage.getItem(COMPLETION_KEY);
+      if (STORE === 'spa-session-storage') return window.sessionStorage.getItem(COMPLETION_KEY);
+    } catch (e) { return null; }
+    return null;
+  }
+  function writeCompletion(record) {
+    if (BREAK === 'no-persist') return;
+    var payload = JSON.stringify(record);
+    try {
+      if (STORE === 'spa-local-storage') window.localStorage.setItem(COMPLETION_KEY, payload);
+      else if (STORE === 'spa-session-storage') window.sessionStorage.setItem(COMPLETION_KEY, payload);
+    } catch (e) { /* noop */ }
+    // Marker element makes the write observable in the DOM even for server-side
+    // backends where the pack cannot read window.storage directly.
+    var mk = document.querySelector('[data-role="onboarding-tour-completion-marker"]');
+    if (!mk) {
+      mk = document.createElement('div');
+      mk.setAttribute('data-role', 'onboarding-tour-completion-marker');
+      document.body.appendChild(mk);
+    }
+    mk.setAttribute('data-written-to', STORE);
+    mk.setAttribute('data-record', payload);
+  }
+  function clearCompletion() {
+    try {
+      window.localStorage.removeItem(COMPLETION_KEY);
+      window.sessionStorage.removeItem(COMPLETION_KEY);
+    } catch (e) { /* noop */ }
+    var mk = document.querySelector('[data-role="onboarding-tour-completion-marker"]');
+    if (mk) mk.parentNode.removeChild(mk);
+  }
+
+  function currentStepEl(idx) {
+    return document.querySelector('[data-role="onboarding-tour-tooltip"][data-step-id="' + steps[idx].id + '"]');
+  }
+
+  function trapFocus(tip) {
+    if (BREAK === 'focus-escape') return;
+    tip.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+      var focusables = Array.from(tip.querySelectorAll('[data-tour-control]'));
+      if (focusables.length === 0) return;
+      var idx = focusables.indexOf(document.activeElement);
+      if (e.shiftKey) {
+        if (idx <= 0) { e.preventDefault(); focusables[focusables.length - 1].focus(); }
+      } else {
+        if (idx === -1 || idx === focusables.length - 1) { e.preventDefault(); focusables[0].focus(); }
+      }
+    });
+  }
+
+  var currentIdx = 0;
+  var anchorElBeforeOpen = null;
+
+  function openStep(idx) {
+    closeTip();
+    if (idx < 0 || idx >= steps.length) return;
+    currentIdx = idx;
+    var step = steps[idx];
+    anchorElBeforeOpen = document.querySelector(step.anchor) || document.body;
+    var tip = document.createElement('div');
+    tip.setAttribute('data-role', 'onboarding-tour-tooltip');
+    tip.setAttribute('data-step-id', step.id);
+    if (BREAK !== 'no-role') tip.setAttribute('role', 'dialog');
+    tip.setAttribute('aria-modal', 'true');
+    var headingId = 'tour-heading-' + step.id;
+    var bodyId = 'tour-body-' + step.id;
+    tip.setAttribute('aria-labelledby', headingId);
+    tip.setAttribute('aria-describedby', bodyId);
+    tip.innerHTML = '' +
+      '<h2 id="' + headingId + '">' + step.heading + '</h2>' +
+      '<p id="' + bodyId + '">' + step.body + '</p>' +
+      '<nav>' +
+      '  <button type="button" data-tour-control="previous">Previous</button>' +
+      '  <button type="button" data-tour-control="next">' + (idx === steps.length - 1 ? 'Finish' : 'Next') + '</button>' +
+      '  <button type="button" data-tour-control="dismiss">Dismiss</button>' +
+      '</nav>';
+    // Position the tooltip near the anchor if possible.
+    var rect = anchorElBeforeOpen.getBoundingClientRect();
+    var top = Math.max(16, Math.min(rect.bottom + 8, Math.max(16, window.innerHeight - 240)));
+    var left = Math.max(16, Math.min(rect.left, Math.max(16, window.innerWidth - 340)));
+    tip.style.top = top + 'px';
+    tip.style.left = left + 'px';
+    document.body.appendChild(tip);
+    var firstControl = tip.querySelector('[data-tour-control="next"]');
+    if (firstControl) firstControl.focus();
+    trapFocus(tip);
+    tip.querySelector('[data-tour-control="previous"]').addEventListener('click', function () { if (idx > 0) openStep(idx - 1); });
+    tip.querySelector('[data-tour-control="next"]').addEventListener('click', function () {
+      if (idx < steps.length - 1) openStep(idx + 1);
+      else finishTour();
+    });
+    tip.querySelector('[data-tour-control="dismiss"]').addEventListener('click', function () { dismissTour(); });
+  }
+
+  function closeTip() {
+    var tip = document.querySelector('[data-role="onboarding-tour-tooltip"]');
+    if (tip && tip.parentNode) tip.parentNode.removeChild(tip);
+  }
+
+  function dismissTour() {
+    closeTip();
+    if (anchorElBeforeOpen && anchorElBeforeOpen.focus) {
+      anchorElBeforeOpen.setAttribute('tabindex', '-1');
+      anchorElBeforeOpen.focus();
+    }
+  }
+
+  function finishTour() {
+    writeCompletion({ completedAt: new Date().toISOString(), blueprintSetVersion: '1.0.0', stepIds: steps.map(function (s) { return s.id; }) });
+    dismissTour();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') dismissTour();
+  });
+
+  var restartBtn = document.querySelector('button[data-action="restart-tour"]');
+  if (restartBtn) restartBtn.addEventListener('click', function () { clearCompletion(); });
+
+  if (typeof location !== 'undefined' && (location.pathname === '/tour' || location.pathname === '/onboarding' || location.pathname === '/welcome')) {
+    var alreadyDone = readCompletion();
+    if (COMPLETE) {
+      openStep(steps.length - 1);
+      finishTour();
+    } else if (FIRST_RUN || !alreadyDone) {
+      openStep(0);
+    }
+  }
+})();
+</script>`;
+}
+
+function checklistHtml({ anchor, apps, breakSwitch }) {
+  var items = [
+    { id: 'complete-profile', label: 'Complete your profile' },
+    { id: 'confirm-email', label: 'Confirm your email' },
+    { id: 'explore-dashboard', label: 'Explore the dashboard' },
+  ];
+  var itemsHtml = items.map(function (it) { return '<li data-checklist-item="' + it.id + '"><label><input type="checkbox"> ' + esc(it.label) + '</label></li>'; }).join('\n      ');
+  if (breakSwitch === 'no-collapse') {
+    return '<section data-role="onboarding-tour-checklist" data-anchor="' + esc(anchor) + '"><h2>Onboarding checklist</h2><ul>\n      ' + itemsHtml + '\n    </ul></section>';
+  }
+  var openAttr = anchor === 'dashboard-top' ? ' open' : '';
+  return '<details data-role="onboarding-tour-checklist" data-anchor="' + esc(anchor) + '"' + openAttr + '><summary>Onboarding checklist</summary><ul>\n      ' + itemsHtml + '\n    </ul></details>';
+}
+
+function page(title, bodyHtml, opts) {
+  return '<!doctype html>\n' +
+    '<html lang="en">\n' +
+    '<head>\n' +
+    '<meta charset="utf-8">\n' +
+    '<title>' + esc(title) + '</title>\n' +
+    '<style>' + commonStyles() + '</style>\n' +
+    '</head>\n' +
+    '<body>\n' + bodyHtml + '\n' +
+    tourClientScript(opts) + '\n' +
+    '</body>\n</html>\n';
+}
+
+function tourPage(ctx) {
+  var body = '' +
+    '<main>' +
+    '  <h1>Onboarding tour</h1>' +
+    '  <p>The tour opens on a first-run principal; use <code>?first-run=1</code> to force it.</p>' +
+    '  <p><button type="button" id="anchor-1">Anchor 1</button> <button type="button" id="anchor-2">Anchor 2</button> <button type="button" id="anchor-3">Anchor 3</button></p>' +
+    '</main>';
+  return page('Tour', body, ctx);
+}
+
+function dashboardPage(ctx) {
+  var body = '' +
+    '<main>' +
+    '  <h1>Dashboard</h1>' +
+    '  ' + checklistHtml({ anchor: ctx.anchor, apps: ctx.apps, breakSwitch: ctx.breakSwitch }) +
+    '  <p><button type="button" id="anchor-1">Anchor 1</button> <button type="button" id="anchor-2">Anchor 2</button> <button type="button" id="anchor-3">Anchor 3</button></p>' +
+    '</main>';
+  return page('Dashboard', body, ctx);
+}
+
+function settingsPage(ctx) {
+  var body = '' +
+    '<main>' +
+    '  <h1>Settings</h1>' +
+    '  <button type="button" data-action="restart-tour">Restart tour</button>' +
+    '  ' + checklistHtml({ anchor: ctx.anchor === 'dashboard-top' ? 'settings-page' : ctx.anchor, apps: ctx.apps, breakSwitch: ctx.breakSwitch }) +
+    '  <p><button type="button" id="anchor-1">Anchor 1</button> <button type="button" id="anchor-2">Anchor 2</button> <button type="button" id="anchor-3">Anchor 3</button></p>' +
+    '</main>';
+  return page('Settings', body, ctx);
+}
+
+function homePage(ctx) {
+  var body = '<main><h1>Sample app</h1><p><a href="/tour">Tour</a>, <a href="/dashboard">Dashboard</a>, <a href="/settings">Settings</a>.</p></main>';
+  return page('Home', body, ctx);
+}
+
+const server = http.createServer(function (req, res) {
+  var url = new URL(req.url, 'http://' + req.headers.host);
+  var ctx = parseQuery(url);
+  res.setHeader('content-type', 'text/html; charset=utf-8');
+  if (url.pathname === '/' || url.pathname === '/home') { res.end(homePage(ctx)); return; }
+  if (url.pathname === '/tour' || url.pathname === '/onboarding' || url.pathname === '/welcome') { res.end(tourPage(ctx)); return; }
+  if (url.pathname === '/dashboard') { res.end(dashboardPage(ctx)); return; }
+  if (url.pathname === '/settings' || url.pathname === '/account' || url.pathname === '/account/settings') { res.end(settingsPage(ctx)); return; }
+  res.statusCode = 404;
+  res.end(page('Not found', '<main><h1>Not found</h1></main>', ctx));
+});
+
+server.listen(PORT, function () {
+  console.log('LISTENING ' + PORT);
+});

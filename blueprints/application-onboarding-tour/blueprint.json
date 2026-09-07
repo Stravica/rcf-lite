@@ -1,0 +1,164 @@
+{
+  "slug": "application-onboarding-tour",
+  "version": "1.0.0",
+  "category": "application",
+  "elicits": [
+    {
+      "id": "tour-step-manifest",
+      "prompt": "Tour step manifest: an ordered list of 3 to 5 steps, each with an anchor selector (CSS) and a content voice slot the project fills. Names each step id, anchor, heading and body.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "anchor-selectors",
+      "prompt": "Anchor selectors: CSS selectors the runtime resolves at step-open time to place the tooltip. One per manifest step.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "per-step-content-voice",
+      "prompt": "Per-step content voice: the project-owned copy for each step (heading and body). The blueprint contributes the WHAT, not the words.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "dismissal-policy",
+      "prompt": "Dismissal policy: dismiss-permanently (the tour never re-opens for a returning principal), dismiss-until-next-major (re-opens on a major version bump of the applied blueprint set), or dismiss-until-next-minor (re-opens on a minor bump). Recommended default: dismiss-permanently.",
+      "kind": "enum",
+      "options": [
+        "dismiss-permanently",
+        "dismiss-until-next-major",
+        "dismiss-until-next-minor"
+      ],
+      "default": "dismiss-permanently"
+    },
+    {
+      "id": "completion-state-store",
+      "prompt": "Completion-state store shape: spa-local-storage (per-browser, the Q4 fallback when no persistence blueprint is applied), spa-session-storage (per-session, re-plays on every new session), or server-side-per-principal (follows the principal across devices; requires an applied persistence blueprint). Recommended default: spa-local-storage.",
+      "kind": "enum",
+      "options": [
+        "spa-local-storage",
+        "spa-session-storage",
+        "server-side-per-principal"
+      ],
+      "default": "spa-local-storage"
+    },
+    {
+      "id": "checklist-anchor",
+      "prompt": "Checklist anchor slot: dashboard-top (renders on the dashboard shell when application-dashboard is applied), settings-page (renders on the settings surface when application-account-settings is applied or on any settings surface as a fallback), or custom-anchor (the project supplies a CSS selector). Default derived at apply time from what is applied.",
+      "kind": "enum",
+      "options": [
+        "dashboard-top",
+        "settings-page",
+        "custom-anchor"
+      ],
+      "default": "dashboard-top"
+    }
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every step transition and tour completion writes one request-scoped log line with the correlation identifier; a logging companion supplies the factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A completion-state persistence failure constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "contributions": [
+    {
+      "id": "application-onboarding-tour-REQ-001",
+      "kind": "req",
+      "path": "requirements/application-onboarding-tour-req-001.json"
+    },
+    {
+      "id": "application-onboarding-tour-REQ-002",
+      "kind": "req",
+      "path": "requirements/application-onboarding-tour-req-002.json"
+    },
+    {
+      "id": "application-onboarding-tour-REQ-003",
+      "kind": "req",
+      "path": "requirements/application-onboarding-tour-req-003.json"
+    },
+    {
+      "id": "application-onboarding-tour-REQ-004",
+      "kind": "req",
+      "path": "requirements/application-onboarding-tour-req-004.json"
+    },
+    {
+      "id": "application-onboarding-tour-US-26101",
+      "kind": "us",
+      "path": "user-stories/application-onboarding-tour-us-26101.json"
+    },
+    {
+      "id": "application-onboarding-tour-US-26102",
+      "kind": "us",
+      "path": "user-stories/application-onboarding-tour-us-26102.json"
+    },
+    {
+      "id": "application-onboarding-tour-US-26103",
+      "kind": "us",
+      "path": "user-stories/application-onboarding-tour-us-26103.json"
+    },
+    {
+      "id": "application-onboarding-tour-US-26104",
+      "kind": "us",
+      "path": "user-stories/application-onboarding-tour-us-26104.json"
+    },
+    {
+      "id": "application-onboarding-tour-US-26105",
+      "kind": "us",
+      "path": "user-stories/application-onboarding-tour-us-26105.json"
+    },
+    {
+      "id": "application-onboarding-tour-US-26106",
+      "kind": "us",
+      "path": "user-stories/application-onboarding-tour-us-26106.json"
+    },
+    {
+      "id": "application-onboarding-tour-US-26107",
+      "kind": "us",
+      "path": "user-stories/application-onboarding-tour-us-26107.json"
+    },
+    {
+      "id": "TAC-2701-application-onboarding-tour-step-runner",
+      "kind": "tac",
+      "path": "tacs/tac-2701-application-onboarding-tour-step-runner.json"
+    },
+    {
+      "id": "TAC-2702-application-onboarding-tour-checklist-slot",
+      "kind": "tac",
+      "path": "tacs/tac-2702-application-onboarding-tour-checklist-slot.json"
+    },
+    {
+      "id": "TAC-2703-application-onboarding-tour-completion-store",
+      "kind": "tac",
+      "path": "tacs/tac-2703-application-onboarding-tour-completion-store.json"
+    },
+    {
+      "id": "ADR-2701-application-onboarding-tour-dismissal-policy",
+      "kind": "adr",
+      "path": "adrs/adr-2701-application-onboarding-tour-dismissal-policy.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-2702-application-onboarding-tour-completion-store-shape",
+      "kind": "adr",
+      "path": "adrs/adr-2702-application-onboarding-tour-completion-store-shape.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-2703-application-onboarding-tour-checklist-anchor",
+      "kind": "adr",
+      "path": "adrs/adr-2703-application-onboarding-tour-checklist-anchor.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "usId": "application-onboarding-tour-US-26104",
+  "prdId": "PRD-001",
+  "reqId": "application-onboarding-tour-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Completion-state persists per principal and the restart-tour control clears it",
+  "asA": "returning principal who completed the tour",
+  "iWant": "the completion state to persist per principal in the applied persistence store (or per browser in spa-local-storage as the Q4 fallback), and a restart-tour control I can reach from the settings surface",
+  "soThat": "the tour does not re-open at every session, and I can bring it back deliberately when I need to",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-26104-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given a completed tour, the completion state persists per principal in the applied persistence blueprint (or in spa-local-storage as the Q4 fallback per ADR-2702 when no persistence blueprint is applied); a restart-tour control is reachable from the settings surface (composing on application-account-settings when applied; on any settings surface as a fallback); activating the control clears the completion state and re-opens the tour on the next principal load. Anchors to TAC-2703-application-onboarding-tour-completion-store; probed by application-onboarding-tour.pack.mjs check AC-26104-1."
+    }
+  ],
+  "tacIds": [
+    "TAC-2703-application-onboarding-tour-completion-store"
+  ],
+  "tags": [
+    "blueprint:application-onboarding-tour"
+  ],
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

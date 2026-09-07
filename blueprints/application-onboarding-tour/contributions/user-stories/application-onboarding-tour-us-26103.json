@@ -1,0 +1,27 @@
+{
+  "usId": "application-onboarding-tour-US-26103",
+  "prdId": "PRD-001",
+  "reqId": "application-onboarding-tour-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Checklist surface renders on the dashboard when application-dashboard is applied and on the settings page when not",
+  "asA": "returning principal who dismissed the tour and later wants to check the outstanding items",
+  "iWant": "the checklist to render on the dashboard shell when application-dashboard is applied and on the settings page when it is not, with a collapse contract that opens the checklist on the dashboard and closes it on the settings page by default",
+  "soThat": "the checklist meets me where I am, and it does not intrude on the settings surface where it is a reference rather than a primary task",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-26103-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given the applied capability set includes application-dashboard, the checklist renders inside a <details open> element on the dashboard-top anchor slot; given the applied capability set does NOT include application-dashboard, the checklist renders inside a <details> (closed) element on the settings-page anchor slot; the <details> element carries data-role=\"onboarding-tour-checklist\" in both branches. Anchors to TAC-2702-application-onboarding-tour-checklist-slot; probed by application-onboarding-tour.pack.mjs check AC-26103-1 on both application-dashboard and settings-page branches."
+    }
+  ],
+  "tacIds": [
+    "TAC-2702-application-onboarding-tour-checklist-slot"
+  ],
+  "tags": [
+    "blueprint:application-onboarding-tour"
+  ],
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

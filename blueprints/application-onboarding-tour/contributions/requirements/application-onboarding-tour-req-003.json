@@ -1,0 +1,18 @@
+{
+  "reqId": "application-onboarding-tour-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Checklist surface: on the dashboard when application-dashboard is applied, on the settings page when not",
+  "description": "A first-run checklist renders on the dashboard-top anchor when application-dashboard is applied (open by default, so a new principal sees the outstanding items at a glance) and collapses to a settings-page anchor when application-dashboard is not applied (closed by default, so an existing principal reaching the settings surface can expand it). The collapse contract is a <details> element whose open state mirrors the anchor choice: dashboard-top -> open, settings-page -> closed. The checklist enumerates the applied tour surfaces with a link back to the restart-tour affordance on the settings surface. The blueprint contributes the anchor slot contract (ADR-2703) and the surface conditionality, not the checklist items.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec (2026-09-06) section 5.5, REQ 3 of the onboarding-tour blueprint.",
+  "tags": [
+    "blueprint:application-onboarding-tour",
+    "category:03-checklist-slot"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

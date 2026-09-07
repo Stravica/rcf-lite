@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-09-06T23:05:23.898Z",
+  "updatedAt": "2026-09-06T23:19:05.155Z",
+  "purpose": "Cover AC-2801-1 through AC-2801-8 via unit tests over the shipped application-onboarding-tour blueprint.json contribution shape (17 contributions in the 4 REQ / 7 US / 3 TAC / 3 ADR groups), the ADR shape and standardsTraceClause discipline on the ADR contribution entries per spec section 8a, the applies-clean pass on a fresh init project (no requiresAppliedCapabilities), the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids and appliesTo referencing BOTH tacIds and route, the sample-app fixture serving the tour surface honestly on both apps=dashboard and apps= (empty) branches plus multiple store branches, the four break switches surfacing the four defects (no-role, focus-escape, no-collapse, no-persist), the docs consistency (README, guide, topics.md, blueprint CHANGELOG) and the withUrl helper plus browser.resize breakpoint usage (WCAG 2.4.11) in the pack source.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-2801-1",
+    "AC-2801-2",
+    "AC-2801-3",
+    "AC-2801-4",
+    "AC-2801-5",
+    "AC-2801-6",
+    "AC-2801-7",
+    "AC-2801-8"
+  ],
+  "id": "TS-057",
+  "usId": "US-2801",
+  "title": "application-onboarding-tour v1.0.0 shelf shape, probe pack cross-check, sample-app fixture with dashboard-and-settings-page checklist branches and multiple completion-store branches, and the four break switches under Q4 spa-local-storage fallback",
+  "testCases": [
+    {
+      "id": "TC-057-blueprint-json-shape",
+      "acId": "AC-2801-1",
+      "description": "blueprint.json declares 17 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::blueprint.json declares 17 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)"
+    },
+    {
+      "id": "TC-057-adr-shape",
+      "acId": "AC-2801-2",
+      "description": "ADR JSON documents validate against 0.6.1 and standardsTraceClause is non-null on ADR contribution entries (TC-057-adr-shape)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::ADR JSON documents validate against 0.6.1 and standardsTraceClause is non-null on ADR contribution entries (TC-057-adr-shape)"
+    },
+    {
+      "id": "TC-057-applies-clean",
+      "acId": "AC-2801-3",
+      "description": "applies cleanly on a fresh project with 17 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::applies cleanly on a fresh project with 17 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)"
+    },
+    {
+      "id": "TC-057-pack-checks-cross-check",
+      "acId": "AC-2801-4",
+      "description": "every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; withUrl helper used; browser.resize breakpoints appear (TC-057-pack-checks-cross-check)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; withUrl helper used; browser.resize breakpoints appear (TC-057-pack-checks-cross-check)"
+    },
+    {
+      "id": "TC-057-fixture-and-switches",
+      "acId": "AC-2801-5",
+      "description": "sample-app fixture serves the honest tour on both apps=dashboard and apps= (empty) branches and multiple store branches (TC-057-fixture-and-switches)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::sample-app fixture serves the honest tour on both apps=dashboard and apps= (empty) branches and multiple store branches (TC-057-fixture-and-switches)"
+    },
+    {
+      "id": "TC-057-negative-runs",
+      "acId": "AC-2801-6",
+      "description": "sample-app fixture break switches surface the four defects (TC-057-negative-runs)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::sample-app fixture break switches surface the four defects (TC-057-negative-runs)"
+    },
+    {
+      "id": "TC-057-shelf-doc-consistency",
+      "acId": "AC-2801-7",
+      "description": "AC ids and cross-reference blueprint slugs appear identically across README, guide, pack descriptions and topics.md (TC-057-shelf-doc-consistency)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::AC ids and cross-reference blueprint slugs appear identically across README, guide, pack descriptions and topics.md (TC-057-shelf-doc-consistency)"
+    },
+    {
+      "id": "TC-057-changelog-guide-and-mechanism-reach",
+      "acId": "AC-2801-8",
+      "description": "README lists mechanism-reach gaps per AC and guide names WCAG SCs and the ARIA APG dialog-modal pattern with URLs (TC-057-changelog-guide-and-mechanism-reach)",
+      "status": "pending",
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::README lists mechanism-reach gaps per AC and guide names WCAG SCs and the ARIA APG dialog-modal pattern with URLs (TC-057-changelog-guide-and-mechanism-reach)"
+    }
+  ],
+  "status": "draft"
+}

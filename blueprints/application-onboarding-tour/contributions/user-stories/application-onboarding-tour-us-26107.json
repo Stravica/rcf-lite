@@ -1,0 +1,27 @@
+{
+  "usId": "application-onboarding-tour-US-26107",
+  "prdId": "PRD-001",
+  "reqId": "application-onboarding-tour-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Screen-reader traversal announces the step heading and body on open",
+  "asA": "assistive-technology user",
+  "iWant": "the tooltip to announce the step heading and body on open through the ARIA APG dialog-modal contract",
+  "soThat": "I hear the step content the moment focus arrives, not after a manual navigation",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-26107-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The tooltip carries aria-labelledby pointing at the step heading and aria-describedby pointing at the step body; focus moves into the tooltip on open so the screen reader reads the labelled and described text. Documented as a mechanism-reach gap for the described-text read order because rcf-lite does not drive a real screen reader in CI; the pack asserts the DOM contract and the fixture README names the manual screen-reader smoke."
+    }
+  ],
+  "tacIds": [
+    "TAC-2701-application-onboarding-tour-step-runner"
+  ],
+  "tags": [
+    "blueprint:application-onboarding-tour"
+  ],
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

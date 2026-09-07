@@ -1,0 +1,77 @@
+{
+  "id": "bv-FBS-001-7",
+  "fbsId": "FBS-001",
+  "createdAt": "2026-09-06T23:25:26.518Z",
+  "mode": "agentScreenshotCritique",
+  "runtimeProfile": "local-dev",
+  "runtimeUrl": "http://127.0.0.1:4914",
+  "routesChecked": [
+    {
+      "path": "/",
+      "screenshotPath": ".rcf/artefacts/fbs-001/placeholder.png",
+      "themeApplied": "light"
+    }
+  ],
+  "invariantChecks": [
+    {
+      "invariant": "sharedLayoutModule",
+      "verdict": "pass"
+    },
+    {
+      "invariant": "agentDriverWired",
+      "verdict": "fail",
+      "detail": "browser driver returned zero captures; wire a Playwright driver via deps.browserDriver or run in --mode operatorSession"
+    }
+  ],
+  "verdict": "block",
+  "probePacks": [
+    {
+      "packName": "application-onboarding-tour",
+      "packVersion": "1.0.0",
+      "blueprintSlug": "application-onboarding-tour",
+      "applicable": true,
+      "checks": [
+        {
+          "id": "AC-26101-1",
+          "verdict": "fail",
+          "severity": "block",
+          "detail": "Tab traversal escaped the tooltip (focus trap failed)"
+        },
+        {
+          "id": "AC-26102-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "dialog contract clean at 1440 and 360; aria-labelledby=\"tour-heading-step-1\" aria-describedby=\"tour-body-step-1\""
+        },
+        {
+          "id": "AC-26103-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "anchor=dashboard-top open=true items=[\"complete-profile\",\"confirm-email\",\"explore-dashboard\"] (dashboardApplied=true)"
+        },
+        {
+          "id": "AC-26104-1",
+          "verdict": "pass",
+          "severity": "block",
+          "detail": "store=spa-local-storage completion persisted, restart cleared, tour re-opened"
+        }
+      ]
+    }
+  ],
+  "notes": "Driver: no captures produced."
+}
+
+browser-verify FBS-001 (agentScreenshotCritique, local-dev)
+  agent critique:
+    Driver: no captures produced.
+  invariant checks:
+    [pass] sharedLayoutModule
+    [fail] agentDriverWired - browser driver returned zero captures; wire a Playwright driver via deps.browserDriver or run in --mode operatorSession
+  probe packs:
+    [fail] application-onboarding-tour AC-26101-1 - Tab traversal escaped the tooltip (focus trap failed)
+    [pass] application-onboarding-tour AC-26102-1 - dialog contract clean at 1440 and 360; aria-labelledby="tour-heading-step-1" aria-describedby="tour-body-step-1"
+    [pass] application-onboarding-tour AC-26103-1 - anchor=dashboard-top open=true items=["complete-profile","confirm-email","explore-dashboard"] (dashboardApplied=true)
+    [pass] application-onboarding-tour AC-26104-1 - store=spa-local-storage completion persisted, restart cleared, tour re-opened
+  verdict: block
+
+browser-verify FBS-001: wrote bv-FBS-001-7 to rcf/manifest.json (verdict=block).

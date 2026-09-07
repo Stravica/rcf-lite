@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-179",
+  "path": "../../blueprints/application-onboarding-tour/probe-packs/application-onboarding-tour.pack.mjs",
+  "implementsAcIds": [
+    "AC-2801-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T23:20:19.573Z",
+  "updatedAt": "2026-09-06T23:20:19.573Z"
+}

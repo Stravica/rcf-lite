@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-2703-application-onboarding-tour-checklist-anchor",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Checklist anchor slot: dashboard-top when application-dashboard is applied, settings-page when not, custom-anchor as escape hatch",
+  "context": "The checklist has three legal homes. dashboard-top when application-dashboard is applied because the dashboard shell is the highest-value surface a returning principal reaches. settings-page when application-dashboard is not applied because the settings surface is the next-highest-value reference surface. custom-anchor when the project prefers a bespoke slot (a marketing surface, a landing shell, a home route). The spec section 5.5 ratifies all three and marks the anchor as elicited with a default derived at apply time from what is applied.",
+  "decision": "checklist-anchor is elicited (enum: dashboard-top | settings-page | custom-anchor). Recommended default: derived at apply time (dashboard-top when application-dashboard is in the applied set; settings-page when it is not; custom-anchor requires the projects own CSS selector). The collapse contract is a <details open> element on dashboard-top and a <details> (closed) element on settings-page; custom-anchor takes the setting-page default (closed) unless the project supplies an override.",
+  "consequences": "A project applying application-dashboard renders the checklist open on the dashboard shell so a new principal sees the outstanding items at a glance; a project not applying application-dashboard renders it closed on the settings surface so it does not intrude; a project with a custom-anchor takes responsibility for the placement. AC-26103-1 probes the collapse contract on the two shipped anchors; custom-anchor is verified by the fixture READMEs manual boot line.",
+  "alternativesConsidered": [
+    {
+      "name": "Alternative approach considered",
+      "summary": "Auto-selecting always to the dashboard-top slot regardless of the applied set was considered but a project without application-dashboard applied has no dashboard shell to mount into; the checklist would be lost. Deriving the default from the applied set at apply time keeps the anchor honest.",
+      "reasonNotChosen": "See the decision text; the chosen shape composes cleanly with the applied blueprint set the spec section 5.5 names."
+    }
+  ],
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

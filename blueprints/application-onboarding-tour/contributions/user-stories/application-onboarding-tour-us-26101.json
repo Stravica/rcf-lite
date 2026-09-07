@@ -1,0 +1,27 @@
+{
+  "usId": "application-onboarding-tour-US-26101",
+  "prdId": "PRD-001",
+  "reqId": "application-onboarding-tour-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "First-run principal sees the tour open on the highest-value surface and can walk it or dismiss it with the keyboard",
+  "asA": "first-run principal reaching the application",
+  "iWant": "the tour to open on the highest-value surface with the first step, and to be able to walk through it or dismiss it using only the keyboard",
+  "soThat": "I can learn the surface my project ships without a mouse, and I can leave the tour at any point without a trap",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-26101-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given a first-run principal on the SPA, the tour opens on the highest-value surface with the first step; Escape dismisses the tour and hides the tooltip; keyboard-only users reach every tour control (previous, next, dismiss) via Tab in DOM order and activate the next control with Enter (WCAG 2.1.1 Keyboard, WCAG 2.1.2 No Keyboard Trap, WCAG 2.4.3 Focus Order). Anchors to TAC-2701-application-onboarding-tour-step-runner; probed by application-onboarding-tour.pack.mjs check AC-26101-1."
+    }
+  ],
+  "tacIds": [
+    "TAC-2701-application-onboarding-tour-step-runner"
+  ],
+  "tags": [
+    "blueprint:application-onboarding-tour"
+  ],
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

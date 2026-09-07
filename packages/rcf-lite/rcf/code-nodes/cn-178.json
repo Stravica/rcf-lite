@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-178",
+  "path": "../../blueprints/application-onboarding-tour/contributions/adrs/adr-2703-application-onboarding-tour-checklist-anchor.json",
+  "implementsAcIds": [
+    "AC-2801-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T23:20:19.415Z",
+  "updatedAt": "2026-09-06T23:20:19.415Z"
+}

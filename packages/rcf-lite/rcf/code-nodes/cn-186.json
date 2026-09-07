@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-186",
+  "path": "docs/blueprint-authoring.md",
+  "implementsAcIds": [
+    "AC-2801-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T23:20:20.688Z",
+  "updatedAt": "2026-09-06T23:20:20.688Z"
+}

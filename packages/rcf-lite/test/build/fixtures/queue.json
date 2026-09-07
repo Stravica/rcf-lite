@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 48,
-    "notStarted": 20,
+    "items": 49,
+    "notStarted": 21,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
     "actionable": 12,
-    "blocked": 8
+    "blocked": 9
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -93,7 +93,8 @@
     {
       "tier": 6,
       "fbsIds": [
-        "FBS-030"
+        "FBS-030",
+        "FBS-047"
       ]
     },
     {
@@ -677,6 +678,20 @@
       "state": "blocked",
       "blockedBy": [
         "FBS-045"
+      ]
+    },
+    {
+      "fbsId": "FBS-047",
+      "buildOrder": 49,
+      "tier": 6,
+      "title": "application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-046"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-046"
       ]
     }
   ]

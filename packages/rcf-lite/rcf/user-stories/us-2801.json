@@ -1,0 +1,55 @@
+{
+  "createdAt": "2026-09-06T23:03:12.225Z",
+  "updatedAt": "2026-09-06T23:04:29.543Z",
+  "usId": "US-2801",
+  "prdId": "PRD-001",
+  "reqId": "REQ-028",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The application-onboarding-tour blueprint ships on the shelf with its 4-check pack and sample-app fixture; the pack refuses on the four break switches; the tour composes on dashboard notifications-in-app account-settings and the SPA with the documented fallback per Q4 when no persistence blueprint is applied",
+  "asA": "shelf consumer applying the application-onboarding-tour v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks (step-container focus and Escape, tooltip-as-dialog contract, checklist slot with dashboard-when-applied and settings-page-when-not, completion-state persistence per the elicited store shape) with the pack composing on the applied blueprint set (dashboard for the anchor slot, notifications-in-app for the completion announcement, account-settings for the restart control, any auth for the per-principal state) and a sample-app fixture proving the pack passes on both the ?apps=dashboard and ?apps= (empty) branches plus multiple ?store= branches and refuses on the four break switches",
+  "soThat": "a project consuming rcf-lite gets a WCAG 2.2 AA compliant onboarding-tour surface (2.1.1 Keyboard, 2.1.2 No Keyboard Trap, 2.4.11 Focus Not Obscured Minimum, 2.4.3 Focus Order) built on the ARIA APG dialog-modal pattern, a first-run checklist that renders on the dashboard shell when application-dashboard is applied and collapses to the settings page when not, three-to-five steps with per-step content owned by the project voice, one recommended default per elicit (dismissal policy dismiss-permanently, completion-state store spa-local-storage per Q4 when no persistence blueprint is applied, checklist anchor derived at apply time), and a documented restart-tour affordance on the settings surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-2801-1",
+      "description": "The shelf carries blueprints/application-onboarding-tour/blueprint.json declaring slug application-onboarding-tour, version 1.0.0, category application, and 17 to 22 contributions in the 4 REQ / 7 US / 3 TAC / 3 ADR groups per spec section 5.5; suggestedCompanions declares logging and errorHandling with reasons from spec section 5.5; providesRoles is absent; capabilities is absent; requiresAppliedCapabilities is absent (no hard dependency; documented Q4 fallback spa-local-storage when no persistence blueprint is applied).",
+      "testable": true
+    },
+    {
+      "id": "AC-2801-2",
+      "description": "The 3 ADR JSON documents under blueprints/application-onboarding-tour/contributions/adrs/ validate against rcf-schemas 0.6.1 ADR shape; the ADR contribution entries in blueprint.json carry a non-null standardsTraceClause per spec section 8a.4 (dialog-modal pattern for ADR-2701, WCAG 2.5.3 or generic enterprise practice for ADR-2702 and ADR-2703 as honest); ADR-2701 dismissal-policy declares recommendedDefault true elicited true; ADR-2702 completion-store-shape declares elicited true with the Q4 default spa-local-storage; ADR-2703 checklist-anchor declares elicited true with the default derived at apply time.",
+      "testable": true
+    },
+    {
+      "id": "AC-2801-3",
+      "description": "rcf define blueprint add ./blueprints/application-onboarding-tour applies the 17 contributions cleanly on a fresh init project (exit 0; contribution count matches blueprint.json); the applied sidecar records appliedElicitations for dismissal policy completion-state store checklist anchor tour-step-manifest per-step-content-voice; no requiresAppliedCapabilities refusal fires (T-5 has no hard dependency).",
+      "testable": true
+    },
+    {
+      "id": "AC-2801-4",
+      "description": "The shipped probe pack blueprints/application-onboarding-tour/probe-packs/application-onboarding-tour.pack.mjs loads via the T-0 pack-loader against a scratch project with the blueprint applied; each of its four check ids (AC-26101-1 step-container focus and Escape, AC-26102-1 tooltip-as-dialog contract, AC-26103-1 checklist slot with dashboard-when-applied and settings-page-when-not, AC-26104-1 completion-state persistence) resolves to an AC id contributed by the blueprint; every check carries a description field; the pack-level appliesTo predicate references BOTH tacIds AND route (via the operator-configured tour-anchor path glob); every URL string is composed by the withUrl(runtimeUrl, path) helper and no bare string concatenation appears in the pack source; the tooltip-as-dialog check uses browser.resize(1440, 900) and browser.resize(360, 640) to probe focus-not-obscured (WCAG 2.4.11).",
+      "testable": true
+    },
+    {
+      "id": "AC-2801-5",
+      "description": "The sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-onboarding-tour/ ships a dependency-free Node HTTP server (server.js) with a start script; on the honest branch /tour renders the tooltip-as-dialog opened on the first step (role=dialog, aria-labelledby to the step heading, focus moves to the tooltip on open, focus returns to the anchor on close); Escape dismisses the tour; Tab traverses tour controls in DOM order and Enter activates the next step; ?apps=dashboard renders the checklist as a <details open> on the dashboard-top anchor; ?apps= (empty) renders the checklist as a <details> (closed) on the settings-page anchor; ?store=<spa-local-storage|spa-session-storage|server-side-per-principal> selects the completion-store backend; ?first-run=<0|1> gates the auto-open; PORT env overrides the bind port (default 3000, never binds 4200).",
+      "testable": true
+    },
+    {
+      "id": "AC-2801-6",
+      "description": "The probe pack fails on each broken fixture branch: ?break=no-role drops role=dialog on the tooltip so AC-26102-1 fails at severity block; ?break=focus-escape allows Tab to escape the tooltip to the underlying surface so AC-26101-1 fails at severity block; ?break=no-collapse drops the <details> collapse contract on the checklist slot so AC-26103-1 fails at severity block; ?break=no-persist drops the completion-state write so AC-26104-1 fails at severity block. The aggregate verdict on each break switch reports fail.",
+      "testable": true
+    },
+    {
+      "id": "AC-2801-7",
+      "description": "The four surface-observable checks (AC-26101-1 step-container, AC-26102-1 tooltip-as-dialog, AC-26103-1 checklist-slot, AC-26104-1 completion-state) appear identically across README, guide, pack checks[] descriptions, and docs/topics.md registry; the topics.md T-5 row lists the four cross-references (application-dashboard, application-notifications-in-app, application-account-settings, application-spa) with the compose reason in one line each; the Q4 default (spa-local-storage) is named on ADR-2702 and README with the same rationale.",
+      "testable": true
+    },
+    {
+      "id": "AC-2801-8",
+      "description": "README lists mechanism-reach gaps individually per AC id per checklist section 6.g (T-1 gate discipline); CHANGELOG carries one 1.0.0 entry naming the four checks, the checklist collapse contract and the Q4 fallback; guide/application-onboarding-tour.md exists and names the ARIA APG dialog-modal pattern with a URL, the WCAG 2.2 AA success criteria (2.1.1, 2.1.2, 2.4.3, 2.4.11) with links, the fixture READMEs manual boot line, and the Q4 fallback rationale; packages/rcf-lite/CHANGELOG.md is NOT edited (the round-close release PR owns the 0.22.0 entry).",
+      "testable": true
+    }
+  ]
+}

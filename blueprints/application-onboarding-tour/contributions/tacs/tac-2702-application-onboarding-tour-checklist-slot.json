@@ -1,0 +1,35 @@
+{
+  "tacId": "TAC-2702-application-onboarding-tour-checklist-slot",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Onboarding-tour checklist slot",
+  "purpose": "Owns the checklist surface: the anchor-slot resolution (dashboard-top vs settings-page vs custom-anchor), the collapse contract (<details open> on dashboard-top; <details> closed on settings-page), and the enumeration of the applied tour surfaces with a link back to the restart-tour affordance on the settings surface.",
+  "responsibilities": [
+    "Read the elicited checklist-anchor (ADR-2703) at load and mount the checklist at the resolved slot (AC-26103-1).",
+    "Render the checklist as a <details> element carrying data-role=\"onboarding-tour-checklist\" whose open state mirrors the anchor: open on dashboard-top, closed on settings-page (AC-26103-1).",
+    "Enumerate the applied tour surfaces as list items with a link to the restart-tour control on the settings surface.",
+    "Suppress the checklist entirely when neither the dashboard nor the settings surface is applied and no custom-anchor is supplied."
+  ],
+  "internalStructure": "One checklist module that reads the applied capability set from the sidecar-adjacent applied-blueprint list, picks the anchor per the elicited value or the default derived at apply time, and mounts the <details> element into the resolved slot. The framework is not prescribed.",
+  "interfaces": [
+    {
+      "name": "renderChecklist",
+      "kind": "factory",
+      "description": "renderChecklist({ anchor, appliedSet, items }) -> { mount(rootElement), unmount() }. The project supplies the anchor (one of dashboard-top, settings-page, custom-anchor with a selector), the appliedSet (from the applied-blueprint list) and the items (from the manifest walk)."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Step runner",
+      "kind": "tac",
+      "tacId": "TAC-2701-application-onboarding-tour-step-runner",
+      "description": "The checklist links back to the step runner via the restart-tour control on the settings surface."
+    }
+  ],
+  "tradeoffs": "The <details>/<summary> collapse contract is chosen over an ARIA APG disclosure widget because <details> ships browser-native keyboard behaviour (Space, Enter to toggle) and screen-reader-native semantics; a bespoke disclosure widget would need every keyboard case re-implemented. The trade-off is styling constraints; the fixture ships an unstyled <details> to make the shape testable.",
+  "notes": "Composes on application-dashboard for the dashboard-top slot and application-account-settings for the settings-page slot; a project applying neither falls back to a custom-anchor. Known mechanism-reach gap: the checklist cannot inspect which items a principal has already completed without a persistence-blueprint reader; documented under AC-26103-1 as a fixture-side signal only.",
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

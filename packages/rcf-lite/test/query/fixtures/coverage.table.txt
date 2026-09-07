@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 29  covered: 29  covered-unresolved: 0  uncovered: 0
+Requirements: 30  covered: 30  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -231,6 +231,14 @@ REQ-027      yes      AC-2701-1   yes         TC-056-blueprint-json-shape
                       AC-2701-6   yes         TC-056-negative-runs
                       AC-2701-7   yes         TC-056-shelf-doc-consistency
                       AC-2701-8   yes         TC-056-q3-refusal
+REQ-028      yes      AC-2801-1   yes         TC-057-blueprint-json-shape
+                      AC-2801-2   yes         TC-057-adr-shape
+                      AC-2801-3   yes         TC-057-applies-clean
+                      AC-2801-4   yes         TC-057-pack-checks-cross-check
+                      AC-2801-5   yes         TC-057-fixture-and-switches
+                      AC-2801-6   yes         TC-057-negative-runs
+                      AC-2801-7   yes         TC-057-shelf-doc-consistency
+                      AC-2801-8   yes         TC-057-changelog-guide-and-mechanism-reach
 REQ-040      yes      AC-4001-1   yes         TC-070-blueprint-json-shape
                       AC-4001-2   yes         TC-070-applies-clean-no-persistence
                       AC-4001-3   yes         TC-070-conflict-with-d1
