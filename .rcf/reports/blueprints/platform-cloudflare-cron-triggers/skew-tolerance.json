@@ -1,0 +1,33 @@
+{
+  "slug": "platform-cloudflare-cron-triggers",
+  "probeName": "skew-tolerance",
+  "runAt": "2026-09-07T12:45:35.857Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process dispatcher on cf-platform fixture with fake clock",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-32103-1",
+      "verdict": "pass",
+      "detail": "aligned clock fired cronFired outcome=onTime; no cronSkewed; duration=1"
+    },
+    {
+      "anchorAcId": "AC-32103-2",
+      "verdict": "pass",
+      "detail": "shifted-clock fired cronSkewed deltaMs=60000; handler ran (1); cronFired followed"
+    },
+    {
+      "anchorAcId": "AC-32104-1",
+      "verdict": "pass",
+      "detail": "softBudget breach: cronStalled fired once with duration=101ms softBudgetMs=100"
+    },
+    {
+      "anchorAcId": "AC-32104-2",
+      "verdict": "pass",
+      "detail": "handler ran to completion after soft-budget breach; final cronFired duration=252ms"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

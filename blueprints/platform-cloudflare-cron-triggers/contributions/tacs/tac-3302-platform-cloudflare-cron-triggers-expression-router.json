@@ -1,0 +1,22 @@
+{
+  "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-cron-triggers expression-router dispatcher",
+  "purpose": "The dispatcher module realising the expression-routed dispatch shape per ADR-3302. Accepts an ordered map of {expression, handler} pairs, dispatches by exact cron-string match on the incoming Cron Trigger event, applies the skew-tolerance classification (TAC-3303 sink), applies the soft-budget observation (TAC-3303 sink) and delegates to the routed handler with a bounded context.",
+  "responsibilities": [
+    "Match the incoming event.cron against routes[].expression by exact string equality; invoke the matched handler exactly once (AC-32102-1); on no match fire cronUnmatched and return (AC-32102-2).",
+    "Observe handler start against event.scheduledTime; classify onTime or skewed against skewToleranceMs (AC-32103-1, AC-32103-2); fire cronFired or cronSkewed as appropriate on the sink.",
+    "Observe handler duration; if it crosses softBudgetMs fire exactly one cronStalled on the sink at the crossing (AC-32104-1); NEVER terminate the handler (AC-32104-2).",
+    "Emit no event body bytes; the sink shape is metadata-only per TAC-3303 (AC-32106-1)."
+  ],
+  "internalStructure": "One module exporting createDispatcher({ routes, eventSink, skewToleranceMs, softBudgetMs, clock? }) returning { dispatch }. The dispatcher keeps a private clock (Date.now by default) so a fake clock injects for tests. The soft-budget observer schedules a setTimeout at softBudgetMs relative to the handler start; if the handler settles before the timeout, the timeout is cleared and only cronFired fires; if the timeout fires first, cronStalled emits and the handler continues to settlement, at which point cronFired follows.",
+  "interfaces": [
+    { "name": "default export", "kind": "factory", "summary": "Platform-cloudflare-cron-triggers dispatcher factory exported from the applied fixture module." }
+  ],
+  "dependencies": ["TAC-3303-platform-cloudflare-cron-triggers-event-sink"],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

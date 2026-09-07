@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-07T12:28:02.169Z",
+  "updatedAt": "2026-09-07T12:28:02.169Z",
+  "asA": "developer whose Worker needs to schedule two or more distinct workloads on distinct cron cadences",
+  "iWant": "one dispatcher module (src/dispatcher.mjs) that accepts an ordered map of cron expressions to handler functions and, on every scheduled invocation, routes to the matched handler with a bounded context",
+  "soThat": "one wrangler.toml [triggers] block with multiple cron expressions cleanly maps to distinct handler code paths without hand-rolled conditionals",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6101-1",
+      "description": "createDispatcher({routes: [{expression, handler}, ...], eventSink}) returns a dispatch(event) function. Calling dispatch({cron: '* * * * *', scheduledTime}) invokes exactly the handler whose expression is '* * * * *' and passes {expression, scheduledTime, sink} to it; no other route's handler is called on that dispatch.",
+      "given": "a dispatcher wired with two routes and two spy handlers",
+      "when": "dispatch is called with a specific expression",
+      "then": "only the matched spy handler is invoked exactly once with the bounded context",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6101-2",
+      "description": "Calling dispatch({cron: expressionNotInRoutes, scheduledTime}) does NOT invoke any handler, fires a cronUnmatched event on the sink with metadata {expression, scheduledTime, outcome: unmatched, duration: 0} and returns without side effect.",
+      "given": "a dispatcher wired with two routes and two spy handlers",
+      "when": "dispatch is called with an expression not in the routes",
+      "then": "no spy is called, a cronUnmatched event fires, and dispatch returns without side effect",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-cron-triggers"
+  ],
+  "usId": "US-6101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-061",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 dispatcher routes multiple cron expressions to distinct handlers by expression match"
+}

@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T12:29:11.255Z",
+  "updatedAt": "2026-09-07T12:29:45.408Z",
+  "purpose": "Cover AC-6001-1 via anatomy test: shipped scheduled handler ready() emits cronReady with metadata-only payload and does not dereference env.CACHE",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-6001-1"
+  ],
+  "id": "TS-090",
+  "usId": "US-6001",
+  "title": "T-2 scheduled handler opens on boot and emits cronReady",
+  "testCases": [
+    {
+      "id": "TC-090-scheduled-ready",
+      "acId": "AC-6001-1",
+      "description": "Cover AC-6001-1 via anatomy test: scheduled.mjs ready() emits cronReady with metadata-only payload; scheduled.mjs source contains no env.CACHE dereference",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::scheduled handler opens on boot and emits cronReady with metadata-only payload (TC-090-scheduled-ready)"
+    }
+  ],
+  "status": "draft"
+}

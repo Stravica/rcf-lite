@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T12:28:02.788Z",
+  "updatedAt": "2026-09-07T12:28:02.788Z",
+  "asA": "security reviewer reading the applied logging companion's stream",
+  "iWant": "every cron lifecycle event record to carry only {event, expression, scheduledTime, outcome, duration} and optional numeric metadata fields; never a handler input, closure or PII substring",
+  "soThat": "the logging stream stays safe to ship to any downstream sink without a per-blueprint scrub pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6302-1",
+      "description": "The event-secrecy probe drives the dispatcher with a spy handler that receives a PII fixture ({userId, ssn}) via a closure, and drives put/get/delete-style operations on a fixture key. The probe asserts (layer 1) every event record's keys are a subset of the allow-list {event, expression, scheduledTime, outcome, duration, softBudgetMs, deltaMs}; and (layer 2) the JSON serialisation of every record (excluding the expression field, which is a legitimate literal from wrangler.toml) contains no PII substring (userId numeric, ssn placeholder). SIMULATE_PII_LEAK=true injects a wrapper sink that forwards the closure onto the record; the probe surfaces the forbidden keys and the leaked substrings and returns aggregateVerdict: fail.",
+      "given": "the event-secrecy probe run under both modes",
+      "when": "the shipped code path runs without the switch; the mutation-path runs with SIMULATE_PII_LEAK=true",
+      "then": "shipped: aggregateVerdict pass with zero forbidden keys and zero PII hits. Switch on: aggregateVerdict fail with the leaked fields named.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-cron-triggers"
+  ],
+  "usId": "US-6302",
+  "prdId": "PRD-001",
+  "reqId": "REQ-063",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 event secrecy: every scheduled-side event record carries only metadata; no closure or PII"
+}

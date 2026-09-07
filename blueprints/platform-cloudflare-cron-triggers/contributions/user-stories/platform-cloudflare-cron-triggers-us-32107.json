@@ -1,0 +1,25 @@
+{
+  "usId": "platform-cloudflare-cron-triggers-US-32107",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-cron-triggers-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Real-account live-cron smoke fires cronFired at least once against a real Cloudflare Worker",
+  "asA": "operator validating platform-cloudflare-cron-triggers v1.0.0 against a real Cloudflare account",
+  "iWant": "the real-account-scheduled-smoke probe to schedule a per-minute cron on a real Worker and assert cronFired fires within a bounded wait",
+  "soThat": "the shipped scheduled() surface is proven against the vendor's global cron scheduler, not only against wrangler dev",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-32107-1",
+      "description": "The real-account-scheduled-smoke probe, when CI_HAS_CLOUDFLARE_ACCOUNT=true and the paired CF_ACCOUNT_ID / CF_WORKER_NAME / CF_API_TOKEN env vars are set, polls the Cloudflare Workers Analytics or observability API for the named Worker every 5 seconds, waits bounded 90 seconds for a scheduled event to appear at least once, and returns aggregateVerdict: pass on observation. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped: true and aggregates to pass per spec section 3.5.",
+      "given": "a real Cloudflare account with the paired env vars, or no such account and CI_HAS_CLOUDFLARE_ACCOUNT unset",
+      "when": "the probe runs",
+      "then": "with the account: a scheduled event is observed within 90s and the probe passes. Without the account: the probe records accountBoundSkipped: true and exits 0.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

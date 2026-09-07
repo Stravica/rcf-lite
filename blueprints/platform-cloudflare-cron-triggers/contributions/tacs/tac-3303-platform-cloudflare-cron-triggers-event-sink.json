@@ -1,0 +1,21 @@
+{
+  "tacId": "TAC-3303-platform-cloudflare-cron-triggers-event-sink",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-cron-triggers lifecycle-event sink shape",
+  "purpose": "The shape of every scheduled-side lifecycle event record. Bounds the event surface so a downstream logging companion never has to scrub PII or trim body bytes: every record is metadata-only by construction.",
+  "responsibilities": [
+    "Constrain every record's keys to the allow-list {event, expression, scheduledTime, outcome, duration}; permit optional numeric fields {softBudgetMs, deltaMs} for cronStalled and cronSkewed respectively (AC-32106-1).",
+    "Never accept a handler input closure, PII field or body byte across the sink boundary; the dispatcher constructs records from event metadata only.",
+    "Provide the SIMULATE_PII_LEAK=true induced-failure switch on the event-secrecy probe: a wrapper sink that forwards a closure so a reviewer can prove the whitelist assertion is teeth-bearing on mutation."
+  ],
+  "internalStructure": "The sink is a function reference (rec) => void injected into the dispatcher factory. In the local probes it is a spy that accumulates records; in a real project it is wired to the applied logging companion. The dispatcher module holds the whitelist knowledge; the sink is passive.",
+  "interfaces": [
+    { "name": "eventSink parameter", "kind": "callback", "summary": "Injected into createDispatcher; the dispatcher constructs records and calls the sink with each." }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

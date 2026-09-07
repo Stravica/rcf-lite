@@ -49,6 +49,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
 | jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
 | platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |
+| platform-cloudflare-cron-triggers | 32101-32899 | 33xx | shipped v1.0.0 | `scheduledTriggerContract` |
 
 US 28101-28108 sit at the LOW end of the 28101-28899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from an object-storage-s3 REQ id into the number 28110 would collide against a shipped US-28110; band headroom (28109-28899) leaves that space.
 

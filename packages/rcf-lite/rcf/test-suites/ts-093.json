@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-07T12:29:11.795Z",
+  "updatedAt": "2026-09-07T12:29:46.122Z",
+  "purpose": "Cover AC-6101-1 and AC-6101-2 via anatomy test: shipped dispatcher-routing probe drives two spy handlers on two expressions plus one unmatched expression and asserts the routed-only invocation and cronUnmatched event",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-6101-1",
+    "AC-6101-2"
+  ],
+  "id": "TS-093",
+  "usId": "US-6101",
+  "title": "T-2 dispatcher-routing probe passes on two spy handlers",
+  "testCases": [
+    {
+      "id": "TC-093-dispatch-matched",
+      "acId": "AC-6101-1",
+      "description": "Cover AC-6101-1 via anatomy test: dispatcher-routing probe drives the matched route and only the matched spy is invoked with the bounded context",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::dispatcher-routing probe routes matched expression to the matched spy only (TC-093-dispatch-matched)"
+    },
+    {
+      "id": "TC-093-dispatch-unmatched",
+      "acId": "AC-6101-2",
+      "description": "Cover AC-6101-2 via anatomy test: dispatcher-routing probe drives an unmatched expression and asserts cronUnmatched with no spy invocation",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::dispatcher-routing probe fires cronUnmatched on unmatched expression with no spy invocation (TC-093-dispatch-unmatched)"
+    }
+  ],
+  "status": "draft"
+}

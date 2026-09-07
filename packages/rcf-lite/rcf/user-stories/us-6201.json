@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-07T12:28:02.375Z",
+  "updatedAt": "2026-09-07T12:28:02.375Z",
+  "asA": "operator observing the timeliness of scheduled work on a Worker",
+  "iWant": "the dispatcher to classify every fire against an elicited skew window and record cronSkewed for late fires with the delta",
+  "soThat": "the applied logging companion surfaces cron drift as a first-class signal without every handler having to keep its own clock",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-6201-1",
+      "description": "With an elicited skew window of 30 seconds and a fake clock aligned to scheduledTime, dispatching a scheduled event fires cronFired with {expression, scheduledTime, outcome: onTime, duration: >=0} on the sink; no cronSkewed event fires for that dispatch.",
+      "given": "a dispatcher configured with skewToleranceMs=30000 and a fake clock aligned to scheduledTime",
+      "when": "an event is dispatched",
+      "then": "a cronFired event fires with outcome onTime and no cronSkewed fires",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-6201-2",
+      "description": "With an elicited skew window of 30 seconds and a fake clock advanced 60000ms past scheduledTime, dispatching a scheduled event fires cronSkewed with {expression, scheduledTime, outcome: skewed, duration: >=0, deltaMs: 60000} on the sink; the routed handler still runs.",
+      "given": "a dispatcher configured with skewToleranceMs=30000 and a fake clock advanced 60000ms past scheduledTime",
+      "when": "an event is dispatched",
+      "then": "a cronSkewed event fires with the observed delta and the handler still runs",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-cron-triggers"
+  ],
+  "usId": "US-6201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-062",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 skew tolerance: fires inside the elicited window are onTime; outside record cronSkewed with delta"
+}

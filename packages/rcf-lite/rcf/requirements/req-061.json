@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T12:26:47.991Z",
+  "updatedAt": "2026-09-07T12:28:41.280Z",
+  "description": "T-2 platform-cloudflare-cron-triggers v1.0.0: the dispatcher module accepts an ordered map of cron-expression to handler pairs and, on every scheduled() invocation, matches the incoming Cron Trigger event's cron expression against the map and routes exactly to the matched handler. An unmatched expression records an unmatchedExpression event on the sink and the scheduled invocation returns without side effect. The routed handler receives a bounded context {expression, scheduledTime, sink} so its own emissions can be attributed. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "reqId": "REQ-061",
+  "prdId": "PRD-001",
+  "title": "T-2 expression-router: multiple cron expressions route to distinct handlers by expression match",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T12:29:00.000Z"
+  }
+}

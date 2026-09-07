@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T12:30:06.334Z",
+  "updatedAt": "2026-09-07T12:51:40.075Z",
+  "acIds": [
+    "AC-6001-1",
+    "AC-6002-1",
+    "AC-6003-1",
+    "AC-6101-1",
+    "AC-6101-2",
+    "AC-6201-1",
+    "AC-6201-2",
+    "AC-6301-1",
+    "AC-6301-2",
+    "AC-6302-1"
+  ],
+  "fbsId": "FBS-080",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 54,
+  "executionStatus": "notStarted",
+  "title": "T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test",
+  "summary": "HQ round-6 T-2: platform-cloudflare-cron-triggers v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-cron-triggers/ (17 contributions: 4 REQs, 7 USs, 3 TACs, 3 ADRs; contributions target 20 to 24 is guidance; sits below at 17 with well-scoped 7-US coverage per spec section 5.2). Adds cf-platform fixture extension (wrangler.toml [triggers] crons block additive over the T-0 [assets] and T-1 [[kv_namespaces]] blocks, src/scheduled.mjs sole reader of the Cron Trigger event, src/dispatcher.mjs expression-routed dispatcher with skew tolerance and soft budget). Ships 5 Node-only probes under contributions/probes/ (wrangler-test-scheduled drives wrangler dev --test-scheduled on the fixture; dispatcher-routing, skew-tolerance and event-secrecy drive the shipped dispatcher in-process; real-account-scheduled-smoke is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-cron-triggers on every other blueprint (31 files) and one scheduledTrigger row on packages/rcf-lite/docs/blueprint-authoring.md section 6a table. Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js covers TS-090..096. Repo chain: REQ-060..063 US-6001..6302 TS-090..096 FBS-080 CN-260..267 minted via rcf define create --id per HQ round-6 T-2 reserved-block ruling 2026-09-07T12:25Z. Base commit origin/main 09e14b4.",
+  "dependsOnFbsIds": []
+}

@@ -1,0 +1,25 @@
+{
+  "usId": "platform-cloudflare-cron-triggers-US-32105",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-cron-triggers-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "wrangler dev --test-scheduled fires cronFired on the fixture handler at the CLI seam",
+  "asA": "reviewer verifying platform-cloudflare-cron-triggers v1.0.0 at mechanism reach",
+  "iWant": "the wrangler-test-scheduled probe to spawn wrangler dev --test-scheduled on the cf-platform fixture, drive its scheduled-fire route with a cron expression declared in wrangler.toml, assert a cronFired event fires and wrangler exits cleanly",
+  "soThat": "the shipped scheduled() handler is proven wired to the vendor's CLI seam, not only to an in-process spy",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-32105-1",
+      "description": "The wrangler-test-scheduled probe spawns wrangler dev --test-scheduled from the cf-platform fixture, waits bounded 30 seconds for the CLI to bind, drives its scheduled-fire endpoint with an expression declared in wrangler.toml, asserts a cronFired event fires on the injected sink with metadata {event, expression, scheduledTime, outcome, duration}, kills wrangler cleanly on exit, and returns aggregateVerdict: pass. On a shipped wrangler regression that prevents --test-scheduled from binding, the probe returns aggregateVerdict: warn with the observed stderr quoted and the mechanism-reach gap noted; the CI does not gate on warn.",
+      "given": "wrangler installed as a devDependency on the cf-platform fixture and the [triggers] crons block declared in wrangler.toml",
+      "when": "the probe runs from the fixture directory",
+      "then": "wrangler dev --test-scheduled binds, the scheduled-fire route drives a cronFired event, wrangler exits cleanly, and the probe returns pass (or warn on a documented CLI regression)",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

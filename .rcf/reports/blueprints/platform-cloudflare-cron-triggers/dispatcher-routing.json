@@ -1,0 +1,23 @@
+{
+  "slug": "platform-cloudflare-cron-triggers",
+  "probeName": "dispatcher-routing",
+  "runAt": "2026-09-07T12:45:35.581Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process dispatcher on cf-platform fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-32102-1",
+      "verdict": "pass",
+      "detail": "dispatch({cron: \"* * * * *\"}) invoked spyA=1 spyB=0; bounded context {expression, scheduledTime, sink} present"
+    },
+    {
+      "anchorAcId": "AC-32102-2",
+      "verdict": "pass",
+      "detail": "dispatch({cron: \"@yearly\"}) fired cronUnmatched once with outcome=unmatched duration=0; no spy invocation delta observed"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

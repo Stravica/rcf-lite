@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3303-platform-cloudflare-cron-triggers-skew-tolerance-default",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Default skew tolerance: 30 seconds shipped, floor 5 seconds, ceiling 5 minutes",
+  "context": "Cloudflare Cron Triggers are documented as scheduling on a best-effort basis; the observed handler start time can drift from the event's scheduledTime. The applied project needs a bounded classification lever so the applied logging companion surfaces cronSkewed for drift the operator cares about and stays quiet within a tolerable window. A per-project fixed default is a starting point the operator elicits away from for tighter or looser needs.",
+  "decision": "Ship 30 seconds as the elicited default skew tolerance. Enforce a 5-second floor (a sub-5s window flags on normal scheduling jitter and the logging stream fills with cronSkewed noise) and a 300-second (5 minute) ceiling (a longer window turns the signal into an alerting no-op). The elicited answer is written into the applied project as the skewToleranceMs argument on the createDispatcher factory (converted to milliseconds).",
+  "consequences": "The applied project observes cronSkewed for drift beyond 30 seconds by default; a project needing tighter observability re-elicits closer to the floor; a project running loose crons re-elicits closer to the ceiling. Standards trace clause: generic enterprise practice (no vendor-documented skew-tolerance default for Cron Triggers; the value is an applied-project observability lever, not a vendor guarantee).",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T12:35:00.000Z",
+  "updatedAt": "2026-09-07T12:35:00.000Z"
+}

@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-07T12:26:48.199Z",
+  "updatedAt": "2026-09-07T12:26:48.232Z",
+  "description": "T-2 platform-cloudflare-cron-triggers v1.0.0: an elicited skew-tolerance window (default 30 seconds per ADR-3303; floor 5s, ceiling 5 minutes) governs how the dispatcher classifies a fire. If the observed handler start time is within the window of the event's scheduledTime, the fire's outcome is onTime and a cronFired event carries {expression, scheduledTime, outcome: onTime, duration}. If the observed start is outside the window, a cronSkewed event fires with the delta (observed minus scheduled, in milliseconds) and the outcome is skewed; the handler still runs. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "reqId": "REQ-062",
+  "prdId": "PRD-001",
+  "title": "T-2 skew tolerance: a fire inside the elicited window is onTime; outside it records cronSkewed with the delta",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T12:26:48.230Z"
+  }
+}

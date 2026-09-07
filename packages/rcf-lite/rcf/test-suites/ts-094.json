@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-07T12:29:11.974Z",
+  "updatedAt": "2026-09-07T12:29:46.479Z",
+  "purpose": "Cover AC-6201-1 and AC-6201-2 via anatomy test: shipped skew-tolerance probe drives a fake-clock aligned fire (cronFired outcome onTime) and a fake-clock shifted fire (cronSkewed with delta)",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-6201-1",
+    "AC-6201-2"
+  ],
+  "id": "TS-094",
+  "usId": "US-6201",
+  "title": "T-2 skew-tolerance probe passes on fake-clock aligned and shifted fires",
+  "testCases": [
+    {
+      "id": "TC-094-skew-on-time",
+      "acId": "AC-6201-1",
+      "description": "Cover AC-6201-1 via anatomy test: skew-tolerance probe with aligned fake clock drives cronFired outcome onTime and no cronSkewed",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::skew-tolerance probe fires cronFired outcome onTime when clock is inside the window (TC-094-skew-on-time)"
+    },
+    {
+      "id": "TC-094-skew-outside",
+      "acId": "AC-6201-2",
+      "description": "Cover AC-6201-2 via anatomy test: skew-tolerance probe with shifted fake clock drives cronSkewed with the observed delta and the routed handler runs",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::skew-tolerance probe fires cronSkewed with delta when clock is outside the window (TC-094-skew-outside)"
+    }
+  ],
+  "status": "draft"
+}

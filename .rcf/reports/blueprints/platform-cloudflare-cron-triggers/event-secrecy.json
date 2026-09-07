@@ -1,0 +1,18 @@
+{
+  "slug": "platform-cloudflare-cron-triggers",
+  "probeName": "event-secrecy",
+  "runAt": "2026-09-07T12:45:35.905Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process dispatcher on cf-platform fixture with PII closure",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-32106-1",
+      "verdict": "pass",
+      "detail": "every event record carries only the whitelist; forbiddenKeys=[] piiHits=[]; 2 records observed for one matched fire and one unmatched fire"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

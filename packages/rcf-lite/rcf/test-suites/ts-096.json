@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T12:29:12.332Z",
+  "updatedAt": "2026-09-07T12:29:47.015Z",
+  "purpose": "Cover AC-6302-1 via anatomy test: shipped event-secrecy probe returns aggregateVerdict pass with zero forbidden keys and zero PII substrings; mutation-run with SIMULATE_PII_LEAK=true returns aggregateVerdict fail with the leaked fields named",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-6302-1"
+  ],
+  "id": "TS-096",
+  "usId": "US-6302",
+  "title": "T-2 event-secrecy probe passes on shipped and refuses on SIMULATE_PII_LEAK",
+  "testCases": [
+    {
+      "id": "TC-096-event-secrecy",
+      "acId": "AC-6302-1",
+      "description": "Cover AC-6302-1 via anatomy test: event-secrecy probe returns aggregateVerdict pass on the shipped code path with zero forbidden keys and zero PII substrings",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::event-secrecy probe returns pass with zero forbidden keys and zero PII hits on shipped path (TC-096-event-secrecy)"
+    }
+  ],
+  "status": "draft"
+}

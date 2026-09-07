@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 39,
-    "covered": 39,
+    "requirements": 43,
+    "covered": 43,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -2540,6 +2540,114 @@
           "covered": true,
           "testCases": [
             "TC-087-ac-5401-1-real-account-smoke"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-060",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-6001-1",
+          "covered": true,
+          "testCases": [
+            "TC-090-scheduled-ready"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-6002-1",
+          "covered": true,
+          "testCases": [
+            "TC-091-wrangler-test-scheduled"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-6003-1",
+          "covered": true,
+          "testCases": [
+            "TC-092-real-account-smoke-skip"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-061",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-6101-1",
+          "covered": true,
+          "testCases": [
+            "TC-093-dispatch-matched"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-6101-2",
+          "covered": true,
+          "testCases": [
+            "TC-093-dispatch-unmatched"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-062",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-6201-1",
+          "covered": true,
+          "testCases": [
+            "TC-094-skew-on-time"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-6201-2",
+          "covered": true,
+          "testCases": [
+            "TC-094-skew-outside"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-063",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-6301-1",
+          "covered": true,
+          "testCases": [
+            "TC-095-soft-budget-fires"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-6301-2",
+          "covered": true,
+          "testCases": [
+            "TC-095-soft-budget-continues"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-6302-1",
+          "covered": true,
+          "testCases": [
+            "TC-096-event-secrecy"
           ],
           "unresolvedTestCases": []
         }
