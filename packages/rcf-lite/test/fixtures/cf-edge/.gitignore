@@ -1,0 +1,12 @@
+# The cf-edge fixture ships dist/index.html verbatim so the Workers-
+# with-static-assets shape has a real static asset to serve (parity with
+# cf-platform per round-6 T-0). The repo-level .gitignore excludes
+# dist/ globally; this exception keeps the fixture's dist/ tracked so a
+# fresh clone can boot wrangler dev and the wrangler-seam probe reaches
+# workerd. The runtime probe reports under .rcf/reports/ are runtime
+# artefacts and stay gitignored.
+!dist/
+!dist/**
+.rcf/reports/
+.wrangler/
+node_modules/

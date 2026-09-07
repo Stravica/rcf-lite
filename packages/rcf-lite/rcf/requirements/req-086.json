@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T16:49:12.954Z",
+  "updatedAt": "2026-09-07T17:14:20.211Z",
+  "reqId": "REQ-086",
+  "prdId": "PRD-001",
+  "title": "T-4 application-admin-console v1.1.0 minor: consume zeroTrustGate optionally, replacing the local sign-in form with an Access-gated surface when the capability is applied",
+  "description": "application-admin-console v1.1.0 additive minor: consumes zeroTrustGate optionally, replacing the local sign-in form with an Access-gated surface when the capability is applied. Q4 default: consumption is OPTIONAL; principalDirectory remains the sole hard requirement (making Access-gate hard is a v2.0 change).",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "1.0.0",
+  "status": "approved",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T16:49:12.990Z"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-access-REQ-004",
+  "prdId": "PRD-001",
+  "title": "The audit event carries only metadata fields (email, outcome, timestamp, path) with no token value and no header names beyond path",
+  "description": "Every validate-pass, validate-reject and bypass emits exactly one audit event on the injected sink with the metadata-only shape {email, outcome, timestamp, path}. The record is Object.frozen at the validator boundary so no downstream module can enrich it with a stray token slice or header value. The serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value, and no header names beyond path.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.4). Ships as v1.0.0 of edge-cloudflare-access.",
+  "tags": [
+    "blueprint:edge-cloudflare-access"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

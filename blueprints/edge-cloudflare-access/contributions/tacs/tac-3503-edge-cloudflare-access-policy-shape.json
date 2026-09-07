@@ -1,0 +1,25 @@
+{
+  "tacId": "TAC-3503-edge-cloudflare-access-policy-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Access policy shape enum and its issuance flow",
+  "purpose": "Names the four policy shapes the blueprint supports: email-domain, service-token-only, service-token-plus-email-domain and group-membership. The guide walks each shape through the Cloudflare Zero Trust dashboard and documents the API alternative against api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies per https://developers.cloudflare.com/cloudflare-one/policies/access/. A shape outside the enum is refused at apply.",
+  "responsibilities": [
+    "Enumerate the four shipped policy shapes.",
+    "Document the dashboard walk-through and the API alternative for each shape in the guide (AC-34105-1).",
+    "Name the audit outcome each shape emits on validate-pass (validated) and validate-reject (missing, expired, invalid)."
+  ],
+  "internalStructure": "Enum in blueprint.json elicits[]; the applied-sidecar records the operator's choice. The validator does not branch on the policy shape at runtime (the Cloudflare edge enforces the policy); the shape drives the guide's operator flow and the applied-sidecar seam the composition reads.",
+  "interfaces": [
+    {
+      "name": "access-policy-shape elicit",
+      "kind": "enum",
+      "summary": "email-domain | service-token-only | service-token-plus-email-domain | group-membership."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

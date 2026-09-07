@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T16:53:45.406Z",
+  "updatedAt": "2026-09-07T17:03:10.394Z",
+  "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "purpose": "Access-gated sign-in surface for application-admin-console v1.1.0: no local form, principal-read from request.auth via [data-role=principal-read]; falls back to local-login when zeroTrustGate absent.",
+  "responsibilities": [
+    "Realise the shape named in the purpose statement.",
+    "Bind the anchored ACs on the shipped probes and the extended admin-console pack."
+  ],
+  "name": "Access-gated sign-in surface shape with principal-read-from-request contract"
+}

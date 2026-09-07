@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-access-US-34106",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-access-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Audit event carries only email, outcome, timestamp and path with no token value or headers",
+  "asA": "shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture",
+  "iWant": "the audit sink to receive only metadata-only records for every validate-pass and validate-reject",
+  "soThat": "the audit trail is observable without leaking the JWT, its signature bytes or any request header value",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-34106-1",
+      "description": "After 5 validate-pass and 5 validate-reject requests the audit sink holds 10 records each carrying exactly {email, outcome, timestamp, path}; the serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value and no header names beyond path.",
+      "given": "the shipped createAccessValidator wired with a spy audit sink and 10 requests (5 pass, 5 reject)",
+      "when": "the requests dispatch through the validator",
+      "then": "10 sink records, each with allowed keys only, none containing forbidden substrings",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3504-edge-cloudflare-access-audit-sink"
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

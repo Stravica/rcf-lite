@@ -1,0 +1,23 @@
+{
+  "slug": "edge-cloudflare-access",
+  "probeName": "admin-console-gate-surface",
+  "runAt": "2026-09-07T17:07:45.577Z",
+  "engine": {
+    "kind": "admin-console-fixture",
+    "image": "node HTTP fixture (probe-pack-application-admin-console)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-34108-1",
+      "verdict": "pass",
+      "detail": "gated: HTTP 200 with data-surface=access-gated, no data-surface=local-login, data-role=principal-read present at http://127.0.0.1:54715/admin/sign-in?caps=principalDirectory%2CroleModel%2CauditLog%2CzeroTrustGate"
+    },
+    {
+      "anchorAcId": "AC-34108-1",
+      "verdict": "pass",
+      "detail": "fallback: HTTP 200 with data-surface=local-login, no data-surface=access-gated at http://127.0.0.1:54715/admin/sign-in?caps=principalDirectory%2CroleModel%2CauditLog"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

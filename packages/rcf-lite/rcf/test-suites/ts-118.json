@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:19.533Z",
+  "updatedAt": "2026-09-07T16:53:12.260Z",
+  "purpose": "Cover AC-8601-1 via anatomy test: gated caps combination renders access-gated surface and no local-login",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8601-1"
+  ],
+  "id": "TS-118",
+  "usId": "US-8601",
+  "title": "T-4 admin-console v1.1.0 Access-gated surface: pack check AC-21815-1 fires on gated fixture",
+  "testCases": [
+    {
+      "id": "TC-118-admin-console-gated-pack-check",
+      "acId": "AC-8601-1",
+      "description": "AC-8601-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::admin-console v1_1_0 pack check AC-21815-1 fires on gated caps combination (TC-118-admin-console-gated-pack-check)"
+    }
+  ],
+  "status": "draft"
+}

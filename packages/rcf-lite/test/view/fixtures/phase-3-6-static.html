@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a>, <a href="#REQ-080">REQ-080</a>, <a href="#REQ-081">REQ-081</a>, <a href="#REQ-082">REQ-082</a>, <a href="#REQ-083">REQ-083</a>, <a href="#REQ-084">REQ-084</a>, <a href="#REQ-085">REQ-085</a>, <a href="#REQ-086">REQ-086</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -12569,6 +12569,1000 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-080">
+  <summary><span class="summary-label">REQ-080 - T-4 edge-cloudflare-access v1.0.0 blueprint: the Access JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header and reduces principal onto request.auth</span><span class="status approved">approved</span></summary>
+  <article id="REQ-080" class="doc doc-req">
+  <h3>REQ-080 - T-4 edge-cloudflare-access v1.0.0 blueprint: the Access JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header and reduces principal onto request.auth</h3>
+  
+  <p><strong>Description:</strong> The applying Workers project reaches Cloudflare Access through a single JWT validator module (src/jwt-validator.mjs) that is the ONLY module dereferencing the Cf-Access-Jwt-Assertion header. The validator fetches the JWKS from the elicited endpoint, caches keys per-kid, verifies the JWT and reduces the principal into request.auth as {email, sub, groups}. Chain: HQ round-6 T-4 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-080..089 / US-80xx..89xx / TS-110..119 / FBS-100..109 / CN-320..349).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-080[&quot;REQ-080&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0 blueprint: ...&quot;]
+  US-8001[&quot;US-8001&lt;br/&gt;T-4 JWT validator: fixture-signed JWT validat...&quot;]
+  REQ-080 --&gt; US-8001
+  AC-8001-1[&quot;AC-8001-1&quot;]
+  US-8001 --&gt; AC-8001-1
+  FBS-100[&quot;FBS-100&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 U...&quot;]
+  AC-8001-1 -.-&gt;|delivered by| FBS-100
+  CN-320[&quot;CN-320&lt;br/&gt;../../blueprints/edge-cloudflare-access/bluep...&quot;]
+  AC-8001-1 -.-&gt;|implemented by| CN-320
+  US-8002[&quot;US-8002&lt;br/&gt;T-4 JWT validator: missing, expired or mis-si...&quot;]
+  REQ-080 --&gt; US-8002
+  AC-8002-1[&quot;AC-8002-1&quot;]
+  US-8002 --&gt; AC-8002-1
+  AC-8002-1 -.-&gt;|delivered by| FBS-100
+  AC-8002-1 -.-&gt;|implemented by| CN-320
+  US-8003[&quot;US-8003&lt;br/&gt;T-4 JWT validator is the sole reader of the C...&quot;]
+  REQ-080 --&gt; US-8003
+  AC-8003-1[&quot;AC-8003-1&quot;]
+  US-8003 --&gt; AC-8003-1
+  AC-8003-1 -.-&gt;|delivered by| FBS-100
+  AC-8003-1 -.-&gt;|implemented by| CN-320
+  click REQ-080 &quot;#REQ-080&quot;;
+  click US-8001 &quot;#US-8001&quot;;
+  click AC-8001-1 &quot;#AC-8001-1&quot;;
+  click FBS-100 &quot;#FBS-100&quot;;
+  click CN-320 &quot;#CN-320&quot;;
+  click US-8002 &quot;#US-8002&quot;;
+  click AC-8002-1 &quot;#AC-8002-1&quot;;
+  click US-8003 &quot;#US-8003&quot;;
+  click AC-8003-1 &quot;#AC-8003-1&quot;;
+  class REQ-080 req;
+  class US-8001 us;
+  class AC-8001-1 ac;
+  class FBS-100 fbs;
+  class CN-320 cn;
+  class US-8002 us;
+  class AC-8002-1 ac;
+  class US-8003 us;
+  class AC-8003-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:01.509Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:19.059Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-080&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-4 edge-cloudflare-access v1.0.0 blueprint: the Access JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header and reduces principal onto request.auth&quot;,
+  &quot;description&quot;: &quot;The applying Workers project reaches Cloudflare Access through a single JWT validator module (src/jwt-validator.mjs) that is the ONLY module dereferencing the Cf-Access-Jwt-Assertion header. The validator fetches the JWKS from the elicited endpoint, caches keys per-kid, verifies the JWT and reduces the principal into request.auth as {email, sub, groups}. Chain: HQ round-6 T-4 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-080..089 / US-80xx..89xx / TS-110..119 / FBS-100..109 / CN-320..349).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T16:49:01.543Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-8001">
+  <summary><span class="summary-label">US-8001 - T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth</span><span class="status draft">draft</span></summary>
+  <article id="US-8001" class="doc doc-us">
+  <h3>US-8001 - T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
+  <p><strong>I want:</strong> the Cf-Access-Jwt-Assertion header validated against the Access JWKS on every request, the principal reduced into request.auth as {email, sub, groups} and the downstream handler observes 200 with the reduced principal fields</p>
+  <p><strong>So that:</strong> the Worker only ever sees authenticated principals and downstream code reads a single stable seam for identity</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-080">REQ-080</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8001-1" class="ac-item"><strong>AC-8001-1</strong> - The JWT validator reads Cf-Access-Jwt-Assertion, verifies against the fixture JWKS (RS256, kid rotation supported by cache), reduces the principal into request.auth as {email, sub, groups} and the downstream handler receives a 200 with the reduced principal fields exposed on request.auth.
+<div class="ac-gwt"><p><em>Given</em> a Worker fetch handler wired with the createAccessValidator middleware and a fixture-signed JWT presented in the Cf-Access-Jwt-Assertion header</p><p><em>When</em> the request dispatches through the validator</p><p><em>Then</em> the validator resolves, attaches {email, sub, groups} onto request.auth and delegates to the handler which returns 200 with request.auth reflected on the response body</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:29.505Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:26.217Z&quot;,
+  &quot;usId&quot;: &quot;US-8001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-080&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture&quot;,
+  &quot;iWant&quot;: &quot;the Cf-Access-Jwt-Assertion header validated against the Access JWKS on every request, the principal reduced into request.auth as {email, sub, groups} and the downstream handler observes 200 with the reduced principal fields&quot;,
+  &quot;soThat&quot;: &quot;the Worker only ever sees authenticated principals and downstream code reads a single stable seam for identity&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8001-1&quot;,
+      &quot;description&quot;: &quot;The JWT validator reads Cf-Access-Jwt-Assertion, verifies against the fixture JWKS (RS256, kid rotation supported by cache), reduces the principal into request.auth as {email, sub, groups} and the downstream handler receives a 200 with the reduced principal fields exposed on request.auth.&quot;,
+      &quot;given&quot;: &quot;a Worker fetch handler wired with the createAccessValidator middleware and a fixture-signed JWT presented in the Cf-Access-Jwt-Assertion header&quot;,
+      &quot;when&quot;: &quot;the request dispatches through the validator&quot;,
+      &quot;then&quot;: &quot;the validator resolves, attaches {email, sub, groups} onto request.auth and delegates to the handler which returns 200 with request.auth reflected on the response body&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-8002">
+  <summary><span class="summary-label">US-8002 - T-4 JWT validator: missing, expired or mis-signed JWT rejects 401 with metadata-only audit event</span><span class="status draft">draft</span></summary>
+  <article id="US-8002" class="doc doc-us">
+  <h3>US-8002 - T-4 JWT validator: missing, expired or mis-signed JWT rejects 401 with metadata-only audit event</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
+  <p><strong>I want:</strong> requests carrying a missing, expired or mis-signed JWT to reject with 401 and emit exactly one metadata-only audit event on the shipped audit sink</p>
+  <p><strong>So that:</strong> unauthenticated traffic cannot reach the downstream handler and every reject is observable without leaking the token value or headers</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-080">REQ-080</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8002-1" class="ac-item"><strong>AC-8002-1</strong> - The three reject subcases (missing header, expired exp, mis-signed) each return HTTP 401 and emit exactly one audit event whose keys are drawn from {email, outcome, timestamp, path} with no token substring, no header names beyond path, and no additional keys.
+<div class="ac-gwt"><p><em>Given</em> a Worker fetch handler wired with the createAccessValidator middleware and one of the three reject subcases</p><p><em>When</em> the request dispatches through the validator</p><p><em>Then</em> the validator resolves 401, emits one audit event with outcome in {missing, expired, invalid} and the record body carries only the four allowed keys</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:29.726Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:26.402Z&quot;,
+  &quot;usId&quot;: &quot;US-8002&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-080&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 JWT validator: missing, expired or mis-signed JWT rejects 401 with metadata-only audit event&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture&quot;,
+  &quot;iWant&quot;: &quot;requests carrying a missing, expired or mis-signed JWT to reject with 401 and emit exactly one metadata-only audit event on the shipped audit sink&quot;,
+  &quot;soThat&quot;: &quot;unauthenticated traffic cannot reach the downstream handler and every reject is observable without leaking the token value or headers&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8002-1&quot;,
+      &quot;description&quot;: &quot;The three reject subcases (missing header, expired exp, mis-signed) each return HTTP 401 and emit exactly one audit event whose keys are drawn from {email, outcome, timestamp, path} with no token substring, no header names beyond path, and no additional keys.&quot;,
+      &quot;given&quot;: &quot;a Worker fetch handler wired with the createAccessValidator middleware and one of the three reject subcases&quot;,
+      &quot;when&quot;: &quot;the request dispatches through the validator&quot;,
+      &quot;then&quot;: &quot;the validator resolves 401, emits one audit event with outcome in {missing, expired, invalid} and the record body carries only the four allowed keys&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-8003">
+  <summary><span class="summary-label">US-8003 - T-4 JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header in the applied source tree</span><span class="status draft">draft</span></summary>
+  <article id="US-8003" class="doc doc-us">
+  <h3>US-8003 - T-4 JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header in the applied source tree</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
+  <p><strong>I want:</strong> only src/jwt-validator.mjs to dereference the Cf-Access-Jwt-Assertion header string in the applied source tree</p>
+  <p><strong>So that:</strong> the validator is the single seam and a stray header read in the applied code is a defect the AST scan catches</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-080">REQ-080</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8003-1" class="ac-item"><strong>AC-8003-1</strong> - The sole-reader scan walks the fixture applied source root (src/**/*.mjs), strips comments and string literals, and finds exactly one live source occurrence of the header string Cf-Access-Jwt-Assertion, in src/jwt-validator.mjs. Any other occurrence in a shipped module fails the probe.
+<div class="ac-gwt"><p><em>Given</em> the cf-edge fixture applied source tree</p><p><em>When</em> the sole-reader-scan probe walks src/**/*.mjs</p><p><em>Then</em> the only live-source hit for Cf-Access-Jwt-Assertion is in src/jwt-validator.mjs; SIMULATE_NON_VALIDATOR_HEADER=true injects a second hit and the probe fails</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:29.941Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:26.586Z&quot;,
+  &quot;usId&quot;: &quot;US-8003&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-080&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header in the applied source tree&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture&quot;,
+  &quot;iWant&quot;: &quot;only src/jwt-validator.mjs to dereference the Cf-Access-Jwt-Assertion header string in the applied source tree&quot;,
+  &quot;soThat&quot;: &quot;the validator is the single seam and a stray header read in the applied code is a defect the AST scan catches&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8003-1&quot;,
+      &quot;description&quot;: &quot;The sole-reader scan walks the fixture applied source root (src/**/*.mjs), strips comments and string literals, and finds exactly one live source occurrence of the header string Cf-Access-Jwt-Assertion, in src/jwt-validator.mjs. Any other occurrence in a shipped module fails the probe.&quot;,
+      &quot;given&quot;: &quot;the cf-edge fixture applied source tree&quot;,
+      &quot;when&quot;: &quot;the sole-reader-scan probe walks src/**/*.mjs&quot;,
+      &quot;then&quot;: &quot;the only live-source hit for Cf-Access-Jwt-Assertion is in src/jwt-validator.mjs; SIMULATE_NON_VALIDATOR_HEADER=true injects a second hit and the probe fails&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-081">
+  <summary><span class="summary-label">REQ-081 - T-4 edge-cloudflare-access v1.0.0: an Access application is declared with an elicited hostname or self-hosted-app id and an elicited policy shape from the enum</span><span class="status approved">approved</span></summary>
+  <article id="REQ-081" class="doc doc-req">
+  <h3>REQ-081 - T-4 edge-cloudflare-access v1.0.0: an Access application is declared with an elicited hostname or self-hosted-app id and an elicited policy shape from the enum</h3>
+  
+  <p><strong>Description:</strong> The blueprint elicits either an Access application hostname or a self-hosted-app id, plus the JWT audience, JWKS URL and a policy shape from the enum. Applying the blueprint records the values on rcf/blueprints/edge-cloudflare-access.applied.json.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-081[&quot;REQ-081&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: an Access ...&quot;]
+  US-8101[&quot;US-8101&lt;br/&gt;T-4 Access application declared with elicited...&quot;]
+  REQ-081 --&gt; US-8101
+  AC-8101-1[&quot;AC-8101-1&quot;]
+  US-8101 --&gt; AC-8101-1
+  FBS-100[&quot;FBS-100&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 U...&quot;]
+  AC-8101-1 -.-&gt;|delivered by| FBS-100
+  CN-320[&quot;CN-320&lt;br/&gt;../../blueprints/edge-cloudflare-access/bluep...&quot;]
+  AC-8101-1 -.-&gt;|implemented by| CN-320
+  click REQ-081 &quot;#REQ-081&quot;;
+  click US-8101 &quot;#US-8101&quot;;
+  click AC-8101-1 &quot;#AC-8101-1&quot;;
+  click FBS-100 &quot;#FBS-100&quot;;
+  click CN-320 &quot;#CN-320&quot;;
+  class REQ-081 req;
+  class US-8101 us;
+  class AC-8101-1 ac;
+  class FBS-100 fbs;
+  class CN-320 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:11.871Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:19.252Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-081&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-4 edge-cloudflare-access v1.0.0: an Access application is declared with an elicited hostname or self-hosted-app id and an elicited policy shape from the enum&quot;,
+  &quot;description&quot;: &quot;The blueprint elicits either an Access application hostname or a self-hosted-app id, plus the JWT audience, JWKS URL and a policy shape from the enum. Applying the blueprint records the values on rcf/blueprints/edge-cloudflare-access.applied.json.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T16:49:11.906Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-8101">
+  <summary><span class="summary-label">US-8101 - T-4 Access application declared with elicited hostname or self-hosted-app id and elicited policy shape</span><span class="status draft">draft</span></summary>
+  <article id="US-8101" class="doc doc-us">
+  <h3>US-8101 - T-4 Access application declared with elicited hostname or self-hosted-app id and elicited policy shape</h3>
+  
+  <p><strong>As a:</strong> operator applying the edge-cloudflare-access v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the blueprint to elicit either an Access application hostname or a self-hosted-app id, plus a policy shape from the enum</p>
+  <p><strong>So that:</strong> the apply record captures the exact Access application declaration the operator will issue in the Zero Trust dashboard or over the API</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-081">REQ-081</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8101-1" class="ac-item"><strong>AC-8101-1</strong> - blueprint.json elicits access-application-host (kind string) or access-selfhosted-app-id (kind string, one of the two required at apply), plus access-policy-shape (kind enum, options email-domain, service-token-only, service-token-plus-email-domain, group-membership; recommended default email-domain). Applying the blueprint records the elicited values on rcf/blueprints/edge-cloudflare-access.applied.json.
+<div class="ac-gwt"><p><em>Given</em> the blueprint.json elicits block</p><p><em>When</em> the apply verb runs against a fixture project</p><p><em>Then</em> rcf/blueprints/edge-cloudflare-access.applied.json carries appliedCapabilities=[zeroTrustGate] and elicited values for access-application-host or access-selfhosted-app-id plus access-policy-shape</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:30.157Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:52.835Z&quot;,
+  &quot;usId&quot;: &quot;US-8101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-081&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 Access application declared with elicited hostname or self-hosted-app id and elicited policy shape&quot;,
+  &quot;asA&quot;: &quot;operator applying the edge-cloudflare-access v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the blueprint to elicit either an Access application hostname or a self-hosted-app id, plus a policy shape from the enum&quot;,
+  &quot;soThat&quot;: &quot;the apply record captures the exact Access application declaration the operator will issue in the Zero Trust dashboard or over the API&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8101-1&quot;,
+      &quot;description&quot;: &quot;blueprint.json elicits access-application-host (kind string) or access-selfhosted-app-id (kind string, one of the two required at apply), plus access-policy-shape (kind enum, options email-domain, service-token-only, service-token-plus-email-domain, group-membership; recommended default email-domain). Applying the blueprint records the elicited values on rcf/blueprints/edge-cloudflare-access.applied.json.&quot;,
+      &quot;given&quot;: &quot;the blueprint.json elicits block&quot;,
+      &quot;when&quot;: &quot;the apply verb runs against a fixture project&quot;,
+      &quot;then&quot;: &quot;rcf/blueprints/edge-cloudflare-access.applied.json carries appliedCapabilities=[zeroTrustGate] and elicited values for access-application-host or access-selfhosted-app-id plus access-policy-shape&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-082">
+  <summary><span class="summary-label">REQ-082 - T-4 edge-cloudflare-access v1.0.0: the operator issues a Zero Trust policy via the dashboard or the API path documented in the guide</span><span class="status approved">approved</span></summary>
+  <article id="REQ-082" class="doc doc-req">
+  <h3>REQ-082 - T-4 edge-cloudflare-access v1.0.0: the operator issues a Zero Trust policy via the dashboard or the API path documented in the guide</h3>
+  
+  <p><strong>Description:</strong> The shipped guide documents two paths for issuing the Zero Trust policy: a dashboard walk-through screen-by-screen and a curl example against api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies per https://developers.cloudflare.com/cloudflare-one/policies/access/.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-082[&quot;REQ-082&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: the operat...&quot;]
+  US-8201[&quot;US-8201&lt;br/&gt;T-4 operator issues a Zero Trust policy via t...&quot;]
+  REQ-082 --&gt; US-8201
+  AC-8201-1[&quot;AC-8201-1&quot;]
+  US-8201 --&gt; AC-8201-1
+  FBS-100[&quot;FBS-100&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 U...&quot;]
+  AC-8201-1 -.-&gt;|delivered by| FBS-100
+  CN-320[&quot;CN-320&lt;br/&gt;../../blueprints/edge-cloudflare-access/bluep...&quot;]
+  AC-8201-1 -.-&gt;|implemented by| CN-320
+  click REQ-082 &quot;#REQ-082&quot;;
+  click US-8201 &quot;#US-8201&quot;;
+  click AC-8201-1 &quot;#AC-8201-1&quot;;
+  click FBS-100 &quot;#FBS-100&quot;;
+  click CN-320 &quot;#CN-320&quot;;
+  class REQ-082 req;
+  class US-8201 us;
+  class AC-8201-1 ac;
+  class FBS-100 fbs;
+  class CN-320 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:12.089Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:19.438Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-082&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-4 edge-cloudflare-access v1.0.0: the operator issues a Zero Trust policy via the dashboard or the API path documented in the guide&quot;,
+  &quot;description&quot;: &quot;The shipped guide documents two paths for issuing the Zero Trust policy: a dashboard walk-through screen-by-screen and a curl example against api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies per https://developers.cloudflare.com/cloudflare-one/policies/access/.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T16:49:12.123Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-8201">
+  <summary><span class="summary-label">US-8201 - T-4 operator issues a Zero Trust policy via the guide&#39;s dashboard walk-through or the alternative API path</span><span class="status draft">draft</span></summary>
+  <article id="US-8201" class="doc doc-us">
+  <h3>US-8201 - T-4 operator issues a Zero Trust policy via the guide&#39;s dashboard walk-through or the alternative API path</h3>
+  
+  <p><strong>As a:</strong> operator applying the edge-cloudflare-access v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the guide to walk me through issuing the Zero Trust policy on the Cloudflare dashboard AND to document the alternative API path</p>
+  <p><strong>So that:</strong> the policy issuance flow is unambiguous whether I use the dashboard or the API</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-082">REQ-082</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8201-1" class="ac-item"><strong>AC-8201-1</strong> - The shipped guide/edge-cloudflare-access.md carries a section Zero Trust dashboard walk-through with numbered steps naming each screen; and a section API alternative with a curl example against https://api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies; the vendor URL https://developers.cloudflare.com/cloudflare-one/policies/access/ is cited from ADR-3501 and the guide.
+<div class="ac-gwt"><p><em>Given</em> the shipped guide file</p><p><em>When</em> the anatomy test greps for the two section headings, the curl example and the vendor URL</p><p><em>Then</em> each string matches at least once in the file</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:30.372Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:53.022Z&quot;,
+  &quot;usId&quot;: &quot;US-8201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-082&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 operator issues a Zero Trust policy via the guide&#39;s dashboard walk-through or the alternative API path&quot;,
+  &quot;asA&quot;: &quot;operator applying the edge-cloudflare-access v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the guide to walk me through issuing the Zero Trust policy on the Cloudflare dashboard AND to document the alternative API path&quot;,
+  &quot;soThat&quot;: &quot;the policy issuance flow is unambiguous whether I use the dashboard or the API&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8201-1&quot;,
+      &quot;description&quot;: &quot;The shipped guide/edge-cloudflare-access.md carries a section Zero Trust dashboard walk-through with numbered steps naming each screen; and a section API alternative with a curl example against https://api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies; the vendor URL https://developers.cloudflare.com/cloudflare-one/policies/access/ is cited from ADR-3501 and the guide.&quot;,
+      &quot;given&quot;: &quot;the shipped guide file&quot;,
+      &quot;when&quot;: &quot;the anatomy test greps for the two section headings, the curl example and the vendor URL&quot;,
+      &quot;then&quot;: &quot;each string matches at least once in the file&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-083">
+  <summary><span class="summary-label">REQ-083 - T-4 edge-cloudflare-access v1.0.0: the audit event carries metadata-only fields email, outcome, timestamp and path with no token value or headers</span><span class="status approved">approved</span></summary>
+  <article id="REQ-083" class="doc doc-req">
+  <h3>REQ-083 - T-4 edge-cloudflare-access v1.0.0: the audit event carries metadata-only fields email, outcome, timestamp and path with no token value or headers</h3>
+  
+  <p><strong>Description:</strong> Every validate outcome emits one audit event on the injected sink with the metadata-only shape {email, outcome, timestamp, path}. The record is Object.frozen at the boundary; no downstream module can enrich it with a stray token slice.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-083[&quot;REQ-083&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: the audit ...&quot;]
+  US-8301[&quot;US-8301&lt;br/&gt;T-4 audit event carries only email, outcome, ...&quot;]
+  REQ-083 --&gt; US-8301
+  AC-8301-1[&quot;AC-8301-1&quot;]
+  US-8301 --&gt; AC-8301-1
+  FBS-100[&quot;FBS-100&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 U...&quot;]
+  AC-8301-1 -.-&gt;|delivered by| FBS-100
+  CN-320[&quot;CN-320&lt;br/&gt;../../blueprints/edge-cloudflare-access/bluep...&quot;]
+  AC-8301-1 -.-&gt;|implemented by| CN-320
+  click REQ-083 &quot;#REQ-083&quot;;
+  click US-8301 &quot;#US-8301&quot;;
+  click AC-8301-1 &quot;#AC-8301-1&quot;;
+  click FBS-100 &quot;#FBS-100&quot;;
+  click CN-320 &quot;#CN-320&quot;;
+  class REQ-083 req;
+  class US-8301 us;
+  class AC-8301-1 ac;
+  class FBS-100 fbs;
+  class CN-320 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:12.304Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:19.647Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-083&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-4 edge-cloudflare-access v1.0.0: the audit event carries metadata-only fields email, outcome, timestamp and path with no token value or headers&quot;,
+  &quot;description&quot;: &quot;Every validate outcome emits one audit event on the injected sink with the metadata-only shape {email, outcome, timestamp, path}. The record is Object.frozen at the boundary; no downstream module can enrich it with a stray token slice.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T16:49:12.339Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-8301">
+  <summary><span class="summary-label">US-8301 - T-4 audit event carries only email, outcome, timestamp and path; no token value or headers on any code path</span><span class="status draft">draft</span></summary>
+  <article id="US-8301" class="doc doc-us">
+  <h3>US-8301 - T-4 audit event carries only email, outcome, timestamp and path; no token value or headers on any code path</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
+  <p><strong>I want:</strong> the audit sink to receive only metadata-only records for every validate-pass and validate-reject</p>
+  <p><strong>So that:</strong> the audit trail is observable without leaking the JWT, its signature bytes or any request header value</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-083">REQ-083</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8301-1" class="ac-item"><strong>AC-8301-1</strong> - After 5 validate-pass and 5 validate-reject requests the audit sink holds 10 records each carrying exactly {email, outcome, timestamp, path}; the serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value and no header names beyond path.
+<div class="ac-gwt"><p><em>Given</em> the shipped createAccessValidator wired with a spy audit sink and 10 requests (5 pass, 5 reject)</p><p><em>When</em> the requests dispatch through the validator</p><p><em>Then</em> 10 sink records, each with allowed keys only, none containing forbidden substrings</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:30.586Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:27.145Z&quot;,
+  &quot;usId&quot;: &quot;US-8301&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-083&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 audit event carries only email, outcome, timestamp and path; no token value or headers on any code path&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture&quot;,
+  &quot;iWant&quot;: &quot;the audit sink to receive only metadata-only records for every validate-pass and validate-reject&quot;,
+  &quot;soThat&quot;: &quot;the audit trail is observable without leaking the JWT, its signature bytes or any request header value&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8301-1&quot;,
+      &quot;description&quot;: &quot;After 5 validate-pass and 5 validate-reject requests the audit sink holds 10 records each carrying exactly {email, outcome, timestamp, path}; the serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value and no header names beyond path.&quot;,
+      &quot;given&quot;: &quot;the shipped createAccessValidator wired with a spy audit sink and 10 requests (5 pass, 5 reject)&quot;,
+      &quot;when&quot;: &quot;the requests dispatch through the validator&quot;,
+      &quot;then&quot;: &quot;10 sink records, each with allowed keys only, none containing forbidden substrings&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-084">
+  <summary><span class="summary-label">REQ-084 - T-4 edge-cloudflare-access v1.0.0: break-glass posture with an elicited bypass-service-auth token pair for CI-signed automation</span><span class="status approved">approved</span></summary>
+  <article id="REQ-084" class="doc doc-req">
+  <h3>REQ-084 - T-4 edge-cloudflare-access v1.0.0: break-glass posture with an elicited bypass-service-auth token pair for CI-signed automation</h3>
+  
+  <p><strong>Description:</strong> The operator elicits a break-glass service-auth id; the paired secret is delegated to the applied secretsManagement companion. Requests presenting the paired CF-Access-Client-Id and CF-Access-Client-Secret headers authenticate with outcome=bypass.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-084[&quot;REQ-084&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: break-glas...&quot;]
+  US-8401[&quot;US-8401&lt;br/&gt;T-4 break-glass posture: an elicited bypass-s...&quot;]
+  REQ-084 --&gt; US-8401
+  AC-8401-1[&quot;AC-8401-1&quot;]
+  US-8401 --&gt; AC-8401-1
+  FBS-100[&quot;FBS-100&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 U...&quot;]
+  AC-8401-1 -.-&gt;|delivered by| FBS-100
+  CN-320[&quot;CN-320&lt;br/&gt;../../blueprints/edge-cloudflare-access/bluep...&quot;]
+  AC-8401-1 -.-&gt;|implemented by| CN-320
+  click REQ-084 &quot;#REQ-084&quot;;
+  click US-8401 &quot;#US-8401&quot;;
+  click AC-8401-1 &quot;#AC-8401-1&quot;;
+  click FBS-100 &quot;#FBS-100&quot;;
+  click CN-320 &quot;#CN-320&quot;;
+  class REQ-084 req;
+  class US-8401 us;
+  class AC-8401-1 ac;
+  class FBS-100 fbs;
+  class CN-320 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:12.520Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:19.838Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-084&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-4 edge-cloudflare-access v1.0.0: break-glass posture with an elicited bypass-service-auth token pair for CI-signed automation&quot;,
+  &quot;description&quot;: &quot;The operator elicits a break-glass service-auth id; the paired secret is delegated to the applied secretsManagement companion. Requests presenting the paired CF-Access-Client-Id and CF-Access-Client-Secret headers authenticate with outcome=bypass.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T16:49:12.555Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-8401">
+  <summary><span class="summary-label">US-8401 - T-4 break-glass posture: an elicited bypass-service-auth token pair signs CI automation requests through the validator</span><span class="status draft">draft</span></summary>
+  <article id="US-8401" class="doc doc-us">
+  <h3>US-8401 - T-4 break-glass posture: an elicited bypass-service-auth token pair signs CI automation requests through the validator</h3>
+  
+  <p><strong>As a:</strong> operator running CI-signed automation against an Access-gated Worker</p>
+  <p><strong>I want:</strong> an elicited bypass-service-auth token pair that the validator recognises and passes through as an authenticated principal</p>
+  <p><strong>So that:</strong> CI can hit the gated Worker without a browser flow while every bypass leaves a distinct audit trace</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-084">REQ-084</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8401-1" class="ac-item"><strong>AC-8401-1</strong> - When the request presents the elicited service-auth id and secret (as CF-Access-Client-Id and CF-Access-Client-Secret headers), the validator observes the pair, records outcome=bypass in the audit event with the same metadata-only shape, and delegates to the handler as authenticated with request.auth.email=&#39;service:&#39;+id. Break-glass is disabled unless the elicited pair is applied.
+<div class="ac-gwt"><p><em>Given</em> the createAccessValidator wired with an elicited bypass-service-auth pair and a request presenting the paired headers</p><p><em>When</em> the request dispatches through the validator</p><p><em>Then</em> the handler receives request.auth with the service principal and the audit sink records outcome=bypass, with allowed keys only</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:30.802Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:27.332Z&quot;,
+  &quot;usId&quot;: &quot;US-8401&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-084&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 break-glass posture: an elicited bypass-service-auth token pair signs CI automation requests through the validator&quot;,
+  &quot;asA&quot;: &quot;operator running CI-signed automation against an Access-gated Worker&quot;,
+  &quot;iWant&quot;: &quot;an elicited bypass-service-auth token pair that the validator recognises and passes through as an authenticated principal&quot;,
+  &quot;soThat&quot;: &quot;CI can hit the gated Worker without a browser flow while every bypass leaves a distinct audit trace&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8401-1&quot;,
+      &quot;description&quot;: &quot;When the request presents the elicited service-auth id and secret (as CF-Access-Client-Id and CF-Access-Client-Secret headers), the validator observes the pair, records outcome=bypass in the audit event with the same metadata-only shape, and delegates to the handler as authenticated with request.auth.email=&#39;service:&#39;+id. Break-glass is disabled unless the elicited pair is applied.&quot;,
+      &quot;given&quot;: &quot;the createAccessValidator wired with an elicited bypass-service-auth pair and a request presenting the paired headers&quot;,
+      &quot;when&quot;: &quot;the request dispatches through the validator&quot;,
+      &quot;then&quot;: &quot;the handler receives request.auth with the service principal and the audit sink records outcome=bypass, with allowed keys only&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-085">
+  <summary><span class="summary-label">REQ-085 - T-4 edge-cloudflare-access v1.0.0: the composition with application-admin-console flips the sign-in surface when the applied capability set contains zeroTrustGate</span><span class="status approved">approved</span></summary>
+  <article id="REQ-085" class="doc doc-req">
+  <h3>REQ-085 - T-4 edge-cloudflare-access v1.0.0: the composition with application-admin-console flips the sign-in surface when the applied capability set contains zeroTrustGate</h3>
+  
+  <p><strong>Description:</strong> When application-admin-console v1.1.0 is applied alongside edge-cloudflare-access, the admin-console reads appliedCapabilities via readAppliedCapabilities() at apply-time and flips its sign-in surface between Access-gated and local-login.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-085[&quot;REQ-085&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: the compos...&quot;]
+  US-8501[&quot;US-8501&lt;br/&gt;T-4 admin-console composition: the sign-in su...&quot;]
+  REQ-085 --&gt; US-8501
+  AC-8501-1[&quot;AC-8501-1&quot;]
+  US-8501 --&gt; AC-8501-1
+  FBS-100[&quot;FBS-100&lt;br/&gt;T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 U...&quot;]
+  AC-8501-1 -.-&gt;|delivered by| FBS-100
+  CN-320[&quot;CN-320&lt;br/&gt;../../blueprints/edge-cloudflare-access/bluep...&quot;]
+  AC-8501-1 -.-&gt;|implemented by| CN-320
+  CN-321[&quot;CN-321&lt;br/&gt;../../blueprints/application-admin-console/bl...&quot;]
+  AC-8501-1 -.-&gt;|implemented by| CN-321
+  US-8502[&quot;US-8502&lt;br/&gt;T-4 real-account gated URL: a request against...&quot;]
+  REQ-085 --&gt; US-8502
+  AC-8502-1[&quot;AC-8502-1&quot;]
+  US-8502 --&gt; AC-8502-1
+  AC-8502-1 -.-&gt;|delivered by| FBS-100
+  AC-8502-1 -.-&gt;|implemented by| CN-320
+  click REQ-085 &quot;#REQ-085&quot;;
+  click US-8501 &quot;#US-8501&quot;;
+  click AC-8501-1 &quot;#AC-8501-1&quot;;
+  click FBS-100 &quot;#FBS-100&quot;;
+  click CN-320 &quot;#CN-320&quot;;
+  click CN-321 &quot;#CN-321&quot;;
+  click US-8502 &quot;#US-8502&quot;;
+  click AC-8502-1 &quot;#AC-8502-1&quot;;
+  class REQ-085 req;
+  class US-8501 us;
+  class AC-8501-1 ac;
+  class FBS-100 fbs;
+  class CN-320 cn;
+  class CN-321 cn;
+  class US-8502 us;
+  class AC-8502-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:12.737Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:20.026Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-085&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-4 edge-cloudflare-access v1.0.0: the composition with application-admin-console flips the sign-in surface when the applied capability set contains zeroTrustGate&quot;,
+  &quot;description&quot;: &quot;When application-admin-console v1.1.0 is applied alongside edge-cloudflare-access, the admin-console reads appliedCapabilities via readAppliedCapabilities() at apply-time and flips its sign-in surface between Access-gated and local-login.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T16:49:12.772Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-8501">
+  <summary><span class="summary-label">US-8501 - T-4 admin-console composition: the sign-in surface swaps to Access-gated when zeroTrustGate applied and falls back to security-auth-* otherwise</span><span class="status draft">draft</span></summary>
+  <article id="US-8501" class="doc doc-us">
+  <h3>US-8501 - T-4 admin-console composition: the sign-in surface swaps to Access-gated when zeroTrustGate applied and falls back to security-auth-* otherwise</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying both edge-cloudflare-access and application-admin-console v1.1.0</p>
+  <p><strong>I want:</strong> the admin-console sign-in surface to flip to Access-gated when zeroTrustGate is applied, and to fall back to the local security-auth-* surface otherwise</p>
+  <p><strong>So that:</strong> the composition is deterministic and no local login form leaks into an Access-gated deployment</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-085">REQ-085</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8501-1" class="ac-item"><strong>AC-8501-1</strong> - Two applied combinations are exercised on the extended admin-console fixture: with ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate the sign-in surface renders [data-surface=access-gated] and no [data-surface=local-login] is present; with ?caps=principalDirectory,roleModel,auditLog the sign-in surface renders [data-surface=local-login] and no [data-surface=access-gated] is present. Both combinations exercise the shipped pack check AC-21815-1.
+<div class="ac-gwt"><p><em>Given</em> the admin-console pack fixture with the two caps combinations</p><p><em>When</em> the pack runs against each combination</p><p><em>Then</em> AC-21815-1 fires on the gated combination and passes; the existing v1.0.0 surface renders on the non-gated combination and its own check passes</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:31.016Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:27.519Z&quot;,
+  &quot;usId&quot;: &quot;US-8501&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-085&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 admin-console composition: the sign-in surface swaps to Access-gated when zeroTrustGate applied and falls back to security-auth-* otherwise&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying both edge-cloudflare-access and application-admin-console v1.1.0&quot;,
+  &quot;iWant&quot;: &quot;the admin-console sign-in surface to flip to Access-gated when zeroTrustGate is applied, and to fall back to the local security-auth-* surface otherwise&quot;,
+  &quot;soThat&quot;: &quot;the composition is deterministic and no local login form leaks into an Access-gated deployment&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8501-1&quot;,
+      &quot;description&quot;: &quot;Two applied combinations are exercised on the extended admin-console fixture: with ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate the sign-in surface renders [data-surface=access-gated] and no [data-surface=local-login] is present; with ?caps=principalDirectory,roleModel,auditLog the sign-in surface renders [data-surface=local-login] and no [data-surface=access-gated] is present. Both combinations exercise the shipped pack check AC-21815-1.&quot;,
+      &quot;given&quot;: &quot;the admin-console pack fixture with the two caps combinations&quot;,
+      &quot;when&quot;: &quot;the pack runs against each combination&quot;,
+      &quot;then&quot;: &quot;AC-21815-1 fires on the gated combination and passes; the existing v1.0.0 surface renders on the non-gated combination and its own check passes&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-8502">
+  <summary><span class="summary-label">US-8502 - T-4 real-account gated URL: a request against a scheduled Access-configured hostname lands the Access UI</span><span class="status draft">draft</span></summary>
+  <article id="US-8502" class="doc doc-us">
+  <h3>US-8502 - T-4 real-account gated URL: a request against a scheduled Access-configured hostname lands the Access UI</h3>
+  
+  <p><strong>As a:</strong> HQ operator running the real-account gated-URL smoke against a scheduled Access-configured hostname</p>
+  <p><strong>I want:</strong> the probe to fire against the hostname when the env vars are present and record accountBoundSkipped when not</p>
+  <p><strong>So that:</strong> the mechanism-reach claim is proven on a real Cloudflare Access instance without ever failing the shelf gate on the absence of an account</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-085">REQ-085</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8502-1" class="ac-item"><strong>AC-8502-1</strong> - With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_ACCESS_HOST=&lt;hostname&gt;, a plain fetch against https://&lt;hostname&gt;/ follows the redirect chain and terminates at an https://&lt;team&gt;.cloudflareaccess.com/ URL (the Access UI). Without either env var the probe records accountBoundSkipped=true and aggregateVerdict=pass per spec section 3.5.
+<div class="ac-gwt"><p><em>Given</em> the run-real-account-gated-url.mjs probe shim and the two env vars</p><p><em>When</em> the probe runs</p><p><em>Then</em> in the CI-with-account path the redirect chain reports cloudflareaccess.com as terminal; in the without-env path accountBoundSkipped is true</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-100">FBS-100</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:31.234Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:27.703Z&quot;,
+  &quot;usId&quot;: &quot;US-8502&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-085&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 real-account gated URL: a request against a scheduled Access-configured hostname lands the Access UI&quot;,
+  &quot;asA&quot;: &quot;HQ operator running the real-account gated-URL smoke against a scheduled Access-configured hostname&quot;,
+  &quot;iWant&quot;: &quot;the probe to fire against the hostname when the env vars are present and record accountBoundSkipped when not&quot;,
+  &quot;soThat&quot;: &quot;the mechanism-reach claim is proven on a real Cloudflare Access instance without ever failing the shelf gate on the absence of an account&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8502-1&quot;,
+      &quot;description&quot;: &quot;With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_ACCESS_HOST=&lt;hostname&gt;, a plain fetch against https://&lt;hostname&gt;/ follows the redirect chain and terminates at an https://&lt;team&gt;.cloudflareaccess.com/ URL (the Access UI). Without either env var the probe records accountBoundSkipped=true and aggregateVerdict=pass per spec section 3.5.&quot;,
+      &quot;given&quot;: &quot;the run-real-account-gated-url.mjs probe shim and the two env vars&quot;,
+      &quot;when&quot;: &quot;the probe runs&quot;,
+      &quot;then&quot;: &quot;in the CI-with-account path the redirect chain reports cloudflareaccess.com as terminal; in the without-env path accountBoundSkipped is true&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-086">
+  <summary><span class="summary-label">REQ-086 - T-4 application-admin-console v1.1.0 minor: consume zeroTrustGate optionally, replacing the local sign-in form with an Access-gated surface when the capability is applied</span><span class="status approved">approved</span></summary>
+  <article id="REQ-086" class="doc doc-req">
+  <h3>REQ-086 - T-4 application-admin-console v1.1.0 minor: consume zeroTrustGate optionally, replacing the local sign-in form with an Access-gated surface when the capability is applied</h3>
+  
+  <p><strong>Description:</strong> application-admin-console v1.1.0 additive minor: consumes zeroTrustGate optionally, replacing the local sign-in form with an Access-gated surface when the capability is applied. Q4 default: consumption is OPTIONAL; principalDirectory remains the sole hard requirement (making Access-gate hard is a v2.0 change).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-086[&quot;REQ-086&lt;br/&gt;T-4 application-admin-console v1.1.0 minor: c...&quot;]
+  US-8601[&quot;US-8601&lt;br/&gt;T-4 admin-console v1.1.0: Access-gated sign-i...&quot;]
+  REQ-086 --&gt; US-8601
+  AC-8601-1[&quot;AC-8601-1&quot;]
+  US-8601 --&gt; AC-8601-1
+  FBS-101[&quot;FBS-101&lt;br/&gt;T-4 application-admin-console v1.1.0 additive...&quot;]
+  AC-8601-1 -.-&gt;|delivered by| FBS-101
+  CN-321[&quot;CN-321&lt;br/&gt;../../blueprints/application-admin-console/bl...&quot;]
+  AC-8601-1 -.-&gt;|implemented by| CN-321
+  US-8602[&quot;US-8602&lt;br/&gt;T-4 admin-console v1.1.0: falls back to secur...&quot;]
+  REQ-086 --&gt; US-8602
+  AC-8602-1[&quot;AC-8602-1&quot;]
+  US-8602 --&gt; AC-8602-1
+  AC-8602-1 -.-&gt;|delivered by| FBS-101
+  AC-8602-1 -.-&gt;|implemented by| CN-321
+  click REQ-086 &quot;#REQ-086&quot;;
+  click US-8601 &quot;#US-8601&quot;;
+  click AC-8601-1 &quot;#AC-8601-1&quot;;
+  click FBS-101 &quot;#FBS-101&quot;;
+  click CN-321 &quot;#CN-321&quot;;
+  click US-8602 &quot;#US-8602&quot;;
+  click AC-8602-1 &quot;#AC-8602-1&quot;;
+  class REQ-086 req;
+  class US-8601 us;
+  class AC-8601-1 ac;
+  class FBS-101 fbs;
+  class CN-321 cn;
+  class US-8602 us;
+  class AC-8602-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:12.954Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:20.211Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-086&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-4 application-admin-console v1.1.0 minor: consume zeroTrustGate optionally, replacing the local sign-in form with an Access-gated surface when the capability is applied&quot;,
+  &quot;description&quot;: &quot;application-admin-console v1.1.0 additive minor: consumes zeroTrustGate optionally, replacing the local sign-in form with an Access-gated surface when the capability is applied. Q4 default: consumption is OPTIONAL; principalDirectory remains the sole hard requirement (making Access-gate hard is a v2.0 change).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T16:49:12.990Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-8601">
+  <summary><span class="summary-label">US-8601 - T-4 admin-console v1.1.0: Access-gated sign-in surface with no local login form and principal reads from request.auth</span><span class="status draft">draft</span></summary>
+  <article id="US-8601" class="doc doc-us">
+  <h3>US-8601 - T-4 admin-console v1.1.0: Access-gated sign-in surface with no local login form and principal reads from request.auth</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying application-admin-console v1.1.0 with zeroTrustGate in the applied capability set</p>
+  <p><strong>I want:</strong> the sign-in surface to render as Access-gated with no local login form and to read the principal from request.auth</p>
+  <p><strong>So that:</strong> the admin console composes with edge-cloudflare-access at the sign-in seam and never re-collects credentials in an Access-gated deployment</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-086">REQ-086</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8601-1" class="ac-item"><strong>AC-8601-1</strong> - The repo-chain AC for the admin-console v1.1.0 Access-gated sign-in surface. The shipped pack check on application-admin-console.pack.mjs (id AC-21815-1 in the blueprint&#39;s own band) asserts that when application-admin-console v1.1.0 is applied with zeroTrustGate in appliedCapabilities, GET /admin/sign-in renders a region with [data-surface=access-gated], no [data-surface=local-login] region is present, and a [data-role=principal-read] element renders the principal email read from request.auth.
+<div class="ac-gwt"><p><em>Given</em> the extended admin-console pack fixture on ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate</p><p><em>When</em> the pack drives GET /admin/sign-in</p><p><em>Then</em> the DOM carries [data-surface=access-gated], no [data-surface=local-login], and a [data-role=principal-read] with the request.auth email</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-101">FBS-101</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:31.448Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:53.213Z&quot;,
+  &quot;usId&quot;: &quot;US-8601&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-086&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 admin-console v1.1.0: Access-gated sign-in surface with no local login form and principal reads from request.auth&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying application-admin-console v1.1.0 with zeroTrustGate in the applied capability set&quot;,
+  &quot;iWant&quot;: &quot;the sign-in surface to render as Access-gated with no local login form and to read the principal from request.auth&quot;,
+  &quot;soThat&quot;: &quot;the admin console composes with edge-cloudflare-access at the sign-in seam and never re-collects credentials in an Access-gated deployment&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8601-1&quot;,
+      &quot;description&quot;: &quot;The repo-chain AC for the admin-console v1.1.0 Access-gated sign-in surface. The shipped pack check on application-admin-console.pack.mjs (id AC-21815-1 in the blueprint&#39;s own band) asserts that when application-admin-console v1.1.0 is applied with zeroTrustGate in appliedCapabilities, GET /admin/sign-in renders a region with [data-surface=access-gated], no [data-surface=local-login] region is present, and a [data-role=principal-read] element renders the principal email read from request.auth.&quot;,
+      &quot;given&quot;: &quot;the extended admin-console pack fixture on ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate&quot;,
+      &quot;when&quot;: &quot;the pack drives GET /admin/sign-in&quot;,
+      &quot;then&quot;: &quot;the DOM carries [data-surface=access-gated], no [data-surface=local-login], and a [data-role=principal-read] with the request.auth email&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-8602">
+  <summary><span class="summary-label">US-8602 - T-4 admin-console v1.1.0: falls back to security-auth-* sign-in surface when zeroTrustGate absent</span><span class="status draft">draft</span></summary>
+  <article id="US-8602" class="doc doc-us">
+  <h3>US-8602 - T-4 admin-console v1.1.0: falls back to security-auth-* sign-in surface when zeroTrustGate absent</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying application-admin-console v1.1.0 WITHOUT zeroTrustGate in the applied capability set</p>
+  <p><strong>I want:</strong> the sign-in surface to render as the local security-auth-* surface with no Access-gated region</p>
+  <p><strong>So that:</strong> the v1.1.0 admin-console remains backward-compatible with every v1.0.0 deployment that never adopted Access</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-086">REQ-086</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-8602-1" class="ac-item"><strong>AC-8602-1</strong> - When application-admin-console v1.1.0 is applied without zeroTrustGate in appliedCapabilities, GET /admin/sign-in renders a region with [data-surface=local-login] and no [data-surface=access-gated] region is present.
+<div class="ac-gwt"><p><em>Given</em> the extended admin-console pack fixture on ?caps=principalDirectory,roleModel,auditLog</p><p><em>When</em> the pack drives GET /admin/sign-in</p><p><em>Then</em> the DOM carries [data-surface=local-login] and no [data-surface=access-gated]</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-101">FBS-101</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:49:31.662Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:51:28.075Z&quot;,
+  &quot;usId&quot;: &quot;US-8602&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-086&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-4 admin-console v1.1.0: falls back to security-auth-* sign-in surface when zeroTrustGate absent&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying application-admin-console v1.1.0 WITHOUT zeroTrustGate in the applied capability set&quot;,
+  &quot;iWant&quot;: &quot;the sign-in surface to render as the local security-auth-* surface with no Access-gated region&quot;,
+  &quot;soThat&quot;: &quot;the v1.1.0 admin-console remains backward-compatible with every v1.0.0 deployment that never adopted Access&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-8602-1&quot;,
+      &quot;description&quot;: &quot;When application-admin-console v1.1.0 is applied without zeroTrustGate in appliedCapabilities, GET /admin/sign-in renders a region with [data-surface=local-login] and no [data-surface=access-gated] region is present.&quot;,
+      &quot;given&quot;: &quot;the extended admin-console pack fixture on ?caps=principalDirectory,roleModel,auditLog&quot;,
+      &quot;when&quot;: &quot;the pack drives GET /admin/sign-in&quot;,
+      &quot;then&quot;: &quot;the DOM carries [data-surface=local-login] and no [data-surface=access-gated]&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -12601,8 +13595,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <dt>eventModel</dt><dd>None. Operations are synchronous filesystem reads and writes.</dd></dl></section>
 <section class="field-list"><h4>Operational concerns</h4><dl><dt>healthChecks</dt><dd>Not applicable for a local binary; a validate command reports project health by validating every document and listing broken references.</dd>
 <dt>logging</dt><dd>Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics.</dd></dl></section>
-  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a></p></section>
-  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a>, <a href="#ADR-010">ADR-010</a></p></section>
+  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a>, <a href="#TAC-2214-application-admin-console-access-gated-signin-surface">TAC-2214-application-admin-console-access-gated-signin-surface</a>, <a href="#TAC-3501-edge-cloudflare-access-jwt-validator">TAC-3501-edge-cloudflare-access-jwt-validator</a>, <a href="#TAC-3502-edge-cloudflare-access-application-declaration">TAC-3502-edge-cloudflare-access-application-declaration</a>, <a href="#TAC-3503-edge-cloudflare-access-policy-shape">TAC-3503-edge-cloudflare-access-policy-shape</a>, <a href="#TAC-3504-edge-cloudflare-access-audit-sink">TAC-3504-edge-cloudflare-access-audit-sink</a></p></section>
+  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a>, <a href="#ADR-010">ADR-010</a>, <a href="#ADR-2214-application-admin-console-consume-zero-trust-gate">ADR-2214-application-admin-console-consume-zero-trust-gate</a>, <a href="#ADR-3501-edge-cloudflare-access-jwt-gate">ADR-3501-edge-cloudflare-access-jwt-gate</a>, <a href="#ADR-3502-edge-cloudflare-access-identity-provider">ADR-3502-edge-cloudflare-access-identity-provider</a>, <a href="#ADR-3503-edge-cloudflare-access-policy-scope">ADR-3503-edge-cloudflare-access-policy-scope</a>, <a href="#ADR-3504-edge-cloudflare-access-audit-retention">ADR-3504-edge-cloudflare-access-audit-retention</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;tadId&quot;: &quot;TAD-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -13267,6 +14261,156 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-2214-application-admin-console-access-gated-signin-surface">
+  <summary><span class="summary-label">TAC-2214-application-admin-console-access-gated-signin-surface - Access-gated sign-in surface shape with principal-read-from-request contract</span><span class="status approved">approved</span></summary>
+  <article id="TAC-2214-application-admin-console-access-gated-signin-surface" class="doc doc-tac">
+  <h3>TAC-2214-application-admin-console-access-gated-signin-surface - Access-gated sign-in surface shape with principal-read-from-request contract</h3>
+  
+  <p><strong>Purpose:</strong> Access-gated sign-in surface for application-admin-console v1.1.0: no local form, principal-read from request.auth via [data-role=principal-read]; falls back to local-login when zeroTrustGate absent.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Realise the shape named in the purpose statement.</li><li>Bind the anchored ACs on the shipped probes and the extended admin-console pack.</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:45.406Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:10.394Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-2214-application-admin-console-access-gated-signin-surface&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;purpose&quot;: &quot;Access-gated sign-in surface for application-admin-console v1.1.0: no local form, principal-read from request.auth via [data-role=principal-read]; falls back to local-login when zeroTrustGate absent.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Realise the shape named in the purpose statement.&quot;,
+    &quot;Bind the anchored ACs on the shipped probes and the extended admin-console pack.&quot;
+  ],
+  &quot;name&quot;: &quot;Access-gated sign-in surface shape with principal-read-from-request contract&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3501-edge-cloudflare-access-jwt-validator">
+  <summary><span class="summary-label">TAC-3501-edge-cloudflare-access-jwt-validator - Access JWT validator with JWKS fetch and cache</span><span class="status approved">approved</span></summary>
+  <article id="TAC-3501-edge-cloudflare-access-jwt-validator" class="doc doc-tac">
+  <h3>TAC-3501-edge-cloudflare-access-jwt-validator - Access JWT validator with JWKS fetch and cache</h3>
+  
+  <p><strong>Purpose:</strong> Access JWT validator module; sole reader of the Cf-Access-Jwt-Assertion header; JWKS fetch cached per kid; principal reduces to {email, sub, groups}.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Realise the shape named in the purpose statement.</li><li>Bind the anchored ACs on the shipped probes and the extended admin-console pack.</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:43.928Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:09.639Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-3501-edge-cloudflare-access-jwt-validator&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;purpose&quot;: &quot;Access JWT validator module; sole reader of the Cf-Access-Jwt-Assertion header; JWKS fetch cached per kid; principal reduces to {email, sub, groups}.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Realise the shape named in the purpose statement.&quot;,
+    &quot;Bind the anchored ACs on the shipped probes and the extended admin-console pack.&quot;
+  ],
+  &quot;name&quot;: &quot;Access JWT validator with JWKS fetch and cache&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3502-edge-cloudflare-access-application-declaration">
+  <summary><span class="summary-label">TAC-3502-edge-cloudflare-access-application-declaration - Access application declaration surface</span><span class="status approved">approved</span></summary>
+  <article id="TAC-3502-edge-cloudflare-access-application-declaration" class="doc doc-tac">
+  <h3>TAC-3502-edge-cloudflare-access-application-declaration - Access application declaration surface</h3>
+  
+  <p><strong>Purpose:</strong> Access application declaration surface: elicited hostname or self-hosted-app id plus JWT audience, JWKS URL, policy shape and optional break-glass service-auth pair; recorded on the applied-sidecar.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Realise the shape named in the purpose statement.</li><li>Bind the anchored ACs on the shipped probes and the extended admin-console pack.</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:44.112Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:09.831Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-3502-edge-cloudflare-access-application-declaration&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;purpose&quot;: &quot;Access application declaration surface: elicited hostname or self-hosted-app id plus JWT audience, JWKS URL, policy shape and optional break-glass service-auth pair; recorded on the applied-sidecar.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Realise the shape named in the purpose statement.&quot;,
+    &quot;Bind the anchored ACs on the shipped probes and the extended admin-console pack.&quot;
+  ],
+  &quot;name&quot;: &quot;Access application declaration surface&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3503-edge-cloudflare-access-policy-shape">
+  <summary><span class="summary-label">TAC-3503-edge-cloudflare-access-policy-shape - Access policy shape enum and its issuance flow</span><span class="status approved">approved</span></summary>
+  <article id="TAC-3503-edge-cloudflare-access-policy-shape" class="doc doc-tac">
+  <h3>TAC-3503-edge-cloudflare-access-policy-shape - Access policy shape enum and its issuance flow</h3>
+  
+  <p><strong>Purpose:</strong> Access policy shape enum with four values: email-domain, service-token-only, service-token-plus-email-domain, group-membership; drives the guide walk-through and the API alternative.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Realise the shape named in the purpose statement.</li><li>Bind the anchored ACs on the shipped probes and the extended admin-console pack.</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:44.296Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:10.018Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-3503-edge-cloudflare-access-policy-shape&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;purpose&quot;: &quot;Access policy shape enum with four values: email-domain, service-token-only, service-token-plus-email-domain, group-membership; drives the guide walk-through and the API alternative.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Realise the shape named in the purpose statement.&quot;,
+    &quot;Bind the anchored ACs on the shipped probes and the extended admin-console pack.&quot;
+  ],
+  &quot;name&quot;: &quot;Access policy shape enum and its issuance flow&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3504-edge-cloudflare-access-audit-sink">
+  <summary><span class="summary-label">TAC-3504-edge-cloudflare-access-audit-sink - Access audit sink with metadata-only shape</span><span class="status approved">approved</span></summary>
+  <article id="TAC-3504-edge-cloudflare-access-audit-sink" class="doc doc-tac">
+  <h3>TAC-3504-edge-cloudflare-access-audit-sink - Access audit sink with metadata-only shape</h3>
+  
+  <p><strong>Purpose:</strong> Access audit sink contract: metadata-only shape {email, outcome, timestamp, path}; frozen at the validator boundary; retention delegated to the applied logging companion.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Realise the shape named in the purpose statement.</li><li>Bind the anchored ACs on the shipped probes and the extended admin-console pack.</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:44.481Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:10.205Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-3504-edge-cloudflare-access-audit-sink&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;approved&quot;,
+  &quot;purpose&quot;: &quot;Access audit sink contract: metadata-only shape {email, outcome, timestamp, path}; frozen at the validator boundary; retention delegated to the applied logging companion.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Realise the shape named in the purpose statement.&quot;,
+    &quot;Bind the anchored ACs on the shipped probes and the extended admin-console pack.&quot;
+  ],
+  &quot;name&quot;: &quot;Access audit sink with metadata-only shape&quot;
+}
+</pre></details>
+</article>
+</details>
 <h3 class="group-heading">Architectural decisions</h3>
 <details class="doc-details doc-adr-wrap" data-doc-id="ADR-001">
   <summary><span class="summary-label">ADR-001 - Local filesystem is the single source of truth</span><span class="status accepted">accepted</span></summary>
@@ -13663,6 +14807,146 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-2214-application-admin-console-consume-zero-trust-gate">
+  <summary><span class="summary-label">ADR-2214-application-admin-console-consume-zero-trust-gate - Admin-console reads zeroTrustGate at apply-time and switches sign-in surface (recommendedDefault true)</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-2214-application-admin-console-consume-zero-trust-gate" class="doc doc-adr">
+  <h3>ADR-2214-application-admin-console-consume-zero-trust-gate - Admin-console reads zeroTrustGate at apply-time and switches sign-in surface (recommendedDefault true)</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> application-admin-console v1.0.0 shipped with principalDirectory as the sole hard requirement; sign-in surface was local per whatever security-auth-* was applied. Round-6 T-4 introduces edge-cloudflare-access with the zeroTrustGate capability; a composed deployment needs the admin-console to flip its sign-in surface deterministically.</p>
+  <p><strong>Decision:</strong> application-admin-console v1.1.0 reads appliedCapabilities via readAppliedCapabilities at apply-time. When zeroTrustGate is present the sign-in surface renders access-gated (no local form, principal reads from request.auth); when absent the surface falls back to whatever security-auth-* is applied. Q4 default (spec 5.4.1): zeroTrustGate is CONSUMED OPTIONALLY; principalDirectory remains the sole hard requirement (making Access-gate hard is a v2.0 change). Standards trace clause: Cloudflare round 6 spec section 5.4 (admin-console v1.1.0 delta). recommendedDefault: true.</p>
+  <p><strong>Consequences:</strong> The v1.1.0 admin-console remains backward-compatible with every v1.0.0 deployment. An Access-gated deployment automatically stops rendering the local login form; the local-login surface still ships in v1.1.0 (fallback branch when zeroTrustGate absent).</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:45.591Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:09.431Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-2214-application-admin-console-consume-zero-trust-gate&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Admin-console reads zeroTrustGate at apply-time and switches sign-in surface (recommendedDefault true)&quot;,
+  &quot;context&quot;: &quot;application-admin-console v1.0.0 shipped with principalDirectory as the sole hard requirement; sign-in surface was local per whatever security-auth-* was applied. Round-6 T-4 introduces edge-cloudflare-access with the zeroTrustGate capability; a composed deployment needs the admin-console to flip its sign-in surface deterministically.&quot;,
+  &quot;decision&quot;: &quot;application-admin-console v1.1.0 reads appliedCapabilities via readAppliedCapabilities at apply-time. When zeroTrustGate is present the sign-in surface renders access-gated (no local form, principal reads from request.auth); when absent the surface falls back to whatever security-auth-* is applied. Q4 default (spec 5.4.1): zeroTrustGate is CONSUMED OPTIONALLY; principalDirectory remains the sole hard requirement (making Access-gate hard is a v2.0 change). Standards trace clause: Cloudflare round 6 spec section 5.4 (admin-console v1.1.0 delta). recommendedDefault: true.&quot;,
+  &quot;consequences&quot;: &quot;The v1.1.0 admin-console remains backward-compatible with every v1.0.0 deployment. An Access-gated deployment automatically stops rendering the local login form; the local-login surface still ships in v1.1.0 (fallback branch when zeroTrustGate absent).&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3501-edge-cloudflare-access-jwt-gate">
+  <summary><span class="summary-label">ADR-3501-edge-cloudflare-access-jwt-gate - Edge authentication gate: Cloudflare Access Zero-Trust JWT-assertion gate (scope global, new topic edgeAuthenticationGate)</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-3501-edge-cloudflare-access-jwt-gate" class="doc doc-adr">
+  <h3>ADR-3501-edge-cloudflare-access-jwt-gate - Edge authentication gate: Cloudflare Access Zero-Trust JWT-assertion gate (scope global, new topic edgeAuthenticationGate)</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> T-4 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-access/contributions/adrs/adr-3501-edge-cloudflare-access-jwt-gate.json contribution. The chain slice is the audit trail for the JWT-gate decision (scope global on new topic edgeAuthenticationGate). Cloudflare Access enforces the Zero-Trust policy at the CF edge and passes a signed JWT to the origin Worker in the Cf-Access-Jwt-Assertion header per https://developers.cloudflare.com/cloudflare-one/policies/access/. Every applied Worker needs one project-wide answer to the edgeAuthenticationGate topic; a future non-Cloudflare adapter conflicts on the same topic by design.</p>
+  <p><strong>Decision:</strong> The shipped v1.0.0 default is Cloudflare Access&#39;s Zero-Trust JWT-assertion gate. The JWT validator (TAC-3501) is the sole reader of the Cf-Access-Jwt-Assertion header and reduces the principal into request.auth. The edgeAuthenticationGate topic scope is global on this blueprint; the topic string is edgeAuthenticationGate (lower camel case). Standards trace clause: Cloudflare Access policy actions and rule selectors.</p>
+  <p><strong>Consequences:</strong> The applying project inherits Cloudflare&#39;s documented Access policy model and the JWT rotation cadence published at https://&lt;team&gt;.cloudflareaccess.com/cdn-cgi/access/certs. Consumers deploying to a non-Cloudflare edge reach for a sibling adapter blueprint that lands as a v1.x minor on this shelf.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:44.665Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:08.688Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-3501-edge-cloudflare-access-jwt-gate&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Edge authentication gate: Cloudflare Access Zero-Trust JWT-assertion gate (scope global, new topic edgeAuthenticationGate)&quot;,
+  &quot;context&quot;: &quot;T-4 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-access/contributions/adrs/adr-3501-edge-cloudflare-access-jwt-gate.json contribution. The chain slice is the audit trail for the JWT-gate decision (scope global on new topic edgeAuthenticationGate). Cloudflare Access enforces the Zero-Trust policy at the CF edge and passes a signed JWT to the origin Worker in the Cf-Access-Jwt-Assertion header per https://developers.cloudflare.com/cloudflare-one/policies/access/. Every applied Worker needs one project-wide answer to the edgeAuthenticationGate topic; a future non-Cloudflare adapter conflicts on the same topic by design.&quot;,
+  &quot;decision&quot;: &quot;The shipped v1.0.0 default is Cloudflare Access&#39;s Zero-Trust JWT-assertion gate. The JWT validator (TAC-3501) is the sole reader of the Cf-Access-Jwt-Assertion header and reduces the principal into request.auth. The edgeAuthenticationGate topic scope is global on this blueprint; the topic string is edgeAuthenticationGate (lower camel case). Standards trace clause: Cloudflare Access policy actions and rule selectors.&quot;,
+  &quot;consequences&quot;: &quot;The applying project inherits Cloudflare&#39;s documented Access policy model and the JWT rotation cadence published at https://&lt;team&gt;.cloudflareaccess.com/cdn-cgi/access/certs. Consumers deploying to a non-Cloudflare edge reach for a sibling adapter blueprint that lands as a v1.x minor on this shelf.&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3502-edge-cloudflare-access-identity-provider">
+  <summary><span class="summary-label">ADR-3502-edge-cloudflare-access-identity-provider - Identity provider for the Access application is elicited (recommendedDefault null)</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-3502-edge-cloudflare-access-identity-provider" class="doc doc-adr">
+  <h3>ADR-3502-edge-cloudflare-access-identity-provider - Identity provider for the Access application is elicited (recommendedDefault null)</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> Cloudflare Access supports many identity providers (OTP, Google, GitHub, Okta, Entra ID, SAML, OIDC, mTLS); the choice is an enterprise-integration decision.</p>
+  <p><strong>Decision:</strong> Identity provider is elicited (elicited: true). No recommended default; the applied-sidecar records the operator&#39;s answer.</p>
+  <p><strong>Consequences:</strong> The elicitation forces an explicit operator answer at apply. Standards trace clause: generic enterprise practice.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:44.850Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:08.874Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-3502-edge-cloudflare-access-identity-provider&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Identity provider for the Access application is elicited (recommendedDefault null)&quot;,
+  &quot;context&quot;: &quot;Cloudflare Access supports many identity providers (OTP, Google, GitHub, Okta, Entra ID, SAML, OIDC, mTLS); the choice is an enterprise-integration decision.&quot;,
+  &quot;decision&quot;: &quot;Identity provider is elicited (elicited: true). No recommended default; the applied-sidecar records the operator&#39;s answer.&quot;,
+  &quot;consequences&quot;: &quot;The elicitation forces an explicit operator answer at apply. Standards trace clause: generic enterprise practice.&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3503-edge-cloudflare-access-policy-scope">
+  <summary><span class="summary-label">ADR-3503-edge-cloudflare-access-policy-scope - Policy scope: application-level (recommended default) or per-path elicited</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-3503-edge-cloudflare-access-policy-scope" class="doc doc-adr">
+  <h3>ADR-3503-edge-cloudflare-access-policy-scope - Policy scope: application-level (recommended default) or per-path elicited</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> Cloudflare Access binds a policy at the application level (one policy protects every path) or per-path. Application-level scope is the most common shape.</p>
+  <p><strong>Decision:</strong> Recommended default is application-level (recommendedDefault: true); the elicited alternative is per-path. Standards trace clause: Cloudflare Access policy actions and rule selectors.</p>
+  <p><strong>Consequences:</strong> A fresh project applying the blueprint gets one application-level policy; an operator opting into per-path scope elicits a route table.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:45.034Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:09.060Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-3503-edge-cloudflare-access-policy-scope&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Policy scope: application-level (recommended default) or per-path elicited&quot;,
+  &quot;context&quot;: &quot;Cloudflare Access binds a policy at the application level (one policy protects every path) or per-path. Application-level scope is the most common shape.&quot;,
+  &quot;decision&quot;: &quot;Recommended default is application-level (recommendedDefault: true); the elicited alternative is per-path. Standards trace clause: Cloudflare Access policy actions and rule selectors.&quot;,
+  &quot;consequences&quot;: &quot;A fresh project applying the blueprint gets one application-level policy; an operator opting into per-path scope elicits a route table.&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3504-edge-cloudflare-access-audit-retention">
+  <summary><span class="summary-label">ADR-3504-edge-cloudflare-access-audit-retention - Audit retention window (metadata-only fields) is delegated to the applied logging companion</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-3504-edge-cloudflare-access-audit-retention" class="doc doc-adr">
+  <h3>ADR-3504-edge-cloudflare-access-audit-retention - Audit retention window (metadata-only fields) is delegated to the applied logging companion</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> The validator emits one audit event per outcome with the metadata-only shape {email, outcome, timestamp, path}. Long-term retention is a compliance decision an applied logging companion already answers.</p>
+  <p><strong>Decision:</strong> Retention is delegated to the applied logging companion (suggestedCompanions[0]). The blueprint declares no retention policy of its own. Standards trace clause: generic enterprise practice.</p>
+  <p><strong>Consequences:</strong> A workspace without a logging companion loses the audit events after the Worker context tears down; the guide names the trade.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:45.219Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:03:09.245Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-3504-edge-cloudflare-access-audit-retention&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;Audit retention window (metadata-only fields) is delegated to the applied logging companion&quot;,
+  &quot;context&quot;: &quot;The validator emits one audit event per outcome with the metadata-only shape {email, outcome, timestamp, path}. Long-term retention is a compliance decision an applied logging companion already answers.&quot;,
+  &quot;decision&quot;: &quot;Retention is delegated to the applied logging companion (suggestedCompanions[0]). The blueprint declares no retention policy of its own. Standards trace clause: generic enterprise practice.&quot;,
+  &quot;consequences&quot;: &quot;A workspace without a logging companion loses the audit events after the Worker context tears down; the guide names the trade.&quot;
+}
+</pre></details>
+</article>
+</details>
 
     </section>
     <section id="tab-build" role="tabpanel" hidden>
@@ -13673,7 +14957,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -18163,6 +19447,151 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-100">
+  <summary><span class="summary-label">FBS-100 - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-100" class="doc doc-fbs">
+  <h3>FBS-100 - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</h3>
+  
+  <p><strong>Summary:</strong> HQ round-6 T-4: edge-cloudflare-access v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-access/. Ships cf-edge fixture with sole-reader JWT validator (Node crypto RS256), local JWKS server and fixture-JWT signer; 6 Node-only probes (4 in-process pass, 1 admin-console gate-surface, 1 accountBound real-account, 1 wrangler-seam warn-on-bind-miss); README, guide with Zero Trust dashboard walk-through and API alternative plus policy shape enum table and break-glass section, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep on 33 blueprints; section 6a zeroTrustGate row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-080..085, US-8001..8502, TS-110..119 plus TCs, FBS-100..101, CN-320..321, TAC-3501..3504, ADR-3501..3504 minted via rcf define create --id per HQ round-6 T-4 reserved-block ruling 2026-09-07. Base commit origin/main cdf84ee.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-8001-1">AC-8001-1</a><a class="ac-pill" href="#AC-8002-1">AC-8002-1</a><a class="ac-pill" href="#AC-8003-1">AC-8003-1</a><a class="ac-pill" href="#AC-8101-1">AC-8101-1</a><a class="ac-pill" href="#AC-8201-1">AC-8201-1</a><a class="ac-pill" href="#AC-8301-1">AC-8301-1</a><a class="ac-pill" href="#AC-8401-1">AC-8401-1</a><a class="ac-pill" href="#AC-8501-1">AC-8501-1</a><a class="ac-pill" href="#AC-8502-1">AC-8502-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-8001-1">AC-8001-1</a></strong> - The JWT validator reads Cf-Access-Jwt-Assertion, verifies against the fixture JWKS (RS256, kid rotation supported by cache), reduces the principal into request.auth as {email, sub, groups} and the downstream handler receives a 200 with the reduced principal fields exposed on request.auth.</p>
+  <p><em>Given</em> a Worker fetch handler wired with the createAccessValidator middleware and a fixture-signed JWT presented in the Cf-Access-Jwt-Assertion header</p>
+  <p><em>When</em> the request dispatches through the validator</p>
+  <p><em>Then</em> the validator resolves, attaches {email, sub, groups} onto request.auth and delegates to the handler which returns 200 with request.auth reflected on the response body</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8002-1">AC-8002-1</a></strong> - The three reject subcases (missing header, expired exp, mis-signed) each return HTTP 401 and emit exactly one audit event whose keys are drawn from {email, outcome, timestamp, path} with no token substring, no header names beyond path, and no additional keys.</p>
+  <p><em>Given</em> a Worker fetch handler wired with the createAccessValidator middleware and one of the three reject subcases</p>
+  <p><em>When</em> the request dispatches through the validator</p>
+  <p><em>Then</em> the validator resolves 401, emits one audit event with outcome in {missing, expired, invalid} and the record body carries only the four allowed keys</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8003-1">AC-8003-1</a></strong> - The sole-reader scan walks the fixture applied source root (src/**/*.mjs), strips comments and string literals, and finds exactly one live source occurrence of the header string Cf-Access-Jwt-Assertion, in src/jwt-validator.mjs. Any other occurrence in a shipped module fails the probe.</p>
+  <p><em>Given</em> the cf-edge fixture applied source tree</p>
+  <p><em>When</em> the sole-reader-scan probe walks src/**/*.mjs</p>
+  <p><em>Then</em> the only live-source hit for Cf-Access-Jwt-Assertion is in src/jwt-validator.mjs; SIMULATE_NON_VALIDATOR_HEADER=true injects a second hit and the probe fails</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8101-1">AC-8101-1</a></strong> - blueprint.json elicits access-application-host (kind string) or access-selfhosted-app-id (kind string, one of the two required at apply), plus access-policy-shape (kind enum, options email-domain, service-token-only, service-token-plus-email-domain, group-membership; recommended default email-domain). Applying the blueprint records the elicited values on rcf/blueprints/edge-cloudflare-access.applied.json.</p>
+  <p><em>Given</em> the blueprint.json elicits block</p>
+  <p><em>When</em> the apply verb runs against a fixture project</p>
+  <p><em>Then</em> rcf/blueprints/edge-cloudflare-access.applied.json carries appliedCapabilities=[zeroTrustGate] and elicited values for access-application-host or access-selfhosted-app-id plus access-policy-shape</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8201-1">AC-8201-1</a></strong> - The shipped guide/edge-cloudflare-access.md carries a section Zero Trust dashboard walk-through with numbered steps naming each screen; and a section API alternative with a curl example against https://api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies; the vendor URL https://developers.cloudflare.com/cloudflare-one/policies/access/ is cited from ADR-3501 and the guide.</p>
+  <p><em>Given</em> the shipped guide file</p>
+  <p><em>When</em> the anatomy test greps for the two section headings, the curl example and the vendor URL</p>
+  <p><em>Then</em> each string matches at least once in the file</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8301-1">AC-8301-1</a></strong> - After 5 validate-pass and 5 validate-reject requests the audit sink holds 10 records each carrying exactly {email, outcome, timestamp, path}; the serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value and no header names beyond path.</p>
+  <p><em>Given</em> the shipped createAccessValidator wired with a spy audit sink and 10 requests (5 pass, 5 reject)</p>
+  <p><em>When</em> the requests dispatch through the validator</p>
+  <p><em>Then</em> 10 sink records, each with allowed keys only, none containing forbidden substrings</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8401-1">AC-8401-1</a></strong> - When the request presents the elicited service-auth id and secret (as CF-Access-Client-Id and CF-Access-Client-Secret headers), the validator observes the pair, records outcome=bypass in the audit event with the same metadata-only shape, and delegates to the handler as authenticated with request.auth.email=&#39;service:&#39;+id. Break-glass is disabled unless the elicited pair is applied.</p>
+  <p><em>Given</em> the createAccessValidator wired with an elicited bypass-service-auth pair and a request presenting the paired headers</p>
+  <p><em>When</em> the request dispatches through the validator</p>
+  <p><em>Then</em> the handler receives request.auth with the service principal and the audit sink records outcome=bypass, with allowed keys only</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8501-1">AC-8501-1</a></strong> - Two applied combinations are exercised on the extended admin-console fixture: with ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate the sign-in surface renders [data-surface=access-gated] and no [data-surface=local-login] is present; with ?caps=principalDirectory,roleModel,auditLog the sign-in surface renders [data-surface=local-login] and no [data-surface=access-gated] is present. Both combinations exercise the shipped pack check AC-21815-1.</p>
+  <p><em>Given</em> the admin-console pack fixture with the two caps combinations</p>
+  <p><em>When</em> the pack runs against each combination</p>
+  <p><em>Then</em> AC-21815-1 fires on the gated combination and passes; the existing v1.0.0 surface renders on the non-gated combination and its own check passes</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8502-1">AC-8502-1</a></strong> - With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_ACCESS_HOST=&lt;hostname&gt;, a plain fetch against https://&lt;hostname&gt;/ follows the redirect chain and terminates at an https://&lt;team&gt;.cloudflareaccess.com/ URL (the Access UI). Without either env var the probe records accountBoundSkipped=true and aggregateVerdict=pass per spec section 3.5.</p>
+  <p><em>Given</em> the run-real-account-gated-url.mjs probe shim and the two env vars</p>
+  <p><em>When</em> the probe runs</p>
+  <p><em>Then</em> in the CI-with-account path the redirect chain reports cloudflareaccess.com as terminal; in the without-env path accountBoundSkipped is true</p>
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 56</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:43.560Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:55.992Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8001-1&quot;,
+    &quot;AC-8002-1&quot;,
+    &quot;AC-8003-1&quot;,
+    &quot;AC-8101-1&quot;,
+    &quot;AC-8201-1&quot;,
+    &quot;AC-8301-1&quot;,
+    &quot;AC-8401-1&quot;,
+    &quot;AC-8501-1&quot;,
+    &quot;AC-8502-1&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-100&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 56,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test&quot;,
+  &quot;summary&quot;: &quot;HQ round-6 T-4: edge-cloudflare-access v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-access/. Ships cf-edge fixture with sole-reader JWT validator (Node crypto RS256), local JWKS server and fixture-JWT signer; 6 Node-only probes (4 in-process pass, 1 admin-console gate-surface, 1 accountBound real-account, 1 wrangler-seam warn-on-bind-miss); README, guide with Zero Trust dashboard walk-through and API alternative plus policy shape enum table and break-glass section, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep on 33 blueprints; section 6a zeroTrustGate row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-080..085, US-8001..8502, TS-110..119 plus TCs, FBS-100..101, CN-320..321, TAC-3501..3504, ADR-3501..3504 minted via rcf define create --id per HQ round-6 T-4 reserved-block ruling 2026-09-07. Base commit origin/main cdf84ee.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-101">
+  <summary><span class="summary-label">FBS-101 - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-101" class="doc doc-fbs">
+  <h3>FBS-101 - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</h3>
+  
+  <p><strong>Summary:</strong> HQ round-6 T-4: application-admin-console v1.1.0 additive minor riding the edge-cloudflare-access PR (round-4 T-4 capability-minor pattern). Bumps blueprint.json to 1.1.0 with 6 new contributions: REQ-014, US-21815, US-21816, TAC-2214, ADR-2214 (scope global on new topic adminConsoleSignInSurface) and pack check AC-21815-1. Extends probe-pack-application-admin-console fixture with /admin/sign-in route. Updates admin-console CHANGELOG with v1.1.0 entry and guide with Access-gate consumption section. Q4 default: consumption is OPTIONAL. Repo chain: REQ-086, US-8601..8602, TAC-2214, ADR-2214.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-8601-1">AC-8601-1</a><a class="ac-pill" href="#AC-8602-1">AC-8602-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-8601-1">AC-8601-1</a></strong> - The repo-chain AC for the admin-console v1.1.0 Access-gated sign-in surface. The shipped pack check on application-admin-console.pack.mjs (id AC-21815-1 in the blueprint&#39;s own band) asserts that when application-admin-console v1.1.0 is applied with zeroTrustGate in appliedCapabilities, GET /admin/sign-in renders a region with [data-surface=access-gated], no [data-surface=local-login] region is present, and a [data-role=principal-read] element renders the principal email read from request.auth.</p>
+  <p><em>Given</em> the extended admin-console pack fixture on ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate</p>
+  <p><em>When</em> the pack drives GET /admin/sign-in</p>
+  <p><em>Then</em> the DOM carries [data-surface=access-gated], no [data-surface=local-login], and a [data-role=principal-read] with the request.auth email</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-8602-1">AC-8602-1</a></strong> - When application-admin-console v1.1.0 is applied without zeroTrustGate in appliedCapabilities, GET /admin/sign-in renders a region with [data-surface=local-login] and no [data-surface=access-gated] region is present.</p>
+  <p><em>Given</em> the extended admin-console pack fixture on ?caps=principalDirectory,roleModel,auditLog</p>
+  <p><em>When</em> the pack drives GET /admin/sign-in</p>
+  <p><em>Then</em> the DOM carries [data-surface=local-login] and no [data-surface=access-gated]</p>
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 57</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:53:43.745Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T17:14:56.177Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8601-1&quot;,
+    &quot;AC-8602-1&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 57,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs&quot;,
+  &quot;summary&quot;: &quot;HQ round-6 T-4: application-admin-console v1.1.0 additive minor riding the edge-cloudflare-access PR (round-4 T-4 capability-minor pattern). Bumps blueprint.json to 1.1.0 with 6 new contributions: REQ-014, US-21815, US-21816, TAC-2214, ADR-2214 (scope global on new topic adminConsoleSignInSurface) and pack check AC-21815-1. Extends probe-pack-application-admin-console fixture with /admin/sign-in route. Updates admin-console CHANGELOG with v1.1.0 entry and guide with Access-gate consumption section. Q4 default: consumption is OPTIONAL. Repo chain: REQ-086, US-8601..8602, TAC-2214, ADR-2214.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
 <h3 class="group-heading">Test suites</h3><details class="doc-details doc-ts-wrap" data-doc-id="TS-001">
   <summary><span class="summary-label">TS-001 - Project initialisation on disk</span><span class="status draft">draft</span></summary>
   <article id="TS-001" class="doc doc-ts">
@@ -22409,7 +23838,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-052-blueprint-json-shape">
   <p><strong>TC-052-blueprint-json-shape</strong> - covers <a href="#AC-2301-1">AC-2301-1</a> <span class="status pending">pending</span></p>
   <p>blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[]</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/application-admin-console-anatomy.test.js::blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)</code></p>
 </div>
 <div class="tc" id="TC-052-applies-clean-with-override">
   <p><strong>TC-052-applies-clean-with-override</strong> - covers <a href="#AC-2301-2">AC-2301-2</a> <span class="status pending">pending</span></p>
@@ -22446,18 +23875,68 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;updatedAt&quot;: &quot;2026-09-05T01:30:00.000Z&quot;,
   &quot;purpose&quot;: &quot;Cover AC-2301-1..7 via unit tests over the shipped application-admin-console blueprint.json contribution shape (23 contributions in 6 REQ / 9 US / 4 TAC / 4 ADR groups), the requiresAppliedCapabilities and elicits[] declarations, the pack-loader accepting the shipped pack file with every check id cross-checked against blueprint AC ids, the pack appliesTo predicate discipline (references BOTH tacIds and route), the sample-app fixture serving the console shell with the ARIA APG grid permission matrix, the CAPS switch surface selector, the users directory, org switcher, audit-log table with correlation id, access-denied and request-access control, and the negative-run behaviour on the ?break=matrix-grid, ?break=denied and ?break=audit-fields switches.&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
-  &quot;acIds&quot;: [&quot;AC-2301-1&quot;, &quot;AC-2301-2&quot;, &quot;AC-2301-3&quot;, &quot;AC-2301-4&quot;, &quot;AC-2301-5&quot;, &quot;AC-2301-6&quot;, &quot;AC-2301-7&quot;],
+  &quot;acIds&quot;: [
+    &quot;AC-2301-1&quot;,
+    &quot;AC-2301-2&quot;,
+    &quot;AC-2301-3&quot;,
+    &quot;AC-2301-4&quot;,
+    &quot;AC-2301-5&quot;,
+    &quot;AC-2301-6&quot;,
+    &quot;AC-2301-7&quot;
+  ],
   &quot;id&quot;: &quot;TS-052&quot;,
   &quot;usId&quot;: &quot;US-2301&quot;,
   &quot;title&quot;: &quot;application-admin-console v1.0.0 shelf shape, capability discovery, probe pack cross-check and sample-app fixture&quot;,
   &quot;testCases&quot;: [
-    {&quot;id&quot;: &quot;TC-052-blueprint-json-shape&quot;, &quot;acId&quot;: &quot;AC-2301-1&quot;, &quot;description&quot;: &quot;blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[]&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)&quot;},
-    {&quot;id&quot;: &quot;TC-052-applies-clean-with-override&quot;, &quot;acId&quot;: &quot;AC-2301-2&quot;, &quot;description&quot;: &quot;Fresh init project applies admin-console --allow-no-auth-yet and writes sidecar with allowNoAuthYet true&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:true and empty appliedCapabilities (TC-052-applies-clean-with-override)&quot;},
-    {&quot;id&quot;: &quot;TC-052-refuses-bare-spa&quot;, &quot;acId&quot;: &quot;AC-2301-3&quot;, &quot;description&quot;: &quot;Fresh init project without auth refuses admin-console apply with exit 3 and spec 5.5.1 message&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply refuses on bare SPA with spec 5.5.1 verbatim message and lists applied blueprints (TC-052-refuses-bare-spa)&quot;},
-    {&quot;id&quot;: &quot;TC-052-capability-discovery&quot;, &quot;acId&quot;: &quot;AC-2301-4&quot;, &quot;description&quot;: &quot;Discovery reads applied capabilities from applied blueprints&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply on magic-link project yields [principalDirectory] and on clerk+logging project yields [principalDirectory,roleModel,auditLog] (TC-052-capability-discovery)&quot;},
-    {&quot;id&quot;: &quot;TC-052-pack-checks-cross-check&quot;, &quot;acId&quot;: &quot;AC-2301-5&quot;, &quot;description&quot;: &quot;Every pack check id matches contributed AC id and applies gates on capability&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo predicate gates on the applied capability (TC-052-pack-checks-cross-check)&quot;},
-    {&quot;id&quot;: &quot;TC-052-fixture-surfaces&quot;, &quot;acId&quot;: &quot;AC-2301-6&quot;, &quot;description&quot;: &quot;Sample-app fixture serves the console shell with grid matrix and required data attributes&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture serves console shell with ARIA APG grid permission matrix and required data attributes (TC-052-fixture-surfaces)&quot;},
-    {&quot;id&quot;: &quot;TC-052-negative-runs&quot;, &quot;acId&quot;: &quot;AC-2301-7&quot;, &quot;description&quot;: &quot;Break switches surface the three defects on the DOM&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture break switches surface the three defects on the DOM (TC-052-negative-runs)&quot;}
+    {
+      &quot;id&quot;: &quot;TC-052-blueprint-json-shape&quot;,
+      &quot;acId&quot;: &quot;AC-2301-1&quot;,
+      &quot;description&quot;: &quot;blueprint.json declares 23 contributions with requiresAppliedCapabilities and elicits[]&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-052-applies-clean-with-override&quot;,
+      &quot;acId&quot;: &quot;AC-2301-2&quot;,
+      &quot;description&quot;: &quot;Fresh init project applies admin-console --allow-no-auth-yet and writes sidecar with allowNoAuthYet true&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:true and empty appliedCapabilities (TC-052-applies-clean-with-override)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-052-refuses-bare-spa&quot;,
+      &quot;acId&quot;: &quot;AC-2301-3&quot;,
+      &quot;description&quot;: &quot;Fresh init project without auth refuses admin-console apply with exit 3 and spec 5.5.1 message&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply refuses on bare SPA with spec 5.5.1 verbatim message and lists applied blueprints (TC-052-refuses-bare-spa)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-052-capability-discovery&quot;,
+      &quot;acId&quot;: &quot;AC-2301-4&quot;,
+      &quot;description&quot;: &quot;Discovery reads applied capabilities from applied blueprints&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::apply on magic-link project yields [principalDirectory] and on clerk+logging project yields [principalDirectory,roleModel,auditLog] (TC-052-capability-discovery)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-052-pack-checks-cross-check&quot;,
+      &quot;acId&quot;: &quot;AC-2301-5&quot;,
+      &quot;description&quot;: &quot;Every pack check id matches contributed AC id and applies gates on capability&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::every pack check id matches a contributed AC id and appliesTo predicate gates on the applied capability (TC-052-pack-checks-cross-check)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-052-fixture-surfaces&quot;,
+      &quot;acId&quot;: &quot;AC-2301-6&quot;,
+      &quot;description&quot;: &quot;Sample-app fixture serves the console shell with grid matrix and required data attributes&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture serves console shell with ARIA APG grid permission matrix and required data attributes (TC-052-fixture-surfaces)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-052-negative-runs&quot;,
+      &quot;acId&quot;: &quot;AC-2301-7&quot;,
+      &quot;description&quot;: &quot;Break switches surface the three defects on the DOM&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/application-admin-console-anatomy.test.js::sample-app fixture break switches surface the three defects on the DOM (TC-052-negative-runs)&quot;
+    }
   ],
   &quot;status&quot;: &quot;draft&quot;
 }
@@ -24768,6 +26247,419 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;AC-7002-1 anatomy proof&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::real-account storage smoke probe records accountBoundSkipped without env var (TC-109-real-account-skip)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-110">
+  <summary><span class="summary-label">TS-110 - T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth</span><span class="status draft">draft</span></summary>
+  <article id="TS-110" class="doc doc-ts">
+  <h3>TS-110 - T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8001">US-8001</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8001-1 via anatomy test: fixture JWT validates, principal reduces to {email,sub,groups} on request.auth</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8001-1">AC-8001-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-110-jwt-validator-pass">
+  <p><strong>TC-110-jwt-validator-pass</strong> - covers <a href="#AC-8001-1">AC-8001-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8001-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::JWT validator validates a fixture-signed JWT and reduces principal onto request auth (TC-110-jwt-validator-pass)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:18.024Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:10.788Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8001-1 via anatomy test: fixture JWT validates, principal reduces to {email,sub,groups} on request.auth&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8001-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-110&quot;,
+  &quot;usId&quot;: &quot;US-8001&quot;,
+  &quot;title&quot;: &quot;T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-110-jwt-validator-pass&quot;,
+      &quot;acId&quot;: &quot;AC-8001-1&quot;,
+      &quot;description&quot;: &quot;AC-8001-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::JWT validator validates a fixture-signed JWT and reduces principal onto request auth (TC-110-jwt-validator-pass)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-111">
+  <summary><span class="summary-label">TS-111 - T-4 JWT validator: reject cases return 401 with metadata-only audit event</span><span class="status draft">draft</span></summary>
+  <article id="TS-111" class="doc doc-ts">
+  <h3>TS-111 - T-4 JWT validator: reject cases return 401 with metadata-only audit event</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8002">US-8002</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8002-1 via anatomy test: missing, expired, mis-signed each 401 with allowed audit keys only</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8002-1">AC-8002-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-111-jwt-validator-reject">
+  <p><strong>TC-111-jwt-validator-reject</strong> - covers <a href="#AC-8002-1">AC-8002-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8002-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::JWT validator rejects missing expired and mis-signed with metadata-only audit event (TC-111-jwt-validator-reject)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:18.228Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:10.972Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8002-1 via anatomy test: missing, expired, mis-signed each 401 with allowed audit keys only&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8002-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-111&quot;,
+  &quot;usId&quot;: &quot;US-8002&quot;,
+  &quot;title&quot;: &quot;T-4 JWT validator: reject cases return 401 with metadata-only audit event&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-111-jwt-validator-reject&quot;,
+      &quot;acId&quot;: &quot;AC-8002-1&quot;,
+      &quot;description&quot;: &quot;AC-8002-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::JWT validator rejects missing expired and mis-signed with metadata-only audit event (TC-111-jwt-validator-reject)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-112">
+  <summary><span class="summary-label">TS-112 - T-4 sole-reader guarantee: src/jwt-validator.mjs is the only reader of the Cf-Access-Jwt-Assertion header</span><span class="status draft">draft</span></summary>
+  <article id="TS-112" class="doc doc-ts">
+  <h3>TS-112 - T-4 sole-reader guarantee: src/jwt-validator.mjs is the only reader of the Cf-Access-Jwt-Assertion header</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8003">US-8003</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8003-1 via anatomy test: fixture applied source tree grepped, only validator hits the header string in live source</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8003-1">AC-8003-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-112-sole-reader-boundary">
+  <p><strong>TC-112-sole-reader-boundary</strong> - covers <a href="#AC-8003-1">AC-8003-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8003-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::jwt-validator mjs is the sole reader of the Cf-Access-Jwt-Assertion header in the fixture source tree (TC-112-sole-reader-boundary)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:18.413Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:11.156Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8003-1 via anatomy test: fixture applied source tree grepped, only validator hits the header string in live source&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8003-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-112&quot;,
+  &quot;usId&quot;: &quot;US-8003&quot;,
+  &quot;title&quot;: &quot;T-4 sole-reader guarantee: src/jwt-validator.mjs is the only reader of the Cf-Access-Jwt-Assertion header&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-112-sole-reader-boundary&quot;,
+      &quot;acId&quot;: &quot;AC-8003-1&quot;,
+      &quot;description&quot;: &quot;AC-8003-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::jwt-validator mjs is the sole reader of the Cf-Access-Jwt-Assertion header in the fixture source tree (TC-112-sole-reader-boundary)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-113">
+  <summary><span class="summary-label">TS-113 - T-4 Access application declaration: elicits access-application-host/id and access-policy-shape</span><span class="status draft">draft</span></summary>
+  <article id="TS-113" class="doc doc-ts">
+  <h3>TS-113 - T-4 Access application declaration: elicits access-application-host/id and access-policy-shape</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8101">US-8101</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8101-1 via anatomy test: blueprint.json elicits block carries the expected ids and default values</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8101-1">AC-8101-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-113-elicits-application-declaration">
+  <p><strong>TC-113-elicits-application-declaration</strong> - covers <a href="#AC-8101-1">AC-8101-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8101-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::blueprint json elicits Access application host or self-hosted id plus policy shape enum (TC-113-elicits-application-declaration)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:18.597Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:11.340Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8101-1 via anatomy test: blueprint.json elicits block carries the expected ids and default values&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8101-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-113&quot;,
+  &quot;usId&quot;: &quot;US-8101&quot;,
+  &quot;title&quot;: &quot;T-4 Access application declaration: elicits access-application-host/id and access-policy-shape&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-113-elicits-application-declaration&quot;,
+      &quot;acId&quot;: &quot;AC-8101-1&quot;,
+      &quot;description&quot;: &quot;AC-8101-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::blueprint json elicits Access application host or self-hosted id plus policy shape enum (TC-113-elicits-application-declaration)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-114">
+  <summary><span class="summary-label">TS-114 - T-4 policy issuance guide: dashboard walk-through and API alternative documented</span><span class="status draft">draft</span></summary>
+  <article id="TS-114" class="doc doc-ts">
+  <h3>TS-114 - T-4 policy issuance guide: dashboard walk-through and API alternative documented</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8201">US-8201</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8201-1 via anatomy test: guide file greps for both section headings, curl example, and vendor URL</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8201-1">AC-8201-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-114-guide-policy-issuance">
+  <p><strong>TC-114-guide-policy-issuance</strong> - covers <a href="#AC-8201-1">AC-8201-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8201-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::guide carries dashboard walk-through and API alternative with vendor URL (TC-114-guide-policy-issuance)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:18.782Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:11.523Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8201-1 via anatomy test: guide file greps for both section headings, curl example, and vendor URL&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8201-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-114&quot;,
+  &quot;usId&quot;: &quot;US-8201&quot;,
+  &quot;title&quot;: &quot;T-4 policy issuance guide: dashboard walk-through and API alternative documented&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-114-guide-policy-issuance&quot;,
+      &quot;acId&quot;: &quot;AC-8201-1&quot;,
+      &quot;description&quot;: &quot;AC-8201-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::guide carries dashboard walk-through and API alternative with vendor URL (TC-114-guide-policy-issuance)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-115">
+  <summary><span class="summary-label">TS-115 - T-4 audit metadata secrecy: 10 records after 5+5 runs, no forbidden substrings</span><span class="status draft">draft</span></summary>
+  <article id="TS-115" class="doc doc-ts">
+  <h3>TS-115 - T-4 audit metadata secrecy: 10 records after 5+5 runs, no forbidden substrings</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8301">US-8301</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8301-1 via anatomy test: driver runs the validator 10 times and asserts sink shape</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8301-1">AC-8301-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-115-audit-metadata-secrecy">
+  <p><strong>TC-115-audit-metadata-secrecy</strong> - covers <a href="#AC-8301-1">AC-8301-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8301-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::audit sink after 5 pass 5 reject holds 10 metadata-only records with no forbidden substrings (TC-115-audit-metadata-secrecy)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:18.965Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:11.708Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8301-1 via anatomy test: driver runs the validator 10 times and asserts sink shape&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8301-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-115&quot;,
+  &quot;usId&quot;: &quot;US-8301&quot;,
+  &quot;title&quot;: &quot;T-4 audit metadata secrecy: 10 records after 5+5 runs, no forbidden substrings&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-115-audit-metadata-secrecy&quot;,
+      &quot;acId&quot;: &quot;AC-8301-1&quot;,
+      &quot;description&quot;: &quot;AC-8301-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::audit sink after 5 pass 5 reject holds 10 metadata-only records with no forbidden substrings (TC-115-audit-metadata-secrecy)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-116">
+  <summary><span class="summary-label">TS-116 - T-4 break-glass posture: bypass-service-auth pair authenticates and audits as outcome=bypass</span><span class="status draft">draft</span></summary>
+  <article id="TS-116" class="doc doc-ts">
+  <h3>TS-116 - T-4 break-glass posture: bypass-service-auth pair authenticates and audits as outcome=bypass</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8401">US-8401</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8401-1 via anatomy test: paired headers observed, principal service:&lt;id&gt;, audit outcome=bypass with allowed keys</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8401-1">AC-8401-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-116-break-glass-bypass">
+  <p><strong>TC-116-break-glass-bypass</strong> - covers <a href="#AC-8401-1">AC-8401-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8401-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::break-glass bypass-service-auth pair authenticates and audits outcome bypass with allowed keys (TC-116-break-glass-bypass)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:19.149Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:11.893Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8401-1 via anatomy test: paired headers observed, principal service:&lt;id&gt;, audit outcome=bypass with allowed keys&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8401-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-116&quot;,
+  &quot;usId&quot;: &quot;US-8401&quot;,
+  &quot;title&quot;: &quot;T-4 break-glass posture: bypass-service-auth pair authenticates and audits as outcome=bypass&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-116-break-glass-bypass&quot;,
+      &quot;acId&quot;: &quot;AC-8401-1&quot;,
+      &quot;description&quot;: &quot;AC-8401-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::break-glass bypass-service-auth pair authenticates and audits outcome bypass with allowed keys (TC-116-break-glass-bypass)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-117">
+  <summary><span class="summary-label">TS-117 - T-4 admin-console composition: sign-in surface flips per applied capability set</span><span class="status draft">draft</span></summary>
+  <article id="TS-117" class="doc doc-ts">
+  <h3>TS-117 - T-4 admin-console composition: sign-in surface flips per applied capability set</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8501">US-8501</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8501-1 via anatomy test: extended admin-console fixture DOM inspection on both caps combinations</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8501-1">AC-8501-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-117-admin-console-gate-surface">
+  <p><strong>TC-117-admin-console-gate-surface</strong> - covers <a href="#AC-8501-1">AC-8501-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8501-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::extended admin-console pack fixture flips sign-in surface per applied capability set (TC-117-admin-console-gate-surface)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:19.333Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:12.077Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8501-1 via anatomy test: extended admin-console fixture DOM inspection on both caps combinations&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8501-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-117&quot;,
+  &quot;usId&quot;: &quot;US-8501&quot;,
+  &quot;title&quot;: &quot;T-4 admin-console composition: sign-in surface flips per applied capability set&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-117-admin-console-gate-surface&quot;,
+      &quot;acId&quot;: &quot;AC-8501-1&quot;,
+      &quot;description&quot;: &quot;AC-8501-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::extended admin-console pack fixture flips sign-in surface per applied capability set (TC-117-admin-console-gate-surface)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-118">
+  <summary><span class="summary-label">TS-118 - T-4 admin-console v1.1.0 Access-gated surface: pack check AC-21815-1 fires on gated fixture</span><span class="status draft">draft</span></summary>
+  <article id="TS-118" class="doc doc-ts">
+  <h3>TS-118 - T-4 admin-console v1.1.0 Access-gated surface: pack check AC-21815-1 fires on gated fixture</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8601">US-8601</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8601-1 via anatomy test: gated caps combination renders access-gated surface and no local-login</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8601-1">AC-8601-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-118-admin-console-gated-pack-check">
+  <p><strong>TC-118-admin-console-gated-pack-check</strong> - covers <a href="#AC-8601-1">AC-8601-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8601-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::admin-console v1_1_0 pack check AC-21815-1 fires on gated caps combination (TC-118-admin-console-gated-pack-check)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:19.533Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:12.260Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8601-1 via anatomy test: gated caps combination renders access-gated surface and no local-login&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8601-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-118&quot;,
+  &quot;usId&quot;: &quot;US-8601&quot;,
+  &quot;title&quot;: &quot;T-4 admin-console v1.1.0 Access-gated surface: pack check AC-21815-1 fires on gated fixture&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-118-admin-console-gated-pack-check&quot;,
+      &quot;acId&quot;: &quot;AC-8601-1&quot;,
+      &quot;description&quot;: &quot;AC-8601-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::admin-console v1_1_0 pack check AC-21815-1 fires on gated caps combination (TC-118-admin-console-gated-pack-check)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-119">
+  <summary><span class="summary-label">TS-119 - T-4 admin-console v1.1.0 fallback: local-login surface renders without zeroTrustGate</span><span class="status draft">draft</span></summary>
+  <article id="TS-119" class="doc doc-ts">
+  <h3>TS-119 - T-4 admin-console v1.1.0 fallback: local-login surface renders without zeroTrustGate</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-8602">US-8602</a></p>
+  <p><strong>Purpose:</strong> Cover AC-8602-1 via anatomy test: non-gated caps combination renders local-login and no access-gated</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-8602-1">AC-8602-1</a>, <a href="#AC-8502-1">AC-8502-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-119-admin-console-fallback">
+  <p><strong>TC-119-admin-console-fallback</strong> - covers <a href="#AC-8602-1">AC-8602-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8602-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::admin-console v1_1_0 renders local-login surface on the non-gated caps combination (TC-119-admin-console-fallback)</code></p>
+</div>
+<div class="tc" id="TC-119-real-account-gated-url-skipped">
+  <p><strong>TC-119-real-account-gated-url-skipped</strong> - covers <a href="#AC-8502-1">AC-8502-1</a> <span class="status pending">pending</span></p>
+  <p>AC-8502-1 anatomy proof under real-account probe module and shim (accountBoundSkipped path in unit)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-access-anatomy.test.js::real-account-gated-url probe records accountBoundSkipped when env vars absent (TC-119-real-account-gated-url-skipped)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T16:52:19.718Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T16:53:12.816Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-8602-1 via anatomy test: non-gated caps combination renders local-login and no access-gated&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-8602-1&quot;,
+    &quot;AC-8502-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-119&quot;,
+  &quot;usId&quot;: &quot;US-8602&quot;,
+  &quot;title&quot;: &quot;T-4 admin-console v1.1.0 fallback: local-login surface renders without zeroTrustGate&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-119-admin-console-fallback&quot;,
+      &quot;acId&quot;: &quot;AC-8602-1&quot;,
+      &quot;description&quot;: &quot;AC-8602-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::admin-console v1_1_0 renders local-login surface on the non-gated caps combination (TC-119-admin-console-fallback)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-119-real-account-gated-url-skipped&quot;,
+      &quot;acId&quot;: &quot;AC-8502-1&quot;,
+      &quot;description&quot;: &quot;AC-8502-1 anatomy proof under real-account probe module and shim (accountBoundSkipped path in unit)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-access-anatomy.test.js::real-account-gated-url probe records accountBoundSkipped when env vars absent (TC-119-real-account-gated-url-skipped)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

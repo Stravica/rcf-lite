@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T16:49:29.505Z",
+  "updatedAt": "2026-09-07T16:51:26.217Z",
+  "usId": "US-8001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-080",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth",
+  "asA": "shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture",
+  "iWant": "the Cf-Access-Jwt-Assertion header validated against the Access JWKS on every request, the principal reduced into request.auth as {email, sub, groups} and the downstream handler observes 200 with the reduced principal fields",
+  "soThat": "the Worker only ever sees authenticated principals and downstream code reads a single stable seam for identity",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-8001-1",
+      "description": "The JWT validator reads Cf-Access-Jwt-Assertion, verifies against the fixture JWKS (RS256, kid rotation supported by cache), reduces the principal into request.auth as {email, sub, groups} and the downstream handler receives a 200 with the reduced principal fields exposed on request.auth.",
+      "given": "a Worker fetch handler wired with the createAccessValidator middleware and a fixture-signed JWT presented in the Cf-Access-Jwt-Assertion header",
+      "when": "the request dispatches through the validator",
+      "then": "the validator resolves, attaches {email, sub, groups} onto request.auth and delegates to the handler which returns 200 with request.auth reflected on the response body",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ]
+}

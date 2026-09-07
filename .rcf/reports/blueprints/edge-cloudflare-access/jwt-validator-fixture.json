@@ -1,0 +1,23 @@
+{
+  "slug": "edge-cloudflare-access",
+  "probeName": "jwt-validator-fixture",
+  "runAt": "2026-09-07T17:05:57.989Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process JWT validator on cf-edge fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-34101-1",
+      "verdict": "pass",
+      "detail": "validator resolved; principal reduces to {email:ada@example.com, sub:user:ada, groups:[\"admins\",\"shipping\"]}; request.auth attached; audit outcome=validated"
+    },
+    {
+      "anchorAcId": "AC-34101-1",
+      "verdict": "pass",
+      "detail": "one audit record with allowed keys only; outcome=validated email=ada@example.com path=/protected"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

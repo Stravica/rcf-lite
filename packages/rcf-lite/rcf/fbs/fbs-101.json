@@ -1,0 +1,16 @@
+{
+  "createdAt": "2026-09-07T16:53:43.745Z",
+  "updatedAt": "2026-09-07T17:14:56.177Z",
+  "acIds": [
+    "AC-8601-1",
+    "AC-8602-1"
+  ],
+  "fbsId": "FBS-101",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 57,
+  "executionStatus": "notStarted",
+  "title": "T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs",
+  "summary": "HQ round-6 T-4: application-admin-console v1.1.0 additive minor riding the edge-cloudflare-access PR (round-4 T-4 capability-minor pattern). Bumps blueprint.json to 1.1.0 with 6 new contributions: REQ-014, US-21815, US-21816, TAC-2214, ADR-2214 (scope global on new topic adminConsoleSignInSurface) and pack check AC-21815-1. Extends probe-pack-application-admin-console fixture with /admin/sign-in route. Updates admin-console CHANGELOG with v1.1.0 entry and guide with Access-gate consumption section. Q4 default: consumption is OPTIONAL. Repo chain: REQ-086, US-8601..8602, TAC-2214, ADR-2214.",
+  "dependsOnFbsIds": []
+}

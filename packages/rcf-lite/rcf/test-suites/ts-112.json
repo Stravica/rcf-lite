@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:18.413Z",
+  "updatedAt": "2026-09-07T16:53:11.156Z",
+  "purpose": "Cover AC-8003-1 via anatomy test: fixture applied source tree grepped, only validator hits the header string in live source",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8003-1"
+  ],
+  "id": "TS-112",
+  "usId": "US-8003",
+  "title": "T-4 sole-reader guarantee: src/jwt-validator.mjs is the only reader of the Cf-Access-Jwt-Assertion header",
+  "testCases": [
+    {
+      "id": "TC-112-sole-reader-boundary",
+      "acId": "AC-8003-1",
+      "description": "AC-8003-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::jwt-validator mjs is the sole reader of the Cf-Access-Jwt-Assertion header in the fixture source tree (TC-112-sole-reader-boundary)"
+    }
+  ],
+  "status": "draft"
+}

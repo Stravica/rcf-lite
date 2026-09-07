@@ -47,7 +47,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-charts | 18101-18899 | 19xx | shipped v1.0.0 | none |
 | application-dashboard | 19101-19899 | 20xx | shipped v1.0.0 | none |
 | application-notifications-in-app | 20101-20899 | 21xx | shipped v1.0.0 | none |
-| application-admin-console | 21101-21899 | 22xx | shipped v1.0.0 | none |
+| application-admin-console | 21101-21899 | 22xx | shipped v1.1.0 | `adminConsoleSignInSurface` |
 | application-empty-error-states | 22101-22899 | 23xx | shipped v1.0.0 | none |
 | application-file-upload | 23101-23899 | 24xx | shipped v1.0.0 | none |
 | application-forms-wizard | 24101-24899 | 25xx | shipped v1.0.0 | none |
@@ -60,6 +60,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |
 | platform-cloudflare-cron-triggers | 32101-32899 | 33xx | shipped v1.0.0 | `scheduledTriggerContract` |
 | platform-cloudflare-durable-objects | 33101-33899 | 34xx | shipped v1.0.0 | `strongConsistencyCellContract`, `websocketHubContract` |
+| edge-cloudflare-access | 34101-34899 | 35xx | shipped v1.0.0 | `edgeAuthenticationGate` |
 
 SPA v1.1.0 stays on the LOW end of its band: v1.0.0 occupied US-1101 through US-1128; v1.1.0 adds US-1129 and US-1130, leaving headroom above 1130 for future minor bumps and for project-side stories that mechanically derive to the 11xx numeric range.
 

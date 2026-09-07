@@ -1,0 +1,27 @@
+{
+  "usId": "application-admin-console-US-21816",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-014",
+  "version": "1.1.0",
+  "status": "approved",
+  "title": "Falls back to security-auth-* local login when zeroTrustGate is absent",
+  "asA": "shelf consumer applying application-admin-console v1.1.0 WITHOUT zeroTrustGate in the applied capability set",
+  "iWant": "the sign-in surface to render as the local security-auth-* surface with no Access-gated region",
+  "soThat": "the v1.1.0 admin-console remains backward-compatible with every v1.0.0 deployment that never adopted Access",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21816-1",
+      "description": "When application-admin-console v1.1.0 is applied without zeroTrustGate in appliedCapabilities, GET /admin/sign-in renders a region with [data-surface=local-login] and no [data-surface=access-gated] region is present. The local login form ships with data-role=local-login-form and data-action=local-sign-in controls.",
+      "given": "the extended admin-console pack fixture on ?caps=principalDirectory,roleModel,auditLog",
+      "when": "the pack drives GET /admin/sign-in",
+      "then": "the DOM carries [data-surface=local-login] and no [data-surface=access-gated]",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-2214-application-admin-console-access-gated-signin-surface"
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

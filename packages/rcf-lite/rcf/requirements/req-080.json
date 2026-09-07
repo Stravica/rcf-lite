@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T16:49:01.509Z",
+  "updatedAt": "2026-09-07T17:14:19.059Z",
+  "reqId": "REQ-080",
+  "prdId": "PRD-001",
+  "title": "T-4 edge-cloudflare-access v1.0.0 blueprint: the Access JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header and reduces principal onto request.auth",
+  "description": "The applying Workers project reaches Cloudflare Access through a single JWT validator module (src/jwt-validator.mjs) that is the ONLY module dereferencing the Cf-Access-Jwt-Assertion header. The validator fetches the JWKS from the elicited endpoint, caches keys per-kid, verifies the JWT and reduces the principal into request.auth as {email, sub, groups}. Chain: HQ round-6 T-4 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-080..089 / US-80xx..89xx / TS-110..119 / FBS-100..109 / CN-320..349).",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "1.0.0",
+  "status": "approved",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T16:49:01.543Z"
+  }
+}

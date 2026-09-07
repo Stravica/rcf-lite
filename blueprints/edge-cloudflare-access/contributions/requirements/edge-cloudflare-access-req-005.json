@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-access-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Break-glass posture: an elicited bypass-service-auth token pair authenticates CI automation with a distinct audit outcome",
+  "description": "The operator elicits a break-glass service-auth id (blueprint.json elicit access-bypass-service-auth-id) and a paired secret delegated to the applied security-secrets-management vault seam. When a request presents CF-Access-Client-Id and CF-Access-Client-Secret matching the elicited pair (or SIMULATE_BYPASS_SERVICE_AUTH forces the code path), the validator observes the pair, records outcome=bypass with the same metadata-only shape, and delegates to the handler with request.auth.email='service:'+id. Without an elicited pair the break-glass code path is disabled.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.4). Ships as v1.0.0 of edge-cloudflare-access.",
+  "tags": [
+    "blueprint:edge-cloudflare-access"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

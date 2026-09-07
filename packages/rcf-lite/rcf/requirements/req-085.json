@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T16:49:12.737Z",
+  "updatedAt": "2026-09-07T17:14:20.026Z",
+  "reqId": "REQ-085",
+  "prdId": "PRD-001",
+  "title": "T-4 edge-cloudflare-access v1.0.0: the composition with application-admin-console flips the sign-in surface when the applied capability set contains zeroTrustGate",
+  "description": "When application-admin-console v1.1.0 is applied alongside edge-cloudflare-access, the admin-console reads appliedCapabilities via readAppliedCapabilities() at apply-time and flips its sign-in surface between Access-gated and local-login.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "1.0.0",
+  "status": "approved",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T16:49:12.772Z"
+  }
+}

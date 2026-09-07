@@ -1,0 +1,20 @@
+{
+  "cnId": "CN-320",
+  "path": "../../blueprints/edge-cloudflare-access/blueprint.json",
+  "implementsAcIds": [
+    "AC-8001-1",
+    "AC-8002-1",
+    "AC-8003-1",
+    "AC-8101-1",
+    "AC-8201-1",
+    "AC-8301-1",
+    "AC-8401-1",
+    "AC-8501-1",
+    "AC-8502-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T16:53:57.879Z",
+  "updatedAt": "2026-09-07T16:53:57.879Z"
+}

@@ -1,0 +1,17 @@
+{
+  "reqId": "edge-cloudflare-access-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The Access JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header and reduces the principal onto request.auth",
+  "description": "The applying project reaches Cloudflare Access through a single JWT validator module (src/jwt-validator.mjs) that is the ONLY module dereferencing the Cf-Access-Jwt-Assertion header in the applied source tree per https://developers.cloudflare.com/cloudflare-one/policies/access/. The validator fetches the Access JWKS from the elicited endpoint, caches keys per-kid, verifies the JWT against the cached key matching the header's kid, and reduces the principal into request.auth as {email, sub, groups}. Every downstream handler reads request.auth only; no other module reaches the header.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.4). Ships as v1.0.0 of edge-cloudflare-access.",
+  "tags": [
+    "blueprint:edge-cloudflare-access"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

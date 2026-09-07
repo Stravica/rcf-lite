@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T16:49:31.448Z",
+  "updatedAt": "2026-09-07T16:51:53.213Z",
+  "usId": "US-8601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-086",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-4 admin-console v1.1.0: Access-gated sign-in surface with no local login form and principal reads from request.auth",
+  "asA": "shelf consumer applying application-admin-console v1.1.0 with zeroTrustGate in the applied capability set",
+  "iWant": "the sign-in surface to render as Access-gated with no local login form and to read the principal from request.auth",
+  "soThat": "the admin console composes with edge-cloudflare-access at the sign-in seam and never re-collects credentials in an Access-gated deployment",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-8601-1",
+      "description": "The repo-chain AC for the admin-console v1.1.0 Access-gated sign-in surface. The shipped pack check on application-admin-console.pack.mjs (id AC-21815-1 in the blueprint's own band) asserts that when application-admin-console v1.1.0 is applied with zeroTrustGate in appliedCapabilities, GET /admin/sign-in renders a region with [data-surface=access-gated], no [data-surface=local-login] region is present, and a [data-role=principal-read] element renders the principal email read from request.auth.",
+      "given": "the extended admin-console pack fixture on ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate",
+      "when": "the pack drives GET /admin/sign-in",
+      "then": "the DOM carries [data-surface=access-gated], no [data-surface=local-login], and a [data-role=principal-read] with the request.auth email",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-access-US-34108",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-access-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Admin-console composition: the sign-in surface flips per applied capability set",
+  "asA": "shelf consumer applying both edge-cloudflare-access and application-admin-console v1.1.0",
+  "iWant": "the admin-console sign-in surface to flip to Access-gated when zeroTrustGate is applied, and to fall back to the local security-auth-* surface otherwise",
+  "soThat": "the composition is deterministic and no local login form leaks into an Access-gated deployment",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-34108-1",
+      "description": "Two applied combinations are exercised on the extended admin-console fixture: with ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate the sign-in surface renders [data-surface=access-gated] and no [data-surface=local-login] is present; with ?caps=principalDirectory,roleModel,auditLog the sign-in surface renders [data-surface=local-login] and no [data-surface=access-gated] is present. Both combinations exercise the shipped pack check AC-21815-1 on application-admin-console.pack.mjs (pack check fires only on the gated combination).",
+      "given": "the extended admin-console pack fixture with the two caps combinations",
+      "when": "the pack runs against each combination",
+      "then": "AC-21815-1 fires on the gated combination and passes; the existing v1.0.0 surface renders on the non-gated combination and its own checks pass",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3502-edge-cloudflare-access-application-declaration"
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

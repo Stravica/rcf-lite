@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 51,
-    "covered": 51,
+    "requirements": 58,
+    "covered": 58,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -2784,6 +2784,143 @@
           "covered": true,
           "testCases": [
             "TC-108-wrangler-do-bindings"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-080",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-8001-1",
+          "covered": true,
+          "testCases": [
+            "TC-110-jwt-validator-pass"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-8002-1",
+          "covered": true,
+          "testCases": [
+            "TC-111-jwt-validator-reject"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-8003-1",
+          "covered": true,
+          "testCases": [
+            "TC-112-sole-reader-boundary"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-081",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-8101-1",
+          "covered": true,
+          "testCases": [
+            "TC-113-elicits-application-declaration"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-082",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-8201-1",
+          "covered": true,
+          "testCases": [
+            "TC-114-guide-policy-issuance"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-083",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-8301-1",
+          "covered": true,
+          "testCases": [
+            "TC-115-audit-metadata-secrecy"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-084",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-8401-1",
+          "covered": true,
+          "testCases": [
+            "TC-116-break-glass-bypass"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-085",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-8501-1",
+          "covered": true,
+          "testCases": [
+            "TC-117-admin-console-gate-surface"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-8502-1",
+          "covered": true,
+          "testCases": [
+            "TC-119-real-account-gated-url-skipped"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-086",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-8601-1",
+          "covered": true,
+          "testCases": [
+            "TC-118-admin-console-gated-pack-check"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-8602-1",
+          "covered": true,
+          "testCases": [
+            "TC-119-admin-console-fallback"
           ],
           "unresolvedTestCases": []
         }

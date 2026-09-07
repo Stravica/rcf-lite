@@ -1,0 +1,19 @@
+{
+  "name": "cf-edge-fixture",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sample-app fixture for the edge-cloudflare-access v1.0.0 blueprint. Ships a minimal Worker entry, the JWT validator middleware (sole reader of Cf-Access-Jwt-Assertion), a dependency-free fixture-JWT signer and a local JWKS server for the probe harnesses.",
+  "scripts": {
+    "start": "wrangler dev",
+    "access-probe-jwt-validator-fixture": "node ../../../../../blueprints/edge-cloudflare-access/contributions/probes/run-jwt-validator-fixture.mjs",
+    "access-probe-jwt-validator-reject": "node ../../../../../blueprints/edge-cloudflare-access/contributions/probes/run-jwt-validator-reject.mjs",
+    "access-probe-admin-console-gate-surface": "node ../../../../../blueprints/edge-cloudflare-access/contributions/probes/run-admin-console-gate-surface.mjs",
+    "access-probe-audit-event-secrecy": "node ../../../../../blueprints/edge-cloudflare-access/contributions/probes/run-audit-event-secrecy.mjs",
+    "access-probe-real-account-gated-url": "node ../../../../../blueprints/edge-cloudflare-access/contributions/probes/run-real-account-gated-url.mjs",
+    "access-probe-wrangler-seam": "node ../../../../../blueprints/edge-cloudflare-access/contributions/probes/run-wrangler-seam.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

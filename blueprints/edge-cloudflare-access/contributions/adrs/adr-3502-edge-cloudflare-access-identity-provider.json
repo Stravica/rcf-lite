@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-3502-edge-cloudflare-access-identity-provider",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Identity provider for the Access application is elicited (recommendedDefault null)",
+  "context": "Cloudflare Access supports many identity providers: One-Time PIN over email, Google, GitHub, Okta, Microsoft Entra ID, SAML, OIDC, mTLS. The choice is an enterprise-integration decision that the shelf cannot pick for the operator: a solo project may take One-Time PIN; a mid-market SaaS may take Google Workspace; a regulated enterprise may take an SSO federation via SAML/OIDC.",
+  "decision": "Identity provider is elicited (elicited: true). No recommended default: recommendedDefault is null. The applied-sidecar records the operator's answer; the guide's dashboard walk-through and API alternative both operate on the selected provider. The break-glass service-auth pair (ADR-3503's elicited posture) is still available regardless of the identity provider, so CI can hit the Worker on top of any provider choice.",
+  "consequences": "The elicitation forces an explicit operator answer at apply. A workspace that never sets an identity provider cannot apply the blueprint (recommendedDefault=null refuses on apply per the shelf norm). Standards trace clause: generic enterprise practice (per the sentinel; no vendor documentation constrains which identity provider a Cloudflare Access application must use).",
+  "alternativesConsidered": [
+    {
+      "name": "Default to One-Time PIN over email",
+      "summary": "Pick OTP as the shipped default so a fresh project applies without an elicitation answer.",
+      "reasonNotChosen": "OTP is a stopgap for prototypes and personal projects; shipping it as the default would push operators to accept it silently in production. Making the choice explicit at apply is the honest posture."
+    },
+    {
+      "name": "Bind to security-auth-* companion",
+      "summary": "Derive the identity provider from whichever security-auth-* blueprint is applied.",
+      "reasonNotChosen": "Cloudflare Access is a distinct identity boundary from a same-app security-auth-* (Clerk, Keycloak, OAuth2, magic-link); an operator running Clerk in the app and Google Workspace as the Access IdP is a legitimate composition. Inference here would surprise the operator."
+    }
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

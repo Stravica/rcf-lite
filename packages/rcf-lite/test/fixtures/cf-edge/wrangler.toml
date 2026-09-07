@@ -1,0 +1,28 @@
+# cf-edge sample-app fixture for the edge-cloudflare-access v1.0.0
+# blueprint (Cloudflare round 6 spec section 3.3, T-4 mints it).
+# A minimal Workers project applying deploy-cloudflare-workers v1.2.0
+# plus edge-cloudflare-access; no live Cloudflare Access binding
+# (Access is enforced at the CF edge in production, not in fixture
+# code). The JWT validator middleware reads the header, validates
+# against a local JWKS served by the fixture at /.well-known/jwks.json,
+# and rejects 401 with a metadata-only audit event on the injected
+# sink. Break-glass takes the CF-Access-Client-Id / -Secret header pair
+# when the elicited bypass-service-auth is applied.
+
+name = "cf-edge"
+main = "src/index.mjs"
+compatibility_date = "2026-09-06"
+
+[assets]
+directory = "./dist"
+run_worker_first = true
+
+# Elicited env vars for the JWT validator: the JWKS URL points at
+# the fixture's in-process JWKS endpoint under wrangler dev; a
+# production project points it at
+# https://<team>.cloudflareaccess.com/cdn-cgi/access/certs and
+# supplies the paired audience tag. Applying the blueprint records
+# these on rcf/blueprints/edge-cloudflare-access.applied.json.
+[vars]
+ACCESS_JWKS_URL = "http://127.0.0.1:8788/.well-known/jwks.json"
+ACCESS_AUDIENCE = "cf-edge-fixture-audience"

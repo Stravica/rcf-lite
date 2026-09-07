@@ -1,0 +1,12 @@
+{
+  "adrId": "ADR-3504-edge-cloudflare-access-audit-retention",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Audit retention window (metadata-only fields) is delegated to the applied logging companion",
+  "context": "The validator emits one audit event per outcome with the metadata-only shape {email, outcome, timestamp, path} per REQ-004. Long-term retention (7 days, 90 days, 7 years) is a compliance decision an application-level logging companion (observability-logging, or a dedicated audit-log blueprint) already answers; a per-blueprint retention window would duplicate the answer and diverge over time.",
+  "decision": "The audit event shape is frozen at the validator boundary; retention is delegated verbatim to the applied logging companion (suggestedCompanions[0]). The blueprint declares no retention policy of its own. Standards trace clause: generic enterprise practice (per the sentinel; the metadata-only shape is the blueprint's contribution, retention is the companion's).",
+  "consequences": "A workspace without a logging companion loses the audit events after the Worker context tears down (per Cloudflare Workers semantics); the guide names the trade at apply. A workspace with observability-logging v1.x applied inherits its retention window unchanged.",
+  "alternativesConsidered": []
+}

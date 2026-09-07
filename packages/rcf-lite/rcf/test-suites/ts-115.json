@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:18.965Z",
+  "updatedAt": "2026-09-07T16:53:11.708Z",
+  "purpose": "Cover AC-8301-1 via anatomy test: driver runs the validator 10 times and asserts sink shape",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8301-1"
+  ],
+  "id": "TS-115",
+  "usId": "US-8301",
+  "title": "T-4 audit metadata secrecy: 10 records after 5+5 runs, no forbidden substrings",
+  "testCases": [
+    {
+      "id": "TC-115-audit-metadata-secrecy",
+      "acId": "AC-8301-1",
+      "description": "AC-8301-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::audit sink after 5 pass 5 reject holds 10 metadata-only records with no forbidden substrings (TC-115-audit-metadata-secrecy)"
+    }
+  ],
+  "status": "draft"
+}

@@ -138,7 +138,12 @@ const expectedCounts = {
   // via --id) (39 -> 43).
   // Cloudflare round 6 T-3 added REQ-070..077 for the T-3
   // platform-cloudflare-durable-objects v1.0.0 blueprint (43 -> 51).
-  req: 51,
+  // Cloudflare round 6 T-4 (w-2026-09-06-dave-029) added REQ-080..085
+  // for the edge-cloudflare-access v1.0.0 blueprint plus REQ-086 for
+  // the application-admin-console v1.1.0 additive minor riding the
+  // same PR (round-4 T-4 capability-minor pattern), per HQ
+  // reserved-block ruling 2026-09-07 (51 -> 58).
+  req: 58,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -175,9 +180,16 @@ const expectedCounts = {
   // Cloudflare round 6 T-3 added US-7001, US-7002, US-7101,
   // US-7201, US-7301, US-7401, US-7402, US-7501, US-7601 and
   // US-7701 per HQ reserved-block ruling 2026-09-07 (79 -> 89).
-  userStory: 89,
+  // Cloudflare round 6 T-4 added US-8001..8003 (three USs on REQ-080),
+  // US-8101 (REQ-081), US-8201 (REQ-082), US-8301 (REQ-083), US-8401
+  // (REQ-084), US-8501..8502 (REQ-085), US-8601..8602 (REQ-086) per
+  // HQ reserved-block ruling 2026-09-07 (89 -> 100).
+  userStory: 100,
   tad: 1,
-  tac: 8,
+  // Cloudflare round 6 T-4 added TAC-3501..3504 (Access JWT validator,
+  // application declaration, policy shape, audit sink) plus TAC-2214
+  // (admin-console v1.1.0 Access-gated sign-in surface) (8 -> 13).
+  tac: 13,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
   // AC sets. See test/store/walker.test.js's expected-count comment.
   //
@@ -189,7 +201,12 @@ const expectedCounts = {
   // Phase 3.5 rev-3 (w-2026-08-19-008): ADR-010 records the topic-
   // as-free-label-lookup-key decision (Baz ruling, camelCase canonical
   // on shipped blueprints).
-  adr: 10,
+  // Cloudflare round 6 T-4 added ADR-3501..3504 (JWT gate scope global
+  // on new topic edgeAuthenticationGate, identity provider elicited,
+  // policy scope, audit retention delegated) plus ADR-2214 (admin-console
+  // v1.1.0 reads zeroTrustGate at apply-time, scope global on new topic
+  // adminConsoleSignInSurface) (10 -> 15).
+  adr: 15,
   buildSequence: 1,
   // FBS-027 covers the remove-resolution verb (US-1204). Core companions
   // train added FBS-028..034 (7 FBSs, one per US on REQ-013/014/015).
@@ -224,7 +241,10 @@ const expectedCounts = {
   // (buildOrder 54, next-free after FBS-070 at 53) (53 -> 54).
   // Cloudflare round 6 T-3 added FBS-090 (buildOrder next-free
   // after FBS-080 at 54) (54 -> 55).
-  fbs: 55,
+  // Cloudflare round 6 T-4 added FBS-100 (edge-cloudflare-access v1.0.0
+  // buildOrder 56) and FBS-101 (application-admin-console v1.1.0
+  // buildOrder 57) (55 -> 57).
+  fbs: 57,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -339,7 +359,12 @@ const expectedCounts = {
   // blueprint.json, cf-platform DO facade, single-cell, hub and
   // storage driver, seven probe modules, probe-utils and the
   // anatomy test (217 -> 232).
-  codeNode: 232,
+  // Cloudflare round 6 T-4 added CN-320 (edge-cloudflare-access
+  // blueprint.json anchoring the nine edge ACs) and CN-321
+  // (application-admin-console blueprint.json anchoring the three
+  // v1.1.0 delta ACs) per HQ reserved-block ruling 2026-09-07
+  // (232 -> 234).
+  codeNode: 234,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -375,7 +400,10 @@ const expectedCounts = {
   // per HQ reserved-block ruling 2026-09-07T12:25Z (72 -> 79).
   // Cloudflare round 6 T-3 added TS-100..109 paired with the ten
   // T-3 USs per HQ reserved-block ruling 2026-09-07 (79 -> 89).
-  testSuite: 89,
+  // Cloudflare round 6 T-4 added TS-110..119 paired with the ten
+  // T-4 USs (US-8001..US-8602) per HQ reserved-block ruling
+  // 2026-09-07 (89 -> 100).
+  testSuite: 99,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

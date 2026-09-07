@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 55,
-    "notStarted": 27,
+    "items": 57,
+    "notStarted": 29,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 17,
+    "actionable": 19,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -43,7 +43,9 @@
         "FBS-063",
         "FBS-070",
         "FBS-080",
-        "FBS-090"
+        "FBS-090",
+        "FBS-100",
+        "FBS-101"
       ]
     },
     {
@@ -759,6 +761,26 @@
       "buildOrder": 55,
       "tier": 0,
       "title": "T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-100",
+      "buildOrder": 56,
+      "tier": 0,
+      "title": "T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-101",
+      "buildOrder": 57,
+      "tier": 0,
+      "title": "T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

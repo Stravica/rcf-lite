@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3501-edge-cloudflare-access-jwt-gate",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Edge authentication gate: Cloudflare Access Zero-Trust JWT-assertion gate (scope global, new topic edgeAuthenticationGate)",
+  "context": "An applying Workers project has one native edge-authentication answer today: Cloudflare Access. Access enforces the policy at the CF edge, mints a short-lived JWT signed with its own JWKS, and forwards the JWT to the origin Worker in the Cf-Access-Jwt-Assertion header per https://developers.cloudflare.com/cloudflare-one/policies/access/. Every applied Worker needs one project-wide answer to the edgeAuthenticationGate topic; a future non-Cloudflare sibling (Google Cloud IAP, AWS Verified Access, Duo Beyond) would conflict on the same topic.",
+  "decision": "The shipped v1.0.0 default is Cloudflare Access's Zero-Trust JWT-assertion gate. The JWT validator (TAC-3501) is the sole reader of the Cf-Access-Jwt-Assertion header and reduces the principal onto request.auth. The edgeAuthenticationGate topic scope is global on this blueprint; the topic string is edgeAuthenticationGate (lower camel case, one concept per topic, no version suffix). A future non-Cloudflare adapter would contribute the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR.",
+  "consequences": "The applying project inherits Cloudflare's documented Access policy model, the platform-assigned per-application limits and the JWT rotation cadence Access publishes at https://<team>.cloudflareaccess.com/cdn-cgi/access/certs. Standards trace clause: Cloudflare Access policy actions and rule selectors (per https://developers.cloudflare.com/cloudflare-one/policies/access/). Consumers deploying to a non-Cloudflare edge reach for a sibling adapter blueprint that would land as a v1.x minor on this shelf.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

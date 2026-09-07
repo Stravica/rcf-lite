@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-access-US-34104",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-access-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Access application declared with elicited hostname or self-hosted-app id and elicited policy shape",
+  "asA": "operator applying the edge-cloudflare-access v1.0.0 blueprint",
+  "iWant": "the blueprint to elicit either an Access application hostname or a self-hosted-app id (one of the two), plus a policy shape from the enum",
+  "soThat": "the apply record captures the exact Access application declaration the operator will issue in the Zero Trust dashboard or over the API",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-34104-1",
+      "description": "blueprint.json elicits access-application-host (kind string) and access-selfhosted-app-id (kind string; the operator supplies exactly one), plus access-audience (kind string), access-jwks-url (kind string), access-policy-shape (kind enum with options email-domain, service-token-only, service-token-plus-email-domain, group-membership; recommended default email-domain) and access-bypass-service-auth-id (kind string; blank disables break-glass). Applying the blueprint records the elicited values on rcf/blueprints/edge-cloudflare-access.applied.json.",
+      "given": "the blueprint.json elicits block",
+      "when": "the apply verb runs against a fixture project",
+      "then": "rcf/blueprints/edge-cloudflare-access.applied.json carries the elicited values plus appliedCapabilities=[zeroTrustGate]",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [
+    "TAC-3502-edge-cloudflare-access-application-declaration"
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

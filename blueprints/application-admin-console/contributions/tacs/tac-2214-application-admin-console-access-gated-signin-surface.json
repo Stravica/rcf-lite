@@ -1,0 +1,32 @@
+{
+  "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.1.0",
+  "status": "approved",
+  "name": "Access-gated sign-in surface with principal-read-from-request contract",
+  "purpose": "Names the sign-in surface shape the admin-console renders when zeroTrustGate is in the applied capability set. The Access-gated shape carries [data-surface=access-gated], no local form, and a [data-role=principal-read] element rendering the principal email read from request.auth. The fallback shape (zeroTrustGate absent) carries [data-surface=local-login] with the security-auth-* local login form. The two are mutually exclusive on any /admin/sign-in render.",
+  "responsibilities": [
+    "Render the Access-gated surface with [data-surface=access-gated] when zeroTrustGate is in appliedCapabilities (AC-21815-1).",
+    "Render the local-login surface with [data-surface=local-login] when zeroTrustGate is absent (AC-21816-1).",
+    "Read the principal email from request.auth and render it in [data-role=principal-read] on the gated branch.",
+    "Never render both surfaces on the same request; ensure the two are mutually exclusive per applied set."
+  ],
+  "internalStructure": "Applied-capability-driven surface pick in the sign-in route. The applied-sidecar (rcf/blueprints/application-admin-console.applied.json) records the appliedCapabilities set; the shipped readAppliedCapabilities() helper reads it at apply-time (T-5 visual-round mechanism). No new elicits on the admin-console side: the sign-in seam is deterministic once the applied set is known.",
+  "interfaces": [
+    {
+      "name": "GET /admin/sign-in",
+      "kind": "route",
+      "summary": "Sign-in surface route the admin-console shell renders per applied-capability set."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "T-4 edge-cloudflare-access v1.0.0 (zeroTrustGate provider)",
+      "kind": "blueprint",
+      "description": "Applied alongside admin-console v1.1.0 to compose the Access-gated sign-in surface."
+    }
+  ],
+  "createdAt": "2026-09-07T16:00:00.000Z",
+  "updatedAt": "2026-09-07T16:00:00.000Z"
+}

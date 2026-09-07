@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-07T16:52:19.718Z",
+  "updatedAt": "2026-09-07T16:53:12.816Z",
+  "purpose": "Cover AC-8602-1 via anatomy test: non-gated caps combination renders local-login and no access-gated",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8602-1",
+    "AC-8502-1"
+  ],
+  "id": "TS-119",
+  "usId": "US-8602",
+  "title": "T-4 admin-console v1.1.0 fallback: local-login surface renders without zeroTrustGate",
+  "testCases": [
+    {
+      "id": "TC-119-admin-console-fallback",
+      "acId": "AC-8602-1",
+      "description": "AC-8602-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::admin-console v1_1_0 renders local-login surface on the non-gated caps combination (TC-119-admin-console-fallback)"
+    },
+    {
+      "id": "TC-119-real-account-gated-url-skipped",
+      "acId": "AC-8502-1",
+      "description": "AC-8502-1 anatomy proof under real-account probe module and shim (accountBoundSkipped path in unit)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::real-account-gated-url probe records accountBoundSkipped when env vars absent (TC-119-real-account-gated-url-skipped)"
+    }
+  ],
+  "status": "draft"
+}

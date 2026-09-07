@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:18.782Z",
+  "updatedAt": "2026-09-07T16:53:11.523Z",
+  "purpose": "Cover AC-8201-1 via anatomy test: guide file greps for both section headings, curl example, and vendor URL",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8201-1"
+  ],
+  "id": "TS-114",
+  "usId": "US-8201",
+  "title": "T-4 policy issuance guide: dashboard walk-through and API alternative documented",
+  "testCases": [
+    {
+      "id": "TC-114-guide-policy-issuance",
+      "acId": "AC-8201-1",
+      "description": "AC-8201-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::guide carries dashboard walk-through and API alternative with vendor URL (TC-114-guide-policy-issuance)"
+    }
+  ],
+  "status": "draft"
+}

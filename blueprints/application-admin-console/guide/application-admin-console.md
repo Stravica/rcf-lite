@@ -27,3 +27,27 @@ The blueprint's README lists the runtime-observable ACs the pack does NOT bind d
 - The role catalogue label vocabulary drifts across three or more applied auth blueprints: candidate for a `roleModel` global topic in a v1.1.0 minor.
 - The tenancy shape needs a real shelf provider: candidate for the `application-tenancy-orgs` blueprint (spec section 11).
 - A dedicated audit-log blueprint ships: candidate for the console to consume it directly via `capabilities: ["auditLog"]` rather than through the logging companion.
+
+## v1.1.0 minor: Access-gate consumption (Cloudflare round 6 T-4)
+
+Applying `edge-cloudflare-access` v1.0.0 alongside `application-admin-console` v1.1.0 flips the sign-in surface on `/admin/sign-in`. The admin-console reads `appliedCapabilities` at apply-time via the shipped `readAppliedCapabilities()` helper (the T-5 visual-round mechanism).
+
+- With `zeroTrustGate` in the applied set: the sign-in page renders `[data-surface=access-gated]` with no local login form. A `[data-role=principal-read]` element carries the principal email the `edge-cloudflare-access` JWT validator attached to `request.auth`. The shipped pack check `AC-21815-1` on `application-admin-console.pack.mjs` asserts the shape.
+- Without `zeroTrustGate`: the sign-in page renders `[data-surface=local-login]` with the local `security-auth-*` form unchanged from v1.0.0. Every v1.0.0 deployment continues to work; the minor is strictly additive.
+
+The Q4 default (spec section 5.4.1) is: consumption is OPTIONAL. `requiresAppliedCapabilities.capabilities[]` remains `["principalDirectory"]`; making Access-gate hard is a v2.0 change (the fallback branch would be removed).
+
+Composed apply-line, one project:
+
+```
+rcf define blueprint add application-admin-console --version 1.1.0
+rcf define blueprint add edge-cloudflare-access --version 1.0.0 --answer access-application-host=admin.example.com --answer access-audience=<audience> --answer access-jwks-url=https://<team>.cloudflareaccess.com/cdn-cgi/access/certs --answer access-policy-shape=email-domain
+```
+
+Fall-back apply-line (no Access; the v1.1.0 admin-console behaves identically to v1.0.0):
+
+```
+rcf define blueprint add application-admin-console --version 1.1.0
+```
+
+Standards trace clause for the ADR: `Cloudflare round 6 spec section 5.4 (admin-console v1.1.0 delta)`.

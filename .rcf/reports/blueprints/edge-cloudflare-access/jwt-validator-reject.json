@@ -1,0 +1,28 @@
+{
+  "slug": "edge-cloudflare-access",
+  "probeName": "jwt-validator-reject",
+  "runAt": "2026-09-07T17:05:58.059Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process JWT validator on cf-edge fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-34102-1",
+      "verdict": "pass",
+      "detail": "subcase missing: 401 with one audit event, allowed keys only (email,outcome,path,timestamp), outcome=missing"
+    },
+    {
+      "anchorAcId": "AC-34102-1",
+      "verdict": "pass",
+      "detail": "subcase expired: 401 with one audit event, allowed keys only (email,outcome,path,timestamp), outcome=expired"
+    },
+    {
+      "anchorAcId": "AC-34102-1",
+      "verdict": "pass",
+      "detail": "subcase mis-signed: 401 with one audit event, allowed keys only (email,outcome,path,timestamp), outcome=invalid"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

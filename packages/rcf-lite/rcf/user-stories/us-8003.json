@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T16:49:29.941Z",
+  "updatedAt": "2026-09-07T16:51:26.586Z",
+  "usId": "US-8003",
+  "prdId": "PRD-001",
+  "reqId": "REQ-080",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-4 JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header in the applied source tree",
+  "asA": "shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture",
+  "iWant": "only src/jwt-validator.mjs to dereference the Cf-Access-Jwt-Assertion header string in the applied source tree",
+  "soThat": "the validator is the single seam and a stray header read in the applied code is a defect the AST scan catches",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-8003-1",
+      "description": "The sole-reader scan walks the fixture applied source root (src/**/*.mjs), strips comments and string literals, and finds exactly one live source occurrence of the header string Cf-Access-Jwt-Assertion, in src/jwt-validator.mjs. Any other occurrence in a shipped module fails the probe.",
+      "given": "the cf-edge fixture applied source tree",
+      "when": "the sole-reader-scan probe walks src/**/*.mjs",
+      "then": "the only live-source hit for Cf-Access-Jwt-Assertion is in src/jwt-validator.mjs; SIMULATE_NON_VALIDATOR_HEADER=true injects a second hit and the probe fails",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ]
+}

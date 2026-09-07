@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T16:53:43.560Z",
+  "updatedAt": "2026-09-07T17:14:55.992Z",
+  "acIds": [
+    "AC-8001-1",
+    "AC-8002-1",
+    "AC-8003-1",
+    "AC-8101-1",
+    "AC-8201-1",
+    "AC-8301-1",
+    "AC-8401-1",
+    "AC-8501-1",
+    "AC-8502-1"
+  ],
+  "fbsId": "FBS-100",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 56,
+  "executionStatus": "notStarted",
+  "title": "T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test",
+  "summary": "HQ round-6 T-4: edge-cloudflare-access v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-access/. Ships cf-edge fixture with sole-reader JWT validator (Node crypto RS256), local JWKS server and fixture-JWT signer; 6 Node-only probes (4 in-process pass, 1 admin-console gate-surface, 1 accountBound real-account, 1 wrangler-seam warn-on-bind-miss); README, guide with Zero Trust dashboard walk-through and API alternative plus policy shape enum table and break-glass section, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep on 33 blueprints; section 6a zeroTrustGate row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-080..085, US-8001..8502, TS-110..119 plus TCs, FBS-100..101, CN-320..321, TAC-3501..3504, ADR-3501..3504 minted via rcf define create --id per HQ round-6 T-4 reserved-block ruling 2026-09-07. Base commit origin/main cdf84ee.",
+  "dependsOnFbsIds": []
+}

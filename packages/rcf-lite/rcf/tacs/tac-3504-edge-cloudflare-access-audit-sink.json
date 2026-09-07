@@ -1,0 +1,15 @@
+{
+  "createdAt": "2026-09-07T16:53:44.481Z",
+  "updatedAt": "2026-09-07T17:03:10.205Z",
+  "tacId": "TAC-3504-edge-cloudflare-access-audit-sink",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "purpose": "Access audit sink contract: metadata-only shape {email, outcome, timestamp, path}; frozen at the validator boundary; retention delegated to the applied logging companion.",
+  "responsibilities": [
+    "Realise the shape named in the purpose statement.",
+    "Bind the anchored ACs on the shipped probes and the extended admin-console pack."
+  ],
+  "name": "Access audit sink with metadata-only shape"
+}

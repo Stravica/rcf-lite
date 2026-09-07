@@ -1,0 +1,30 @@
+{
+  "slug": "edge-cloudflare-access",
+  "probeName": "wrangler-seam",
+  "runAt": "2026-09-07T17:20:05.596Z",
+  "engine": {
+    "kind": "wrangler-dev",
+    "image": "wrangler dev (workerd) on cf-edge fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-34101-1",
+      "verdict": "pass",
+      "detail": "workerd /protected (no header) returned HTTP 401 - the shipped validator's missing-header reject path fires at the edge"
+    },
+    {
+      "anchorAcId": "AC-34101-1",
+      "verdict": "pass",
+      "detail": "workerd /protected (fixture-signed JWT) returned HTTP 200 with request.auth reflected on the body (email=ada@example.com)"
+    },
+    {
+      "anchorAcId": "AC-34101-1",
+      "verdict": "pass",
+      "detail": "workerd /health returned HTTP 200 (health path exempt from the validator, LB-reachable)"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "wranglerBinPresent": true,
+  "boundUrl": "http://127.0.0.1:55209"
+}

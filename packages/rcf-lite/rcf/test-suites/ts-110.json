@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T16:52:18.024Z",
+  "updatedAt": "2026-09-07T16:53:10.788Z",
+  "purpose": "Cover AC-8001-1 via anatomy test: fixture JWT validates, principal reduces to {email,sub,groups} on request.auth",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-8001-1"
+  ],
+  "id": "TS-110",
+  "usId": "US-8001",
+  "title": "T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth",
+  "testCases": [
+    {
+      "id": "TC-110-jwt-validator-pass",
+      "acId": "AC-8001-1",
+      "description": "AC-8001-1 anatomy proof",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-access-anatomy.test.js::JWT validator validates a fixture-signed JWT and reduces principal onto request auth (TC-110-jwt-validator-pass)"
+    }
+  ],
+  "status": "draft"
+}
