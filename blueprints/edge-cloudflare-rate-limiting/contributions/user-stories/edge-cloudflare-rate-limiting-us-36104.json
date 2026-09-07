@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-rate-limiting-US-36104",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-rate-limiting-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Drift-audit runner reads live zone rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only records",
+  "asA": "operator on the applying project running the scheduled drift-audit runner behind the elicited cadence (daily or hourly)",
+  "iWant": "the runner to fetch the live rule set from the Cloudflare API for the elicited zone and diff every rule against the local manifest, constructing one drift-audit record per mismatched rule with the metadata-only shape and writing a report to .rcf/reports/blueprints/edge-cloudflare-rate-limiting/",
+  "soThat": "manifest drift (a rule changed on the dashboard without a manifest update, or vice versa) is surfaced through the logging companion at the elicited cadence rather than lingering unnoticed",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-36104-1",
+      "description": "Given a synthetic drift scenario (a fixture manifest file that names threshold 10 and a fake live-zone response that reports threshold 20 on the same rule id), the drift-audit runner's diff step constructs one drift record per mismatched rule; the record carries {ruleId, outcome: driftDetected, timestamp, diff: [field: threshold, manifestValue: 10, liveValue: 20]} and NO full IP, NO request body, NO user agent; when the cadence elicit is off the runner is not wired and no report is written.",
+      "given": "the cf-edge fixture with the committed manifest and a synthetic Cloudflare API response with one mismatched rule",
+      "when": "the drift-audit runner's diff step runs against the pair",
+      "then": "one drift record is constructed per mismatched rule with the metadata-only shape and the report writes to .rcf/reports/blueprints/edge-cloudflare-rate-limiting/",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
+  ],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

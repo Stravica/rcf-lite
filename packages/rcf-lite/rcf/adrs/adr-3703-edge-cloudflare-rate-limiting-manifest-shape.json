@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T21:40:46.808Z",
+  "updatedAt": "2026-09-07T21:40:46.808Z",
+  "context": "T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3703-edge-cloudflare-rate-limiting-manifest-shape.json contribution. The rule set could be committed as a wrangler-shape script, a bespoke apply tool, a single manifest file, or one file per rule. Single-file hides diff signal when one rule changes; committed script couples the source of truth to a specific tool.",
+  "decision": "The manifest lives at the elicited rate-limit-rules-dir (default cloudflare/rate-limits/), with one JSON file per rule. No committed script writes rules to the live zone; the operator applies through the documented wrangler or dashboard flow per REQ-101 and TAC-3702. recommendedDefault: true. Standards trace clause: generic enterprise practice.",
+  "consequences": "One-file-per-rule keeps each rule diff scoped. No committed apply script means the blueprint does not couple to a tool version and does not require an API token at build time. Operator applies at their chosen cadence; drift risk is addressed via ADR-3704 and TAC-3703.",
+  "adrId": "ADR-3703-edge-cloudflare-rate-limiting-manifest-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Manifest at cloudflare/rate-limits/, one JSON file per rule; operator applies via wrangler or dashboard"
+}

@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T21:38:51.465Z",
+  "updatedAt": "2026-09-07T23:05:23.440Z",
+  "description": "The applying project holds its rate-limit rule set as a set of JSON documents under the elicited rate-limit-rules-dir (default cloudflare/rate-limits/), one file per rule per ADR-3703. Every manifest file declares the seven documented fields the Cloudflare WAF rate-limiting rules contract names per https://developers.cloudflare.com/waf/rate-limiting-rules/: id, expression, threshold, period, characteristics, action, duration. The zone id is elicited and stored via secretsManagement; no rule references a secret in plaintext. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-100..109 / TS-130..139 / FBS-120..129 / CN-380..409). Round-6 T-6 track of Cloudflare-round-6-spec-2026-09-06 section 5.6.",
+  "reqId": "REQ-100",
+  "prdId": "PRD-001",
+  "title": "T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: rate-limit rule manifest committed under cloudflare/rate-limits/, one JSON file per rule, matching the elicited rule shape without plaintext secrets",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft"
+}

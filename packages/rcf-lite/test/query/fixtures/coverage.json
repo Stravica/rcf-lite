@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 63,
-    "covered": 63,
+    "requirements": 68,
+    "covered": 68,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -3020,6 +3020,105 @@
           "covered": true,
           "testCases": [
             "TC-127-widget-mode-enum"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-100",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-10001-1",
+          "covered": true,
+          "testCases": [
+            "TC-130-manifest-presence-pass"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-10601-1",
+          "covered": true,
+          "testCases": [
+            "TC-135-manifest-schema-validate-pass-and-fail"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-10801-1",
+          "covered": true,
+          "testCases": [
+            "TC-137-manifest-presence-missing-fail"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-101",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-10101-1",
+          "covered": true,
+          "testCases": [
+            "TC-131-guide-management-surface-doc"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-102",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-10201-1",
+          "covered": true,
+          "testCases": [
+            "TC-132-real-account-burst-and-429-or-skipped"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-103",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-10301-1",
+          "covered": true,
+          "testCases": [
+            "TC-133-drift-audit-runner-diff"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-10701-1",
+          "covered": true,
+          "testCases": [
+            "TC-136-event-secrecy-pass-and-leak"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-104",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-10401-1",
+          "covered": true,
+          "testCases": [
+            "TC-134-composition-guide-section"
           ],
           "unresolvedTestCases": []
         }

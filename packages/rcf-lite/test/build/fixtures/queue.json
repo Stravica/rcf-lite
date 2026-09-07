@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 58,
-    "notStarted": 30,
+    "items": 59,
+    "notStarted": 31,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 20,
+    "actionable": 21,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -46,7 +46,8 @@
         "FBS-090",
         "FBS-100",
         "FBS-101",
-        "FBS-110"
+        "FBS-110",
+        "FBS-120"
       ]
     },
     {
@@ -792,6 +793,16 @@
       "buildOrder": 58,
       "tier": 0,
       "title": "T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-120",
+      "buildOrder": 59,
+      "tier": 0,
+      "title": "T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

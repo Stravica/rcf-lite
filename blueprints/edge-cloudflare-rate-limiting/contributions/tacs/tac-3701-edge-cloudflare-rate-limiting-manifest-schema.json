@@ -1,0 +1,31 @@
+{
+  "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Rate-limit rule manifest schema and manifest layout",
+  "purpose": "The shipped JSON Schema (draft-07) at blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json is the single source of truth for the shape of one manifest file under the elicited rate-limit-rules-dir. The schema names the seven Cloudflare WAF rate-limiting rules fields per https://developers.cloudflare.com/waf/rate-limiting-rules/ (id, expression, threshold, period, characteristics, action, duration), their types (string, string, positive integer, positive integer, non-empty string array, enum of block/challenge/log/managed_challenge, positive integer), and the additionalProperties: false stance. The manifest-schema-validate probe reads every file in the fixture manifest directory and validates against this schema; the manifest-presence probe asserts the seven required fields are all present. This TAC anchors AC-36101-1, AC-36106-1 and AC-36108-1.",
+  "responsibilities": [
+    "Ship a JSON Schema (draft-07) at contributions/schemas/rate-limit-rule.schema.json naming the seven required fields, their types and additionalProperties: false (AC-36101-1, AC-36106-1).",
+    "Ship the shape used by the manifest-presence probe to assert every manifest file carries the seven required fields (AC-36101-1).",
+    "Ship the shape used by the manifest-schema-validate probe to refuse a manifest file with a missing threshold under SIMULATE_SCHEMA_INVALID=true (AC-36106-1).",
+    "Ship the layout used by the manifest-presence probe under SIMULATE_MANIFEST_MISSING=true to name the missing file's basename in the detail (AC-36108-1)."
+  ],
+  "internalStructure": "One JSON Schema file (contributions/schemas/rate-limit-rule.schema.json). One shipped example manifest directory in the cf-edge fixture with two files (cloudflare/rate-limits/example.json, cloudflare/rate-limits/api-writes.json). Two induced-failure switches in the fixture: SIMULATE_MANIFEST_MISSING=true moves one manifest file to a scratch location so manifest-presence fails; SIMULATE_SCHEMA_INVALID=true writes a manifest file with a missing threshold so manifest-schema-validate fails. Both switches restore before commit; the anatomy test verifies the negative path.",
+  "interfaces": [
+    {
+      "name": "rate-limit-rule.schema.json",
+      "kind": "schema",
+      "summary": "JSON Schema (draft-07) for one rate-limit rule manifest file."
+    },
+    {
+      "name": "cloudflare/rate-limits/",
+      "kind": "layout",
+      "summary": "Elicited manifest directory, one JSON file per rule."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

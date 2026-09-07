@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:31.821Z",
+  "updatedAt": "2026-09-07T21:41:32.111Z",
+  "purpose": "Cover AC-10801-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-10801-1"
+  ],
+  "id": "TS-137",
+  "usId": "US-10801",
+  "title": "T-6 AC-10801-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-137-manifest-presence-missing-fail",
+      "acId": "AC-10801-1",
+      "description": "AC-10801-1 anatomy proof (T-6 rate-limiting slice, TC-137-manifest-presence-missing-fail)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10801-1 anatomy proof (TC-137-manifest-presence-missing-fail)"
+    }
+  ],
+  "status": "draft"
+}

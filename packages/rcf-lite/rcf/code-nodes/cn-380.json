@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-380",
+  "path": "../../blueprints/edge-cloudflare-rate-limiting/blueprint.json",
+  "implementsAcIds": [
+    "AC-10001-1",
+    "AC-10101-1",
+    "AC-10201-1",
+    "AC-10301-1",
+    "AC-10401-1",
+    "AC-10601-1",
+    "AC-10701-1",
+    "AC-10801-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T21:41:49.036Z",
+  "updatedAt": "2026-09-07T21:41:49.036Z"
+}

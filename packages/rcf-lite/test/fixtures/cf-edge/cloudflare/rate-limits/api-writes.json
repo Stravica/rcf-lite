@@ -1,0 +1,13 @@
+{
+  "id": "api-writes-per-ip-per-path",
+  "expression": "(http.request.method in {\"POST\" \"PUT\" \"PATCH\" \"DELETE\"} and http.request.uri.path matches \"^/api/\")",
+  "threshold": 10,
+  "period": 60,
+  "characteristics": [
+    "ip.src",
+    "http.request.uri.path"
+  ],
+  "action": "managed_challenge",
+  "duration": 300,
+  "description": "Tighter zone-level throttle on write verbs against /api/* endpoints; the (N+1)th write within 60s per (ip, path) is challenged for 300s."
+}

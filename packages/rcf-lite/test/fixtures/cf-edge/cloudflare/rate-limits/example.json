@@ -1,0 +1,13 @@
+{
+  "id": "public-api-per-ip",
+  "expression": "(http.request.uri.path matches \"^/api/\")",
+  "threshold": 60,
+  "period": 60,
+  "characteristics": [
+    "ip.src",
+    "cf.colo.id"
+  ],
+  "action": "block",
+  "duration": 60,
+  "description": "Zone-level per-IP-per-colo throttle on /api/* endpoints; the (N+1)th request within a 60s window is blocked for 60s."
+}

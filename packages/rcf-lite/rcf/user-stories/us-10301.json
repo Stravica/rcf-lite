@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T21:41:03.411Z",
+  "updatedAt": "2026-09-07T21:41:03.411Z",
+  "asA": "operator on the applying project running the scheduled drift-audit runner behind the elicited cadence",
+  "iWant": "the runner to fetch the live rules via the Cloudflare API and diff each against the local manifest, constructing metadata-only drift records",
+  "soThat": "manifest drift is surfaced through the logging companion rather than lingering unnoticed",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10301-1",
+      "description": "Given a fixture manifest with threshold 60 and a fake live-zone response with threshold 90 on the same rule id, the runner constructs one drift record with {ruleId, clientIpHash, outcome, timestamp, diff:[{field:threshold, manifestValue:60, liveValue:90}]}; no full IP, body or user-agent field is present.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
+  ],
+  "usId": "US-10301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-103",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-6 drift-audit runner reads live rules and diffs against manifest, constructing metadata-only drift records"
+}

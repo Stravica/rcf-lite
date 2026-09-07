@@ -1,0 +1,27 @@
+{
+  "usId": "edge-cloudflare-rate-limiting-US-36106",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-rate-limiting-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Manifest schema validates every rule file against the shipped JSON Schema and refuses invalid shapes",
+  "asA": "operator on the applying project committing new rate-limit rule files under the elicited manifest directory",
+  "iWant": "the shipped JSON Schema to validate every rule file's shape (the seven required fields with the correct types) and the manifest-schema-validate probe to surface any file that violates the shape",
+  "soThat": "invalid manifest changes are caught in the fixture probe rather than at operator apply time against a live zone",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-36106-1",
+      "description": "Given the shipped rate-limit-rule JSON Schema (blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json, draft-07), the manifest-schema-validate probe reads every manifest file in the fixture manifest directory and validates each against the schema; every valid file passes; a manifest file with a missing threshold field (simulated via SIMULATE_SCHEMA_INVALID=true) fails validation and the probe returns aggregateVerdict: fail with the offending field named in the detail.",
+      "given": "the cf-edge fixture with the two committed manifest files and the shipped JSON Schema",
+      "when": "the manifest-schema-validate probe validates every manifest file",
+      "then": "every valid file passes; the SIMULATE_SCHEMA_INVALID=true switch surfaces the missing threshold field and the aggregate verdict is fail",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
+  ],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

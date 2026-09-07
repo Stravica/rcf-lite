@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T21:41:04.712Z",
+  "updatedAt": "2026-09-07T21:41:04.712Z",
+  "asA": "operator that accidentally deletes or moves a manifest file",
+  "iWant": "the manifest-presence probe to surface the missing file at fixture probe time",
+  "soThat": "a manifest under-population defect is caught in CI rather than at operator apply time",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10801-1",
+      "description": "With SIMULATE_MANIFEST_MISSING=true the manifest-presence probe returns aggregateVerdict: fail and names the missing file basename in the detail; without the switch the probe passes.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
+  ],
+  "usId": "US-10801",
+  "prdId": "PRD-001",
+  "reqId": "REQ-100",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-6 manifest-presence probe refuses a missing manifest file and names the basename in the detail"
+}

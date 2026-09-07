@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3701-edge-cloudflare-rate-limiting-throttle-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Edge throttle contract: Cloudflare WAF rate-limiting rules as the shipped shape (scope global, new topic edgeThrottleContract)",
+  "context": "An applying Workers project that fronts a public surface needs a zone-level guard that refuses over-threshold bursts at the CF edge before they reach the origin Worker. Cloudflare's WAF rate-limiting rules provide the native answer: a set of rules on the zone, each with expression, threshold, period, characteristics, action and duration per https://developers.cloudflare.com/waf/rate-limiting-rules/. Every applied Worker needs one project-wide answer to the edgeThrottleContract topic; a future non-Cloudflare edge-throttle sibling (Fastly rate-limits, Vercel edge config throttles) would conflict on the same topic by design.",
+  "decision": "The shipped v1.0.0 default is Cloudflare WAF rate-limiting rules as the zone-level edge throttle. The rule shape (id, expression, threshold, period, characteristics, action, duration) matches the Cloudflare-documented shape per https://developers.cloudflare.com/waf/rate-limiting-rules/. The edgeThrottleContract topic scope is global on this blueprint; the topic string is edgeThrottleContract (lower camel case, one concept per topic, no version suffix). A future non-Cloudflare adapter contributes the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR. Standards trace clause: Cloudflare WAF rate-limiting rules documented shape.",
+  "consequences": "The applying project inherits Cloudflare's documented rule shape and the platform-imposed limits on rules per zone. The rule state lives on the Cloudflare account, not in the project git tree; the local manifest under cloudflare/rate-limits/ is the source of truth an operator applies via the wrangler or dashboard flow per REQ-002. Drift risk is addressed via ADR-3704 (drift-audit cadence) and TAC-3703 (drift-audit runner). Consumers deploying to a non-Cloudflare edge reach for a sibling adapter blueprint that would land as a v1.x minor on this shelf.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T22:00:00.000Z",
+  "updatedAt": "2026-09-07T22:00:00.000Z"
+}

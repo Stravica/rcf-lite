@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:31.243Z",
+  "updatedAt": "2026-09-07T21:41:31.532Z",
+  "purpose": "Cover AC-10701-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-10701-1"
+  ],
+  "id": "TS-136",
+  "usId": "US-10701",
+  "title": "T-6 AC-10701-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-136-event-secrecy-pass-and-leak",
+      "acId": "AC-10701-1",
+      "description": "AC-10701-1 anatomy proof (T-6 rate-limiting slice, TC-136-event-secrecy-pass-and-leak)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10701-1 anatomy proof (TC-136-event-secrecy-pass-and-leak)"
+    }
+  ],
+  "status": "draft"
+}

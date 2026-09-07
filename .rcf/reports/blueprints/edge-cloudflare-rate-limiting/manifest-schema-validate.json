@@ -1,0 +1,30 @@
+{
+  "slug": "edge-cloudflare-rate-limiting",
+  "probeName": "manifest-schema-validate",
+  "runAt": "2026-09-07T23:04:20.041Z",
+  "engine": {
+    "kind": "source-scan",
+    "image": "cf-edge fixture manifest directory validated against draft-07 JSON Schema (in-process)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-36106-1",
+      "verdict": "pass",
+      "detail": "every manifest file validates against the shipped draft-07 schema (2 file(s) inspected; required fields id, expression, threshold, period, characteristics, action, duration; action enum block/challenge/log/managed_challenge)."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "schemaId": "https://stravica.ai/rcf-lite/schemas/rate-limit-rule.schema.json",
+  "manifestFileCount": 2,
+  "manifestFiles": [
+    {
+      "name": "api-writes.json",
+      "valid": true
+    },
+    {
+      "name": "example.json",
+      "valid": true
+    }
+  ]
+}

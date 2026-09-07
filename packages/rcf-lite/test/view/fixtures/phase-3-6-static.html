@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a>, <a href="#REQ-080">REQ-080</a>, <a href="#REQ-081">REQ-081</a>, <a href="#REQ-082">REQ-082</a>, <a href="#REQ-083">REQ-083</a>, <a href="#REQ-084">REQ-084</a>, <a href="#REQ-085">REQ-085</a>, <a href="#REQ-086">REQ-086</a>, <a href="#REQ-090">REQ-090</a>, <a href="#REQ-091">REQ-091</a>, <a href="#REQ-092">REQ-092</a>, <a href="#REQ-093">REQ-093</a>, <a href="#REQ-094">REQ-094</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a>, <a href="#REQ-080">REQ-080</a>, <a href="#REQ-081">REQ-081</a>, <a href="#REQ-082">REQ-082</a>, <a href="#REQ-083">REQ-083</a>, <a href="#REQ-084">REQ-084</a>, <a href="#REQ-085">REQ-085</a>, <a href="#REQ-086">REQ-086</a>, <a href="#REQ-090">REQ-090</a>, <a href="#REQ-091">REQ-091</a>, <a href="#REQ-092">REQ-092</a>, <a href="#REQ-093">REQ-093</a>, <a href="#REQ-094">REQ-094</a>, <a href="#REQ-100">REQ-100</a>, <a href="#REQ-101">REQ-101</a>, <a href="#REQ-102">REQ-102</a>, <a href="#REQ-103">REQ-103</a>, <a href="#REQ-104">REQ-104</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -14425,6 +14425,680 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-100">
+  <summary><span class="summary-label">REQ-100 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: rate-limit rule manifest committed under cloudflare/rate-limits/, one JSON file per rule, matching the elicited rule shape without plaintext secrets</span><span class="status draft">draft</span></summary>
+  <article id="REQ-100" class="doc doc-req">
+  <h3>REQ-100 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: rate-limit rule manifest committed under cloudflare/rate-limits/, one JSON file per rule, matching the elicited rule shape without plaintext secrets</h3>
+  
+  <p><strong>Description:</strong> The applying project holds its rate-limit rule set as a set of JSON documents under the elicited rate-limit-rules-dir (default cloudflare/rate-limits/), one file per rule per ADR-3703. Every manifest file declares the seven documented fields the Cloudflare WAF rate-limiting rules contract names per https://developers.cloudflare.com/waf/rate-limiting-rules/: id, expression, threshold, period, characteristics, action, duration. The zone id is elicited and stored via secretsManagement; no rule references a secret in plaintext. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-100..109 / TS-130..139 / FBS-120..129 / CN-380..409). Round-6 T-6 track of Cloudflare-round-6-spec-2026-09-06 section 5.6.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-100[&quot;REQ-100&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0 blue...&quot;]
+  US-10001[&quot;US-10001&lt;br/&gt;T-6 rate-limit manifest present in cf-edge cl...&quot;]
+  REQ-100 --&gt; US-10001
+  AC-10001-1[&quot;AC-10001-1&quot;]
+  US-10001 --&gt; AC-10001-1
+  FBS-120[&quot;FBS-120&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0: 5 R...&quot;]
+  AC-10001-1 -.-&gt;|delivered by| FBS-120
+  CN-380[&quot;CN-380&lt;br/&gt;../../blueprints/edge-cloudflare-rate-limitin...&quot;]
+  AC-10001-1 -.-&gt;|implemented by| CN-380
+  US-10601[&quot;US-10601&lt;br/&gt;T-6 manifest schema validates every rule file...&quot;]
+  REQ-100 --&gt; US-10601
+  AC-10601-1[&quot;AC-10601-1&quot;]
+  US-10601 --&gt; AC-10601-1
+  AC-10601-1 -.-&gt;|delivered by| FBS-120
+  AC-10601-1 -.-&gt;|implemented by| CN-380
+  US-10801[&quot;US-10801&lt;br/&gt;T-6 manifest-presence probe refuses a missing...&quot;]
+  REQ-100 --&gt; US-10801
+  AC-10801-1[&quot;AC-10801-1&quot;]
+  US-10801 --&gt; AC-10801-1
+  AC-10801-1 -.-&gt;|delivered by| FBS-120
+  AC-10801-1 -.-&gt;|implemented by| CN-380
+  click REQ-100 &quot;#REQ-100&quot;;
+  click US-10001 &quot;#US-10001&quot;;
+  click AC-10001-1 &quot;#AC-10001-1&quot;;
+  click FBS-120 &quot;#FBS-120&quot;;
+  click CN-380 &quot;#CN-380&quot;;
+  click US-10601 &quot;#US-10601&quot;;
+  click AC-10601-1 &quot;#AC-10601-1&quot;;
+  click US-10801 &quot;#US-10801&quot;;
+  click AC-10801-1 &quot;#AC-10801-1&quot;;
+  class REQ-100 req;
+  class US-10001 us;
+  class AC-10001-1 ac;
+  class FBS-120 fbs;
+  class CN-380 cn;
+  class US-10601 us;
+  class AC-10601-1 ac;
+  class US-10801 us;
+  class AC-10801-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:38:51.465Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:23.440Z&quot;,
+  &quot;description&quot;: &quot;The applying project holds its rate-limit rule set as a set of JSON documents under the elicited rate-limit-rules-dir (default cloudflare/rate-limits/), one file per rule per ADR-3703. Every manifest file declares the seven documented fields the Cloudflare WAF rate-limiting rules contract names per https://developers.cloudflare.com/waf/rate-limiting-rules/: id, expression, threshold, period, characteristics, action, duration. The zone id is elicited and stored via secretsManagement; no rule references a secret in plaintext. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-100..109 / TS-130..139 / FBS-120..129 / CN-380..409). Round-6 T-6 track of Cloudflare-round-6-spec-2026-09-06 section 5.6.&quot;,
+  &quot;reqId&quot;: &quot;REQ-100&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: rate-limit rule manifest committed under cloudflare/rate-limits/, one JSON file per rule, matching the elicited rule shape without plaintext secrets&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-10001">
+  <summary><span class="summary-label">US-10001 - T-6 rate-limit manifest present in cf-edge cloudflare/rate-limits/ carrying seven required fields without plaintext secrets</span><span class="status draft">draft</span></summary>
+  <article id="US-10001" class="doc doc-us">
+  <h3>US-10001 - T-6 rate-limit manifest present in cf-edge cloudflare/rate-limits/ carrying seven required fields without plaintext secrets</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-rate-limiting v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
+  <p><strong>I want:</strong> the elicited manifest directory to hold at least one committed JSON file per rate-limit rule, each carrying the seven documented fields and no plaintext secret</p>
+  <p><strong>So that:</strong> the rules are source-controlled and reviewable and the operator has a stable source of truth to apply to the live zone</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-100">REQ-100</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-10001-1" class="ac-item"><strong>AC-10001-1</strong> - The cf-edge fixture&#39;s cloudflare/rate-limits/ directory holds at least one JSON file per rule; every file parses; every file carries id, expression, threshold, period, characteristics, action, duration; no file body carries a plaintext bearer token, private key or inline CF_API_TOKEN reference.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-120">FBS-120</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:02.422Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:02.422Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the edge-cloudflare-rate-limiting v1.0.0 blueprint on a Workers project using the cf-edge fixture&quot;,
+  &quot;iWant&quot;: &quot;the elicited manifest directory to hold at least one committed JSON file per rate-limit rule, each carrying the seven documented fields and no plaintext secret&quot;,
+  &quot;soThat&quot;: &quot;the rules are source-controlled and reviewable and the operator has a stable source of truth to apply to the live zone&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-10001-1&quot;,
+      &quot;description&quot;: &quot;The cf-edge fixture&#39;s cloudflare/rate-limits/ directory holds at least one JSON file per rule; every file parses; every file carries id, expression, threshold, period, characteristics, action, duration; no file body carries a plaintext bearer token, private key or inline CF_API_TOKEN reference.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3701-edge-cloudflare-rate-limiting-manifest-schema&quot;
+  ],
+  &quot;usId&quot;: &quot;US-10001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-100&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-6 rate-limit manifest present in cf-edge cloudflare/rate-limits/ carrying seven required fields without plaintext secrets&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-10601">
+  <summary><span class="summary-label">US-10601 - T-6 manifest schema validates every rule file against the shipped draft-07 schema and refuses invalid shapes</span><span class="status draft">draft</span></summary>
+  <article id="US-10601" class="doc doc-us">
+  <h3>US-10601 - T-6 manifest schema validates every rule file against the shipped draft-07 schema and refuses invalid shapes</h3>
+  
+  <p><strong>As a:</strong> operator committing new rate-limit rule files under the elicited manifest directory</p>
+  <p><strong>I want:</strong> the shipped JSON Schema to validate every rule file and the manifest-schema-validate probe to surface any file that violates the shape</p>
+  <p><strong>So that:</strong> invalid manifest changes are caught in the fixture probe rather than at operator apply time</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-100">REQ-100</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-10601-1" class="ac-item"><strong>AC-10601-1</strong> - The manifest-schema-validate probe validates every manifest file against the shipped rate-limit-rule.schema.json (draft-07); valid files pass; a manifest file missing threshold (SIMULATE_SCHEMA_INVALID=true) fails validation with the offending field named in the detail.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-120">FBS-120</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:04.062Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:04.062Z&quot;,
+  &quot;asA&quot;: &quot;operator committing new rate-limit rule files under the elicited manifest directory&quot;,
+  &quot;iWant&quot;: &quot;the shipped JSON Schema to validate every rule file and the manifest-schema-validate probe to surface any file that violates the shape&quot;,
+  &quot;soThat&quot;: &quot;invalid manifest changes are caught in the fixture probe rather than at operator apply time&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-10601-1&quot;,
+      &quot;description&quot;: &quot;The manifest-schema-validate probe validates every manifest file against the shipped rate-limit-rule.schema.json (draft-07); valid files pass; a manifest file missing threshold (SIMULATE_SCHEMA_INVALID=true) fails validation with the offending field named in the detail.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3701-edge-cloudflare-rate-limiting-manifest-schema&quot;
+  ],
+  &quot;usId&quot;: &quot;US-10601&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-100&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-6 manifest schema validates every rule file against the shipped draft-07 schema and refuses invalid shapes&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-10801">
+  <summary><span class="summary-label">US-10801 - T-6 manifest-presence probe refuses a missing manifest file and names the basename in the detail</span><span class="status draft">draft</span></summary>
+  <article id="US-10801" class="doc doc-us">
+  <h3>US-10801 - T-6 manifest-presence probe refuses a missing manifest file and names the basename in the detail</h3>
+  
+  <p><strong>As a:</strong> operator that accidentally deletes or moves a manifest file</p>
+  <p><strong>I want:</strong> the manifest-presence probe to surface the missing file at fixture probe time</p>
+  <p><strong>So that:</strong> a manifest under-population defect is caught in CI rather than at operator apply time</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-100">REQ-100</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-10801-1" class="ac-item"><strong>AC-10801-1</strong> - With SIMULATE_MANIFEST_MISSING=true the manifest-presence probe returns aggregateVerdict: fail and names the missing file basename in the detail; without the switch the probe passes.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-120">FBS-120</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:04.712Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:04.712Z&quot;,
+  &quot;asA&quot;: &quot;operator that accidentally deletes or moves a manifest file&quot;,
+  &quot;iWant&quot;: &quot;the manifest-presence probe to surface the missing file at fixture probe time&quot;,
+  &quot;soThat&quot;: &quot;a manifest under-population defect is caught in CI rather than at operator apply time&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-10801-1&quot;,
+      &quot;description&quot;: &quot;With SIMULATE_MANIFEST_MISSING=true the manifest-presence probe returns aggregateVerdict: fail and names the missing file basename in the detail; without the switch the probe passes.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3701-edge-cloudflare-rate-limiting-manifest-schema&quot;
+  ],
+  &quot;usId&quot;: &quot;US-10801&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-100&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-6 manifest-presence probe refuses a missing manifest file and names the basename in the detail&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-101">
+  <summary><span class="summary-label">REQ-101 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: operator-facing management surface documented as a wrangler command flow or Cloudflare dashboard flow the operator applies from the manifest</span><span class="status draft">draft</span></summary>
+  <article id="REQ-101" class="doc doc-req">
+  <h3>REQ-101 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: operator-facing management surface documented as a wrangler command flow or Cloudflare dashboard flow the operator applies from the manifest</h3>
+  
+  <p><strong>Description:</strong> The blueprint ships no committed script that writes rules to the live Cloudflare zone. The applying project&#39;s operator applies each rule via a documented wrangler command flow or a Cloudflare dashboard flow per TAC-3702 and the guide. The elicited rate-limit-management-surface value records the flow the operator chose; the guide covers both. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-101[&quot;REQ-101&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0 blue...&quot;]
+  US-10101[&quot;US-10101&lt;br/&gt;T-6 operator-facing management surface: wrang...&quot;]
+  REQ-101 --&gt; US-10101
+  AC-10101-1[&quot;AC-10101-1&quot;]
+  US-10101 --&gt; AC-10101-1
+  FBS-120[&quot;FBS-120&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0: 5 R...&quot;]
+  AC-10101-1 -.-&gt;|delivered by| FBS-120
+  CN-380[&quot;CN-380&lt;br/&gt;../../blueprints/edge-cloudflare-rate-limitin...&quot;]
+  AC-10101-1 -.-&gt;|implemented by| CN-380
+  click REQ-101 &quot;#REQ-101&quot;;
+  click US-10101 &quot;#US-10101&quot;;
+  click AC-10101-1 &quot;#AC-10101-1&quot;;
+  click FBS-120 &quot;#FBS-120&quot;;
+  click CN-380 &quot;#CN-380&quot;;
+  class REQ-101 req;
+  class US-10101 us;
+  class AC-10101-1 ac;
+  class FBS-120 fbs;
+  class CN-380 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:38:51.792Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:23.637Z&quot;,
+  &quot;description&quot;: &quot;The blueprint ships no committed script that writes rules to the live Cloudflare zone. The applying project&#39;s operator applies each rule via a documented wrangler command flow or a Cloudflare dashboard flow per TAC-3702 and the guide. The elicited rate-limit-management-surface value records the flow the operator chose; the guide covers both. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.&quot;,
+  &quot;reqId&quot;: &quot;REQ-101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: operator-facing management surface documented as a wrangler command flow or Cloudflare dashboard flow the operator applies from the manifest&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-10101">
+  <summary><span class="summary-label">US-10101 - T-6 operator-facing management surface: wrangler command flow and Cloudflare dashboard flow documented in the guide</span><span class="status draft">draft</span></summary>
+  <article id="US-10101" class="doc doc-us">
+  <h3>US-10101 - T-6 operator-facing management surface: wrangler command flow and Cloudflare dashboard flow documented in the guide</h3>
+  
+  <p><strong>As a:</strong> operator on the applying project preparing to push rate-limit rules from the local manifest to the live Cloudflare zone</p>
+  <p><strong>I want:</strong> a documented flow with both wrangler command steps and a Cloudflare dashboard walkthrough</p>
+  <p><strong>So that:</strong> I can pick the flow that suits my operating discipline and reproduce the apply from the manifest</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-101">REQ-101</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-10101-1" class="ac-item"><strong>AC-10101-1</strong> - The blueprint guide documents an operator-facing management surface with a wrangler command flow and a Cloudflare dashboard flow; the guide references https://developers.cloudflare.com/waf/rate-limiting-rules/.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-120">FBS-120</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:02.760Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:02.760Z&quot;,
+  &quot;asA&quot;: &quot;operator on the applying project preparing to push rate-limit rules from the local manifest to the live Cloudflare zone&quot;,
+  &quot;iWant&quot;: &quot;a documented flow with both wrangler command steps and a Cloudflare dashboard walkthrough&quot;,
+  &quot;soThat&quot;: &quot;I can pick the flow that suits my operating discipline and reproduce the apply from the manifest&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-10101-1&quot;,
+      &quot;description&quot;: &quot;The blueprint guide documents an operator-facing management surface with a wrangler command flow and a Cloudflare dashboard flow; the guide references https://developers.cloudflare.com/waf/rate-limiting-rules/.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc&quot;
+  ],
+  &quot;usId&quot;: &quot;US-10101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-101&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-6 operator-facing management surface: wrangler command flow and Cloudflare dashboard flow documented in the guide&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-102">
+  <summary><span class="summary-label">REQ-102 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: over-threshold behaviour returns 429 with Retry-After and Cf-Ray for the (N+1)th and subsequent requests within the elicited duration</span><span class="status draft">draft</span></summary>
+  <article id="REQ-102" class="doc doc-req">
+  <h3>REQ-102 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: over-threshold behaviour returns 429 with Retry-After and Cf-Ray for the (N+1)th and subsequent requests within the elicited duration</h3>
+  
+  <p><strong>Description:</strong> Given a rule that permits N requests per period on a characteristic set, when a client sends the (N+1)th request within that period, Cloudflare refuses the request at the edge for the elicited duration. The refusal response is HTTP 429 with a Retry-After header consistent with the elicited duration and a Cf-Ray header identifying the CF edge per https://developers.cloudflare.com/waf/rate-limiting-rules/. The origin Worker never sees the refused requests. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-102[&quot;REQ-102&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0 blue...&quot;]
+  US-10201[&quot;US-10201&lt;br/&gt;T-6 real-account burst returns 429 with Retry...&quot;]
+  REQ-102 --&gt; US-10201
+  AC-10201-1[&quot;AC-10201-1&quot;]
+  US-10201 --&gt; AC-10201-1
+  FBS-120[&quot;FBS-120&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0: 5 R...&quot;]
+  AC-10201-1 -.-&gt;|delivered by| FBS-120
+  CN-380[&quot;CN-380&lt;br/&gt;../../blueprints/edge-cloudflare-rate-limitin...&quot;]
+  AC-10201-1 -.-&gt;|implemented by| CN-380
+  click REQ-102 &quot;#REQ-102&quot;;
+  click US-10201 &quot;#US-10201&quot;;
+  click AC-10201-1 &quot;#AC-10201-1&quot;;
+  click FBS-120 &quot;#FBS-120&quot;;
+  click CN-380 &quot;#CN-380&quot;;
+  class REQ-102 req;
+  class US-10201 us;
+  class AC-10201-1 ac;
+  class FBS-120 fbs;
+  class CN-380 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:38:52.126Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:23.824Z&quot;,
+  &quot;description&quot;: &quot;Given a rule that permits N requests per period on a characteristic set, when a client sends the (N+1)th request within that period, Cloudflare refuses the request at the edge for the elicited duration. The refusal response is HTTP 429 with a Retry-After header consistent with the elicited duration and a Cf-Ray header identifying the CF edge per https://developers.cloudflare.com/waf/rate-limiting-rules/. The origin Worker never sees the refused requests. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.&quot;,
+  &quot;reqId&quot;: &quot;REQ-102&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: over-threshold behaviour returns 429 with Retry-After and Cf-Ray for the (N+1)th and subsequent requests within the elicited duration&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-10201">
+  <summary><span class="summary-label">US-10201 - T-6 real-account burst returns 429 with Retry-After and Cf-Ray on over-threshold requests, or accountBoundSkipped in CI per ruling 6</span><span class="status draft">draft</span></summary>
+  <article id="US-10201" class="doc doc-us">
+  <h3>US-10201 - T-6 real-account burst returns 429 with Retry-After and Cf-Ray on over-threshold requests, or accountBoundSkipped in CI per ruling 6</h3>
+  
+  <p><strong>As a:</strong> operator running the real-account burst probe against a scheduled HQ-owned URL</p>
+  <p><strong>I want:</strong> the probe to fire an undici burst above the rule threshold and observe the (N+1)th and subsequent requests return HTTP 429 with Retry-After and Cf-Ray, or record accountBoundSkipped in CI</p>
+  <p><strong>So that:</strong> the over-threshold behaviour is verified against a real Cloudflare account when the account is available, and CI without an account records the honest verdict per ruling 6</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-102">REQ-102</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-10201-1" class="ac-item"><strong>AC-10201-1</strong> - With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_RATE_LIMIT_URL set, the burst probe returns 429 with Retry-After and Cf-Ray on over-threshold requests; without either env var it records accountBoundSkipped: true and aggregates to pass per spec section 3.5 and ruling 6.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-120">FBS-120</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:03.086Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:03.086Z&quot;,
+  &quot;asA&quot;: &quot;operator running the real-account burst probe against a scheduled HQ-owned URL&quot;,
+  &quot;iWant&quot;: &quot;the probe to fire an undici burst above the rule threshold and observe the (N+1)th and subsequent requests return HTTP 429 with Retry-After and Cf-Ray, or record accountBoundSkipped in CI&quot;,
+  &quot;soThat&quot;: &quot;the over-threshold behaviour is verified against a real Cloudflare account when the account is available, and CI without an account records the honest verdict per ruling 6&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-10201-1&quot;,
+      &quot;description&quot;: &quot;With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_RATE_LIMIT_URL set, the burst probe returns 429 with Retry-After and Cf-Ray on over-threshold requests; without either env var it records accountBoundSkipped: true and aggregates to pass per spec section 3.5 and ruling 6.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3701-edge-cloudflare-rate-limiting-manifest-schema&quot;
+  ],
+  &quot;usId&quot;: &quot;US-10201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-102&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-6 real-account burst returns 429 with Retry-After and Cf-Ray on over-threshold requests, or accountBoundSkipped in CI per ruling 6&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-103">
+  <summary><span class="summary-label">REQ-103 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: drift-audit runner reads live zone rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only records</span><span class="status draft">draft</span></summary>
+  <article id="REQ-103" class="doc doc-req">
+  <h3>REQ-103 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: drift-audit runner reads live zone rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only records</h3>
+  
+  <p><strong>Description:</strong> The blueprint ships a scheduled drift-audit runner (TAC-3703) the applying project can wire behind the elicited rate-limit-drift-audit-cadence per ADR-3704. When enabled, the runner fetches the live rate-limiting rules on the elicited zone via the Cloudflare API, diffs against the local manifest, and constructs one drift-audit record per mismatched rule. Records write through the applied logger with the metadata-only shape {ruleId, clientIpHash, outcome, timestamp, diff}; no record carries a full IP, a request body or a user agent. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-103[&quot;REQ-103&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0 blue...&quot;]
+  US-10301[&quot;US-10301&lt;br/&gt;T-6 drift-audit runner reads live rules and d...&quot;]
+  REQ-103 --&gt; US-10301
+  AC-10301-1[&quot;AC-10301-1&quot;]
+  US-10301 --&gt; AC-10301-1
+  FBS-120[&quot;FBS-120&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0: 5 R...&quot;]
+  AC-10301-1 -.-&gt;|delivered by| FBS-120
+  CN-380[&quot;CN-380&lt;br/&gt;../../blueprints/edge-cloudflare-rate-limitin...&quot;]
+  AC-10301-1 -.-&gt;|implemented by| CN-380
+  US-10701[&quot;US-10701&lt;br/&gt;T-6 drift-audit event records carry ruleId, c...&quot;]
+  REQ-103 --&gt; US-10701
+  AC-10701-1[&quot;AC-10701-1&quot;]
+  US-10701 --&gt; AC-10701-1
+  AC-10701-1 -.-&gt;|delivered by| FBS-120
+  AC-10701-1 -.-&gt;|implemented by| CN-380
+  click REQ-103 &quot;#REQ-103&quot;;
+  click US-10301 &quot;#US-10301&quot;;
+  click AC-10301-1 &quot;#AC-10301-1&quot;;
+  click FBS-120 &quot;#FBS-120&quot;;
+  click CN-380 &quot;#CN-380&quot;;
+  click US-10701 &quot;#US-10701&quot;;
+  click AC-10701-1 &quot;#AC-10701-1&quot;;
+  class REQ-103 req;
+  class US-10301 us;
+  class AC-10301-1 ac;
+  class FBS-120 fbs;
+  class CN-380 cn;
+  class US-10701 us;
+  class AC-10701-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:38:52.452Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:24.011Z&quot;,
+  &quot;description&quot;: &quot;The blueprint ships a scheduled drift-audit runner (TAC-3703) the applying project can wire behind the elicited rate-limit-drift-audit-cadence per ADR-3704. When enabled, the runner fetches the live rate-limiting rules on the elicited zone via the Cloudflare API, diffs against the local manifest, and constructs one drift-audit record per mismatched rule. Records write through the applied logger with the metadata-only shape {ruleId, clientIpHash, outcome, timestamp, diff}; no record carries a full IP, a request body or a user agent. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.&quot;,
+  &quot;reqId&quot;: &quot;REQ-103&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: drift-audit runner reads live zone rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only records&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-10301">
+  <summary><span class="summary-label">US-10301 - T-6 drift-audit runner reads live rules and diffs against manifest, constructing metadata-only drift records</span><span class="status draft">draft</span></summary>
+  <article id="US-10301" class="doc doc-us">
+  <h3>US-10301 - T-6 drift-audit runner reads live rules and diffs against manifest, constructing metadata-only drift records</h3>
+  
+  <p><strong>As a:</strong> operator on the applying project running the scheduled drift-audit runner behind the elicited cadence</p>
+  <p><strong>I want:</strong> the runner to fetch the live rules via the Cloudflare API and diff each against the local manifest, constructing metadata-only drift records</p>
+  <p><strong>So that:</strong> manifest drift is surfaced through the logging companion rather than lingering unnoticed</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-103">REQ-103</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-10301-1" class="ac-item"><strong>AC-10301-1</strong> - Given a fixture manifest with threshold 60 and a fake live-zone response with threshold 90 on the same rule id, the runner constructs one drift record with {ruleId, clientIpHash, outcome, timestamp, diff:[{field:threshold, manifestValue:60, liveValue:90}]}; no full IP, body or user-agent field is present.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-120">FBS-120</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:03.411Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:03.411Z&quot;,
+  &quot;asA&quot;: &quot;operator on the applying project running the scheduled drift-audit runner behind the elicited cadence&quot;,
+  &quot;iWant&quot;: &quot;the runner to fetch the live rules via the Cloudflare API and diff each against the local manifest, constructing metadata-only drift records&quot;,
+  &quot;soThat&quot;: &quot;manifest drift is surfaced through the logging companion rather than lingering unnoticed&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-10301-1&quot;,
+      &quot;description&quot;: &quot;Given a fixture manifest with threshold 60 and a fake live-zone response with threshold 90 on the same rule id, the runner constructs one drift record with {ruleId, clientIpHash, outcome, timestamp, diff:[{field:threshold, manifestValue:60, liveValue:90}]}; no full IP, body or user-agent field is present.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner&quot;
+  ],
+  &quot;usId&quot;: &quot;US-10301&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-103&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-6 drift-audit runner reads live rules and diffs against manifest, constructing metadata-only drift records&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-10701">
+  <summary><span class="summary-label">US-10701 - T-6 drift-audit event records carry ruleId, clientIpHash, outcome, timestamp, diff only; no full IP, body or user-agent</span><span class="status draft">draft</span></summary>
+  <article id="US-10701" class="doc doc-us">
+  <h3>US-10701 - T-6 drift-audit event records carry ruleId, clientIpHash, outcome, timestamp, diff only; no full IP, body or user-agent</h3>
+  
+  <p><strong>As a:</strong> operator reading drift-audit reports and rate-limit event records through the applied logging companion</p>
+  <p><strong>I want:</strong> every drift-audit record to carry only metadata-safe fields, never a full IP, request body or user agent string</p>
+  <p><strong>So that:</strong> the audit trail is safe to store, forward and read without additional PII scrubbing</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-103">REQ-103</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-10701-1" class="ac-item"><strong>AC-10701-1</strong> - The event-secrecy probe drives the drift-audit runner with a synthetic input pair; every record carries only {ruleId, clientIpHash, outcome, timestamp, diff}; SIMULATE_EVENT_LEAK_IP=true injects a full IP into the outcome so the probe surfaces the leak.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-120">FBS-120</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:04.389Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:04.389Z&quot;,
+  &quot;asA&quot;: &quot;operator reading drift-audit reports and rate-limit event records through the applied logging companion&quot;,
+  &quot;iWant&quot;: &quot;every drift-audit record to carry only metadata-safe fields, never a full IP, request body or user agent string&quot;,
+  &quot;soThat&quot;: &quot;the audit trail is safe to store, forward and read without additional PII scrubbing&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-10701-1&quot;,
+      &quot;description&quot;: &quot;The event-secrecy probe drives the drift-audit runner with a synthetic input pair; every record carries only {ruleId, clientIpHash, outcome, timestamp, diff}; SIMULATE_EVENT_LEAK_IP=true injects a full IP into the outcome so the probe surfaces the leak.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner&quot;
+  ],
+  &quot;usId&quot;: &quot;US-10701&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-103&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-6 drift-audit event records carry ruleId, clientIpHash, outcome, timestamp, diff only; no full IP, body or user-agent&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-104">
+  <summary><span class="summary-label">REQ-104 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: composition with security-auth-magic-link layers the zone rule over the per-email application rule per ADR-3702</span><span class="status draft">draft</span></summary>
+  <article id="REQ-104" class="doc doc-req">
+  <h3>REQ-104 - T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: composition with security-auth-magic-link layers the zone rule over the per-email application rule per ADR-3702</h3>
+  
+  <p><strong>Description:</strong> When both edge-cloudflare-rate-limiting and security-auth-magic-link are applied on the same project, the zone-level rate rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin; the security-auth-magic-link per-email application rate limiter continues to run at the mint-surface. The two rules operate on different characteristic sets (IP-per-URL vs per-email per-minute) and are additive. ADR-3702 records the layering. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-104[&quot;REQ-104&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0 blue...&quot;]
+  US-10401[&quot;US-10401&lt;br/&gt;T-6 composition with security-auth-magic-link...&quot;]
+  REQ-104 --&gt; US-10401
+  AC-10401-1[&quot;AC-10401-1&quot;]
+  US-10401 --&gt; AC-10401-1
+  FBS-120[&quot;FBS-120&lt;br/&gt;T-6 edge-cloudflare-rate-limiting v1.0.0: 5 R...&quot;]
+  AC-10401-1 -.-&gt;|delivered by| FBS-120
+  CN-380[&quot;CN-380&lt;br/&gt;../../blueprints/edge-cloudflare-rate-limitin...&quot;]
+  AC-10401-1 -.-&gt;|implemented by| CN-380
+  click REQ-104 &quot;#REQ-104&quot;;
+  click US-10401 &quot;#US-10401&quot;;
+  click AC-10401-1 &quot;#AC-10401-1&quot;;
+  click FBS-120 &quot;#FBS-120&quot;;
+  click CN-380 &quot;#CN-380&quot;;
+  class REQ-104 req;
+  class US-10401 us;
+  class AC-10401-1 ac;
+  class FBS-120 fbs;
+  class CN-380 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:38:52.795Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T23:05:24.201Z&quot;,
+  &quot;description&quot;: &quot;When both edge-cloudflare-rate-limiting and security-auth-magic-link are applied on the same project, the zone-level rate rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin; the security-auth-magic-link per-email application rate limiter continues to run at the mint-surface. The two rules operate on different characteristic sets (IP-per-URL vs per-email per-minute) and are additive. ADR-3702 records the layering. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.&quot;,
+  &quot;reqId&quot;: &quot;REQ-104&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0 blueprint: composition with security-auth-magic-link layers the zone rule over the per-email application rule per ADR-3702&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-10401">
+  <summary><span class="summary-label">US-10401 - T-6 composition with security-auth-magic-link: zone rule layers over the per-email application rule per ADR-3702, documented in the guide</span><span class="status draft">draft</span></summary>
+  <article id="US-10401" class="doc doc-us">
+  <h3>US-10401 - T-6 composition with security-auth-magic-link: zone rule layers over the per-email application rule per ADR-3702, documented in the guide</h3>
+  
+  <p><strong>As a:</strong> operator applying both edge-cloudflare-rate-limiting and security-auth-magic-link on the same project</p>
+  <p><strong>I want:</strong> the guide to name the ADR-3702 layering explicitly with a copy-paste example</p>
+  <p><strong>So that:</strong> I understand the two-rule shape at apply time rather than by trial and error</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-104">REQ-104</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-10401-1" class="ac-item"><strong>AC-10401-1</strong> - The guide contains a Composition with security-auth-magic-link section referencing ADR-3702, naming the two characteristic sets (IP-per-URL and per-email per-minute) verbatim, and showing a copy-paste example of both blueprints applied.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-120">FBS-120</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:03.736Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:03.736Z&quot;,
+  &quot;asA&quot;: &quot;operator applying both edge-cloudflare-rate-limiting and security-auth-magic-link on the same project&quot;,
+  &quot;iWant&quot;: &quot;the guide to name the ADR-3702 layering explicitly with a copy-paste example&quot;,
+  &quot;soThat&quot;: &quot;I understand the two-rule shape at apply time rather than by trial and error&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-10401-1&quot;,
+      &quot;description&quot;: &quot;The guide contains a Composition with security-auth-magic-link section referencing ADR-3702, naming the two characteristic sets (IP-per-URL and per-email per-minute) verbatim, and showing a copy-paste example of both blueprints applied.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc&quot;
+  ],
+  &quot;usId&quot;: &quot;US-10401&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-104&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-6 composition with security-auth-magic-link: zone rule layers over the per-email application rule per ADR-3702, documented in the guide&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -14457,8 +15131,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <dt>eventModel</dt><dd>None. Operations are synchronous filesystem reads and writes.</dd></dl></section>
 <section class="field-list"><h4>Operational concerns</h4><dl><dt>healthChecks</dt><dd>Not applicable for a local binary; a validate command reports project health by validating every document and listing broken references.</dd>
 <dt>logging</dt><dd>Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics.</dd></dl></section>
-  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a>, <a href="#TAC-2214-application-admin-console-access-gated-signin-surface">TAC-2214-application-admin-console-access-gated-signin-surface</a>, <a href="#TAC-3501-edge-cloudflare-access-jwt-validator">TAC-3501-edge-cloudflare-access-jwt-validator</a>, <a href="#TAC-3502-edge-cloudflare-access-application-declaration">TAC-3502-edge-cloudflare-access-application-declaration</a>, <a href="#TAC-3503-edge-cloudflare-access-policy-shape">TAC-3503-edge-cloudflare-access-policy-shape</a>, <a href="#TAC-3504-edge-cloudflare-access-audit-sink">TAC-3504-edge-cloudflare-access-audit-sink</a>, <a href="#TAC-3601-edge-cloudflare-turnstile-widget-mount">TAC-3601-edge-cloudflare-turnstile-widget-mount</a>, <a href="#TAC-3602-edge-cloudflare-turnstile-server-verifier">TAC-3602-edge-cloudflare-turnstile-server-verifier</a>, <a href="#TAC-3603-edge-cloudflare-turnstile-magic-link-hook">TAC-3603-edge-cloudflare-turnstile-magic-link-hook</a></p></section>
-  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a>, <a href="#ADR-010">ADR-010</a>, <a href="#ADR-2214-application-admin-console-consume-zero-trust-gate">ADR-2214-application-admin-console-consume-zero-trust-gate</a>, <a href="#ADR-3501-edge-cloudflare-access-jwt-gate">ADR-3501-edge-cloudflare-access-jwt-gate</a>, <a href="#ADR-3502-edge-cloudflare-access-identity-provider">ADR-3502-edge-cloudflare-access-identity-provider</a>, <a href="#ADR-3503-edge-cloudflare-access-policy-scope">ADR-3503-edge-cloudflare-access-policy-scope</a>, <a href="#ADR-3504-edge-cloudflare-access-audit-retention">ADR-3504-edge-cloudflare-access-audit-retention</a>, <a href="#ADR-3601-edge-cloudflare-turnstile-verifier-contract">ADR-3601-edge-cloudflare-turnstile-verifier-contract</a>, <a href="#ADR-3602-edge-cloudflare-turnstile-widget-mode">ADR-3602-edge-cloudflare-turnstile-widget-mode</a>, <a href="#ADR-3603-edge-cloudflare-turnstile-refuse-shape">ADR-3603-edge-cloudflare-turnstile-refuse-shape</a></p></section>
+  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a>, <a href="#TAC-2214-application-admin-console-access-gated-signin-surface">TAC-2214-application-admin-console-access-gated-signin-surface</a>, <a href="#TAC-3501-edge-cloudflare-access-jwt-validator">TAC-3501-edge-cloudflare-access-jwt-validator</a>, <a href="#TAC-3502-edge-cloudflare-access-application-declaration">TAC-3502-edge-cloudflare-access-application-declaration</a>, <a href="#TAC-3503-edge-cloudflare-access-policy-shape">TAC-3503-edge-cloudflare-access-policy-shape</a>, <a href="#TAC-3504-edge-cloudflare-access-audit-sink">TAC-3504-edge-cloudflare-access-audit-sink</a>, <a href="#TAC-3601-edge-cloudflare-turnstile-widget-mount">TAC-3601-edge-cloudflare-turnstile-widget-mount</a>, <a href="#TAC-3602-edge-cloudflare-turnstile-server-verifier">TAC-3602-edge-cloudflare-turnstile-server-verifier</a>, <a href="#TAC-3603-edge-cloudflare-turnstile-magic-link-hook">TAC-3603-edge-cloudflare-turnstile-magic-link-hook</a>, <a href="#TAC-3701-edge-cloudflare-rate-limiting-manifest-schema">TAC-3701-edge-cloudflare-rate-limiting-manifest-schema</a>, <a href="#TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc">TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc</a>, <a href="#TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner">TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner</a></p></section>
+  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a>, <a href="#ADR-010">ADR-010</a>, <a href="#ADR-2214-application-admin-console-consume-zero-trust-gate">ADR-2214-application-admin-console-consume-zero-trust-gate</a>, <a href="#ADR-3501-edge-cloudflare-access-jwt-gate">ADR-3501-edge-cloudflare-access-jwt-gate</a>, <a href="#ADR-3502-edge-cloudflare-access-identity-provider">ADR-3502-edge-cloudflare-access-identity-provider</a>, <a href="#ADR-3503-edge-cloudflare-access-policy-scope">ADR-3503-edge-cloudflare-access-policy-scope</a>, <a href="#ADR-3504-edge-cloudflare-access-audit-retention">ADR-3504-edge-cloudflare-access-audit-retention</a>, <a href="#ADR-3601-edge-cloudflare-turnstile-verifier-contract">ADR-3601-edge-cloudflare-turnstile-verifier-contract</a>, <a href="#ADR-3602-edge-cloudflare-turnstile-widget-mode">ADR-3602-edge-cloudflare-turnstile-widget-mode</a>, <a href="#ADR-3603-edge-cloudflare-turnstile-refuse-shape">ADR-3603-edge-cloudflare-turnstile-refuse-shape</a>, <a href="#ADR-3701-edge-cloudflare-rate-limiting-throttle-contract">ADR-3701-edge-cloudflare-rate-limiting-throttle-contract</a>, <a href="#ADR-3702-edge-cloudflare-rate-limiting-layering">ADR-3702-edge-cloudflare-rate-limiting-layering</a>, <a href="#ADR-3703-edge-cloudflare-rate-limiting-manifest-shape">ADR-3703-edge-cloudflare-rate-limiting-manifest-shape</a>, <a href="#ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence">ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;tadId&quot;: &quot;TAD-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -15363,6 +16037,98 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3701-edge-cloudflare-rate-limiting-manifest-schema">
+  <summary><span class="summary-label">TAC-3701-edge-cloudflare-rate-limiting-manifest-schema - Rate-limit rule manifest schema and manifest layout</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3701-edge-cloudflare-rate-limiting-manifest-schema" class="doc doc-tac">
+  <h3>TAC-3701-edge-cloudflare-rate-limiting-manifest-schema - Rate-limit rule manifest schema and manifest layout</h3>
+  
+  <p><strong>Purpose:</strong> T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3701-edge-cloudflare-rate-limiting-manifest-schema.json contribution. Defines the JSON Schema shape and the manifest directory layout for the local rate-limit rules manifest per https://developers.cloudflare.com/waf/rate-limiting-rules/. Anchors AC-10001-1, AC-10601-1, AC-10801-1 (and AC-36101-1, AC-36106-1, AC-36108-1 on the shipped blueprint).</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Ship a draft-07 JSON Schema for the rate-limit rule manifest file (AC-10001-1, AC-10601-1).</li><li>Ship the layout the manifest-presence probe scans (AC-10001-1, AC-10801-1).</li></ul></section>
+  <p><strong>Internal structure:</strong> One JSON Schema file at blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json (draft-07); one shipped example manifest directory in the cf-edge fixture with two files.</p>
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:40:45.360Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:40:45.360Z&quot;,
+  &quot;purpose&quot;: &quot;T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3701-edge-cloudflare-rate-limiting-manifest-schema.json contribution. Defines the JSON Schema shape and the manifest directory layout for the local rate-limit rules manifest per https://developers.cloudflare.com/waf/rate-limiting-rules/. Anchors AC-10001-1, AC-10601-1, AC-10801-1 (and AC-36101-1, AC-36106-1, AC-36108-1 on the shipped blueprint).&quot;,
+  &quot;internalStructure&quot;: &quot;One JSON Schema file at blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json (draft-07); one shipped example manifest directory in the cf-edge fixture with two files.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Ship a draft-07 JSON Schema for the rate-limit rule manifest file (AC-10001-1, AC-10601-1).&quot;,
+    &quot;Ship the layout the manifest-presence probe scans (AC-10001-1, AC-10801-1).&quot;
+  ],
+  &quot;tacId&quot;: &quot;TAC-3701-edge-cloudflare-rate-limiting-manifest-schema&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;name&quot;: &quot;Rate-limit rule manifest schema and manifest layout&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc">
+  <summary><span class="summary-label">TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc - Operator-facing management surface documentation (wrangler and dashboard flows)</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc" class="doc doc-tac">
+  <h3>TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc - Operator-facing management surface documentation (wrangler and dashboard flows)</h3>
+  
+  <p><strong>Purpose:</strong> T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3702-edge-cloudflare-rate-limiting-management-surface-doc.json contribution. Defines the operator-facing management surface documentation shape: both a wrangler command flow and a Cloudflare dashboard flow for applying one rule from a manifest file to the elicited zone. Anchors AC-10101-1 and AC-10401-1.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Ship the guide with both wrangler and dashboard flows plus the composition example (AC-10101-1, AC-10401-1).</li></ul></section>
+  <p><strong>Internal structure:</strong> One guide file at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md with three named sections: Manifest, Management surface (wrangler and dashboard subsections), Composition with security-auth-magic-link.</p>
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:40:45.647Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:40:45.647Z&quot;,
+  &quot;purpose&quot;: &quot;T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3702-edge-cloudflare-rate-limiting-management-surface-doc.json contribution. Defines the operator-facing management surface documentation shape: both a wrangler command flow and a Cloudflare dashboard flow for applying one rule from a manifest file to the elicited zone. Anchors AC-10101-1 and AC-10401-1.&quot;,
+  &quot;internalStructure&quot;: &quot;One guide file at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md with three named sections: Manifest, Management surface (wrangler and dashboard subsections), Composition with security-auth-magic-link.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Ship the guide with both wrangler and dashboard flows plus the composition example (AC-10101-1, AC-10401-1).&quot;
+  ],
+  &quot;tacId&quot;: &quot;TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;name&quot;: &quot;Operator-facing management surface documentation (wrangler and dashboard flows)&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner">
+  <summary><span class="summary-label">TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner - Drift-audit runner: read live zone rules via the Cloudflare API and diff against the local manifest</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner" class="doc doc-tac">
+  <h3>TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner - Drift-audit runner: read live zone rules via the Cloudflare API and diff against the local manifest</h3>
+  
+  <p><strong>Purpose:</strong> T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3703-edge-cloudflare-rate-limiting-drift-audit-runner.json contribution. Defines the drift-audit runner: factory shape createDriftAuditRunner({env, eventSink, fetch, clock, cadence, manifestLoader}) that fetches live rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only drift records. Anchors AC-10301-1 and AC-10701-1.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Ship the drift-audit runner factory (AC-10301-1).</li><li>Emit metadata-only audit records via the injected sink, Object.frozen at the boundary (AC-10701-1).</li></ul></section>
+  <p><strong>Internal structure:</strong> One runner module realised in the cf-edge fixture at packages/rcf-lite/test/fixtures/cf-edge/src/drift-audit-runner.mjs. The applying project copies the shape from the blueprint guide; the fixture module is the shape probes drive.</p>
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:40:45.943Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:40:45.943Z&quot;,
+  &quot;purpose&quot;: &quot;T-6 repo-chain TAC mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/tacs/tac-3703-edge-cloudflare-rate-limiting-drift-audit-runner.json contribution. Defines the drift-audit runner: factory shape createDriftAuditRunner({env, eventSink, fetch, clock, cadence, manifestLoader}) that fetches live rules via the Cloudflare API and diffs against the local manifest, constructing metadata-only drift records. Anchors AC-10301-1 and AC-10701-1.&quot;,
+  &quot;internalStructure&quot;: &quot;One runner module realised in the cf-edge fixture at packages/rcf-lite/test/fixtures/cf-edge/src/drift-audit-runner.mjs. The applying project copies the shape from the blueprint guide; the fixture module is the shape probes drive.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Ship the drift-audit runner factory (AC-10301-1).&quot;,
+    &quot;Emit metadata-only audit records via the injected sink, Object.frozen at the boundary (AC-10701-1).&quot;
+  ],
+  &quot;tacId&quot;: &quot;TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;name&quot;: &quot;Drift-audit runner: read live zone rules via the Cloudflare API and diff against the local manifest&quot;
+}
+</pre></details>
+</article>
+</details>
 <h3 class="group-heading">Architectural decisions</h3>
 <details class="doc-details doc-adr-wrap" data-doc-id="ADR-001">
   <summary><span class="summary-label">ADR-001 - Local filesystem is the single source of truth</span><span class="status accepted">accepted</span></summary>
@@ -15983,6 +16749,118 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3701-edge-cloudflare-rate-limiting-throttle-contract">
+  <summary><span class="summary-label">ADR-3701-edge-cloudflare-rate-limiting-throttle-contract - Edge throttle contract: Cloudflare WAF rate-limiting rules (scope global, new topic edgeThrottleContract)</span><span class="status proposed">proposed</span></summary>
+  <article id="ADR-3701-edge-cloudflare-rate-limiting-throttle-contract" class="doc doc-adr">
+  <h3>ADR-3701-edge-cloudflare-rate-limiting-throttle-contract - Edge throttle contract: Cloudflare WAF rate-limiting rules (scope global, new topic edgeThrottleContract)</h3>
+  
+  <p><strong>Status:</strong> proposed</p>
+  <p><strong>Context:</strong> T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3701-edge-cloudflare-rate-limiting-throttle-contract.json contribution. An applying Workers project needs a zone-level guard that refuses over-threshold bursts at the CF edge before they reach the origin. Cloudflare&#39;s WAF rate-limiting rules provide the native answer with a documented rule shape (id, expression, threshold, period, characteristics, action, duration) per https://developers.cloudflare.com/waf/rate-limiting-rules/. Every applied Worker needs one project-wide answer to the edgeThrottleContract topic; a future non-Cloudflare edge-throttle sibling would conflict on the same topic.</p>
+  <p><strong>Decision:</strong> The shipped v1.0.0 default is Cloudflare WAF rate-limiting rules as the zone-level edge throttle. The rule shape matches the Cloudflare documented fields. The edgeThrottleContract topic scope is global on this blueprint. Standards trace clause: Cloudflare WAF rate-limiting rules documented shape.</p>
+  <p><strong>Consequences:</strong> The applying project inherits Cloudflare&#39;s documented rule shape and platform-imposed limits. Rule state lives on the Cloudflare account, not in the git tree; the local manifest under cloudflare/rate-limits/ is the source of truth. Drift risk is addressed via ADR-3704 (cadence) and TAC-3703 (drift-audit runner).</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:40:46.232Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:40:46.232Z&quot;,
+  &quot;context&quot;: &quot;T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3701-edge-cloudflare-rate-limiting-throttle-contract.json contribution. An applying Workers project needs a zone-level guard that refuses over-threshold bursts at the CF edge before they reach the origin. Cloudflare&#39;s WAF rate-limiting rules provide the native answer with a documented rule shape (id, expression, threshold, period, characteristics, action, duration) per https://developers.cloudflare.com/waf/rate-limiting-rules/. Every applied Worker needs one project-wide answer to the edgeThrottleContract topic; a future non-Cloudflare edge-throttle sibling would conflict on the same topic.&quot;,
+  &quot;decision&quot;: &quot;The shipped v1.0.0 default is Cloudflare WAF rate-limiting rules as the zone-level edge throttle. The rule shape matches the Cloudflare documented fields. The edgeThrottleContract topic scope is global on this blueprint. Standards trace clause: Cloudflare WAF rate-limiting rules documented shape.&quot;,
+  &quot;consequences&quot;: &quot;The applying project inherits Cloudflare&#39;s documented rule shape and platform-imposed limits. Rule state lives on the Cloudflare account, not in the git tree; the local manifest under cloudflare/rate-limits/ is the source of truth. Drift risk is addressed via ADR-3704 (cadence) and TAC-3703 (drift-audit runner).&quot;,
+  &quot;adrId&quot;: &quot;ADR-3701-edge-cloudflare-rate-limiting-throttle-contract&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;proposed&quot;,
+  &quot;title&quot;: &quot;Edge throttle contract: Cloudflare WAF rate-limiting rules (scope global, new topic edgeThrottleContract)&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3702-edge-cloudflare-rate-limiting-layering">
+  <summary><span class="summary-label">ADR-3702-edge-cloudflare-rate-limiting-layering - Layering with security-auth-magic-link: zone rule OVER the per-email application rule</span><span class="status proposed">proposed</span></summary>
+  <article id="ADR-3702-edge-cloudflare-rate-limiting-layering" class="doc doc-adr">
+  <h3>ADR-3702-edge-cloudflare-rate-limiting-layering - Layering with security-auth-magic-link: zone rule OVER the per-email application rule</h3>
+  
+  <p><strong>Status:</strong> proposed</p>
+  <p><strong>Context:</strong> T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3702-edge-cloudflare-rate-limiting-layering.json contribution. The security-auth-magic-link blueprint ships a per-email per-minute application-level rate limiter on the mint surface; edge-cloudflare-rate-limiting ships a zone-level IP-per-URL rate rule at the CF edge. Without an explicit layering ADR the operator can mistake the two rules for overlapping.</p>
+  <p><strong>Decision:</strong> When both blueprints apply, the zone rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin; the magic-link per-email rate limiter continues at the mint-surface. The two rules operate on different characteristic sets (IP-per-URL vs per-email per-minute) and are additive. recommendedDefault: true. Standards trace clause: generic enterprise practice.</p>
+  <p><strong>Consequences:</strong> The composition is documented in the guide with a copy-paste example. The applied recorder records both blueprints so the operator sees the two-rule shape at apply time; drift into overlap is caught in the drift-audit runner.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:40:46.520Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:40:46.520Z&quot;,
+  &quot;context&quot;: &quot;T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3702-edge-cloudflare-rate-limiting-layering.json contribution. The security-auth-magic-link blueprint ships a per-email per-minute application-level rate limiter on the mint surface; edge-cloudflare-rate-limiting ships a zone-level IP-per-URL rate rule at the CF edge. Without an explicit layering ADR the operator can mistake the two rules for overlapping.&quot;,
+  &quot;decision&quot;: &quot;When both blueprints apply, the zone rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin; the magic-link per-email rate limiter continues at the mint-surface. The two rules operate on different characteristic sets (IP-per-URL vs per-email per-minute) and are additive. recommendedDefault: true. Standards trace clause: generic enterprise practice.&quot;,
+  &quot;consequences&quot;: &quot;The composition is documented in the guide with a copy-paste example. The applied recorder records both blueprints so the operator sees the two-rule shape at apply time; drift into overlap is caught in the drift-audit runner.&quot;,
+  &quot;adrId&quot;: &quot;ADR-3702-edge-cloudflare-rate-limiting-layering&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;proposed&quot;,
+  &quot;title&quot;: &quot;Layering with security-auth-magic-link: zone rule OVER the per-email application rule&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3703-edge-cloudflare-rate-limiting-manifest-shape">
+  <summary><span class="summary-label">ADR-3703-edge-cloudflare-rate-limiting-manifest-shape - Manifest at cloudflare/rate-limits/, one JSON file per rule; operator applies via wrangler or dashboard</span><span class="status proposed">proposed</span></summary>
+  <article id="ADR-3703-edge-cloudflare-rate-limiting-manifest-shape" class="doc doc-adr">
+  <h3>ADR-3703-edge-cloudflare-rate-limiting-manifest-shape - Manifest at cloudflare/rate-limits/, one JSON file per rule; operator applies via wrangler or dashboard</h3>
+  
+  <p><strong>Status:</strong> proposed</p>
+  <p><strong>Context:</strong> T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3703-edge-cloudflare-rate-limiting-manifest-shape.json contribution. The rule set could be committed as a wrangler-shape script, a bespoke apply tool, a single manifest file, or one file per rule. Single-file hides diff signal when one rule changes; committed script couples the source of truth to a specific tool.</p>
+  <p><strong>Decision:</strong> The manifest lives at the elicited rate-limit-rules-dir (default cloudflare/rate-limits/), with one JSON file per rule. No committed script writes rules to the live zone; the operator applies through the documented wrangler or dashboard flow per REQ-101 and TAC-3702. recommendedDefault: true. Standards trace clause: generic enterprise practice.</p>
+  <p><strong>Consequences:</strong> One-file-per-rule keeps each rule diff scoped. No committed apply script means the blueprint does not couple to a tool version and does not require an API token at build time. Operator applies at their chosen cadence; drift risk is addressed via ADR-3704 and TAC-3703.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:40:46.808Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:40:46.808Z&quot;,
+  &quot;context&quot;: &quot;T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3703-edge-cloudflare-rate-limiting-manifest-shape.json contribution. The rule set could be committed as a wrangler-shape script, a bespoke apply tool, a single manifest file, or one file per rule. Single-file hides diff signal when one rule changes; committed script couples the source of truth to a specific tool.&quot;,
+  &quot;decision&quot;: &quot;The manifest lives at the elicited rate-limit-rules-dir (default cloudflare/rate-limits/), with one JSON file per rule. No committed script writes rules to the live zone; the operator applies through the documented wrangler or dashboard flow per REQ-101 and TAC-3702. recommendedDefault: true. Standards trace clause: generic enterprise practice.&quot;,
+  &quot;consequences&quot;: &quot;One-file-per-rule keeps each rule diff scoped. No committed apply script means the blueprint does not couple to a tool version and does not require an API token at build time. Operator applies at their chosen cadence; drift risk is addressed via ADR-3704 and TAC-3703.&quot;,
+  &quot;adrId&quot;: &quot;ADR-3703-edge-cloudflare-rate-limiting-manifest-shape&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;proposed&quot;,
+  &quot;title&quot;: &quot;Manifest at cloudflare/rate-limits/, one JSON file per rule; operator applies via wrangler or dashboard&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence">
+  <summary><span class="summary-label">ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence - Drift-audit cadence: off, daily or hourly (elicited; recommendedDefault daily)</span><span class="status proposed">proposed</span></summary>
+  <article id="ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence" class="doc doc-adr">
+  <h3>ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence - Drift-audit cadence: off, daily or hourly (elicited; recommendedDefault daily)</h3>
+  
+  <p><strong>Status:</strong> proposed</p>
+  <p><strong>Context:</strong> T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3704-edge-cloudflare-rate-limiting-drift-audit-cadence.json contribution. Rate-limit rules live on the Cloudflare account, not in the git tree. Drift in either direction (dashboard change without manifest update, manifest edit without an apply) is only surfaced if the applying project runs the drift-audit runner at a cadence.</p>
+  <p><strong>Decision:</strong> The drift-audit cadence is elicited (rate-limit-drift-audit-cadence) with three options: off (disables the runner), daily (24-hour cadence), hourly (60-minute cadence). recommendedDefault: daily. elicited: true. Standards trace clause: generic enterprise practice.</p>
+  <p><strong>Consequences:</strong> daily is safe for typical operations; hourly is safe for high-cadence rule changes; off is safe only when the operator has an alternative drift-check discipline. The elicit prompts at apply time.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:40:47.096Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:40:47.096Z&quot;,
+  &quot;context&quot;: &quot;T-6 repo-chain ADR mirror for the shipped blueprints/edge-cloudflare-rate-limiting/contributions/adrs/adr-3704-edge-cloudflare-rate-limiting-drift-audit-cadence.json contribution. Rate-limit rules live on the Cloudflare account, not in the git tree. Drift in either direction (dashboard change without manifest update, manifest edit without an apply) is only surfaced if the applying project runs the drift-audit runner at a cadence.&quot;,
+  &quot;decision&quot;: &quot;The drift-audit cadence is elicited (rate-limit-drift-audit-cadence) with three options: off (disables the runner), daily (24-hour cadence), hourly (60-minute cadence). recommendedDefault: daily. elicited: true. Standards trace clause: generic enterprise practice.&quot;,
+  &quot;consequences&quot;: &quot;daily is safe for typical operations; hourly is safe for high-cadence rule changes; off is safe only when the operator has an alternative drift-check discipline. The elicit prompts at apply time.&quot;,
+  &quot;adrId&quot;: &quot;ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;proposed&quot;,
+  &quot;title&quot;: &quot;Drift-audit cadence: off, daily or hourly (elicited; recommendedDefault daily)&quot;
+}
+</pre></details>
+</article>
+</details>
 
     </section>
     <section id="tab-build" role="tabpanel" hidden>
@@ -15993,7 +16871,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li><li><strong>58.</strong> <a href="#FBS-110">FBS-110</a> - <span class="status notStarted">notStarted</span> - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li><li><strong>58.</strong> <a href="#FBS-110">FBS-110</a> - <span class="status notStarted">notStarted</span> - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</li><li><strong>59.</strong> <a href="#FBS-120">FBS-120</a> - <span class="status notStarted">notStarted</span> - T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -20722,6 +21600,96 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks&quot;,
   &quot;uiBearing&quot;: true
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-120">
+  <summary><span class="summary-label">FBS-120 - T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-120" class="doc doc-fbs">
+  <h3>FBS-120 - T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches</h3>
+  
+  <p><strong>Summary:</strong> HQ round-6 T-6: edge-cloudflare-rate-limiting v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-rate-limiting/. Ships local rate-limit rules manifest (TAC-3701 draft-07 JSON Schema plus cf-edge fixture files cloudflare/rate-limits/example.json and api-writes.json), operator-facing management surface documentation with wrangler and dashboard flows (TAC-3702, guide), and the drift-audit runner realisation in the cf-edge fixture (TAC-3703, src/drift-audit-runner.mjs). Four Node-only probes under blueprints/edge-cloudflare-rate-limiting/contributions/probes/: manifest-presence (AC-10001-1/AC-10801-1 under SIMULATE_MANIFEST_MISSING), manifest-schema-validate (AC-10601-1; SIMULATE_SCHEMA_INVALID negative), event-secrecy (AC-10701-1; SIMULATE_EVENT_LEAK_IP negative) and real-account-burst-and-429 (AC-10201-1; accountBound: true, records accountBoundSkipped without CI_HAS_CLOUDFLARE_ACCOUNT per ruling 6). Blueprint README, guide, docs/topics.md, CHANGELOG; shelf-wide topics.md sweep adding the edge-cloudflare-rate-limiting row across every prior blueprint&#39;s docs/topics.md; section 6a edgeRateLimit row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-100..104, US-10001, 10101, 10201, 10301, 10401, 10601, 10701, 10801, TS-130..137 plus TCs, FBS-120, CN-380, TAC-3701..3703, ADR-3701..3704 minted via rcf define create --id per HQ round-6 T-6 reserved-block ruling 2026-09-07. Base commit origin/main 5a22ca6.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-10001-1">AC-10001-1</a><a class="ac-pill" href="#AC-10101-1">AC-10101-1</a><a class="ac-pill" href="#AC-10201-1">AC-10201-1</a><a class="ac-pill" href="#AC-10301-1">AC-10301-1</a><a class="ac-pill" href="#AC-10401-1">AC-10401-1</a><a class="ac-pill" href="#AC-10601-1">AC-10601-1</a><a class="ac-pill" href="#AC-10701-1">AC-10701-1</a><a class="ac-pill" href="#AC-10801-1">AC-10801-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-10001-1">AC-10001-1</a></strong> - The cf-edge fixture&#39;s cloudflare/rate-limits/ directory holds at least one JSON file per rule; every file parses; every file carries id, expression, threshold, period, characteristics, action, duration; no file body carries a plaintext bearer token, private key or inline CF_API_TOKEN reference.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-10101-1">AC-10101-1</a></strong> - The blueprint guide documents an operator-facing management surface with a wrangler command flow and a Cloudflare dashboard flow; the guide references https://developers.cloudflare.com/waf/rate-limiting-rules/.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-10201-1">AC-10201-1</a></strong> - With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_RATE_LIMIT_URL set, the burst probe returns 429 with Retry-After and Cf-Ray on over-threshold requests; without either env var it records accountBoundSkipped: true and aggregates to pass per spec section 3.5 and ruling 6.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-10301-1">AC-10301-1</a></strong> - Given a fixture manifest with threshold 60 and a fake live-zone response with threshold 90 on the same rule id, the runner constructs one drift record with {ruleId, clientIpHash, outcome, timestamp, diff:[{field:threshold, manifestValue:60, liveValue:90}]}; no full IP, body or user-agent field is present.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-10401-1">AC-10401-1</a></strong> - The guide contains a Composition with security-auth-magic-link section referencing ADR-3702, naming the two characteristic sets (IP-per-URL and per-email per-minute) verbatim, and showing a copy-paste example of both blueprints applied.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-10601-1">AC-10601-1</a></strong> - The manifest-schema-validate probe validates every manifest file against the shipped rate-limit-rule.schema.json (draft-07); valid files pass; a manifest file missing threshold (SIMULATE_SCHEMA_INVALID=true) fails validation with the offending field named in the detail.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-10701-1">AC-10701-1</a></strong> - The event-secrecy probe drives the drift-audit runner with a synthetic input pair; every record carries only {ruleId, clientIpHash, outcome, timestamp, diff}; SIMULATE_EVENT_LEAK_IP=true injects a full IP into the outcome so the probe surfaces the leak.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-10801-1">AC-10801-1</a></strong> - With SIMULATE_MANIFEST_MISSING=true the manifest-presence probe returns aggregateVerdict: fail and names the missing file basename in the detail; without the switch the probe passes.</p>
+  
+  
+  
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 59</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:48.747Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:42:15.451Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10001-1&quot;,
+    &quot;AC-10101-1&quot;,
+    &quot;AC-10201-1&quot;,
+    &quot;AC-10301-1&quot;,
+    &quot;AC-10401-1&quot;,
+    &quot;AC-10601-1&quot;,
+    &quot;AC-10701-1&quot;,
+    &quot;AC-10801-1&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-120&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 59,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches&quot;,
+  &quot;summary&quot;: &quot;HQ round-6 T-6: edge-cloudflare-rate-limiting v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-rate-limiting/. Ships local rate-limit rules manifest (TAC-3701 draft-07 JSON Schema plus cf-edge fixture files cloudflare/rate-limits/example.json and api-writes.json), operator-facing management surface documentation with wrangler and dashboard flows (TAC-3702, guide), and the drift-audit runner realisation in the cf-edge fixture (TAC-3703, src/drift-audit-runner.mjs). Four Node-only probes under blueprints/edge-cloudflare-rate-limiting/contributions/probes/: manifest-presence (AC-10001-1/AC-10801-1 under SIMULATE_MANIFEST_MISSING), manifest-schema-validate (AC-10601-1; SIMULATE_SCHEMA_INVALID negative), event-secrecy (AC-10701-1; SIMULATE_EVENT_LEAK_IP negative) and real-account-burst-and-429 (AC-10201-1; accountBound: true, records accountBoundSkipped without CI_HAS_CLOUDFLARE_ACCOUNT per ruling 6). Blueprint README, guide, docs/topics.md, CHANGELOG; shelf-wide topics.md sweep adding the edge-cloudflare-rate-limiting row across every prior blueprint&#39;s docs/topics.md; section 6a edgeRateLimit row on packages/rcf-lite/docs/blueprint-authoring.md. Repo chain: REQ-100..104, US-10001, 10101, 10201, 10301, 10401, 10601, 10701, 10801, TS-130..137 plus TCs, FBS-120, CN-380, TAC-3701..3703, ADR-3701..3704 minted via rcf define create --id per HQ round-6 T-6 reserved-block ruling 2026-09-07. Base commit origin/main 5a22ca6.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
 </article>
@@ -28114,6 +29082,326 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;AC-9401-1 anatomy proof&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-turnstile-anatomy.test.js::widget mode enum honours managed non-interactive and invisible on the pack fixture (TC-127-widget-mode-enum)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-130">
+  <summary><span class="summary-label">TS-130 - T-6 AC-10001-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-130" class="doc doc-ts">
+  <h3>TS-130 - T-6 AC-10001-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-10001">US-10001</a></p>
+  <p><strong>Purpose:</strong> Cover AC-10001-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-10001-1">AC-10001-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-130-manifest-presence-pass">
+  <p><strong>TC-130-manifest-presence-pass</strong> - covers <a href="#AC-10001-1">AC-10001-1</a> <span class="status pending">pending</span></p>
+  <p>AC-10001-1 anatomy proof (T-6 rate-limiting slice, TC-130-manifest-presence-pass)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10001-1 anatomy proof (TC-130-manifest-presence-pass)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:27.755Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:28.044Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-10001-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10001-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-130&quot;,
+  &quot;usId&quot;: &quot;US-10001&quot;,
+  &quot;title&quot;: &quot;T-6 AC-10001-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-130-manifest-presence-pass&quot;,
+      &quot;acId&quot;: &quot;AC-10001-1&quot;,
+      &quot;description&quot;: &quot;AC-10001-1 anatomy proof (T-6 rate-limiting slice, TC-130-manifest-presence-pass)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10001-1 anatomy proof (TC-130-manifest-presence-pass)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-131">
+  <summary><span class="summary-label">TS-131 - T-6 AC-10101-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-131" class="doc doc-ts">
+  <h3>TS-131 - T-6 AC-10101-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-10101">US-10101</a></p>
+  <p><strong>Purpose:</strong> Cover AC-10101-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-10101-1">AC-10101-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-131-guide-management-surface-doc">
+  <p><strong>TC-131-guide-management-surface-doc</strong> - covers <a href="#AC-10101-1">AC-10101-1</a> <span class="status pending">pending</span></p>
+  <p>AC-10101-1 anatomy proof (T-6 rate-limiting slice, TC-131-guide-management-surface-doc)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10101-1 anatomy proof (TC-131-guide-management-surface-doc)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:28.334Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:28.623Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-10101-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10101-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-131&quot;,
+  &quot;usId&quot;: &quot;US-10101&quot;,
+  &quot;title&quot;: &quot;T-6 AC-10101-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-131-guide-management-surface-doc&quot;,
+      &quot;acId&quot;: &quot;AC-10101-1&quot;,
+      &quot;description&quot;: &quot;AC-10101-1 anatomy proof (T-6 rate-limiting slice, TC-131-guide-management-surface-doc)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10101-1 anatomy proof (TC-131-guide-management-surface-doc)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-132">
+  <summary><span class="summary-label">TS-132 - T-6 AC-10201-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-132" class="doc doc-ts">
+  <h3>TS-132 - T-6 AC-10201-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-10201">US-10201</a></p>
+  <p><strong>Purpose:</strong> Cover AC-10201-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-10201-1">AC-10201-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-132-real-account-burst-and-429-or-skipped">
+  <p><strong>TC-132-real-account-burst-and-429-or-skipped</strong> - covers <a href="#AC-10201-1">AC-10201-1</a> <span class="status pending">pending</span></p>
+  <p>AC-10201-1 anatomy proof (T-6 rate-limiting slice, TC-132-real-account-burst-and-429-or-skipped)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10201-1 anatomy proof (TC-132-real-account-burst-and-429-or-skipped)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:28.913Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:29.200Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-10201-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10201-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-132&quot;,
+  &quot;usId&quot;: &quot;US-10201&quot;,
+  &quot;title&quot;: &quot;T-6 AC-10201-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-132-real-account-burst-and-429-or-skipped&quot;,
+      &quot;acId&quot;: &quot;AC-10201-1&quot;,
+      &quot;description&quot;: &quot;AC-10201-1 anatomy proof (T-6 rate-limiting slice, TC-132-real-account-burst-and-429-or-skipped)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10201-1 anatomy proof (TC-132-real-account-burst-and-429-or-skipped)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-133">
+  <summary><span class="summary-label">TS-133 - T-6 AC-10301-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-133" class="doc doc-ts">
+  <h3>TS-133 - T-6 AC-10301-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-10301">US-10301</a></p>
+  <p><strong>Purpose:</strong> Cover AC-10301-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-10301-1">AC-10301-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-133-drift-audit-runner-diff">
+  <p><strong>TC-133-drift-audit-runner-diff</strong> - covers <a href="#AC-10301-1">AC-10301-1</a> <span class="status pending">pending</span></p>
+  <p>AC-10301-1 anatomy proof (T-6 rate-limiting slice, TC-133-drift-audit-runner-diff)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10301-1 anatomy proof (TC-133-drift-audit-runner-diff)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:29.506Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:29.793Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-10301-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10301-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-133&quot;,
+  &quot;usId&quot;: &quot;US-10301&quot;,
+  &quot;title&quot;: &quot;T-6 AC-10301-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-133-drift-audit-runner-diff&quot;,
+      &quot;acId&quot;: &quot;AC-10301-1&quot;,
+      &quot;description&quot;: &quot;AC-10301-1 anatomy proof (T-6 rate-limiting slice, TC-133-drift-audit-runner-diff)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10301-1 anatomy proof (TC-133-drift-audit-runner-diff)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-134">
+  <summary><span class="summary-label">TS-134 - T-6 AC-10401-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-134" class="doc doc-ts">
+  <h3>TS-134 - T-6 AC-10401-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-10401">US-10401</a></p>
+  <p><strong>Purpose:</strong> Cover AC-10401-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-10401-1">AC-10401-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-134-composition-guide-section">
+  <p><strong>TC-134-composition-guide-section</strong> - covers <a href="#AC-10401-1">AC-10401-1</a> <span class="status pending">pending</span></p>
+  <p>AC-10401-1 anatomy proof (T-6 rate-limiting slice, TC-134-composition-guide-section)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10401-1 anatomy proof (TC-134-composition-guide-section)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:30.086Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:30.375Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-10401-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10401-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-134&quot;,
+  &quot;usId&quot;: &quot;US-10401&quot;,
+  &quot;title&quot;: &quot;T-6 AC-10401-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-134-composition-guide-section&quot;,
+      &quot;acId&quot;: &quot;AC-10401-1&quot;,
+      &quot;description&quot;: &quot;AC-10401-1 anatomy proof (T-6 rate-limiting slice, TC-134-composition-guide-section)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10401-1 anatomy proof (TC-134-composition-guide-section)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-135">
+  <summary><span class="summary-label">TS-135 - T-6 AC-10601-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-135" class="doc doc-ts">
+  <h3>TS-135 - T-6 AC-10601-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-10601">US-10601</a></p>
+  <p><strong>Purpose:</strong> Cover AC-10601-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-10601-1">AC-10601-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-135-manifest-schema-validate-pass-and-fail">
+  <p><strong>TC-135-manifest-schema-validate-pass-and-fail</strong> - covers <a href="#AC-10601-1">AC-10601-1</a> <span class="status pending">pending</span></p>
+  <p>AC-10601-1 anatomy proof (T-6 rate-limiting slice, TC-135-manifest-schema-validate-pass-and-fail)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10601-1 anatomy proof (TC-135-manifest-schema-validate-pass-and-fail)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:30.663Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:30.952Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-10601-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10601-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-135&quot;,
+  &quot;usId&quot;: &quot;US-10601&quot;,
+  &quot;title&quot;: &quot;T-6 AC-10601-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-135-manifest-schema-validate-pass-and-fail&quot;,
+      &quot;acId&quot;: &quot;AC-10601-1&quot;,
+      &quot;description&quot;: &quot;AC-10601-1 anatomy proof (T-6 rate-limiting slice, TC-135-manifest-schema-validate-pass-and-fail)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10601-1 anatomy proof (TC-135-manifest-schema-validate-pass-and-fail)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-136">
+  <summary><span class="summary-label">TS-136 - T-6 AC-10701-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-136" class="doc doc-ts">
+  <h3>TS-136 - T-6 AC-10701-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-10701">US-10701</a></p>
+  <p><strong>Purpose:</strong> Cover AC-10701-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-10701-1">AC-10701-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-136-event-secrecy-pass-and-leak">
+  <p><strong>TC-136-event-secrecy-pass-and-leak</strong> - covers <a href="#AC-10701-1">AC-10701-1</a> <span class="status pending">pending</span></p>
+  <p>AC-10701-1 anatomy proof (T-6 rate-limiting slice, TC-136-event-secrecy-pass-and-leak)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10701-1 anatomy proof (TC-136-event-secrecy-pass-and-leak)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:31.243Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:31.532Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-10701-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10701-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-136&quot;,
+  &quot;usId&quot;: &quot;US-10701&quot;,
+  &quot;title&quot;: &quot;T-6 AC-10701-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-136-event-secrecy-pass-and-leak&quot;,
+      &quot;acId&quot;: &quot;AC-10701-1&quot;,
+      &quot;description&quot;: &quot;AC-10701-1 anatomy proof (T-6 rate-limiting slice, TC-136-event-secrecy-pass-and-leak)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10701-1 anatomy proof (TC-136-event-secrecy-pass-and-leak)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-137">
+  <summary><span class="summary-label">TS-137 - T-6 AC-10801-1 anatomy proof</span><span class="status draft">draft</span></summary>
+  <article id="TS-137" class="doc doc-ts">
+  <h3>TS-137 - T-6 AC-10801-1 anatomy proof</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-10801">US-10801</a></p>
+  <p><strong>Purpose:</strong> Cover AC-10801-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-10801-1">AC-10801-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-137-manifest-presence-missing-fail">
+  <p><strong>TC-137-manifest-presence-missing-fail</strong> - covers <a href="#AC-10801-1">AC-10801-1</a> <span class="status pending">pending</span></p>
+  <p>AC-10801-1 anatomy proof (T-6 rate-limiting slice, TC-137-manifest-presence-missing-fail)</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10801-1 anatomy proof (TC-137-manifest-presence-missing-fail)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T21:41:31.821Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T21:41:32.111Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-10801-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-10801-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-137&quot;,
+  &quot;usId&quot;: &quot;US-10801&quot;,
+  &quot;title&quot;: &quot;T-6 AC-10801-1 anatomy proof&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-137-manifest-presence-missing-fail&quot;,
+      &quot;acId&quot;: &quot;AC-10801-1&quot;,
+      &quot;description&quot;: &quot;AC-10801-1 anatomy proof (T-6 rate-limiting slice, TC-137-manifest-presence-missing-fail)&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10801-1 anatomy proof (TC-137-manifest-presence-missing-fail)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

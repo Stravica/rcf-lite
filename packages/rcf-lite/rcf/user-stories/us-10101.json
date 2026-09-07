@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T21:41:02.760Z",
+  "updatedAt": "2026-09-07T21:41:02.760Z",
+  "asA": "operator on the applying project preparing to push rate-limit rules from the local manifest to the live Cloudflare zone",
+  "iWant": "a documented flow with both wrangler command steps and a Cloudflare dashboard walkthrough",
+  "soThat": "I can pick the flow that suits my operating discipline and reproduce the apply from the manifest",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10101-1",
+      "description": "The blueprint guide documents an operator-facing management surface with a wrangler command flow and a Cloudflare dashboard flow; the guide references https://developers.cloudflare.com/waf/rate-limiting-rules/.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
+  ],
+  "usId": "US-10101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-101",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-6 operator-facing management surface: wrangler command flow and Cloudflare dashboard flow documented in the guide"
+}

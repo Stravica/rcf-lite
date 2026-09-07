@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-07T21:41:30.663Z",
+  "updatedAt": "2026-09-07T21:41:30.952Z",
+  "purpose": "Cover AC-10601-1 via the T-6 anatomy test in test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-10601-1"
+  ],
+  "id": "TS-135",
+  "usId": "US-10601",
+  "title": "T-6 AC-10601-1 anatomy proof",
+  "testCases": [
+    {
+      "id": "TC-135-manifest-schema-validate-pass-and-fail",
+      "acId": "AC-10601-1",
+      "description": "AC-10601-1 anatomy proof (T-6 rate-limiting slice, TC-135-manifest-schema-validate-pass-and-fail)",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-rate-limiting-anatomy.test.js::T-6 rate-limiting AC-10601-1 anatomy proof (TC-135-manifest-schema-validate-pass-and-fail)"
+    }
+  ],
+  "status": "draft"
+}

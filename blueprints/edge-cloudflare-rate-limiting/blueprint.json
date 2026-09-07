@@ -1,0 +1,174 @@
+{
+  "slug": "edge-cloudflare-rate-limiting",
+  "version": "1.0.0",
+  "category": "edge",
+  "capabilities": [
+    "edgeRateLimit"
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every drift-audit report and every rate-limit event writes through the applied logger; a logging companion supplies the sink factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A drift-audit failure, a Cloudflare API error, a manifest schema violation constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    },
+    {
+      "role": "secretsManagement",
+      "reason": "The Cloudflare API token that the drift-audit runner and any wrangler-based apply flow use is stored via the applied secretsManagement companion; the elicited zone id may also be projected through the vault when the operator wants a single source of truth."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "rate-limit-rules-dir",
+      "prompt": "Directory the applying project commits its rate-limit rule manifest files into. One file per rule per ADR-3703. The manifest is source-of-truth; the operator applies it via wrangler or the Cloudflare dashboard per REQ-002.",
+      "kind": "string",
+      "default": "cloudflare/rate-limits"
+    },
+    {
+      "id": "rate-limit-zone-id",
+      "prompt": "Cloudflare zone id the rules apply to. Never inline in a rule manifest; store via the applied secretsManagement companion and reference at apply time. Empty string leaves the zone id unresolved (the drift audit and any wrangler flow surface the omission).",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "rate-limit-management-surface",
+      "prompt": "Operator-facing management surface per REQ-002 and TAC-3702. wrangler names the command flow the guide walks through; dashboard names the Cloudflare dashboard flow; both records both flows and lets the operator pick per rule.",
+      "kind": "enum",
+      "options": [
+        "wrangler",
+        "dashboard",
+        "both"
+      ],
+      "default": "both"
+    },
+    {
+      "id": "rate-limit-drift-audit-cadence",
+      "prompt": "Drift-audit cadence per ADR-3704. off disables the runner; daily runs it every 24 hours; hourly runs it every hour. daily is the recommended default.",
+      "kind": "enum",
+      "options": [
+        "off",
+        "daily",
+        "hourly"
+      ],
+      "default": "daily"
+    }
+  ],
+  "contributions": [
+    {
+      "id": "edge-cloudflare-rate-limiting-REQ-001",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-rate-limiting-req-001.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-REQ-002",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-rate-limiting-req-002.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-REQ-003",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-rate-limiting-req-003.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-REQ-004",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-rate-limiting-req-004.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-REQ-005",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-rate-limiting-req-005.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-US-36101",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-rate-limiting-us-36101.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-US-36102",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-rate-limiting-us-36102.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-US-36103",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-rate-limiting-us-36103.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-US-36104",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-rate-limiting-us-36104.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-US-36105",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-rate-limiting-us-36105.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-US-36106",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-rate-limiting-us-36106.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-US-36107",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-rate-limiting-us-36107.json"
+    },
+    {
+      "id": "edge-cloudflare-rate-limiting-US-36108",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-rate-limiting-us-36108.json"
+    },
+    {
+      "id": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
+      "kind": "tac",
+      "path": "tacs/tac-3701-edge-cloudflare-rate-limiting-manifest-schema.json"
+    },
+    {
+      "id": "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc",
+      "kind": "tac",
+      "path": "tacs/tac-3702-edge-cloudflare-rate-limiting-management-surface-doc.json"
+    },
+    {
+      "id": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+      "kind": "tac",
+      "path": "tacs/tac-3703-edge-cloudflare-rate-limiting-drift-audit-runner.json"
+    },
+    {
+      "id": "ADR-3701-edge-cloudflare-rate-limiting-throttle-contract",
+      "kind": "adr",
+      "path": "adrs/adr-3701-edge-cloudflare-rate-limiting-throttle-contract.json",
+      "scope": "global",
+      "topic": "edgeThrottleContract",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare WAF rate-limiting rules documented shape"
+    },
+    {
+      "id": "ADR-3702-edge-cloudflare-rate-limiting-layering",
+      "kind": "adr",
+      "path": "adrs/adr-3702-edge-cloudflare-rate-limiting-layering.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-3703-edge-cloudflare-rate-limiting-manifest-shape",
+      "kind": "adr",
+      "path": "adrs/adr-3703-edge-cloudflare-rate-limiting-manifest-shape.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence",
+      "kind": "adr",
+      "path": "adrs/adr-3704-edge-cloudflare-rate-limiting-drift-audit-cadence.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}

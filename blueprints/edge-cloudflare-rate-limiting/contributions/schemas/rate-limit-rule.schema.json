@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://stravica.ai/rcf-lite/schemas/rate-limit-rule.schema.json",
+  "title": "Cloudflare rate-limit rule manifest file",
+  "description": "One rule per file under the elicited rate-limit-rules-dir. Fields track the Cloudflare WAF rate-limiting rules documented shape at https://developers.cloudflare.com/waf/rate-limiting-rules/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "expression",
+    "threshold",
+    "period",
+    "characteristics",
+    "action",
+    "duration"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Operator-facing stable rule id (kebab-case; used in drift-audit records as ruleId)."
+    },
+    "expression": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Cloudflare WAF rules-language expression string; scopes the rule to a request set."
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Requests permitted per period on the characteristic set."
+    },
+    "period": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Window in seconds the threshold applies over."
+    },
+    "characteristics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Non-empty list of characteristic strings the rule keys on (e.g. cf.colo.id, ip.src, http.host + http.request.uri.path)."
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "block",
+        "challenge",
+        "log",
+        "managed_challenge"
+      ],
+      "description": "Cloudflare-documented action verb the rule applies over-threshold."
+    },
+    "duration": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Block window in seconds the (N+1)th and subsequent requests are refused for."
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional operator-facing description of the rule intent."
+    }
+  }
+}

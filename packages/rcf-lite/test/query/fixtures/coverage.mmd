@@ -1398,6 +1398,43 @@ flowchart LR
   REQ-094 --> AC-9401-1
   TC-127-widget-mode-enum["TC-127-widget-mode-enum"]
   AC-9401-1 -.-> TC-127-widget-mode-enum
+  REQ-100["REQ-100"]
+  AC-10001-1["AC-10001-1"]
+  REQ-100 --> AC-10001-1
+  TC-130-manifest-presence-pass["TC-130-manifest-presence-pass"]
+  AC-10001-1 -.-> TC-130-manifest-presence-pass
+  AC-10601-1["AC-10601-1"]
+  REQ-100 --> AC-10601-1
+  TC-135-manifest-schema-validate-pass-and-fail["TC-135-manifest-schema-validate-pass-and-fail"]
+  AC-10601-1 -.-> TC-135-manifest-schema-validate-pass-and-fail
+  AC-10801-1["AC-10801-1"]
+  REQ-100 --> AC-10801-1
+  TC-137-manifest-presence-missing-fail["TC-137-manifest-presence-missing-fail"]
+  AC-10801-1 -.-> TC-137-manifest-presence-missing-fail
+  REQ-101["REQ-101"]
+  AC-10101-1["AC-10101-1"]
+  REQ-101 --> AC-10101-1
+  TC-131-guide-management-surface-doc["TC-131-guide-management-surface-doc"]
+  AC-10101-1 -.-> TC-131-guide-management-surface-doc
+  REQ-102["REQ-102"]
+  AC-10201-1["AC-10201-1"]
+  REQ-102 --> AC-10201-1
+  TC-132-real-account-burst-and-429-or-skipped["TC-132-real-account-burst-and-429-or-skipped"]
+  AC-10201-1 -.-> TC-132-real-account-burst-and-429-or-skipped
+  REQ-103["REQ-103"]
+  AC-10301-1["AC-10301-1"]
+  REQ-103 --> AC-10301-1
+  TC-133-drift-audit-runner-diff["TC-133-drift-audit-runner-diff"]
+  AC-10301-1 -.-> TC-133-drift-audit-runner-diff
+  AC-10701-1["AC-10701-1"]
+  REQ-103 --> AC-10701-1
+  TC-136-event-secrecy-pass-and-leak["TC-136-event-secrecy-pass-and-leak"]
+  AC-10701-1 -.-> TC-136-event-secrecy-pass-and-leak
+  REQ-104["REQ-104"]
+  AC-10401-1["AC-10401-1"]
+  REQ-104 --> AC-10401-1
+  TC-134-composition-guide-section["TC-134-composition-guide-section"]
+  AC-10401-1 -.-> TC-134-composition-guide-section
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2129,6 +2166,27 @@ flowchart LR
   class REQ-094 req;
   class AC-9401-1 ac;
   class TC-127-widget-mode-enum tc;
+  class REQ-100 req;
+  class AC-10001-1 ac;
+  class TC-130-manifest-presence-pass tc;
+  class AC-10601-1 ac;
+  class TC-135-manifest-schema-validate-pass-and-fail tc;
+  class AC-10801-1 ac;
+  class TC-137-manifest-presence-missing-fail tc;
+  class REQ-101 req;
+  class AC-10101-1 ac;
+  class TC-131-guide-management-surface-doc tc;
+  class REQ-102 req;
+  class AC-10201-1 ac;
+  class TC-132-real-account-burst-and-429-or-skipped tc;
+  class REQ-103 req;
+  class AC-10301-1 ac;
+  class TC-133-drift-audit-runner-diff tc;
+  class AC-10701-1 ac;
+  class TC-136-event-secrecy-pass-and-leak tc;
+  class REQ-104 req;
+  class AC-10401-1 ac;
+  class TC-134-composition-guide-section tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
