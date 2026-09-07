@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.21.0"
+latest: "0.22.0"
 releases:
+  - version: "0.22.0"
+    date: "2026-09-07"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.22.0 fills the visual shelf with five application blueprints (empty and error states, file upload with a WCAG keyboard gate, a multi-step forms wizard, a self-service account settings area, and a first-run onboarding tour)."
+      - "Account settings reuses the admin-console capability-gating mechanism, so the five settings surfaces only render when the applied auth blueprint declares the capability."
+      - "The four shipped auth blueprints and the logging blueprint pick up additive capability declarations in the same release."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.21.0"
     date: "2026-09-05"
     breaking: false
