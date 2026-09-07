@@ -145,7 +145,7 @@ test('T-6 rate-limiting AC-10801-1 anatomy proof (TC-137-manifest-presence-missi
   const failing = out.results.find((r) => r.verdict === 'fail');
   assert.ok(failing, 'SIMULATE_MANIFEST_MISSING=true should produce a failing result');
   assert.match(failing.detail, /manifest file missing/);
-  assert.equal(failing.anchorAcId, 'AC-10801-1');
+  assert.equal(failing.anchorAcId, 'AC-36108-1');
 });
 
 // Shelf-doc anatomy: section 6a table has the edgeRateLimit row, own topics.md carries edgeThrottleContract, CHANGELOG and README exist, no em-dashes anywhere in the blueprint tree.

@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 63  covered: 63  covered-unresolved: 0  uncovered: 0
+Requirements: 68  covered: 68  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -321,3 +321,11 @@ REQ-092      yes      AC-9201-1   yes         TC-124-guard-shape-refuse
 REQ-093      yes      AC-9301-1   yes         TC-125-composition-wire
                       AC-9302-1   yes         TC-126-magic-link-guard-refuse
 REQ-094      yes      AC-9401-1   yes         TC-127-widget-mode-enum
+REQ-100      yes      AC-10001-1  yes         TC-130-manifest-presence-pass
+                      AC-10601-1  yes         TC-135-manifest-schema-validate-pass-and-fail
+                      AC-10801-1  yes         TC-137-manifest-presence-missing-fail
+REQ-101      yes      AC-10101-1  yes         TC-131-guide-management-surface-doc
+REQ-102      yes      AC-10201-1  yes         TC-132-real-account-burst-and-429-or-skipped
+REQ-103      yes      AC-10301-1  yes         TC-133-drift-audit-runner-diff
+                      AC-10701-1  yes         TC-136-event-secrecy-pass-and-leak
+REQ-104      yes      AC-10401-1  yes         TC-134-composition-guide-section
