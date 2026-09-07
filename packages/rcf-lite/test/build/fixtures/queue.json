@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 51,
-    "notStarted": 23,
+    "items": 52,
+    "notStarted": 24,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
     "actionable": 14,
-    "blocked": 9
+    "blocked": 10
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -50,7 +50,8 @@
         "FBS-017",
         "FBS-019",
         "FBS-025",
-        "FBS-042"
+        "FBS-042",
+        "FBS-064"
       ]
     },
     {
@@ -715,6 +716,20 @@
       "dependsOnFbsIds": [],
       "state": "actionable",
       "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-064",
+      "buildOrder": 52,
+      "tier": 1,
+      "title": "jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-062"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-062"
+      ]
     }
   ]
 }

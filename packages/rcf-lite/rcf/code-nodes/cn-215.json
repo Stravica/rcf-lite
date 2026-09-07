@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-215",
+  "path": "../../blueprints/jobs-background/contributions/probes/apply-time-refusal.mjs",
+  "implementsAcIds": [
+    "AC-4301-2",
+    "AC-4301-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T10:16:40.671Z",
+  "updatedAt": "2026-09-07T10:16:40.671Z"
+}

@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T10:16:11.359Z",
+  "updatedAt": "2026-09-07T10:17:10.379Z",
+  "acIds": [
+    "AC-4301-1",
+    "AC-4301-2",
+    "AC-4301-3",
+    "AC-4301-4",
+    "AC-4301-5",
+    "AC-4301-6",
+    "AC-4301-7"
+  ],
+  "fbsId": "FBS-064",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 52,
+  "executionStatus": "notStarted",
+  "title": "jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)",
+  "summary": "T-4 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.4) re-minted with next-free ids after HQ round-6 T-0 PR #164 landed and consumed our original block (TS-073 / FBS-063 / CN-209..212). New chain: REQ-043 / US-4301 (unchanged; did not collide) / TS-076 / FBS-064 / CN-214..217 all minted via rcf define create --id on origin/main 321371e. Ships the jobs-background v1.0.0 blueprint with 22 contributions in the 6 REQ / 9 US 30101-30109 / 3 TAC 3101-3103 / 4 ADR 3101-3104 groups per spec section 5.4, five Node-only probes under blueprints/jobs-background/contributions/probes/ (apply-time-refusal, apply-time-override, fake-clock-cron, retry-and-fail, event-secrecy) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/jobs-background/, and the T-4 slice of the shared sample-app fixture extending packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with a jobs/ directory and jobs-runtime plus scheduler modules on top of T-3's in-memory queue seam. All five probes local-first (accountBound false). Declares capabilities [backgroundJobs], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities {capabilities:[queue],allowSkipFlag:allow-no-queue-yet,refusalMessageId:jobs-background-no-queue} per Baz decision 5. Contributes ADR-3101 as scope:global on new topic backgroundJobModel per spec section 5.4. Every ADR contribution entry carries standardsTraceClause per section 8a.2.",
+  "dependsOnFbsIds": [
+    "FBS-062"
+  ]
+}

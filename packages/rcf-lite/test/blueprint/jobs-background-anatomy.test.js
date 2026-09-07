@@ -1,5 +1,5 @@
 /**
- * jobs-background v1.0.0 anatomy tests (TS-073).
+ * jobs-background v1.0.0 anatomy tests (TS-076; re-minted post-#164 T-0 collision on original TS-073).
  *
  * Covers AC-4301-1 (blueprint.json shape), AC-4301-5 (probe module
  * anchor-id cross-check), AC-4301-6 (sample-app fixture: jobs/ toy
@@ -27,7 +27,7 @@ async function pathExists(p) {
   try { await stat(p); return true; } catch { return false; }
 }
 
-test('blueprint.json declares 22 contributions with capabilities backgroundJobs, requiresAppliedCapabilities on queue with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue, and standardsTraceClause on every ADR entry (TC-073-blueprint-json-shape)', async () => {
+test('blueprint.json declares 22 contributions with capabilities backgroundJobs, requiresAppliedCapabilities on queue with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue, and standardsTraceClause on every ADR entry (TC-076-blueprint-json-shape)', async () => {
   const bp = await readJson(join(BP_DIR, 'blueprint.json'));
   assert.equal(bp.slug, 'jobs-background');
   assert.equal(bp.version, '1.0.0');
@@ -54,7 +54,7 @@ test('blueprint.json declares 22 contributions with capabilities backgroundJobs,
   assert.equal(scopeGlobal.topic, 'backgroundJobModel');
 });
 
-test('every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-073-probe-anchor-ids-cross-check)', async () => {
+test('every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-076-probe-anchor-ids-cross-check)', async () => {
   const probesDir = join(BP_DIR, 'contributions', 'probes');
   const entries = await readdir(probesDir);
   const probeNames = ['apply-time-refusal', 'apply-time-override', 'fake-clock-cron', 'retry-and-fail', 'event-secrecy'];
@@ -93,7 +93,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
   }
 });
 
-test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.mjs and src/scheduler.mjs and its README documents the two wired induced-failure switches SIMULATE_HANDLER_THROW and SIMULATE_PII_IN_JOB_INPUT (TC-073-fixture-and-switches)', async () => {
+test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.mjs and src/scheduler.mjs and its README documents the two wired induced-failure switches SIMULATE_HANDLER_THROW and SIMULATE_PII_IN_JOB_INPUT (TC-076-fixture-and-switches)', async () => {
   assert.ok(await pathExists(join(FIXTURE_DIR, 'jobs', 'send-welcome-email.mjs')));
   assert.ok(await pathExists(join(FIXTURE_DIR, 'jobs', 'refresh-cache.mjs')));
   assert.ok(await pathExists(join(FIXTURE_DIR, 'src', 'jobs-runtime.mjs')));
@@ -120,7 +120,7 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   assert.equal(j2.timeoutMs, 10000);
 });
 
-test('section 6a table gains a backgroundJobs row naming jobs-background and reserved sibling posture; every shipped blueprint docs/topics.md gains a jobs-background row at 30101-30899 / 31xx (TC-073-shelf-doc-consistency)', async () => {
+test('section 6a table gains a backgroundJobs row naming jobs-background and reserved sibling posture; every shipped blueprint docs/topics.md gains a jobs-background row at 30101-30899 / 31xx (TC-076-shelf-doc-consistency)', async () => {
   const authoring = await readFile(join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md'), 'utf8');
   assert.match(authoring, /^\| `backgroundJobs` \|/m);
   assert.ok(authoring.includes('jobs-background'), 'section 6a table row must name jobs-background');

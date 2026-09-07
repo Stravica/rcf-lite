@@ -122,7 +122,11 @@ const expectedCounts = {
   // REQ-030 for the deploy-cloudflare-workers v1.2.0 additive minor
   // bump (Workers-with-static-assets shape and SPA fallback
   // discipline) per HQ sequential chain-id block (31 -> 33).
-  req: 33,
+  // Infra round 5 T-4 (w-2026-09-06-dave-023) added REQ-043 for the
+  // jobs-background v1.0.0 blueprint on the shelf with five Node-only
+  // probes wired to the T-3 in-memory queue seam and the CLI
+  // --allow-no-queue-yet override for the T-5 mechanism (33 -> 34).
+  req: 34,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -149,7 +153,9 @@ const expectedCounts = {
   // (SPA-on-Workers deploy, assets-directory elicitation) and US-3001
   // paired with REQ-030 (SPA fallback and migrate-from-Pages guidance)
   // per HQ sequential chain-id block (60 -> 63).
-  userStory: 63,
+  // Infra round 5 T-4 added US-4301 (derived from REQ-043 per dex
+  // reserved-block ruling) (63 -> 64).
+  userStory: 64,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -188,7 +194,12 @@ const expectedCounts = {
   // reserved-block ruling (49 -> 50).
   // Cloudflare round 6 T-0 added FBS-063 covering the eight ACs
   // AC-2901-1..3 AC-2902-1..2 AC-3001-1..3 (50 -> 51).
-  fbs: 51,
+  // Infra round 5 T-4 added FBS-064 covering US-4301 per dex
+  // reserved-block ruling; buildOrder 52 (next-free after FBS-063 at
+  // 51). Originally minted as FBS-063 pre-#164; re-minted as FBS-064
+  // via `rcf define create fbs --id` after HQ round-6 T-0 consumed
+  // the original id (51 -> 52).
+  fbs: 52,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -283,7 +294,15 @@ const expectedCounts = {
   // blueprint.json delta shape (CN-210), the anatomy test file
   // (CN-211), the ADR-1306 body (CN-212) and the updated guide file
   // (CN-213), one per AC on the T-0 US triple (195 -> 200).
-  codeNode: 200,
+  // Infra round 5 T-4 added CN-214/215/216/217 (4 code nodes)
+  // anchoring the jobs-background blueprint.json, the
+  // apply-time-refusal probe module, the shared sample-app fixture
+  // jobs-runtime.mjs, and the extended blueprint/apply.js (queue
+  // family sidecar-notes derivation) per dex reserved-block ruling.
+  // Originally minted as CN-209..212 pre-#164; re-minted as
+  // CN-214..217 via `rcf define create cn --id` after HQ round-6 T-0
+  // consumed the original block (200 -> 204).
+  codeNode: 204,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -310,7 +329,11 @@ const expectedCounts = {
   // reserved-block ruling (59 -> 60).
   // Cloudflare round 6 T-0 added TS-073 paired with US-2901, TS-074
   // paired with US-2902 and TS-075 paired with US-3001 (60 -> 63).
-  testSuite: 63,
+  // Infra round 5 T-4 added TS-076 paired with US-4301 per dex
+  // reserved-block ruling. Originally minted as TS-073 pre-#164;
+  // re-minted as TS-076 via `rcf define create ts --id` after HQ
+  // round-6 T-0 consumed the original id (63 -> 64).
+  testSuite: 64,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

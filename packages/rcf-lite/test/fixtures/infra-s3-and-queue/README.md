@@ -55,7 +55,7 @@ Idempotent: exits 0 whether the bucket exists or was created.
 
 ```sh
 docker compose up -d minio && sleep 4 && npm install --silent && node src/create-bucket.mjs
-node ../../../../blueprints/object-storage-s3/contributions/probes/run-facade-round-trip.mjs
+node ../../../../../blueprints/object-storage-s3/contributions/probes/run-facade-round-trip.mjs
 ```
 
 The first line brings up MinIO, waits, installs the fixture's own `@aws-sdk/client-s3` runtime dep, and creates the `rcf-test` bucket. The second line runs the first probe; the remaining five probe shims live alongside it and follow the same shape.
@@ -77,7 +77,7 @@ Two additional switches from the spec's original enumeration (event-secrecy leak
 
 ## R2 real-account smoke
 
-`node ../../../../blueprints/object-storage-s3/contributions/probes/run-r2-real-account-smoke.mjs`:
+`node ../../../../../blueprints/object-storage-s3/contributions/probes/run-r2-real-account-smoke.mjs`:
 
 - Without `CI_HAS_CLOUDFLARE_ACCOUNT`: exits 0 with `accountBoundSkipped: true` per spec section 3.5.
 - With `CI_HAS_CLOUDFLARE_ACCOUNT` set alongside `R2_ACCOUNT_ID`, `R2_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` in `.rcf/secrets/dev.env` (or the environment), runs a real round-trip against the R2 bucket.
@@ -132,15 +132,15 @@ Three switches simulate the negative-run paths the T-3 probes exercise. Each is 
 The T-3 probes do not require Docker; the queue-driver runs in-process on Node 24. Boot line:
 
 ```sh
-node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-producer-facade-ready.mjs
-node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-publish-to-delivery.mjs
+node ../../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-producer-facade-ready.mjs
+node ../../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-publish-to-delivery.mjs
 ```
 
 The remaining three probe shims (`run-retry-and-dlq.mjs`, `run-event-secrecy.mjs`, `run-real-account-concurrency-smoke.mjs`) follow the same pattern and each write a per-blueprint probe report at `.rcf/reports/blueprints/messaging-queue-cloudflare/<probe-name>.json` per spec section 3.4.
 
 ### Real-account concurrency smoke (accountBound)
 
-`node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-real-account-concurrency-smoke.mjs`:
+`node ../../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-real-account-concurrency-smoke.mjs`:
 
 - Without `CI_HAS_CLOUDFLARE_ACCOUNT`: exits 0 with `accountBoundSkipped: true` per spec section 3.5.
 - With `CI_HAS_CLOUDFLARE_ACCOUNT` set alongside credentials for the shared HQ queue `rcf-lite-ci-queue-smoke` (Q2 default per spec section 10) wired via `security-secrets-management`, a live-account run is queued as a follow-up (v1.0.0 ships the skipped-record shape; the live-account run rides `deploy-cloudflare-workers`' surface, not a Node probe module).
@@ -182,8 +182,8 @@ Two switches simulate the retry and PII-leak paths the T-4 probes exercise. Each
 The T-4 probes do not require Docker or a real `wrangler dev` process; the jobs-runtime plus in-memory queue-driver run in-process on Node 24. Boot line:
 
 ```sh
-node ../../../../blueprints/jobs-background/contributions/probes/run-apply-time-refusal.mjs
-node ../../../../blueprints/jobs-background/contributions/probes/run-fake-clock-cron.mjs
+node ../../../../../blueprints/jobs-background/contributions/probes/run-apply-time-refusal.mjs
+node ../../../../../blueprints/jobs-background/contributions/probes/run-fake-clock-cron.mjs
 ```
 
 The remaining three probe shims (`run-apply-time-override.mjs`, `run-retry-and-fail.mjs`, `run-event-secrecy.mjs`) follow the same pattern and each write a per-blueprint probe report at `.rcf/reports/blueprints/jobs-background/<probe-name>.json` per spec section 3.4.
