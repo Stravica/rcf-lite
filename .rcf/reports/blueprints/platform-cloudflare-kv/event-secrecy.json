@@ -1,0 +1,18 @@
+{
+  "slug": "platform-cloudflare-kv",
+  "probeName": "event-secrecy",
+  "runAt": "2026-09-07T11:12:10.832Z",
+  "engine": {
+    "kind": "kv",
+    "image": "in-memory KV driver realising Workers KV binding shape",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-5302-1",
+      "verdict": "fail",
+      "detail": "SIMULATE_PII_LEAK=true: mutation-run forwarded body/userId/ssn to the sink; forbiddenKeys=[\"body\",\"ssn\",\"userId\"] piiHits=[\"REDACTED-fixture\",\"1234\",\"ssn\"] (expected empty on the shipped code path)"
+    }
+  ],
+  "aggregateVerdict": "fail"
+}

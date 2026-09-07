@@ -1,0 +1,33 @@
+{
+  "slug": "platform-cloudflare-kv",
+  "probeName": "facade-round-trip",
+  "runAt": "2026-09-07T10:25:54.547Z",
+  "engine": {
+    "kind": "kv",
+    "image": "in-memory KV driver realising Workers KV binding shape",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-5001-1",
+      "verdict": "pass",
+      "detail": "facadeReady fired once with key=null size=0 ttl=null timestamp=2026-09-07T10:25:54.546Z"
+    },
+    {
+      "anchorAcId": "AC-5101-1",
+      "verdict": "pass",
+      "detail": "put \"kv-facade-round-trip/hello\" then get returned same bytes; events: kvWrite=1 kvHit=1; write size=16"
+    },
+    {
+      "anchorAcId": "AC-5101-2",
+      "verdict": "pass",
+      "detail": "delete then get returned null; kvMiss events observed=1"
+    },
+    {
+      "anchorAcId": "AC-5102-1",
+      "verdict": "pass",
+      "detail": "list({prefix: flags/}) returned 10 keys with metadata shape; listComplete=true"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}
