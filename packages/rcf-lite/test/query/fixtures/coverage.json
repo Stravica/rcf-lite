@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 30,
-    "covered": 30,
+    "requirements": 31,
+    "covered": 31,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -2229,6 +2229,61 @@
           "covered": true,
           "testCases": [
             "TC-071-shelf-doc-consistency"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-042",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-4201-1",
+          "covered": true,
+          "testCases": [
+            "TC-072-blueprint-json-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4201-2",
+          "covered": true,
+          "testCases": [
+            "TC-072-applies-clean"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4201-3",
+          "covered": true,
+          "testCases": [
+            "TC-072-dlq-req-grep"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4201-4",
+          "covered": true,
+          "testCases": [
+            "TC-072-probe-anchor-ids-cross-check"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4201-5",
+          "covered": true,
+          "testCases": [
+            "TC-072-fixture-and-switches"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-4201-6",
+          "covered": true,
+          "testCases": [
+            "TC-072-shelf-doc-consistency"
           ],
           "unresolvedTestCases": []
         }

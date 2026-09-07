@@ -1085,6 +1085,31 @@ flowchart LR
   REQ-041 --> AC-4101-6
   TC-071-shelf-doc-consistency["TC-071-shelf-doc-consistency"]
   AC-4101-6 -.-> TC-071-shelf-doc-consistency
+  REQ-042["REQ-042"]
+  AC-4201-1["AC-4201-1"]
+  REQ-042 --> AC-4201-1
+  TC-072-blueprint-json-shape["TC-072-blueprint-json-shape"]
+  AC-4201-1 -.-> TC-072-blueprint-json-shape
+  AC-4201-2["AC-4201-2"]
+  REQ-042 --> AC-4201-2
+  TC-072-applies-clean["TC-072-applies-clean"]
+  AC-4201-2 -.-> TC-072-applies-clean
+  AC-4201-3["AC-4201-3"]
+  REQ-042 --> AC-4201-3
+  TC-072-dlq-req-grep["TC-072-dlq-req-grep"]
+  AC-4201-3 -.-> TC-072-dlq-req-grep
+  AC-4201-4["AC-4201-4"]
+  REQ-042 --> AC-4201-4
+  TC-072-probe-anchor-ids-cross-check["TC-072-probe-anchor-ids-cross-check"]
+  AC-4201-4 -.-> TC-072-probe-anchor-ids-cross-check
+  AC-4201-5["AC-4201-5"]
+  REQ-042 --> AC-4201-5
+  TC-072-fixture-and-switches["TC-072-fixture-and-switches"]
+  AC-4201-5 -.-> TC-072-fixture-and-switches
+  AC-4201-6["AC-4201-6"]
+  REQ-042 --> AC-4201-6
+  TC-072-shelf-doc-consistency["TC-072-shelf-doc-consistency"]
+  AC-4201-6 -.-> TC-072-shelf-doc-consistency
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1643,6 +1668,19 @@ flowchart LR
   class TC-071-fixture-and-switches tc;
   class AC-4101-6 ac;
   class TC-071-shelf-doc-consistency tc;
+  class REQ-042 req;
+  class AC-4201-1 ac;
+  class TC-072-blueprint-json-shape tc;
+  class AC-4201-2 ac;
+  class TC-072-applies-clean tc;
+  class AC-4201-3 ac;
+  class TC-072-dlq-req-grep tc;
+  class AC-4201-4 ac;
+  class TC-072-probe-anchor-ids-cross-check tc;
+  class AC-4201-5 ac;
+  class TC-072-fixture-and-switches tc;
+  class AC-4201-6 ac;
+  class TC-072-shelf-doc-consistency tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
