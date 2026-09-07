@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-185",
+  "path": "test/fixtures/probe-pack-application-onboarding-tour/README.md",
+  "implementsAcIds": [
+    "AC-2801-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T23:20:20.530Z",
+  "updatedAt": "2026-09-06T23:20:20.530Z"
+}

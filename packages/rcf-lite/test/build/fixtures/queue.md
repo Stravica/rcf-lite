@@ -52,8 +52,9 @@ Generation strategy: dependencyFirst
 | 46 | 0 | FBS-061 | object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice) | notStarted | actionable |  |
 | 47 | 4 | FBS-045 | application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture | notStarted | blocked | FBS-044 |
 | 48 | 5 | FBS-046 | application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal | notStarted | blocked | FBS-045 |
+| 49 | 6 | FBS-047 | application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied | notStarted | blocked | FBS-046 |
 
-Totals: items 48 | notStarted 20 | inProgress 0 | complete 13 | verified 15 | actionable 12 | blocked 8
+Totals: items 49 | notStarted 21 | inProgress 0 | complete 13 | verified 15 | actionable 12 | blocked 9
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061
@@ -62,7 +63,7 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044
 - tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045
 - tier 5: FBS-029, FBS-046
-- tier 6: FBS-030
+- tier 6: FBS-030, FBS-047
 - tier 7: FBS-031
 - tier 8: FBS-032
 - tier 9: FBS-033

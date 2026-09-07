@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-06T23:04:41.707Z",
+  "updatedAt": "2026-09-06T23:05:11.042Z",
+  "acIds": [
+    "AC-2801-1",
+    "AC-2801-2",
+    "AC-2801-3",
+    "AC-2801-4",
+    "AC-2801-5",
+    "AC-2801-6",
+    "AC-2801-7",
+    "AC-2801-8"
+  ],
+  "fbsId": "FBS-047",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 49,
+  "executionStatus": "notStarted",
+  "title": "application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied",
+  "summary": "T-5 shelf-blueprint track of the ratified visual round 4 spec (2026-09-06 section 5.5): application-onboarding-tour v1.0.0 on the shelf with 17 contributions (4 REQs step-manifest + tooltip-as-dialog + checklist-slot + completion-state; 7 USs 26101 to 26107; 3 TACs 2701 step-runner / 2702 checklist-slot / 2703 completion-store; 3 ADRs 2701 dismissal-policy / 2702 completion-store-shape (Q4 default spa-local-storage) / 2703 checklist-anchor). No requiresAppliedCapabilities (composes on SPA, application-dashboard, application-notifications-in-app, application-account-settings and any auth without hard dependency; per Q4 the completion-state falls back to spa-local-storage when no persistence blueprint is applied). Ships a Playwright probe pack with four surface-observable checks anchored to AC-26101-1 AC-26102-1 AC-26103-1 AC-26104-1, and a dependency-free sample-app fixture with a three-to-five step tour, per-step tooltip-as-dialog per the ARIA APG dialog-modal pattern, a checklist slot switchable between dashboard-top and settings-page, a completion-state store switchable across the three shapes, and four break switches (no-role, focus-escape, no-collapse, no-persist). Composes on application-dashboard for the dashboard-top anchor (with settings-page fallback), application-notifications-in-app for the checklist-completion announcement, application-account-settings for the restart-tour control home, and application-spa for routing and iconography. Tenth shipped consumer of the T-0 probe-pack runner extension. suggestedCompanions logging and errorHandling; providesRoles absent; capabilities absent.",
+  "dependsOnFbsIds": [
+    "FBS-046"
+  ]
+}

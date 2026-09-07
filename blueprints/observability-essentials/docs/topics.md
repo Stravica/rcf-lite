@@ -59,6 +59,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-file-upload | 23101-23899 | 24xx | shipped v1.0.0 | none |
 | application-forms-wizard | 24101-24899 | 25xx | shipped v1.0.0 | none |
 | application-account-settings | 25101-25899 | 26xx | shipped v1.0.0 | none |
+| application-onboarding-tour | 26101-26899 | 27xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
 

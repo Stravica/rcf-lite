@@ -1,0 +1,41 @@
+{
+  "tacId": "TAC-2701-application-onboarding-tour-step-runner",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Onboarding-tour step runner",
+  "purpose": "Owns the rendered tour surface: the step manifest walk, the anchor resolver, the tooltip-as-dialog mount, and the focus lifecycle across open, walk and close. The step runner is the base surface every step-shaped AC anchors on.",
+  "responsibilities": [
+    "Walk the elicited step manifest in order and resolve each step's anchor selector against the live DOM (AC-26101-1).",
+    "Mount each step's tooltip as an ARIA APG dialog-modal (role=\"dialog\", aria-labelledby, aria-describedby) and move focus into it on open (AC-26102-1, AC-26107-1).",
+    "Return focus to the anchor on close (Escape, dismiss control, or last-step confirm) (AC-26102-1).",
+    "Trap focus between the tour controls (previous, next, dismiss) and refuse Tab escape to the underlying surface while Escape still exits (AC-26101-1).",
+    "Keep the tooltip visible at every breakpoint the applied SPA blueprint declares; refuse a step render whose anchor would clip the tooltip below the viewport minimum (AC-26102-1)."
+  ],
+  "internalStructure": "One step runner module that reads the applied elicits, mounts the tooltip mount-point at document.body-level, drives the manifest walk, and calls the completion-state store on the last step. The framework is not prescribed; the runner interfaces are what the project realises against React, Vue, Svelte or vanilla DOM.",
+  "interfaces": [
+    {
+      "name": "renderTourRunner",
+      "kind": "factory",
+      "description": "renderTourRunner({ stepManifest, anchorResolver, dialogMount, focusLifecycle, completionStore }) -> { openAtStep(stepId), dismiss(), destroy() }. The project supplies the stepManifest (from the elicit), the anchorResolver (from a CSS selector to a live element), the dialogMount (an element or a factory), the focusLifecycle (open, walk, close hooks) and the completionStore (the resolved TAC-2703 backend)."
+    },
+    {
+      "name": "stepManifest",
+      "kind": "shape",
+      "description": "[{ id, anchorSelector, heading, body, order }]. Ordered list of 3 to 5 steps. Each step is opened by openAtStep(stepId) or advanced by the previous / next controls."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Completion store",
+      "kind": "tac",
+      "tacId": "TAC-2703-application-onboarding-tour-completion-store",
+      "description": "The step runner calls the completion store on the last step to persist the completion record."
+    }
+  ],
+  "tradeoffs": "The step runner mounts the tooltip at document.body-level rather than inline at the anchor so a positioned parent (transform, contain) does not clip the tooltip. This costs one extra pointer resolution on every step open (anchor selector -> live element -> viewport rect); the alternative would silently clip tooltips inside common flex/grid layouts.",
+  "notes": "Composes on the applied SPA blueprint for the routing and iconography, and on the applied dashboard blueprint for the highest-value first surface. Known mechanism-reach gaps: the runner cannot prove the described-text screen-reader read order without a real screen reader (documented under AC-26107-1); the runner cannot prove focus does not escape the tooltip in every framework rendering (documented under AC-26101-1). See README Known mechanism-reach gaps.",
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

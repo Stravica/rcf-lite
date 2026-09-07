@@ -1,0 +1,18 @@
+{
+  "reqId": "application-onboarding-tour-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Step-manifest contract: 3 to 5 steps per tour with per-step anchor selector and per-step content voice slot",
+  "description": "The blueprint contributes a step-manifest contract for a 3 to 5 step onboarding tour. Each step declares a step id, an anchor selector (CSS resolved at step-open time to place the tooltip against a live element in the DOM), a heading and a body slot the project fills with its own voice. The step runner walks the manifest in order and refuses to open a step whose anchor does not resolve to a visible element rather than rendering a floating tooltip. The blueprint contributes the WHAT (the manifest shape and the resolver contract), not the words.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec (2026-09-06) section 5.5, REQ 1 of the onboarding-tour blueprint.",
+  "tags": [
+    "blueprint:application-onboarding-tour",
+    "category:01-step-runner"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

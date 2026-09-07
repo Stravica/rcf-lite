@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-182",
+  "path": "../../blueprints/application-onboarding-tour/guide/application-onboarding-tour.md",
+  "implementsAcIds": [
+    "AC-2801-7",
+    "AC-2801-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T23:20:20.051Z",
+  "updatedAt": "2026-09-06T23:20:20.051Z"
+}

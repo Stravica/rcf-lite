@@ -1,0 +1,27 @@
+{
+  "usId": "application-onboarding-tour-US-26105",
+  "prdId": "PRD-001",
+  "reqId": "application-onboarding-tour-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "First-run detection: a principal with no completion state sees the tour; a principal with completion state does not",
+  "asA": "returning principal",
+  "iWant": "the tour to open only on my first run, not on every visit",
+  "soThat": "I am not re-onboarded on every session and the surface stays clean",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-26105-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "Given a principal whose completion-state store contains no completion record for the applied blueprint set version, the tour auto-opens on the highest-value surface; given a principal whose completion-state store contains a completion record for the applied blueprint set version, the tour does NOT auto-open and only the checklist and the restart-tour control render. The check is documented as a mechanism-reach gap in the README (not directly probed at runtime; enforced by the fixture branch under manual boot for the gate reviewer)."
+    }
+  ],
+  "tacIds": [
+    "TAC-2703-application-onboarding-tour-completion-store"
+  ],
+  "tags": [
+    "blueprint:application-onboarding-tour"
+  ],
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

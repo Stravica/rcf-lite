@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-176",
+  "path": "../../blueprints/application-onboarding-tour/contributions/adrs/adr-2701-application-onboarding-tour-dismissal-policy.json",
+  "implementsAcIds": [
+    "AC-2801-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T23:20:19.097Z",
+  "updatedAt": "2026-09-06T23:20:19.097Z"
+}

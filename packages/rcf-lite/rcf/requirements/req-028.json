@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-06T23:02:59.779Z",
+  "updatedAt": "2026-09-06T23:21:56.789Z",
+  "description": "T-5 shelf-blueprint track of the ratified visual round 4 spec (2026-09-06 section 5.5): the application-onboarding-tour v1.0.0 blueprint on the shelf with 17 contributions (4 REQs step-manifest + tooltip-as-dialog + checklist-slot + completion-state; 7 USs 26101 to 26107; 3 TACs 2701 step-runner / 2702 checklist-slot / 2703 completion-store; 3 ADRs 2701 dismissal-policy / 2702 completion-store-shape / 2703 checklist-anchor). No requiresAppliedCapabilities (composes on SPA, dashboard, notifications-in-app, account-settings, any auth without hard dependency; documented fallback per Q4 spa-local-storage). Ships a Playwright probe pack with four surface-observable checks anchored to AC-26101-1 AC-26102-1 AC-26103-1 AC-26104-1, and a dependency-free sample-app fixture with the three-to-five step tour honestly realised plus four break switches (no-role, focus-escape, no-collapse, no-persist). Composes on application-dashboard for the dashboard-top anchor slot (with settings-page fallback), application-notifications-in-app for the checklist-completion announcement, application-account-settings for the restart-tour control home, application-spa for routing and iconography. suggestedCompanions logging and errorHandling; providesRoles absent; capabilities absent. Tenth shipped consumer of the T-0 probe-pack runner extension.",
+  "reqId": "REQ-028",
+  "prdId": "PRD-001",
+  "title": "application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check pack and dependency-free sample-app fixture",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft"
+}

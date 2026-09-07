@@ -1,0 +1,27 @@
+{
+  "usId": "application-onboarding-tour-US-26106",
+  "prdId": "PRD-001",
+  "reqId": "application-onboarding-tour-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Restart-tour control clears completion state and re-opens the tour",
+  "asA": "returning principal who completed the tour but wants to see it again",
+  "iWant": "a restart-tour control on the settings surface that clears my completion state and re-opens the tour",
+  "soThat": "I can revisit the guidance without clearing local storage by hand or hunting through the surface for a hidden trigger",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-26106-1",
+      "testable": true,
+      "scope": "runtime",
+      "description": "The restart-tour control renders on the settings surface as a <button data-action=\"restart-tour\"> reachable via Tab and activatable with Enter; activating it clears the completion state in the applied store (per ADR-2702) and re-opens the tour on the highest-value surface on the next principal load. Covered as part of AC-26104-1's pack check (the check exercises the restart flow end-to-end)."
+    }
+  ],
+  "tacIds": [
+    "TAC-2703-application-onboarding-tour-completion-store"
+  ],
+  "tags": [
+    "blueprint:application-onboarding-tour"
+  ],
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

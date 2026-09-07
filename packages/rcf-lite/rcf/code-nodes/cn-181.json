@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-181",
+  "path": "../../blueprints/application-onboarding-tour/CHANGELOG.md",
+  "implementsAcIds": [
+    "AC-2801-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T23:20:19.893Z",
+  "updatedAt": "2026-09-06T23:20:19.893Z"
+}

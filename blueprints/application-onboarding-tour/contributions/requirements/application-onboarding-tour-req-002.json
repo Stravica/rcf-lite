@@ -1,0 +1,18 @@
+{
+  "reqId": "application-onboarding-tour-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Tooltip-as-dialog contract per the ARIA APG dialog-modal pattern",
+  "description": "Each step's tooltip carries role=\"dialog\", aria-labelledby to the step heading, aria-describedby to the step body. Focus moves to the tooltip on open, focus returns to the anchor on close. The dialog traps focus between the tour controls (previous, next, dismiss) and refuses to let Tab escape to the underlying surface (WCAG 2.1.2 No Keyboard Trap satisfied because Escape always exits). Escape dismisses the tour. Focus is not obscured on any breakpoint (WCAG 2.4.11 Focus Not Obscured Minimum). Follows the ARIA APG dialog-modal pattern for the tooltip surface.",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "Per visual round 4 spec (2026-09-06) section 5.5, REQ 2 of the onboarding-tour blueprint.",
+  "tags": [
+    "blueprint:application-onboarding-tour",
+    "category:02-dialog-modal"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

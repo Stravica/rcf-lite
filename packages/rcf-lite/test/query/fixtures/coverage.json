@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 29,
-    "covered": 29,
+    "requirements": 30,
+    "covered": 30,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -2048,6 +2048,77 @@
           "covered": true,
           "testCases": [
             "TC-056-q3-refusal"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-028",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-2801-1",
+          "covered": true,
+          "testCases": [
+            "TC-057-blueprint-json-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2801-2",
+          "covered": true,
+          "testCases": [
+            "TC-057-adr-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2801-3",
+          "covered": true,
+          "testCases": [
+            "TC-057-applies-clean"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2801-4",
+          "covered": true,
+          "testCases": [
+            "TC-057-pack-checks-cross-check"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2801-5",
+          "covered": true,
+          "testCases": [
+            "TC-057-fixture-and-switches"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2801-6",
+          "covered": true,
+          "testCases": [
+            "TC-057-negative-runs"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2801-7",
+          "covered": true,
+          "testCases": [
+            "TC-057-shelf-doc-consistency"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-2801-8",
+          "covered": true,
+          "testCases": [
+            "TC-057-changelog-guide-and-mechanism-reach"
           ],
           "unresolvedTestCases": []
         }

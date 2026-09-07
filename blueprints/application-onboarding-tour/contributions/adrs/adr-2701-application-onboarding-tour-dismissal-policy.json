@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-2701-application-onboarding-tour-dismissal-policy",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Dismissal policy: dismiss-permanently default, dismiss-until-next-major or dismiss-until-next-minor",
+  "context": "A dismissed tour has three legal re-open behaviours. Dismiss-permanently is the least intrusive: a principal who dismissed the tour once never sees it again unless the restart-tour control fires. Dismiss-until-next-major re-opens the tour when the applied blueprint set makes a major-version bump (a new tour surface a returning principal has not seen). Dismiss-until-next-minor re-opens on a minor bump for the same reason at higher frequency. The spec section 5.5 names all three; the recommended default is dismiss-permanently because a returning principal who dismissed the tour deliberately signalled that they do not want re-onboarding, and the restart-tour control on the settings surface remains available.",
+  "decision": "dismissal-policy is elicited (enum: dismiss-permanently | dismiss-until-next-major | dismiss-until-next-minor). Recommended default: dismiss-permanently. The step runner honours the answer by comparing the CompletionRecord.blueprintSetVersion against the current applied blueprint set version at principal load: dismiss-permanently never re-opens; dismiss-until-next-major re-opens when the major differs; dismiss-until-next-minor re-opens when the major or the minor differs. A blueprintSetVersion mismatch always renders the checklist on the resolved anchor even when the tour does not auto-open.",
+  "consequences": "A returning principal in the dismiss-permanently branch is not re-onboarded on any bump; a project that adds a major surface (a new admin console, a new billing area) can prompt returning principals through a restart-tour affordance on the release note surface rather than an intrusive re-open. A project that opts into dismiss-until-next-major or dismiss-until-next-minor accepts the interruption for the benefit of re-onboarding on shipped changes; the CompletionRecord.stepIds field lets the step runner skip already-seen steps when a re-open fires.",
+  "alternativesConsidered": [
+    {
+      "name": "Alternative approach considered",
+      "summary": "A time-based re-open (re-open after 30 days) was considered but time-based re-opens do not correlate with actual product changes; a returning principal on a stable product would be re-onboarded on nothing. Version-based re-opens correlate with real surface changes and let the operator choose the frequency.",
+      "reasonNotChosen": "See the decision text; the chosen shape composes cleanly with the applied blueprint set the spec section 5.5 names."
+    }
+  ],
+  "createdAt": "2026-09-06T23:15:00Z",
+  "updatedAt": "2026-09-06T23:15:00Z"
+}

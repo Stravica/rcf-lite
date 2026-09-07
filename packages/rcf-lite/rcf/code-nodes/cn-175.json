@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-175",
+  "path": "../../blueprints/application-onboarding-tour/blueprint.json",
+  "implementsAcIds": [
+    "AC-2801-1",
+    "AC-2801-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T23:20:18.939Z",
+  "updatedAt": "2026-09-06T23:59:16.338Z"
+}
