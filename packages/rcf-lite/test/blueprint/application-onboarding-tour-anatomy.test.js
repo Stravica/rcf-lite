@@ -15,6 +15,7 @@ import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { readContributedAcIds } from '../../src/browser-verify/pack-loader.js';
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
+import { main as runDefineValidate } from '../../src/cli/validate.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -89,6 +90,24 @@ test('applies cleanly on a fresh project with 17 contributions and no requiresAp
   const sidecar = JSON.parse(await readFile(join(scratch, apply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-onboarding-tour');
   assert.equal(sidecar.version, '1.0.0');
+  // TC-057-applies-clean also runs `rcf define validate` on the scratch
+  // project so applied contributions are exercised against the closed
+  // rcf-schemas 0.6.1 shape. A schema violation in a shipped contribution
+  // (for example an out-of-enum TAC dependency kind) will surface here
+  // even when the anatomy assertions above still pass.
+  const walked = await walkTree({ projectRoot: scratch });
+  assert.deepEqual(walked.errors, [], `walker errors after apply: ${JSON.stringify(walked.errors)}`);
+  const stdoutChunks = [];
+  const stderrChunks = [];
+  const stdout = { write: (s) => { stdoutChunks.push(String(s)); } };
+  const stderr = { write: (s) => { stderrChunks.push(String(s)); } };
+  const exitCode = await runDefineValidate(['--json'], { cwd: scratch, stdout, stderr });
+  const rawOut = stdoutChunks.join('');
+  const rawErr = stderrChunks.join('');
+  const envelope = JSON.parse(rawOut);
+  assert.equal(exitCode, 0, `rcf define validate exit ${exitCode}: stdout=${rawOut} stderr=${rawErr}`);
+  assert.equal(envelope.ok, true, `rcf define validate not ok: ${JSON.stringify(envelope.issues)}`);
+  assert.deepEqual(envelope.issues, [], `rcf define validate issues: ${JSON.stringify(envelope.issues)}`);
 });
 
 test('every pack check id matches a contributed AC id; pack-level appliesTo names tacIds AND route; withUrl helper used; browser.resize breakpoints appear (TC-057-pack-checks-cross-check)', async () => {
