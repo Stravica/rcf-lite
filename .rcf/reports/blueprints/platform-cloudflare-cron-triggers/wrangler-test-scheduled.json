@@ -1,0 +1,21 @@
+{
+  "slug": "platform-cloudflare-cron-triggers",
+  "probeName": "wrangler-test-scheduled",
+  "runAt": "2026-09-07T12:45:38.417Z",
+  "engine": {
+    "kind": "wrangler",
+    "image": "wrangler dev --test-scheduled on cf-platform fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-32105-1",
+      "verdict": "pass",
+      "detail": "wrangler dev --test-scheduled bound at http://127.0.0.1:63074; /__scheduled?cron=* * * * * responded status=200; wrangler killed cleanly on exit."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "boundUrl": "http://127.0.0.1:63074",
+  "wranglerBinPresent": true,
+  "fetchStatus": 200
+}

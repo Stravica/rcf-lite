@@ -131,7 +131,12 @@ const expectedCounts = {
   // per HQ ruling 2026-09-07T10:12Z: REQ-050..054 / US-5001..5401 /
   // TS-080..087 / FBS-070 / CN-230..234, all minted via --id).
   // Post-#163 merge on main: (34 -> 39).
-  req: 39,
+  // Cloudflare round 6 T-2 (w-2026-09-06-dave-027) added REQ-060..063
+  // for the platform-cloudflare-cron-triggers v1.0.0 blueprint
+  // (reserved-block per HQ ruling 2026-09-07T12:25Z: REQ-060..063 /
+  // US-6001..6302 / TS-090..096 / FBS-080 / CN-260..267, all minted
+  // via --id) (39 -> 43).
+  req: 43,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -160,7 +165,12 @@ const expectedCounts = {
   // per HQ sequential chain-id block (60 -> 63).
   // Infra round 5 T-4 added US-4301 (derived from REQ-043 per dex
   // reserved-block ruling) (63 -> 64).
-  userStory: 72,
+  // Cloudflare round 6 T-1 added US-5001..5401 (8 USs derived from
+  // REQ-050..054 per HQ reserved-block ruling) (64 -> 72).
+  // Cloudflare round 6 T-2 added US-6001..6302 (7 USs derived from
+  // REQ-060..063 per HQ reserved-block ruling 2026-09-07T12:25Z)
+  // (72 -> 79).
+  userStory: 79,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -204,7 +214,10 @@ const expectedCounts = {
   // 51). Originally minted as FBS-063 pre-#164; re-minted as FBS-064
   // via `rcf define create fbs --id` after HQ round-6 T-0 consumed
   // the original id (51 -> 52).
-  fbs: 53,
+  // Cloudflare round 6 T-1 added FBS-070 covering the 10 T-1 ACs (52 -> 53).
+  // Cloudflare round 6 T-2 added FBS-080 covering the 10 T-2 ACs
+  // (buildOrder 54, next-free after FBS-070 at 53) (53 -> 54).
+  fbs: 54,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -307,7 +320,15 @@ const expectedCounts = {
   // Originally minted as CN-209..212 pre-#164; re-minted as
   // CN-214..217 via `rcf define create cn --id` after HQ round-6 T-0
   // consumed the original block (200 -> 204).
-  codeNode: 209,
+  // Cloudflare round 6 T-1 added CN-230..234 (5 code nodes) anchoring
+  // the platform-cloudflare-kv blueprint.json, kv-facade.mjs,
+  // cache-aside.mjs, facade-round-trip.mjs and event-secrecy.mjs per
+  // HQ reserved-block ruling (204 -> 209).
+  // Cloudflare round 6 T-2 added CN-260..267 (8 code nodes) anchoring
+  // the platform-cloudflare-cron-triggers blueprint.json, scheduled.mjs,
+  // dispatcher.mjs and the five probe modules per HQ reserved-block
+  // ruling 2026-09-07T12:25Z (209 -> 217).
+  codeNode: 217,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -338,7 +359,10 @@ const expectedCounts = {
   // reserved-block ruling. Originally minted as TS-073 pre-#164;
   // re-minted as TS-076 via `rcf define create ts --id` after HQ
   // round-6 T-0 consumed the original id (63 -> 64).
-  testSuite: 72,
+  // Cloudflare round 6 T-1 added TS-080..087 paired with US-5001..5401 (64 -> 72).
+  // Cloudflare round 6 T-2 added TS-090..096 paired with US-6001..6302
+  // per HQ reserved-block ruling 2026-09-07T12:25Z (72 -> 79).
+  testSuite: 79,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

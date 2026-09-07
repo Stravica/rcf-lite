@@ -57,11 +57,12 @@ Generation strategy: dependencyFirst
 | 51 | 0 | FBS-063 | T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite | notStarted | actionable |  |
 | 52 | 1 | FBS-064 | jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint) | notStarted | blocked | FBS-062 |
 | 53 | 0 | FBS-070 | T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test | notStarted | actionable |  |
+| 54 | 0 | FBS-080 | T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test | notStarted | actionable |  |
 
-Totals: items 53 | notStarted 25 | inProgress 0 | complete 13 | verified 15 | actionable 15 | blocked 10
+Totals: items 54 | notStarted 26 | inProgress 0 | complete 13 | verified 15 | actionable 16 | blocked 10
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044

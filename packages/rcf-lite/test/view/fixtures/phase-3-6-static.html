@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -10714,6 +10714,741 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-060">
+  <summary><span class="summary-label">REQ-060 - T-2 platform-cloudflare-cron-triggers v1.0.0 blueprint: the scheduled() handler is the sole reader of the Cron Trigger event and opens on boot with cronReady</span><span class="status draft">draft</span></summary>
+  <article id="REQ-060" class="doc doc-req">
+  <h3>REQ-060 - T-2 platform-cloudflare-cron-triggers v1.0.0 blueprint: the scheduled() handler is the sole reader of the Cron Trigger event and opens on boot with cronReady</h3>
+  
+  <p><strong>Description:</strong> T-2 platform-cloudflare-cron-triggers v1.0.0: one scheduled() handler in the applied project source tree is the SOLE reader of the Cloudflare Workers Cron Trigger event (the event handler shape documented at https://developers.cloudflare.com/workers/configuration/cron-triggers/). The handler binds on boot, wires the dispatcher (REQ-061) and the event sink (per TAC-3303), and emits a cronReady lifecycle event on the injected sink with a metadata-only payload. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-060[&quot;REQ-060&lt;br/&gt;T-2 platform-cloudflare-cron-triggers v1.0.0 ...&quot;]
+  US-6001[&quot;US-6001&lt;br/&gt;T-2 scheduled() handler opens against the eli...&quot;]
+  REQ-060 --&gt; US-6001
+  AC-6001-1[&quot;AC-6001-1&quot;]
+  US-6001 --&gt; AC-6001-1
+  FBS-080[&quot;FBS-080&lt;br/&gt;T-2 platform-cloudflare-cron-triggers v1.0.0:...&quot;]
+  AC-6001-1 -.-&gt;|delivered by| FBS-080
+  CN-260[&quot;CN-260&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6001-1 -.-&gt;|implemented by| CN-260
+  CN-261[&quot;CN-261&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-6001-1 -.-&gt;|implemented by| CN-261
+  US-6002[&quot;US-6002&lt;br/&gt;T-2 wrangler dev --test-scheduled fires cronF...&quot;]
+  REQ-060 --&gt; US-6002
+  AC-6002-1[&quot;AC-6002-1&quot;]
+  US-6002 --&gt; AC-6002-1
+  AC-6002-1 -.-&gt;|delivered by| FBS-080
+  AC-6002-1 -.-&gt;|implemented by| CN-260
+  AC-6002-1 -.-&gt;|implemented by| CN-261
+  CN-263[&quot;CN-263&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6002-1 -.-&gt;|implemented by| CN-263
+  US-6003[&quot;US-6003&lt;br/&gt;T-2 real-account live-cron smoke fires cronFi...&quot;]
+  REQ-060 --&gt; US-6003
+  AC-6003-1[&quot;AC-6003-1&quot;]
+  US-6003 --&gt; AC-6003-1
+  AC-6003-1 -.-&gt;|delivered by| FBS-080
+  AC-6003-1 -.-&gt;|implemented by| CN-260
+  AC-6003-1 -.-&gt;|implemented by| CN-261
+  CN-267[&quot;CN-267&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6003-1 -.-&gt;|implemented by| CN-267
+  click REQ-060 &quot;#REQ-060&quot;;
+  click US-6001 &quot;#US-6001&quot;;
+  click AC-6001-1 &quot;#AC-6001-1&quot;;
+  click FBS-080 &quot;#FBS-080&quot;;
+  click CN-260 &quot;#CN-260&quot;;
+  click CN-261 &quot;#CN-261&quot;;
+  click US-6002 &quot;#US-6002&quot;;
+  click AC-6002-1 &quot;#AC-6002-1&quot;;
+  click CN-263 &quot;#CN-263&quot;;
+  click US-6003 &quot;#US-6003&quot;;
+  click AC-6003-1 &quot;#AC-6003-1&quot;;
+  click CN-267 &quot;#CN-267&quot;;
+  class REQ-060 req;
+  class US-6001 us;
+  class AC-6001-1 ac;
+  class FBS-080 fbs;
+  class CN-260 cn;
+  class CN-261 cn;
+  class US-6002 us;
+  class AC-6002-1 ac;
+  class CN-263 cn;
+  class US-6003 us;
+  class AC-6003-1 ac;
+  class CN-267 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:26:47.779Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:26:47.813Z&quot;,
+  &quot;description&quot;: &quot;T-2 platform-cloudflare-cron-triggers v1.0.0: one scheduled() handler in the applied project source tree is the SOLE reader of the Cloudflare Workers Cron Trigger event (the event handler shape documented at https://developers.cloudflare.com/workers/configuration/cron-triggers/). The handler binds on boot, wires the dispatcher (REQ-061) and the event sink (per TAC-3303), and emits a cronReady lifecycle event on the injected sink with a metadata-only payload. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;reqId&quot;: &quot;REQ-060&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 platform-cloudflare-cron-triggers v1.0.0 blueprint: the scheduled() handler is the sole reader of the Cron Trigger event and opens on boot with cronReady&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;none&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T12:26:47.812Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-6001">
+  <summary><span class="summary-label">US-6001 - T-2 scheduled() handler opens against the elicited cron triggers on boot and emits cronReady</span><span class="status draft">draft</span></summary>
+  <article id="US-6001" class="doc doc-us">
+  <h3>US-6001 - T-2 scheduled() handler opens against the elicited cron triggers on boot and emits cronReady</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-cloudflare-cron-triggers v1.0.0 blueprint on a Workers project using the cf-platform fixture</p>
+  <p><strong>I want:</strong> one scheduled() handler module (src/scheduled.mjs) that opens against the elicited cron triggers on process boot, wires the dispatcher and event sink, and emits a cronReady lifecycle event with a metadata-only payload</p>
+  <p><strong>So that:</strong> boot ordering is observable, the scheduled seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-060">REQ-060</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-6001-1" class="ac-item"><strong>AC-6001-1</strong> - On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected event sink, and emits a cronReady event on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The scheduled handler does NOT dereference the KV binding (env.CACHE stays owned by the T-1 facade).
+<div class="ac-gwt"><p><em>Given</em> a Node or Worker process with the scheduled handler module imported and its factory invoked with the elicited configuration</p><p><em>When</em> the process boots and the scheduled handler ready() call resolves</p><p><em>Then</em> a cronReady event fires on the injected event sink with the metadata-only payload; the module does not dereference env.CACHE</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:28:01.537Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:28:01.537Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-cloudflare-cron-triggers v1.0.0 blueprint on a Workers project using the cf-platform fixture&quot;,
+  &quot;iWant&quot;: &quot;one scheduled() handler module (src/scheduled.mjs) that opens against the elicited cron triggers on process boot, wires the dispatcher and event sink, and emits a cronReady lifecycle event with a metadata-only payload&quot;,
+  &quot;soThat&quot;: &quot;boot ordering is observable, the scheduled seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-6001-1&quot;,
+      &quot;description&quot;: &quot;On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected event sink, and emits a cronReady event on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The scheduled handler does NOT dereference the KV binding (env.CACHE stays owned by the T-1 facade).&quot;,
+      &quot;given&quot;: &quot;a Node or Worker process with the scheduled handler module imported and its factory invoked with the elicited configuration&quot;,
+      &quot;when&quot;: &quot;the process boots and the scheduled handler ready() call resolves&quot;,
+      &quot;then&quot;: &quot;a cronReady event fires on the injected event sink with the metadata-only payload; the module does not dereference env.CACHE&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-cron-triggers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-6001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-060&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 scheduled() handler opens against the elicited cron triggers on boot and emits cronReady&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-6002">
+  <summary><span class="summary-label">US-6002 - T-2 wrangler dev --test-scheduled fires cronFired on the fixture handler</span><span class="status draft">draft</span></summary>
+  <article id="US-6002" class="doc doc-us">
+  <h3>US-6002 - T-2 wrangler dev --test-scheduled fires cronFired on the fixture handler</h3>
+  
+  <p><strong>As a:</strong> reviewer verifying the platform-cloudflare-cron-triggers v1.0.0 blueprint at mechanism reach</p>
+  <p><strong>I want:</strong> the wrangler-test-scheduled probe to spawn wrangler dev --test-scheduled on the cf-platform fixture, drive its scheduled-fire route with a cron expression declared in wrangler.toml, assert a cronFired event fires on the sink and wrangler exits cleanly</p>
+  <p><strong>So that:</strong> the shipped scheduled() handler is proven wired to the vendor&#39;s CLI seam, not only to an in-process spy</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-060">REQ-060</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-6002-1" class="ac-item"><strong>AC-6002-1</strong> - The wrangler-test-scheduled probe spawns wrangler dev --test-scheduled from the cf-platform fixture, waits bounded 30 seconds for the CLI to bind, drives its scheduled-fire route with an expression from wrangler.toml&#39;s [triggers] crons block, asserts a cronFired event fires on the injected sink with metadata {expression, scheduledTime, outcome, duration}, kills wrangler cleanly on exit, and returns aggregateVerdict: pass. On a shipped wrangler regression that prevents --test-scheduled from binding, the probe returns aggregateVerdict: warn with the observed CLI stderr quoted and the mechanism-reach gap noted, per section 3.1 pass-with-skip conventions.
+<div class="ac-gwt"><p><em>Given</em> wrangler installed as a devDependency on the cf-platform fixture and the [triggers] crons block declared in wrangler.toml</p><p><em>When</em> the probe runs from the fixture directory</p><p><em>Then</em> wrangler dev --test-scheduled binds, the scheduled-fire route drives a cronFired event and wrangler exits cleanly</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:28:01.742Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:28:01.742Z&quot;,
+  &quot;asA&quot;: &quot;reviewer verifying the platform-cloudflare-cron-triggers v1.0.0 blueprint at mechanism reach&quot;,
+  &quot;iWant&quot;: &quot;the wrangler-test-scheduled probe to spawn wrangler dev --test-scheduled on the cf-platform fixture, drive its scheduled-fire route with a cron expression declared in wrangler.toml, assert a cronFired event fires on the sink and wrangler exits cleanly&quot;,
+  &quot;soThat&quot;: &quot;the shipped scheduled() handler is proven wired to the vendor&#39;s CLI seam, not only to an in-process spy&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-6002-1&quot;,
+      &quot;description&quot;: &quot;The wrangler-test-scheduled probe spawns wrangler dev --test-scheduled from the cf-platform fixture, waits bounded 30 seconds for the CLI to bind, drives its scheduled-fire route with an expression from wrangler.toml&#39;s [triggers] crons block, asserts a cronFired event fires on the injected sink with metadata {expression, scheduledTime, outcome, duration}, kills wrangler cleanly on exit, and returns aggregateVerdict: pass. On a shipped wrangler regression that prevents --test-scheduled from binding, the probe returns aggregateVerdict: warn with the observed CLI stderr quoted and the mechanism-reach gap noted, per section 3.1 pass-with-skip conventions.&quot;,
+      &quot;given&quot;: &quot;wrangler installed as a devDependency on the cf-platform fixture and the [triggers] crons block declared in wrangler.toml&quot;,
+      &quot;when&quot;: &quot;the probe runs from the fixture directory&quot;,
+      &quot;then&quot;: &quot;wrangler dev --test-scheduled binds, the scheduled-fire route drives a cronFired event and wrangler exits cleanly&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-cron-triggers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-6002&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-060&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 wrangler dev --test-scheduled fires cronFired on the fixture handler&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-6003">
+  <summary><span class="summary-label">US-6003 - T-2 real-account live-cron smoke fires cronFired at least once against a real Cloudflare Worker</span><span class="status draft">draft</span></summary>
+  <article id="US-6003" class="doc doc-us">
+  <h3>US-6003 - T-2 real-account live-cron smoke fires cronFired at least once against a real Cloudflare Worker</h3>
+  
+  <p><strong>As a:</strong> operator validating platform-cloudflare-cron-triggers v1.0.0 against a real Cloudflare account</p>
+  <p><strong>I want:</strong> the real-account-scheduled-smoke probe to schedule a per-minute cron on a real Worker, wait bounded 90 seconds and assert cronFired fires at least once</p>
+  <p><strong>So that:</strong> the shipped scheduled() surface is proven against the vendor&#39;s global cron scheduler, not only against wrangler dev</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-060">REQ-060</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-6003-1" class="ac-item"><strong>AC-6003-1</strong> - The real-account-scheduled-smoke probe, when CI_HAS_CLOUDFLARE_ACCOUNT=true and the paired CF_ACCOUNT_ID / CF_WORKER_NAME / CF_API_TOKEN env vars are set, deploys a scheduled Worker with a per-minute cron expression (* * * * *), waits bounded 90 seconds (poll every 5s) for a cronFired event to appear on the Worker&#39;s log stream, and returns aggregateVerdict: pass. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped: true and aggregates to pass per spec section 3.5.
+<div class="ac-gwt"><p><em>Given</em> a real Cloudflare account with the paired env vars, or no such account and CI_HAS_CLOUDFLARE_ACCOUNT unset</p><p><em>When</em> the probe runs</p><p><em>Then</em> with the account: cronFired appears within 90s and the probe passes. Without the account: the probe records accountBoundSkipped: true and exits 0.</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:28:01.964Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:28:01.964Z&quot;,
+  &quot;asA&quot;: &quot;operator validating platform-cloudflare-cron-triggers v1.0.0 against a real Cloudflare account&quot;,
+  &quot;iWant&quot;: &quot;the real-account-scheduled-smoke probe to schedule a per-minute cron on a real Worker, wait bounded 90 seconds and assert cronFired fires at least once&quot;,
+  &quot;soThat&quot;: &quot;the shipped scheduled() surface is proven against the vendor&#39;s global cron scheduler, not only against wrangler dev&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-6003-1&quot;,
+      &quot;description&quot;: &quot;The real-account-scheduled-smoke probe, when CI_HAS_CLOUDFLARE_ACCOUNT=true and the paired CF_ACCOUNT_ID / CF_WORKER_NAME / CF_API_TOKEN env vars are set, deploys a scheduled Worker with a per-minute cron expression (* * * * *), waits bounded 90 seconds (poll every 5s) for a cronFired event to appear on the Worker&#39;s log stream, and returns aggregateVerdict: pass. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped: true and aggregates to pass per spec section 3.5.&quot;,
+      &quot;given&quot;: &quot;a real Cloudflare account with the paired env vars, or no such account and CI_HAS_CLOUDFLARE_ACCOUNT unset&quot;,
+      &quot;when&quot;: &quot;the probe runs&quot;,
+      &quot;then&quot;: &quot;with the account: cronFired appears within 90s and the probe passes. Without the account: the probe records accountBoundSkipped: true and exits 0.&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-cron-triggers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-6003&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-060&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 real-account live-cron smoke fires cronFired at least once against a real Cloudflare Worker&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-061">
+  <summary><span class="summary-label">REQ-061 - T-2 expression-router: multiple cron expressions route to distinct handlers by expression match</span><span class="status draft">draft</span></summary>
+  <article id="REQ-061" class="doc doc-req">
+  <h3>REQ-061 - T-2 expression-router: multiple cron expressions route to distinct handlers by expression match</h3>
+  
+  <p><strong>Description:</strong> T-2 platform-cloudflare-cron-triggers v1.0.0: the dispatcher module accepts an ordered map of cron-expression to handler pairs and, on every scheduled() invocation, matches the incoming Cron Trigger event&#39;s cron expression against the map and routes exactly to the matched handler. An unmatched expression records an unmatchedExpression event on the sink and the scheduled invocation returns without side effect. The routed handler receives a bounded context {expression, scheduledTime, sink} so its own emissions can be attributed. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-061[&quot;REQ-061&lt;br/&gt;T-2 expression-router: multiple cron expressi...&quot;]
+  US-6101[&quot;US-6101&lt;br/&gt;T-2 dispatcher routes multiple cron expressio...&quot;]
+  REQ-061 --&gt; US-6101
+  AC-6101-1[&quot;AC-6101-1&quot;]
+  US-6101 --&gt; AC-6101-1
+  FBS-080[&quot;FBS-080&lt;br/&gt;T-2 platform-cloudflare-cron-triggers v1.0.0:...&quot;]
+  AC-6101-1 -.-&gt;|delivered by| FBS-080
+  CN-260[&quot;CN-260&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6101-1 -.-&gt;|implemented by| CN-260
+  CN-262[&quot;CN-262&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-6101-1 -.-&gt;|implemented by| CN-262
+  CN-264[&quot;CN-264&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6101-1 -.-&gt;|implemented by| CN-264
+  AC-6101-2[&quot;AC-6101-2&quot;]
+  US-6101 --&gt; AC-6101-2
+  AC-6101-2 -.-&gt;|delivered by| FBS-080
+  AC-6101-2 -.-&gt;|implemented by| CN-260
+  AC-6101-2 -.-&gt;|implemented by| CN-262
+  AC-6101-2 -.-&gt;|implemented by| CN-264
+  click REQ-061 &quot;#REQ-061&quot;;
+  click US-6101 &quot;#US-6101&quot;;
+  click AC-6101-1 &quot;#AC-6101-1&quot;;
+  click FBS-080 &quot;#FBS-080&quot;;
+  click CN-260 &quot;#CN-260&quot;;
+  click CN-262 &quot;#CN-262&quot;;
+  click CN-264 &quot;#CN-264&quot;;
+  click AC-6101-2 &quot;#AC-6101-2&quot;;
+  class REQ-061 req;
+  class US-6101 us;
+  class AC-6101-1 ac;
+  class FBS-080 fbs;
+  class CN-260 cn;
+  class CN-262 cn;
+  class CN-264 cn;
+  class AC-6101-2 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:26:47.991Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:28:41.280Z&quot;,
+  &quot;description&quot;: &quot;T-2 platform-cloudflare-cron-triggers v1.0.0: the dispatcher module accepts an ordered map of cron-expression to handler pairs and, on every scheduled() invocation, matches the incoming Cron Trigger event&#39;s cron expression against the map and routes exactly to the matched handler. An unmatched expression records an unmatchedExpression event on the sink and the scheduled invocation returns without side effect. The routed handler receives a bounded context {expression, scheduledTime, sink} so its own emissions can be attributed. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;reqId&quot;: &quot;REQ-061&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 expression-router: multiple cron expressions route to distinct handlers by expression match&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T12:29:00.000Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-6101">
+  <summary><span class="summary-label">US-6101 - T-2 dispatcher routes multiple cron expressions to distinct handlers by expression match</span><span class="status draft">draft</span></summary>
+  <article id="US-6101" class="doc doc-us">
+  <h3>US-6101 - T-2 dispatcher routes multiple cron expressions to distinct handlers by expression match</h3>
+  
+  <p><strong>As a:</strong> developer whose Worker needs to schedule two or more distinct workloads on distinct cron cadences</p>
+  <p><strong>I want:</strong> one dispatcher module (src/dispatcher.mjs) that accepts an ordered map of cron expressions to handler functions and, on every scheduled invocation, routes to the matched handler with a bounded context</p>
+  <p><strong>So that:</strong> one wrangler.toml [triggers] block with multiple cron expressions cleanly maps to distinct handler code paths without hand-rolled conditionals</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-061">REQ-061</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-6101-1" class="ac-item"><strong>AC-6101-1</strong> - createDispatcher({routes: [{expression, handler}, ...], eventSink}) returns a dispatch(event) function. Calling dispatch({cron: &#39;* * * * *&#39;, scheduledTime}) invokes exactly the handler whose expression is &#39;* * * * *&#39; and passes {expression, scheduledTime, sink} to it; no other route&#39;s handler is called on that dispatch.
+<div class="ac-gwt"><p><em>Given</em> a dispatcher wired with two routes and two spy handlers</p><p><em>When</em> dispatch is called with a specific expression</p><p><em>Then</em> only the matched spy handler is invoked exactly once with the bounded context</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+<li id="AC-6101-2" class="ac-item"><strong>AC-6101-2</strong> - Calling dispatch({cron: expressionNotInRoutes, scheduledTime}) does NOT invoke any handler, fires a cronUnmatched event on the sink with metadata {expression, scheduledTime, outcome: unmatched, duration: 0} and returns without side effect.
+<div class="ac-gwt"><p><em>Given</em> a dispatcher wired with two routes and two spy handlers</p><p><em>When</em> dispatch is called with an expression not in the routes</p><p><em>Then</em> no spy is called, a cronUnmatched event fires, and dispatch returns without side effect</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:28:02.169Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:28:02.169Z&quot;,
+  &quot;asA&quot;: &quot;developer whose Worker needs to schedule two or more distinct workloads on distinct cron cadences&quot;,
+  &quot;iWant&quot;: &quot;one dispatcher module (src/dispatcher.mjs) that accepts an ordered map of cron expressions to handler functions and, on every scheduled invocation, routes to the matched handler with a bounded context&quot;,
+  &quot;soThat&quot;: &quot;one wrangler.toml [triggers] block with multiple cron expressions cleanly maps to distinct handler code paths without hand-rolled conditionals&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-6101-1&quot;,
+      &quot;description&quot;: &quot;createDispatcher({routes: [{expression, handler}, ...], eventSink}) returns a dispatch(event) function. Calling dispatch({cron: &#39;* * * * *&#39;, scheduledTime}) invokes exactly the handler whose expression is &#39;* * * * *&#39; and passes {expression, scheduledTime, sink} to it; no other route&#39;s handler is called on that dispatch.&quot;,
+      &quot;given&quot;: &quot;a dispatcher wired with two routes and two spy handlers&quot;,
+      &quot;when&quot;: &quot;dispatch is called with a specific expression&quot;,
+      &quot;then&quot;: &quot;only the matched spy handler is invoked exactly once with the bounded context&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-6101-2&quot;,
+      &quot;description&quot;: &quot;Calling dispatch({cron: expressionNotInRoutes, scheduledTime}) does NOT invoke any handler, fires a cronUnmatched event on the sink with metadata {expression, scheduledTime, outcome: unmatched, duration: 0} and returns without side effect.&quot;,
+      &quot;given&quot;: &quot;a dispatcher wired with two routes and two spy handlers&quot;,
+      &quot;when&quot;: &quot;dispatch is called with an expression not in the routes&quot;,
+      &quot;then&quot;: &quot;no spy is called, a cronUnmatched event fires, and dispatch returns without side effect&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-cron-triggers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-6101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-061&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 dispatcher routes multiple cron expressions to distinct handlers by expression match&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-062">
+  <summary><span class="summary-label">REQ-062 - T-2 skew tolerance: a fire inside the elicited window is onTime; outside it records cronSkewed with the delta</span><span class="status draft">draft</span></summary>
+  <article id="REQ-062" class="doc doc-req">
+  <h3>REQ-062 - T-2 skew tolerance: a fire inside the elicited window is onTime; outside it records cronSkewed with the delta</h3>
+  
+  <p><strong>Description:</strong> T-2 platform-cloudflare-cron-triggers v1.0.0: an elicited skew-tolerance window (default 30 seconds per ADR-3303; floor 5s, ceiling 5 minutes) governs how the dispatcher classifies a fire. If the observed handler start time is within the window of the event&#39;s scheduledTime, the fire&#39;s outcome is onTime and a cronFired event carries {expression, scheduledTime, outcome: onTime, duration}. If the observed start is outside the window, a cronSkewed event fires with the delta (observed minus scheduled, in milliseconds) and the outcome is skewed; the handler still runs. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-062[&quot;REQ-062&lt;br/&gt;T-2 skew tolerance: a fire inside the elicite...&quot;]
+  US-6201[&quot;US-6201&lt;br/&gt;T-2 skew tolerance: fires inside the elicited...&quot;]
+  REQ-062 --&gt; US-6201
+  AC-6201-1[&quot;AC-6201-1&quot;]
+  US-6201 --&gt; AC-6201-1
+  FBS-080[&quot;FBS-080&lt;br/&gt;T-2 platform-cloudflare-cron-triggers v1.0.0:...&quot;]
+  AC-6201-1 -.-&gt;|delivered by| FBS-080
+  CN-260[&quot;CN-260&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6201-1 -.-&gt;|implemented by| CN-260
+  CN-262[&quot;CN-262&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-6201-1 -.-&gt;|implemented by| CN-262
+  CN-265[&quot;CN-265&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6201-1 -.-&gt;|implemented by| CN-265
+  AC-6201-2[&quot;AC-6201-2&quot;]
+  US-6201 --&gt; AC-6201-2
+  AC-6201-2 -.-&gt;|delivered by| FBS-080
+  AC-6201-2 -.-&gt;|implemented by| CN-260
+  AC-6201-2 -.-&gt;|implemented by| CN-262
+  AC-6201-2 -.-&gt;|implemented by| CN-265
+  click REQ-062 &quot;#REQ-062&quot;;
+  click US-6201 &quot;#US-6201&quot;;
+  click AC-6201-1 &quot;#AC-6201-1&quot;;
+  click FBS-080 &quot;#FBS-080&quot;;
+  click CN-260 &quot;#CN-260&quot;;
+  click CN-262 &quot;#CN-262&quot;;
+  click CN-265 &quot;#CN-265&quot;;
+  click AC-6201-2 &quot;#AC-6201-2&quot;;
+  class REQ-062 req;
+  class US-6201 us;
+  class AC-6201-1 ac;
+  class FBS-080 fbs;
+  class CN-260 cn;
+  class CN-262 cn;
+  class CN-265 cn;
+  class AC-6201-2 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:26:48.199Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:26:48.232Z&quot;,
+  &quot;description&quot;: &quot;T-2 platform-cloudflare-cron-triggers v1.0.0: an elicited skew-tolerance window (default 30 seconds per ADR-3303; floor 5s, ceiling 5 minutes) governs how the dispatcher classifies a fire. If the observed handler start time is within the window of the event&#39;s scheduledTime, the fire&#39;s outcome is onTime and a cronFired event carries {expression, scheduledTime, outcome: onTime, duration}. If the observed start is outside the window, a cronSkewed event fires with the delta (observed minus scheduled, in milliseconds) and the outcome is skewed; the handler still runs. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;reqId&quot;: &quot;REQ-062&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 skew tolerance: a fire inside the elicited window is onTime; outside it records cronSkewed with the delta&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;none&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T12:26:48.230Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-6201">
+  <summary><span class="summary-label">US-6201 - T-2 skew tolerance: fires inside the elicited window are onTime; outside record cronSkewed with delta</span><span class="status draft">draft</span></summary>
+  <article id="US-6201" class="doc doc-us">
+  <h3>US-6201 - T-2 skew tolerance: fires inside the elicited window are onTime; outside record cronSkewed with delta</h3>
+  
+  <p><strong>As a:</strong> operator observing the timeliness of scheduled work on a Worker</p>
+  <p><strong>I want:</strong> the dispatcher to classify every fire against an elicited skew window and record cronSkewed for late fires with the delta</p>
+  <p><strong>So that:</strong> the applied logging companion surfaces cron drift as a first-class signal without every handler having to keep its own clock</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-062">REQ-062</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-6201-1" class="ac-item"><strong>AC-6201-1</strong> - With an elicited skew window of 30 seconds and a fake clock aligned to scheduledTime, dispatching a scheduled event fires cronFired with {expression, scheduledTime, outcome: onTime, duration: &gt;=0} on the sink; no cronSkewed event fires for that dispatch.
+<div class="ac-gwt"><p><em>Given</em> a dispatcher configured with skewToleranceMs=30000 and a fake clock aligned to scheduledTime</p><p><em>When</em> an event is dispatched</p><p><em>Then</em> a cronFired event fires with outcome onTime and no cronSkewed fires</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+<li id="AC-6201-2" class="ac-item"><strong>AC-6201-2</strong> - With an elicited skew window of 30 seconds and a fake clock advanced 60000ms past scheduledTime, dispatching a scheduled event fires cronSkewed with {expression, scheduledTime, outcome: skewed, duration: &gt;=0, deltaMs: 60000} on the sink; the routed handler still runs.
+<div class="ac-gwt"><p><em>Given</em> a dispatcher configured with skewToleranceMs=30000 and a fake clock advanced 60000ms past scheduledTime</p><p><em>When</em> an event is dispatched</p><p><em>Then</em> a cronSkewed event fires with the observed delta and the handler still runs</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:28:02.375Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:28:02.375Z&quot;,
+  &quot;asA&quot;: &quot;operator observing the timeliness of scheduled work on a Worker&quot;,
+  &quot;iWant&quot;: &quot;the dispatcher to classify every fire against an elicited skew window and record cronSkewed for late fires with the delta&quot;,
+  &quot;soThat&quot;: &quot;the applied logging companion surfaces cron drift as a first-class signal without every handler having to keep its own clock&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-6201-1&quot;,
+      &quot;description&quot;: &quot;With an elicited skew window of 30 seconds and a fake clock aligned to scheduledTime, dispatching a scheduled event fires cronFired with {expression, scheduledTime, outcome: onTime, duration: &gt;=0} on the sink; no cronSkewed event fires for that dispatch.&quot;,
+      &quot;given&quot;: &quot;a dispatcher configured with skewToleranceMs=30000 and a fake clock aligned to scheduledTime&quot;,
+      &quot;when&quot;: &quot;an event is dispatched&quot;,
+      &quot;then&quot;: &quot;a cronFired event fires with outcome onTime and no cronSkewed fires&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-6201-2&quot;,
+      &quot;description&quot;: &quot;With an elicited skew window of 30 seconds and a fake clock advanced 60000ms past scheduledTime, dispatching a scheduled event fires cronSkewed with {expression, scheduledTime, outcome: skewed, duration: &gt;=0, deltaMs: 60000} on the sink; the routed handler still runs.&quot;,
+      &quot;given&quot;: &quot;a dispatcher configured with skewToleranceMs=30000 and a fake clock advanced 60000ms past scheduledTime&quot;,
+      &quot;when&quot;: &quot;an event is dispatched&quot;,
+      &quot;then&quot;: &quot;a cronSkewed event fires with the observed delta and the handler still runs&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-cron-triggers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-6201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-062&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 skew tolerance: fires inside the elicited window are onTime; outside record cronSkewed with delta&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-063">
+  <summary><span class="summary-label">REQ-063 - T-2 soft budget and event secrecy: a handler running past the elicited budget logs cronStalled but does not terminate; every event record is metadata-only</span><span class="status draft">draft</span></summary>
+  <article id="REQ-063" class="doc doc-req">
+  <h3>REQ-063 - T-2 soft budget and event secrecy: a handler running past the elicited budget logs cronStalled but does not terminate; every event record is metadata-only</h3>
+  
+  <p><strong>Description:</strong> T-2 platform-cloudflare-cron-triggers v1.0.0: an elicited soft-budget duration (default 30 seconds per elicited answer, no floor) governs when a running handler is flagged as stalled. The dispatcher never terminates a handler on soft-budget breach (Cloudflare&#39;s platform concern is the sole terminator); it fires a cronStalled event with metadata-only payload {expression, scheduledTime, outcome: stalled, duration, softBudgetMs} at the moment the observed duration crosses the budget and lets the handler continue. Every scheduled-side event record on the sink carries only {expression, scheduledTime, outcome, duration} plus the event tag; handler input closures, PII fields and body bytes never cross the sink boundary. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-063[&quot;REQ-063&lt;br/&gt;T-2 soft budget and event secrecy: a handler ...&quot;]
+  US-6301[&quot;US-6301&lt;br/&gt;T-2 soft budget: a handler running past the e...&quot;]
+  REQ-063 --&gt; US-6301
+  AC-6301-1[&quot;AC-6301-1&quot;]
+  US-6301 --&gt; AC-6301-1
+  FBS-080[&quot;FBS-080&lt;br/&gt;T-2 platform-cloudflare-cron-triggers v1.0.0:...&quot;]
+  AC-6301-1 -.-&gt;|delivered by| FBS-080
+  CN-260[&quot;CN-260&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6301-1 -.-&gt;|implemented by| CN-260
+  CN-262[&quot;CN-262&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-6301-1 -.-&gt;|implemented by| CN-262
+  CN-265[&quot;CN-265&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6301-1 -.-&gt;|implemented by| CN-265
+  AC-6301-2[&quot;AC-6301-2&quot;]
+  US-6301 --&gt; AC-6301-2
+  AC-6301-2 -.-&gt;|delivered by| FBS-080
+  AC-6301-2 -.-&gt;|implemented by| CN-260
+  AC-6301-2 -.-&gt;|implemented by| CN-262
+  AC-6301-2 -.-&gt;|implemented by| CN-265
+  US-6302[&quot;US-6302&lt;br/&gt;T-2 event secrecy: every scheduled-side event...&quot;]
+  REQ-063 --&gt; US-6302
+  AC-6302-1[&quot;AC-6302-1&quot;]
+  US-6302 --&gt; AC-6302-1
+  AC-6302-1 -.-&gt;|delivered by| FBS-080
+  AC-6302-1 -.-&gt;|implemented by| CN-260
+  AC-6302-1 -.-&gt;|implemented by| CN-262
+  CN-266[&quot;CN-266&lt;br/&gt;../../blueprints/platform-cloudflare-cron-tri...&quot;]
+  AC-6302-1 -.-&gt;|implemented by| CN-266
+  click REQ-063 &quot;#REQ-063&quot;;
+  click US-6301 &quot;#US-6301&quot;;
+  click AC-6301-1 &quot;#AC-6301-1&quot;;
+  click FBS-080 &quot;#FBS-080&quot;;
+  click CN-260 &quot;#CN-260&quot;;
+  click CN-262 &quot;#CN-262&quot;;
+  click CN-265 &quot;#CN-265&quot;;
+  click AC-6301-2 &quot;#AC-6301-2&quot;;
+  click US-6302 &quot;#US-6302&quot;;
+  click AC-6302-1 &quot;#AC-6302-1&quot;;
+  click CN-266 &quot;#CN-266&quot;;
+  class REQ-063 req;
+  class US-6301 us;
+  class AC-6301-1 ac;
+  class FBS-080 fbs;
+  class CN-260 cn;
+  class CN-262 cn;
+  class CN-265 cn;
+  class AC-6301-2 ac;
+  class US-6302 us;
+  class AC-6302-1 ac;
+  class CN-266 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:26:48.409Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:26:48.442Z&quot;,
+  &quot;description&quot;: &quot;T-2 platform-cloudflare-cron-triggers v1.0.0: an elicited soft-budget duration (default 30 seconds per elicited answer, no floor) governs when a running handler is flagged as stalled. The dispatcher never terminates a handler on soft-budget breach (Cloudflare&#39;s platform concern is the sole terminator); it fires a cronStalled event with metadata-only payload {expression, scheduledTime, outcome: stalled, duration, softBudgetMs} at the moment the observed duration crosses the budget and lets the handler continue. Every scheduled-side event record on the sink carries only {expression, scheduledTime, outcome, duration} plus the event tag; handler input closures, PII fields and body bytes never cross the sink boundary. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;reqId&quot;: &quot;REQ-063&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 soft budget and event secrecy: a handler running past the elicited budget logs cronStalled but does not terminate; every event record is metadata-only&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;none&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T12:26:48.441Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-6301">
+  <summary><span class="summary-label">US-6301 - T-2 soft budget: a handler running past the elicited budget logs cronStalled and continues</span><span class="status draft">draft</span></summary>
+  <article id="US-6301" class="doc doc-us">
+  <h3>US-6301 - T-2 soft budget: a handler running past the elicited budget logs cronStalled and continues</h3>
+  
+  <p><strong>As a:</strong> operator observing long-running scheduled work on a Worker</p>
+  <p><strong>I want:</strong> the dispatcher to fire cronStalled at the moment a handler&#39;s observed duration crosses the elicited soft budget, without terminating the handler</p>
+  <p><strong>So that:</strong> the applied logging companion surfaces stalled fires as a first-class signal, and the Worker&#39;s own CPU budget remains the vendor&#39;s concern</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-063">REQ-063</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-6301-1" class="ac-item"><strong>AC-6301-1</strong> - With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, dispatching fires exactly one cronStalled event on the sink with {expression, scheduledTime, outcome: stalled, duration: &gt;=100, softBudgetMs: 100} at the moment the observed duration crosses 100ms.
+<div class="ac-gwt"><p><em>Given</em> a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms fake-clock</p><p><em>When</em> an event is dispatched</p><p><em>Then</em> a cronStalled event fires exactly once with the observed duration at or past the budget</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+<li id="AC-6301-2" class="ac-item"><strong>AC-6301-2</strong> - With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, the dispatcher does NOT terminate the handler on the soft-budget breach; the handler runs to completion, resolves, and a final cronFired event follows the cronStalled record with the total duration.
+<div class="ac-gwt"><p><em>Given</em> a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms fake-clock</p><p><em>When</em> an event is dispatched</p><p><em>Then</em> the handler runs to completion and a cronFired follows the cronStalled record</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:28:02.582Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:28:02.582Z&quot;,
+  &quot;asA&quot;: &quot;operator observing long-running scheduled work on a Worker&quot;,
+  &quot;iWant&quot;: &quot;the dispatcher to fire cronStalled at the moment a handler&#39;s observed duration crosses the elicited soft budget, without terminating the handler&quot;,
+  &quot;soThat&quot;: &quot;the applied logging companion surfaces stalled fires as a first-class signal, and the Worker&#39;s own CPU budget remains the vendor&#39;s concern&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-6301-1&quot;,
+      &quot;description&quot;: &quot;With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, dispatching fires exactly one cronStalled event on the sink with {expression, scheduledTime, outcome: stalled, duration: &gt;=100, softBudgetMs: 100} at the moment the observed duration crosses 100ms.&quot;,
+      &quot;given&quot;: &quot;a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms fake-clock&quot;,
+      &quot;when&quot;: &quot;an event is dispatched&quot;,
+      &quot;then&quot;: &quot;a cronStalled event fires exactly once with the observed duration at or past the budget&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-6301-2&quot;,
+      &quot;description&quot;: &quot;With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, the dispatcher does NOT terminate the handler on the soft-budget breach; the handler runs to completion, resolves, and a final cronFired event follows the cronStalled record with the total duration.&quot;,
+      &quot;given&quot;: &quot;a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms fake-clock&quot;,
+      &quot;when&quot;: &quot;an event is dispatched&quot;,
+      &quot;then&quot;: &quot;the handler runs to completion and a cronFired follows the cronStalled record&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-cron-triggers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-6301&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-063&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 soft budget: a handler running past the elicited budget logs cronStalled and continues&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-6302">
+  <summary><span class="summary-label">US-6302 - T-2 event secrecy: every scheduled-side event record carries only metadata; no closure or PII</span><span class="status draft">draft</span></summary>
+  <article id="US-6302" class="doc doc-us">
+  <h3>US-6302 - T-2 event secrecy: every scheduled-side event record carries only metadata; no closure or PII</h3>
+  
+  <p><strong>As a:</strong> security reviewer reading the applied logging companion&#39;s stream</p>
+  <p><strong>I want:</strong> every cron lifecycle event record to carry only {event, expression, scheduledTime, outcome, duration} and optional numeric metadata fields; never a handler input, closure or PII substring</p>
+  <p><strong>So that:</strong> the logging stream stays safe to ship to any downstream sink without a per-blueprint scrub pass</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-063">REQ-063</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-6302-1" class="ac-item"><strong>AC-6302-1</strong> - The event-secrecy probe drives the dispatcher with a spy handler that receives a PII fixture ({userId, ssn}) via a closure, and drives put/get/delete-style operations on a fixture key. The probe asserts (layer 1) every event record&#39;s keys are a subset of the allow-list {event, expression, scheduledTime, outcome, duration, softBudgetMs, deltaMs}; and (layer 2) the JSON serialisation of every record (excluding the expression field, which is a legitimate literal from wrangler.toml) contains no PII substring (userId numeric, ssn placeholder). SIMULATE_PII_LEAK=true injects a wrapper sink that forwards the closure onto the record; the probe surfaces the forbidden keys and the leaked substrings and returns aggregateVerdict: fail.
+<div class="ac-gwt"><p><em>Given</em> the event-secrecy probe run under both modes</p><p><em>When</em> the shipped code path runs without the switch; the mutation-path runs with SIMULATE_PII_LEAK=true</p><p><em>Then</em> shipped: aggregateVerdict pass with zero forbidden keys and zero PII hits. Switch on: aggregateVerdict fail with the leaked fields named.</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-080">FBS-080</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:28:02.788Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:28:02.788Z&quot;,
+  &quot;asA&quot;: &quot;security reviewer reading the applied logging companion&#39;s stream&quot;,
+  &quot;iWant&quot;: &quot;every cron lifecycle event record to carry only {event, expression, scheduledTime, outcome, duration} and optional numeric metadata fields; never a handler input, closure or PII substring&quot;,
+  &quot;soThat&quot;: &quot;the logging stream stays safe to ship to any downstream sink without a per-blueprint scrub pass&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-6302-1&quot;,
+      &quot;description&quot;: &quot;The event-secrecy probe drives the dispatcher with a spy handler that receives a PII fixture ({userId, ssn}) via a closure, and drives put/get/delete-style operations on a fixture key. The probe asserts (layer 1) every event record&#39;s keys are a subset of the allow-list {event, expression, scheduledTime, outcome, duration, softBudgetMs, deltaMs}; and (layer 2) the JSON serialisation of every record (excluding the expression field, which is a legitimate literal from wrangler.toml) contains no PII substring (userId numeric, ssn placeholder). SIMULATE_PII_LEAK=true injects a wrapper sink that forwards the closure onto the record; the probe surfaces the forbidden keys and the leaked substrings and returns aggregateVerdict: fail.&quot;,
+      &quot;given&quot;: &quot;the event-secrecy probe run under both modes&quot;,
+      &quot;when&quot;: &quot;the shipped code path runs without the switch; the mutation-path runs with SIMULATE_PII_LEAK=true&quot;,
+      &quot;then&quot;: &quot;shipped: aggregateVerdict pass with zero forbidden keys and zero PII hits. Switch on: aggregateVerdict fail with the leaked fields named.&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-cron-triggers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-6302&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-063&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 event secrecy: every scheduled-side event record carries only metadata; no closure or PII&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -11818,7 +12553,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -16095,6 +16830,110 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test&quot;,
   &quot;summary&quot;: &quot;HQ round-6 T-1: platform-cloudflare-kv v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-kv/ (19 contributions: 5 REQs, 8 USs, 3 TACs, 3 ADRs; contributions target 22 to 26 is guidance; sits below at 19 with well-scoped 8-US coverage per spec section 5.1). Adds cf-platform fixture extension (wrangler.toml [[kv_namespaces]] block, src/kv-facade.mjs sole reader, src/cache-aside.mjs helper, src/kv-driver.mjs in-memory driver realising the Workers KV binding shape). Ships 5 Node-only probes under contributions/probes/ (facade-round-trip, cache-aside-hit-then-miss, event-secrecy, list-with-prefix, real-account-eventual-consistency-smoke; the last is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-kv on every other blueprint (29 files) and one keyValueStore row on packages/rcf-lite/docs/blueprint-authoring.md section 6a table. Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js covers TS-080..087. Repo chain: REQ-050..054 US-5001..5401 TS-080..087 FBS-070 CN-230..234 minted via rcf define create --id per HQ round-6 T-1 reserved-block ruling 2026-09-07T10:12Z. Base commit origin/main 321371e6.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-080">
+  <summary><span class="summary-label">FBS-080 - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-080" class="doc doc-fbs">
+  <h3>FBS-080 - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</h3>
+  
+  <p><strong>Summary:</strong> HQ round-6 T-2: platform-cloudflare-cron-triggers v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-cron-triggers/ (17 contributions: 4 REQs, 7 USs, 3 TACs, 3 ADRs; contributions target 20 to 24 is guidance; sits below at 17 with well-scoped 7-US coverage per spec section 5.2). Adds cf-platform fixture extension (wrangler.toml [triggers] crons block additive over the T-0 [assets] and T-1 [[kv_namespaces]] blocks, src/scheduled.mjs sole reader of the Cron Trigger event, src/dispatcher.mjs expression-routed dispatcher with skew tolerance and soft budget). Ships 5 Node-only probes under contributions/probes/ (wrangler-test-scheduled drives wrangler dev --test-scheduled on the fixture; dispatcher-routing, skew-tolerance and event-secrecy drive the shipped dispatcher in-process; real-account-scheduled-smoke is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-cron-triggers on every other blueprint (31 files) and one scheduledTrigger row on packages/rcf-lite/docs/blueprint-authoring.md section 6a table. Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js covers TS-090..096. Repo chain: REQ-060..063 US-6001..6302 TS-090..096 FBS-080 CN-260..267 minted via rcf define create --id per HQ round-6 T-2 reserved-block ruling 2026-09-07T12:25Z. Base commit origin/main 09e14b4.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-6001-1">AC-6001-1</a><a class="ac-pill" href="#AC-6002-1">AC-6002-1</a><a class="ac-pill" href="#AC-6003-1">AC-6003-1</a><a class="ac-pill" href="#AC-6101-1">AC-6101-1</a><a class="ac-pill" href="#AC-6101-2">AC-6101-2</a><a class="ac-pill" href="#AC-6201-1">AC-6201-1</a><a class="ac-pill" href="#AC-6201-2">AC-6201-2</a><a class="ac-pill" href="#AC-6301-1">AC-6301-1</a><a class="ac-pill" href="#AC-6301-2">AC-6301-2</a><a class="ac-pill" href="#AC-6302-1">AC-6302-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-6001-1">AC-6001-1</a></strong> - On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected event sink, and emits a cronReady event on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The scheduled handler does NOT dereference the KV binding (env.CACHE stays owned by the T-1 facade).</p>
+  <p><em>Given</em> a Node or Worker process with the scheduled handler module imported and its factory invoked with the elicited configuration</p>
+  <p><em>When</em> the process boots and the scheduled handler ready() call resolves</p>
+  <p><em>Then</em> a cronReady event fires on the injected event sink with the metadata-only payload; the module does not dereference env.CACHE</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6002-1">AC-6002-1</a></strong> - The wrangler-test-scheduled probe spawns wrangler dev --test-scheduled from the cf-platform fixture, waits bounded 30 seconds for the CLI to bind, drives its scheduled-fire route with an expression from wrangler.toml&#39;s [triggers] crons block, asserts a cronFired event fires on the injected sink with metadata {expression, scheduledTime, outcome, duration}, kills wrangler cleanly on exit, and returns aggregateVerdict: pass. On a shipped wrangler regression that prevents --test-scheduled from binding, the probe returns aggregateVerdict: warn with the observed CLI stderr quoted and the mechanism-reach gap noted, per section 3.1 pass-with-skip conventions.</p>
+  <p><em>Given</em> wrangler installed as a devDependency on the cf-platform fixture and the [triggers] crons block declared in wrangler.toml</p>
+  <p><em>When</em> the probe runs from the fixture directory</p>
+  <p><em>Then</em> wrangler dev --test-scheduled binds, the scheduled-fire route drives a cronFired event and wrangler exits cleanly</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6003-1">AC-6003-1</a></strong> - The real-account-scheduled-smoke probe, when CI_HAS_CLOUDFLARE_ACCOUNT=true and the paired CF_ACCOUNT_ID / CF_WORKER_NAME / CF_API_TOKEN env vars are set, deploys a scheduled Worker with a per-minute cron expression (* * * * *), waits bounded 90 seconds (poll every 5s) for a cronFired event to appear on the Worker&#39;s log stream, and returns aggregateVerdict: pass. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped: true and aggregates to pass per spec section 3.5.</p>
+  <p><em>Given</em> a real Cloudflare account with the paired env vars, or no such account and CI_HAS_CLOUDFLARE_ACCOUNT unset</p>
+  <p><em>When</em> the probe runs</p>
+  <p><em>Then</em> with the account: cronFired appears within 90s and the probe passes. Without the account: the probe records accountBoundSkipped: true and exits 0.</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6101-1">AC-6101-1</a></strong> - createDispatcher({routes: [{expression, handler}, ...], eventSink}) returns a dispatch(event) function. Calling dispatch({cron: &#39;* * * * *&#39;, scheduledTime}) invokes exactly the handler whose expression is &#39;* * * * *&#39; and passes {expression, scheduledTime, sink} to it; no other route&#39;s handler is called on that dispatch.</p>
+  <p><em>Given</em> a dispatcher wired with two routes and two spy handlers</p>
+  <p><em>When</em> dispatch is called with a specific expression</p>
+  <p><em>Then</em> only the matched spy handler is invoked exactly once with the bounded context</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6101-2">AC-6101-2</a></strong> - Calling dispatch({cron: expressionNotInRoutes, scheduledTime}) does NOT invoke any handler, fires a cronUnmatched event on the sink with metadata {expression, scheduledTime, outcome: unmatched, duration: 0} and returns without side effect.</p>
+  <p><em>Given</em> a dispatcher wired with two routes and two spy handlers</p>
+  <p><em>When</em> dispatch is called with an expression not in the routes</p>
+  <p><em>Then</em> no spy is called, a cronUnmatched event fires, and dispatch returns without side effect</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6201-1">AC-6201-1</a></strong> - With an elicited skew window of 30 seconds and a fake clock aligned to scheduledTime, dispatching a scheduled event fires cronFired with {expression, scheduledTime, outcome: onTime, duration: &gt;=0} on the sink; no cronSkewed event fires for that dispatch.</p>
+  <p><em>Given</em> a dispatcher configured with skewToleranceMs=30000 and a fake clock aligned to scheduledTime</p>
+  <p><em>When</em> an event is dispatched</p>
+  <p><em>Then</em> a cronFired event fires with outcome onTime and no cronSkewed fires</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6201-2">AC-6201-2</a></strong> - With an elicited skew window of 30 seconds and a fake clock advanced 60000ms past scheduledTime, dispatching a scheduled event fires cronSkewed with {expression, scheduledTime, outcome: skewed, duration: &gt;=0, deltaMs: 60000} on the sink; the routed handler still runs.</p>
+  <p><em>Given</em> a dispatcher configured with skewToleranceMs=30000 and a fake clock advanced 60000ms past scheduledTime</p>
+  <p><em>When</em> an event is dispatched</p>
+  <p><em>Then</em> a cronSkewed event fires with the observed delta and the handler still runs</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6301-1">AC-6301-1</a></strong> - With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, dispatching fires exactly one cronStalled event on the sink with {expression, scheduledTime, outcome: stalled, duration: &gt;=100, softBudgetMs: 100} at the moment the observed duration crosses 100ms.</p>
+  <p><em>Given</em> a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms fake-clock</p>
+  <p><em>When</em> an event is dispatched</p>
+  <p><em>Then</em> a cronStalled event fires exactly once with the observed duration at or past the budget</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6301-2">AC-6301-2</a></strong> - With softBudgetMs=100 and a spy handler that resolves after 250ms of fake-clock time, the dispatcher does NOT terminate the handler on the soft-budget breach; the handler runs to completion, resolves, and a final cronFired event follows the cronStalled record with the total duration.</p>
+  <p><em>Given</em> a dispatcher configured with softBudgetMs=100 and a spy handler that resolves after 250ms fake-clock</p>
+  <p><em>When</em> an event is dispatched</p>
+  <p><em>Then</em> the handler runs to completion and a cronFired follows the cronStalled record</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-6302-1">AC-6302-1</a></strong> - The event-secrecy probe drives the dispatcher with a spy handler that receives a PII fixture ({userId, ssn}) via a closure, and drives put/get/delete-style operations on a fixture key. The probe asserts (layer 1) every event record&#39;s keys are a subset of the allow-list {event, expression, scheduledTime, outcome, duration, softBudgetMs, deltaMs}; and (layer 2) the JSON serialisation of every record (excluding the expression field, which is a legitimate literal from wrangler.toml) contains no PII substring (userId numeric, ssn placeholder). SIMULATE_PII_LEAK=true injects a wrapper sink that forwards the closure onto the record; the probe surfaces the forbidden keys and the leaked substrings and returns aggregateVerdict: fail.</p>
+  <p><em>Given</em> the event-secrecy probe run under both modes</p>
+  <p><em>When</em> the shipped code path runs without the switch; the mutation-path runs with SIMULATE_PII_LEAK=true</p>
+  <p><em>Then</em> shipped: aggregateVerdict pass with zero forbidden keys and zero PII hits. Switch on: aggregateVerdict fail with the leaked fields named.</p>
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 54</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:30:06.334Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:51:40.075Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-6001-1&quot;,
+    &quot;AC-6002-1&quot;,
+    &quot;AC-6003-1&quot;,
+    &quot;AC-6101-1&quot;,
+    &quot;AC-6101-2&quot;,
+    &quot;AC-6201-1&quot;,
+    &quot;AC-6201-2&quot;,
+    &quot;AC-6301-1&quot;,
+    &quot;AC-6301-2&quot;,
+    &quot;AC-6302-1&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-080&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 54,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test&quot;,
+  &quot;summary&quot;: &quot;HQ round-6 T-2: platform-cloudflare-cron-triggers v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-cron-triggers/ (17 contributions: 4 REQs, 7 USs, 3 TACs, 3 ADRs; contributions target 20 to 24 is guidance; sits below at 17 with well-scoped 7-US coverage per spec section 5.2). Adds cf-platform fixture extension (wrangler.toml [triggers] crons block additive over the T-0 [assets] and T-1 [[kv_namespaces]] blocks, src/scheduled.mjs sole reader of the Cron Trigger event, src/dispatcher.mjs expression-routed dispatcher with skew tolerance and soft budget). Ships 5 Node-only probes under contributions/probes/ (wrangler-test-scheduled drives wrangler dev --test-scheduled on the fixture; dispatcher-routing, skew-tolerance and event-secrecy drive the shipped dispatcher in-process; real-account-scheduled-smoke is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-cron-triggers on every other blueprint (31 files) and one scheduledTrigger row on packages/rcf-lite/docs/blueprint-authoring.md section 6a table. Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js covers TS-090..096. Repo chain: REQ-060..063 US-6001..6302 TS-090..096 FBS-080 CN-260..267 minted via rcf define create --id per HQ round-6 T-2 reserved-block ruling 2026-09-07T12:25Z. Base commit origin/main 09e14b4.&quot;,
   &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
@@ -21986,6 +22825,325 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;Cover AC-5401-1 via anatomy test: without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true and aggregates pass&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::real-account eventual-consistency smoke records accountBoundSkipped without the env var (TC-087-real-account-smoke)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-090">
+  <summary><span class="summary-label">TS-090 - T-2 scheduled handler opens on boot and emits cronReady</span><span class="status draft">draft</span></summary>
+  <article id="TS-090" class="doc doc-ts">
+  <h3>TS-090 - T-2 scheduled handler opens on boot and emits cronReady</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-6001">US-6001</a></p>
+  <p><strong>Purpose:</strong> Cover AC-6001-1 via anatomy test: shipped scheduled handler ready() emits cronReady with metadata-only payload and does not dereference env.CACHE</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-6001-1">AC-6001-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-090-scheduled-ready">
+  <p><strong>TC-090-scheduled-ready</strong> - covers <a href="#AC-6001-1">AC-6001-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6001-1 via anatomy test: scheduled.mjs ready() emits cronReady with metadata-only payload; scheduled.mjs source contains no env.CACHE dereference</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::scheduled handler opens on boot and emits cronReady with metadata-only payload (TC-090-scheduled-ready)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:29:11.255Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:29:45.408Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-6001-1 via anatomy test: shipped scheduled handler ready() emits cronReady with metadata-only payload and does not dereference env.CACHE&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-6001-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-090&quot;,
+  &quot;usId&quot;: &quot;US-6001&quot;,
+  &quot;title&quot;: &quot;T-2 scheduled handler opens on boot and emits cronReady&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-090-scheduled-ready&quot;,
+      &quot;acId&quot;: &quot;AC-6001-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-6001-1 via anatomy test: scheduled.mjs ready() emits cronReady with metadata-only payload; scheduled.mjs source contains no env.CACHE dereference&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::scheduled handler opens on boot and emits cronReady with metadata-only payload (TC-090-scheduled-ready)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-091">
+  <summary><span class="summary-label">TS-091 - T-2 wrangler-test-scheduled probe passes on the fixture</span><span class="status draft">draft</span></summary>
+  <article id="TS-091" class="doc doc-ts">
+  <h3>TS-091 - T-2 wrangler-test-scheduled probe passes on the fixture</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-6002">US-6002</a></p>
+  <p><strong>Purpose:</strong> Cover AC-6002-1 via anatomy test: shipped wrangler-test-scheduled probe module drives wrangler dev --test-scheduled on the cf-platform fixture and asserts cronFired fires</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-6002-1">AC-6002-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-091-wrangler-test-scheduled">
+  <p><strong>TC-091-wrangler-test-scheduled</strong> - covers <a href="#AC-6002-1">AC-6002-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6002-1 via anatomy test: wrangler-test-scheduled probe runs against the cf-platform fixture and returns aggregateVerdict pass or warn on a wrangler regression</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::wrangler-test-scheduled probe binds and drives cronFired on the cf-platform fixture (TC-091-wrangler-test-scheduled)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:29:11.435Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:29:45.586Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-6002-1 via anatomy test: shipped wrangler-test-scheduled probe module drives wrangler dev --test-scheduled on the cf-platform fixture and asserts cronFired fires&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-6002-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-091&quot;,
+  &quot;usId&quot;: &quot;US-6002&quot;,
+  &quot;title&quot;: &quot;T-2 wrangler-test-scheduled probe passes on the fixture&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-091-wrangler-test-scheduled&quot;,
+      &quot;acId&quot;: &quot;AC-6002-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-6002-1 via anatomy test: wrangler-test-scheduled probe runs against the cf-platform fixture and returns aggregateVerdict pass or warn on a wrangler regression&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::wrangler-test-scheduled probe binds and drives cronFired on the cf-platform fixture (TC-091-wrangler-test-scheduled)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-092">
+  <summary><span class="summary-label">TS-092 - T-2 real-account live-cron smoke probe pass-with-skip</span><span class="status draft">draft</span></summary>
+  <article id="TS-092" class="doc doc-ts">
+  <h3>TS-092 - T-2 real-account live-cron smoke probe pass-with-skip</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-6003">US-6003</a></p>
+  <p><strong>Purpose:</strong> Cover AC-6003-1 via anatomy test: shipped real-account-scheduled-smoke probe returns accountBoundSkipped and exits 0 without CI_HAS_CLOUDFLARE_ACCOUNT</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-6003-1">AC-6003-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-092-real-account-smoke-skip">
+  <p><strong>TC-092-real-account-smoke-skip</strong> - covers <a href="#AC-6003-1">AC-6003-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6003-1 via anatomy test: real-account-scheduled-smoke probe records accountBoundSkipped: true and aggregates to pass without CI_HAS_CLOUDFLARE_ACCOUNT</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::real-account live-cron smoke probe records accountBoundSkipped without env var (TC-092-real-account-smoke-skip)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:29:11.616Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:29:45.765Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-6003-1 via anatomy test: shipped real-account-scheduled-smoke probe returns accountBoundSkipped and exits 0 without CI_HAS_CLOUDFLARE_ACCOUNT&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-6003-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-092&quot;,
+  &quot;usId&quot;: &quot;US-6003&quot;,
+  &quot;title&quot;: &quot;T-2 real-account live-cron smoke probe pass-with-skip&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-092-real-account-smoke-skip&quot;,
+      &quot;acId&quot;: &quot;AC-6003-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-6003-1 via anatomy test: real-account-scheduled-smoke probe records accountBoundSkipped: true and aggregates to pass without CI_HAS_CLOUDFLARE_ACCOUNT&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::real-account live-cron smoke probe records accountBoundSkipped without env var (TC-092-real-account-smoke-skip)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-093">
+  <summary><span class="summary-label">TS-093 - T-2 dispatcher-routing probe passes on two spy handlers</span><span class="status draft">draft</span></summary>
+  <article id="TS-093" class="doc doc-ts">
+  <h3>TS-093 - T-2 dispatcher-routing probe passes on two spy handlers</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-6101">US-6101</a></p>
+  <p><strong>Purpose:</strong> Cover AC-6101-1 and AC-6101-2 via anatomy test: shipped dispatcher-routing probe drives two spy handlers on two expressions plus one unmatched expression and asserts the routed-only invocation and cronUnmatched event</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-6101-1">AC-6101-1</a>, <a href="#AC-6101-2">AC-6101-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-093-dispatch-matched">
+  <p><strong>TC-093-dispatch-matched</strong> - covers <a href="#AC-6101-1">AC-6101-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6101-1 via anatomy test: dispatcher-routing probe drives the matched route and only the matched spy is invoked with the bounded context</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::dispatcher-routing probe routes matched expression to the matched spy only (TC-093-dispatch-matched)</code></p>
+</div>
+<div class="tc" id="TC-093-dispatch-unmatched">
+  <p><strong>TC-093-dispatch-unmatched</strong> - covers <a href="#AC-6101-2">AC-6101-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6101-2 via anatomy test: dispatcher-routing probe drives an unmatched expression and asserts cronUnmatched with no spy invocation</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::dispatcher-routing probe fires cronUnmatched on unmatched expression with no spy invocation (TC-093-dispatch-unmatched)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:29:11.795Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:29:46.122Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-6101-1 and AC-6101-2 via anatomy test: shipped dispatcher-routing probe drives two spy handlers on two expressions plus one unmatched expression and asserts the routed-only invocation and cronUnmatched event&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-6101-1&quot;,
+    &quot;AC-6101-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-093&quot;,
+  &quot;usId&quot;: &quot;US-6101&quot;,
+  &quot;title&quot;: &quot;T-2 dispatcher-routing probe passes on two spy handlers&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-093-dispatch-matched&quot;,
+      &quot;acId&quot;: &quot;AC-6101-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-6101-1 via anatomy test: dispatcher-routing probe drives the matched route and only the matched spy is invoked with the bounded context&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::dispatcher-routing probe routes matched expression to the matched spy only (TC-093-dispatch-matched)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-093-dispatch-unmatched&quot;,
+      &quot;acId&quot;: &quot;AC-6101-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-6101-2 via anatomy test: dispatcher-routing probe drives an unmatched expression and asserts cronUnmatched with no spy invocation&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::dispatcher-routing probe fires cronUnmatched on unmatched expression with no spy invocation (TC-093-dispatch-unmatched)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-094">
+  <summary><span class="summary-label">TS-094 - T-2 skew-tolerance probe passes on fake-clock aligned and shifted fires</span><span class="status draft">draft</span></summary>
+  <article id="TS-094" class="doc doc-ts">
+  <h3>TS-094 - T-2 skew-tolerance probe passes on fake-clock aligned and shifted fires</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-6201">US-6201</a></p>
+  <p><strong>Purpose:</strong> Cover AC-6201-1 and AC-6201-2 via anatomy test: shipped skew-tolerance probe drives a fake-clock aligned fire (cronFired outcome onTime) and a fake-clock shifted fire (cronSkewed with delta)</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-6201-1">AC-6201-1</a>, <a href="#AC-6201-2">AC-6201-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-094-skew-on-time">
+  <p><strong>TC-094-skew-on-time</strong> - covers <a href="#AC-6201-1">AC-6201-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6201-1 via anatomy test: skew-tolerance probe with aligned fake clock drives cronFired outcome onTime and no cronSkewed</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::skew-tolerance probe fires cronFired outcome onTime when clock is inside the window (TC-094-skew-on-time)</code></p>
+</div>
+<div class="tc" id="TC-094-skew-outside">
+  <p><strong>TC-094-skew-outside</strong> - covers <a href="#AC-6201-2">AC-6201-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6201-2 via anatomy test: skew-tolerance probe with shifted fake clock drives cronSkewed with the observed delta and the routed handler runs</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::skew-tolerance probe fires cronSkewed with delta when clock is outside the window (TC-094-skew-outside)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:29:11.974Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:29:46.479Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-6201-1 and AC-6201-2 via anatomy test: shipped skew-tolerance probe drives a fake-clock aligned fire (cronFired outcome onTime) and a fake-clock shifted fire (cronSkewed with delta)&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-6201-1&quot;,
+    &quot;AC-6201-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-094&quot;,
+  &quot;usId&quot;: &quot;US-6201&quot;,
+  &quot;title&quot;: &quot;T-2 skew-tolerance probe passes on fake-clock aligned and shifted fires&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-094-skew-on-time&quot;,
+      &quot;acId&quot;: &quot;AC-6201-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-6201-1 via anatomy test: skew-tolerance probe with aligned fake clock drives cronFired outcome onTime and no cronSkewed&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::skew-tolerance probe fires cronFired outcome onTime when clock is inside the window (TC-094-skew-on-time)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-094-skew-outside&quot;,
+      &quot;acId&quot;: &quot;AC-6201-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-6201-2 via anatomy test: skew-tolerance probe with shifted fake clock drives cronSkewed with the observed delta and the routed handler runs&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::skew-tolerance probe fires cronSkewed with delta when clock is outside the window (TC-094-skew-outside)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-095">
+  <summary><span class="summary-label">TS-095 - T-2 soft-budget verdict on skew-tolerance probe passes cronStalled without termination</span><span class="status draft">draft</span></summary>
+  <article id="TS-095" class="doc doc-ts">
+  <h3>TS-095 - T-2 soft-budget verdict on skew-tolerance probe passes cronStalled without termination</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-6301">US-6301</a></p>
+  <p><strong>Purpose:</strong> Cover AC-6301-1 and AC-6301-2 via anatomy test: shipped skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts cronStalled fires without terminating the handler; the handler resolves and a final cronFired follows</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-6301-1">AC-6301-1</a>, <a href="#AC-6301-2">AC-6301-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-095-soft-budget-fires">
+  <p><strong>TC-095-soft-budget-fires</strong> - covers <a href="#AC-6301-1">AC-6301-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6301-1 via anatomy test: skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts exactly one cronStalled fires with the observed duration &gt;= budget</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::soft-budget breach fires cronStalled once on the shipped dispatcher (TC-095-soft-budget-fires)</code></p>
+</div>
+<div class="tc" id="TC-095-soft-budget-continues">
+  <p><strong>TC-095-soft-budget-continues</strong> - covers <a href="#AC-6301-2">AC-6301-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6301-2 via anatomy test: skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts the handler runs to completion; a final cronFired follows the cronStalled record</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::soft-budget breach does not terminate the handler and a final cronFired follows (TC-095-soft-budget-continues)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:29:12.153Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:29:46.836Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-6301-1 and AC-6301-2 via anatomy test: shipped skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts cronStalled fires without terminating the handler; the handler resolves and a final cronFired follows&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-6301-1&quot;,
+    &quot;AC-6301-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-095&quot;,
+  &quot;usId&quot;: &quot;US-6301&quot;,
+  &quot;title&quot;: &quot;T-2 soft-budget verdict on skew-tolerance probe passes cronStalled without termination&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-095-soft-budget-fires&quot;,
+      &quot;acId&quot;: &quot;AC-6301-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-6301-1 via anatomy test: skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts exactly one cronStalled fires with the observed duration &gt;= budget&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::soft-budget breach fires cronStalled once on the shipped dispatcher (TC-095-soft-budget-fires)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-095-soft-budget-continues&quot;,
+      &quot;acId&quot;: &quot;AC-6301-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-6301-2 via anatomy test: skew-tolerance probe drives a spy handler past softBudgetMs=100 and asserts the handler runs to completion; a final cronFired follows the cronStalled record&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::soft-budget breach does not terminate the handler and a final cronFired follows (TC-095-soft-budget-continues)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-096">
+  <summary><span class="summary-label">TS-096 - T-2 event-secrecy probe passes on shipped and refuses on SIMULATE_PII_LEAK</span><span class="status draft">draft</span></summary>
+  <article id="TS-096" class="doc doc-ts">
+  <h3>TS-096 - T-2 event-secrecy probe passes on shipped and refuses on SIMULATE_PII_LEAK</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-6302">US-6302</a></p>
+  <p><strong>Purpose:</strong> Cover AC-6302-1 via anatomy test: shipped event-secrecy probe returns aggregateVerdict pass with zero forbidden keys and zero PII substrings; mutation-run with SIMULATE_PII_LEAK=true returns aggregateVerdict fail with the leaked fields named</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-6302-1">AC-6302-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-096-event-secrecy">
+  <p><strong>TC-096-event-secrecy</strong> - covers <a href="#AC-6302-1">AC-6302-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-6302-1 via anatomy test: event-secrecy probe returns aggregateVerdict pass on the shipped code path with zero forbidden keys and zero PII substrings</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::event-secrecy probe returns pass with zero forbidden keys and zero PII hits on shipped path (TC-096-event-secrecy)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T12:29:12.332Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T12:29:47.015Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-6302-1 via anatomy test: shipped event-secrecy probe returns aggregateVerdict pass with zero forbidden keys and zero PII substrings; mutation-run with SIMULATE_PII_LEAK=true returns aggregateVerdict fail with the leaked fields named&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-6302-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-096&quot;,
+  &quot;usId&quot;: &quot;US-6302&quot;,
+  &quot;title&quot;: &quot;T-2 event-secrecy probe passes on shipped and refuses on SIMULATE_PII_LEAK&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-096-event-secrecy&quot;,
+      &quot;acId&quot;: &quot;AC-6302-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-6302-1 via anatomy test: event-secrecy probe returns aggregateVerdict pass on the shipped code path with zero forbidden keys and zero PII substrings&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::event-secrecy probe returns pass with zero forbidden keys and zero PII hits on shipped path (TC-096-event-secrecy)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

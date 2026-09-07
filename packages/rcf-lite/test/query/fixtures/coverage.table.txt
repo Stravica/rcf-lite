@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 39  covered: 39  covered-unresolved: 0  uncovered: 0
+Requirements: 43  covered: 43  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -282,3 +282,13 @@ REQ-052      yes      AC-5201-1   yes         TC-084-ac-5201-1-hit-within-ttl
 REQ-053      yes      AC-5301-1   yes         TC-085-ac-5301-1-metadata-only
                       AC-5302-1   yes         TC-086-ac-5302-1-event-secrecy
 REQ-054      yes      AC-5401-1   yes         TC-087-ac-5401-1-real-account-smoke
+REQ-060      yes      AC-6001-1   yes         TC-090-scheduled-ready
+                      AC-6002-1   yes         TC-091-wrangler-test-scheduled
+                      AC-6003-1   yes         TC-092-real-account-smoke-skip
+REQ-061      yes      AC-6101-1   yes         TC-093-dispatch-matched
+                      AC-6101-2   yes         TC-093-dispatch-unmatched
+REQ-062      yes      AC-6201-1   yes         TC-094-skew-on-time
+                      AC-6201-2   yes         TC-094-skew-outside
+REQ-063      yes      AC-6301-1   yes         TC-095-soft-budget-fires
+                      AC-6301-2   yes         TC-095-soft-budget-continues
+                      AC-6302-1   yes         TC-096-event-secrecy

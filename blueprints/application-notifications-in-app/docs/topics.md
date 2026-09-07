@@ -32,6 +32,7 @@ The `application-notifications-` prefix is reserved for the sibling channel blue
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
 | jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
 | platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |
+| platform-cloudflare-cron-triggers | 32101-32899 | 33xx | shipped v1.0.0 | `scheduledTriggerContract` |
 | application-notifications-email (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
 | application-notifications-push (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
 | application-notifications-webhook (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
