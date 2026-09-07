@@ -1,0 +1,13 @@
+{
+  "name": "cf-platform-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sample-app fixture for the deploy-cloudflare-workers v1.2.0 Workers-with-static-assets shape (T-0 of the Cloudflare round 6 spec). Shared by T-1 KV, T-2 cron, T-3 DO and T-5 Turnstile sub-fixture.",
+  "scripts": {
+    "start": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

@@ -1,0 +1,8 @@
+# The cf-platform fixture ships dist/index.html verbatim so the Workers-
+# with-static-assets shape has a real static asset to serve. The
+# repo-level .gitignore excludes dist/ globally; this exception keeps the
+# fixture's dist/ tracked. The runtime probe reports under .rcf/reports/
+# are runtime artefacts and stay gitignored.
+!dist/
+!dist/**
+.rcf/reports/
