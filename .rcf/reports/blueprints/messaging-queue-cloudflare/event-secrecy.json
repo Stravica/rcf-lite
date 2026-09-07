@@ -1,0 +1,23 @@
+{
+  "slug": "messaging-queue-cloudflare",
+  "probeName": "event-secrecy",
+  "runAt": "2026-09-07T06:57:48.360Z",
+  "engine": {
+    "kind": "queues",
+    "image": "cloudflare/wrangler-dev-equivalent (in-memory driver)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-29106-1",
+      "verdict": "pass",
+      "detail": "direct-boundary: PII-bearing caller record stripped by createSinkAdapter to event,ts,messageId,queueName,attempts; no PII / forbidden-key substring survived"
+    },
+    {
+      "anchorAcId": "AC-29106-1",
+      "verdict": "pass",
+      "detail": "consumer-driven leak-path: SIMULATE_LEAK_BODY_TO_SINK on, 1 messageAcked events observed on the sink; whitelist stripped all forbidden fields; no PII substring survived on 3 events total"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

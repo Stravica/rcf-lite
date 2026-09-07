@@ -1,0 +1,25 @@
+{
+  "usId": "messaging-queue-cloudflare-US-29103",
+  "prdId": "PRD-001",
+  "reqId": "messaging-queue-cloudflare-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Consumer returning retry re-delivers the same message-id with an incremented attempt counter",
+  "asA": "developer whose consumer needs to handle transient failures without human intervention",
+  "iWant": "a consumer that returns retry to observe the same message-id on the next delivery with an incremented attempt counter",
+  "soThat": "policy decisions like log at attempt 2, alert at attempt N-1 are trivially expressed in code",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-29103-1",
+      "description": "Given the SIMULATE_CONSUMER_RETRY=true induced-failure switch on the fixture, when the consumer returns retry on the first delivery, then the second delivery observes the same stable message-id with attempts incremented to 2; the same holds on the third delivery with attempts 3. The retry-and-dlq probe records the full trajectory 1 to 3 attempts on the same message-id.",
+      "given": "a message published with the SIMULATE_CONSUMER_RETRY switch true on the fixture",
+      "when": "the consumer is invoked across successive deliveries",
+      "then": "the message-id is stable across attempts 1 to 3; the attempt counter increments on each delivery; body, headers and producer-supplied trace-id remain byte-equal across attempts",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

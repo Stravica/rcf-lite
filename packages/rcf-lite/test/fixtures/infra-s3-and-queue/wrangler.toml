@@ -1,0 +1,30 @@
+name = "infra-s3-and-queue-fixture-t3"
+main = "src/worker.mjs"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Producer binding: the producer facade dereferences env.RCF_TEST_QUEUE.
+# The producer block declares the queue by name; the wrangler dev seam
+# opens against this binding when the fixture is booted for probe runs.
+[[queues.producers]]
+binding = "RCF_TEST_QUEUE"
+queue = "rcf-test-queue"
+
+# Consumer block: the Worker queue handler receives batches from
+# rcf-test-queue with the shipped elicited defaults (max_batch_size 10,
+# max_batch_timeout 5 seconds per ADR-3004; max_retries 3 per ADR-3003;
+# dead_letter_queue rcf-test-dlq per REQ-004 and the Cloudflare Queues
+# dead-letter documentation).
+[[queues.consumers]]
+queue = "rcf-test-queue"
+dead_letter_queue = "rcf-test-dlq"
+max_retries = 3
+max_batch_size = 10
+max_batch_timeout = 5
+
+# DLQ binding for the fixture DLQ inspector helper. The DLQ retention
+# defaults to 4 days when no active consumer is attached per the
+# Cloudflare Queues dead-letter documentation.
+[[queues.producers]]
+binding = "RCF_TEST_DLQ"
+queue = "rcf-test-dlq"

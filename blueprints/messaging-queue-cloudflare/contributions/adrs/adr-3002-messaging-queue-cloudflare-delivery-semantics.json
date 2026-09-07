@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-3002-messaging-queue-cloudflare-delivery-semantics",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Delivery semantics: at-least-once as the shipped shape (scope global, new topic deliverySemantics)",
+  "context": "A directed producer-to-consumer worklist ships one of three delivery shapes at the transport contract: at-most-once (fire and forget, dedup at the producer), at-least-once (guaranteed delivery with duplicates possible, dedup at the consumer), or exactly-once (guaranteed delivery with dedup at the transport, expensive). Cloudflare Queues implements at-least-once with a stable message-id the consumer uses for its own dedup; the WSD-005 messaging standard (operator/knowledge/wsd/wsd-standards/wsd-005-messaging.md) makes at-least-once and out-of-order tolerance the shipped default for domain event handoffs; the messaging-queue-cloudflare blueprint claims the deliverySemantics topic on the shelf so future exactly-once or at-most-once siblings surface as DELIBERATE conflicts and not silent divergences.",
+  "decision": "The shipped v1.0.0 shape is at-least-once. Every publish reaches every consumer at least once; duplicates are possible under retry-and-DLQ redelivery paths; consumer code that needs exactly-once semantics maintains its own dedup keyed on the stable message-id per REQ-002. The deliverySemantics topic scope is global on this blueprint; the topic string is deliverySemantics (lower camel case, one concept per topic, no version suffix, per the round-2 rules-for-new-topics clause on the shelf registry). Future exactly-once or at-most-once siblings would contribute the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR per the round-2 conflict pattern.",
+  "consequences": "The applying project inherits an at-least-once transport with a stable message-id it uses for consumer-side dedup when the domain calls for exactly-once processing. Standards trace clause: WSD-005 clauses on at-least-once and out-of-order tolerance (satisfied by the message-id and trace-id header contract). The reserved messaging-queue-postgres sibling (Baz decision 7) will claim deliverySemantics with an at-least-once answer too; two shipped answers on one topic surface a DELIBERATE conflict the operator resolves by picking one queue backend per project via a project-level ADR (the same shape as errorEnvelope and authModel conflicts the SPA and API-REST blueprints already carry).",
+  "alternativesConsidered": [
+    {
+      "name": "At-most-once as the shipped v1.0.0 default",
+      "summary": "Ship fire-and-forget publish semantics with producer-side dedup and no DLQ.",
+      "reasonNotChosen": "At-most-once loses the DLQ safety net and does not compose with the retry contract REQ-003 requires. The shipped shape's whole reason for existing is the guaranteed handoff for background work; at-most-once is the wrong contract for that use case."
+    },
+    {
+      "name": "Exactly-once as the shipped v1.0.0 default",
+      "summary": "Ship transport-level dedup so the consumer never sees the same message-id twice.",
+      "reasonNotChosen": "Cloudflare Queues does not implement transport-level exactly-once; shipping the label would misrepresent the transport. Consumer-side dedup keyed on the stable message-id is the shipped path when exactly-once is the domain requirement."
+    }
+  ],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

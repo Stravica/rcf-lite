@@ -267,9 +267,20 @@ export function isSameEntryPoint(metaUrl, argvPath) {
 const isMain = process.argv[1] && isSameEntryPoint(import.meta.url, process.argv[1]);
 if (isMain) {
   main(process.argv.slice(2))
-    .then((code) => process.exit(code))
+    .then((code) => {
+      // Await stdout drain before exit so large payloads (mermaid or
+      // JSON output above ~64KiB) are not truncated when a parent
+      // captures stdout via child_process execFile / spawn. process.exit
+      // otherwise races the OS pipe flush and drops the tail; the
+      // golden fixture tests hit this once the dogfood tree crosses
+      // the pipe buffer size. write('', cb) fires the callback once
+      // pending buffer flushes, then process.exit(code) tears down
+      // immediately - keeping the long-running mcp stdio subcommand
+      // path unchanged (mcp resolves once its own done promise fires).
+      process.stdout.write('', () => process.exit(code));
+    })
     .catch((err) => {
       process.stderr.write(`[rcf] unexpected failure: ${err.message}\n${err.stack}\n`);
-      process.exit(1);
+      process.stdout.write('', () => process.exit(1));
     });
 }

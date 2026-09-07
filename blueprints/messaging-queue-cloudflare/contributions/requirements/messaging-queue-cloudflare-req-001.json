@@ -1,0 +1,18 @@
+{
+  "reqId": "messaging-queue-cloudflare-REQ-001",
+  "prdId": "PRD-001",
+  "title": "One producer facade module is the sole reader of the Cloudflare Queues binding and opens on boot with producerReady",
+  "description": "The application publishes to the queue through a single producer facade module in the project's source tree that is the ONLY module holding a reference to the Cloudflare Queues binding (env.RCF_TEST_QUEUE in the fixture; the elicited binding name in a real project). Every other module that publishes reads the facade and calls its typed domain verbs (publish, publishBatch); no other module dereferences the raw Queues binding. On process boot, the facade opens against the bound queue and, once ready, emits a producerReady lifecycle event carrying the queue name. The queue name (or the binding name in a Workers deploy) is elicited at apply time under the Queues binding declared in wrangler config.",
+  "category": "functional",
+  "domain": "messaging",
+  "priority": "must",
+  "rationale": "One producer facade means one place to hold the vendor surface (the Queues binding), one place to serialise pre-ready publishes, one place to wire the lifecycle-event sink, and one place a future adapter swap (a native postgres-shape queue, an AWS SQS shim under a sibling blueprint) lands without moving any AC. Multiple call sites reaching into the raw binding produces a codebase where the ready-check semantics, the message-id contract, and the trace-id propagation are all diffused across the tree.",
+  "tags": [
+    "blueprint:messaging-queue-cloudflare",
+    "category:01-facade"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

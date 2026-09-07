@@ -1,0 +1,34 @@
+{
+  "usId": "messaging-queue-cloudflare-US-29102",
+  "prdId": "PRD-001",
+  "reqId": "messaging-queue-cloudflare-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Publish delivers to the consumer with matching body, message-id and producer-supplied trace-id",
+  "asA": "developer publishing a domain event through the producer facade",
+  "iWant": "a message published through publish() to reach the registered consumer with body byte-equal and headers including a stable message-id and my producer-supplied trace-id",
+  "soThat": "downstream traceability across the enqueue-to-process boundary is a byte-for-byte property, not a hopeful convention",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-29102-1",
+      "description": "Given a message published through the facade with a producer-supplied trace-id in headers, when the consumer subscribes on the same queue, then the received body equals the published body byte-for-byte and the received headers include the stable message-id assigned by the platform on send plus the producer-supplied trace-id, verified across all five messages in the publish-to-delivery probe.",
+      "given": "5 messages published through the facade with producer-supplied trace-ids",
+      "when": "the consumer processes the queue batch",
+      "then": "all 5 messages are received with body byte-equal, message-id present and stable per message across the delivery, and the producer-supplied trace-id present on the message headers",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-29102-2",
+      "description": "Given a successful consumer return on a message, when the facade dispatches the batch, then a messageAcked event fires on the injected sink with messageId and queueName matching the received message; the message is not redelivered on subsequent batches.",
+      "given": "a message delivered to the registered consumer",
+      "when": "the consumer returns success",
+      "then": "a messageAcked event fires with messageId and queueName; the message is not redelivered",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade", "TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

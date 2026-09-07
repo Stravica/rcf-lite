@@ -1,0 +1,59 @@
+{
+  "createdAt": "2026-09-06T19:16:55.365Z",
+  "updatedAt": "2026-09-06T19:16:55.402Z",
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "description": "The rcf-lite shelf ships the messaging-queue-cloudflare v1.0.0 blueprint (blueprints/messaging-queue-cloudflare/) with 20 to 24 contributions per the ratified infra round 5 spec section 5.3: 6 REQs (producer facade sole-reader of the Queues binding with producerReady on boot; publish/consume/ack with stable message-id and producer-supplied trace-id; retry contract; DLQ contract with default max-attempts 3 and 4-day retention per Cloudflare Queues dead-letter documentation; batch consume bounded by Cloudflare max 100 messages and max 60 seconds per Cloudflare Queues platform limits; four lifecycle events with metadata-only fields), 8 USs 29101-29108 binding runtime-observable ACs, 3 TACs (3001 producer facade, 3002 consumer registration on the Worker queue handler, 3003 event sink), 4 ADRs (3001 adapter Cloudflare Queues shipped first adapter, 3002 deliverySemantics scope global at-least-once, 3003 max-attempts default 3 floor 1 ceiling 100, 3004 batch size default 10 batch timeout default 5 seconds). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.3 reasons, providesRoles absent, capabilities [queue], requiresAppliedCapabilities absent (composes on deploy-cloudflare-workers transitively via the wrangler binding, not through the capability mechanism). Contributes ADR-3002 as scope:global on new topic deliverySemantics with at-least-once as the shipped shape so future exactly-once or at-most-once siblings conflict here by design. Ships six probe modules under blueprints/messaging-queue-cloudflare/contributions/probes/ each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id, and matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/messaging-queue-cloudflare/. Four probes local-first (accountBound false); real-account-concurrency-smoke carries accountBound true and records the accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Ships the T-3 side of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with a wrangler.toml declaring a Cloudflare Worker with queue binding RCF_TEST_QUEUE and DLQ binding RCF_TEST_DLQ, an in-memory queue driver enabling Node-only probes without live Cloudflare Queues, producer and consumer modules realising the facade contract, three wired induced-failure switches (SIMULATE_CONSUMER_RETRY, SIMULATE_DLQ_OVERFLOW, SIMULATE_PII_IN_BODY), and a README extension naming the wrangler dev boot line and the elicited parameters. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for queue naming the reserved messaging-queue-postgres sibling per Baz decision 7 and spec section 5.6. Appends one row for messaging-queue-cloudflare at US band 29101-29899 / ADR-TAC suffix block 30xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Minted with dex reserved-block chain ids via --id per HQ mid-flight ruling on repo-chain id blocks per train. Miniflare Queues sub-page is NOT cited (spec confirmed 404); the Cloudflare Queues local-development page is the citation for the wrangler dev seam.",
+  "reqId": "REQ-042",
+  "prdId": "PRD-001",
+  "title": "Messaging-queue-cloudflare v1.0.0 blueprint on the shelf",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-06T19:16:55.400Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      }
+    ]
+  }
+}

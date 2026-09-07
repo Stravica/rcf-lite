@@ -1,0 +1,18 @@
+{
+  "reqId": "messaging-queue-cloudflare-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Batch consume: elicited batch size default 10 max 100, batch timeout default 5 seconds max 60 seconds",
+  "description": "The consumer reads messages in batches whose size is elicited (default 10, bounded above by the Cloudflare max 100 messages per batch per https://developers.cloudflare.com/queues/platform/limits/) and whose batch-timeout (batch wait) is elicited (default 5 seconds, bounded above by the Cloudflare max 60 seconds per the same limits doc). Batch settings live on the [[queues.consumers]] block in wrangler config as max_batch_size and max_batch_timeout. When the batch is full or the timeout fires, the Worker's queue handler receives the whole batch in one invocation; the facade dispatches per-message to the registered handler and acknowledges per-message. A batch member returning retry does not roll the whole batch back; only that message is redelivered.",
+  "category": "functional",
+  "domain": "messaging",
+  "priority": "must",
+  "rationale": "Per-message ack in a batch invocation is what enables the retry-and-DLQ contract to compose with batched delivery; without it a single bad message poisons the whole batch. The elicited defaults sit well below the Cloudflare maxes so the facade shape stays composable when a project runs closer to the ceiling.",
+  "tags": [
+    "blueprint:messaging-queue-cloudflare",
+    "category:05-batch"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

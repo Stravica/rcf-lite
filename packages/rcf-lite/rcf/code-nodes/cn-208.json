@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-208",
+  "path": "../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/producer.mjs",
+  "implementsAcIds": [
+    "AC-4201-4",
+    "AC-4201-5",
+    "AC-4201-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T19:19:11.278Z",
+  "updatedAt": "2026-09-06T19:19:11.278Z"
+}

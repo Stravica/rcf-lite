@@ -1,0 +1,18 @@
+{
+  "reqId": "messaging-queue-cloudflare-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Retry contract: consumer returning retry re-delivers with an incremented attempt counter",
+  "description": "When the registered consumer returns retry on a message (or when the handler throws a retryable error the facade classifies as such), Cloudflare Queues re-delivers the same stable message-id, and every subsequent delivery observes an incremented attempt counter on the message envelope. Consumer code inspects the attempt counter through the facade's consumer surface and can decide policy (log a warning at attempt 2, alert at attempt N-1). Re-delivery preserves body, headers and trace-id byte-for-byte; the same message-id is what identifies the same message across attempts.",
+  "category": "functional",
+  "domain": "messaging",
+  "priority": "must",
+  "rationale": "A retry contract with an observable attempt counter is what turns transient failures (a downstream 502, a database deadlock, a rate-limit) into eventual success without human intervention, and what turns permanent failures into dead-lettering with an evidence trail. Without the attempt counter, either the consumer retries forever silently or the consumer gives up on the first failure; both are worse than the shipped shape.",
+  "tags": [
+    "blueprint:messaging-queue-cloudflare",
+    "category:03-retry"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

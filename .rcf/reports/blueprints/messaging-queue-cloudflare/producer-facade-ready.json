@@ -1,0 +1,18 @@
+{
+  "slug": "messaging-queue-cloudflare",
+  "probeName": "producer-facade-ready",
+  "runAt": "2026-09-07T06:57:48.268Z",
+  "engine": {
+    "kind": "queues",
+    "image": "cloudflare/wrangler-dev-equivalent (in-memory driver)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-29101-1",
+      "verdict": "pass",
+      "detail": "producerReady fired with queueName=rcf-test-queue; producer.isReady()=true"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

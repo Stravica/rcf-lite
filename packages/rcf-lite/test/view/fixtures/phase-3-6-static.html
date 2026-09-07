@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -8956,6 +8956,255 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-042">
+  <summary><span class="summary-label">REQ-042 - Messaging-queue-cloudflare v1.0.0 blueprint on the shelf</span><span class="status draft">draft</span></summary>
+  <article id="REQ-042" class="doc doc-req">
+  <h3>REQ-042 - Messaging-queue-cloudflare v1.0.0 blueprint on the shelf</h3>
+  
+  <p><strong>Description:</strong> The rcf-lite shelf ships the messaging-queue-cloudflare v1.0.0 blueprint (blueprints/messaging-queue-cloudflare/) with 20 to 24 contributions per the ratified infra round 5 spec section 5.3: 6 REQs (producer facade sole-reader of the Queues binding with producerReady on boot; publish/consume/ack with stable message-id and producer-supplied trace-id; retry contract; DLQ contract with default max-attempts 3 and 4-day retention per Cloudflare Queues dead-letter documentation; batch consume bounded by Cloudflare max 100 messages and max 60 seconds per Cloudflare Queues platform limits; four lifecycle events with metadata-only fields), 8 USs 29101-29108 binding runtime-observable ACs, 3 TACs (3001 producer facade, 3002 consumer registration on the Worker queue handler, 3003 event sink), 4 ADRs (3001 adapter Cloudflare Queues shipped first adapter, 3002 deliverySemantics scope global at-least-once, 3003 max-attempts default 3 floor 1 ceiling 100, 3004 batch size default 10 batch timeout default 5 seconds). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.3 reasons, providesRoles absent, capabilities [queue], requiresAppliedCapabilities absent (composes on deploy-cloudflare-workers transitively via the wrangler binding, not through the capability mechanism). Contributes ADR-3002 as scope:global on new topic deliverySemantics with at-least-once as the shipped shape so future exactly-once or at-most-once siblings conflict here by design. Ships six probe modules under blueprints/messaging-queue-cloudflare/contributions/probes/ each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id, and matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/messaging-queue-cloudflare/. Four probes local-first (accountBound false); real-account-concurrency-smoke carries accountBound true and records the accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Ships the T-3 side of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with a wrangler.toml declaring a Cloudflare Worker with queue binding RCF_TEST_QUEUE and DLQ binding RCF_TEST_DLQ, an in-memory queue driver enabling Node-only probes without live Cloudflare Queues, producer and consumer modules realising the facade contract, three wired induced-failure switches (SIMULATE_CONSUMER_RETRY, SIMULATE_DLQ_OVERFLOW, SIMULATE_PII_IN_BODY), and a README extension naming the wrangler dev boot line and the elicited parameters. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for queue naming the reserved messaging-queue-postgres sibling per Baz decision 7 and spec section 5.6. Appends one row for messaging-queue-cloudflare at US band 29101-29899 / ADR-TAC suffix block 30xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Minted with dex reserved-block chain ids via --id per HQ mid-flight ruling on repo-chain id blocks per train. Miniflare Queues sub-page is NOT cited (spec confirmed 404); the Cloudflare Queues local-development page is the citation for the wrangler dev seam.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> application</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-042[&quot;REQ-042&lt;br/&gt;Messaging-queue-cloudflare v1.0.0 blueprint o...&quot;]
+  US-4201[&quot;US-4201&lt;br/&gt;The messaging-queue-cloudflare blueprint ship...&quot;]
+  REQ-042 --&gt; US-4201
+  AC-4201-1[&quot;AC-4201-1&quot;]
+  US-4201 --&gt; AC-4201-1
+  FBS-062[&quot;FBS-062&lt;br/&gt;messaging-queue-cloudflare v1.0.0 blueprint o...&quot;]
+  AC-4201-1 -.-&gt;|delivered by| FBS-062
+  CN-206[&quot;CN-206&lt;br/&gt;../../blueprints/messaging-queue-cloudflare/b...&quot;]
+  AC-4201-1 -.-&gt;|implemented by| CN-206
+  AC-4201-2[&quot;AC-4201-2&quot;]
+  US-4201 --&gt; AC-4201-2
+  AC-4201-2 -.-&gt;|delivered by| FBS-062
+  AC-4201-2 -.-&gt;|implemented by| CN-206
+  AC-4201-3[&quot;AC-4201-3&quot;]
+  US-4201 --&gt; AC-4201-3
+  AC-4201-3 -.-&gt;|delivered by| FBS-062
+  AC-4201-3 -.-&gt;|implemented by| CN-206
+  AC-4201-4[&quot;AC-4201-4&quot;]
+  US-4201 --&gt; AC-4201-4
+  AC-4201-4 -.-&gt;|delivered by| FBS-062
+  CN-207[&quot;CN-207&lt;br/&gt;../../blueprints/messaging-queue-cloudflare/c...&quot;]
+  AC-4201-4 -.-&gt;|implemented by| CN-207
+  CN-208[&quot;CN-208&lt;br/&gt;../../packages/rcf-lite/test/fixtures/infra-s...&quot;]
+  AC-4201-4 -.-&gt;|implemented by| CN-208
+  AC-4201-5[&quot;AC-4201-5&quot;]
+  US-4201 --&gt; AC-4201-5
+  AC-4201-5 -.-&gt;|delivered by| FBS-062
+  AC-4201-5 -.-&gt;|implemented by| CN-207
+  AC-4201-5 -.-&gt;|implemented by| CN-208
+  AC-4201-6[&quot;AC-4201-6&quot;]
+  US-4201 --&gt; AC-4201-6
+  AC-4201-6 -.-&gt;|delivered by| FBS-062
+  AC-4201-6 -.-&gt;|implemented by| CN-208
+  click REQ-042 &quot;#REQ-042&quot;;
+  click US-4201 &quot;#US-4201&quot;;
+  click AC-4201-1 &quot;#AC-4201-1&quot;;
+  click FBS-062 &quot;#FBS-062&quot;;
+  click CN-206 &quot;#CN-206&quot;;
+  click AC-4201-2 &quot;#AC-4201-2&quot;;
+  click AC-4201-3 &quot;#AC-4201-3&quot;;
+  click AC-4201-4 &quot;#AC-4201-4&quot;;
+  click CN-207 &quot;#CN-207&quot;;
+  click CN-208 &quot;#CN-208&quot;;
+  click AC-4201-5 &quot;#AC-4201-5&quot;;
+  click AC-4201-6 &quot;#AC-4201-6&quot;;
+  class REQ-042 req;
+  class US-4201 us;
+  class AC-4201-1 ac;
+  class FBS-062 fbs;
+  class CN-206 cn;
+  class AC-4201-2 ac;
+  class AC-4201-3 ac;
+  class AC-4201-4 ac;
+  class CN-207 cn;
+  class CN-208 cn;
+  class AC-4201-5 ac;
+  class AC-4201-6 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T19:16:55.365Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T19:16:55.402Z&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;application&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;description&quot;: &quot;The rcf-lite shelf ships the messaging-queue-cloudflare v1.0.0 blueprint (blueprints/messaging-queue-cloudflare/) with 20 to 24 contributions per the ratified infra round 5 spec section 5.3: 6 REQs (producer facade sole-reader of the Queues binding with producerReady on boot; publish/consume/ack with stable message-id and producer-supplied trace-id; retry contract; DLQ contract with default max-attempts 3 and 4-day retention per Cloudflare Queues dead-letter documentation; batch consume bounded by Cloudflare max 100 messages and max 60 seconds per Cloudflare Queues platform limits; four lifecycle events with metadata-only fields), 8 USs 29101-29108 binding runtime-observable ACs, 3 TACs (3001 producer facade, 3002 consumer registration on the Worker queue handler, 3003 event sink), 4 ADRs (3001 adapter Cloudflare Queues shipped first adapter, 3002 deliverySemantics scope global at-least-once, 3003 max-attempts default 3 floor 1 ceiling 100, 3004 batch size default 10 batch timeout default 5 seconds). The blueprint declares suggestedCompanions logging and errorHandling with spec section 5.3 reasons, providesRoles absent, capabilities [queue], requiresAppliedCapabilities absent (composes on deploy-cloudflare-workers transitively via the wrangler binding, not through the capability mechanism). Contributes ADR-3002 as scope:global on new topic deliverySemantics with at-least-once as the shipped shape so future exactly-once or at-most-once siblings conflict here by design. Ships six probe modules under blueprints/messaging-queue-cloudflare/contributions/probes/ each exporting the spec section 3.2 verdict envelope with an anchorAcId matching a contributed AC id, and matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/messaging-queue-cloudflare/. Four probes local-first (accountBound false); real-account-concurrency-smoke carries accountBound true and records the accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Ships the T-3 side of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with a wrangler.toml declaring a Cloudflare Worker with queue binding RCF_TEST_QUEUE and DLQ binding RCF_TEST_DLQ, an in-memory queue driver enabling Node-only probes without live Cloudflare Queues, producer and consumer modules realising the facade contract, three wired induced-failure switches (SIMULATE_CONSUMER_RETRY, SIMULATE_DLQ_OVERFLOW, SIMULATE_PII_IN_BODY), and a README extension naming the wrangler dev boot line and the elicited parameters. Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table with one row for queue naming the reserved messaging-queue-postgres sibling per Baz decision 7 and spec section 5.6. Appends one row for messaging-queue-cloudflare at US band 29101-29899 / ADR-TAC suffix block 30xx to the shelf-wide id-band registry table under docs/topics.md on every shipped blueprint. Minted with dex reserved-block chain ids via --id per HQ mid-flight ruling on repo-chain id blocks per train. Miniflare Queues sub-page is NOT cited (spec confirmed 404); the Cloudflare Queues local-development page is the citation for the wrangler dev seam.&quot;,
+  &quot;reqId&quot;: &quot;REQ-042&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;Messaging-queue-cloudflare v1.0.0 blueprint on the shelf&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;,
+      &quot;httpApi&quot;,
+      &quot;persistence&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-06T19:16:55.400Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;post&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;persistence&quot;,
+        &quot;match&quot;: &quot;table&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-4201">
+  <summary><span class="summary-label">US-4201 - The messaging-queue-cloudflare blueprint ships on the shelf with four wrangler-dev probes plus one accountBound real-account concurrency smoke</span><span class="status draft">draft</span></summary>
+  <article id="US-4201" class="doc doc-us">
+  <h3>US-4201 - The messaging-queue-cloudflare blueprint ships on the shelf with four wrangler-dev probes plus one accountBound real-account concurrency smoke</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the messaging-queue-cloudflare v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the shipped blueprint files with 20 to 24 contributions, six probes, and the T-3 side of the shared sample-app fixture that boots a Cloudflare Worker under wrangler dev with a queue binding and a DLQ binding, plus gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch</p>
+  <p><strong>So that:</strong> a rcf-lite project applying this blueprint gets a producer facade over the Cloudflare Queues binding with publish, consume, ack, retry, and DLQ, a lifecycle-event sink with metadata-only fields, and the queue capability the jobs-background blueprint composes on at apply time, with runtime-observable ACs proven by probes the HQ gate runs against a real wrangler dev process</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-042">REQ-042</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-4201-1" class="ac-item"><strong>AC-4201-1</strong> - The shelf carries blueprints/messaging-queue-cloudflare/blueprint.json declaring slug messaging-queue-cloudflare, version 1.0.0, category messaging, 21 contributions in the 6 REQ / 8 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.3; capabilities is [queue]; suggestedCompanions declares logging and errorHandling with spec section 5.3 reasons; providesRoles is absent; requiresAppliedCapabilities is absent; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.
+<div class="ac-gwt"><p><em>Given</em> the shelf tree after this blueprint lands</p><p><em>When</em> jq queries against blueprints/messaging-queue-cloudflare/blueprint.json</p><p><em>Then</em> jq .slug returns messaging-queue-cloudflare; jq .version returns 1.0.0; jq .contributions | length returns 21; jq .capabilities returns [queue]; jq .suggestedCompanions | length returns 2; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-062">FBS-062</a></p></li>
+<li id="AC-4201-2" class="ac-item"><strong>AC-4201-2</strong> - rcf define blueprint add ./blueprints/messaging-queue-cloudflare applies the 21 contributions cleanly on a fresh init project; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.
+<div class="ac-gwt"><p><em>Given</em> a fresh rcf init scratch project</p><p><em>When</em> rcf define blueprint add ./blueprints/messaging-queue-cloudflare runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict</p><p><em>Then</em> every command exits 0; the scratch project&#39;s rcf tree contains the 21 contributions; no globalAdrTopic conflict is raised</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-062">FBS-062</a></p></li>
+<li id="AC-4201-3" class="ac-item"><strong>AC-4201-3</strong> - REQ-004 description names the dead_letter_queue field literal (per fetched Cloudflare Queues DLQ documentation) and the DLQ retention 4 days; jq grep on the contribution set returns at least one match for dead_letter_queue and at least one match for the retention constant.
+<div class="ac-gwt"><p><em>Given</em> the shelf blueprint contribution set</p><p><em>When</em> jq .contributions[] | select(.id==messaging-queue-cloudflare-REQ-004) | .description on the requirement file</p><p><em>Then</em> the description mentions dead_letter_queue and 4 days retention with the source URL literal https://developers.cloudflare.com/queues/configuration/dead-letter-queues/</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-062">FBS-062</a></p></li>
+<li id="AC-4201-4" class="ac-item"><strong>AC-4201-4</strong> - The six probe modules under blueprints/messaging-queue-cloudflare/contributions/probes/ each pass against a running wrangler-dev seam brought up from the shared sample-app fixture: producer-facade-ready asserts producerReady fires with the queue name; publish-to-delivery asserts consumer receives all 5 messages with matching bodies and trace-ids; retry-and-dlq asserts DLQ contents at attempt-counter 3 and messageDeadLettered fires; event-secrecy asserts no PII fixture text in any event record; real-account-concurrency-smoke exits 0 with accountBoundSkipped true without CI_HAS_CLOUDFLARE_ACCOUNT or runs a real 500-message round-trip when the env var is set. Each per-blueprint probe report at .rcf/reports/blueprints/messaging-queue-cloudflare/&lt;probe-name&gt;.json carries aggregateVerdict pass.
+<div class="ac-gwt"><p><em>Given</em> the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with the T-3 wrangler-dev seam booted (or the in-memory queue-driver mode active for probes needing no live Wrangler process)</p><p><em>When</em> each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence</p><p><em>Then</em> every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-062">FBS-062</a></p></li>
+<li id="AC-4201-5" class="ac-item"><strong>AC-4201-5</strong> - The sample-app fixture&#39;s three induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_CONSUMER_RETRY=true drives the retry-and-dlq probe&#39;s re-delivery path and (at max-attempts) the DLQ landing; SIMULATE_DLQ_OVERFLOW=true drives the retry-and-dlq probe past max-attempts on the first delivery so the message lands on the DLQ within one delivery cycle; SIMULATE_PII_IN_BODY=true drives the event-secrecy probe with a PII fixture body and asserts the event record whitelist enforces (no PII leak).
+<div class="ac-gwt"><p><em>Given</em> the shared fixture with the T-3 seam active</p><p><em>When</em> each named induced-failure switch is set in turn and the paired probe runs</p><p><em>Then</em> SIMULATE_CONSUMER_RETRY true yields retry-and-dlq report with attempt-counter increments to 3 and messageDeadLettered fires; SIMULATE_DLQ_OVERFLOW true yields retry-and-dlq report reaching DLQ on first cycle with aggregateVerdict pass; SIMULATE_PII_IN_BODY true yields event-secrecy report with aggregateVerdict pass proving the whitelist blocks the PII leak (or fail if the whitelist is bypassed); the fixture README documents each switch and the paired probe</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-062">FBS-062</a></p></li>
+<li id="AC-4201-6" class="ac-item"><strong>AC-4201-6</strong> - The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a messaging-queue-cloudflare row at US band 29101-29899 / ADR-TAC suffix block 30xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for queue naming the reserved messaging-queue-postgres sibling per infra round 5 spec section 5.6 and Baz decision 7.
+<div class="ac-gwt"><p><em>Given</em> the shelf tree after this blueprint lands</p><p><em>When</em> grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table</p><p><em>Then</em> packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | queue | with the reserved messaging-queue-postgres sibling note; every shipped blueprint&#39;s docs/topics.md carries a row beginning | messaging-queue-cloudflare | with the 29101-29899 band and 30xx suffix; blueprints/messaging-queue-cloudflare/README.md, CHANGELOG.md, guide/messaging-queue-cloudflare.md, docs/topics.md, and the extended packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names the wrangler dev incantation and three wired induced-failure switches</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-062">FBS-062</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T19:17:37.906Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T19:17:37.906Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the messaging-queue-cloudflare v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the shipped blueprint files with 20 to 24 contributions, six probes, and the T-3 side of the shared sample-app fixture that boots a Cloudflare Worker under wrangler dev with a queue binding and a DLQ binding, plus gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch&quot;,
+  &quot;soThat&quot;: &quot;a rcf-lite project applying this blueprint gets a producer facade over the Cloudflare Queues binding with publish, consume, ack, retry, and DLQ, a lifecycle-event sink with metadata-only fields, and the queue capability the jobs-background blueprint composes on at apply time, with runtime-observable ACs proven by probes the HQ gate runs against a real wrangler dev process&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-4201-1&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/messaging-queue-cloudflare/blueprint.json declaring slug messaging-queue-cloudflare, version 1.0.0, category messaging, 21 contributions in the 6 REQ / 8 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.3; capabilities is [queue]; suggestedCompanions declares logging and errorHandling with spec section 5.3 reasons; providesRoles is absent; requiresAppliedCapabilities is absent; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.&quot;,
+      &quot;given&quot;: &quot;the shelf tree after this blueprint lands&quot;,
+      &quot;when&quot;: &quot;jq queries against blueprints/messaging-queue-cloudflare/blueprint.json&quot;,
+      &quot;then&quot;: &quot;jq .slug returns messaging-queue-cloudflare; jq .version returns 1.0.0; jq .contributions | length returns 21; jq .capabilities returns [queue]; jq .suggestedCompanions | length returns 2; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4201-2&quot;,
+      &quot;description&quot;: &quot;rcf define blueprint add ./blueprints/messaging-queue-cloudflare applies the 21 contributions cleanly on a fresh init project; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.&quot;,
+      &quot;given&quot;: &quot;a fresh rcf init scratch project&quot;,
+      &quot;when&quot;: &quot;rcf define blueprint add ./blueprints/messaging-queue-cloudflare runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict&quot;,
+      &quot;then&quot;: &quot;every command exits 0; the scratch project&#39;s rcf tree contains the 21 contributions; no globalAdrTopic conflict is raised&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4201-3&quot;,
+      &quot;description&quot;: &quot;REQ-004 description names the dead_letter_queue field literal (per fetched Cloudflare Queues DLQ documentation) and the DLQ retention 4 days; jq grep on the contribution set returns at least one match for dead_letter_queue and at least one match for the retention constant.&quot;,
+      &quot;given&quot;: &quot;the shelf blueprint contribution set&quot;,
+      &quot;when&quot;: &quot;jq .contributions[] | select(.id==messaging-queue-cloudflare-REQ-004) | .description on the requirement file&quot;,
+      &quot;then&quot;: &quot;the description mentions dead_letter_queue and 4 days retention with the source URL literal https://developers.cloudflare.com/queues/configuration/dead-letter-queues/&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4201-4&quot;,
+      &quot;description&quot;: &quot;The six probe modules under blueprints/messaging-queue-cloudflare/contributions/probes/ each pass against a running wrangler-dev seam brought up from the shared sample-app fixture: producer-facade-ready asserts producerReady fires with the queue name; publish-to-delivery asserts consumer receives all 5 messages with matching bodies and trace-ids; retry-and-dlq asserts DLQ contents at attempt-counter 3 and messageDeadLettered fires; event-secrecy asserts no PII fixture text in any event record; real-account-concurrency-smoke exits 0 with accountBoundSkipped true without CI_HAS_CLOUDFLARE_ACCOUNT or runs a real 500-message round-trip when the env var is set. Each per-blueprint probe report at .rcf/reports/blueprints/messaging-queue-cloudflare/&lt;probe-name&gt;.json carries aggregateVerdict pass.&quot;,
+      &quot;given&quot;: &quot;the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with the T-3 wrangler-dev seam booted (or the in-memory queue-driver mode active for probes needing no live Wrangler process)&quot;,
+      &quot;when&quot;: &quot;each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence&quot;,
+      &quot;then&quot;: &quot;every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4201-5&quot;,
+      &quot;description&quot;: &quot;The sample-app fixture&#39;s three induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_CONSUMER_RETRY=true drives the retry-and-dlq probe&#39;s re-delivery path and (at max-attempts) the DLQ landing; SIMULATE_DLQ_OVERFLOW=true drives the retry-and-dlq probe past max-attempts on the first delivery so the message lands on the DLQ within one delivery cycle; SIMULATE_PII_IN_BODY=true drives the event-secrecy probe with a PII fixture body and asserts the event record whitelist enforces (no PII leak).&quot;,
+      &quot;given&quot;: &quot;the shared fixture with the T-3 seam active&quot;,
+      &quot;when&quot;: &quot;each named induced-failure switch is set in turn and the paired probe runs&quot;,
+      &quot;then&quot;: &quot;SIMULATE_CONSUMER_RETRY true yields retry-and-dlq report with attempt-counter increments to 3 and messageDeadLettered fires; SIMULATE_DLQ_OVERFLOW true yields retry-and-dlq report reaching DLQ on first cycle with aggregateVerdict pass; SIMULATE_PII_IN_BODY true yields event-secrecy report with aggregateVerdict pass proving the whitelist blocks the PII leak (or fail if the whitelist is bypassed); the fixture README documents each switch and the paired probe&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-4201-6&quot;,
+      &quot;description&quot;: &quot;The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a messaging-queue-cloudflare row at US band 29101-29899 / ADR-TAC suffix block 30xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for queue naming the reserved messaging-queue-postgres sibling per infra round 5 spec section 5.6 and Baz decision 7.&quot;,
+      &quot;given&quot;: &quot;the shelf tree after this blueprint lands&quot;,
+      &quot;when&quot;: &quot;grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table&quot;,
+      &quot;then&quot;: &quot;packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | queue | with the reserved messaging-queue-postgres sibling note; every shipped blueprint&#39;s docs/topics.md carries a row beginning | messaging-queue-cloudflare | with the 29101-29899 band and 30xx suffix; blueprints/messaging-queue-cloudflare/README.md, CHANGELOG.md, guide/messaging-queue-cloudflare.md, docs/topics.md, and the extended packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names the wrangler dev incantation and three wired induced-failure switches&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;usId&quot;: &quot;US-4201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-042&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;The messaging-queue-cloudflare blueprint ships on the shelf with four wrangler-dev probes plus one accountBound real-account concurrency smoke&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -10060,7 +10309,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -13982,6 +14231,82 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)&quot;,
   &quot;summary&quot;: &quot;T-2 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.2) minted with HQ reserved-block chain ids via --id (REQ-041 / US-4101 / TS-071 / FBS-061 / CN-203..205) after T-1 landed at 040/4001/070/060/200..202. Ships the object-storage-s3 v1.0.0 blueprint on the shelf with 21 contributions in the 6 REQ / 8 US 28101-28108 / 3 TAC 2901-2903 / 4 ADR 2901-2904 groups per spec section 5.2, six Node-only probes under blueprints/object-storage-s3/contributions/probes/ (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy, r2-real-account-smoke) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/object-storage-s3/, and the T-2 slice of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Five probes local-first (accountBound false); r2-real-account-smoke carries accountBound:true and records accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Declares capabilities [objectStorage], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent. Contributes ADR-2904 as scope:global on new topic objectStorageContract per spec section 5.2. Every ADR contribution entry carries standardsTraceClause per section 8a.2 (per HQ mid-flight ruling after PR #154 gate). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with an objectStorage row per spec section 5.6; appends one shelf-registry row for object-storage-s3 at 28101-28899 / 29xx to every shipped blueprint docs/topics.md. Refuses composition when security-secrets-management is not applied with exit 3 and stable message id object-storage-s3-no-secrets on stderr; --allow-no-secrets-yet override records a note on source.notes.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-062">
+  <summary><span class="summary-label">FBS-062 - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-062" class="doc doc-fbs">
+  <h3>FBS-062 - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</h3>
+  
+  <p><strong>Summary:</strong> T-3 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.3) minted with dex reserved-block chain ids via --id (REQ-042 / US-4201 / TS-072 / FBS-062 / CN-206..208) after T-1 landed at 040/4001/070/060/200..202 and T-2 landed at 041/4101/071/061/203..205. Ships the messaging-queue-cloudflare v1.0.0 blueprint on the shelf with 21 contributions in the 6 REQ / 8 US 29101-29108 / 3 TAC 3001-3003 / 4 ADR 3001-3004 groups per spec section 5.3, six Node-only probes under blueprints/messaging-queue-cloudflare/contributions/probes/ (producer-facade-ready, publish-to-delivery, retry-and-dlq, event-secrecy, real-account-concurrency-smoke plus a shared probe-utils helper module) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/messaging-queue-cloudflare/, and the T-3 slice of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Four probes local-first (accountBound false); real-account-concurrency-smoke carries accountBound true and records accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Declares capabilities [queue], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent (composes on deploy-cloudflare-workers transitively via the wrangler binding, not through the capability mechanism). Contributes ADR-3002 as scope:global on new topic deliverySemantics per spec section 5.3. Every ADR contribution entry carries standardsTraceClause per section 8a.2 (per HQ mid-flight ruling after PR #154 gate). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with a queue row naming the reserved messaging-queue-postgres sibling (Baz decision 7) per spec section 5.6; appends one shelf-registry row for messaging-queue-cloudflare at 29101-29899 / 30xx to every shipped blueprint docs/topics.md.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-4201-1">AC-4201-1</a><a class="ac-pill" href="#AC-4201-2">AC-4201-2</a><a class="ac-pill" href="#AC-4201-3">AC-4201-3</a><a class="ac-pill" href="#AC-4201-4">AC-4201-4</a><a class="ac-pill" href="#AC-4201-5">AC-4201-5</a><a class="ac-pill" href="#AC-4201-6">AC-4201-6</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-4201-1">AC-4201-1</a></strong> - The shelf carries blueprints/messaging-queue-cloudflare/blueprint.json declaring slug messaging-queue-cloudflare, version 1.0.0, category messaging, 21 contributions in the 6 REQ / 8 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.3; capabilities is [queue]; suggestedCompanions declares logging and errorHandling with spec section 5.3 reasons; providesRoles is absent; requiresAppliedCapabilities is absent; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.</p>
+  <p><em>Given</em> the shelf tree after this blueprint lands</p>
+  <p><em>When</em> jq queries against blueprints/messaging-queue-cloudflare/blueprint.json</p>
+  <p><em>Then</em> jq .slug returns messaging-queue-cloudflare; jq .version returns 1.0.0; jq .contributions | length returns 21; jq .capabilities returns [queue]; jq .suggestedCompanions | length returns 2; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4201-2">AC-4201-2</a></strong> - rcf define blueprint add ./blueprints/messaging-queue-cloudflare applies the 21 contributions cleanly on a fresh init project; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.</p>
+  <p><em>Given</em> a fresh rcf init scratch project</p>
+  <p><em>When</em> rcf define blueprint add ./blueprints/messaging-queue-cloudflare runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict</p>
+  <p><em>Then</em> every command exits 0; the scratch project&#39;s rcf tree contains the 21 contributions; no globalAdrTopic conflict is raised</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4201-3">AC-4201-3</a></strong> - REQ-004 description names the dead_letter_queue field literal (per fetched Cloudflare Queues DLQ documentation) and the DLQ retention 4 days; jq grep on the contribution set returns at least one match for dead_letter_queue and at least one match for the retention constant.</p>
+  <p><em>Given</em> the shelf blueprint contribution set</p>
+  <p><em>When</em> jq .contributions[] | select(.id==messaging-queue-cloudflare-REQ-004) | .description on the requirement file</p>
+  <p><em>Then</em> the description mentions dead_letter_queue and 4 days retention with the source URL literal https://developers.cloudflare.com/queues/configuration/dead-letter-queues/</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4201-4">AC-4201-4</a></strong> - The six probe modules under blueprints/messaging-queue-cloudflare/contributions/probes/ each pass against a running wrangler-dev seam brought up from the shared sample-app fixture: producer-facade-ready asserts producerReady fires with the queue name; publish-to-delivery asserts consumer receives all 5 messages with matching bodies and trace-ids; retry-and-dlq asserts DLQ contents at attempt-counter 3 and messageDeadLettered fires; event-secrecy asserts no PII fixture text in any event record; real-account-concurrency-smoke exits 0 with accountBoundSkipped true without CI_HAS_CLOUDFLARE_ACCOUNT or runs a real 500-message round-trip when the env var is set. Each per-blueprint probe report at .rcf/reports/blueprints/messaging-queue-cloudflare/&lt;probe-name&gt;.json carries aggregateVerdict pass.</p>
+  <p><em>Given</em> the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with the T-3 wrangler-dev seam booted (or the in-memory queue-driver mode active for probes needing no live Wrangler process)</p>
+  <p><em>When</em> each of the six run-&lt;probe-name&gt;.mjs shims runs against the fixture in sequence</p>
+  <p><em>Then</em> every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4201-5">AC-4201-5</a></strong> - The sample-app fixture&#39;s three induced-failure switches surface each probe&#39;s negative-run behaviour: SIMULATE_CONSUMER_RETRY=true drives the retry-and-dlq probe&#39;s re-delivery path and (at max-attempts) the DLQ landing; SIMULATE_DLQ_OVERFLOW=true drives the retry-and-dlq probe past max-attempts on the first delivery so the message lands on the DLQ within one delivery cycle; SIMULATE_PII_IN_BODY=true drives the event-secrecy probe with a PII fixture body and asserts the event record whitelist enforces (no PII leak).</p>
+  <p><em>Given</em> the shared fixture with the T-3 seam active</p>
+  <p><em>When</em> each named induced-failure switch is set in turn and the paired probe runs</p>
+  <p><em>Then</em> SIMULATE_CONSUMER_RETRY true yields retry-and-dlq report with attempt-counter increments to 3 and messageDeadLettered fires; SIMULATE_DLQ_OVERFLOW true yields retry-and-dlq report reaching DLQ on first cycle with aggregateVerdict pass; SIMULATE_PII_IN_BODY true yields event-secrecy report with aggregateVerdict pass proving the whitelist blocks the PII leak (or fail if the whitelist is bypassed); the fixture README documents each switch and the paired probe</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-4201-6">AC-4201-6</a></strong> - The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a messaging-queue-cloudflare row at US band 29101-29899 / ADR-TAC suffix block 30xx across every shipped blueprint&#39;s docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for queue naming the reserved messaging-queue-postgres sibling per infra round 5 spec section 5.6 and Baz decision 7.</p>
+  <p><em>Given</em> the shelf tree after this blueprint lands</p>
+  <p><em>When</em> grep queries walk every blueprint&#39;s docs/topics.md and the section 6a table</p>
+  <p><em>Then</em> packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | queue | with the reserved messaging-queue-postgres sibling note; every shipped blueprint&#39;s docs/topics.md carries a row beginning | messaging-queue-cloudflare | with the 29101-29899 band and 30xx suffix; blueprints/messaging-queue-cloudflare/README.md, CHANGELOG.md, guide/messaging-queue-cloudflare.md, docs/topics.md, and the extended packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names the wrangler dev incantation and three wired induced-failure switches</p>
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 50</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T19:18:14.898Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T06:56:47.886Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-4201-1&quot;,
+    &quot;AC-4201-2&quot;,
+    &quot;AC-4201-3&quot;,
+    &quot;AC-4201-4&quot;,
+    &quot;AC-4201-5&quot;,
+    &quot;AC-4201-6&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-062&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 50,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)&quot;,
+  &quot;summary&quot;: &quot;T-3 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.3) minted with dex reserved-block chain ids via --id (REQ-042 / US-4201 / TS-072 / FBS-062 / CN-206..208) after T-1 landed at 040/4001/070/060/200..202 and T-2 landed at 041/4101/071/061/203..205. Ships the messaging-queue-cloudflare v1.0.0 blueprint on the shelf with 21 contributions in the 6 REQ / 8 US 29101-29108 / 3 TAC 3001-3003 / 4 ADR 3001-3004 groups per spec section 5.3, six Node-only probes under blueprints/messaging-queue-cloudflare/contributions/probes/ (producer-facade-ready, publish-to-delivery, retry-and-dlq, event-secrecy, real-account-concurrency-smoke plus a shared probe-utils helper module) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/messaging-queue-cloudflare/, and the T-3 slice of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Four probes local-first (accountBound false); real-account-concurrency-smoke carries accountBound true and records accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Declares capabilities [queue], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent (composes on deploy-cloudflare-workers transitively via the wrangler binding, not through the capability mechanism). Contributes ADR-3002 as scope:global on new topic deliverySemantics per spec section 5.3. Every ADR contribution entry carries standardsTraceClause per section 8a.2 (per HQ mid-flight ruling after PR #154 gate). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with a queue row naming the reserved messaging-queue-postgres sibling (Baz decision 7) per spec section 5.6; appends one shelf-registry row for messaging-queue-cloudflare at 29101-29899 / 30xx to every shipped blueprint docs/topics.md.&quot;,
   &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
@@ -19119,6 +19444,111 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;Cover AC-4101-6 via anatomy test&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/object-storage-s3-anatomy.test.js::section 6a table gains an objectStorage row and every shipped blueprint docs/topics.md gains an object-storage-s3 row at 28101-28899 / 29xx (TC-071-shelf-doc-consistency)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-072">
+  <summary><span class="summary-label">TS-072 - messaging-queue-cloudflare v1.0.0 shelf shape, apply-clean, DLQ REQ description grep, six-probe module contract, induced-failure switches and shelf-doc consistency</span><span class="status draft">draft</span></summary>
+  <article id="TS-072" class="doc doc-ts">
+  <h3>TS-072 - messaging-queue-cloudflare v1.0.0 shelf shape, apply-clean, DLQ REQ description grep, six-probe module contract, induced-failure switches and shelf-doc consistency</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-4201">US-4201</a></p>
+  <p><strong>Purpose:</strong> Cover AC-4201-1..6 via unit tests over the shipped messaging-queue-cloudflare blueprint shape (contribution count, capabilities, suggestedCompanions, ADR standardsTraceClause), applies-clean behaviour, REQ-004 dead_letter_queue grep and retention wording, six Node-only probe module contract with anchorAcId cross-check, induced-failure switch documentation on the fixture README, and shelf-doc consistency (section 6a table row for queue with reserved sibling note, shelf-wide docs/topics.md row for messaging-queue-cloudflare at 29101-29899 / 30xx).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-4201-1">AC-4201-1</a>, <a href="#AC-4201-2">AC-4201-2</a>, <a href="#AC-4201-3">AC-4201-3</a>, <a href="#AC-4201-4">AC-4201-4</a>, <a href="#AC-4201-5">AC-4201-5</a>, <a href="#AC-4201-6">AC-4201-6</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-072-blueprint-json-shape">
+  <p><strong>TC-072-blueprint-json-shape</strong> - covers <a href="#AC-4201-1">AC-4201-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4201-1 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/messaging-queue-cloudflare-anatomy.test.js::blueprint.json declares 21 contributions with capabilities queue, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-072-blueprint-json-shape)</code></p>
+</div>
+<div class="tc" id="TC-072-applies-clean">
+  <p><strong>TC-072-applies-clean</strong> - covers <a href="#AC-4201-2">AC-4201-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4201-2 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/messaging-queue-cloudflare-anatomy.test.js::apply messaging-queue-cloudflare lands 21 contributions on a scratch project (TC-072-applies-clean)</code></p>
+</div>
+<div class="tc" id="TC-072-dlq-req-grep">
+  <p><strong>TC-072-dlq-req-grep</strong> - covers <a href="#AC-4201-3">AC-4201-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4201-3 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/messaging-queue-cloudflare-anatomy.test.js::REQ-004 description names dead_letter_queue and the 4-day DLQ retention with the Cloudflare DLQ doc URL (TC-072-dlq-req-grep)</code></p>
+</div>
+<div class="tc" id="TC-072-probe-anchor-ids-cross-check">
+  <p><strong>TC-072-probe-anchor-ids-cross-check</strong> - covers <a href="#AC-4201-4">AC-4201-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4201-4 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/messaging-queue-cloudflare-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-072-probe-anchor-ids-cross-check)</code></p>
+</div>
+<div class="tc" id="TC-072-fixture-and-switches">
+  <p><strong>TC-072-fixture-and-switches</strong> - covers <a href="#AC-4201-5">AC-4201-5</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4201-5 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/messaging-queue-cloudflare-anatomy.test.js::sample-app fixture ships wrangler.toml, src/producer.mjs, src/consumer.mjs, src/dlq-inspector.mjs, and its README documents wrangler dev and the three wired induced-failure switches (TC-072-fixture-and-switches)</code></p>
+</div>
+<div class="tc" id="TC-072-shelf-doc-consistency">
+  <p><strong>TC-072-shelf-doc-consistency</strong> - covers <a href="#AC-4201-6">AC-4201-6</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-4201-6 via anatomy test</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/messaging-queue-cloudflare-anatomy.test.js::section 6a table gains a queue row with reserved messaging-queue-postgres sibling and every shipped blueprint docs/topics.md gains a messaging-queue-cloudflare row at 29101-29899 / 30xx (TC-072-shelf-doc-consistency)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-06T19:17:48.415Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-06T19:18:05.472Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-4201-1..6 via unit tests over the shipped messaging-queue-cloudflare blueprint shape (contribution count, capabilities, suggestedCompanions, ADR standardsTraceClause), applies-clean behaviour, REQ-004 dead_letter_queue grep and retention wording, six Node-only probe module contract with anchorAcId cross-check, induced-failure switch documentation on the fixture README, and shelf-doc consistency (section 6a table row for queue with reserved sibling note, shelf-wide docs/topics.md row for messaging-queue-cloudflare at 29101-29899 / 30xx).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-4201-1&quot;,
+    &quot;AC-4201-2&quot;,
+    &quot;AC-4201-3&quot;,
+    &quot;AC-4201-4&quot;,
+    &quot;AC-4201-5&quot;,
+    &quot;AC-4201-6&quot;
+  ],
+  &quot;id&quot;: &quot;TS-072&quot;,
+  &quot;usId&quot;: &quot;US-4201&quot;,
+  &quot;title&quot;: &quot;messaging-queue-cloudflare v1.0.0 shelf shape, apply-clean, DLQ REQ description grep, six-probe module contract, induced-failure switches and shelf-doc consistency&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-072-blueprint-json-shape&quot;,
+      &quot;acId&quot;: &quot;AC-4201-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-4201-1 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/messaging-queue-cloudflare-anatomy.test.js::blueprint.json declares 21 contributions with capabilities queue, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-072-blueprint-json-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-072-applies-clean&quot;,
+      &quot;acId&quot;: &quot;AC-4201-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-4201-2 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/messaging-queue-cloudflare-anatomy.test.js::apply messaging-queue-cloudflare lands 21 contributions on a scratch project (TC-072-applies-clean)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-072-dlq-req-grep&quot;,
+      &quot;acId&quot;: &quot;AC-4201-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-4201-3 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/messaging-queue-cloudflare-anatomy.test.js::REQ-004 description names dead_letter_queue and the 4-day DLQ retention with the Cloudflare DLQ doc URL (TC-072-dlq-req-grep)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-072-probe-anchor-ids-cross-check&quot;,
+      &quot;acId&quot;: &quot;AC-4201-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-4201-4 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/messaging-queue-cloudflare-anatomy.test.js::every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-072-probe-anchor-ids-cross-check)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-072-fixture-and-switches&quot;,
+      &quot;acId&quot;: &quot;AC-4201-5&quot;,
+      &quot;description&quot;: &quot;Cover AC-4201-5 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/messaging-queue-cloudflare-anatomy.test.js::sample-app fixture ships wrangler.toml, src/producer.mjs, src/consumer.mjs, src/dlq-inspector.mjs, and its README documents wrangler dev and the three wired induced-failure switches (TC-072-fixture-and-switches)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-072-shelf-doc-consistency&quot;,
+      &quot;acId&quot;: &quot;AC-4201-6&quot;,
+      &quot;description&quot;: &quot;Cover AC-4201-6 via anatomy test&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/messaging-queue-cloudflare-anatomy.test.js::section 6a table gains a queue row with reserved messaging-queue-postgres sibling and every shipped blueprint docs/topics.md gains a messaging-queue-cloudflare row at 29101-29899 / 30xx (TC-072-shelf-doc-consistency)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

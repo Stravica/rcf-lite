@@ -1,0 +1,69 @@
+{
+  "createdAt": "2026-09-06T19:17:37.906Z",
+  "updatedAt": "2026-09-06T19:17:37.906Z",
+  "asA": "shelf consumer applying the messaging-queue-cloudflare v1.0.0 blueprint",
+  "iWant": "the shipped blueprint files with 20 to 24 contributions, six probes, and the T-3 side of the shared sample-app fixture that boots a Cloudflare Worker under wrangler dev with a queue binding and a DLQ binding, plus gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch",
+  "soThat": "a rcf-lite project applying this blueprint gets a producer facade over the Cloudflare Queues binding with publish, consume, ack, retry, and DLQ, a lifecycle-event sink with metadata-only fields, and the queue capability the jobs-background blueprint composes on at apply time, with runtime-observable ACs proven by probes the HQ gate runs against a real wrangler dev process",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-4201-1",
+      "description": "The shelf carries blueprints/messaging-queue-cloudflare/blueprint.json declaring slug messaging-queue-cloudflare, version 1.0.0, category messaging, 21 contributions in the 6 REQ / 8 US / 3 TAC / 4 ADR groups per infra round 5 spec section 5.3; capabilities is [queue]; suggestedCompanions declares logging and errorHandling with spec section 5.3 reasons; providesRoles is absent; requiresAppliedCapabilities is absent; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.",
+      "given": "the shelf tree after this blueprint lands",
+      "when": "jq queries against blueprints/messaging-queue-cloudflare/blueprint.json",
+      "then": "jq .slug returns messaging-queue-cloudflare; jq .version returns 1.0.0; jq .contributions | length returns 21; jq .capabilities returns [queue]; jq .suggestedCompanions | length returns 2; jq .contributions[] | select(.kind==adr) | .standardsTraceClause returns a non-null string for every entry",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4201-2",
+      "description": "rcf define blueprint add ./blueprints/messaging-queue-cloudflare applies the 21 contributions cleanly on a fresh init project; rcf define validate reports the tree clean; both rcf audit coverage --strict and rcf audit eval coverage --strict exit 0 on the scratch project.",
+      "given": "a fresh rcf init scratch project",
+      "when": "rcf define blueprint add ./blueprints/messaging-queue-cloudflare runs, then rcf define validate, then rcf audit coverage --strict, then rcf audit eval coverage --strict",
+      "then": "every command exits 0; the scratch project's rcf tree contains the 21 contributions; no globalAdrTopic conflict is raised",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4201-3",
+      "description": "REQ-004 description names the dead_letter_queue field literal (per fetched Cloudflare Queues DLQ documentation) and the DLQ retention 4 days; jq grep on the contribution set returns at least one match for dead_letter_queue and at least one match for the retention constant.",
+      "given": "the shelf blueprint contribution set",
+      "when": "jq .contributions[] | select(.id==messaging-queue-cloudflare-REQ-004) | .description on the requirement file",
+      "then": "the description mentions dead_letter_queue and 4 days retention with the source URL literal https://developers.cloudflare.com/queues/configuration/dead-letter-queues/",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4201-4",
+      "description": "The six probe modules under blueprints/messaging-queue-cloudflare/contributions/probes/ each pass against a running wrangler-dev seam brought up from the shared sample-app fixture: producer-facade-ready asserts producerReady fires with the queue name; publish-to-delivery asserts consumer receives all 5 messages with matching bodies and trace-ids; retry-and-dlq asserts DLQ contents at attempt-counter 3 and messageDeadLettered fires; event-secrecy asserts no PII fixture text in any event record; real-account-concurrency-smoke exits 0 with accountBoundSkipped true without CI_HAS_CLOUDFLARE_ACCOUNT or runs a real 500-message round-trip when the env var is set. Each per-blueprint probe report at .rcf/reports/blueprints/messaging-queue-cloudflare/<probe-name>.json carries aggregateVerdict pass.",
+      "given": "the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ with the T-3 wrangler-dev seam booted (or the in-memory queue-driver mode active for probes needing no live Wrangler process)",
+      "when": "each of the six run-<probe-name>.mjs shims runs against the fixture in sequence",
+      "then": "every shim exits 0; every per-blueprint report file carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id on the blueprint",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4201-5",
+      "description": "The sample-app fixture's three induced-failure switches surface each probe's negative-run behaviour: SIMULATE_CONSUMER_RETRY=true drives the retry-and-dlq probe's re-delivery path and (at max-attempts) the DLQ landing; SIMULATE_DLQ_OVERFLOW=true drives the retry-and-dlq probe past max-attempts on the first delivery so the message lands on the DLQ within one delivery cycle; SIMULATE_PII_IN_BODY=true drives the event-secrecy probe with a PII fixture body and asserts the event record whitelist enforces (no PII leak).",
+      "given": "the shared fixture with the T-3 seam active",
+      "when": "each named induced-failure switch is set in turn and the paired probe runs",
+      "then": "SIMULATE_CONSUMER_RETRY true yields retry-and-dlq report with attempt-counter increments to 3 and messageDeadLettered fires; SIMULATE_DLQ_OVERFLOW true yields retry-and-dlq report reaching DLQ on first cycle with aggregateVerdict pass; SIMULATE_PII_IN_BODY true yields event-secrecy report with aggregateVerdict pass proving the whitelist blocks the PII leak (or fail if the whitelist is bypassed); the fixture README documents each switch and the paired probe",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-4201-6",
+      "description": "The blueprint ships a sample-app fixture entry, a README, a CHANGELOG, a guide, and a docs/topics.md entry; the shelf-wide id-band registry table gains a messaging-queue-cloudflare row at US band 29101-29899 / ADR-TAC suffix block 30xx across every shipped blueprint's docs/topics.md; packages/rcf-lite/docs/blueprint-authoring.md section 6a capability-declaration table gains one row for queue naming the reserved messaging-queue-postgres sibling per infra round 5 spec section 5.6 and Baz decision 7.",
+      "given": "the shelf tree after this blueprint lands",
+      "when": "grep queries walk every blueprint's docs/topics.md and the section 6a table",
+      "then": "packages/rcf-lite/docs/blueprint-authoring.md contains a table row beginning | queue | with the reserved messaging-queue-postgres sibling note; every shipped blueprint's docs/topics.md carries a row beginning | messaging-queue-cloudflare | with the 29101-29899 band and 30xx suffix; blueprints/messaging-queue-cloudflare/README.md, CHANGELOG.md, guide/messaging-queue-cloudflare.md, docs/topics.md, and the extended packages/rcf-lite/test/fixtures/infra-s3-and-queue/ all exist; the fixture README names the wrangler dev incantation and three wired induced-failure switches",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "usId": "US-4201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-042",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The messaging-queue-cloudflare blueprint ships on the shelf with four wrangler-dev probes plus one accountBound real-account concurrency smoke"
+}

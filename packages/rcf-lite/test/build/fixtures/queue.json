@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 49,
-    "notStarted": 21,
+    "items": 50,
+    "notStarted": 22,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 12,
+    "actionable": 13,
     "blocked": 9
   },
   "nextActionable": "FBS-013",
@@ -38,7 +38,8 @@
         "FBS-039",
         "FBS-040",
         "FBS-041",
-        "FBS-061"
+        "FBS-061",
+        "FBS-062"
       ]
     },
     {
@@ -693,6 +694,16 @@
       "blockedBy": [
         "FBS-046"
       ]
+    },
+    {
+      "fbsId": "FBS-062",
+      "buildOrder": 50,
+      "tier": 0,
+      "title": "messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
     }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-3003-messaging-queue-cloudflare-max-attempts-floor",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Max-attempts before DLQ: default 3, floor 1, ceiling 100 per Cloudflare Queues platform limits",
+  "context": "A retry-and-DLQ contract needs a bounded max-attempts before dead-lettering: too low leaks transient failures into the DLQ before the retry can recover them; too high wastes consumer wall-clock and keeps a permanently-broken message live indefinitely. Cloudflare Queues documents a default retry limit of 3 at https://developers.cloudflare.com/queues/configuration/dead-letter-queues/ and a documented ceiling of 100 at https://developers.cloudflare.com/queues/platform/limits/ (max retries per message). The wrangler config field on the [[queues.consumers]] block is max_retries.",
+  "decision": "The shipped v1.0.0 default is max_retries 3, matching the Cloudflare Queues documented default. The floor is 1 (a max_retries of 0 defeats the retry contract REQ-003 requires). The ceiling is 100, matching the Cloudflare Queues documented per-message max. The value is elicited at apply time under the maxAttempts parameter; the fixture wires the default 3 explicitly on the consumer block. Consumer code that needs a tighter or looser bound sets the value at apply time; the boundary check on the elicit rejects values below 1 or above 100 with a stable message id and a pointer at the Cloudflare limits doc.",
+  "consequences": "The applying project inherits a bounded retry budget matching Cloudflare's shipped defaults. Standards trace clause: Cloudflare Queues default retry limit 3 (dead-letter-queues doc) and documented ceiling 100 (platform-limits doc). The elicited value carries into the retry-and-dlq probe (SIMULATE_CONSUMER_RETRY switches the fixture to force the retry path; the probe asserts the DLQ landing at exactly the elicited max_retries).",
+  "alternativesConsidered": [
+    {
+      "name": "Hard-code max_retries 3 with no elicited parameter",
+      "summary": "Ship the Cloudflare default 3 as a hard-coded value with no project-side override.",
+      "reasonNotChosen": "A project running a downstream that recovers over minutes (rate limit, cold cache) may need a higher retry budget; a hard-coded 3 forces the project to bypass the facade to override the limit. Eliciting the value is cheaper than eliciting the escape hatch."
+    },
+    {
+      "name": "No ceiling on max_retries",
+      "summary": "Accept any max_retries value the operator hands in.",
+      "reasonNotChosen": "The Cloudflare Queues platform enforces the 100 ceiling at the transport regardless; the elicit refusing above 100 is what surfaces the failure at apply time rather than at first live redelivery."
+    }
+  ],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

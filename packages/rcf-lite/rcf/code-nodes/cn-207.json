@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-207",
+  "path": "../../blueprints/messaging-queue-cloudflare/contributions/probes/producer-facade-ready.mjs",
+  "implementsAcIds": [
+    "AC-4201-4",
+    "AC-4201-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-06T19:19:10.918Z",
+  "updatedAt": "2026-09-06T19:19:10.918Z"
+}

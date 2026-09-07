@@ -58,6 +58,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | application-onboarding-tour | 26101-26899 | 27xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
 | object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorageContract` |
+| messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
 
 US 10101-10111 sit at the LOW end of the 10101-10899 band on purpose. A project-side story that mechanically derives from a security-auth-oauth2 REQ id into the number `10111` would collide against security-auth-oauth2-US-10111 in this package; the band leaves headroom at the HIGH end (US 10181-10899) so a project's own stories anchored to security-auth-oauth2 REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

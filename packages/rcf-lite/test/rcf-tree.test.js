@@ -113,7 +113,12 @@ const expectedCounts = {
   // application-forms-wizard v1.0.0 blueprint on the shelf (27 -> 28).
   // visual round 4 T-4 (w-2026-09-06-dave-018) added REQ-027 (28 -> 29).
   // visual round 4 T-5 (w-2026-09-06-dave-019) added REQ-028 (29 -> 30).
-  req: 30,
+  // Infra round 5 T-3 (w-2026-09-06-dave-022) added REQ-042 for the
+  // messaging-queue-cloudflare v1.0.0 blueprint on the shelf with four
+  // wrangler-dev-seam probes plus one accountBound real-account
+  // concurrency smoke, minted with dex reserved-block chain ids
+  // (30 -> 31).
+  req: 31,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -134,7 +139,9 @@ const expectedCounts = {
   // visual round 4 T-3 added US-2601 paired with REQ-026 (56 -> 57).
   // visual round 4 T-4 (w-2026-09-06-dave-018) added US-2701 (57 -> 58).
   // visual round 4 T-5 (w-2026-09-06-dave-019) added US-2801 (58 -> 59).
-  userStory: 59,
+  // Infra round 5 T-3 added US-4201 (derived from REQ-042 per dex
+  // reserved-block ruling) (59 -> 60).
+  userStory: 60,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -169,7 +176,9 @@ const expectedCounts = {
   // visual round 4 T-3 added FBS-045 covering US-2601 (46 -> 47).
   // visual round 4 T-4 (w-2026-09-06-dave-018) added FBS-046 (47 -> 48).
   // visual round 4 T-5 (w-2026-09-06-dave-019) added FBS-047 buildOrder 49 (48 -> 49).
-  fbs: 49,
+  // Infra round 5 T-3 added FBS-062 covering US-4201 per dex
+  // reserved-block ruling (49 -> 50).
+  fbs: 50,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -255,7 +264,11 @@ const expectedCounts = {
   // topics.md, the sample-app fixture server.js and README, and the section 5
   // shelf id band registry extension in packages/rcf-lite/docs/blueprint-authoring.md
   // (180 -> 192).
-  codeNode: 192,
+  // Infra round 5 T-3 added CN-206/207/208 (3 code nodes) anchoring
+  // the messaging-queue-cloudflare blueprint.json, the
+  // producer-facade-ready probe module, and the shared sample-app
+  // fixture producer.mjs per dex reserved-block ruling (192 -> 195).
+  codeNode: 195,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -278,7 +291,9 @@ const expectedCounts = {
   // visual round 4 T-3 added TS-055 paired with US-2601 (56 -> 57).
   // visual round 4 T-4 (w-2026-09-06-dave-018) added TS-056 (57 -> 58).
   // visual round 4 T-5 (w-2026-09-06-dave-019) added TS-057 (58 -> 59).
-  testSuite: 59,
+  // Infra round 5 T-3 added TS-072 paired with US-4201 per dex
+  // reserved-block ruling (59 -> 60).
+  testSuite: 60,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

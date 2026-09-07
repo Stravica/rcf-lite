@@ -1,0 +1,39 @@
+{
+  "tacId": "TAC-3003-messaging-queue-cloudflare-event-sink",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Messaging-queue-cloudflare lifecycle event sink",
+  "purpose": "The metadata-only lifecycle event sink surface both the producer facade (TAC-3001) and the consumer registration (TAC-3002) emit through. Fires four events (producerReady, messagePublished, messageAcked, messageDeadLettered) with a rigid field whitelist; the whitelist is enforced in code so a call site handing a body-bearing payload to the sink is refused by the sink adapter before the record leaves the module.",
+  "responsibilities": [
+    "Expose an onEvent callback shape { event, ts, messageId, queueName, attempts } to the facade and consumer registration (AC-29106-1).",
+    "Enforce the field whitelist: exactly {event, ts, messageId, queueName, attempts} are allowed on every record; any additional field on the payload is stripped at the sink boundary and the sink adapter surfaces a soft warning if a caller attempts to hand it a body-bearing payload (AC-29106-1).",
+    "Never invoke the callback with body bytes, header values, consumer-context fields, producer-context fields, or PII from the fixture body (AC-29106-1)."
+  ],
+  "internalStructure": "One module exporting createSinkAdapter({ onEvent }) that wraps the caller's onEvent with the field-whitelist filter. The wrapped adapter is what the producer facade and the consumer registration receive; the raw onEvent is never invoked from inside the facade or the consumer.",
+  "interfaces": [
+    {
+      "name": "createSinkAdapter",
+      "kind": "factory",
+      "description": "createSinkAdapter({ onEvent }) -> (record) => void. Filters record fields to the whitelist and passes the filtered record to the caller-supplied onEvent."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Producer facade",
+      "kind": "tac",
+      "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+      "description": "Emits producerReady, messagePublished, messageAcked through the sink adapter."
+    },
+    {
+      "name": "Consumer registration",
+      "kind": "tac",
+      "tacId": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+      "description": "Emits messageDeadLettered through the sink adapter after the DLQ landing observation surfaces."
+    }
+  ],
+  "tradeoffs": "A hard whitelist in code beats a documented-only convention: the sink cannot be misused because the boundary strips forbidden fields before they reach the caller's log. The trade-off is that adding a new whitelist field is a v1.1.0 minor bump, not a project-side config; the shipped shape is deliberate to keep the leak-proof property.",
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}

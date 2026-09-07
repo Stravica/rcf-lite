@@ -1,0 +1,67 @@
+{
+  "slug": "messaging-queue-cloudflare",
+  "version": "1.0.0",
+  "category": "messaging",
+  "capabilities": ["queue"],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every publish and every ack writes through the applied logger; a logging companion supplies the factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A publish failure, a DLQ overflow constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "contributions": [
+    { "id": "messaging-queue-cloudflare-REQ-001", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-001.json" },
+    { "id": "messaging-queue-cloudflare-REQ-002", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-002.json" },
+    { "id": "messaging-queue-cloudflare-REQ-003", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-003.json" },
+    { "id": "messaging-queue-cloudflare-REQ-004", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-004.json" },
+    { "id": "messaging-queue-cloudflare-REQ-005", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-005.json" },
+    { "id": "messaging-queue-cloudflare-REQ-006", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-006.json" },
+    { "id": "messaging-queue-cloudflare-US-29101", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29101.json" },
+    { "id": "messaging-queue-cloudflare-US-29102", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29102.json" },
+    { "id": "messaging-queue-cloudflare-US-29103", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29103.json" },
+    { "id": "messaging-queue-cloudflare-US-29104", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29104.json" },
+    { "id": "messaging-queue-cloudflare-US-29105", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29105.json" },
+    { "id": "messaging-queue-cloudflare-US-29106", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29106.json" },
+    { "id": "messaging-queue-cloudflare-US-29107", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29107.json" },
+    { "id": "messaging-queue-cloudflare-US-29108", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29108.json" },
+    { "id": "TAC-3001-messaging-queue-cloudflare-producer-facade", "kind": "tac", "path": "tacs/tac-3001-messaging-queue-cloudflare-producer-facade.json" },
+    { "id": "TAC-3002-messaging-queue-cloudflare-consumer-registration", "kind": "tac", "path": "tacs/tac-3002-messaging-queue-cloudflare-consumer-registration.json" },
+    { "id": "TAC-3003-messaging-queue-cloudflare-event-sink", "kind": "tac", "path": "tacs/tac-3003-messaging-queue-cloudflare-event-sink.json" },
+    {
+      "id": "ADR-3001-messaging-queue-cloudflare-adapter",
+      "kind": "adr",
+      "path": "adrs/adr-3001-messaging-queue-cloudflare-adapter.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Queues documented per-message and per-batch limits"
+    },
+    {
+      "id": "ADR-3002-messaging-queue-cloudflare-delivery-semantics",
+      "kind": "adr",
+      "path": "adrs/adr-3002-messaging-queue-cloudflare-delivery-semantics.json",
+      "scope": "global",
+      "topic": "deliverySemantics",
+      "standardsTraceClause": "WSD-005 clauses on at-least-once and out-of-order tolerance"
+    },
+    {
+      "id": "ADR-3003-messaging-queue-cloudflare-max-attempts-floor",
+      "kind": "adr",
+      "path": "adrs/adr-3003-messaging-queue-cloudflare-max-attempts-floor.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Cloudflare Queues default retry limit 3 and documented ceiling 100"
+    },
+    {
+      "id": "ADR-3004-messaging-queue-cloudflare-batch-defaults",
+      "kind": "adr",
+      "path": "adrs/adr-3004-messaging-queue-cloudflare-batch-defaults.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Cloudflare Queues per-consumer batch settings"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-3004-messaging-queue-cloudflare-batch-defaults",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Batch settings: max_batch_size default 10 ceiling 100, max_batch_timeout default 5 seconds ceiling 60 seconds",
+  "context": "The consumer reads messages in batches whose size and timeout are elicited on the wrangler [[queues.consumers]] block as max_batch_size and max_batch_timeout. Cloudflare Queues documents a max_batch_size ceiling of 100 messages per batch and a max_batch_timeout ceiling of 60 seconds at https://developers.cloudflare.com/queues/platform/limits/. A default sitting at the ceiling wastes throughput when a project's average burstiness is low; a default too far below reduces the batching benefit. The shipped defaults have to sit below the ceilings so tightening in a project is a config change, not a code change.",
+  "decision": "The shipped v1.0.0 defaults are max_batch_size 10 and max_batch_timeout 5 seconds. Both sit well below the Cloudflare-documented ceilings (100 messages, 60 seconds respectively) so a project that runs closer to the ceiling changes wrangler config only. Both values are elicited under batchSize and batchTimeoutSeconds; the elicit refuses values above the Cloudflare ceiling with a stable message id and a pointer at the Cloudflare limits doc.",
+  "consequences": "The applying project inherits a modest batch envelope that suits most background-work traffic; a project needing near-ceiling batching sets the wrangler config values at apply time. Standards trace clause: Cloudflare Queues per-consumer batch settings, per the limits doc. The publish-to-delivery probe drives 5 messages and asserts the consumer sees them in one batch (5 < the shipped 10, so the batch fills by timeout).",
+  "alternativesConsidered": [
+    {
+      "name": "Ship max_batch_size 100 as the default",
+      "summary": "Ship the Cloudflare ceiling as the default so no operator elicits.",
+      "reasonNotChosen": "A ceiling default hides the batching decision from the operator and wastes wall-clock on a low-burst project. The elicited 10 is a signal to think about the shape of the project's traffic."
+    },
+    {
+      "name": "Ship max_batch_size 1 to force per-message invocation",
+      "summary": "Skip batching altogether and invoke the consumer once per message.",
+      "reasonNotChosen": "Per-message invocation defeats the reason batching exists and puts every project at the Worker invocation limit."
+    }
+  ],
+  "createdAt": "2026-09-06T21:00:00.000Z",
+  "updatedAt": "2026-09-06T21:00:00.000Z"
+}
