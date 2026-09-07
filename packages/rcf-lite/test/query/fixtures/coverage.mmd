@@ -1144,35 +1144,51 @@ flowchart LR
   REQ-042 --> AC-4201-6
   TC-072-shelf-doc-consistency["TC-072-shelf-doc-consistency"]
   AC-4201-6 -.-> TC-072-shelf-doc-consistency
-  REQ-043["REQ-043"]
-  AC-4301-1["AC-4301-1"]
-  REQ-043 --> AC-4301-1
-  TC-076-blueprint-json-shape["TC-076-blueprint-json-shape"]
-  AC-4301-1 -.-> TC-076-blueprint-json-shape
-  AC-4301-2["AC-4301-2"]
-  REQ-043 --> AC-4301-2
-  TC-076-bare-refusal["TC-076-bare-refusal"]
-  AC-4301-2 -.-> TC-076-bare-refusal
-  AC-4301-3["AC-4301-3"]
-  REQ-043 --> AC-4301-3
-  TC-076-override-sidecar["TC-076-override-sidecar"]
-  AC-4301-3 -.-> TC-076-override-sidecar
-  AC-4301-4["AC-4301-4"]
-  REQ-043 --> AC-4301-4
-  TC-076-happy-path-caps["TC-076-happy-path-caps"]
-  AC-4301-4 -.-> TC-076-happy-path-caps
-  AC-4301-5["AC-4301-5"]
-  REQ-043 --> AC-4301-5
-  TC-076-probe-anchor-ids-cross-check["TC-076-probe-anchor-ids-cross-check"]
-  AC-4301-5 -.-> TC-076-probe-anchor-ids-cross-check
-  AC-4301-6["AC-4301-6"]
-  REQ-043 --> AC-4301-6
-  TC-076-fixture-and-switches["TC-076-fixture-and-switches"]
-  AC-4301-6 -.-> TC-076-fixture-and-switches
-  AC-4301-7["AC-4301-7"]
-  REQ-043 --> AC-4301-7
-  TC-076-shelf-doc-consistency["TC-076-shelf-doc-consistency"]
-  AC-4301-7 -.-> TC-076-shelf-doc-consistency
+  REQ-050["REQ-050"]
+  AC-5001-1["AC-5001-1"]
+  REQ-050 --> AC-5001-1
+  TC-080-ac-5001-1-facade-ready["TC-080-ac-5001-1-facade-ready"]
+  AC-5001-1 -.-> TC-080-ac-5001-1-facade-ready
+  AC-5002-1["AC-5002-1"]
+  REQ-050 --> AC-5002-1
+  TC-081-ac-5002-1-sole-reader["TC-081-ac-5002-1-sole-reader"]
+  AC-5002-1 -.-> TC-081-ac-5002-1-sole-reader
+  REQ-051["REQ-051"]
+  AC-5101-1["AC-5101-1"]
+  REQ-051 --> AC-5101-1
+  TC-082-ac-5101-1-round-trip["TC-082-ac-5101-1-round-trip"]
+  AC-5101-1 -.-> TC-082-ac-5101-1-round-trip
+  AC-5101-2["AC-5101-2"]
+  REQ-051 --> AC-5101-2
+  TC-082-ac-5101-2-delete-then-null["TC-082-ac-5101-2-delete-then-null"]
+  AC-5101-2 -.-> TC-082-ac-5101-2-delete-then-null
+  AC-5102-1["AC-5102-1"]
+  REQ-051 --> AC-5102-1
+  TC-083-ac-5102-1-list-prefix["TC-083-ac-5102-1-list-prefix"]
+  AC-5102-1 -.-> TC-083-ac-5102-1-list-prefix
+  REQ-052["REQ-052"]
+  AC-5201-1["AC-5201-1"]
+  REQ-052 --> AC-5201-1
+  TC-084-ac-5201-1-hit-within-ttl["TC-084-ac-5201-1-hit-within-ttl"]
+  AC-5201-1 -.-> TC-084-ac-5201-1-hit-within-ttl
+  AC-5201-2["AC-5201-2"]
+  REQ-052 --> AC-5201-2
+  TC-084-ac-5201-2-miss-past-ttl["TC-084-ac-5201-2-miss-past-ttl"]
+  AC-5201-2 -.-> TC-084-ac-5201-2-miss-past-ttl
+  REQ-053["REQ-053"]
+  AC-5301-1["AC-5301-1"]
+  REQ-053 --> AC-5301-1
+  TC-085-ac-5301-1-metadata-only["TC-085-ac-5301-1-metadata-only"]
+  AC-5301-1 -.-> TC-085-ac-5301-1-metadata-only
+  AC-5302-1["AC-5302-1"]
+  REQ-053 --> AC-5302-1
+  TC-086-ac-5302-1-event-secrecy["TC-086-ac-5302-1-event-secrecy"]
+  AC-5302-1 -.-> TC-086-ac-5302-1-event-secrecy
+  REQ-054["REQ-054"]
+  AC-5401-1["AC-5401-1"]
+  REQ-054 --> AC-5401-1
+  TC-087-ac-5401-1-real-account-smoke["TC-087-ac-5401-1-real-account-smoke"]
+  AC-5401-1 -.-> TC-087-ac-5401-1-real-account-smoke
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -1762,21 +1778,31 @@ flowchart LR
   class TC-072-fixture-and-switches tc;
   class AC-4201-6 ac;
   class TC-072-shelf-doc-consistency tc;
-  class REQ-043 req;
-  class AC-4301-1 ac;
-  class TC-076-blueprint-json-shape tc;
-  class AC-4301-2 ac;
-  class TC-076-bare-refusal tc;
-  class AC-4301-3 ac;
-  class TC-076-override-sidecar tc;
-  class AC-4301-4 ac;
-  class TC-076-happy-path-caps tc;
-  class AC-4301-5 ac;
-  class TC-076-probe-anchor-ids-cross-check tc;
-  class AC-4301-6 ac;
-  class TC-076-fixture-and-switches tc;
-  class AC-4301-7 ac;
-  class TC-076-shelf-doc-consistency tc;
+  class REQ-050 req;
+  class AC-5001-1 ac;
+  class TC-080-ac-5001-1-facade-ready tc;
+  class AC-5002-1 ac;
+  class TC-081-ac-5002-1-sole-reader tc;
+  class REQ-051 req;
+  class AC-5101-1 ac;
+  class TC-082-ac-5101-1-round-trip tc;
+  class AC-5101-2 ac;
+  class TC-082-ac-5101-2-delete-then-null tc;
+  class AC-5102-1 ac;
+  class TC-083-ac-5102-1-list-prefix tc;
+  class REQ-052 req;
+  class AC-5201-1 ac;
+  class TC-084-ac-5201-1-hit-within-ttl tc;
+  class AC-5201-2 ac;
+  class TC-084-ac-5201-2-miss-past-ttl tc;
+  class REQ-053 req;
+  class AC-5301-1 ac;
+  class TC-085-ac-5301-1-metadata-only tc;
+  class AC-5302-1 ac;
+  class TC-086-ac-5302-1-event-secrecy tc;
+  class REQ-054 req;
+  class AC-5401-1 ac;
+  class TC-087-ac-5401-1-real-account-smoke tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

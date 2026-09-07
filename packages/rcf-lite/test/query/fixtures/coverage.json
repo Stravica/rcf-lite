@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 34,
-    "covered": 34,
+    "requirements": 38,
+    "covered": 38,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -2368,63 +2368,115 @@
       ]
     },
     {
-      "id": "REQ-043",
+      "id": "REQ-050",
       "covered": true,
       "coverageClass": "covered",
       "acs": [
         {
-          "id": "AC-4301-1",
+          "id": "AC-5001-1",
           "covered": true,
           "testCases": [
-            "TC-076-blueprint-json-shape"
+            "TC-080-ac-5001-1-facade-ready"
           ],
           "unresolvedTestCases": []
         },
         {
-          "id": "AC-4301-2",
+          "id": "AC-5002-1",
           "covered": true,
           "testCases": [
-            "TC-076-bare-refusal"
+            "TC-081-ac-5002-1-sole-reader"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-051",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-5101-1",
+          "covered": true,
+          "testCases": [
+            "TC-082-ac-5101-1-round-trip"
           ],
           "unresolvedTestCases": []
         },
         {
-          "id": "AC-4301-3",
+          "id": "AC-5101-2",
           "covered": true,
           "testCases": [
-            "TC-076-override-sidecar"
+            "TC-082-ac-5101-2-delete-then-null"
           ],
           "unresolvedTestCases": []
         },
         {
-          "id": "AC-4301-4",
+          "id": "AC-5102-1",
           "covered": true,
           "testCases": [
-            "TC-076-happy-path-caps"
+            "TC-083-ac-5102-1-list-prefix"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-052",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-5201-1",
+          "covered": true,
+          "testCases": [
+            "TC-084-ac-5201-1-hit-within-ttl"
           ],
           "unresolvedTestCases": []
         },
         {
-          "id": "AC-4301-5",
+          "id": "AC-5201-2",
           "covered": true,
           "testCases": [
-            "TC-076-probe-anchor-ids-cross-check"
+            "TC-084-ac-5201-2-miss-past-ttl"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-053",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-5301-1",
+          "covered": true,
+          "testCases": [
+            "TC-085-ac-5301-1-metadata-only"
           ],
           "unresolvedTestCases": []
         },
         {
-          "id": "AC-4301-6",
+          "id": "AC-5302-1",
           "covered": true,
           "testCases": [
-            "TC-076-fixture-and-switches"
+            "TC-086-ac-5302-1-event-secrecy"
           ],
           "unresolvedTestCases": []
-        },
+        }
+      ]
+    },
+    {
+      "id": "REQ-054",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
         {
-          "id": "AC-4301-7",
+          "id": "AC-5401-1",
           "covered": true,
           "testCases": [
-            "TC-076-shelf-doc-consistency"
+            "TC-087-ac-5401-1-real-account-smoke"
           ],
           "unresolvedTestCases": []
         }
