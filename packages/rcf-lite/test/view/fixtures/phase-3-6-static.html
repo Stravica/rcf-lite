@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -8438,6 +8438,480 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-029">
+  <summary><span class="summary-label">REQ-029 - The rcf-lite shelf bumps the deploy-cloudflare-workers blueprint from v1.1.0 to v1.2.0 with an additive-minor delta that blesses the Workers-with-static-assets shape and ships the cf-platform shared sample-app fixture</span><span class="status draft">draft</span></summary>
+  <article id="REQ-029" class="doc doc-req">
+  <h3>REQ-029 - The rcf-lite shelf bumps the deploy-cloudflare-workers blueprint from v1.1.0 to v1.2.0 with an additive-minor delta that blesses the Workers-with-static-assets shape and ships the cf-platform shared sample-app fixture</h3>
+  
+  <p><strong>Description:</strong> T-0 track of the ratified Cloudflare round 6 spec (2026-09-06 section 5.0). The rcf-lite shelf bumps the deploy-cloudflare-workers blueprint from v1.1.0 to v1.2.0 with an additive-minor delta that blesses the Workers-with-static-assets shape as the SPA-on-Workers deploy shape. The blueprint gains two new REQ contributions (deploy-cloudflare-workers-REQ-013 for the Workers-with-static-assets shape and deploy-cloudflare-workers-REQ-014 for the SPA fallback discipline via run_worker_first), three new US contributions in the existing 12xx band (deploy-cloudflare-workers-US-12113 SPA-on-Workers deploy; deploy-cloudflare-workers-US-12114 assets-directory elicitation; deploy-cloudflare-workers-US-12115 migrate-from-Pages guidance), one new ADR contribution (ADR-1306-deploy-cloudflare-workers-spa-shape carrying the verbatim Cloudflare Pages landing-page recommendation, standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06, recommendedDefault true), one new source-tree scan probe module (assets-manifest-scan.mjs, accountBound false, anchorAcId matching the assetsBlockEmitted AC) that parses the applied fixture wrangler.toml and asserts the [assets] block presence, the run_worker_first presence and absence of any Pages-only pages_build_output_dir field, and two new elicited parameters on blueprint.json elicits[] (assets-directory kind string default empty for the bare-Worker shape; run-worker-first kind boolean default false). The shipped v1.1.0 contribution set (REQs 001 through 012, USs 12101 through 12112, TACs 1301 through 1306, ADRs 1301 through 1305, deploymentTarget global topic, suggestedCompanions logging and errorHandling) carries through unchanged. No capability minted, no new global topic, no runtime dependency added. Ships packages/rcf-lite/test/fixtures/cf-platform/ as the shared sample-app fixture that T-1 through T-3 and T-5 extend. HQ sequential chain-id block: REQ-029 / US-2901 / US-2902 / TS-073 / TS-074 / FBS-063 / CN-209 minted via --id after HQ round-4 T-5 landed at REQ-028 and Dex round-5 T-3 landed at REQ-042 per HQ mid-flight ruling on repo-chain id blocks per train.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> deploy</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-029[&quot;REQ-029&lt;br/&gt;The rcf-lite shelf bumps the deploy-cloudflar...&quot;]
+  US-2901[&quot;US-2901&lt;br/&gt;T-0 delta on deploy-cloudflare-workers v1.2.0...&quot;]
+  REQ-029 --&gt; US-2901
+  AC-2901-1[&quot;AC-2901-1&quot;]
+  US-2901 --&gt; AC-2901-1
+  FBS-063[&quot;FBS-063&lt;br/&gt;T-0 deploy-cloudflare-workers v1.2.0 minor bu...&quot;]
+  AC-2901-1 -.-&gt;|delivered by| FBS-063
+  CN-210[&quot;CN-210&lt;br/&gt;../../blueprints/deploy-cloudflare-workers/bl...&quot;]
+  AC-2901-1 -.-&gt;|implemented by| CN-210
+  AC-2901-2[&quot;AC-2901-2&quot;]
+  US-2901 --&gt; AC-2901-2
+  AC-2901-2 -.-&gt;|delivered by| FBS-063
+  CN-209[&quot;CN-209&lt;br/&gt;../../blueprints/deploy-cloudflare-workers/co...&quot;]
+  AC-2901-2 -.-&gt;|implemented by| CN-209
+  AC-2901-3[&quot;AC-2901-3&quot;]
+  US-2901 --&gt; AC-2901-3
+  AC-2901-3 -.-&gt;|delivered by| FBS-063
+  CN-211[&quot;CN-211&lt;br/&gt;test/blueprint/deploy-cloudflare-workers-v-1-...&quot;]
+  AC-2901-3 -.-&gt;|implemented by| CN-211
+  US-2902[&quot;US-2902&lt;br/&gt;T-0 assets-directory and run-worker-first eli...&quot;]
+  REQ-029 --&gt; US-2902
+  AC-2902-1[&quot;AC-2902-1&quot;]
+  US-2902 --&gt; AC-2902-1
+  AC-2902-1 -.-&gt;|delivered by| FBS-063
+  AC-2902-1 -.-&gt;|implemented by| CN-210
+  AC-2902-2[&quot;AC-2902-2&quot;]
+  US-2902 --&gt; AC-2902-2
+  AC-2902-2 -.-&gt;|delivered by| FBS-063
+  AC-2902-2 -.-&gt;|implemented by| CN-209
+  click REQ-029 &quot;#REQ-029&quot;;
+  click US-2901 &quot;#US-2901&quot;;
+  click AC-2901-1 &quot;#AC-2901-1&quot;;
+  click FBS-063 &quot;#FBS-063&quot;;
+  click CN-210 &quot;#CN-210&quot;;
+  click AC-2901-2 &quot;#AC-2901-2&quot;;
+  click CN-209 &quot;#CN-209&quot;;
+  click AC-2901-3 &quot;#AC-2901-3&quot;;
+  click CN-211 &quot;#CN-211&quot;;
+  click US-2902 &quot;#US-2902&quot;;
+  click AC-2902-1 &quot;#AC-2902-1&quot;;
+  click AC-2902-2 &quot;#AC-2902-2&quot;;
+  class REQ-029 req;
+  class US-2901 us;
+  class AC-2901-1 ac;
+  class FBS-063 fbs;
+  class CN-210 cn;
+  class AC-2901-2 ac;
+  class CN-209 cn;
+  class AC-2901-3 ac;
+  class CN-211 cn;
+  class US-2902 us;
+  class AC-2902-1 ac;
+  class AC-2902-2 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:09:31.207Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:09:31.236Z&quot;,
+  &quot;description&quot;: &quot;T-0 track of the ratified Cloudflare round 6 spec (2026-09-06 section 5.0). The rcf-lite shelf bumps the deploy-cloudflare-workers blueprint from v1.1.0 to v1.2.0 with an additive-minor delta that blesses the Workers-with-static-assets shape as the SPA-on-Workers deploy shape. The blueprint gains two new REQ contributions (deploy-cloudflare-workers-REQ-013 for the Workers-with-static-assets shape and deploy-cloudflare-workers-REQ-014 for the SPA fallback discipline via run_worker_first), three new US contributions in the existing 12xx band (deploy-cloudflare-workers-US-12113 SPA-on-Workers deploy; deploy-cloudflare-workers-US-12114 assets-directory elicitation; deploy-cloudflare-workers-US-12115 migrate-from-Pages guidance), one new ADR contribution (ADR-1306-deploy-cloudflare-workers-spa-shape carrying the verbatim Cloudflare Pages landing-page recommendation, standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06, recommendedDefault true), one new source-tree scan probe module (assets-manifest-scan.mjs, accountBound false, anchorAcId matching the assetsBlockEmitted AC) that parses the applied fixture wrangler.toml and asserts the [assets] block presence, the run_worker_first presence and absence of any Pages-only pages_build_output_dir field, and two new elicited parameters on blueprint.json elicits[] (assets-directory kind string default empty for the bare-Worker shape; run-worker-first kind boolean default false). The shipped v1.1.0 contribution set (REQs 001 through 012, USs 12101 through 12112, TACs 1301 through 1306, ADRs 1301 through 1305, deploymentTarget global topic, suggestedCompanions logging and errorHandling) carries through unchanged. No capability minted, no new global topic, no runtime dependency added. Ships packages/rcf-lite/test/fixtures/cf-platform/ as the shared sample-app fixture that T-1 through T-3 and T-5 extend. HQ sequential chain-id block: REQ-029 / US-2901 / US-2902 / TS-073 / TS-074 / FBS-063 / CN-209 minted via --id after HQ round-4 T-5 landed at REQ-028 and Dex round-5 T-3 landed at REQ-042 per HQ mid-flight ruling on repo-chain id blocks per train.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;deploy&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;reqId&quot;: &quot;REQ-029&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;The rcf-lite shelf bumps the deploy-cloudflare-workers blueprint from v1.1.0 to v1.2.0 with an additive-minor delta that blesses the Workers-with-static-assets shape and ships the cf-platform shared sample-app fixture&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T09:09:31.235Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-2901">
+  <summary><span class="summary-label">US-2901 - T-0 delta on deploy-cloudflare-workers v1.2.0 shelf: seven-contribution additive minor bump plus cf-platform fixture with the assets-manifest-scan probe passing</span><span class="status draft">draft</span></summary>
+  <article id="US-2901" class="doc doc-us">
+  <h3>US-2901 - T-0 delta on deploy-cloudflare-workers v1.2.0 shelf: seven-contribution additive minor bump plus cf-platform fixture with the assets-manifest-scan probe passing</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint on a fresh SPA-on-Workers project</p>
+  <p><strong>I want:</strong> the shipped v1.2.0 blueprint files (blueprint.json version 1.2.0 with the seven-contribution delta on top of the v1.1.0 shipped set; two new REQ contributions deploy-cloudflare-workers-REQ-013 and REQ-014; three new US contributions in the existing 12xx band deploy-cloudflare-workers-US-12113 SPA-on-Workers deploy, US-12114 assets-directory elicitation, US-12115 migrate-from-Pages guidance; one new ADR contribution ADR-1306-deploy-cloudflare-workers-spa-shape with the verbatim Cloudflare Pages landing-page quote and standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06; one new probe module assets-manifest-scan.mjs anchored to AC-2901-2 assetsBlockEmitted; two new elicits assets-directory and run-worker-first) proven against the cf-platform shared sample-app fixture</p>
+  <p><strong>So that:</strong> a rcf-lite project applying deploy-cloudflare-workers v1.2.0 gets a Workers-with-static-assets shape ratified over Pages for greenfield SPA-on-Workers projects (per the Cloudflare Pages landing-page recommendation, verbatim quoted on ADR-1306), an elicited [assets] directory in wrangler.toml, a probed assertion of the emitted assets block, an unchanged v1.1.0 contribution set (12 REQs, 12 USs, 6 TACs, 5 ADRs, deploymentTarget global topic, suggestedCompanions logging and errorHandling), and a shared sample-app fixture that T-1 through T-3 and T-5 extend later</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-029">REQ-029</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-2901-1" class="ac-item"><strong>AC-2901-1</strong> - The shelf carries blueprints/deploy-cloudflare-workers/blueprint.json declaring slug deploy-cloudflare-workers, version 1.2.0, category deploy; the contributions array holds 41 entries splitting 14 req + 15 us + 6 tac + 6 adr (the probe is NOT a contribution kind under the loader&#39;s CONTRIBUTABLE_KINDS gate; assets-manifest-scan.mjs ships under contributions/probes/ as a source file only, cross-referenced from the shipped README and the applied fixture shim); the delta over v1.1.0 is six contribution-kind entries plus the probe module: 2 REQs REQ-013 and REQ-014, 3 USs US-12113 US-12114 US-12115, 1 ADR ADR-1306 with recommendedDefault true and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06) on the contribution entry, 1 probe contribution assets-manifest-scan with anchorAcId AC-12113-1 and accountBound false; providesRoles absent, capabilities absent, requiresAppliedCapabilities absent, suggestedCompanions unchanged with logging and errorHandling; the top-level elicits[] gains the two new entries assets-directory and run-worker-first; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.
+<div class="ac-gwt"><p><em>Given</em> the shelf tree after this blueprint delta lands</p><p><em>When</em> jq queries against blueprints/deploy-cloudflare-workers/blueprint.json</p><p><em>Then</em> jq .slug returns deploy-cloudflare-workers; jq .version returns 1.2.0; jq .contributions returns an array whose kinds split 14 req, 15 us, 6 tac, 6 adr (total 41 entries); the probe module lives under blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs and is NOT listed as a contribution; jq .capabilities returns null; jq .suggestedCompanions maps to logging and errorHandling; jq .elicits returns an array containing assets-directory and run-worker-first; jq .contributions[] where kind is adr yields standardsTraceClause non-null for every entry</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-063">FBS-063</a></p></li>
+<li id="AC-2901-2" class="ac-item"><strong>AC-2901-2</strong> - The canonical AC assetsBlockEmitted (from spec section 5.0 example ACs) is realised as blueprint contribution AC-12113-1 on US-12113 with a runtime-observable then clause. The shipped probe blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs exports a Node module whose default export is a scan verb returning the section 3.2 verdict envelope {verdict, detail, anchorAcId, aggregateVerdict} with anchorAcId AC-12113-1 and accountBound false; the module parses the applied fixture wrangler.toml, asserts the [assets] block directory matches the elicited assets-directory answer, and asserts the absence of any pages_build_output_dir field.
+<div class="ac-gwt"><p><em>Given</em> the cf-platform sample-app fixture at packages/rcf-lite/test/fixtures/cf-platform/ with wrangler.toml carrying [assets] directory = ./dist and no pages_build_output_dir field</p><p><em>When</em> the shim run-assets-manifest-scan.mjs drives the probe module against the fixture wrangler.toml</p><p><em>Then</em> the process exits 0 and the written report at .rcf/reports/blueprints/deploy-cloudflare-workers/assets-manifest-scan.json carries aggregateVerdict pass with a detail record naming directory ./dist and no pages_build_output_dir field on the parsed wrangler.toml</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-063">FBS-063</a></p></li>
+<li id="AC-2901-3" class="ac-item"><strong>AC-2901-3</strong> - The rcf-lite repo chain is extended with the T-0 delta and validates clean; the chain adds two REQs REQ-029 and REQ-030 under PRD-001, three USs US-2901 US-2902 US-3001, three test suites TS-073 TS-074 TS-075, one FBS FBS-063, and one CN CN-209 anchoring the assets-manifest-scan.mjs probe module; every US carries at least one AC; every AC is covered by a TC on the paired TS with a resolvable test-pointer to test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js. Repo counts bump: requirements 31 to 33, userStories 60 to 63, fbs 50 to 51, testSuite 60 to 63, codeNode 195 to 196.
+<div class="ac-gwt"><p><em>Given</em> the extended repo chain on the T-0 branch after all define create commands have run</p><p><em>When</em> node bin/rcf.js define validate runs from packages/rcf-lite</p><p><em>Then</em> the CLI reports rcf define validate: tree is clean and both node bin/rcf.js audit coverage --strict and node bin/rcf.js audit eval coverage --strict exit 0</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-063">FBS-063</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:11:05.053Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:11:05.053Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint on a fresh SPA-on-Workers project&quot;,
+  &quot;iWant&quot;: &quot;the shipped v1.2.0 blueprint files (blueprint.json version 1.2.0 with the seven-contribution delta on top of the v1.1.0 shipped set; two new REQ contributions deploy-cloudflare-workers-REQ-013 and REQ-014; three new US contributions in the existing 12xx band deploy-cloudflare-workers-US-12113 SPA-on-Workers deploy, US-12114 assets-directory elicitation, US-12115 migrate-from-Pages guidance; one new ADR contribution ADR-1306-deploy-cloudflare-workers-spa-shape with the verbatim Cloudflare Pages landing-page quote and standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06; one new probe module assets-manifest-scan.mjs anchored to AC-2901-2 assetsBlockEmitted; two new elicits assets-directory and run-worker-first) proven against the cf-platform shared sample-app fixture&quot;,
+  &quot;soThat&quot;: &quot;a rcf-lite project applying deploy-cloudflare-workers v1.2.0 gets a Workers-with-static-assets shape ratified over Pages for greenfield SPA-on-Workers projects (per the Cloudflare Pages landing-page recommendation, verbatim quoted on ADR-1306), an elicited [assets] directory in wrangler.toml, a probed assertion of the emitted assets block, an unchanged v1.1.0 contribution set (12 REQs, 12 USs, 6 TACs, 5 ADRs, deploymentTarget global topic, suggestedCompanions logging and errorHandling), and a shared sample-app fixture that T-1 through T-3 and T-5 extend later&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-2901-1&quot;,
+      &quot;description&quot;: &quot;The shelf carries blueprints/deploy-cloudflare-workers/blueprint.json declaring slug deploy-cloudflare-workers, version 1.2.0, category deploy; the contributions array holds 41 entries splitting 14 req + 15 us + 6 tac + 6 adr (the probe is NOT a contribution kind under the loader&#39;s CONTRIBUTABLE_KINDS gate; assets-manifest-scan.mjs ships under contributions/probes/ as a source file only, cross-referenced from the shipped README and the applied fixture shim); the delta over v1.1.0 is six contribution-kind entries plus the probe module: 2 REQs REQ-013 and REQ-014, 3 USs US-12113 US-12114 US-12115, 1 ADR ADR-1306 with recommendedDefault true and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06) on the contribution entry, 1 probe contribution assets-manifest-scan with anchorAcId AC-12113-1 and accountBound false; providesRoles absent, capabilities absent, requiresAppliedCapabilities absent, suggestedCompanions unchanged with logging and errorHandling; the top-level elicits[] gains the two new entries assets-directory and run-worker-first; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.&quot;,
+      &quot;given&quot;: &quot;the shelf tree after this blueprint delta lands&quot;,
+      &quot;when&quot;: &quot;jq queries against blueprints/deploy-cloudflare-workers/blueprint.json&quot;,
+      &quot;then&quot;: &quot;jq .slug returns deploy-cloudflare-workers; jq .version returns 1.2.0; jq .contributions returns an array whose kinds split 14 req, 15 us, 6 tac, 6 adr (total 41 entries); the probe module lives under blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs and is NOT listed as a contribution; jq .capabilities returns null; jq .suggestedCompanions maps to logging and errorHandling; jq .elicits returns an array containing assets-directory and run-worker-first; jq .contributions[] where kind is adr yields standardsTraceClause non-null for every entry&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2901-2&quot;,
+      &quot;description&quot;: &quot;The canonical AC assetsBlockEmitted (from spec section 5.0 example ACs) is realised as blueprint contribution AC-12113-1 on US-12113 with a runtime-observable then clause. The shipped probe blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs exports a Node module whose default export is a scan verb returning the section 3.2 verdict envelope {verdict, detail, anchorAcId, aggregateVerdict} with anchorAcId AC-12113-1 and accountBound false; the module parses the applied fixture wrangler.toml, asserts the [assets] block directory matches the elicited assets-directory answer, and asserts the absence of any pages_build_output_dir field.&quot;,
+      &quot;given&quot;: &quot;the cf-platform sample-app fixture at packages/rcf-lite/test/fixtures/cf-platform/ with wrangler.toml carrying [assets] directory = ./dist and no pages_build_output_dir field&quot;,
+      &quot;when&quot;: &quot;the shim run-assets-manifest-scan.mjs drives the probe module against the fixture wrangler.toml&quot;,
+      &quot;then&quot;: &quot;the process exits 0 and the written report at .rcf/reports/blueprints/deploy-cloudflare-workers/assets-manifest-scan.json carries aggregateVerdict pass with a detail record naming directory ./dist and no pages_build_output_dir field on the parsed wrangler.toml&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2901-3&quot;,
+      &quot;description&quot;: &quot;The rcf-lite repo chain is extended with the T-0 delta and validates clean; the chain adds two REQs REQ-029 and REQ-030 under PRD-001, three USs US-2901 US-2902 US-3001, three test suites TS-073 TS-074 TS-075, one FBS FBS-063, and one CN CN-209 anchoring the assets-manifest-scan.mjs probe module; every US carries at least one AC; every AC is covered by a TC on the paired TS with a resolvable test-pointer to test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js. Repo counts bump: requirements 31 to 33, userStories 60 to 63, fbs 50 to 51, testSuite 60 to 63, codeNode 195 to 196.&quot;,
+      &quot;given&quot;: &quot;the extended repo chain on the T-0 branch after all define create commands have run&quot;,
+      &quot;when&quot;: &quot;node bin/rcf.js define validate runs from packages/rcf-lite&quot;,
+      &quot;then&quot;: &quot;the CLI reports rcf define validate: tree is clean and both node bin/rcf.js audit coverage --strict and node bin/rcf.js audit eval coverage --strict exit 0&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:deploy-cloudflare-workers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-2901&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-029&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-0 delta on deploy-cloudflare-workers v1.2.0 shelf: seven-contribution additive minor bump plus cf-platform fixture with the assets-manifest-scan probe passing&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-2902">
+  <summary><span class="summary-label">US-2902 - T-0 assets-directory and run-worker-first elicits on blueprint.json top-level elicits[] and baked into the cf-platform fixture wrangler.toml</span><span class="status draft">draft</span></summary>
+  <article id="US-2902" class="doc doc-us">
+  <h3>US-2902 - T-0 assets-directory and run-worker-first elicits on blueprint.json top-level elicits[] and baked into the cf-platform fixture wrangler.toml</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint who wants the two new elicits to appear in the operator elicit prompt with sane defaults</p>
+  <p><strong>I want:</strong> the blueprint.json top-level elicits[] to declare both new entries (assets-directory kind string default empty; run-worker-first kind boolean default false), the CLI to accept --answer assets-directory=&lt;path&gt; and --answer run-worker-first=&lt;bool&gt; at blueprint add, and the generated wrangler.toml under the applied project to reflect the answered values</p>
+  <p><strong>So that:</strong> a project answering assets-directory=./dist gets [assets] directory = &quot;./dist&quot; emitted in its wrangler.toml, a project not answering assets-directory keeps the bare-Worker shape without any [assets] block, and the two elicits do not affect any shipped v1.1.0 contribution</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-029">REQ-029</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-2902-1" class="ac-item"><strong>AC-2902-1</strong> - The blueprint.json elicits[] block gains exactly two new entries: assets-directory with id assets-directory, kind string, default empty string, prompt describing the applied static-assets root; run-worker-first with id run-worker-first, kind boolean, default false, prompt describing the SPA fallback discipline that a truthy answer runs the Worker before asset lookup. The two elicits pass the loader&#39;s validateElicits shape gate on src/blueprint/loader.js (id kebab-slug, kind one of enum|string|boolean, default matches kind). Neither elicit carries providesCapability (both are shape choices not custom-auth discovery). The spec&#39;s intended when-predicate {elicitedNonEmpty: [assets-directory]} on run-worker-first is NOT shipped this round because the loader&#39;s supported when block only accepts requiresCapability arrays; the guide names the shape trade and CONCERNS on the PR names the smallest loader extension to close the gap.
+<div class="ac-gwt"><p><em>Given</em> the shipped blueprint.json at blueprints/deploy-cloudflare-workers/blueprint.json</p><p><em>When</em> jq .elicits returns the top-level array and the loader loads blueprint.json without a validation error</p><p><em>Then</em> the array contains exactly two entries whose ids are assets-directory and run-worker-first, with the shapes above; jq validation and the loader both accept the shape</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-063">FBS-063</a></p></li>
+<li id="AC-2902-2" class="ac-item"><strong>AC-2902-2</strong> - The cf-platform fixture at packages/rcf-lite/test/fixtures/cf-platform/ ships a wrangler.toml with [assets] directory = &quot;./dist&quot; and run_worker_first = true baked into the [assets] block. The fixture ships dist/index.html so the assets directory exists on disk. The fixture ships src/index.mjs as the minimal Worker entry, a package.json declaring wrangler as a devDependency and start = wrangler dev, a run-assets-manifest-scan.mjs shim requiring the probe module from blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs, and a README naming the wrangler dev boot line, the two elicit answers baked into wrangler.toml, and the two induced-failure switches SIMULATE_MIXED_SHAPE (inserts a pages_build_output_dir field so the probe surfaces the mixed-shape refusal) and SIMULATE_EMPTY_ASSETS (removes the [assets] block so the probe records the bare-Worker shape and passes with an empty-directory record).
+<div class="ac-gwt"><p><em>Given</em> the cf-platform fixture tree after this T-0 slice lands</p><p><em>When</em> ls -R the fixture directory</p><p><em>Then</em> the fixture ships wrangler.toml with the [assets] block, dist/index.html, src/index.mjs, package.json with wrangler dev, run-assets-manifest-scan.mjs and README.md with the switches and boot line documented</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-063">FBS-063</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:11:05.250Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:11:05.250Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint who wants the two new elicits to appear in the operator elicit prompt with sane defaults&quot;,
+  &quot;iWant&quot;: &quot;the blueprint.json top-level elicits[] to declare both new entries (assets-directory kind string default empty; run-worker-first kind boolean default false), the CLI to accept --answer assets-directory=&lt;path&gt; and --answer run-worker-first=&lt;bool&gt; at blueprint add, and the generated wrangler.toml under the applied project to reflect the answered values&quot;,
+  &quot;soThat&quot;: &quot;a project answering assets-directory=./dist gets [assets] directory = \&quot;./dist\&quot; emitted in its wrangler.toml, a project not answering assets-directory keeps the bare-Worker shape without any [assets] block, and the two elicits do not affect any shipped v1.1.0 contribution&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-2902-1&quot;,
+      &quot;description&quot;: &quot;The blueprint.json elicits[] block gains exactly two new entries: assets-directory with id assets-directory, kind string, default empty string, prompt describing the applied static-assets root; run-worker-first with id run-worker-first, kind boolean, default false, prompt describing the SPA fallback discipline that a truthy answer runs the Worker before asset lookup. The two elicits pass the loader&#39;s validateElicits shape gate on src/blueprint/loader.js (id kebab-slug, kind one of enum|string|boolean, default matches kind). Neither elicit carries providesCapability (both are shape choices not custom-auth discovery). The spec&#39;s intended when-predicate {elicitedNonEmpty: [assets-directory]} on run-worker-first is NOT shipped this round because the loader&#39;s supported when block only accepts requiresCapability arrays; the guide names the shape trade and CONCERNS on the PR names the smallest loader extension to close the gap.&quot;,
+      &quot;given&quot;: &quot;the shipped blueprint.json at blueprints/deploy-cloudflare-workers/blueprint.json&quot;,
+      &quot;when&quot;: &quot;jq .elicits returns the top-level array and the loader loads blueprint.json without a validation error&quot;,
+      &quot;then&quot;: &quot;the array contains exactly two entries whose ids are assets-directory and run-worker-first, with the shapes above; jq validation and the loader both accept the shape&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-2902-2&quot;,
+      &quot;description&quot;: &quot;The cf-platform fixture at packages/rcf-lite/test/fixtures/cf-platform/ ships a wrangler.toml with [assets] directory = \&quot;./dist\&quot; and run_worker_first = true baked into the [assets] block. The fixture ships dist/index.html so the assets directory exists on disk. The fixture ships src/index.mjs as the minimal Worker entry, a package.json declaring wrangler as a devDependency and start = wrangler dev, a run-assets-manifest-scan.mjs shim requiring the probe module from blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs, and a README naming the wrangler dev boot line, the two elicit answers baked into wrangler.toml, and the two induced-failure switches SIMULATE_MIXED_SHAPE (inserts a pages_build_output_dir field so the probe surfaces the mixed-shape refusal) and SIMULATE_EMPTY_ASSETS (removes the [assets] block so the probe records the bare-Worker shape and passes with an empty-directory record).&quot;,
+      &quot;given&quot;: &quot;the cf-platform fixture tree after this T-0 slice lands&quot;,
+      &quot;when&quot;: &quot;ls -R the fixture directory&quot;,
+      &quot;then&quot;: &quot;the fixture ships wrangler.toml with the [assets] block, dist/index.html, src/index.mjs, package.json with wrangler dev, run-assets-manifest-scan.mjs and README.md with the switches and boot line documented&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:deploy-cloudflare-workers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-2902&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-029&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-0 assets-directory and run-worker-first elicits on blueprint.json top-level elicits[] and baked into the cf-platform fixture wrangler.toml&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-030">
+  <summary><span class="summary-label">REQ-030 - T-0 SPA fallback discipline via run_worker_first elicit and migrate-from-Pages guidance on deploy-cloudflare-workers v1.2.0</span><span class="status draft">draft</span></summary>
+  <article id="REQ-030" class="doc doc-req">
+  <h3>REQ-030 - T-0 SPA fallback discipline via run_worker_first elicit and migrate-from-Pages guidance on deploy-cloudflare-workers v1.2.0</h3>
+  
+  <p><strong>Description:</strong> T-0 SPA fallback discipline half of the Cloudflare round 6 T-0 delta (2026-09-06 section 5.0). The blueprint gains one new REQ contribution (deploy-cloudflare-workers-REQ-014 SPA fallback discipline via elicited run_worker_first: when true, the Worker script runs before asset lookup for arbitrary routing; when false or unanswered, static asset lookup runs first and the Worker handles only unmatched paths), one new US contribution (deploy-cloudflare-workers-US-12115 migrate-from-Pages guidance in the guide section) that links the Cloudflare migrate-from-Pages guide from the ADR-1306 verbatim landing-page quote, one new elicit (run-worker-first kind boolean default false; the spec&#39;s intended when-predicate {elicitedNonEmpty: [assets-directory]} is NOT shipped this round because the loader&#39;s supported when block only accepts requiresCapability arrays per src/blueprint/loader.js validateElicits, and the elicit fires unconditionally with the guide teaching that a non-empty assets-directory is what makes run_worker_first meaningful; the loader extension is captured under CONCERNS on the PR, not blocking T-0). The T-0 probe module assets-manifest-scan.mjs anchors AC-2902-1 (the spaFallbackShape canonical AC) via a Node-only source-tree scan of the applied fixture wrangler.toml. The one new ADR ADR-1306-deploy-cloudflare-workers-spa-shape carries the verbatim Cloudflare Pages landing-page quote (Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare&#39;s primary platform for building applications. Start new projects with Workers.), standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06, recommendedDefault true. HQ sequential chain-id block: REQ-030 / US-3001 / TS-075 minted via --id.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> deploy</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-030[&quot;REQ-030&lt;br/&gt;T-0 SPA fallback discipline via run_worker_fi...&quot;]
+  US-3001[&quot;US-3001&lt;br/&gt;T-0 ADR-1306-deploy-cloudflare-workers-spa-sh...&quot;]
+  REQ-030 --&gt; US-3001
+  AC-3001-1[&quot;AC-3001-1&quot;]
+  US-3001 --&gt; AC-3001-1
+  FBS-063[&quot;FBS-063&lt;br/&gt;T-0 deploy-cloudflare-workers v1.2.0 minor bu...&quot;]
+  AC-3001-1 -.-&gt;|delivered by| FBS-063
+  CN-212[&quot;CN-212&lt;br/&gt;../../blueprints/deploy-cloudflare-workers/co...&quot;]
+  AC-3001-1 -.-&gt;|implemented by| CN-212
+  AC-3001-2[&quot;AC-3001-2&quot;]
+  US-3001 --&gt; AC-3001-2
+  AC-3001-2 -.-&gt;|delivered by| FBS-063
+  CN-213[&quot;CN-213&lt;br/&gt;../../blueprints/deploy-cloudflare-workers/gu...&quot;]
+  AC-3001-2 -.-&gt;|implemented by| CN-213
+  AC-3001-3[&quot;AC-3001-3&quot;]
+  US-3001 --&gt; AC-3001-3
+  AC-3001-3 -.-&gt;|delivered by| FBS-063
+  CN-209[&quot;CN-209&lt;br/&gt;../../blueprints/deploy-cloudflare-workers/co...&quot;]
+  AC-3001-3 -.-&gt;|implemented by| CN-209
+  click REQ-030 &quot;#REQ-030&quot;;
+  click US-3001 &quot;#US-3001&quot;;
+  click AC-3001-1 &quot;#AC-3001-1&quot;;
+  click FBS-063 &quot;#FBS-063&quot;;
+  click CN-212 &quot;#CN-212&quot;;
+  click AC-3001-2 &quot;#AC-3001-2&quot;;
+  click CN-213 &quot;#CN-213&quot;;
+  click AC-3001-3 &quot;#AC-3001-3&quot;;
+  click CN-209 &quot;#CN-209&quot;;
+  class REQ-030 req;
+  class US-3001 us;
+  class AC-3001-1 ac;
+  class FBS-063 fbs;
+  class CN-212 cn;
+  class AC-3001-2 ac;
+  class CN-213 cn;
+  class AC-3001-3 ac;
+  class CN-209 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:09:31.409Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:09:31.438Z&quot;,
+  &quot;description&quot;: &quot;T-0 SPA fallback discipline half of the Cloudflare round 6 T-0 delta (2026-09-06 section 5.0). The blueprint gains one new REQ contribution (deploy-cloudflare-workers-REQ-014 SPA fallback discipline via elicited run_worker_first: when true, the Worker script runs before asset lookup for arbitrary routing; when false or unanswered, static asset lookup runs first and the Worker handles only unmatched paths), one new US contribution (deploy-cloudflare-workers-US-12115 migrate-from-Pages guidance in the guide section) that links the Cloudflare migrate-from-Pages guide from the ADR-1306 verbatim landing-page quote, one new elicit (run-worker-first kind boolean default false; the spec&#39;s intended when-predicate {elicitedNonEmpty: [assets-directory]} is NOT shipped this round because the loader&#39;s supported when block only accepts requiresCapability arrays per src/blueprint/loader.js validateElicits, and the elicit fires unconditionally with the guide teaching that a non-empty assets-directory is what makes run_worker_first meaningful; the loader extension is captured under CONCERNS on the PR, not blocking T-0). The T-0 probe module assets-manifest-scan.mjs anchors AC-2902-1 (the spaFallbackShape canonical AC) via a Node-only source-tree scan of the applied fixture wrangler.toml. The one new ADR ADR-1306-deploy-cloudflare-workers-spa-shape carries the verbatim Cloudflare Pages landing-page quote (Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare&#39;s primary platform for building applications. Start new projects with Workers.), standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06, recommendedDefault true. HQ sequential chain-id block: REQ-030 / US-3001 / TS-075 minted via --id.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;deploy&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;reqId&quot;: &quot;REQ-030&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-0 SPA fallback discipline via run_worker_first elicit and migrate-from-Pages guidance on deploy-cloudflare-workers v1.2.0&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T09:09:31.437Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;Page&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;page&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-3001">
+  <summary><span class="summary-label">US-3001 - T-0 ADR-1306-deploy-cloudflare-workers-spa-shape, guide section with migrate-from-Pages link, and probed spaFallbackShape with induced-failure switches</span><span class="status draft">draft</span></summary>
+  <article id="US-3001" class="doc doc-us">
+  <h3>US-3001 - T-0 ADR-1306-deploy-cloudflare-workers-spa-shape, guide section with migrate-from-Pages link, and probed spaFallbackShape with induced-failure switches</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint on a project migrating from Cloudflare Pages</p>
+  <p><strong>I want:</strong> an ADR blessing the Workers-with-static-assets shape as the ratified SPA-on-Workers deploy shape over Pages (ADR-1306-deploy-cloudflare-workers-spa-shape) carrying the verbatim Cloudflare Pages landing-page recommendation, a guide section titled Workers-with-static-assets: the SPA-on-Workers shape that links the Cloudflare migrate-from-Pages guide, and the SPA fallback discipline elicited via run_worker_first so a truthy answer emits run_worker_first = true under the [assets] block on the generated wrangler.toml</p>
+  <p><strong>So that:</strong> a project can read the ratified shape decision with its standards trace to Cloudflare&#39;s own landing-page recommendation and know exactly how to migrate its Pages routing to Workers</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-030">REQ-030</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-3001-1" class="ac-item"><strong>AC-3001-1</strong> - The ADR contribution entry ADR-1306-deploy-cloudflare-workers-spa-shape sits under contributions/adrs/adr-1306-deploy-cloudflare-workers-spa-shape.json and validates against the rcf-schemas 0.6.1 ADR shape (required fields adrId prdId tadId version status title context decision consequences createdAt updatedAt; optional alternativesConsidered supersededBy relatedAdrs). Its body carries the verbatim Cloudflare Pages landing-page quote Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare&#39;s primary platform for building applications. Start new projects with Workers., alongside a decision blessing Workers-with-static-assets as the SPA-on-Workers deploy shape and consequences naming the two new elicits assets-directory and run-worker-first. The ADR contribution entry in blueprint.json carries recommendedDefault true, elicited false and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06). The ADR body does NOT carry standardsTraceClause (per section 8a.2 the clause belongs on the contribution entry).
+<div class="ac-gwt"><p><em>Given</em> the shipped ADR contribution</p><p><em>When</em> jq queries against blueprint.json contribution entry and the ADR JSON body</p><p><em>Then</em> the blueprint.json entry carries standardsTraceClause set to the 2026-09-06 landing-page recommendation clause; the ADR body carries the verbatim Cloudflare Pages landing-page quote in context or decision; the ADR body does not carry standardsTraceClause; the ADR body validates against the 0.6.1 ADR schema</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-063">FBS-063</a></p></li>
+<li id="AC-3001-2" class="ac-item"><strong>AC-3001-2</strong> - The guide at blueprints/deploy-cloudflare-workers/guide/deploy-cloudflare-workers.md gains a new section titled Workers-with-static-assets: the SPA-on-Workers shape with the verbatim Cloudflare landing-page quote, the two elicit signatures (assets-directory string default empty; run-worker-first boolean default false), a copy-paste wrangler.toml snippet showing the [assets] block with directory and the run_worker_first hint, and a link to the Cloudflare migrate-from-Pages guide at https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/. The Cloudflare Workers static-assets doc at https://developers.cloudflare.com/workers/static-assets/ is cited in the same section. Both URLs return 200 at gate time.
+<div class="ac-gwt"><p><em>Given</em> the updated guide file</p><p><em>When</em> grep the guide for the new section heading and the two Cloudflare URLs</p><p><em>Then</em> the section heading appears once with the exact title; the migrate-from-Pages URL and the static-assets doc URL appear at least once each; both URLs return HTTP 200 on a plain curl -fsSI</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-063">FBS-063</a></p></li>
+<li id="AC-3001-3" class="ac-item"><strong>AC-3001-3</strong> - The spec&#39;s second canonical AC spaFallbackShape is realised in the blueprint contributions as AC-12113-2 on US-12113 with a runtime-observable then clause anchored to TAC-1302-deploy-cloudflare-workers-wrangler-manifest. The shipped probe assets-manifest-scan.mjs asserts run_worker_first presence and value under the [assets] block against the elicited answer. On the cf-platform fixture (which bakes run_worker_first = true) the probe returns verdict pass and the report carries a detail record naming runWorkerFirst true. On the SIMULATE_MIXED_SHAPE=true branch the fixture inserts a pages_build_output_dir field and the probe returns verdict fail naming the offending pages_build_output_dir line. On the SIMULATE_EMPTY_ASSETS=true branch the fixture removes the [assets] block and the probe returns verdict pass with an empty-directory record (bare-Worker shape).
+<div class="ac-gwt"><p><em>Given</em> the shipped probe module and the cf-platform fixture with induced-failure switches</p><p><em>When</em> run-assets-manifest-scan.mjs drives the probe on each of the three fixture states</p><p><em>Then</em> aggregateVerdict pass on the canonical state; aggregateVerdict fail on SIMULATE_MIXED_SHAPE with detail naming pages_build_output_dir; aggregateVerdict pass on SIMULATE_EMPTY_ASSETS with the empty-directory record</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-063">FBS-063</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:11:05.463Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:11:05.463Z&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint on a project migrating from Cloudflare Pages&quot;,
+  &quot;iWant&quot;: &quot;an ADR blessing the Workers-with-static-assets shape as the ratified SPA-on-Workers deploy shape over Pages (ADR-1306-deploy-cloudflare-workers-spa-shape) carrying the verbatim Cloudflare Pages landing-page recommendation, a guide section titled Workers-with-static-assets: the SPA-on-Workers shape that links the Cloudflare migrate-from-Pages guide, and the SPA fallback discipline elicited via run_worker_first so a truthy answer emits run_worker_first = true under the [assets] block on the generated wrangler.toml&quot;,
+  &quot;soThat&quot;: &quot;a project can read the ratified shape decision with its standards trace to Cloudflare&#39;s own landing-page recommendation and know exactly how to migrate its Pages routing to Workers&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-3001-1&quot;,
+      &quot;description&quot;: &quot;The ADR contribution entry ADR-1306-deploy-cloudflare-workers-spa-shape sits under contributions/adrs/adr-1306-deploy-cloudflare-workers-spa-shape.json and validates against the rcf-schemas 0.6.1 ADR shape (required fields adrId prdId tadId version status title context decision consequences createdAt updatedAt; optional alternativesConsidered supersededBy relatedAdrs). Its body carries the verbatim Cloudflare Pages landing-page quote Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare&#39;s primary platform for building applications. Start new projects with Workers., alongside a decision blessing Workers-with-static-assets as the SPA-on-Workers deploy shape and consequences naming the two new elicits assets-directory and run-worker-first. The ADR contribution entry in blueprint.json carries recommendedDefault true, elicited false and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06). The ADR body does NOT carry standardsTraceClause (per section 8a.2 the clause belongs on the contribution entry).&quot;,
+      &quot;given&quot;: &quot;the shipped ADR contribution&quot;,
+      &quot;when&quot;: &quot;jq queries against blueprint.json contribution entry and the ADR JSON body&quot;,
+      &quot;then&quot;: &quot;the blueprint.json entry carries standardsTraceClause set to the 2026-09-06 landing-page recommendation clause; the ADR body carries the verbatim Cloudflare Pages landing-page quote in context or decision; the ADR body does not carry standardsTraceClause; the ADR body validates against the 0.6.1 ADR schema&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-3001-2&quot;,
+      &quot;description&quot;: &quot;The guide at blueprints/deploy-cloudflare-workers/guide/deploy-cloudflare-workers.md gains a new section titled Workers-with-static-assets: the SPA-on-Workers shape with the verbatim Cloudflare landing-page quote, the two elicit signatures (assets-directory string default empty; run-worker-first boolean default false), a copy-paste wrangler.toml snippet showing the [assets] block with directory and the run_worker_first hint, and a link to the Cloudflare migrate-from-Pages guide at https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/. The Cloudflare Workers static-assets doc at https://developers.cloudflare.com/workers/static-assets/ is cited in the same section. Both URLs return 200 at gate time.&quot;,
+      &quot;given&quot;: &quot;the updated guide file&quot;,
+      &quot;when&quot;: &quot;grep the guide for the new section heading and the two Cloudflare URLs&quot;,
+      &quot;then&quot;: &quot;the section heading appears once with the exact title; the migrate-from-Pages URL and the static-assets doc URL appear at least once each; both URLs return HTTP 200 on a plain curl -fsSI&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-3001-3&quot;,
+      &quot;description&quot;: &quot;The spec&#39;s second canonical AC spaFallbackShape is realised in the blueprint contributions as AC-12113-2 on US-12113 with a runtime-observable then clause anchored to TAC-1302-deploy-cloudflare-workers-wrangler-manifest. The shipped probe assets-manifest-scan.mjs asserts run_worker_first presence and value under the [assets] block against the elicited answer. On the cf-platform fixture (which bakes run_worker_first = true) the probe returns verdict pass and the report carries a detail record naming runWorkerFirst true. On the SIMULATE_MIXED_SHAPE=true branch the fixture inserts a pages_build_output_dir field and the probe returns verdict fail naming the offending pages_build_output_dir line. On the SIMULATE_EMPTY_ASSETS=true branch the fixture removes the [assets] block and the probe returns verdict pass with an empty-directory record (bare-Worker shape).&quot;,
+      &quot;given&quot;: &quot;the shipped probe module and the cf-platform fixture with induced-failure switches&quot;,
+      &quot;when&quot;: &quot;run-assets-manifest-scan.mjs drives the probe on each of the three fixture states&quot;,
+      &quot;then&quot;: &quot;aggregateVerdict pass on the canonical state; aggregateVerdict fail on SIMULATE_MIXED_SHAPE with detail naming pages_build_output_dir; aggregateVerdict pass on SIMULATE_EMPTY_ASSETS with the empty-directory record&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:deploy-cloudflare-workers&quot;
+  ],
+  &quot;usId&quot;: &quot;US-3001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-030&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-0 ADR-1306-deploy-cloudflare-workers-spa-shape, guide section with migrate-from-Pages link, and probed spaFallbackShape with induced-failure switches&quot;
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 <details class="doc-details doc-req-wrap" data-doc-id="REQ-040">
   <summary><span class="summary-label">REQ-040 - Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container</span><span class="status draft">draft</span></summary>
   <article id="REQ-040" class="doc doc-req">
@@ -10309,7 +10783,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -14307,6 +14781,96 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)&quot;,
   &quot;summary&quot;: &quot;T-3 shelf-blueprint track of the ratified infra round 5 spec (2026-09-06, section 5.3) minted with dex reserved-block chain ids via --id (REQ-042 / US-4201 / TS-072 / FBS-062 / CN-206..208) after T-1 landed at 040/4001/070/060/200..202 and T-2 landed at 041/4101/071/061/203..205. Ships the messaging-queue-cloudflare v1.0.0 blueprint on the shelf with 21 contributions in the 6 REQ / 8 US 29101-29108 / 3 TAC 3001-3003 / 4 ADR 3001-3004 groups per spec section 5.3, six Node-only probes under blueprints/messaging-queue-cloudflare/contributions/probes/ (producer-facade-ready, publish-to-delivery, retry-and-dlq, event-secrecy, real-account-concurrency-smoke plus a shared probe-utils helper module) with matching run-shims writing per-blueprint reports at .rcf/reports/blueprints/messaging-queue-cloudflare/, and the T-3 slice of the shared sample-app fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Four probes local-first (accountBound false); real-account-concurrency-smoke carries accountBound true and records accountBoundSkipped shape per spec section 3.5 without CI_HAS_CLOUDFLARE_ACCOUNT. Declares capabilities [queue], suggestedCompanions logging and errorHandling, providesRoles absent, requiresAppliedCapabilities absent (composes on deploy-cloudflare-workers transitively via the wrangler binding, not through the capability mechanism). Contributes ADR-3002 as scope:global on new topic deliverySemantics per spec section 5.3. Every ADR contribution entry carries standardsTraceClause per section 8a.2 (per HQ mid-flight ruling after PR #154 gate). Extends packages/rcf-lite/docs/blueprint-authoring.md section 6a table with a queue row naming the reserved messaging-queue-postgres sibling (Baz decision 7) per spec section 5.6; appends one shelf-registry row for messaging-queue-cloudflare at 29101-29899 / 30xx to every shipped blueprint docs/topics.md.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-063">
+  <summary><span class="summary-label">FBS-063 - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-063" class="doc doc-fbs">
+  <h3>FBS-063 - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</h3>
+  
+  <p><strong>Summary:</strong> T-0 shelf-blueprint minor-bump track of the ratified Cloudflare round 6 spec (2026-09-06 section 5.0) minted with the HQ sequential chain-id block via --id (REQ-029 REQ-030 US-2901 US-2902 US-3001 TS-073 TS-074 TS-075 FBS-063 CN-209) after HQ round-4 T-5 landed at REQ-028 US-2801 TS-057 FBS-047 and Dex round-5 T-3 landed at REQ-042 US-4201 TS-072 FBS-062 CN-206..208 per HQ mid-flight ruling on repo-chain id blocks per train. Ships the deploy-cloudflare-workers v1.2.0 additive-minor delta on the shipped v1.1.0 blueprint (seven new contributions in the existing 12xx US band and 13xx suffix: 2 REQs REQ-013 and REQ-014; 3 USs US-12113 US-12114 US-12115; 1 ADR ADR-1306 with the verbatim Cloudflare Pages landing-page quote and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06); 1 probe module assets-manifest-scan.mjs with anchorAcId AC-12113-1 and accountBound false; 2 new elicits assets-directory string default empty and run-worker-first boolean default false, both on top-level elicits[]). Ships the cf-platform shared sample-app fixture at packages/rcf-lite/test/fixtures/cf-platform/ (wrangler.toml with [assets] directory = ./dist and run_worker_first = true, dist/index.html, src/index.mjs Worker entry, package.json declaring wrangler devDependency and wrangler dev start, run-assets-manifest-scan.mjs shim, README with the two induced-failure switches SIMULATE_MIXED_SHAPE and SIMULATE_EMPTY_ASSETS documented). Adds one anatomy test file at packages/rcf-lite/test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js covering the 8 TCs on TS-073 TS-074 TS-075 (blueprint shape, probe contract and scan-pass, chain-slice cross-check, elicits shape, fixture files, ADR body and clause, guide section and URLs, three-state probed verdicts). Updates the blueprint README.md with a v1.2.0 delta section, ships a new blueprint CHANGELOG.md with the v1.2.0 entry, adds the guide section titled Workers-with-static-assets: the SPA-on-Workers shape linking the Cloudflare migrate-from-Pages guide and citing the static-assets docs page, bumps the deploy-cloudflare-workers row on blueprints/deploy-cloudflare-workers/docs/topics.md and on blueprints/application-spa/docs/topics.md from shipped v1.0.0 to shipped v1.2.0. Existing v1.1.0 contributions carry through unchanged; no capability minted; no new global topic; no runtime dependency added; the section 6a capability table under packages/rcf-lite/docs/blueprint-authoring.md is NOT touched (T-1 through T-6 own that). The loader&#39;s supported when block only accepts requiresCapability arrays, so the spec&#39;s intended when-elicitedNonEmpty predicate on run-worker-first is NOT shipped and is named under CONCERNS on the PR.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-2901-1">AC-2901-1</a><a class="ac-pill" href="#AC-2901-2">AC-2901-2</a><a class="ac-pill" href="#AC-2901-3">AC-2901-3</a><a class="ac-pill" href="#AC-2902-1">AC-2902-1</a><a class="ac-pill" href="#AC-2902-2">AC-2902-2</a><a class="ac-pill" href="#AC-3001-1">AC-3001-1</a><a class="ac-pill" href="#AC-3001-2">AC-3001-2</a><a class="ac-pill" href="#AC-3001-3">AC-3001-3</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-2901-1">AC-2901-1</a></strong> - The shelf carries blueprints/deploy-cloudflare-workers/blueprint.json declaring slug deploy-cloudflare-workers, version 1.2.0, category deploy; the contributions array holds 41 entries splitting 14 req + 15 us + 6 tac + 6 adr (the probe is NOT a contribution kind under the loader&#39;s CONTRIBUTABLE_KINDS gate; assets-manifest-scan.mjs ships under contributions/probes/ as a source file only, cross-referenced from the shipped README and the applied fixture shim); the delta over v1.1.0 is six contribution-kind entries plus the probe module: 2 REQs REQ-013 and REQ-014, 3 USs US-12113 US-12114 US-12115, 1 ADR ADR-1306 with recommendedDefault true and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06) on the contribution entry, 1 probe contribution assets-manifest-scan with anchorAcId AC-12113-1 and accountBound false; providesRoles absent, capabilities absent, requiresAppliedCapabilities absent, suggestedCompanions unchanged with logging and errorHandling; the top-level elicits[] gains the two new entries assets-directory and run-worker-first; every ADR contribution entry carries a non-null standardsTraceClause per section 8a.2.</p>
+  <p><em>Given</em> the shelf tree after this blueprint delta lands</p>
+  <p><em>When</em> jq queries against blueprints/deploy-cloudflare-workers/blueprint.json</p>
+  <p><em>Then</em> jq .slug returns deploy-cloudflare-workers; jq .version returns 1.2.0; jq .contributions returns an array whose kinds split 14 req, 15 us, 6 tac, 6 adr (total 41 entries); the probe module lives under blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs and is NOT listed as a contribution; jq .capabilities returns null; jq .suggestedCompanions maps to logging and errorHandling; jq .elicits returns an array containing assets-directory and run-worker-first; jq .contributions[] where kind is adr yields standardsTraceClause non-null for every entry</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2901-2">AC-2901-2</a></strong> - The canonical AC assetsBlockEmitted (from spec section 5.0 example ACs) is realised as blueprint contribution AC-12113-1 on US-12113 with a runtime-observable then clause. The shipped probe blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs exports a Node module whose default export is a scan verb returning the section 3.2 verdict envelope {verdict, detail, anchorAcId, aggregateVerdict} with anchorAcId AC-12113-1 and accountBound false; the module parses the applied fixture wrangler.toml, asserts the [assets] block directory matches the elicited assets-directory answer, and asserts the absence of any pages_build_output_dir field.</p>
+  <p><em>Given</em> the cf-platform sample-app fixture at packages/rcf-lite/test/fixtures/cf-platform/ with wrangler.toml carrying [assets] directory = ./dist and no pages_build_output_dir field</p>
+  <p><em>When</em> the shim run-assets-manifest-scan.mjs drives the probe module against the fixture wrangler.toml</p>
+  <p><em>Then</em> the process exits 0 and the written report at .rcf/reports/blueprints/deploy-cloudflare-workers/assets-manifest-scan.json carries aggregateVerdict pass with a detail record naming directory ./dist and no pages_build_output_dir field on the parsed wrangler.toml</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2901-3">AC-2901-3</a></strong> - The rcf-lite repo chain is extended with the T-0 delta and validates clean; the chain adds two REQs REQ-029 and REQ-030 under PRD-001, three USs US-2901 US-2902 US-3001, three test suites TS-073 TS-074 TS-075, one FBS FBS-063, and one CN CN-209 anchoring the assets-manifest-scan.mjs probe module; every US carries at least one AC; every AC is covered by a TC on the paired TS with a resolvable test-pointer to test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js. Repo counts bump: requirements 31 to 33, userStories 60 to 63, fbs 50 to 51, testSuite 60 to 63, codeNode 195 to 196.</p>
+  <p><em>Given</em> the extended repo chain on the T-0 branch after all define create commands have run</p>
+  <p><em>When</em> node bin/rcf.js define validate runs from packages/rcf-lite</p>
+  <p><em>Then</em> the CLI reports rcf define validate: tree is clean and both node bin/rcf.js audit coverage --strict and node bin/rcf.js audit eval coverage --strict exit 0</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2902-1">AC-2902-1</a></strong> - The blueprint.json elicits[] block gains exactly two new entries: assets-directory with id assets-directory, kind string, default empty string, prompt describing the applied static-assets root; run-worker-first with id run-worker-first, kind boolean, default false, prompt describing the SPA fallback discipline that a truthy answer runs the Worker before asset lookup. The two elicits pass the loader&#39;s validateElicits shape gate on src/blueprint/loader.js (id kebab-slug, kind one of enum|string|boolean, default matches kind). Neither elicit carries providesCapability (both are shape choices not custom-auth discovery). The spec&#39;s intended when-predicate {elicitedNonEmpty: [assets-directory]} on run-worker-first is NOT shipped this round because the loader&#39;s supported when block only accepts requiresCapability arrays; the guide names the shape trade and CONCERNS on the PR names the smallest loader extension to close the gap.</p>
+  <p><em>Given</em> the shipped blueprint.json at blueprints/deploy-cloudflare-workers/blueprint.json</p>
+  <p><em>When</em> jq .elicits returns the top-level array and the loader loads blueprint.json without a validation error</p>
+  <p><em>Then</em> the array contains exactly two entries whose ids are assets-directory and run-worker-first, with the shapes above; jq validation and the loader both accept the shape</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-2902-2">AC-2902-2</a></strong> - The cf-platform fixture at packages/rcf-lite/test/fixtures/cf-platform/ ships a wrangler.toml with [assets] directory = &quot;./dist&quot; and run_worker_first = true baked into the [assets] block. The fixture ships dist/index.html so the assets directory exists on disk. The fixture ships src/index.mjs as the minimal Worker entry, a package.json declaring wrangler as a devDependency and start = wrangler dev, a run-assets-manifest-scan.mjs shim requiring the probe module from blueprints/deploy-cloudflare-workers/contributions/probes/assets-manifest-scan.mjs, and a README naming the wrangler dev boot line, the two elicit answers baked into wrangler.toml, and the two induced-failure switches SIMULATE_MIXED_SHAPE (inserts a pages_build_output_dir field so the probe surfaces the mixed-shape refusal) and SIMULATE_EMPTY_ASSETS (removes the [assets] block so the probe records the bare-Worker shape and passes with an empty-directory record).</p>
+  <p><em>Given</em> the cf-platform fixture tree after this T-0 slice lands</p>
+  <p><em>When</em> ls -R the fixture directory</p>
+  <p><em>Then</em> the fixture ships wrangler.toml with the [assets] block, dist/index.html, src/index.mjs, package.json with wrangler dev, run-assets-manifest-scan.mjs and README.md with the switches and boot line documented</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-3001-1">AC-3001-1</a></strong> - The ADR contribution entry ADR-1306-deploy-cloudflare-workers-spa-shape sits under contributions/adrs/adr-1306-deploy-cloudflare-workers-spa-shape.json and validates against the rcf-schemas 0.6.1 ADR shape (required fields adrId prdId tadId version status title context decision consequences createdAt updatedAt; optional alternativesConsidered supersededBy relatedAdrs). Its body carries the verbatim Cloudflare Pages landing-page quote Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare&#39;s primary platform for building applications. Start new projects with Workers., alongside a decision blessing Workers-with-static-assets as the SPA-on-Workers deploy shape and consequences naming the two new elicits assets-directory and run-worker-first. The ADR contribution entry in blueprint.json carries recommendedDefault true, elicited false and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06). The ADR body does NOT carry standardsTraceClause (per section 8a.2 the clause belongs on the contribution entry).</p>
+  <p><em>Given</em> the shipped ADR contribution</p>
+  <p><em>When</em> jq queries against blueprint.json contribution entry and the ADR JSON body</p>
+  <p><em>Then</em> the blueprint.json entry carries standardsTraceClause set to the 2026-09-06 landing-page recommendation clause; the ADR body carries the verbatim Cloudflare Pages landing-page quote in context or decision; the ADR body does not carry standardsTraceClause; the ADR body validates against the 0.6.1 ADR schema</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-3001-2">AC-3001-2</a></strong> - The guide at blueprints/deploy-cloudflare-workers/guide/deploy-cloudflare-workers.md gains a new section titled Workers-with-static-assets: the SPA-on-Workers shape with the verbatim Cloudflare landing-page quote, the two elicit signatures (assets-directory string default empty; run-worker-first boolean default false), a copy-paste wrangler.toml snippet showing the [assets] block with directory and the run_worker_first hint, and a link to the Cloudflare migrate-from-Pages guide at https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/. The Cloudflare Workers static-assets doc at https://developers.cloudflare.com/workers/static-assets/ is cited in the same section. Both URLs return 200 at gate time.</p>
+  <p><em>Given</em> the updated guide file</p>
+  <p><em>When</em> grep the guide for the new section heading and the two Cloudflare URLs</p>
+  <p><em>Then</em> the section heading appears once with the exact title; the migrate-from-Pages URL and the static-assets doc URL appear at least once each; both URLs return HTTP 200 on a plain curl -fsSI</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-3001-3">AC-3001-3</a></strong> - The spec&#39;s second canonical AC spaFallbackShape is realised in the blueprint contributions as AC-12113-2 on US-12113 with a runtime-observable then clause anchored to TAC-1302-deploy-cloudflare-workers-wrangler-manifest. The shipped probe assets-manifest-scan.mjs asserts run_worker_first presence and value under the [assets] block against the elicited answer. On the cf-platform fixture (which bakes run_worker_first = true) the probe returns verdict pass and the report carries a detail record naming runWorkerFirst true. On the SIMULATE_MIXED_SHAPE=true branch the fixture inserts a pages_build_output_dir field and the probe returns verdict fail naming the offending pages_build_output_dir line. On the SIMULATE_EMPTY_ASSETS=true branch the fixture removes the [assets] block and the probe returns verdict pass with an empty-directory record (bare-Worker shape).</p>
+  <p><em>Given</em> the shipped probe module and the cf-platform fixture with induced-failure switches</p>
+  <p><em>When</em> run-assets-manifest-scan.mjs drives the probe on each of the three fixture states</p>
+  <p><em>Then</em> aggregateVerdict pass on the canonical state; aggregateVerdict fail on SIMULATE_MIXED_SHAPE with detail naming pages_build_output_dir; aggregateVerdict pass on SIMULATE_EMPTY_ASSETS with the empty-directory record</p>
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 51</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:12:10.596Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:12:58.000Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2901-1&quot;,
+    &quot;AC-2901-2&quot;,
+    &quot;AC-2901-3&quot;,
+    &quot;AC-2902-1&quot;,
+    &quot;AC-2902-2&quot;,
+    &quot;AC-3001-1&quot;,
+    &quot;AC-3001-2&quot;,
+    &quot;AC-3001-3&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-063&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 51,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite&quot;,
+  &quot;summary&quot;: &quot;T-0 shelf-blueprint minor-bump track of the ratified Cloudflare round 6 spec (2026-09-06 section 5.0) minted with the HQ sequential chain-id block via --id (REQ-029 REQ-030 US-2901 US-2902 US-3001 TS-073 TS-074 TS-075 FBS-063 CN-209) after HQ round-4 T-5 landed at REQ-028 US-2801 TS-057 FBS-047 and Dex round-5 T-3 landed at REQ-042 US-4201 TS-072 FBS-062 CN-206..208 per HQ mid-flight ruling on repo-chain id blocks per train. Ships the deploy-cloudflare-workers v1.2.0 additive-minor delta on the shipped v1.1.0 blueprint (seven new contributions in the existing 12xx US band and 13xx suffix: 2 REQs REQ-013 and REQ-014; 3 USs US-12113 US-12114 US-12115; 1 ADR ADR-1306 with the verbatim Cloudflare Pages landing-page quote and standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06); 1 probe module assets-manifest-scan.mjs with anchorAcId AC-12113-1 and accountBound false; 2 new elicits assets-directory string default empty and run-worker-first boolean default false, both on top-level elicits[]). Ships the cf-platform shared sample-app fixture at packages/rcf-lite/test/fixtures/cf-platform/ (wrangler.toml with [assets] directory = ./dist and run_worker_first = true, dist/index.html, src/index.mjs Worker entry, package.json declaring wrangler devDependency and wrangler dev start, run-assets-manifest-scan.mjs shim, README with the two induced-failure switches SIMULATE_MIXED_SHAPE and SIMULATE_EMPTY_ASSETS documented). Adds one anatomy test file at packages/rcf-lite/test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js covering the 8 TCs on TS-073 TS-074 TS-075 (blueprint shape, probe contract and scan-pass, chain-slice cross-check, elicits shape, fixture files, ADR body and clause, guide section and URLs, three-state probed verdicts). Updates the blueprint README.md with a v1.2.0 delta section, ships a new blueprint CHANGELOG.md with the v1.2.0 entry, adds the guide section titled Workers-with-static-assets: the SPA-on-Workers shape linking the Cloudflare migrate-from-Pages guide and citing the static-assets docs page, bumps the deploy-cloudflare-workers row on blueprints/deploy-cloudflare-workers/docs/topics.md and on blueprints/application-spa/docs/topics.md from shipped v1.0.0 to shipped v1.2.0. Existing v1.1.0 contributions carry through unchanged; no capability minted; no new global topic; no runtime dependency added; the section 6a capability table under packages/rcf-lite/docs/blueprint-authoring.md is NOT touched (T-1 through T-6 own that). The loader&#39;s supported when block only accepts requiresCapability arrays, so the spec&#39;s intended when-elicitedNonEmpty predicate on run-worker-first is NOT shipped and is named under CONCERNS on the PR.&quot;,
   &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
@@ -19549,6 +20113,191 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;Cover AC-4201-6 via anatomy test&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/messaging-queue-cloudflare-anatomy.test.js::section 6a table gains a queue row with reserved messaging-queue-postgres sibling and every shipped blueprint docs/topics.md gains a messaging-queue-cloudflare row at 29101-29899 / 30xx (TC-072-shelf-doc-consistency)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-073">
+  <summary><span class="summary-label">TS-073 - T-0 deploy-cloudflare-workers v1.2.0 shelf shape, apply-clean, chain-slice cross-check</span><span class="status draft">draft</span></summary>
+  <article id="TS-073" class="doc doc-ts">
+  <h3>TS-073 - T-0 deploy-cloudflare-workers v1.2.0 shelf shape, apply-clean, chain-slice cross-check</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-2901">US-2901</a></p>
+  <p><strong>Purpose:</strong> Cover AC-2901-1..3 via unit tests over the shipped deploy-cloudflare-workers v1.2.0 blueprint shape (12 REQs 15 USs 6 TACs 6 ADRs, no capabilities, suggestedCompanions logging and errorHandling unchanged, standardsTraceClause on ADR-1306 contribution entry), the assets-manifest-scan probe module contract and passing run against the cf-platform fixture, and the repo chain-slice counts and validate-clean.</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-2901-1">AC-2901-1</a>, <a href="#AC-2901-2">AC-2901-2</a>, <a href="#AC-2901-3">AC-2901-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-073-blueprint-json-shape">
+  <p><strong>TC-073-blueprint-json-shape</strong> - covers <a href="#AC-2901-1">AC-2901-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-2901-1 via anatomy test: blueprint.json declares slug deploy-cloudflare-workers, version 1.2.0, category deploy; contributions split 12 req, 15 us, 6 tac, 6 adr; suggestedCompanions unchanged; standardsTraceClause non-null on every ADR contribution entry including ADR-1306</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::blueprint.json declares 41 contributions with v1.2.0, delta shape and unchanged v1.1.0 companions (TC-073-blueprint-json-shape)</code></p>
+</div>
+<div class="tc" id="TC-073-probe-module-and-scan-pass">
+  <p><strong>TC-073-probe-module-and-scan-pass</strong> - covers <a href="#AC-2901-2">AC-2901-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-2901-2 via anatomy test: assets-manifest-scan.mjs exports the section 3.2 verdict envelope with anchorAcId AC-12113-1 and accountBound false; the shim run-assets-manifest-scan.mjs on the cf-platform fixture exits 0 and the report carries aggregateVerdict pass with directory ./dist and no pages_build_output_dir field</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::assets-manifest-scan probe module contract and cf-platform fixture scan-pass (TC-073-probe-module-and-scan-pass)</code></p>
+</div>
+<div class="tc" id="TC-073-chain-slice-cross-check">
+  <p><strong>TC-073-chain-slice-cross-check</strong> - covers <a href="#AC-2901-3">AC-2901-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-2901-3 via anatomy test: the repo chain adds REQ-029 REQ-030 US-2901 US-2902 US-3001 TS-073 TS-074 TS-075 FBS-063 CN-209, every US carries at least one AC, every AC has a covering TC on a paired TS with a resolvable test-pointer, and rcf define validate reports the tree clean</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::T-0 chain slice adds two REQs three USs three TSs one FBS and one CN under the HQ block (TC-073-chain-slice-cross-check)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:11:24.816Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:12:00.080Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-2901-1..3 via unit tests over the shipped deploy-cloudflare-workers v1.2.0 blueprint shape (12 REQs 15 USs 6 TACs 6 ADRs, no capabilities, suggestedCompanions logging and errorHandling unchanged, standardsTraceClause on ADR-1306 contribution entry), the assets-manifest-scan probe module contract and passing run against the cf-platform fixture, and the repo chain-slice counts and validate-clean.&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2901-1&quot;,
+    &quot;AC-2901-2&quot;,
+    &quot;AC-2901-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-073&quot;,
+  &quot;usId&quot;: &quot;US-2901&quot;,
+  &quot;title&quot;: &quot;T-0 deploy-cloudflare-workers v1.2.0 shelf shape, apply-clean, chain-slice cross-check&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-073-blueprint-json-shape&quot;,
+      &quot;acId&quot;: &quot;AC-2901-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-2901-1 via anatomy test: blueprint.json declares slug deploy-cloudflare-workers, version 1.2.0, category deploy; contributions split 12 req, 15 us, 6 tac, 6 adr; suggestedCompanions unchanged; standardsTraceClause non-null on every ADR contribution entry including ADR-1306&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::blueprint.json declares 41 contributions with v1.2.0, delta shape and unchanged v1.1.0 companions (TC-073-blueprint-json-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-073-probe-module-and-scan-pass&quot;,
+      &quot;acId&quot;: &quot;AC-2901-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-2901-2 via anatomy test: assets-manifest-scan.mjs exports the section 3.2 verdict envelope with anchorAcId AC-12113-1 and accountBound false; the shim run-assets-manifest-scan.mjs on the cf-platform fixture exits 0 and the report carries aggregateVerdict pass with directory ./dist and no pages_build_output_dir field&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::assets-manifest-scan probe module contract and cf-platform fixture scan-pass (TC-073-probe-module-and-scan-pass)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-073-chain-slice-cross-check&quot;,
+      &quot;acId&quot;: &quot;AC-2901-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-2901-3 via anatomy test: the repo chain adds REQ-029 REQ-030 US-2901 US-2902 US-3001 TS-073 TS-074 TS-075 FBS-063 CN-209, every US carries at least one AC, every AC has a covering TC on a paired TS with a resolvable test-pointer, and rcf define validate reports the tree clean&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::T-0 chain slice adds two REQs three USs three TSs one FBS and one CN under the HQ block (TC-073-chain-slice-cross-check)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-074">
+  <summary><span class="summary-label">TS-074 - T-0 deploy-cloudflare-workers v1.2.0 elicits: assets-directory and run-worker-first on blueprint.json elicits[] and cf-platform fixture</span><span class="status draft">draft</span></summary>
+  <article id="TS-074" class="doc doc-ts">
+  <h3>TS-074 - T-0 deploy-cloudflare-workers v1.2.0 elicits: assets-directory and run-worker-first on blueprint.json elicits[] and cf-platform fixture</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-2902">US-2902</a></p>
+  <p><strong>Purpose:</strong> Cover AC-2902-1..2 via unit tests over the top-level elicits[] shape (id, kind, default, loader shape gate) and the cf-platform fixture files (wrangler.toml, dist/, src/, package.json, run-assets-manifest-scan.mjs, README naming the switches).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-2902-1">AC-2902-1</a>, <a href="#AC-2902-2">AC-2902-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-074-elicits-shape">
+  <p><strong>TC-074-elicits-shape</strong> - covers <a href="#AC-2902-1">AC-2902-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-2902-1 via anatomy test: blueprint.json elicits[] declares exactly two new entries assets-directory and run-worker-first with the correct id, kind and default; neither carries providesCapability; the loader loads blueprint.json without a validation error</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::elicits[] declares assets-directory string default empty and run-worker-first boolean default false and loader accepts blueprint.json (TC-074-elicits-shape)</code></p>
+</div>
+<div class="tc" id="TC-074-cf-platform-fixture-files">
+  <p><strong>TC-074-cf-platform-fixture-files</strong> - covers <a href="#AC-2902-2">AC-2902-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-2902-2 via anatomy test: the cf-platform fixture ships wrangler.toml with the [assets] block, dist/index.html, src/index.mjs, package.json with wrangler dev script and wrangler as a devDependency, run-assets-manifest-scan.mjs shim and README naming the wrangler dev boot line, the elicit answers and the two induced-failure switches</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::cf-platform fixture ships wrangler.toml dist index.html src index.mjs package.json shim and README with SIMULATE_MIXED_SHAPE and SIMULATE_EMPTY_ASSETS switches (TC-074-cf-platform-fixture-files)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:11:24.993Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:12:00.427Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-2902-1..2 via unit tests over the top-level elicits[] shape (id, kind, default, loader shape gate) and the cf-platform fixture files (wrangler.toml, dist/, src/, package.json, run-assets-manifest-scan.mjs, README naming the switches).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-2902-1&quot;,
+    &quot;AC-2902-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-074&quot;,
+  &quot;usId&quot;: &quot;US-2902&quot;,
+  &quot;title&quot;: &quot;T-0 deploy-cloudflare-workers v1.2.0 elicits: assets-directory and run-worker-first on blueprint.json elicits[] and cf-platform fixture&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-074-elicits-shape&quot;,
+      &quot;acId&quot;: &quot;AC-2902-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-2902-1 via anatomy test: blueprint.json elicits[] declares exactly two new entries assets-directory and run-worker-first with the correct id, kind and default; neither carries providesCapability; the loader loads blueprint.json without a validation error&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::elicits[] declares assets-directory string default empty and run-worker-first boolean default false and loader accepts blueprint.json (TC-074-elicits-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-074-cf-platform-fixture-files&quot;,
+      &quot;acId&quot;: &quot;AC-2902-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-2902-2 via anatomy test: the cf-platform fixture ships wrangler.toml with the [assets] block, dist/index.html, src/index.mjs, package.json with wrangler dev script and wrangler as a devDependency, run-assets-manifest-scan.mjs shim and README naming the wrangler dev boot line, the elicit answers and the two induced-failure switches&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::cf-platform fixture ships wrangler.toml dist index.html src index.mjs package.json shim and README with SIMULATE_MIXED_SHAPE and SIMULATE_EMPTY_ASSETS switches (TC-074-cf-platform-fixture-files)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-075">
+  <summary><span class="summary-label">TS-075 - T-0 deploy-cloudflare-workers v1.2.0 ADR-1306, guide section, and probed spaFallbackShape with induced-failure switches</span><span class="status draft">draft</span></summary>
+  <article id="TS-075" class="doc doc-ts">
+  <h3>TS-075 - T-0 deploy-cloudflare-workers v1.2.0 ADR-1306, guide section, and probed spaFallbackShape with induced-failure switches</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-3001">US-3001</a></p>
+  <p><strong>Purpose:</strong> Cover AC-3001-1..3 via unit tests over the ADR-1306 body validity and standardsTraceClause on the contribution entry, the guide&#39;s new SPA-on-Workers section with the two Cloudflare URLs (fetched 200 at gate time), and the probe module driven on the three fixture states (canonical, SIMULATE_MIXED_SHAPE fails naming pages_build_output_dir, SIMULATE_EMPTY_ASSETS passes with the empty-directory record).</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-3001-1">AC-3001-1</a>, <a href="#AC-3001-2">AC-3001-2</a>, <a href="#AC-3001-3">AC-3001-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-075-adr-1306-body-and-clause">
+  <p><strong>TC-075-adr-1306-body-and-clause</strong> - covers <a href="#AC-3001-1">AC-3001-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-3001-1 via anatomy test: ADR-1306 body validates against rcf-schemas 0.6.1 (required fields present, no standardsTraceClause on body), the body carries the verbatim Cloudflare Pages landing-page quote in context or decision, and the blueprint.json contribution entry carries standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06) with recommendedDefault true and elicited false</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::ADR-1306 body validates against 0.6.1 with verbatim Cloudflare quote and standardsTraceClause on the contribution entry (TC-075-adr-1306-body-and-clause)</code></p>
+</div>
+<div class="tc" id="TC-075-guide-section-and-urls">
+  <p><strong>TC-075-guide-section-and-urls</strong> - covers <a href="#AC-3001-2">AC-3001-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-3001-2 via anatomy test: the guide file carries the new Workers-with-static-assets: the SPA-on-Workers shape section with both the migrate-from-Pages guide URL and the static-assets docs URL. The urls-fetched log (fetched at ship time) records both URLs at HTTP 200.</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::guide section Workers-with-static-assets adds the two Cloudflare URLs and the elicit signatures and the wrangler.toml snippet (TC-075-guide-section-and-urls)</code></p>
+</div>
+<div class="tc" id="TC-075-probed-spa-fallback-shape">
+  <p><strong>TC-075-probed-spa-fallback-shape</strong> - covers <a href="#AC-3001-3">AC-3001-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-3001-3 via anatomy test: the assets-manifest-scan probe run against the cf-platform fixture returns verdict pass on the canonical state; SIMULATE_MIXED_SHAPE=true returns verdict fail with a detail naming pages_build_output_dir; SIMULATE_EMPTY_ASSETS=true returns verdict pass with the empty-directory record for the bare-Worker shape</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::assets-manifest-scan drives three fixture states and produces the expected pass fail pass verdicts (TC-075-probed-spa-fallback-shape)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T09:11:25.167Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T09:12:00.950Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-3001-1..3 via unit tests over the ADR-1306 body validity and standardsTraceClause on the contribution entry, the guide&#39;s new SPA-on-Workers section with the two Cloudflare URLs (fetched 200 at gate time), and the probe module driven on the three fixture states (canonical, SIMULATE_MIXED_SHAPE fails naming pages_build_output_dir, SIMULATE_EMPTY_ASSETS passes with the empty-directory record).&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-3001-1&quot;,
+    &quot;AC-3001-2&quot;,
+    &quot;AC-3001-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-075&quot;,
+  &quot;usId&quot;: &quot;US-3001&quot;,
+  &quot;title&quot;: &quot;T-0 deploy-cloudflare-workers v1.2.0 ADR-1306, guide section, and probed spaFallbackShape with induced-failure switches&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-075-adr-1306-body-and-clause&quot;,
+      &quot;acId&quot;: &quot;AC-3001-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-3001-1 via anatomy test: ADR-1306 body validates against rcf-schemas 0.6.1 (required fields present, no standardsTraceClause on body), the body carries the verbatim Cloudflare Pages landing-page quote in context or decision, and the blueprint.json contribution entry carries standardsTraceClause Cloudflare Pages landing-page recommendation (2026-09-06) with recommendedDefault true and elicited false&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::ADR-1306 body validates against 0.6.1 with verbatim Cloudflare quote and standardsTraceClause on the contribution entry (TC-075-adr-1306-body-and-clause)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-075-guide-section-and-urls&quot;,
+      &quot;acId&quot;: &quot;AC-3001-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-3001-2 via anatomy test: the guide file carries the new Workers-with-static-assets: the SPA-on-Workers shape section with both the migrate-from-Pages guide URL and the static-assets docs URL. The urls-fetched log (fetched at ship time) records both URLs at HTTP 200.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::guide section Workers-with-static-assets adds the two Cloudflare URLs and the elicit signatures and the wrangler.toml snippet (TC-075-guide-section-and-urls)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-075-probed-spa-fallback-shape&quot;,
+      &quot;acId&quot;: &quot;AC-3001-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-3001-3 via anatomy test: the assets-manifest-scan probe run against the cf-platform fixture returns verdict pass on the canonical state; SIMULATE_MIXED_SHAPE=true returns verdict fail with a detail naming pages_build_output_dir; SIMULATE_EMPTY_ASSETS=true returns verdict pass with the empty-directory record for the bare-Worker shape&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-cloudflare-workers-v-1-2-0-anatomy.test.js::assets-manifest-scan drives three fixture states and produces the expected pass fail pass verdicts (TC-075-probed-spa-fallback-shape)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
