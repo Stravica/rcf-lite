@@ -23,12 +23,12 @@
   "dependencies": [
     {
       "name": "Persistence blueprint",
-      "kind": "optional-composition",
-      "description": "server-side-per-principal delegates to the applied persistence blueprint's writer. spa-local-storage and spa-session-storage need no persistence blueprint."
+      "kind": "external",
+      "description": "Optional composition: only the server-side-per-principal backend delegates to an applied persistence blueprint writer. spa-local-storage and spa-session-storage need no persistence blueprint. The rcf-schemas 0.6.1 TAC dependency kind enum is limited to tac and external, so the composition-optional relation is recorded as external and made explicit in the description and notes."
     }
   ],
   "tradeoffs": "spa-local-storage is chosen as the Q4 default because a per-session tour that re-plays on every new session is worse than a one-time tour that persists across sessions on that browser; spa-session-storage remains an option for a project that deliberately wants a per-session tour. server-side-per-principal is chosen when the tour completion is a real profile fact (a cross-device onboarding) rather than a per-browser convenience.",
-  "notes": "The blueprintSetVersion in the CompletionRecord is what lets ADR-2701's dismiss-until-next-major and dismiss-until-next-minor policies re-open the tour on the right bump. Known mechanism-reach gap: the server-side-per-principal backend cannot prove a round-trip in a unit test without an applied persistence blueprint; the pack skips the persistence round-trip check for spa-* stores (inspects the storage directly) and drives it for server-side-per-principal on the fixture branch that stands up an in-fixture writer.",
+  "notes": "The blueprintSetVersion in the CompletionRecord is what lets ADR-2701's dismiss-until-next-major and dismiss-until-next-minor policies re-open the tour on the right bump. Known mechanism-reach gap: the server-side-per-principal backend cannot prove a round-trip in a unit test without an applied persistence blueprint; the pack skips the persistence round-trip check for spa-* stores (inspects the storage directly) and drives it for server-side-per-principal on the fixture branch that stands up an in-fixture writer. The Persistence blueprint dependency is recorded with kind external per the rcf-schemas 0.6.1 enum and is optional-composition semantically: server-side-per-principal delegates to the applied persistence blueprint writer, and the spa-local-storage and spa-session-storage backends need no persistence blueprint applied. Refusal at apply for the server-side-per-principal branch is enforced in the store module.",
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-06T23:15:00Z"
+  "updatedAt": "2026-09-07T00:45:00Z"
 }
