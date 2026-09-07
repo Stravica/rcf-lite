@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3404-platform-cloudflare-durable-objects-migrations-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Migration-safe class exports: stable class names and a wrangler migrations table",
+  "context": "A Cloudflare Durable Object class is identified by its name string in wrangler.toml. A rename that is not paired with a wrangler [[migrations]] block reads the runtime as a brand-new class over the existing objects' storage, which is a data-loss shape. The DO migration documentation (https://developers.cloudflare.com/durable-objects/) requires the migrations list to record every class name change on a tag boundary.",
+  "decision": "The applying project commits the DO class names (SingleCellObject, HubObject on the fixture; elicited names in a real project) as stable strings under [[durable_objects.bindings]] blocks with a paired [[migrations]] block at the v1 mint tag. A future rename or deprecation ships as a subsequent migrations tag on the same list; the shipped anatomy assertion greps the toml for each name and the migrations pair so a self-review catches an accidental rename.",
+  "consequences": "The applying project inherits Cloudflare's migration contract; a rename with a matching migration is safe, a rename without one is a runtime error the anatomy assertion catches at self-review. Standards trace clause: Cloudflare Durable Objects migration documentation (per https://developers.cloudflare.com/durable-objects/).",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

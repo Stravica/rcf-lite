@@ -1,0 +1,21 @@
+{
+  "cnId": "CN-290",
+  "path": "../../blueprints/platform-cloudflare-durable-objects/blueprint.json",
+  "implementsAcIds": [
+    "AC-7001-1",
+    "AC-7002-1",
+    "AC-7101-1",
+    "AC-7201-1",
+    "AC-7301-1",
+    "AC-7401-1",
+    "AC-7402-1",
+    "AC-7501-1",
+    "AC-7601-1",
+    "AC-7701-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T14:14:56.717Z",
+  "updatedAt": "2026-09-07T14:14:56.717Z"
+}

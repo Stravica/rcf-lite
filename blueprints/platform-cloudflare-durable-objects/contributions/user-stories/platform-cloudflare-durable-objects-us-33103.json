@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33103",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Storage round-trip covers put/get/delete/list on both SQL and KV backends",
+  "asA": "developer configuring the storage backend on a new SingleCellObject",
+  "iWant": "the shipped storage driver to round-trip put, get, delete and list on both the SQL and KV backends via a fixture switch",
+  "soThat": "the applied project can elicit the backend at apply time (ADR-3403) and the shipped code path exercises both branches without code changes",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33103-1",
+      "description": "A storage driver factory created with {backend: \"sql\"} and a storage driver factory created with {backend: \"kv\"} both round-trip put(\"k\",\"v\")->get(\"k\")===\"v\", delete(\"k\") followed by get(\"k\")===undefined, and list({prefix:\"p/\"}) returns a Map keyed by the prefix. The driver.backend property reports the chosen backend on each factory.",
+      "given": "two storage drivers, one on each backend",
+      "when": "put/get/delete/list operations are driven on each driver in turn",
+      "then": "both round-trip identically and driver.backend reports \"sql\" and \"kv\" respectively",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

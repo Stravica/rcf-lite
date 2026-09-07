@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 54,
-    "notStarted": 26,
+    "items": 55,
+    "notStarted": 27,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 16,
+    "actionable": 17,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -42,7 +42,8 @@
         "FBS-062",
         "FBS-063",
         "FBS-070",
-        "FBS-080"
+        "FBS-080",
+        "FBS-090"
       ]
     },
     {
@@ -748,6 +749,16 @@
       "buildOrder": 54,
       "tier": 0,
       "title": "T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-090",
+      "buildOrder": 55,
+      "tier": 0,
+      "title": "T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

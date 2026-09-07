@@ -1,0 +1,23 @@
+{
+  "slug": "platform-cloudflare-durable-objects",
+  "probeName": "alarm-fires-once",
+  "runAt": "2026-09-07T16:08:52.627Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process SingleCellObject alarm on cf-platform fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-33104-1",
+      "verdict": "pass",
+      "detail": "alarm() fired once; doAlarmFired carried objectName=alarm-1 scheduledTime=1800000000100; storage.getAlarm() drained to null"
+    },
+    {
+      "anchorAcId": "AC-33104-1",
+      "verdict": "pass",
+      "detail": "second alarm() on drained storage recorded scheduledTime null (no re-fire for the same schedule)"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

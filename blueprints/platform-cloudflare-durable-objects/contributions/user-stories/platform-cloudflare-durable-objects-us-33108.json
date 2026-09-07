@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33108",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Wrangler.toml commits stable DO class names on both binding blocks and a migrations tag records the mint classes",
+  "asA": "operator applying platform-cloudflare-durable-objects on a fresh Workers project",
+  "iWant": "the generated wrangler.toml to carry [[durable_objects.bindings]] blocks and a paired [[migrations]] block committing the class names under a stable tag",
+  "soThat": "a future rename lands as a wrangler migration rather than a silent rewire and the DO class identity survives the mint",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33108-1",
+      "description": "The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \"v1\" and new_classes = [\"SingleCellObject\", \"HubObject\"]. An anatomy assertion greps the toml for each of the four literal strings (name = \"CELL\", class_name = \"SingleCellObject\", name = \"HUB\", class_name = \"HubObject\") and the tag/new_classes pair. A rename in a real project ships as a new migrations tag entry, never a silent edit of the class name.",
+      "given": "the cf-platform fixture wrangler.toml",
+      "when": "the anatomy assertion greps for the four literal strings and the migrations pair",
+      "then": "every string is present and the migrations tag \"v1\" carries the two class names",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

@@ -1,0 +1,17 @@
+{
+  "reqId": "platform-cloudflare-durable-objects-REQ-007",
+  "prdId": "PRD-001",
+  "title": "The sole-reader guarantee is enforced by an AST scan: no non-facade module imports env.CELL or env.HUB",
+  "description": "The shipped sole-reader-scan probe parses every .ts/.js/.mjs file under the fixture's applied source root, matches \"env.CELL\" and \"env.HUB\" identifier accesses against the facade module boundary, and reports every non-facade site as a leak. A project that carries a legacy call site converts it to a facade call or the probe returns aggregateVerdict: fail.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.3). Ships as v1.0.0 of platform-cloudflare-durable-objects.",
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

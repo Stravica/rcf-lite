@@ -203,3 +203,106 @@ the T-1 fixture files and probe modules.
 cloudflare-cron-triggers-anatomy.test.js` binds `TS-090` through
 `TS-096` to the T-2 fixture files, the scheduled handler, the
 dispatcher and the five probe modules.
+
+## Two-line gate-reviewer boot for the seven T-3 in-process probes
+
+```
+cd packages/rcf-lite/test/fixtures/cf-platform
+pnpm install --ignore-workspace
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-namespace-facade-ready.mjs
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-single-cell-concurrent-increment.mjs
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-storage-round-trip.mjs
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-alarm-fires-once.mjs
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-websocket-hub-broadcast.mjs
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-sole-reader-scan.mjs
+```
+
+Each returns exit 0 with `aggregateVerdict: pass`. The reports
+land at `.rcf/reports/blueprints/platform-cloudflare-durable-objects/<probe-name>.json`
+under the fixture root. The shipped probes drive the DO facade
+and both DO classes in-process against the in-memory DO storage
+driver (`src/do-storage.mjs`) and a fake websocket state pair; no
+`wrangler dev` process is required for the six local probes.
+
+The T-3 real-account smoke:
+
+```
+cd packages/rcf-lite/test/fixtures/cf-platform
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-real-account-storage-smoke.mjs
+```
+
+Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
+`CF_DO_NAMESPACE_ID`, `CF_API_TOKEN`) the probe records
+`accountBoundSkipped: true`, aggregates to `pass`, and exits 0
+per spec section 3.5.
+
+## T-3 wrangler dev boot
+
+The eighth T-3 probe (`wrangler-seam.mjs`) spawns `wrangler dev
+--local` itself against the fixture; the six pre-wrangler local
+probes drive the shipped DO facade + classes in-process against
+the in-memory driver and a fake WebSocket state. To exercise the
+DO bindings against a real wrangler runtime by hand, boot the
+fixture in a separate shell:
+
+```
+cd packages/rcf-lite/test/fixtures/cf-platform
+pnpm install --ignore-workspace
+pnpm start
+```
+
+`wrangler dev` picks its own port (the fixture never binds 4200).
+The `[[durable_objects.bindings]]` blocks resolve `env.CELL` to
+`SingleCellObject` and `env.HUB` to `HubObject` as re-exported from
+`src/index.mjs`. The paired `[[migrations]]` block records both
+class names under `tag = "v1"` per REQ-077 and the Cloudflare
+migration documentation.
+
+## T-3 induced-failure switches
+
+- `SIMULATE_NON_FACADE_IMPORT=true node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-sole-reader-scan.mjs`
+  writes a synthetic scratch file at `$TMPDIR/t3-sole-reader-scratch-<pid>/leaky-consumer.mjs` that dereferences
+  `env.CELL` and `env.HUB` outside the facade; the scan surfaces the
+  leak and returns `aggregateVerdict: fail`. The scratch is removed
+  on exit.
+- `SIMULATE_HUB_HANG=true node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-websocket-hub-broadcast.mjs`
+  wraps the broadcast handler with a 750 ms artificial delay past
+  the 500 ms window; the probe surfaces the hang and returns
+  `aggregateVerdict: fail` on the broadcast-within-window check.
+- `SIMULATE_PII_LEAK=true node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-websocket-hub-broadcast.mjs`
+  wraps the sink with a leaky variant that injects `body`, `ssn`
+  and `userId` into every record; the event-secrecy result on the
+  same probe surfaces the forbidden keys and returns fail on
+  AC-33106-1.
+- `SIMULATE_STORAGE_BACKEND_MISMATCH=true node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-storage-round-trip.mjs`
+  passes an unrecognised backend answer; the shipped factory clamps
+  it to `sql` per ADR-3403 recommendedDefault and the probe surfaces
+  the observation as a fail so a reviewer can see the clamp.
+
+The switches never mutate the base `wrangler.toml` or the shipped
+modules; each probe cleans up its state on exit.
+
+## Chain-slice pointers (T-3)
+
+- The T-3 anatomy test at `packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js` binds `TS-100` through `TS-109` to the T-3 fixture files, the DO facade, the SingleCellObject class, the HubObject class, the in-memory DO storage driver and the seven probe modules.
+
+## Two-line gate-reviewer boot for the T-3 wrangler-seam probe
+
+```
+cd packages/rcf-lite/test/fixtures/cf-platform
+pnpm install --ignore-workspace
+node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-wrangler-seam.mjs
+```
+
+The probe spawns `wrangler dev --local --port 0` on the fixture,
+waits bounded 45 seconds for the CLI to bind, then drives two
+concurrent `POST /cell/<id>/increment` requests against
+`env.CELL` via the DO facade and one WebSocket upgrade against
+`/hub/<id>/connect` via `env.HUB` (also through the facade),
+then kills wrangler on exit. Returns `aggregateVerdict: pass` on
+the shipped path with three result rows (AC-33108-1 wrangler.toml
+grep, AC-33113-1 serialisation observed under workerd, AC-33105-1
+one WebSocket broadcast frame received on connect). Warn per
+spec section 3.1 pass-with-skip if the wrangler devDependency is
+missing or the CLI fails to bind; a handler thrown at the workerd
+boundary is a genuine fail.

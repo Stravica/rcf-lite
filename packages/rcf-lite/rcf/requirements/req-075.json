@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T14:11:37.805Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "reqId": "REQ-075",
+  "prdId": "PRD-001",
+  "title": "T-3 lifecycle events fire at namespace and object level with metadata-only payloads",
+  "description": "T-3 lifecycle events: the facade and both DO classes emit metadata-only records on the injected event sink: namespaceReady (facade), doAccept, doAlarmFired, doWakeUp, doHibernate (object). Every record carries only allowed keys drawn from {event, key, size, ttl, timestamp, objectName, scheduledTime}; no message payloads, request bodies or PII cross the sink. The event-secrecy result on the websocket-hub-broadcast probe (AC-33106-1) covers the metadata-only contract on the shipped path.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T14:11:37.838Z"
+  }
+}

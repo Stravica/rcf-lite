@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 43  covered: 43  covered-unresolved: 0  uncovered: 0
+Requirements: 51  covered: 51  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -292,3 +292,13 @@ REQ-062      yes      AC-6201-1   yes         TC-094-skew-on-time
 REQ-063      yes      AC-6301-1   yes         TC-095-soft-budget-fires
                       AC-6301-2   yes         TC-095-soft-budget-continues
                       AC-6302-1   yes         TC-096-event-secrecy
+REQ-070      yes      AC-7001-1   yes         TC-100-do-facade-ready
+                      AC-7002-1   yes         TC-109-real-account-skip
+REQ-071      yes      AC-7101-1   yes         TC-101-single-cell-concurrent
+REQ-072      yes      AC-7201-1   yes         TC-102-storage-round-trip
+REQ-073      yes      AC-7301-1   yes         TC-103-alarm-fires-once
+REQ-074      yes      AC-7401-1   yes         TC-104-hub-broadcast
+                      AC-7402-1   yes         TC-105-hibernate-wake
+REQ-075      yes      AC-7501-1   yes         TC-106-event-secrecy
+REQ-076      yes      AC-7601-1   yes         TC-107-sole-reader-scan
+REQ-077      yes      AC-7701-1   yes         TC-108-wrangler-do-bindings

@@ -1,0 +1,31 @@
+{
+  "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-durable-objects websocket hub",
+  "purpose": "The hub-shape class realising Cloudflare's hibernatable WebSockets shape. A HubObject accepts websocket clients via state.acceptWebSocket, routes each incoming message by JSON type field (broadcast, set-state, get-state) and fans out broadcasts to all connected sockets. On hibernate-and-wake, the wake handler runs from cold and reads the same storage; doWakeUp is idempotent-by-contract per ADR-3405.",
+  "responsibilities": [
+    "Accept websocket clients via state.acceptWebSocket and emit doAccept on the sink (AC-33105-1).",
+    "Route each webSocketMessage by JSON type field to broadcast, set-state, get-state handlers (AC-33105-1).",
+    "Persist lastBroadcast to storage on every broadcast so hibernate-and-wake preserves it (AC-33110-1).",
+    "Emit doHibernate on hibernate; emit doWakeUp exactly once on the first wake (AC-33110-1, AC-33106-1)."
+  ],
+  "internalStructure": "One class HubObject with constructor({state, storage, eventSink, name, hibernateAfterIdleMs, clock}), a websocket dispatch method (webSocketMessage), a close handler (webSocketClose), and idempotent hibernate/wake methods.",
+  "interfaces": [
+    {
+      "name": "HubObject",
+      "kind": "class",
+      "summary": "Hub DO class realising hibernatable WebSocket coordination shape."
+    },
+    {
+      "name": "createHub",
+      "kind": "factory",
+      "summary": "Test-friendly factory that returns a new HubObject."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

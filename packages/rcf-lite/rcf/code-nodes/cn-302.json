@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-302",
+  "path": "../../blueprints/platform-cloudflare-durable-objects/contributions/probes/sole-reader-scan.mjs",
+  "implementsAcIds": [
+    "AC-7601-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T14:14:58.972Z",
+  "updatedAt": "2026-09-07T14:14:58.972Z"
+}

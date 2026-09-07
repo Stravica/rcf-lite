@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-07T14:11:53.254Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "usId": "US-7101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-071",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 single-cell concurrent increments serialise per instance and return witness of prior write",
+  "asA": "developer whose Worker needs an authoritative counter, session store or lock behind a swappable boundary",
+  "iWant": "one SingleCellObject instance to observe concurrent increments in per-instance FIFO order and return the sum plus a written witness",
+  "soThat": "two concurrent callers cannot silently overwrite each other and a domain assertion can prove the write happened before the read",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-7101-1",
+      "description": "Two concurrent increment(1) invocations against a SingleCellObject with counter 0 resolve to counters [1, 2] and witnesses [0, 1] in FIFO order; a subsequent read() returns counter 2.",
+      "given": "a SingleCellObject at counter 0",
+      "when": "two concurrent increment(1) calls fire and read() follows",
+      "then": "counters are [1,2], witnesses are [0,1], read returns 2",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ]
+}

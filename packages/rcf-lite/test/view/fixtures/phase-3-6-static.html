@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -11449,6 +11449,1126 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-070">
+  <summary><span class="summary-label">REQ-070 - T-3 platform-cloudflare-durable-objects v1.0.0 blueprint: the DO facade is the sole reader of env.CELL and env.HUB and opens on boot with namespaceReady</span><span class="status draft">draft</span></summary>
+  <article id="REQ-070" class="doc doc-req">
+  <h3>REQ-070 - T-3 platform-cloudflare-durable-objects v1.0.0 blueprint: the DO facade is the sole reader of env.CELL and env.HUB and opens on boot with namespaceReady</h3>
+  
+  <p><strong>Description:</strong> T-3 platform-cloudflare-durable-objects v1.0.0: one DO facade module in the applied project source tree is the SOLE reader of env.CELL and env.HUB (per https://developers.cloudflare.com/durable-objects/). On process boot, the facade wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload; the facade exposes typed handles per named object (cellHandle(name), hubHandle(name)) and never exposes the raw binding to consumers. Chain: HQ round-6 T-3 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-070..079 / US-70xx..79xx / TS-100..109 / FBS-090..099 / CN-290..319).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-070[&quot;REQ-070&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  US-7001[&quot;US-7001&lt;br/&gt;T-3 DO facade opens against env.CELL and env....&quot;]
+  REQ-070 --&gt; US-7001
+  AC-7001-1[&quot;AC-7001-1&quot;]
+  US-7001 --&gt; AC-7001-1
+  FBS-090[&quot;FBS-090&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  AC-7001-1 -.-&gt;|delivered by| FBS-090
+  CN-290[&quot;CN-290&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7001-1 -.-&gt;|implemented by| CN-290
+  CN-292[&quot;CN-292&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-7001-1 -.-&gt;|implemented by| CN-292
+  CN-296[&quot;CN-296&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7001-1 -.-&gt;|implemented by| CN-296
+  CN-297[&quot;CN-297&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7001-1 -.-&gt;|implemented by| CN-297
+  CN-304[&quot;CN-304&lt;br/&gt;../../packages/rcf-lite/test/blueprint/platfo...&quot;]
+  AC-7001-1 -.-&gt;|implemented by| CN-304
+  US-7002[&quot;US-7002&lt;br/&gt;T-3 real-account storage smoke records accoun...&quot;]
+  REQ-070 --&gt; US-7002
+  AC-7002-1[&quot;AC-7002-1&quot;]
+  US-7002 --&gt; AC-7002-1
+  AC-7002-1 -.-&gt;|delivered by| FBS-090
+  AC-7002-1 -.-&gt;|implemented by| CN-290
+  CN-303[&quot;CN-303&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7002-1 -.-&gt;|implemented by| CN-303
+  AC-7002-1 -.-&gt;|implemented by| CN-304
+  click REQ-070 &quot;#REQ-070&quot;;
+  click US-7001 &quot;#US-7001&quot;;
+  click AC-7001-1 &quot;#AC-7001-1&quot;;
+  click FBS-090 &quot;#FBS-090&quot;;
+  click CN-290 &quot;#CN-290&quot;;
+  click CN-292 &quot;#CN-292&quot;;
+  click CN-296 &quot;#CN-296&quot;;
+  click CN-297 &quot;#CN-297&quot;;
+  click CN-304 &quot;#CN-304&quot;;
+  click US-7002 &quot;#US-7002&quot;;
+  click AC-7002-1 &quot;#AC-7002-1&quot;;
+  click CN-303 &quot;#CN-303&quot;;
+  class REQ-070 req;
+  class US-7001 us;
+  class AC-7001-1 ac;
+  class FBS-090 fbs;
+  class CN-290 cn;
+  class CN-292 cn;
+  class CN-296 cn;
+  class CN-297 cn;
+  class CN-304 cn;
+  class US-7002 us;
+  class AC-7002-1 ac;
+  class CN-303 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:36.742Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-070&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-3 platform-cloudflare-durable-objects v1.0.0 blueprint: the DO facade is the sole reader of env.CELL and env.HUB and opens on boot with namespaceReady&quot;,
+  &quot;description&quot;: &quot;T-3 platform-cloudflare-durable-objects v1.0.0: one DO facade module in the applied project source tree is the SOLE reader of env.CELL and env.HUB (per https://developers.cloudflare.com/durable-objects/). On process boot, the facade wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload; the facade exposes typed handles per named object (cellHandle(name), hubHandle(name)) and never exposes the raw binding to consumers. Chain: HQ round-6 T-3 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-070..079 / US-70xx..79xx / TS-100..109 / FBS-090..099 / CN-290..319).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T14:11:36.775Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-7001">
+  <summary><span class="summary-label">US-7001 - T-3 DO facade opens against env.CELL and env.HUB and emits namespaceReady</span><span class="status draft">draft</span></summary>
+  <article id="US-7001" class="doc doc-us">
+  <h3>US-7001 - T-3 DO facade opens against env.CELL and env.HUB and emits namespaceReady</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-cloudflare-durable-objects v1.0.0 blueprint on a Workers project using the cf-platform fixture</p>
+  <p><strong>I want:</strong> one DO facade module (src/do-facade.mjs) that opens against env.CELL and env.HUB on boot, wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload</p>
+  <p><strong>So that:</strong> boot ordering is observable, the DO namespace seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-070">REQ-070</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7001-1" class="ac-item"><strong>AC-7001-1</strong> - On process boot, createDoFacadeInProcess (the in-process seam over the shipped facade code path) wires the injected event sink and emits a namespaceReady event on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. facade.cell(name) and facade.hub(name) return the registered SingleCellObject and HubObject instances.
+<div class="ac-gwt"><p><em>Given</em> a facade wired with in-process SingleCellObject and HubObject instances and a spy event sink</p><p><em>When</em> the facade ready() call resolves</p><p><em>Then</em> a namespaceReady event fires exactly once on the sink with the metadata-only payload; the registered handles return the instances</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:53.037Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-070&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 DO facade opens against env.CELL and env.HUB and emits namespaceReady&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-cloudflare-durable-objects v1.0.0 blueprint on a Workers project using the cf-platform fixture&quot;,
+  &quot;iWant&quot;: &quot;one DO facade module (src/do-facade.mjs) that opens against env.CELL and env.HUB on boot, wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload&quot;,
+  &quot;soThat&quot;: &quot;boot ordering is observable, the DO namespace seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7001-1&quot;,
+      &quot;description&quot;: &quot;On process boot, createDoFacadeInProcess (the in-process seam over the shipped facade code path) wires the injected event sink and emits a namespaceReady event on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. facade.cell(name) and facade.hub(name) return the registered SingleCellObject and HubObject instances.&quot;,
+      &quot;given&quot;: &quot;a facade wired with in-process SingleCellObject and HubObject instances and a spy event sink&quot;,
+      &quot;when&quot;: &quot;the facade ready() call resolves&quot;,
+      &quot;then&quot;: &quot;a namespaceReady event fires exactly once on the sink with the metadata-only payload; the registered handles return the instances&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-7002">
+  <summary><span class="summary-label">US-7002 - T-3 real-account storage smoke records accountBoundSkipped without env var</span><span class="status draft">draft</span></summary>
+  <article id="US-7002" class="doc doc-us">
+  <h3>US-7002 - T-3 real-account storage smoke records accountBoundSkipped without env var</h3>
+  
+  <p><strong>As a:</strong> operator validating platform-cloudflare-durable-objects v1.0.0 against a real Cloudflare account</p>
+  <p><strong>I want:</strong> the real-account-storage-smoke probe to record accountBoundSkipped and aggregate to pass when CI_HAS_CLOUDFLARE_ACCOUNT is unset</p>
+  <p><strong>So that:</strong> the shipped account-bound seam matches the Clerk pattern (skip-in-CI when no account, run when one is available) per spec section 3.5</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-070">REQ-070</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7002-1" class="ac-item"><strong>AC-7002-1</strong> - The real-account-storage-smoke probe with CI_HAS_CLOUDFLARE_ACCOUNT unset returns a single result with anchorAcId AC-33112-1 and verdict pass; the report carries accountBoundSkipped=true and aggregates to pass; exit code 0. With CI_HAS_CLOUDFLARE_ACCOUNT=true but any of CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID or CF_API_TOKEN missing, the probe returns fail naming the missing keys.
+<div class="ac-gwt"><p><em>Given</em> the real-account-storage-smoke probe module</p><p><em>When</em> run without CI_HAS_CLOUDFLARE_ACCOUNT, and then with the env var but no paired creds</p><p><em>Then</em> the first run reports accountBoundSkipped and passes; the second reports the missing keys and fails</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:54.952Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7002&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-070&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 real-account storage smoke records accountBoundSkipped without env var&quot;,
+  &quot;asA&quot;: &quot;operator validating platform-cloudflare-durable-objects v1.0.0 against a real Cloudflare account&quot;,
+  &quot;iWant&quot;: &quot;the real-account-storage-smoke probe to record accountBoundSkipped and aggregate to pass when CI_HAS_CLOUDFLARE_ACCOUNT is unset&quot;,
+  &quot;soThat&quot;: &quot;the shipped account-bound seam matches the Clerk pattern (skip-in-CI when no account, run when one is available) per spec section 3.5&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7002-1&quot;,
+      &quot;description&quot;: &quot;The real-account-storage-smoke probe with CI_HAS_CLOUDFLARE_ACCOUNT unset returns a single result with anchorAcId AC-33112-1 and verdict pass; the report carries accountBoundSkipped=true and aggregates to pass; exit code 0. With CI_HAS_CLOUDFLARE_ACCOUNT=true but any of CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID or CF_API_TOKEN missing, the probe returns fail naming the missing keys.&quot;,
+      &quot;given&quot;: &quot;the real-account-storage-smoke probe module&quot;,
+      &quot;when&quot;: &quot;run without CI_HAS_CLOUDFLARE_ACCOUNT, and then with the env var but no paired creds&quot;,
+      &quot;then&quot;: &quot;the first run reports accountBoundSkipped and passes; the second reports the missing keys and fails&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-071">
+  <summary><span class="summary-label">REQ-071 - T-3 single-cell shape exposes typed domain verbs and serialises concurrent invocations per instance</span><span class="status draft">draft</span></summary>
+  <article id="REQ-071" class="doc doc-req">
+  <h3>REQ-071 - T-3 single-cell shape exposes typed domain verbs and serialises concurrent invocations per instance</h3>
+  
+  <p><strong>Description:</strong> T-3 single-cell shape: a named SingleCellObject exposes typed domain verbs (increment, read, reset) that wrap the injected storage driver. Cloudflare&#39;s documented DO consistency model serialises invocations against the same instance; the shipped class realises that contract via a per-instance FIFO promise queue so a concurrent-increment probe observes the counter sum and one increment observed the other via a written witness (per REQ-071 and AC-33102-1, AC-33109-1).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-071[&quot;REQ-071&lt;br/&gt;T-3 single-cell shape exposes typed domain ve...&quot;]
+  US-7101[&quot;US-7101&lt;br/&gt;T-3 single-cell concurrent increments seriali...&quot;]
+  REQ-071 --&gt; US-7101
+  AC-7101-1[&quot;AC-7101-1&quot;]
+  US-7101 --&gt; AC-7101-1
+  FBS-090[&quot;FBS-090&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  AC-7101-1 -.-&gt;|delivered by| FBS-090
+  CN-290[&quot;CN-290&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7101-1 -.-&gt;|implemented by| CN-290
+  CN-293[&quot;CN-293&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-7101-1 -.-&gt;|implemented by| CN-293
+  CN-298[&quot;CN-298&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7101-1 -.-&gt;|implemented by| CN-298
+  CN-304[&quot;CN-304&lt;br/&gt;../../packages/rcf-lite/test/blueprint/platfo...&quot;]
+  AC-7101-1 -.-&gt;|implemented by| CN-304
+  click REQ-071 &quot;#REQ-071&quot;;
+  click US-7101 &quot;#US-7101&quot;;
+  click AC-7101-1 &quot;#AC-7101-1&quot;;
+  click FBS-090 &quot;#FBS-090&quot;;
+  click CN-290 &quot;#CN-290&quot;;
+  click CN-293 &quot;#CN-293&quot;;
+  click CN-298 &quot;#CN-298&quot;;
+  click CN-304 &quot;#CN-304&quot;;
+  class REQ-071 req;
+  class US-7101 us;
+  class AC-7101-1 ac;
+  class FBS-090 fbs;
+  class CN-290 cn;
+  class CN-293 cn;
+  class CN-298 cn;
+  class CN-304 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:36.953Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-071&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-3 single-cell shape exposes typed domain verbs and serialises concurrent invocations per instance&quot;,
+  &quot;description&quot;: &quot;T-3 single-cell shape: a named SingleCellObject exposes typed domain verbs (increment, read, reset) that wrap the injected storage driver. Cloudflare&#39;s documented DO consistency model serialises invocations against the same instance; the shipped class realises that contract via a per-instance FIFO promise queue so a concurrent-increment probe observes the counter sum and one increment observed the other via a written witness (per REQ-071 and AC-33102-1, AC-33109-1).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T14:11:36.986Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-7101">
+  <summary><span class="summary-label">US-7101 - T-3 single-cell concurrent increments serialise per instance and return witness of prior write</span><span class="status draft">draft</span></summary>
+  <article id="US-7101" class="doc doc-us">
+  <h3>US-7101 - T-3 single-cell concurrent increments serialise per instance and return witness of prior write</h3>
+  
+  <p><strong>As a:</strong> developer whose Worker needs an authoritative counter, session store or lock behind a swappable boundary</p>
+  <p><strong>I want:</strong> one SingleCellObject instance to observe concurrent increments in per-instance FIFO order and return the sum plus a written witness</p>
+  <p><strong>So that:</strong> two concurrent callers cannot silently overwrite each other and a domain assertion can prove the write happened before the read</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-071">REQ-071</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7101-1" class="ac-item"><strong>AC-7101-1</strong> - Two concurrent increment(1) invocations against a SingleCellObject with counter 0 resolve to counters [1, 2] and witnesses [0, 1] in FIFO order; a subsequent read() returns counter 2.
+<div class="ac-gwt"><p><em>Given</em> a SingleCellObject at counter 0</p><p><em>When</em> two concurrent increment(1) calls fire and read() follows</p><p><em>Then</em> counters are [1,2], witnesses are [0,1], read returns 2</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:53.254Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-071&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 single-cell concurrent increments serialise per instance and return witness of prior write&quot;,
+  &quot;asA&quot;: &quot;developer whose Worker needs an authoritative counter, session store or lock behind a swappable boundary&quot;,
+  &quot;iWant&quot;: &quot;one SingleCellObject instance to observe concurrent increments in per-instance FIFO order and return the sum plus a written witness&quot;,
+  &quot;soThat&quot;: &quot;two concurrent callers cannot silently overwrite each other and a domain assertion can prove the write happened before the read&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7101-1&quot;,
+      &quot;description&quot;: &quot;Two concurrent increment(1) invocations against a SingleCellObject with counter 0 resolve to counters [1, 2] and witnesses [0, 1] in FIFO order; a subsequent read() returns counter 2.&quot;,
+      &quot;given&quot;: &quot;a SingleCellObject at counter 0&quot;,
+      &quot;when&quot;: &quot;two concurrent increment(1) calls fire and read() follows&quot;,
+      &quot;then&quot;: &quot;counters are [1,2], witnesses are [0,1], read returns 2&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-072">
+  <summary><span class="summary-label">REQ-072 - T-3 storage API provides typed put/get/delete on the object with an elicited backend (SQL or KV)</span><span class="status draft">draft</span></summary>
+  <article id="REQ-072" class="doc doc-req">
+  <h3>REQ-072 - T-3 storage API provides typed put/get/delete on the object with an elicited backend (SQL or KV)</h3>
+  
+  <p><strong>Description:</strong> T-3 storage API: the object&#39;s state.storage surface exposes typed put(key,value), get(key), delete(key) and list({prefix}) verbs. Storage backend is elicited (sql or kv per ADR-3403); the shipped storage driver factory is backend-agnostic and threads through the elicited answer as driver.backend. A storage-round-trip probe drives both backends via a fixture switch (AC-33103-1, AC-33111-1).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-072[&quot;REQ-072&lt;br/&gt;T-3 storage API provides typed put/get/delete...&quot;]
+  US-7201[&quot;US-7201&lt;br/&gt;T-3 storage round-trip covers put/get/delete/...&quot;]
+  REQ-072 --&gt; US-7201
+  AC-7201-1[&quot;AC-7201-1&quot;]
+  US-7201 --&gt; AC-7201-1
+  FBS-090[&quot;FBS-090&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  AC-7201-1 -.-&gt;|delivered by| FBS-090
+  CN-290[&quot;CN-290&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7201-1 -.-&gt;|implemented by| CN-290
+  CN-295[&quot;CN-295&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-7201-1 -.-&gt;|implemented by| CN-295
+  CN-299[&quot;CN-299&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7201-1 -.-&gt;|implemented by| CN-299
+  CN-304[&quot;CN-304&lt;br/&gt;../../packages/rcf-lite/test/blueprint/platfo...&quot;]
+  AC-7201-1 -.-&gt;|implemented by| CN-304
+  click REQ-072 &quot;#REQ-072&quot;;
+  click US-7201 &quot;#US-7201&quot;;
+  click AC-7201-1 &quot;#AC-7201-1&quot;;
+  click FBS-090 &quot;#FBS-090&quot;;
+  click CN-290 &quot;#CN-290&quot;;
+  click CN-295 &quot;#CN-295&quot;;
+  click CN-299 &quot;#CN-299&quot;;
+  click CN-304 &quot;#CN-304&quot;;
+  class REQ-072 req;
+  class US-7201 us;
+  class AC-7201-1 ac;
+  class FBS-090 fbs;
+  class CN-290 cn;
+  class CN-295 cn;
+  class CN-299 cn;
+  class CN-304 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:37.164Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-072&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-3 storage API provides typed put/get/delete on the object with an elicited backend (SQL or KV)&quot;,
+  &quot;description&quot;: &quot;T-3 storage API: the object&#39;s state.storage surface exposes typed put(key,value), get(key), delete(key) and list({prefix}) verbs. Storage backend is elicited (sql or kv per ADR-3403); the shipped storage driver factory is backend-agnostic and threads through the elicited answer as driver.backend. A storage-round-trip probe drives both backends via a fixture switch (AC-33103-1, AC-33111-1).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T14:11:37.197Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-7201">
+  <summary><span class="summary-label">US-7201 - T-3 storage round-trip covers put/get/delete/list on both SQL and KV backends</span><span class="status draft">draft</span></summary>
+  <article id="US-7201" class="doc doc-us">
+  <h3>US-7201 - T-3 storage round-trip covers put/get/delete/list on both SQL and KV backends</h3>
+  
+  <p><strong>As a:</strong> developer configuring the storage backend on a new SingleCellObject</p>
+  <p><strong>I want:</strong> the shipped storage driver factory to round-trip put/get/delete/list on both SQL and KV backends</p>
+  <p><strong>So that:</strong> the applied project can elicit the backend at apply time and the shipped code path exercises both branches without code changes</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-072">REQ-072</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7201-1" class="ac-item"><strong>AC-7201-1</strong> - createInMemoryDoStorage({backend: &quot;sql&quot;}) and createInMemoryDoStorage({backend: &quot;kv&quot;}) both round-trip put(&quot;k&quot;,&quot;v&quot;)-&gt;get(&quot;k&quot;), delete(&quot;k&quot;) followed by get returning undefined, and list({prefix:&quot;p/&quot;}) returning a Map keyed by the prefix. driver.backend reports the chosen backend on each factory.
+<div class="ac-gwt"><p><em>Given</em> two storage drivers, one on each backend</p><p><em>When</em> put/get/delete/list operations are driven on each driver in turn</p><p><em>Then</em> both round-trip identically and driver.backend reports the elicited answer</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:53.463Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-072&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 storage round-trip covers put/get/delete/list on both SQL and KV backends&quot;,
+  &quot;asA&quot;: &quot;developer configuring the storage backend on a new SingleCellObject&quot;,
+  &quot;iWant&quot;: &quot;the shipped storage driver factory to round-trip put/get/delete/list on both SQL and KV backends&quot;,
+  &quot;soThat&quot;: &quot;the applied project can elicit the backend at apply time and the shipped code path exercises both branches without code changes&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7201-1&quot;,
+      &quot;description&quot;: &quot;createInMemoryDoStorage({backend: \&quot;sql\&quot;}) and createInMemoryDoStorage({backend: \&quot;kv\&quot;}) both round-trip put(\&quot;k\&quot;,\&quot;v\&quot;)-&gt;get(\&quot;k\&quot;), delete(\&quot;k\&quot;) followed by get returning undefined, and list({prefix:\&quot;p/\&quot;}) returning a Map keyed by the prefix. driver.backend reports the chosen backend on each factory.&quot;,
+      &quot;given&quot;: &quot;two storage drivers, one on each backend&quot;,
+      &quot;when&quot;: &quot;put/get/delete/list operations are driven on each driver in turn&quot;,
+      &quot;then&quot;: &quot;both round-trip identically and driver.backend reports the elicited answer&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-073">
+  <summary><span class="summary-label">REQ-073 - T-3 alarm surface fires alarm() exactly once per scheduled time and doAlarmFired carries objectName and scheduledTime</span><span class="status draft">draft</span></summary>
+  <article id="REQ-073" class="doc doc-req">
+  <h3>REQ-073 - T-3 alarm surface fires alarm() exactly once per scheduled time and doAlarmFired carries objectName and scheduledTime</h3>
+  
+  <p><strong>Description:</strong> T-3 alarm surface: a named object supports storage.setAlarm(scheduledTime) and an alarm() handler. The shipped alarm handler drains the persisted alarm from storage on each fire so a second alarm() call on the drained storage does not re-fire for the same schedule; the injected event sink records a doAlarmFired event with {objectName, scheduledTime} metadata fields on each fire (AC-33104-1, AC-33106-1).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-073[&quot;REQ-073&lt;br/&gt;T-3 alarm surface fires alarm() exactly once ...&quot;]
+  US-7301[&quot;US-7301&lt;br/&gt;T-3 alarm fires exactly once and doAlarmFired...&quot;]
+  REQ-073 --&gt; US-7301
+  AC-7301-1[&quot;AC-7301-1&quot;]
+  US-7301 --&gt; AC-7301-1
+  FBS-090[&quot;FBS-090&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  AC-7301-1 -.-&gt;|delivered by| FBS-090
+  CN-290[&quot;CN-290&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7301-1 -.-&gt;|implemented by| CN-290
+  CN-293[&quot;CN-293&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-7301-1 -.-&gt;|implemented by| CN-293
+  CN-300[&quot;CN-300&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7301-1 -.-&gt;|implemented by| CN-300
+  CN-304[&quot;CN-304&lt;br/&gt;../../packages/rcf-lite/test/blueprint/platfo...&quot;]
+  AC-7301-1 -.-&gt;|implemented by| CN-304
+  click REQ-073 &quot;#REQ-073&quot;;
+  click US-7301 &quot;#US-7301&quot;;
+  click AC-7301-1 &quot;#AC-7301-1&quot;;
+  click FBS-090 &quot;#FBS-090&quot;;
+  click CN-290 &quot;#CN-290&quot;;
+  click CN-293 &quot;#CN-293&quot;;
+  click CN-300 &quot;#CN-300&quot;;
+  click CN-304 &quot;#CN-304&quot;;
+  class REQ-073 req;
+  class US-7301 us;
+  class AC-7301-1 ac;
+  class FBS-090 fbs;
+  class CN-290 cn;
+  class CN-293 cn;
+  class CN-300 cn;
+  class CN-304 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:37.377Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-073&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-3 alarm surface fires alarm() exactly once per scheduled time and doAlarmFired carries objectName and scheduledTime&quot;,
+  &quot;description&quot;: &quot;T-3 alarm surface: a named object supports storage.setAlarm(scheduledTime) and an alarm() handler. The shipped alarm handler drains the persisted alarm from storage on each fire so a second alarm() call on the drained storage does not re-fire for the same schedule; the injected event sink records a doAlarmFired event with {objectName, scheduledTime} metadata fields on each fire (AC-33104-1, AC-33106-1).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T14:11:37.412Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-7301">
+  <summary><span class="summary-label">US-7301 - T-3 alarm fires exactly once and doAlarmFired records objectName and scheduledTime</span><span class="status draft">draft</span></summary>
+  <article id="US-7301" class="doc doc-us">
+  <h3>US-7301 - T-3 alarm fires exactly once and doAlarmFired records objectName and scheduledTime</h3>
+  
+  <p><strong>As a:</strong> developer whose SingleCellObject schedules future work via storage.setAlarm</p>
+  <p><strong>I want:</strong> the alarm() handler to fire exactly once per scheduled time and doAlarmFired to carry objectName and scheduledTime</p>
+  <p><strong>So that:</strong> the applied project can observe alarm delivery through the metadata-only sink and trust the once-per-schedule contract</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-073">REQ-073</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7301-1" class="ac-item"><strong>AC-7301-1</strong> - A SingleCellObject with setAlarm(100) fires alarm() once. The handler drains the persisted alarm (storage.getAlarm returns null after) and emits doAlarmFired with objectName and scheduledTime. A second alarm() call on the drained storage records scheduledTime null (no re-fire for the same schedule).
+<div class="ac-gwt"><p><em>Given</em> a SingleCellObject with setAlarm(100)</p><p><em>When</em> alarm() is driven once and then again after the fire</p><p><em>Then</em> the first fire emits doAlarmFired with the scheduledTime; the second fire records scheduledTime null; storage.getAlarm returns null after the first fire</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:53.683Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7301&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-073&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 alarm fires exactly once and doAlarmFired records objectName and scheduledTime&quot;,
+  &quot;asA&quot;: &quot;developer whose SingleCellObject schedules future work via storage.setAlarm&quot;,
+  &quot;iWant&quot;: &quot;the alarm() handler to fire exactly once per scheduled time and doAlarmFired to carry objectName and scheduledTime&quot;,
+  &quot;soThat&quot;: &quot;the applied project can observe alarm delivery through the metadata-only sink and trust the once-per-schedule contract&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7301-1&quot;,
+      &quot;description&quot;: &quot;A SingleCellObject with setAlarm(100) fires alarm() once. The handler drains the persisted alarm (storage.getAlarm returns null after) and emits doAlarmFired with objectName and scheduledTime. A second alarm() call on the drained storage records scheduledTime null (no re-fire for the same schedule).&quot;,
+      &quot;given&quot;: &quot;a SingleCellObject with setAlarm(100)&quot;,
+      &quot;when&quot;: &quot;alarm() is driven once and then again after the fire&quot;,
+      &quot;then&quot;: &quot;the first fire emits doAlarmFired with the scheduledTime; the second fire records scheduledTime null; storage.getAlarm returns null after the first fire&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-074">
+  <summary><span class="summary-label">REQ-074 - T-3 hibernatable WebSocket hub accepts clients via state.acceptWebSocket and the wake handler runs from cold reading the same storage</span><span class="status draft">draft</span></summary>
+  <article id="REQ-074" class="doc doc-req">
+  <h3>REQ-074 - T-3 hibernatable WebSocket hub accepts clients via state.acceptWebSocket and the wake handler runs from cold reading the same storage</h3>
+  
+  <p><strong>Description:</strong> T-3 hibernatable WebSocket hub: a named HubObject accepts websocket clients via state.acceptWebSocket, routes each webSocketMessage by JSON type field, and broadcasts to all connected sockets. Storage persists the last broadcast so a re-emerging client can catch up; on hibernate-and-wake the wake handler runs from a cold start, reads the same storage, and emits doWakeUp exactly once (idempotent-by-contract per ADR-3405) (AC-33105-1, AC-33110-1).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-074[&quot;REQ-074&lt;br/&gt;T-3 hibernatable WebSocket hub accepts client...&quot;]
+  US-7401[&quot;US-7401&lt;br/&gt;T-3 hub broadcast fans out a payload from A t...&quot;]
+  REQ-074 --&gt; US-7401
+  AC-7401-1[&quot;AC-7401-1&quot;]
+  US-7401 --&gt; AC-7401-1
+  FBS-090[&quot;FBS-090&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  AC-7401-1 -.-&gt;|delivered by| FBS-090
+  CN-290[&quot;CN-290&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7401-1 -.-&gt;|implemented by| CN-290
+  CN-294[&quot;CN-294&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-7401-1 -.-&gt;|implemented by| CN-294
+  CN-301[&quot;CN-301&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7401-1 -.-&gt;|implemented by| CN-301
+  CN-304[&quot;CN-304&lt;br/&gt;../../packages/rcf-lite/test/blueprint/platfo...&quot;]
+  AC-7401-1 -.-&gt;|implemented by| CN-304
+  US-7402[&quot;US-7402&lt;br/&gt;T-3 hibernate-and-wake round-trip preserves s...&quot;]
+  REQ-074 --&gt; US-7402
+  AC-7402-1[&quot;AC-7402-1&quot;]
+  US-7402 --&gt; AC-7402-1
+  AC-7402-1 -.-&gt;|delivered by| FBS-090
+  AC-7402-1 -.-&gt;|implemented by| CN-290
+  AC-7402-1 -.-&gt;|implemented by| CN-294
+  AC-7402-1 -.-&gt;|implemented by| CN-301
+  AC-7402-1 -.-&gt;|implemented by| CN-304
+  click REQ-074 &quot;#REQ-074&quot;;
+  click US-7401 &quot;#US-7401&quot;;
+  click AC-7401-1 &quot;#AC-7401-1&quot;;
+  click FBS-090 &quot;#FBS-090&quot;;
+  click CN-290 &quot;#CN-290&quot;;
+  click CN-294 &quot;#CN-294&quot;;
+  click CN-301 &quot;#CN-301&quot;;
+  click CN-304 &quot;#CN-304&quot;;
+  click US-7402 &quot;#US-7402&quot;;
+  click AC-7402-1 &quot;#AC-7402-1&quot;;
+  class REQ-074 req;
+  class US-7401 us;
+  class AC-7401-1 ac;
+  class FBS-090 fbs;
+  class CN-290 cn;
+  class CN-294 cn;
+  class CN-301 cn;
+  class CN-304 cn;
+  class US-7402 us;
+  class AC-7402-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:37.592Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-074&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-3 hibernatable WebSocket hub accepts clients via state.acceptWebSocket and the wake handler runs from cold reading the same storage&quot;,
+  &quot;description&quot;: &quot;T-3 hibernatable WebSocket hub: a named HubObject accepts websocket clients via state.acceptWebSocket, routes each webSocketMessage by JSON type field, and broadcasts to all connected sockets. Storage persists the last broadcast so a re-emerging client can catch up; on hibernate-and-wake the wake handler runs from a cold start, reads the same storage, and emits doWakeUp exactly once (idempotent-by-contract per ADR-3405) (AC-33105-1, AC-33110-1).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T14:11:37.625Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-7401">
+  <summary><span class="summary-label">US-7401 - T-3 hub broadcast fans out a payload from A to all connected clients within the elicited window</span><span class="status draft">draft</span></summary>
+  <article id="US-7401" class="doc doc-us">
+  <h3>US-7401 - T-3 hub broadcast fans out a payload from A to all connected clients within the elicited window</h3>
+  
+  <p><strong>As a:</strong> developer coordinating multiplayer websocket clients through one authoritative hub</p>
+  <p><strong>I want:</strong> the HubObject to fan out a broadcast payload from one connected client to all connected clients within the elicited window</p>
+  <p><strong>So that:</strong> the shipped hub shape delivers the coordinated-multiplayer contract without a hand-rolled broadcast layer</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-074">REQ-074</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7401-1" class="ac-item"><strong>AC-7401-1</strong> - A HubObject with two accepted fake websockets A and B, when driven with webSocketMessage(A, JSON.stringify({type:&quot;broadcast&quot;, payload:&quot;ping&quot;})), delivers a JSON message to both A and B whose type is &quot;broadcast&quot; and payload is &quot;ping&quot; within 500ms elapsed on the fixture clock. The persisted lastBroadcast key in storage carries the serialised outbound payload.
+<div class="ac-gwt"><p><em>Given</em> a HubObject with two accepted fake websockets</p><p><em>When</em> a broadcast message is sent from A</p><p><em>Then</em> both A and B receive the broadcast within 500ms; storage.get(&quot;lastBroadcast&quot;) returns the serialised payload</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:53.895Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7401&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-074&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 hub broadcast fans out a payload from A to all connected clients within the elicited window&quot;,
+  &quot;asA&quot;: &quot;developer coordinating multiplayer websocket clients through one authoritative hub&quot;,
+  &quot;iWant&quot;: &quot;the HubObject to fan out a broadcast payload from one connected client to all connected clients within the elicited window&quot;,
+  &quot;soThat&quot;: &quot;the shipped hub shape delivers the coordinated-multiplayer contract without a hand-rolled broadcast layer&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7401-1&quot;,
+      &quot;description&quot;: &quot;A HubObject with two accepted fake websockets A and B, when driven with webSocketMessage(A, JSON.stringify({type:\&quot;broadcast\&quot;, payload:\&quot;ping\&quot;})), delivers a JSON message to both A and B whose type is \&quot;broadcast\&quot; and payload is \&quot;ping\&quot; within 500ms elapsed on the fixture clock. The persisted lastBroadcast key in storage carries the serialised outbound payload.&quot;,
+      &quot;given&quot;: &quot;a HubObject with two accepted fake websockets&quot;,
+      &quot;when&quot;: &quot;a broadcast message is sent from A&quot;,
+      &quot;then&quot;: &quot;both A and B receive the broadcast within 500ms; storage.get(\&quot;lastBroadcast\&quot;) returns the serialised payload&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-7402">
+  <summary><span class="summary-label">US-7402 - T-3 hibernate-and-wake round-trip preserves storage and doWakeUp fires exactly once</span><span class="status draft">draft</span></summary>
+  <article id="US-7402" class="doc doc-us">
+  <h3>US-7402 - T-3 hibernate-and-wake round-trip preserves storage and doWakeUp fires exactly once</h3>
+  
+  <p><strong>As a:</strong> developer whose HubObject hibernates when idle and wakes on the next message</p>
+  <p><strong>I want:</strong> the wake handler to run from cold and read the same lastBroadcast key from storage the pre-hibernate state persisted</p>
+  <p><strong>So that:</strong> a re-emerging client can catch up on the missed broadcast without a full re-sync</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-074">REQ-074</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7402-1" class="ac-item"><strong>AC-7402-1</strong> - A HubObject that has processed a broadcast, hibernated (doHibernate emitted), and then woken (doWakeUp emitted once) resolves wake() with lastBroadcast equal to the serialised outbound payload. A second wake() resolves with alreadyAwake=true and the same lastBroadcast; no second doWakeUp fires.
+<div class="ac-gwt"><p><em>Given</em> a HubObject with a persisted lastBroadcast that has hibernated</p><p><em>When</em> wake() is called once, then again</p><p><em>Then</em> the first wake emits doWakeUp once and returns lastBroadcast; the second wake reports alreadyAwake without a second event</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:54.109Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7402&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-074&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 hibernate-and-wake round-trip preserves storage and doWakeUp fires exactly once&quot;,
+  &quot;asA&quot;: &quot;developer whose HubObject hibernates when idle and wakes on the next message&quot;,
+  &quot;iWant&quot;: &quot;the wake handler to run from cold and read the same lastBroadcast key from storage the pre-hibernate state persisted&quot;,
+  &quot;soThat&quot;: &quot;a re-emerging client can catch up on the missed broadcast without a full re-sync&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7402-1&quot;,
+      &quot;description&quot;: &quot;A HubObject that has processed a broadcast, hibernated (doHibernate emitted), and then woken (doWakeUp emitted once) resolves wake() with lastBroadcast equal to the serialised outbound payload. A second wake() resolves with alreadyAwake=true and the same lastBroadcast; no second doWakeUp fires.&quot;,
+      &quot;given&quot;: &quot;a HubObject with a persisted lastBroadcast that has hibernated&quot;,
+      &quot;when&quot;: &quot;wake() is called once, then again&quot;,
+      &quot;then&quot;: &quot;the first wake emits doWakeUp once and returns lastBroadcast; the second wake reports alreadyAwake without a second event&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-075">
+  <summary><span class="summary-label">REQ-075 - T-3 lifecycle events fire at namespace and object level with metadata-only payloads</span><span class="status draft">draft</span></summary>
+  <article id="REQ-075" class="doc doc-req">
+  <h3>REQ-075 - T-3 lifecycle events fire at namespace and object level with metadata-only payloads</h3>
+  
+  <p><strong>Description:</strong> T-3 lifecycle events: the facade and both DO classes emit metadata-only records on the injected event sink: namespaceReady (facade), doAccept, doAlarmFired, doWakeUp, doHibernate (object). Every record carries only allowed keys drawn from {event, key, size, ttl, timestamp, objectName, scheduledTime}; no message payloads, request bodies or PII cross the sink. The event-secrecy result on the websocket-hub-broadcast probe (AC-33106-1) covers the metadata-only contract on the shipped path.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-075[&quot;REQ-075&lt;br/&gt;T-3 lifecycle events fire at namespace and ob...&quot;]
+  US-7501[&quot;US-7501&lt;br/&gt;T-3 lifecycle events on the shipped path carr...&quot;]
+  REQ-075 --&gt; US-7501
+  AC-7501-1[&quot;AC-7501-1&quot;]
+  US-7501 --&gt; AC-7501-1
+  FBS-090[&quot;FBS-090&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  AC-7501-1 -.-&gt;|delivered by| FBS-090
+  CN-290[&quot;CN-290&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7501-1 -.-&gt;|implemented by| CN-290
+  CN-301[&quot;CN-301&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7501-1 -.-&gt;|implemented by| CN-301
+  CN-304[&quot;CN-304&lt;br/&gt;../../packages/rcf-lite/test/blueprint/platfo...&quot;]
+  AC-7501-1 -.-&gt;|implemented by| CN-304
+  click REQ-075 &quot;#REQ-075&quot;;
+  click US-7501 &quot;#US-7501&quot;;
+  click AC-7501-1 &quot;#AC-7501-1&quot;;
+  click FBS-090 &quot;#FBS-090&quot;;
+  click CN-290 &quot;#CN-290&quot;;
+  click CN-301 &quot;#CN-301&quot;;
+  click CN-304 &quot;#CN-304&quot;;
+  class REQ-075 req;
+  class US-7501 us;
+  class AC-7501-1 ac;
+  class FBS-090 fbs;
+  class CN-290 cn;
+  class CN-301 cn;
+  class CN-304 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:37.805Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-075&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-3 lifecycle events fire at namespace and object level with metadata-only payloads&quot;,
+  &quot;description&quot;: &quot;T-3 lifecycle events: the facade and both DO classes emit metadata-only records on the injected event sink: namespaceReady (facade), doAccept, doAlarmFired, doWakeUp, doHibernate (object). Every record carries only allowed keys drawn from {event, key, size, ttl, timestamp, objectName, scheduledTime}; no message payloads, request bodies or PII cross the sink. The event-secrecy result on the websocket-hub-broadcast probe (AC-33106-1) covers the metadata-only contract on the shipped path.&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T14:11:37.838Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-7501">
+  <summary><span class="summary-label">US-7501 - T-3 lifecycle events on the shipped path carry only allowed metadata keys</span><span class="status draft">draft</span></summary>
+  <article id="US-7501" class="doc doc-us">
+  <h3>US-7501 - T-3 lifecycle events on the shipped path carry only allowed metadata keys</h3>
+  
+  <p><strong>As a:</strong> reviewer verifying the platform-cloudflare-durable-objects v1.0.0 blueprint at mechanism reach</p>
+  <p><strong>I want:</strong> every lifecycle event emitted on the shipped code path to carry only the allowed metadata keys and never a forbidden key</p>
+  <p><strong>So that:</strong> a logging companion can render the sink directly without a per-blueprint scrub pass</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-075">REQ-075</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7501-1" class="ac-item"><strong>AC-7501-1</strong> - The event-secrecy result on the websocket-hub-broadcast probe scans every record emitted through the facade and both DO classes on the shipped path and asserts every top-level key is drawn from {event, key, size, ttl, timestamp, objectName, scheduledTime}. Under SIMULATE_PII_LEAK=true a wrapped sink forwards a synthetic body-bearing record; the probe surfaces the forbidden keys (body, ssn, userId) and returns fail on the AC-33106-1 result.
+<div class="ac-gwt"><p><em>Given</em> a driven facade + single-cell + hub with an accumulating spy sink, and the SIMULATE_PII_LEAK switch</p><p><em>When</em> the event-secrecy AC-33106-1 result runs on the shipped path and the simulate path</p><p><em>Then</em> the shipped path returns pass with zero forbidden keys; the simulate path surfaces the injected fields and returns fail</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:54.320Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7501&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-075&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 lifecycle events on the shipped path carry only allowed metadata keys&quot;,
+  &quot;asA&quot;: &quot;reviewer verifying the platform-cloudflare-durable-objects v1.0.0 blueprint at mechanism reach&quot;,
+  &quot;iWant&quot;: &quot;every lifecycle event emitted on the shipped code path to carry only the allowed metadata keys and never a forbidden key&quot;,
+  &quot;soThat&quot;: &quot;a logging companion can render the sink directly without a per-blueprint scrub pass&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7501-1&quot;,
+      &quot;description&quot;: &quot;The event-secrecy result on the websocket-hub-broadcast probe scans every record emitted through the facade and both DO classes on the shipped path and asserts every top-level key is drawn from {event, key, size, ttl, timestamp, objectName, scheduledTime}. Under SIMULATE_PII_LEAK=true a wrapped sink forwards a synthetic body-bearing record; the probe surfaces the forbidden keys (body, ssn, userId) and returns fail on the AC-33106-1 result.&quot;,
+      &quot;given&quot;: &quot;a driven facade + single-cell + hub with an accumulating spy sink, and the SIMULATE_PII_LEAK switch&quot;,
+      &quot;when&quot;: &quot;the event-secrecy AC-33106-1 result runs on the shipped path and the simulate path&quot;,
+      &quot;then&quot;: &quot;the shipped path returns pass with zero forbidden keys; the simulate path surfaces the injected fields and returns fail&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-076">
+  <summary><span class="summary-label">REQ-076 - T-3 sole-reader guarantee enforced by AST scan: no non-facade module imports env.CELL or env.HUB</span><span class="status draft">draft</span></summary>
+  <article id="REQ-076" class="doc doc-req">
+  <h3>REQ-076 - T-3 sole-reader guarantee enforced by AST scan: no non-facade module imports env.CELL or env.HUB</h3>
+  
+  <p><strong>Description:</strong> T-3 sole-reader guarantee: the shipped sole-reader-scan probe reads every .mjs/.js/.ts file under the fixture&#39;s applied source root, strips block and line comments, and matches literal occurrences of env.CELL and env.HUB against the file path. The clean-fixture pass asserts src/do-facade.mjs is the ONLY file whose live source matches; any other file with a live match is a leak returned as fail (AC-33107-1).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-076[&quot;REQ-076&lt;br/&gt;T-3 sole-reader guarantee enforced by AST sca...&quot;]
+  US-7601[&quot;US-7601&lt;br/&gt;T-3 sole-reader-scan probe surfaces every non...&quot;]
+  REQ-076 --&gt; US-7601
+  AC-7601-1[&quot;AC-7601-1&quot;]
+  US-7601 --&gt; AC-7601-1
+  FBS-090[&quot;FBS-090&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  AC-7601-1 -.-&gt;|delivered by| FBS-090
+  CN-290[&quot;CN-290&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7601-1 -.-&gt;|implemented by| CN-290
+  CN-292[&quot;CN-292&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-7601-1 -.-&gt;|implemented by| CN-292
+  CN-302[&quot;CN-302&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7601-1 -.-&gt;|implemented by| CN-302
+  CN-304[&quot;CN-304&lt;br/&gt;../../packages/rcf-lite/test/blueprint/platfo...&quot;]
+  AC-7601-1 -.-&gt;|implemented by| CN-304
+  click REQ-076 &quot;#REQ-076&quot;;
+  click US-7601 &quot;#US-7601&quot;;
+  click AC-7601-1 &quot;#AC-7601-1&quot;;
+  click FBS-090 &quot;#FBS-090&quot;;
+  click CN-290 &quot;#CN-290&quot;;
+  click CN-292 &quot;#CN-292&quot;;
+  click CN-302 &quot;#CN-302&quot;;
+  click CN-304 &quot;#CN-304&quot;;
+  class REQ-076 req;
+  class US-7601 us;
+  class AC-7601-1 ac;
+  class FBS-090 fbs;
+  class CN-290 cn;
+  class CN-292 cn;
+  class CN-302 cn;
+  class CN-304 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:38.018Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-076&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-3 sole-reader guarantee enforced by AST scan: no non-facade module imports env.CELL or env.HUB&quot;,
+  &quot;description&quot;: &quot;T-3 sole-reader guarantee: the shipped sole-reader-scan probe reads every .mjs/.js/.ts file under the fixture&#39;s applied source root, strips block and line comments, and matches literal occurrences of env.CELL and env.HUB against the file path. The clean-fixture pass asserts src/do-facade.mjs is the ONLY file whose live source matches; any other file with a live match is a leak returned as fail (AC-33107-1).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T14:11:38.051Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-7601">
+  <summary><span class="summary-label">US-7601 - T-3 sole-reader-scan probe surfaces every non-facade module that dereferences env.CELL or env.HUB</span><span class="status draft">draft</span></summary>
+  <article id="US-7601" class="doc doc-us">
+  <h3>US-7601 - T-3 sole-reader-scan probe surfaces every non-facade module that dereferences env.CELL or env.HUB</h3>
+  
+  <p><strong>As a:</strong> reviewer enforcing the sole-reader guarantee on env.CELL and env.HUB</p>
+  <p><strong>I want:</strong> the sole-reader-scan probe to walk every .mjs/.js/.ts file under the fixture applied source root and assert only src/do-facade.mjs dereferences env.CELL or env.HUB in live source</p>
+  <p><strong>So that:</strong> a legacy call site or an accidental new one surfaces at self-review, not at runtime</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-076">REQ-076</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7601-1" class="ac-item"><strong>AC-7601-1</strong> - The sole-reader-scan probe reads every .mjs/.js/.ts file under packages/rcf-lite/test/fixtures/cf-platform/src, strips block and line comments, matches literal env.CELL and env.HUB and reports every non-facade file with a live match as a leak. The clean-fixture scan surfaces zero leaks. Under SIMULATE_NON_FACADE_IMPORT=true a scratch leaker at $TMPDIR/t3-sole-reader-scratch is included in the scan; the scan surfaces the leak and returns fail.
+<div class="ac-gwt"><p><em>Given</em> the cf-platform fixture applied source root, and optionally the SIMULATE_NON_FACADE_IMPORT switch</p><p><em>When</em> the sole-reader-scan probe runs</p><p><em>Then</em> clean scan returns pass with zero leaks; simulate scan surfaces the injected leaker and returns fail</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:54.530Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7601&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-076&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 sole-reader-scan probe surfaces every non-facade module that dereferences env.CELL or env.HUB&quot;,
+  &quot;asA&quot;: &quot;reviewer enforcing the sole-reader guarantee on env.CELL and env.HUB&quot;,
+  &quot;iWant&quot;: &quot;the sole-reader-scan probe to walk every .mjs/.js/.ts file under the fixture applied source root and assert only src/do-facade.mjs dereferences env.CELL or env.HUB in live source&quot;,
+  &quot;soThat&quot;: &quot;a legacy call site or an accidental new one surfaces at self-review, not at runtime&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7601-1&quot;,
+      &quot;description&quot;: &quot;The sole-reader-scan probe reads every .mjs/.js/.ts file under packages/rcf-lite/test/fixtures/cf-platform/src, strips block and line comments, matches literal env.CELL and env.HUB and reports every non-facade file with a live match as a leak. The clean-fixture scan surfaces zero leaks. Under SIMULATE_NON_FACADE_IMPORT=true a scratch leaker at $TMPDIR/t3-sole-reader-scratch is included in the scan; the scan surfaces the leak and returns fail.&quot;,
+      &quot;given&quot;: &quot;the cf-platform fixture applied source root, and optionally the SIMULATE_NON_FACADE_IMPORT switch&quot;,
+      &quot;when&quot;: &quot;the sole-reader-scan probe runs&quot;,
+      &quot;then&quot;: &quot;clean scan returns pass with zero leaks; simulate scan surfaces the injected leaker and returns fail&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-077">
+  <summary><span class="summary-label">REQ-077 - T-3 migration-safe class exports: stable class names committed to wrangler with a paired [[migrations]] block</span><span class="status draft">draft</span></summary>
+  <article id="REQ-077" class="doc doc-req">
+  <h3>REQ-077 - T-3 migration-safe class exports: stable class names committed to wrangler with a paired [[migrations]] block</h3>
+  
+  <p><strong>Description:</strong> T-3 migration-safe class exports: the DO class names are stable strings committed under [[durable_objects.bindings]] blocks in wrangler.toml, and a paired [[migrations]] block records the mint classes under tag &quot;v1&quot; per Cloudflare&#39;s migration documentation. A rename ships as a subsequent migrations tag; a rename without one is a runtime error the anatomy assertion catches at self-review (AC-33108-1).</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> platform</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-077[&quot;REQ-077&lt;br/&gt;T-3 migration-safe class exports: stable clas...&quot;]
+  US-7701[&quot;US-7701&lt;br/&gt;T-3 wrangler.toml commits stable DO class nam...&quot;]
+  REQ-077 --&gt; US-7701
+  AC-7701-1[&quot;AC-7701-1&quot;]
+  US-7701 --&gt; AC-7701-1
+  FBS-090[&quot;FBS-090&lt;br/&gt;T-3 platform-cloudflare-durable-objects v1.0....&quot;]
+  AC-7701-1 -.-&gt;|delivered by| FBS-090
+  CN-290[&quot;CN-290&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-7701-1 -.-&gt;|implemented by| CN-290
+  CN-291[&quot;CN-291&lt;br/&gt;../../packages/rcf-lite/test/fixtures/cf-plat...&quot;]
+  AC-7701-1 -.-&gt;|implemented by| CN-291
+  CN-304[&quot;CN-304&lt;br/&gt;../../packages/rcf-lite/test/blueprint/platfo...&quot;]
+  AC-7701-1 -.-&gt;|implemented by| CN-304
+  click REQ-077 &quot;#REQ-077&quot;;
+  click US-7701 &quot;#US-7701&quot;;
+  click AC-7701-1 &quot;#AC-7701-1&quot;;
+  click FBS-090 &quot;#FBS-090&quot;;
+  click CN-290 &quot;#CN-290&quot;;
+  click CN-291 &quot;#CN-291&quot;;
+  click CN-304 &quot;#CN-304&quot;;
+  class REQ-077 req;
+  class US-7701 us;
+  class AC-7701-1 ac;
+  class FBS-090 fbs;
+  class CN-290 cn;
+  class CN-291 cn;
+  class CN-304 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:38.243Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;reqId&quot;: &quot;REQ-077&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-3 migration-safe class exports: stable class names committed to wrangler with a paired [[migrations]] block&quot;,
+  &quot;description&quot;: &quot;T-3 migration-safe class exports: the DO class names are stable strings committed under [[durable_objects.bindings]] blocks in wrangler.toml, and a paired [[migrations]] block records the mint classes under tag \&quot;v1\&quot; per Cloudflare&#39;s migration documentation. A rename ships as a subsequent migrations tag; a rename without one is a runtime error the anatomy assertion catches at self-review (AC-33108-1).&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;platform&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [],
+    &quot;reason&quot;: &quot;content-pending&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-07T14:11:38.275Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-7701">
+  <summary><span class="summary-label">US-7701 - T-3 wrangler.toml commits stable DO class names on both binding blocks and a migrations tag records the mint classes</span><span class="status draft">draft</span></summary>
+  <article id="US-7701" class="doc doc-us">
+  <h3>US-7701 - T-3 wrangler.toml commits stable DO class names on both binding blocks and a migrations tag records the mint classes</h3>
+  
+  <p><strong>As a:</strong> operator applying platform-cloudflare-durable-objects on a fresh Workers project</p>
+  <p><strong>I want:</strong> the generated wrangler.toml to carry [[durable_objects.bindings]] blocks and a paired [[migrations]] block with a stable tag</p>
+  <p><strong>So that:</strong> a future rename lands as a wrangler migration rather than a silent rewire and the DO class identity survives the mint</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-077">REQ-077</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-7701-1" class="ac-item"><strong>AC-7701-1</strong> - The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag &quot;v1&quot; and new_classes = [&quot;SingleCellObject&quot;, &quot;HubObject&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.
+<div class="ac-gwt"><p><em>Given</em> the cf-platform fixture wrangler.toml</p><p><em>When</em> the anatomy assertion greps for the four literal strings and the migrations pair</p><p><em>Then</em> every string is present and the migrations tag &quot;v1&quot; carries the two class names</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:11:54.740Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;usId&quot;: &quot;US-7701&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-077&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-3 wrangler.toml commits stable DO class names on both binding blocks and a migrations tag records the mint classes&quot;,
+  &quot;asA&quot;: &quot;operator applying platform-cloudflare-durable-objects on a fresh Workers project&quot;,
+  &quot;iWant&quot;: &quot;the generated wrangler.toml to carry [[durable_objects.bindings]] blocks and a paired [[migrations]] block with a stable tag&quot;,
+  &quot;soThat&quot;: &quot;a future rename lands as a wrangler migration rather than a silent rewire and the DO class identity survives the mint&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-7701-1&quot;,
+      &quot;description&quot;: &quot;The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \&quot;v1\&quot; and new_classes = [\&quot;SingleCellObject\&quot;, \&quot;HubObject\&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.&quot;,
+      &quot;given&quot;: &quot;the cf-platform fixture wrangler.toml&quot;,
+      &quot;when&quot;: &quot;the anatomy assertion greps for the four literal strings and the migrations pair&quot;,
+      &quot;then&quot;: &quot;every string is present and the migrations tag \&quot;v1\&quot; carries the two class names&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
+    }
+  ],
+  &quot;tags&quot;: [
+    &quot;blueprint:platform-cloudflare-durable-objects&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -12553,7 +13673,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -16934,6 +18054,110 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test&quot;,
   &quot;summary&quot;: &quot;HQ round-6 T-2: platform-cloudflare-cron-triggers v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-cron-triggers/ (17 contributions: 4 REQs, 7 USs, 3 TACs, 3 ADRs; contributions target 20 to 24 is guidance; sits below at 17 with well-scoped 7-US coverage per spec section 5.2). Adds cf-platform fixture extension (wrangler.toml [triggers] crons block additive over the T-0 [assets] and T-1 [[kv_namespaces]] blocks, src/scheduled.mjs sole reader of the Cron Trigger event, src/dispatcher.mjs expression-routed dispatcher with skew tolerance and soft budget). Ships 5 Node-only probes under contributions/probes/ (wrangler-test-scheduled drives wrangler dev --test-scheduled on the fixture; dispatcher-routing, skew-tolerance and event-secrecy drive the shipped dispatcher in-process; real-account-scheduled-smoke is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-cron-triggers on every other blueprint (31 files) and one scheduledTrigger row on packages/rcf-lite/docs/blueprint-authoring.md section 6a table. Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js covers TS-090..096. Repo chain: REQ-060..063 US-6001..6302 TS-090..096 FBS-080 CN-260..267 minted via rcf define create --id per HQ round-6 T-2 reserved-block ruling 2026-09-07T12:25Z. Base commit origin/main 09e14b4.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-090">
+  <summary><span class="summary-label">FBS-090 - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-090" class="doc doc-fbs">
+  <h3>FBS-090 - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</h3>
+  
+  <p><strong>Summary:</strong> HQ round-6 T-3: platform-cloudflare-durable-objects v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-durable-objects/ (30 contributions: 8 REQs, 12 USs on the shipped blueprint at ids US-33101..33112, 5 TACs, 5 ADRs). Adds cf-platform fixture DO extension (wrangler.toml [[durable_objects.bindings]] and [[migrations]] blocks additive over the T-0 [assets], T-1 [[kv_namespaces]] and T-2 [triggers] crons blocks; src/do-facade.mjs sole reader of env.CELL and env.HUB; src/do-single-cell.mjs and src/do-hub.mjs shipping SingleCellObject and HubObject classes; src/do-storage.mjs in-memory storage driver realising both sql and kv backends). Ships 7 Node-only probes under contributions/probes/ (namespace-facade-ready, single-cell-concurrent-increment, storage-round-trip, alarm-fires-once, websocket-hub-broadcast folding AC-33106-1 event-secrecy as an additional result, sole-reader-scan and real-account-storage-smoke that is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-durable-objects on every prior blueprint (32 files) and two capability rows on packages/rcf-lite/docs/blueprint-authoring.md section 6a table (strongConsistencyCell and hibernatableWebSocket). Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js covers TS-100..109. Repo chain: REQ-070..077 US-7001..7002 US-7101 US-7201 US-7301 US-7401..7402 US-7501 US-7601 US-7701 TS-100..109 FBS-090 CN-290..304 minted via rcf define create --id per HQ round-6 T-3 reserved-block ruling 2026-09-07. Base commit origin/main 20cc40d.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-7001-1">AC-7001-1</a><a class="ac-pill" href="#AC-7002-1">AC-7002-1</a><a class="ac-pill" href="#AC-7101-1">AC-7101-1</a><a class="ac-pill" href="#AC-7201-1">AC-7201-1</a><a class="ac-pill" href="#AC-7301-1">AC-7301-1</a><a class="ac-pill" href="#AC-7401-1">AC-7401-1</a><a class="ac-pill" href="#AC-7402-1">AC-7402-1</a><a class="ac-pill" href="#AC-7501-1">AC-7501-1</a><a class="ac-pill" href="#AC-7601-1">AC-7601-1</a><a class="ac-pill" href="#AC-7701-1">AC-7701-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-7001-1">AC-7001-1</a></strong> - On process boot, createDoFacadeInProcess (the in-process seam over the shipped facade code path) wires the injected event sink and emits a namespaceReady event on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. facade.cell(name) and facade.hub(name) return the registered SingleCellObject and HubObject instances.</p>
+  <p><em>Given</em> a facade wired with in-process SingleCellObject and HubObject instances and a spy event sink</p>
+  <p><em>When</em> the facade ready() call resolves</p>
+  <p><em>Then</em> a namespaceReady event fires exactly once on the sink with the metadata-only payload; the registered handles return the instances</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7002-1">AC-7002-1</a></strong> - The real-account-storage-smoke probe with CI_HAS_CLOUDFLARE_ACCOUNT unset returns a single result with anchorAcId AC-33112-1 and verdict pass; the report carries accountBoundSkipped=true and aggregates to pass; exit code 0. With CI_HAS_CLOUDFLARE_ACCOUNT=true but any of CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID or CF_API_TOKEN missing, the probe returns fail naming the missing keys.</p>
+  <p><em>Given</em> the real-account-storage-smoke probe module</p>
+  <p><em>When</em> run without CI_HAS_CLOUDFLARE_ACCOUNT, and then with the env var but no paired creds</p>
+  <p><em>Then</em> the first run reports accountBoundSkipped and passes; the second reports the missing keys and fails</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7101-1">AC-7101-1</a></strong> - Two concurrent increment(1) invocations against a SingleCellObject with counter 0 resolve to counters [1, 2] and witnesses [0, 1] in FIFO order; a subsequent read() returns counter 2.</p>
+  <p><em>Given</em> a SingleCellObject at counter 0</p>
+  <p><em>When</em> two concurrent increment(1) calls fire and read() follows</p>
+  <p><em>Then</em> counters are [1,2], witnesses are [0,1], read returns 2</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7201-1">AC-7201-1</a></strong> - createInMemoryDoStorage({backend: &quot;sql&quot;}) and createInMemoryDoStorage({backend: &quot;kv&quot;}) both round-trip put(&quot;k&quot;,&quot;v&quot;)-&gt;get(&quot;k&quot;), delete(&quot;k&quot;) followed by get returning undefined, and list({prefix:&quot;p/&quot;}) returning a Map keyed by the prefix. driver.backend reports the chosen backend on each factory.</p>
+  <p><em>Given</em> two storage drivers, one on each backend</p>
+  <p><em>When</em> put/get/delete/list operations are driven on each driver in turn</p>
+  <p><em>Then</em> both round-trip identically and driver.backend reports the elicited answer</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7301-1">AC-7301-1</a></strong> - A SingleCellObject with setAlarm(100) fires alarm() once. The handler drains the persisted alarm (storage.getAlarm returns null after) and emits doAlarmFired with objectName and scheduledTime. A second alarm() call on the drained storage records scheduledTime null (no re-fire for the same schedule).</p>
+  <p><em>Given</em> a SingleCellObject with setAlarm(100)</p>
+  <p><em>When</em> alarm() is driven once and then again after the fire</p>
+  <p><em>Then</em> the first fire emits doAlarmFired with the scheduledTime; the second fire records scheduledTime null; storage.getAlarm returns null after the first fire</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7401-1">AC-7401-1</a></strong> - A HubObject with two accepted fake websockets A and B, when driven with webSocketMessage(A, JSON.stringify({type:&quot;broadcast&quot;, payload:&quot;ping&quot;})), delivers a JSON message to both A and B whose type is &quot;broadcast&quot; and payload is &quot;ping&quot; within 500ms elapsed on the fixture clock. The persisted lastBroadcast key in storage carries the serialised outbound payload.</p>
+  <p><em>Given</em> a HubObject with two accepted fake websockets</p>
+  <p><em>When</em> a broadcast message is sent from A</p>
+  <p><em>Then</em> both A and B receive the broadcast within 500ms; storage.get(&quot;lastBroadcast&quot;) returns the serialised payload</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7402-1">AC-7402-1</a></strong> - A HubObject that has processed a broadcast, hibernated (doHibernate emitted), and then woken (doWakeUp emitted once) resolves wake() with lastBroadcast equal to the serialised outbound payload. A second wake() resolves with alreadyAwake=true and the same lastBroadcast; no second doWakeUp fires.</p>
+  <p><em>Given</em> a HubObject with a persisted lastBroadcast that has hibernated</p>
+  <p><em>When</em> wake() is called once, then again</p>
+  <p><em>Then</em> the first wake emits doWakeUp once and returns lastBroadcast; the second wake reports alreadyAwake without a second event</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7501-1">AC-7501-1</a></strong> - The event-secrecy result on the websocket-hub-broadcast probe scans every record emitted through the facade and both DO classes on the shipped path and asserts every top-level key is drawn from {event, key, size, ttl, timestamp, objectName, scheduledTime}. Under SIMULATE_PII_LEAK=true a wrapped sink forwards a synthetic body-bearing record; the probe surfaces the forbidden keys (body, ssn, userId) and returns fail on the AC-33106-1 result.</p>
+  <p><em>Given</em> a driven facade + single-cell + hub with an accumulating spy sink, and the SIMULATE_PII_LEAK switch</p>
+  <p><em>When</em> the event-secrecy AC-33106-1 result runs on the shipped path and the simulate path</p>
+  <p><em>Then</em> the shipped path returns pass with zero forbidden keys; the simulate path surfaces the injected fields and returns fail</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7601-1">AC-7601-1</a></strong> - The sole-reader-scan probe reads every .mjs/.js/.ts file under packages/rcf-lite/test/fixtures/cf-platform/src, strips block and line comments, matches literal env.CELL and env.HUB and reports every non-facade file with a live match as a leak. The clean-fixture scan surfaces zero leaks. Under SIMULATE_NON_FACADE_IMPORT=true a scratch leaker at $TMPDIR/t3-sole-reader-scratch is included in the scan; the scan surfaces the leak and returns fail.</p>
+  <p><em>Given</em> the cf-platform fixture applied source root, and optionally the SIMULATE_NON_FACADE_IMPORT switch</p>
+  <p><em>When</em> the sole-reader-scan probe runs</p>
+  <p><em>Then</em> clean scan returns pass with zero leaks; simulate scan surfaces the injected leaker and returns fail</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-7701-1">AC-7701-1</a></strong> - The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag &quot;v1&quot; and new_classes = [&quot;SingleCellObject&quot;, &quot;HubObject&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.</p>
+  <p><em>Given</em> the cf-platform fixture wrangler.toml</p>
+  <p><em>When</em> the anatomy assertion greps for the four literal strings and the migrations pair</p>
+  <p><em>Then</em> every string is present and the migrations tag &quot;v1&quot; carries the two class names</p>
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 55</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:14:56.524Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:15:21.400Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7001-1&quot;,
+    &quot;AC-7002-1&quot;,
+    &quot;AC-7101-1&quot;,
+    &quot;AC-7201-1&quot;,
+    &quot;AC-7301-1&quot;,
+    &quot;AC-7401-1&quot;,
+    &quot;AC-7402-1&quot;,
+    &quot;AC-7501-1&quot;,
+    &quot;AC-7601-1&quot;,
+    &quot;AC-7701-1&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-090&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 55,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test&quot;,
+  &quot;summary&quot;: &quot;HQ round-6 T-3: platform-cloudflare-durable-objects v1.0.0 blueprint on the shelf under blueprints/platform-cloudflare-durable-objects/ (30 contributions: 8 REQs, 12 USs on the shipped blueprint at ids US-33101..33112, 5 TACs, 5 ADRs). Adds cf-platform fixture DO extension (wrangler.toml [[durable_objects.bindings]] and [[migrations]] blocks additive over the T-0 [assets], T-1 [[kv_namespaces]] and T-2 [triggers] crons blocks; src/do-facade.mjs sole reader of env.CELL and env.HUB; src/do-single-cell.mjs and src/do-hub.mjs shipping SingleCellObject and HubObject classes; src/do-storage.mjs in-memory storage driver realising both sql and kv backends). Ships 7 Node-only probes under contributions/probes/ (namespace-facade-ready, single-cell-concurrent-increment, storage-round-trip, alarm-fires-once, websocket-hub-broadcast folding AC-33106-1 event-secrecy as an additional result, sole-reader-scan and real-account-storage-smoke that is accountBound true and records accountBoundSkipped per spec section 3.5 in CI without CI_HAS_CLOUDFLARE_ACCOUNT). Ships blueprint README, guide, CHANGELOG and docs/topics.md, plus the shelf-wide topics.md registry-row for platform-cloudflare-durable-objects on every prior blueprint (32 files) and two capability rows on packages/rcf-lite/docs/blueprint-authoring.md section 6a table (strongConsistencyCell and hibernatableWebSocket). Anatomy test at packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js covers TS-100..109. Repo chain: REQ-070..077 US-7001..7002 US-7101 US-7201 US-7301 US-7401..7402 US-7501 US-7601 US-7701 TS-100..109 FBS-090 CN-290..304 minted via rcf define create --id per HQ round-6 T-3 reserved-block ruling 2026-09-07. Base commit origin/main 20cc40d.&quot;,
   &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
@@ -23144,6 +24368,406 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;Cover AC-6302-1 via anatomy test: event-secrecy probe returns aggregateVerdict pass on the shipped code path with zero forbidden keys and zero PII substrings&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js::event-secrecy probe returns pass with zero forbidden keys and zero PII hits on shipped path (TC-096-event-secrecy)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-100">
+  <summary><span class="summary-label">TS-100 - T-3 DO facade opens on boot and emits namespaceReady</span><span class="status draft">draft</span></summary>
+  <article id="TS-100" class="doc doc-ts">
+  <h3>TS-100 - T-3 DO facade opens on boot and emits namespaceReady</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7001">US-7001</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7001-1 via anatomy test: DO facade ready() emits namespaceReady with metadata-only payload</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7001-1">AC-7001-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-100-do-facade-ready">
+  <p><strong>TC-100-do-facade-ready</strong> - covers <a href="#AC-7001-1">AC-7001-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7001-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::DO facade opens on boot and emits namespaceReady with metadata-only payload (TC-100-do-facade-ready)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:43.218Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.069Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7001-1 via anatomy test: DO facade ready() emits namespaceReady with metadata-only payload&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7001-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-100&quot;,
+  &quot;usId&quot;: &quot;US-7001&quot;,
+  &quot;title&quot;: &quot;T-3 DO facade opens on boot and emits namespaceReady&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-100-do-facade-ready&quot;,
+      &quot;acId&quot;: &quot;AC-7001-1&quot;,
+      &quot;description&quot;: &quot;AC-7001-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::DO facade opens on boot and emits namespaceReady with metadata-only payload (TC-100-do-facade-ready)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-101">
+  <summary><span class="summary-label">TS-101 - T-3 single-cell concurrent increment</span><span class="status draft">draft</span></summary>
+  <article id="TS-101" class="doc doc-ts">
+  <h3>TS-101 - T-3 single-cell concurrent increment</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7101">US-7101</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7101-1 via anatomy test: two concurrent increments serialise in FIFO order and read returns sum</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7101-1">AC-7101-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-101-single-cell-concurrent">
+  <p><strong>TC-101-single-cell-concurrent</strong> - covers <a href="#AC-7101-1">AC-7101-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7101-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::two concurrent increments serialise per instance and read returns the sum (TC-101-single-cell-concurrent)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:43.399Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.070Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7101-1 via anatomy test: two concurrent increments serialise in FIFO order and read returns sum&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7101-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-101&quot;,
+  &quot;usId&quot;: &quot;US-7101&quot;,
+  &quot;title&quot;: &quot;T-3 single-cell concurrent increment&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-101-single-cell-concurrent&quot;,
+      &quot;acId&quot;: &quot;AC-7101-1&quot;,
+      &quot;description&quot;: &quot;AC-7101-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::two concurrent increments serialise per instance and read returns the sum (TC-101-single-cell-concurrent)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-102">
+  <summary><span class="summary-label">TS-102 - T-3 storage round-trip</span><span class="status draft">draft</span></summary>
+  <article id="TS-102" class="doc doc-ts">
+  <h3>TS-102 - T-3 storage round-trip</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7201">US-7201</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7201-1 via anatomy test: storage round-trip on both sql and kv backends</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7201-1">AC-7201-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-102-storage-round-trip">
+  <p><strong>TC-102-storage-round-trip</strong> - covers <a href="#AC-7201-1">AC-7201-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7201-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::storage round-trip covers put get delete list on both sql and kv backends (TC-102-storage-round-trip)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:43.579Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.070Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7201-1 via anatomy test: storage round-trip on both sql and kv backends&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7201-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-102&quot;,
+  &quot;usId&quot;: &quot;US-7201&quot;,
+  &quot;title&quot;: &quot;T-3 storage round-trip&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-102-storage-round-trip&quot;,
+      &quot;acId&quot;: &quot;AC-7201-1&quot;,
+      &quot;description&quot;: &quot;AC-7201-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::storage round-trip covers put get delete list on both sql and kv backends (TC-102-storage-round-trip)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-103">
+  <summary><span class="summary-label">TS-103 - T-3 alarm fires once</span><span class="status draft">draft</span></summary>
+  <article id="TS-103" class="doc doc-ts">
+  <h3>TS-103 - T-3 alarm fires once</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7301">US-7301</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7301-1 via anatomy test: alarm fires once and drains storage</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7301-1">AC-7301-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-103-alarm-fires-once">
+  <p><strong>TC-103-alarm-fires-once</strong> - covers <a href="#AC-7301-1">AC-7301-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7301-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::alarm fires exactly once and drains storage (TC-103-alarm-fires-once)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:43.758Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.070Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7301-1 via anatomy test: alarm fires once and drains storage&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7301-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-103&quot;,
+  &quot;usId&quot;: &quot;US-7301&quot;,
+  &quot;title&quot;: &quot;T-3 alarm fires once&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-103-alarm-fires-once&quot;,
+      &quot;acId&quot;: &quot;AC-7301-1&quot;,
+      &quot;description&quot;: &quot;AC-7301-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::alarm fires exactly once and drains storage (TC-103-alarm-fires-once)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-104">
+  <summary><span class="summary-label">TS-104 - T-3 hub broadcast within window</span><span class="status draft">draft</span></summary>
+  <article id="TS-104" class="doc doc-ts">
+  <h3>TS-104 - T-3 hub broadcast within window</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7401">US-7401</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7401-1 via anatomy test: hub broadcast fans out within window</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7401-1">AC-7401-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-104-hub-broadcast">
+  <p><strong>TC-104-hub-broadcast</strong> - covers <a href="#AC-7401-1">AC-7401-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7401-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::hub broadcast fans out to all connected clients within the elicited window (TC-104-hub-broadcast)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:43.939Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.070Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7401-1 via anatomy test: hub broadcast fans out within window&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7401-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-104&quot;,
+  &quot;usId&quot;: &quot;US-7401&quot;,
+  &quot;title&quot;: &quot;T-3 hub broadcast within window&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-104-hub-broadcast&quot;,
+      &quot;acId&quot;: &quot;AC-7401-1&quot;,
+      &quot;description&quot;: &quot;AC-7401-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::hub broadcast fans out to all connected clients within the elicited window (TC-104-hub-broadcast)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-105">
+  <summary><span class="summary-label">TS-105 - T-3 hibernate-and-wake preserves storage</span><span class="status draft">draft</span></summary>
+  <article id="TS-105" class="doc doc-ts">
+  <h3>TS-105 - T-3 hibernate-and-wake preserves storage</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7402">US-7402</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7402-1 via anatomy test: hibernate-and-wake round-trip preserves storage</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7402-1">AC-7402-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-105-hibernate-wake">
+  <p><strong>TC-105-hibernate-wake</strong> - covers <a href="#AC-7402-1">AC-7402-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7402-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::hibernate and wake round trip preserves storage and doWakeUp fires exactly once (TC-105-hibernate-wake)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:44.119Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.070Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7402-1 via anatomy test: hibernate-and-wake round-trip preserves storage&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7402-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-105&quot;,
+  &quot;usId&quot;: &quot;US-7402&quot;,
+  &quot;title&quot;: &quot;T-3 hibernate-and-wake preserves storage&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-105-hibernate-wake&quot;,
+      &quot;acId&quot;: &quot;AC-7402-1&quot;,
+      &quot;description&quot;: &quot;AC-7402-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::hibernate and wake round trip preserves storage and doWakeUp fires exactly once (TC-105-hibernate-wake)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-106">
+  <summary><span class="summary-label">TS-106 - T-3 event-secrecy shipped path</span><span class="status draft">draft</span></summary>
+  <article id="TS-106" class="doc doc-ts">
+  <h3>TS-106 - T-3 event-secrecy shipped path</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7501">US-7501</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7501-1 via anatomy test: event-secrecy on shipped path returns pass with zero forbidden keys</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7501-1">AC-7501-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-106-event-secrecy">
+  <p><strong>TC-106-event-secrecy</strong> - covers <a href="#AC-7501-1">AC-7501-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7501-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::event-secrecy result on the hub broadcast probe returns pass on the shipped path (TC-106-event-secrecy)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:44.299Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.070Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7501-1 via anatomy test: event-secrecy on shipped path returns pass with zero forbidden keys&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7501-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-106&quot;,
+  &quot;usId&quot;: &quot;US-7501&quot;,
+  &quot;title&quot;: &quot;T-3 event-secrecy shipped path&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-106-event-secrecy&quot;,
+      &quot;acId&quot;: &quot;AC-7501-1&quot;,
+      &quot;description&quot;: &quot;AC-7501-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::event-secrecy result on the hub broadcast probe returns pass on the shipped path (TC-106-event-secrecy)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-107">
+  <summary><span class="summary-label">TS-107 - T-3 sole-reader-scan probe shape</span><span class="status draft">draft</span></summary>
+  <article id="TS-107" class="doc doc-ts">
+  <h3>TS-107 - T-3 sole-reader-scan probe shape</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7601">US-7601</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7601-1 via anatomy test: sole-reader-scan probe module exports the anchor and shape</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7601-1">AC-7601-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-107-sole-reader-scan">
+  <p><strong>TC-107-sole-reader-scan</strong> - covers <a href="#AC-7601-1">AC-7601-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7601-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::sole-reader-scan probe binds and surfaces no leaks on the clean fixture (TC-107-sole-reader-scan)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:44.480Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.070Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7601-1 via anatomy test: sole-reader-scan probe module exports the anchor and shape&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7601-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-107&quot;,
+  &quot;usId&quot;: &quot;US-7601&quot;,
+  &quot;title&quot;: &quot;T-3 sole-reader-scan probe shape&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-107-sole-reader-scan&quot;,
+      &quot;acId&quot;: &quot;AC-7601-1&quot;,
+      &quot;description&quot;: &quot;AC-7601-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::sole-reader-scan probe binds and surfaces no leaks on the clean fixture (TC-107-sole-reader-scan)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-108">
+  <summary><span class="summary-label">TS-108 - T-3 wrangler.toml DO bindings and migrations</span><span class="status draft">draft</span></summary>
+  <article id="TS-108" class="doc doc-ts">
+  <h3>TS-108 - T-3 wrangler.toml DO bindings and migrations</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7701">US-7701</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7701-1 via anatomy test: wrangler.toml carries DO bindings and migrations tag</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7701-1">AC-7701-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-108-wrangler-do-bindings">
+  <p><strong>TC-108-wrangler-do-bindings</strong> - covers <a href="#AC-7701-1">AC-7701-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7701-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::wrangler toml carries DO bindings and migrations tag additively over T-0 T-1 T-2 blocks (TC-108-wrangler-do-bindings)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:44.660Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.070Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7701-1 via anatomy test: wrangler.toml carries DO bindings and migrations tag&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7701-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-108&quot;,
+  &quot;usId&quot;: &quot;US-7701&quot;,
+  &quot;title&quot;: &quot;T-3 wrangler.toml DO bindings and migrations&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-108-wrangler-do-bindings&quot;,
+      &quot;acId&quot;: &quot;AC-7701-1&quot;,
+      &quot;description&quot;: &quot;AC-7701-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::wrangler toml carries DO bindings and migrations tag additively over T-0 T-1 T-2 blocks (TC-108-wrangler-do-bindings)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-109">
+  <summary><span class="summary-label">TS-109 - T-3 real-account probe skipped without env var</span><span class="status draft">draft</span></summary>
+  <article id="TS-109" class="doc doc-ts">
+  <h3>TS-109 - T-3 real-account probe skipped without env var</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-7002">US-7002</a></p>
+  <p><strong>Purpose:</strong> Cover AC-7002-1 via anatomy test: real-account probe records accountBoundSkipped without env var</p>
+  <p><strong>Test level:</strong> unit</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-7002-1">AC-7002-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-109-real-account-skip">
+  <p><strong>TC-109-real-account-skip</strong> - covers <a href="#AC-7002-1">AC-7002-1</a> <span class="status pending">pending</span></p>
+  <p>AC-7002-1 anatomy proof</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::real-account storage smoke probe records accountBoundSkipped without env var (TC-109-real-account-skip)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-07T14:13:44.840Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-07T14:14:37.071Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-7002-1 via anatomy test: real-account probe records accountBoundSkipped without env var&quot;,
+  &quot;testLevel&quot;: &quot;unit&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-7002-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-109&quot;,
+  &quot;usId&quot;: &quot;US-7002&quot;,
+  &quot;title&quot;: &quot;T-3 real-account probe skipped without env var&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-109-real-account-skip&quot;,
+      &quot;acId&quot;: &quot;AC-7002-1&quot;,
+      &quot;description&quot;: &quot;AC-7002-1 anatomy proof&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::real-account storage smoke probe records accountBoundSkipped without env var (TC-109-real-account-skip)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

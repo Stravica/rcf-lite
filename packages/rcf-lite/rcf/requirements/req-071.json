@@ -1,0 +1,18 @@
+{
+  "createdAt": "2026-09-07T14:11:36.953Z",
+  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "reqId": "REQ-071",
+  "prdId": "PRD-001",
+  "title": "T-3 single-cell shape exposes typed domain verbs and serialises concurrent invocations per instance",
+  "description": "T-3 single-cell shape: a named SingleCellObject exposes typed domain verbs (increment, read, reset) that wrap the injected storage driver. Cloudflare's documented DO consistency model serialises invocations against the same instance; the shipped class realises that contract via a per-instance FIFO promise queue so a concurrent-increment probe observes the counter sum and one increment observed the other via a written witness (per REQ-071 and AC-33102-1, AC-33109-1).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [],
+    "reason": "content-pending",
+    "classifiedAt": "2026-09-07T14:11:36.986Z"
+  }
+}

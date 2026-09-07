@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3403-platform-cloudflare-durable-objects-storage-backend",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Storage backend: SQL or KV on the object (elicited)",
+  "context": "A Cloudflare Durable Object exposes state.storage per https://developers.cloudflare.com/durable-objects/. Two backends are documented: SQL storage (state.storage.sql) supports typed columns and query; KV storage (state.storage.put/get/delete/list) is simpler and single-key. Both are useful; the choice depends on the shipped object's data shape. The elicit forces the operator to pick at apply time so the shipped code path can carry the trace record.",
+  "decision": "The applied blueprint elicits do-storage-backend at apply time with two options (sql, kv). The recommendedDefault is sql for new objects (SQL supports typed columns and future migrations without a driver rewrite). The chosen answer threads through the storage driver factory as driver.backend per AC-33111-1; the shipped SingleCellObject class code is backend-agnostic and does not care which backend is live.",
+  "consequences": "A project that picks sql inherits the DO SQL storage semantics and the shipped SQL migration path; a project that picks kv inherits the simpler put/get/delete/list surface and the KV eventual-consistency-on-the-object trade the guide documents. Standards trace clause: generic enterprise practice (the sql-vs-kv trade is a general enterprise-tier storage-shape choice, not a Cloudflare-specific claim).",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3405-platform-cloudflare-durable-objects-hibernation-posture",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Hibernation posture on the hub shape: elicited hibernate-after-idle window and idempotent wake handler (elicited)",
+  "context": "The hub shape hibernates when idle; the wake handler runs from cold on the next message. The hibernate-after-idle window trades a cold-start hit on the first wake against the memory footprint of an always-warm object. The window is a per-project answer; the shipped default (Cloudflare's platform-default) is fine for most projects but a coordinated-multiplayer workload with tight latency budgets picks a longer window.",
+  "decision": "The applied blueprint elicits do-hub-hibernate-after-idle-ms at apply time (a bounded millis integer). The wake handler MUST be idempotent-by-contract: repeated wakes on the same last-persisted message do not double-emit downstream state. The shipped HubObject class realises the idempotent-wake contract via a boolean _woke gate paired with the persisted lastBroadcast key; the anatomy assertion covers the once-per-wake doWakeUp event under AC-33110-1.",
+  "consequences": "Projects with tight latency budgets pick a longer window; projects with tight memory budgets pick a shorter one. Standards trace clause: generic enterprise practice (the hibernate-after-idle trade is a general enterprise-tier state-hosting choice, not a Cloudflare-specific claim; Cloudflare's platform-default is the shipped fallback).",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

@@ -1,0 +1,21 @@
+{
+  "cnId": "CN-304",
+  "path": "../../packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js",
+  "implementsAcIds": [
+    "AC-7001-1",
+    "AC-7002-1",
+    "AC-7101-1",
+    "AC-7201-1",
+    "AC-7301-1",
+    "AC-7401-1",
+    "AC-7402-1",
+    "AC-7501-1",
+    "AC-7601-1",
+    "AC-7701-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T14:15:21.377Z",
+  "updatedAt": "2026-09-07T14:15:21.377Z"
+}

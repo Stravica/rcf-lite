@@ -1,0 +1,17 @@
+{
+  "reqId": "platform-cloudflare-durable-objects-REQ-005",
+  "prdId": "PRD-001",
+  "title": "The hibernatable WebSocket hub accepts clients via state.acceptWebSocket and the wake handler runs from cold reading the same storage",
+  "description": "A named hub object accepts websocket clients via state.acceptWebSocket per Cloudflare's hibernatable WebSockets shape (https://developers.cloudflare.com/durable-objects/), routes each message to per-message handlers by JSON type field, and broadcasts to all connected sockets. On hibernate-and-wake the wake handler runs from a cold start and reads the same storage; the shipped hub class re-emits doWakeUp on the injected event sink on the first message after hibernation.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.3). Ships as v1.0.0 of platform-cloudflare-durable-objects.",
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

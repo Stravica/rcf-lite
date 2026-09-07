@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33104",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Alarm fires exactly once and doAlarmFired records objectName and scheduledTime",
+  "asA": "developer whose SingleCellObject schedules future work via storage.setAlarm",
+  "iWant": "the alarm() handler to fire exactly once per scheduled time and doAlarmFired to carry object name and scheduled time",
+  "soThat": "the applied project can observe alarm delivery through the metadata-only sink and trust the once-per-schedule contract",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33104-1",
+      "description": "A SingleCellObject with setAlarm(offsetMs=100) fires alarm() when driven at the scheduled time. The alarm() handler runs exactly once, deletes the persisted alarm from storage (getAlarm() returns null after the fire) and emits a doAlarmFired event on the injected sink with {event, key, size, ttl, timestamp, objectName, scheduledTime} where objectName is the object's name and scheduledTime matches the setAlarm scheduled millis. A second call to alarm() on the drained storage does NOT emit a second doAlarmFired for the same schedule (the storage.getAlarm() returns null so the second fire records scheduledTime null).",
+      "given": "a SingleCellObject with setAlarm(100)",
+      "when": "alarm() is driven once and then again after the fire",
+      "then": "the first fire emits doAlarmFired with the scheduledTime; the second fire records scheduledTime null; storage.getAlarm() returns null after the first fire",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3403-platform-cloudflare-durable-objects-alarm-handler"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

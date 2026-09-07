@@ -1,0 +1,29 @@
+{
+  "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-cloudflare-durable-objects alarm handler",
+  "purpose": "The alarm surface on the single-cell class realising storage.setAlarm and alarm(). Cloudflare's runtime guarantees exactly-once alarm delivery per scheduled time; the shipped alarm() handler drains the persisted alarm from storage and emits doAlarmFired on the sink with metadata-only {objectName, scheduledTime}.",
+  "responsibilities": [
+    "Persist and drain the scheduled alarm via storage.setAlarm/getAlarm/deleteAlarm (AC-33104-1).",
+    "Emit doAlarmFired with {objectName, scheduledTime} on the sink at every fire (AC-33104-1, AC-33106-1)."
+  ],
+  "internalStructure": "A pair of instance methods (setAlarm(offsetMs), alarm()) on the SingleCellObject class. The alarm handler is idempotent per scheduled time via storage-drain semantics.",
+  "interfaces": [
+    {
+      "name": "SingleCellObject.setAlarm",
+      "kind": "method",
+      "summary": "Schedule an alarm for now+offsetMs; persists via storage.setAlarm."
+    },
+    {
+      "name": "SingleCellObject.alarm",
+      "kind": "method",
+      "summary": "Alarm handler; drains the persisted alarm and emits doAlarmFired."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

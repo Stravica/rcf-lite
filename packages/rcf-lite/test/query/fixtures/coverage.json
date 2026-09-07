@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 43,
-    "covered": 43,
+    "requirements": 51,
+    "covered": 51,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -2648,6 +2648,142 @@
           "covered": true,
           "testCases": [
             "TC-096-event-secrecy"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-070",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-7001-1",
+          "covered": true,
+          "testCases": [
+            "TC-100-do-facade-ready"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-7002-1",
+          "covered": true,
+          "testCases": [
+            "TC-109-real-account-skip"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-071",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-7101-1",
+          "covered": true,
+          "testCases": [
+            "TC-101-single-cell-concurrent"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-072",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-7201-1",
+          "covered": true,
+          "testCases": [
+            "TC-102-storage-round-trip"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-073",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-7301-1",
+          "covered": true,
+          "testCases": [
+            "TC-103-alarm-fires-once"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-074",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-7401-1",
+          "covered": true,
+          "testCases": [
+            "TC-104-hub-broadcast"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-7402-1",
+          "covered": true,
+          "testCases": [
+            "TC-105-hibernate-wake"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-075",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-7501-1",
+          "covered": true,
+          "testCases": [
+            "TC-106-event-secrecy"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-076",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-7601-1",
+          "covered": true,
+          "testCases": [
+            "TC-107-sole-reader-scan"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-077",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-7701-1",
+          "covered": true,
+          "testCases": [
+            "TC-108-wrangler-do-bindings"
           ],
           "unresolvedTestCases": []
         }

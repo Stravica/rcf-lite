@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3402-platform-cloudflare-durable-objects-websocket-hub-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Websocket hub contract: Cloudflare Durable Objects hibernatable WebSockets shape (scope global, new topic websocketHubContract)",
+  "context": "A named DO instance can host many websocket clients via state.acceptWebSocket per the hibernatable WebSockets shape (https://developers.cloudflare.com/durable-objects/). The runtime hibernates the object when idle and wakes it on the next message; the wake handler runs from cold and reads the same storage. This is the shipped answer for the coordinated-multiplayer shape the WSD lane consumers reach for. A future non-Cloudflare hub adapter (a Redis pub-sub broker, a bespoke websocket server) would conflict on the same topic; the guide names the trade.",
+  "decision": "The shipped v1.0.0 default is a Cloudflare Durable Object hub instance behind the DO facade (env.HUB), realising the hibernatable-WebSocket hub shape per REQ-005 and TAC-3404. The websocketHubContract topic scope is global on this blueprint; the topic string is websocketHubContract. A future non-Cloudflare adapter would contribute the same topic string, forcing a DELIBERATE conflict the operator resolves with a project-level ADR.",
+  "consequences": "The applying project inherits Cloudflare's documented hibernatable-WebSockets contract, the hibernate-after-idle window (elicited per ADR-3405) and the idempotent wake-handler shape. Standards trace clause: Cloudflare Durable Objects hibernatable WebSockets shape (per https://developers.cloudflare.com/durable-objects/). The hub shape shares the DO namespace mechanic with the single-cell shape; a future non-Cloudflare websocket-hub sibling mints on demand and the two-blueprint split conversation resurfaces then.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

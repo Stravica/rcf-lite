@@ -1,0 +1,30 @@
+{
+  "slug": "platform-cloudflare-durable-objects",
+  "probeName": "wrangler-seam",
+  "runAt": "2026-09-07T16:08:55.782Z",
+  "engine": {
+    "kind": "wrangler-dev",
+    "image": "wrangler dev (workerd) on cf-platform fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-33108-1",
+      "verdict": "pass",
+      "detail": "wrangler.toml carries name=\"CELL\" + class_name=\"SingleCellObject\", name=\"HUB\" + class_name=\"HubObject\", and [[migrations]] tag \"v1\" with new_classes [\"SingleCellObject\",\"HubObject\"]"
+    },
+    {
+      "anchorAcId": "AC-33113-1",
+      "verdict": "pass",
+      "detail": "two concurrent POST http://127.0.0.1:50269/cell/wrangler-seam-cell-1788797333727/increment responded with counters=[1,2] witnesses=[0,1]; serialisation observed under workerd (each request read the other's write)"
+    },
+    {
+      "anchorAcId": "AC-33105-1",
+      "verdict": "pass",
+      "detail": "WebSocket upgrade against ws://127.0.0.1:50269/hub/wrangler-seam-hub-1788797333775/connect received one broadcast frame with payload={\"type\":\"broadcast\",\"payload\":\"hello-from-hub\"}"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "boundUrl": "http://127.0.0.1:50269",
+  "wranglerBinPresent": true
+}

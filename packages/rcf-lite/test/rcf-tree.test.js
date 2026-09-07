@@ -136,7 +136,9 @@ const expectedCounts = {
   // (reserved-block per HQ ruling 2026-09-07T12:25Z: REQ-060..063 /
   // US-6001..6302 / TS-090..096 / FBS-080 / CN-260..267, all minted
   // via --id) (39 -> 43).
-  req: 43,
+  // Cloudflare round 6 T-3 added REQ-070..077 for the T-3
+  // platform-cloudflare-durable-objects v1.0.0 blueprint (43 -> 51).
+  req: 51,
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -170,7 +172,10 @@ const expectedCounts = {
   // Cloudflare round 6 T-2 added US-6001..6302 (7 USs derived from
   // REQ-060..063 per HQ reserved-block ruling 2026-09-07T12:25Z)
   // (72 -> 79).
-  userStory: 79,
+  // Cloudflare round 6 T-3 added US-7001, US-7002, US-7101,
+  // US-7201, US-7301, US-7401, US-7402, US-7501, US-7601 and
+  // US-7701 per HQ reserved-block ruling 2026-09-07 (79 -> 89).
+  userStory: 89,
   tad: 1,
   tac: 8,
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
@@ -217,7 +222,9 @@ const expectedCounts = {
   // Cloudflare round 6 T-1 added FBS-070 covering the 10 T-1 ACs (52 -> 53).
   // Cloudflare round 6 T-2 added FBS-080 covering the 10 T-2 ACs
   // (buildOrder 54, next-free after FBS-070 at 53) (53 -> 54).
-  fbs: 54,
+  // Cloudflare round 6 T-3 added FBS-090 (buildOrder next-free
+  // after FBS-080 at 54) (54 -> 55).
+  fbs: 55,
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -328,7 +335,11 @@ const expectedCounts = {
   // the platform-cloudflare-cron-triggers blueprint.json, scheduled.mjs,
   // dispatcher.mjs and the five probe modules per HQ reserved-block
   // ruling 2026-09-07T12:25Z (209 -> 217).
-  codeNode: 217,
+  // Cloudflare round 6 T-3 added CN-290..304 for the T-3
+  // blueprint.json, cf-platform DO facade, single-cell, hub and
+  // storage driver, seven probe modules, probe-utils and the
+  // anatomy test (217 -> 232).
+  codeNode: 232,
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -362,7 +373,9 @@ const expectedCounts = {
   // Cloudflare round 6 T-1 added TS-080..087 paired with US-5001..5401 (64 -> 72).
   // Cloudflare round 6 T-2 added TS-090..096 paired with US-6001..6302
   // per HQ reserved-block ruling 2026-09-07T12:25Z (72 -> 79).
-  testSuite: 79,
+  // Cloudflare round 6 T-3 added TS-100..109 paired with the ten
+  // T-3 USs per HQ reserved-block ruling 2026-09-07 (79 -> 89).
+  testSuite: 89,
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

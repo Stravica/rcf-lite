@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33102",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Single-cell concurrent increments serialise per instance and return witness of prior write",
+  "asA": "developer whose Worker needs an authoritative counter, session store or lock behind a swappable boundary",
+  "iWant": "one SingleCellObject class instance to observe concurrent increments in per-instance FIFO order and return the sum plus a written witness",
+  "soThat": "two concurrent callers cannot silently overwrite each other and a domain assertion can prove the write happened before the read",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33102-1",
+      "description": "Two concurrent increment(delta=1) invocations against a named SingleCellObject with an initial counter of 0 resolve to {counter, witness} pairs whose counter values are 1 and 2 (in some order) and whose witness values are 0 and 1. The final read() returns counter 2. No non-serialised interleaving is possible: the counter is always equal to the sum of the deltas at read-time.",
+      "given": "a SingleCellObject wired with an in-memory DO storage driver at counter 0",
+      "when": "two increment(1) invocations fire concurrently and a read follows",
+      "then": "the two increments resolve with counters {1, 2} in FIFO order, witnesses {0, 1}, and the final read returns 2",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

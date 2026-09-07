@@ -1,0 +1,17 @@
+{
+  "reqId": "platform-cloudflare-durable-objects-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The DO namespace facade is the sole reader of env.CELL and env.HUB and opens on boot with namespaceReady",
+  "description": "The applying project reaches Cloudflare Durable Objects through a single facade module in the project source tree that is the ONLY module holding a reference to the DO namespace bindings (env.CELL for the single-cell shape and env.HUB for the hibernatable-WebSocket hub shape per https://developers.cloudflare.com/durable-objects/). On process boot the facade wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload. Every consumer of DO from the applied project code calls the facade's typed handles; no other module dereferences env.CELL or env.HUB.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.3). Ships as v1.0.0 of platform-cloudflare-durable-objects.",
+  "tags": [
+    "blueprint:platform-cloudflare-durable-objects"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

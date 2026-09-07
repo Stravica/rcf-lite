@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-293",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/src/do-single-cell.mjs",
+  "implementsAcIds": [
+    "AC-7101-1",
+    "AC-7301-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T14:14:57.275Z",
+  "updatedAt": "2026-09-07T14:14:57.275Z"
+}

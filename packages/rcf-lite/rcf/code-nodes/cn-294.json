@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-294",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/src/do-hub.mjs",
+  "implementsAcIds": [
+    "AC-7401-1",
+    "AC-7402-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-07T14:14:57.462Z",
+  "updatedAt": "2026-09-07T14:14:57.462Z"
+}

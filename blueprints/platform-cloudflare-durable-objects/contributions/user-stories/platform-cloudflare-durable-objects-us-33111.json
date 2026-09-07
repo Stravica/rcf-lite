@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33111",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Storage driver factory threads the elicited backend answer through as driver.backend",
+  "asA": "operator eliciting the storage backend at apply time",
+  "iWant": "the shipped storage driver factory to accept the elicited answer and report it as driver.backend",
+  "soThat": "a downstream operations panel and a review probe can read the shipped-backend value from the driver instance and cross-check against the elicited answer",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33111-1",
+      "description": "createInMemoryDoStorage({backend: \"sql\"}) returns a driver whose .backend property equals \"sql\"; createInMemoryDoStorage({backend: \"kv\"}) returns a driver whose .backend property equals \"kv\"; createInMemoryDoStorage({}) defaults to \"sql\" per ADR-3403 recommendedDefault. The driver.backend field is present on every returned driver.",
+      "given": "three factory calls with backend=\"sql\", backend=\"kv\" and no backend arg",
+      "when": "the returned drivers are inspected",
+      "then": "each driver.backend reports the elicited answer or the default \"sql\"",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

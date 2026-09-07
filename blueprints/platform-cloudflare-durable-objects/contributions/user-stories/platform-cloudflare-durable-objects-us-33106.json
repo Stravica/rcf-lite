@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33106",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Lifecycle events carry only allowed metadata fields and drop forbidden keys",
+  "asA": "reviewer verifying the platform-cloudflare-durable-objects v1.0.0 blueprint at mechanism reach",
+  "iWant": "the event-secrecy probe to drive namespaceReady, doAccept, doAlarmFired, doWakeUp and doHibernate through the shipped code path and assert no record carries any forbidden key (body, ssn, userId, headers, cookies)",
+  "soThat": "a logging companion can render the sink directly without a per-blueprint scrub pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33106-1",
+      "description": "Every record emitted on the sink by createDoFacade, SingleCellObject.alarm() and HubObject.accept/hibernate/wake is a plain object whose top-level keys are drawn from the allowed set {event, key, size, ttl, timestamp, objectName, scheduledTime}. No record carries body, ssn, userId, headers, cookies, request or payload; the probe returns aggregateVerdict: pass with a zero-hit count on the forbidden-key scan. Under SIMULATE_PII_LEAK=true a wrapped sink forwards a synthetic body-bearing record and the probe surfaces the forbidden keys, returning aggregateVerdict: fail.",
+      "given": "a driven facade + single-cell + hub with an accumulating spy sink",
+      "when": "the event-secrecy probe runs on the shipped code path",
+      "then": "every record contains only allowed keys; the forbidden-key scan finds zero hits; SIMULATE_PII_LEAK=true surfaces the injected fields",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3405-platform-cloudflare-durable-objects-event-sink"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

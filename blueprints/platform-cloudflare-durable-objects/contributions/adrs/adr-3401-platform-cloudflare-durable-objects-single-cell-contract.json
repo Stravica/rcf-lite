@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3401-platform-cloudflare-durable-objects-single-cell-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Single-cell contract: Cloudflare Durable Objects authoritative-cell shape (scope global, new topic strongConsistencyCellContract)",
+  "context": "An applying Workers project has one native strong-consistency answer today: Cloudflare Durable Objects. The DO runtime serialises invocations against a named instance per https://developers.cloudflare.com/durable-objects/, providing the authoritative-cell shape a counter, session store or lock needs. Two shapes ship in this blueprint (single-cell and websocket-hub) per spec section 5.3; both share the DO namespace mechanic. The single-cell shape is the one project-wide answer to strongConsistencyCellContract; a future non-Cloudflare adapter (a Postgres advisory-lock singleton, a Redis single-master pattern) would conflict on the same topic.",
+  "decision": "The shipped v1.0.0 default is a Cloudflare Durable Object named instance behind the DO facade (env.CELL), realising the single-cell shape per REQ-002 and TAC-3402. The strongConsistencyCellContract topic scope is global on this blueprint; the topic string is strongConsistencyCellContract (lower camelCase, one concept per topic, no version suffix, per the round-2 rules-for-new-topics clause). A future non-Cloudflare adapter would contribute the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR.",
+  "consequences": "The applying project inherits Cloudflare's documented DO consistency model, the platform-assigned per-object limits (https://developers.cloudflare.com/durable-objects/), and the migration-safe class-export contract (REQ-008). Standards trace clause: Cloudflare Durable Objects documented consistency model (per https://developers.cloudflare.com/durable-objects/). Consumers needing weaker-consistency low-latency reads reach for the sibling platform-cloudflare-kv blueprint (round 6 T-1) instead; the guide names the decision.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

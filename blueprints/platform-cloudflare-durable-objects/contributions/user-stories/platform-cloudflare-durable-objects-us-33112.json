@@ -1,0 +1,27 @@
+{
+  "usId": "platform-cloudflare-durable-objects-US-33112",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-durable-objects-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Real-account storage smoke drives a facade round-trip against a real DO namespace",
+  "asA": "operator validating platform-cloudflare-durable-objects v1.0.0 against a real Cloudflare account",
+  "iWant": "the real-account-storage-smoke probe to open the facade against a real DO namespace, drive a storage round-trip with the elicited backend and assert the round-trip returns",
+  "soThat": "the shipped DO facade surface is proven against the vendor's runtime, not only against the in-process driver",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-33112-1",
+      "description": "The real-account-storage-smoke probe, when CI_HAS_CLOUDFLARE_ACCOUNT=true and the paired CF_ACCOUNT_ID / CF_DO_NAMESPACE_ID / CF_API_TOKEN env vars are set, opens the facade against the real Cloudflare account with a real DO namespace, drives a storage.put(\"k\",\"v\")->get(\"k\")===\"v\" round-trip and returns aggregateVerdict: pass. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped: true and aggregates to pass per spec section 3.5.",
+      "given": "a real Cloudflare account with the paired env vars, or no such account and CI_HAS_CLOUDFLARE_ACCOUNT unset",
+      "when": "the probe runs",
+      "then": "with the account: the round-trip returns and the probe passes. Without the account: accountBoundSkipped:true and exit 0.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
+  ],
+  "createdAt": "2026-09-07T14:00:00.000Z",
+  "updatedAt": "2026-09-07T14:00:00.000Z"
+}

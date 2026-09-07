@@ -1,0 +1,18 @@
+{
+  "slug": "platform-cloudflare-durable-objects",
+  "probeName": "sole-reader-scan",
+  "runAt": "2026-09-07T16:08:52.674Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "source-tree AST-lite scan on cf-platform fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-33107-1",
+      "verdict": "pass",
+      "detail": "clean-fixture scan: facade path=cf-platform/src/do-facade.mjs cellHits=3 hubHits=3; non-facade live leaks=0 (comment mentions are ignored)"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

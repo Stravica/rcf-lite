@@ -1,0 +1,243 @@
+{
+  "slug": "platform-cloudflare-durable-objects",
+  "version": "1.0.0",
+  "category": "platform",
+  "capabilities": [
+    "strongConsistencyCell",
+    "hibernatableWebSocket"
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every namespaceReady, doAccept, doAlarmFired, doWakeUp and doHibernate event writes through the applied logger; a logging companion supplies the sink factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A namespace binding miss, an alarm handler throwing, a hub broadcast failure constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "do-cell-binding",
+      "prompt": "Durable Object namespace binding name for the single-cell shape (a stable identifier in wrangler.toml under [[durable_objects.bindings]]; recommended default CELL).",
+      "kind": "string",
+      "default": "CELL"
+    },
+    {
+      "id": "do-hub-binding",
+      "prompt": "Durable Object namespace binding name for the hibernatable-WebSocket hub shape (recommended default HUB).",
+      "kind": "string",
+      "default": "HUB"
+    },
+    {
+      "id": "do-cell-class-name",
+      "prompt": "Stable class name string for the single-cell class exported from src/do-single-cell.mjs; committed under [[migrations]] on the v1 mint tag (recommended default SingleCellObject).",
+      "kind": "string",
+      "default": "SingleCellObject"
+    },
+    {
+      "id": "do-hub-class-name",
+      "prompt": "Stable class name string for the hub class exported from src/do-hub.mjs; committed under [[migrations]] on the v1 mint tag (recommended default HubObject).",
+      "kind": "string",
+      "default": "HubObject"
+    },
+    {
+      "id": "do-storage-backend",
+      "prompt": "Storage backend for the single-cell class per ADR-3403: sql (typed columns, query) or kv (simple put/get/delete/list). Recommended default sql.",
+      "kind": "enum",
+      "options": [
+        "sql",
+        "kv"
+      ],
+      "default": "sql"
+    },
+    {
+      "id": "do-hub-broadcast-window-ms",
+      "prompt": "Broadcast delivery window per HubObject fan-out, in milliseconds (recommended default 500).",
+      "kind": "string",
+      "default": "500"
+    },
+    {
+      "id": "do-hub-hibernate-after-idle-ms",
+      "prompt": "Hibernate-after-idle window per ADR-3405, in milliseconds (recommended default 30000; a coordinated-multiplayer workload with tight latency budgets picks a longer window).",
+      "kind": "string",
+      "default": "30000"
+    }
+  ],
+  "contributions": [
+    {
+      "id": "platform-cloudflare-durable-objects-REQ-001",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-durable-objects-req-001.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-REQ-002",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-durable-objects-req-002.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-REQ-003",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-durable-objects-req-003.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-REQ-004",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-durable-objects-req-004.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-REQ-005",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-durable-objects-req-005.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-REQ-006",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-durable-objects-req-006.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-REQ-007",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-durable-objects-req-007.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-REQ-008",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-durable-objects-req-008.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33101",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33101.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33102",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33102.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33103",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33103.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33104",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33104.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33105",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33105.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33106",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33106.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33107",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33107.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33108",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33108.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33109",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33109.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33110",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33110.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33111",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33111.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33112",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33112.json"
+    },
+    {
+      "id": "platform-cloudflare-durable-objects-US-33113",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-durable-objects-us-33113.json"
+    },
+    {
+      "id": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+      "kind": "tac",
+      "path": "tacs/tac-3401-platform-cloudflare-durable-objects-namespace-facade.json"
+    },
+    {
+      "id": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+      "kind": "tac",
+      "path": "tacs/tac-3402-platform-cloudflare-durable-objects-single-cell-shape.json"
+    },
+    {
+      "id": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+      "kind": "tac",
+      "path": "tacs/tac-3403-platform-cloudflare-durable-objects-alarm-handler.json"
+    },
+    {
+      "id": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+      "kind": "tac",
+      "path": "tacs/tac-3404-platform-cloudflare-durable-objects-websocket-hub.json"
+    },
+    {
+      "id": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
+      "kind": "tac",
+      "path": "tacs/tac-3405-platform-cloudflare-durable-objects-event-sink.json"
+    },
+    {
+      "id": "ADR-3401-platform-cloudflare-durable-objects-single-cell-contract",
+      "kind": "adr",
+      "path": "adrs/adr-3401-platform-cloudflare-durable-objects-single-cell-contract.json",
+      "scope": "global",
+      "topic": "strongConsistencyCellContract",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Durable Objects documented consistency model"
+    },
+    {
+      "id": "ADR-3402-platform-cloudflare-durable-objects-websocket-hub-contract",
+      "kind": "adr",
+      "path": "adrs/adr-3402-platform-cloudflare-durable-objects-websocket-hub-contract.json",
+      "scope": "global",
+      "topic": "websocketHubContract",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Durable Objects hibernatable WebSockets shape"
+    },
+    {
+      "id": "ADR-3403-platform-cloudflare-durable-objects-storage-backend",
+      "kind": "adr",
+      "path": "adrs/adr-3403-platform-cloudflare-durable-objects-storage-backend.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-3404-platform-cloudflare-durable-objects-migrations-shape",
+      "kind": "adr",
+      "path": "adrs/adr-3404-platform-cloudflare-durable-objects-migrations-shape.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Durable Objects migration documentation"
+    },
+    {
+      "id": "ADR-3405-platform-cloudflare-durable-objects-hibernation-posture",
+      "kind": "adr",
+      "path": "adrs/adr-3405-platform-cloudflare-durable-objects-hibernation-posture.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}

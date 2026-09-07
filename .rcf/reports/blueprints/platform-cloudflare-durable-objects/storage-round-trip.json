@@ -1,0 +1,23 @@
+{
+  "slug": "platform-cloudflare-durable-objects",
+  "probeName": "storage-round-trip",
+  "runAt": "2026-09-07T16:08:52.603Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process DO storage driver on cf-platform fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-33103-1",
+      "verdict": "pass",
+      "detail": "both backends round-tripped: sql {get:true, listSize:2, delete:true, backend:sql}; kv {get:true, listSize:2, delete:true, backend:kv}"
+    },
+    {
+      "anchorAcId": "AC-33111-1",
+      "verdict": "pass",
+      "detail": "driver factory without an explicit backend defaults to sql per ADR-3403 recommendedDefault; observed driver.backend=sql"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

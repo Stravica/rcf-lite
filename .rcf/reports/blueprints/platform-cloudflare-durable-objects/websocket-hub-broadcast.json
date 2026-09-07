@@ -1,0 +1,28 @@
+{
+  "slug": "platform-cloudflare-durable-objects",
+  "probeName": "websocket-hub-broadcast",
+  "runAt": "2026-09-07T16:08:52.649Z",
+  "engine": {
+    "kind": "in-process",
+    "image": "in-process HubObject on cf-platform fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-33105-1",
+      "verdict": "pass",
+      "detail": "broadcast fan-out: A received {\"type\":\"broadcast\",\"payload\":\"ping\"} B received {\"type\":\"broadcast\",\"payload\":\"ping\"}; elapsed 0ms within 500ms window; storage.lastBroadcast persisted"
+    },
+    {
+      "anchorAcId": "AC-33110-1",
+      "verdict": "pass",
+      "detail": "hibernate-and-wake round-trip: doWakeUp fired once; wake1.lastBroadcast preserved; wake2.alreadyAwake=true with same lastBroadcast"
+    },
+    {
+      "anchorAcId": "AC-33106-1",
+      "verdict": "pass",
+      "detail": "event-secrecy scan across 4 records: allowed-key set {event, key, size, ttl, timestamp, objectName, scheduledTime}; forbidden-key hits 0; extra-key hits 0"
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

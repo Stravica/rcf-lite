@@ -32,3 +32,29 @@ preview_id = "cf_platform_fixture_cache_preview_placeholder"
 # defaults are the multi-cron shape the dispatcher was built for.
 [triggers]
 crons = ["* * * * *", "*/5 * * * *"]
+
+# Cloudflare round 6 T-3 Durable Objects bindings for
+# platform-cloudflare-durable-objects. The single-cell binding
+# CELL exposes the SingleCellObject class (src/do-single-cell.mjs);
+# the hub binding HUB exposes the HubObject class (src/do-hub.mjs).
+# The facade module (src/do-facade.mjs) is the sole reader of
+# env.CELL and env.HUB per REQ-070 (sole-reader guarantee) and
+# REQ-076 (AST-scan enforcement). Class names are stable strings
+# per REQ-077 and are committed to the migrations block below so a
+# future rename lands as a wrangler migration rather than a silent
+# rewire.
+[[durable_objects.bindings]]
+name = "CELL"
+class_name = "SingleCellObject"
+
+[[durable_objects.bindings]]
+name = "HUB"
+class_name = "HubObject"
+
+# T-3 migrations block per REQ-077. The class names are the stable
+# strings committed with the v1.0.0 mint; the tag is the migration
+# id (a v1 mint under tag "v1"). A rename or a deprecation lands
+# as a subsequent tag entry in the same list.
+[[migrations]]
+tag = "v1"
+new_classes = ["SingleCellObject", "HubObject"]
