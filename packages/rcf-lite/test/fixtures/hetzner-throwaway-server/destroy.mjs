@@ -1,14 +1,20 @@
-// destroy.mjs
+// destroy.mjs (v1.0.1)
 //
 // Real-account teardown for the shared throwaway-server fixture. Reads
 // the last-throwaway.json id (or the record passed in) and shells to
-// hcloud server delete + hcloud image list + hcloud image delete for
-// every snapshot labelled with the server name. Idempotent: a missing
+// `hcloud server delete <id>` (no --output json; the delete verbs reject
+// the flag, H-1 defect (4)) plus `hcloud image list --type=snapshot
+// --output json` to find every snapshot labelled with the server name,
+// then `hcloud image delete <id>` for each match. Idempotent: a missing
 // scratch file logs a throwawayServerLeaked warning and returns; the
 // nightly sweep-orphans job collects the leak.
+//
+// The tolerant JSON parser accepts arrays, objects and empty stdout so
+// the delete verbs' informational text output ('Server 165... deleted')
+// does not crash the caller.
 
 import { readFile, unlink } from 'node:fs/promises';
-import { dirname, resolve, join } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
@@ -29,16 +35,15 @@ export async function destroyThrowawayServer(record) {
     process.stderr.write('throwawayServerLeaked: no server id available; rely on sweep-orphans.\n');
     return null;
   }
-  await hcloud(['server', 'delete', String(target.id), '--output', 'json']);
+  await hcloud(['server', 'delete', String(target.id)]);
   const snapshots = await hcloud(['image', 'list', '--type=snapshot', '--output', 'json']).catch(() => []);
-  if (Array.isArray(snapshots)) {
-    for (const img of snapshots) {
-      const labels = img.labels || {};
-      if (labels.serverName === target.name) {
-        await hcloud(['image', 'delete', String(img.id), '--output', 'json']).catch((err) => {
-          process.stderr.write(`snapshot delete ${img.id} failed: ${err.message}\n`);
-        });
-      }
+  const list = Array.isArray(snapshots) ? snapshots : (snapshots && Array.isArray(snapshots.images) ? snapshots.images : []);
+  for (const img of list) {
+    const labels = img.labels || {};
+    if (labels.serverName === target.name) {
+      await hcloud(['image', 'delete', String(img.id)]).catch((err) => {
+        process.stderr.write(`snapshot delete ${img.id} failed: ${err.message}\n`);
+      });
     }
   }
   try { await unlink(SCRATCH_PATH); } catch (_) { /* fine */ }
@@ -55,8 +60,14 @@ function hcloud(argv) {
     p.on('error', reject);
     p.on('close', (code) => {
       if (code !== 0) return reject(new Error(`hcloud ${argv.join(' ')} exited ${code}: ${stderr}`));
+      const trimmed = stdout.trim();
+      if (trimmed.length === 0) return resolvePromise(null);
+      // Tolerant parser: only JSON.parse if the stdout looks like JSON;
+      // hcloud's delete verbs emit an informational text line instead.
+      const first = trimmed[0];
+      if (first !== '{' && first !== '[') return resolvePromise({ text: trimmed });
       try {
-        resolvePromise(stdout.trim().length > 0 ? JSON.parse(stdout) : null);
+        resolvePromise(JSON.parse(trimmed));
       } catch (err) {
         reject(new Error(`hcloud stdout is not JSON: ${err.message}`));
       }

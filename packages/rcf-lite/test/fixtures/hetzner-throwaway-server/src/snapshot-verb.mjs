@@ -1,10 +1,12 @@
-// Snapshot verb: real-account path called by
-// real-account-snapshot-on-demand. Shells to hcloud image create-image
-// and hcloud image list --type=snapshot --output json; asserts the
-// created snapshot appears in the list with the expected label
-// {serverName=<name>}. Depends on hcloud being on PATH and the
-// HCLOUD_TOKEN env var being set (the operator supplies both via the
-// applying project's security-secrets-management binding).
+// Snapshot verb (v1.0.1): real-account path called by
+// real-account-snapshot-on-demand. Shells `hcloud server create-image
+// --type snapshot --description <label> <id>` (the actual hcloud verb;
+// v1.0.0 called a non-existent `hcloud image create-image`, H-1 defect
+// (5)) and recovers the created snapshot id via `hcloud image list
+// --type=snapshot --output json` by matching the serverName label.
+// Depends on hcloud being on PATH and the HCLOUD_TOKEN env var being
+// set (the operator supplies both via the applying project's
+// security-secrets-management binding).
 
 import { spawn } from 'node:child_process';
 
@@ -12,19 +14,23 @@ export async function takeAndVerifySnapshot(server) {
   const wallClockTime = new Date().toISOString();
   const description = `${server.name ?? server.id}-${wallClockTime}`;
   const createArgs = [
-    'image', 'create-image',
-    '--server', String(server.id),
+    'server', 'create-image',
+    '--type', 'snapshot',
     '--description', description,
     '--label', `role=snapshot`,
     '--label', `serverName=${server.name ?? server.id}`,
-    '--output', 'json',
+    String(server.id),
   ];
-  const created = await hcloud(createArgs);
+  // hcloud server create-image emits a short informational line, not
+  // JSON; the tolerant parser accepts the text form and we recover the
+  // id via the list call.
+  await hcloud(createArgs);
   const listArgs = ['image', 'list', '--type=snapshot', '--output', 'json'];
   const list = await hcloud(listArgs);
-  const snapshotId = created && created.image ? created.image.id : null;
-  const match = Array.isArray(list) ? list.find((i) => i.id === snapshotId) : null;
-  return { snapshotId, wallClockTime, match, listCount: Array.isArray(list) ? list.length : 0 };
+  const listArray = Array.isArray(list) ? list : (list && Array.isArray(list.images) ? list.images : []);
+  const match = listArray.find((i) => (i.labels || {}).serverName === (server.name ?? String(server.id)));
+  const snapshotId = match ? match.id : null;
+  return { snapshotId, wallClockTime, match, listCount: listArray.length };
 }
 
 function hcloud(argv) {
@@ -37,8 +43,12 @@ function hcloud(argv) {
     p.on('error', reject);
     p.on('close', (code) => {
       if (code !== 0) return reject(new Error(`hcloud ${argv.join(' ')} exited ${code}: ${stderr}`));
+      const trimmed = stdout.trim();
+      if (trimmed.length === 0) return resolvePromise(null);
+      const first = trimmed[0];
+      if (first !== '{' && first !== '[') return resolvePromise({ text: trimmed });
       try {
-        resolvePromise(stdout.trim().length > 0 ? JSON.parse(stdout) : null);
+        resolvePromise(JSON.parse(trimmed));
       } catch (err) {
         reject(new Error(`hcloud stdout is not JSON: ${err.message}`));
       }

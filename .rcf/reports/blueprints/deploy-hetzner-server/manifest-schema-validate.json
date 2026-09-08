@@ -1,7 +1,7 @@
 {
   "slug": "deploy-hetzner-server",
   "probeName": "manifest-schema-validate",
-  "runAt": "2026-09-08T00:20:31.304Z",
+  "runAt": "2026-09-08T11:01:34.016Z",
   "engine": {
     "kind": "schema-validate",
     "image": "hetzner-throwaway-server fixture manifest directory (draft-07 subset in-process)",
@@ -10,14 +10,13 @@
   "results": [
     {
       "anchorAcId": "AC-37102-1",
-      "verdict": "pass",
-      "detail": "manifest ci-throwaway.json validates against hetzner-server.schema.json (nine required fields, firewall rule shape, snapshotCadence enum all satisfied)."
+      "verdict": "fail",
+      "detail": "manifest ci-throwaway.json schema violation at #/ci-throwaway.json/location: value \"mars1\" is not in enum [\"fsn1\",\"nbg1\",\"hel1\",\"ash\",\"hil\"]"
     }
   ],
-  "aggregateVerdict": "pass",
+  "aggregateVerdict": "fail",
   "manifestCount": 1,
   "manifestNames": [
     "ci-throwaway.json"
-  ],
-  "mutationActive": false
+  ]
 }

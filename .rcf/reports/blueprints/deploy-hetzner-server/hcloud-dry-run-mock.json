@@ -1,13 +1,18 @@
 {
   "slug": "deploy-hetzner-server",
   "probeName": "hcloud-dry-run-mock",
-  "runAt": "2026-09-08T00:20:31.327Z",
+  "runAt": "2026-09-08T12:16:49.673Z",
   "engine": {
     "kind": "facade-round-trip",
     "image": "hetzner-throwaway-server fixture provisioner facade against a mocked hcloud shim",
     "healthy": true
   },
   "results": [
+    {
+      "anchorAcId": "AC-14501-1",
+      "verdict": "pass",
+      "detail": "rendered cloud-init at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/hetzner/servers/rendered/rcf-lite-ci-throwaway.cloud-init.yaml carries an ssh public-key line for the deploy user (byteLength 4581) and a NOPASSWD sudoers directive for that user; the mock and the real path consume the same artefact."
+    },
     {
       "anchorAcId": "AC-37101-1",
       "verdict": "pass",
@@ -16,7 +21,7 @@
     {
       "anchorAcId": "AC-37101-1",
       "verdict": "pass",
-      "detail": "hetznerServerProvisioned fired with id=13775246 primaryIpv4=198.51.100.196 location=fsn1 serverType=cx23."
+      "detail": "hetznerServerProvisioned fired with id=6854080 primaryIpv4=198.51.100.245 location=fsn1 serverType=cx23."
     },
     {
       "anchorAcId": "AC-37109-1",
@@ -64,8 +69,10 @@
       ]
     }
   ],
-  "mutations": {
-    "jsonParseStrip": false,
-    "eventSecrecyLeak": false
+  "renderedPath": "packages/rcf-lite/test/fixtures/hetzner-throwaway-server/hetzner/servers/rendered/rcf-lite-ci-throwaway.cloud-init.yaml",
+  "renderedByteLength": 4581,
+  "renderedAssertions": {
+    "sshKeyLine": true,
+    "nopasswdLine": true
   }
 }

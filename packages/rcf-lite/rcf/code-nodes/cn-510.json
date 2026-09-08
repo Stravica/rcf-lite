@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-510",
+  "path": "../../blueprints/deploy-hetzner-server/blueprint.json",
+  "implementsAcIds": [
+    "AC-14501-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T10:52:56.753Z",
+  "updatedAt": "2026-09-08T10:52:56.753Z"
+}

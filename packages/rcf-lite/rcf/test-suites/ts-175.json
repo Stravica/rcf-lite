@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-08T10:51:19.406Z",
+  "updatedAt": "2026-09-08T10:51:55.354Z",
+  "purpose": "Anchor AC-14501-1 via the shipped anatomy test: the hcloud-dry-run-mock probe reads the rendered cloud-init user-data written by the fixture renderer and asserts (a) at least one ssh-ed25519 or ssh-rsa public-key line is present under the deploy user and (b) a write_files or sudoers.d fragment grants NOPASSWD to that user; the probe FAILS on either missing marker. Purity: the three T-1 mocked probes no longer read SIMULATE_ switches inside the probe body; those live in fixture-side shims and alter INPUT only.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-14501-1"
+  ],
+  "id": "TS-175",
+  "usId": "US-14501",
+  "title": "H-1 patch train verifiers for deploy-hetzner-server 1.0.1: hcloud-dry-run-mock consumes the same rendered cloud-init the real path consumes and asserts an ssh public-key line for the deploy user plus a NOPASSWD sudoers.d entry; ssh baseline check module gains an unmocked purity assertion that no SIMULATE_ branch remains in the probes for T-1",
+  "testCases": [
+    {
+      "id": "TC-175-mock-consumes-rendered-file-and-probe-purity",
+      "acId": "AC-14501-1",
+      "description": "Render the shipped cloud-init.yaml.tmpl against ci-throwaway.json via the fixture renderer with an ssh key material substitution and NOPASSWD sudoers.d fragment for the deploy user. Assert the rendered file appears at hetzner/servers/rendered/ci-throwaway.cloud-init.yaml with at least one ssh-ed25519 or ssh-rsa authorized-keys line under the deploy user and a NOPASSWD directive naming that user. Run the hcloud-dry-run-mock probe: assert the mock reads back that same rendered file and returns pass. Also assert none of the three T-1 mocked probes (cloud-init-render-lint, hcloud-dry-run-mock, manifest-schema-validate) contain the token SIMULATE_ inside the probe body; the switches live only in the fixture-side shims. Anchors AC-14501-1.",
+      "status": "pending",
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud-init and probes carry no SIMULATE reads (TC-175-mock-consumes-rendered-file-and-probe-purity)"
+    }
+  ],
+  "status": "draft"
+}

@@ -1561,6 +1561,11 @@ flowchart LR
   REQ-140 --> AC-14001-1
   TC-170-hetzner-endpoint-round-trip-and-skipped-shape["TC-170-hetzner-endpoint-round-trip-and-skipped-shape"]
   AC-14001-1 -.-> TC-170-hetzner-endpoint-round-trip-and-skipped-shape
+  REQ-145["REQ-145"]
+  AC-14501-1["AC-14501-1"]
+  REQ-145 --> AC-14501-1
+  TC-175-mock-consumes-rendered-file-and-probe-purity["TC-175-mock-consumes-rendered-file-and-probe-purity"]
+  AC-14501-1 -.-> TC-175-mock-consumes-rendered-file-and-probe-purity
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2385,6 +2390,9 @@ flowchart LR
   class REQ-140 req;
   class AC-14001-1 ac;
   class TC-170-hetzner-endpoint-round-trip-and-skipped-shape tc;
+  class REQ-145 req;
+  class AC-14501-1 ac;
+  class TC-175-mock-consumes-rendered-file-and-probe-purity tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

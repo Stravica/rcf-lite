@@ -67,11 +67,12 @@ Generation strategy: dependencyFirst
 | 61 | 0 | FBS-140 | T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service | notStarted | actionable |  |
 | 62 | 0 | FBS-150 | T-3 edge-cloudflare-tunnel v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with cloudflared connector (compose-service and systemd-unit variants; access-gated and public-hostname sidecar modes) | notStarted | actionable |  |
 | 63 | 0 | FBS-160 | Adapter object-storage-s3 v1.1.0 Hetzner Object Storage: minor bump adds hetznerObjectStorage provider; new hetzner-endpoint helper on the fixture side; new hetzner-object-storage-round-trip probe (accountBound gated on CI_HAS_HETZNER_OBJECT_STORAGE); MinIO round-5 T-2 probes and R2 smoke unchanged | notStarted | actionable |  |
+| 64 | 0 | FBS-165 | H-1 hardening: deploy-hetzner-server v1.0.0 to v1.0.1 patch train; fixes the nine defects the round-7 real-account gate run d-2026-09-08-010 found; makes the shared throwaway-server fixture consume the same rendered cloud-init the real path consumes | notStarted | actionable |  |
 
-Totals: items 63 | notStarted 35 | inProgress 0 | complete 13 | verified 15 | actionable 25 | blocked 10
+Totals: items 64 | notStarted 36 | inProgress 0 | complete 13 | verified 15 | actionable 26 | blocked 10
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044
