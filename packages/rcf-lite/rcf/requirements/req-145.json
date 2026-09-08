@@ -1,0 +1,53 @@
+{
+  "createdAt": "2026-09-08T10:50:11.871Z",
+  "updatedAt": "2026-09-08T10:50:27.769Z",
+  "description": "H-1 patch train against deploy-hetzner-server 1.0.0 shipped in rcf-lite 0.25.0 (real-account gate d-2026-09-08-010 report). Nine defects; every real-account probe throws before writing the scratch id file so destroy cannot tear the server down. This REQ adds the standing requirement that mocked probes for deploy-hetzner-server consume the same rendered cloud-init user-data the real path consumes (renderer writes the file; mock and real path both read it) and that the rendered user-data carries a real ssh public-key line for the deploy user plus NOPASSWD sudo for that user; that provision.mjs projects snake_case hcloud fields; that destroy.mjs and sweep-orphans.mjs never pass --output json to a delete verb (accepts arrays or objects); that snapshot-verb.mjs shells hcloud server create-image --type snapshot; that ssh baseline checks poll ssh readiness before firing and shell NOPASSWD sudo; and that the manifest ssh-key name is overridable via RCF_LITE_CI_SSH_KEY_NAME. Domain functional. Chain: HQ hardening block H-1 per HQ chain-block ruling 2026-09-08 (REQ-145..149 / TS-175..179 / FBS-165..169 / CN-510..519). Blueprint version 1.0.0 to 1.0.1; every existing contribution id byte-identical.",
+  "reqId": "REQ-145",
+  "prdId": "PRD-001",
+  "title": "Hardening H-1: throwaway-server fixture real-path fidelity for deploy-hetzner-server; provision reads hcloud snake_case; renderer inlines ssh key material; destroy/sweep drop --output json; snapshot verb uses hcloud server create-image; ssh baseline waits for cloud-init and runs under NOPASSWD deploy; sshKeyIds override via RCF_LITE_CI_SSH_KEY_NAME; mock consumes the same rendered cloud-init",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T10:50:11.918Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "webUi",
+        "match": "render"
+      },
+      {
+        "source": "title",
+        "shape": "webUi",
+        "match": "rendered"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "rendered"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "render"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "rendered"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "delete"
+      }
+    ]
+  }
+}

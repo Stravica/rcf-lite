@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-08T10:51:08.784Z",
+  "updatedAt": "2026-09-08T10:53:03.294Z",
+  "asA": "shelf consumer running the deploy-hetzner-server v1.0.1 real-account probes against a live Hetzner Cloud project (CI_HAS_HETZNER_ACCOUNT=true)",
+  "iWant": "the T-1 real-account probes to return aggregateVerdict pass without local patches: provision reads snake_case hcloud fields; the fixture renders the cloud-init user-data to a scratch path from the shipped template with resolved ssh public-key material and NOPASSWD sudo for the deploy user; provision, mock and destroy consume that same rendered file; destroy and sweep-orphans never pass --output json to a delete verb; the snapshot verb uses hcloud server create-image --type snapshot and matches by label; ssh baseline waits for cloud-init before firing; and the manifest ssh-key name is overridable via RCF_LITE_CI_SSH_KEY_NAME with the manifest value as default",
+  "soThat": "the mocked probes cannot pass while the real path fails on the same rendered artefact, throwaway servers never leak because destroy always succeeds, and the six baseline hardening blocks are observably present on the running server",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14501-1",
+      "description": "Given the shared throwaway-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ on the H-1 patch train, when node blueprints/deploy-hetzner-server/contributions/probes/run-real-account-throwaway-server-provision.mjs, run-real-account-cloud-init-hardened.mjs and run-real-account-snapshot-on-demand.mjs run against a live Hetzner Cloud project (CI_HAS_HETZNER_ACCOUNT=true, RCF_LITE_CI_SSH_KEY_NAME=dave-ed25519, HCLOUD_TOKEN from hq-estate/HETZNER_ACCOUNT_API_KEY), then (a) provision writes hetzner/servers/rendered/ci-throwaway.cloud-init.yaml by rendering the shipped cloud-init template with the ssh public-key material fetched via hcloud ssh-key describe --output json and a write_files sudoers.d fragment granting NOPASSWD to the deploy user; (b) provision reads s.public_net.ipv4.ip, s.datacenter.location.name, s.server_type.name (snake_case) off the hcloud server create --output json response and writes scratch/last-throwaway.json before returning; (c) hcloud-dry-run-mock.mjs reads the same rendered file back and asserts it carries at least one ssh-ed25519 or ssh-rsa line and a NOPASSWD directive naming the deploy user; (d) destroy.mjs and sweep-orphans.mjs never pass --output json to a hcloud <resource> delete verb and the tolerant JSON parser accepts arrays; (e) snapshot-verb.mjs shells hcloud server create-image --type snapshot --description <label> <id> and recovers the created id via hcloud image list --type=snapshot --output json by matching the serverName label; (f) ssh-baseline-check.mjs polls port 22 open plus a ssh true exec (bounded up to 6 minutes) before firing the six baseline checks, all six of which pass on the running server (sshKeyOnly, rootDisabled, ufwDefaultDeny, dockerUserChain, fail2banActive, unattendedUpgradesActive). Anchors the label AC-hetznerServer-realAccountFidelity.",
+      "testable": true
+    }
+  ],
+  "usId": "US-14501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-145",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "H-1: deploy-hetzner-server 1.0.1 real-account probes return aggregateVerdict pass unpatched; fixture renders cloud-init with ssh public key material and NOPASSWD deploy user; mock consumes the same rendered file; destroy and sweep drop --output json on delete; snapshot uses hcloud server create-image --type snapshot; ssh baseline polls before firing; sshKeyIds override via RCF_LITE_CI_SSH_KEY_NAME",
+  "tacIds": [
+    "TAC-3801-deploy-hetzner-server-provisioner",
+    "TAC-3803-deploy-hetzner-server-cloud-init-template"
+  ]
+}
