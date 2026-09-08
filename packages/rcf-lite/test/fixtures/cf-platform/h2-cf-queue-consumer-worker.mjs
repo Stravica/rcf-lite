@@ -7,54 +7,47 @@
 // packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/worker.mjs
 // that the round-5 v1.0.0 build ships for wrangler dev.
 //
-// The Worker binds the throwaway Queue as `QUEUE` (producer) and
-// registers a queue() handler bound to the same queue. Fetch surface
-// mirrors the fixture Worker: POST /reset, POST /publish-batch, GET
-// /stats. Consumer telemetry (published, batches, totalConsumed,
-// inFlight, maxConcurrent) lives in module-level state; between smoke
-// runs the /reset endpoint zeros it.
+// Consumer-only Worker: the driver publishes to the queue directly
+// via the Cloudflare Queues REST publish endpoint, so this Worker
+// has NO fetch handler and needs NO workers.dev subdomain (Dave
+// ruling 376b4f30). The queue() handler consumes the batch and
+// writes one telemetry record per invocation to the scratch KV
+// namespace bound at RCF_TEST_TELEMETRY_KV; the driver reads those
+// records via the KV REST list + get endpoints and computes
+// totalConsumed (sum of batchSize) and maxConcurrent (interval-
+// overlap analysis on start/end timestamps).
+//
+// Bindings on this Worker (matches the shipped convention on
+// packages/rcf-lite/test/fixtures/infra-s3-and-queue/wrangler.toml):
+//   - RCF_TEST_QUEUE          queue producer binding (shipped name).
+//                             Not read by this consumer body; declared
+//                             so the throwaway matches the shipped
+//                             binding shape and a later variant that
+//                             wants to re-publish (retry, DLQ) has the
+//                             same name available.
+//   - RCF_TEST_TELEMETRY_KV   KV namespace the queue() handler writes
+//                             per-invocation records to; driver reads
+//                             back via KV REST.
 
 export const CONSUMER_WORKER_SOURCE = `
 // Throwaway consumer Worker uploaded by h2-cf-queue-real-account-shim.mjs.
 // DO NOT edit on the account; the fixture destroys and re-uploads on
 // each real-account run. Every instance name carries the H-2
 // throwaway prefix h2-cf-probe-integrity-scratch-w-.
-const telemetry = { published: 0, batches: 0, totalConsumed: 0, inFlight: 0, maxConcurrent: 0 };
-function reset() { telemetry.published = 0; telemetry.batches = 0; telemetry.totalConsumed = 0; telemetry.inFlight = 0; telemetry.maxConcurrent = 0; }
 export default {
-  async fetch(request, env, _ctx) {
-    const url = new URL(request.url);
-    if (request.method === 'POST' && url.pathname === '/reset') {
-      reset();
-      return new Response(JSON.stringify({ ok: true }), { headers: { 'content-type': 'application/json' } });
-    }
-    if (request.method === 'GET' && url.pathname === '/stats') {
-      return new Response(JSON.stringify(telemetry), { headers: { 'content-type': 'application/json' } });
-    }
-    if (request.method === 'POST' && url.pathname === '/publish-batch') {
-      const body = await request.json().catch(() => ({}));
-      const messages = Array.isArray(body) ? body : (Array.isArray(body.messages) ? body.messages : []);
-      const ids = [];
-      for (const m of messages) {
-        const id = 'msg-' + Math.random().toString(36).slice(2, 10);
-        await env.QUEUE.send(m.body ?? m);
-        ids.push(id);
-      }
-      telemetry.published += ids.length;
-      return new Response(JSON.stringify({ ok: true, count: ids.length, ids }), { headers: { 'content-type': 'application/json' } });
-    }
-    return new Response('h2-cf-probe-integrity-scratch-w consumer: POST /reset | POST /publish-batch | GET /stats', { status: 200 });
-  },
-  async queue(batch, _env, _ctx) {
-    telemetry.batches += 1;
-    telemetry.inFlight += 1;
-    if (telemetry.inFlight > telemetry.maxConcurrent) telemetry.maxConcurrent = telemetry.inFlight;
-    try {
-      for (const _m of batch.messages) { /* ack via return */ }
-      telemetry.totalConsumed += batch.messages.length;
-    } finally {
-      telemetry.inFlight -= 1;
-    }
+  async queue(batch, env, _ctx) {
+    const start = Date.now();
+    const id = (crypto.randomUUID && crypto.randomUUID()) || String(start) + '-' + Math.random().toString(36).slice(2, 10);
+    // Simulate a small amount of work so real-CF push concurrency has
+    // a window to observe overlapping invocations. In-flight cost is
+    // ~5 ms; CF Queues push consumer fires up to 250 in parallel per
+    // https://developers.cloudflare.com/queues/platform/limits/.
+    await new Promise((r) => setTimeout(r, 5));
+    const end = Date.now();
+    // One key per invocation; padded start prefix keeps list order.
+    const key = 'telemetry-' + String(start).padStart(20, '0') + '-' + id;
+    const record = { start: start, end: end, batchSize: batch.messages.length, invocationId: id };
+    await env.RCF_TEST_TELEMETRY_KV.put(key, JSON.stringify(record));
   },
 };
 `;

@@ -7,31 +7,76 @@
 // AFTER inventories to prove the mint / teardown / sweep loops leave
 // zero orphans (dispatch requirement 3).
 //
-// The mock also serves the throwaway consumer Worker origin the queue
-// fixture provisions: `/publish-batch`, `/reset` and `/stats` are
-// implemented so the driver end-to-end path is exercisable without
-// wrangler and without a real account. When /publish-batch fires, the
-// mock enqueues messages against the matching queue and drains them
-// through a simulated push consumer that fires up to `maxConcurrency`
-// invocations at once (default 8; caller-configurable). The consumer
-// telemetry mirrors the fixture Worker's shape so the probe's
-// assertions run unchanged.
+// Endpoints implemented (all under /accounts/<aid>/... unless noted):
+//   Workers KV:
+//     - GET/POST     storage/kv/namespaces                          (list / create)
+//     - DELETE       storage/kv/namespaces/<nsId>                   (delete)
+//     - GET          storage/kv/namespaces/<nsId>/keys?prefix=      (list keys)
+//     - GET/PUT/DEL  storage/kv/namespaces/<nsId>/values/<key>      (value ops)
+//   Cloudflare Queues:
+//     - GET/POST     queues                                         (list / create)
+//     - DELETE       queues/<qid>                                   (delete)
+//     - POST         queues/<qid>/consumers                         (attach consumer)
+//     - POST         queues/<qid>/messages                          (REST publish batch)
+//   Workers scripts:
+//     - GET          workers/scripts                                (list)
+//     - PUT          workers/scripts/<name>                         (upload; parses bindings)
+//     - DELETE       workers/scripts/<name>                         (delete)
 //
-// Zero-dep (node:http only). Bound to 127.0.0.1 with port 0 so a test
-// picks up whatever the OS hands out.
+// The script-level subdomain endpoint and the account-level subdomain
+// endpoint are deliberately absent (Dave ruling 376b4f30). The mock
+// has no worker-origin HTTP route either: the driver no longer
+// speaks HTTP to the consumer Worker; publish is via the Queues
+// REST endpoint and telemetry is read via the KV REST list + get
+// endpoints.
+//
+// When the REST publish endpoint fires, the mock enqueues messages
+// and drains them through a simulated push consumer that fires up to
+// `maxConcurrency` invocations at once (default 8; caller-config-
+// urable) and writes one telemetry record per invocation into the
+// worker's RCF_TEST_TELEMETRY_KV binding target. The Worker's
+// bindings are parsed from the upload multipart metadata; there is
+// no hidden lookup channel between the fixture and the mock.
+//
+// Zero-dep (node:http, node:crypto only). Bound to 127.0.0.1 with
+// port 0 so a test picks up whatever the OS hands out.
 
 import { createServer } from 'node:http';
+import { randomUUID } from 'node:crypto';
+
+// Extract the metadata JSON out of a multipart/form-data body. The
+// wire format the fixture h2-cf-account-api.mjs writes is:
+//   --<boundary>\r\n
+//   Content-Disposition: form-data; name="metadata"; filename="metadata.json"\r\n
+//   Content-Type: application/json\r\n\r\n
+//   {...json...}\r\n
+//   --<boundary>\r\n
+//   Content-Disposition: form-data; name="worker.mjs"; filename="worker.mjs"\r\n
+//   Content-Type: application/javascript+module\r\n\r\n
+//   ...script...\r\n
+//   --<boundary>--\r\n
+function extractMetadataFromMultipart(raw) {
+  const marker = 'name="metadata"';
+  const idx = raw.indexOf(marker);
+  if (idx < 0) return null;
+  const headerEnd = raw.indexOf('\r\n\r\n', idx);
+  if (headerEnd < 0) return null;
+  const bodyStart = headerEnd + 4;
+  // The JSON ends at the next boundary marker "\r\n--".
+  const bodyEnd = raw.indexOf('\r\n--', bodyStart);
+  if (bodyEnd < 0) return null;
+  const jsonText = raw.slice(bodyStart, bodyEnd);
+  try { return JSON.parse(jsonText); } catch (_err) { return null; }
+}
 
 export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}) {
   const state = {
     kvNamespaces: new Map(),       // id -> { id, title }
     kvValues: new Map(),           // `${nsId}::${key}` -> string
-    queues: new Map(),             // id -> { id, name }
+    queues: new Map(),             // id -> { queue_id, queue_name }
     queueMessages: new Map(),      // qid -> Array<message>
     workers: new Map(),            // name -> { name, script, bindings, uploadedAt }
     workerConsumers: new Map(),    // qid -> scriptName
-    workerTelemetry: new Map(),    // scriptName -> { published, batches, totalConsumed, inFlight, maxConcurrent }
-    workersSubdomain: 'h2-cf-mock',
     logs: [],
   };
 
@@ -51,7 +96,6 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
   };
 
   const success = (res, result, status = 200) => send(res, status, { success: true, errors: [], messages: [], result });
-
   const notFound = (res, msg = 'not found') => send(res, 404, { success: false, errors: [{ code: 10007, message: msg }] });
 
   const readBody = (req) => new Promise((resolve, reject) => {
@@ -61,33 +105,39 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
     req.on('error', reject);
   });
 
-  // Simulate the push consumer for a queue: fire drain in the
-  // background so telemetry populates while the driver polls /stats.
+  // Simulated queue-triggered push consumer. For each message on a
+  // queue, run the consumer worker's queue() handler at up to
+  // `maxConcurrency` in parallel; the handler writes one telemetry
+  // record per invocation into the RCF_TEST_TELEMETRY_KV binding
+  // target so the driver's KV-list poll observes it.
   const startDrainer = (qid) => {
     const scriptName = state.workerConsumers.get(qid);
     if (!scriptName) return;
-    const tel = state.workerTelemetry.get(scriptName);
-    if (!tel) return;
+    const worker = state.workers.get(scriptName);
+    if (!worker) return;
+    const telemetryBinding = (worker.bindings || []).find((b) => b.type === 'kv_namespace' && b.name === 'RCF_TEST_TELEMETRY_KV');
+    if (!telemetryBinding) return;
+    const telemetryNsId = telemetryBinding.namespace_id;
+    if (!state.kvNamespaces.has(telemetryNsId)) return;
+
     const q = state.queueMessages.get(qid);
     if (!q || q.length === 0) return;
-
-    // Batch messages (batch_size 10 to mirror the fixture default).
+    // Batch: batch_size 10 mirrors the fixture default consumer settings.
     const batches = [];
     while (q.length > 0) batches.push(q.splice(0, 10));
+
     let idx = 0;
     const workers = Math.min(maxConcurrency, batches.length);
-    // Fire `workers` batches at once; each finishes after
-    // consumerDelayMs then picks the next batch. Track inFlight /
-    // maxConcurrent honestly.
     const runOne = async () => {
       while (idx < batches.length) {
         const my = batches[idx++];
-        tel.batches += 1;
-        tel.inFlight += 1;
-        if (tel.inFlight > tel.maxConcurrent) tel.maxConcurrent = tel.inFlight;
+        const start = Date.now();
+        const invocationId = randomUUID();
         await new Promise((r) => setTimeout(r, consumerDelayMs));
-        tel.totalConsumed += my.length;
-        tel.inFlight -= 1;
+        const end = Date.now();
+        const key = `telemetry-${String(start).padStart(20, '0')}-${invocationId}`;
+        const value = JSON.stringify({ start, end, batchSize: my.length, invocationId });
+        state.kvValues.set(`${telemetryNsId}::${key}`, value);
       }
     };
     for (let i = 0; i < workers; i++) runOne();
@@ -98,58 +148,42 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
       const url = new URL(req.url, `http://${req.headers.host}`);
       const path = url.pathname;
 
-      // ------- Worker origin surface (/reset, /publish-batch, /stats) -------
-      // Any request that does not start with /accounts/... is treated
-      // as a "workers.dev" call and routed by scriptName from the Host
-      // header sub-part. The fixture URL shape is
-      // http://127.0.0.1:PORT/w/<scriptName>/<path> in test mode.
-      if (path.startsWith('/w/')) {
-        const parts = path.split('/');
-        const scriptName = parts[2];
-        const inner = '/' + parts.slice(3).join('/');
-        if (!state.workers.has(scriptName)) return notFound(res, `worker ${scriptName} not found`);
-        const tel = state.workerTelemetry.get(scriptName) || { published: 0, batches: 0, totalConsumed: 0, inFlight: 0, maxConcurrent: 0 };
-        state.workerTelemetry.set(scriptName, tel);
-
-        // Find the queue bound to this script via workerConsumers.
-        const qid = [...state.workerConsumers.entries()].find(([, s]) => s === scriptName)?.[0] || null;
-
-        if (req.method === 'POST' && inner === '/reset') {
-          tel.published = 0; tel.batches = 0; tel.totalConsumed = 0; tel.inFlight = 0; tel.maxConcurrent = 0;
-          return send(res, 200, { ok: true });
-        }
-        if (req.method === 'GET' && inner === '/stats') {
-          return send(res, 200, tel);
-        }
-        if (req.method === 'POST' && inner === '/publish-batch') {
-          const body = JSON.parse((await readBody(req)).toString() || '{}');
-          const messages = Array.isArray(body) ? body : (Array.isArray(body.messages) ? body.messages : []);
-          if (!qid) return send(res, 400, { ok: false, error: `worker ${scriptName} has no queue consumer binding` });
-          const q = state.queueMessages.get(qid) || [];
-          for (const m of messages) q.push({ body: m.body ?? m, ts: Date.now() });
-          state.queueMessages.set(qid, q);
-          tel.published += messages.length;
-          const ids = messages.map((_, i) => `${scriptName}-${Date.now()}-${i}`);
-          // Kick the drainer AFTER the response - simulates real push
-          // consumer semantics.
-          setImmediate(() => startDrainer(qid));
-          return send(res, 200, { ok: true, count: messages.length, ids });
-        }
-        return send(res, 404, { ok: false, error: `worker ${scriptName}: unknown path ${inner}` });
-      }
-
-      // Everything below expects a Bearer token.
       if (!requireAuth(req, res)) return;
 
-      // ------- KV namespaces -------
+      // ------- KV namespaces + keys + values -------
+      const nsKeysMatch = path.match(/^\/accounts\/[^/]+\/storage\/kv\/namespaces\/([^/]+)\/keys$/);
+      if (nsKeysMatch && req.method === 'GET') {
+        const nsId = nsKeysMatch[1];
+        if (!state.kvNamespaces.has(nsId)) return notFound(res, `namespace ${nsId}`);
+        const prefix = url.searchParams.get('prefix') || '';
+        const keys = [];
+        for (const mapKey of state.kvValues.keys()) {
+          if (!mapKey.startsWith(`${nsId}::`)) continue;
+          const bareKey = mapKey.slice(nsId.length + 2);
+          if (prefix && !bareKey.startsWith(prefix)) continue;
+          keys.push({ name: bareKey });
+        }
+        return send(res, 200, { success: true, errors: [], messages: [], result: keys, result_info: { cursor: '' } });
+      }
       const nsMatch = path.match(/^\/accounts\/[^/]+\/storage\/kv\/namespaces(?:\/([^/]+))?(?:\/values\/(.+))?$/);
       if (nsMatch) {
         const nsId = nsMatch[1] || null;
         const keyEncoded = nsMatch[2] || null;
-        // Collection: create/list
         if (!nsId) {
           if (req.method === 'GET') {
-            return success(res, [...state.kvNamespaces.values()]);
+            // Paginated (Dave ruling 4e9ff62d item 5): mirror CF's
+            // page + per_page shape so the client's pagination loop
+            // is exercised by tests.
+            const all = [...state.kvNamespaces.values()];
+            const perPage = Math.max(1, Math.min(100, Number.parseInt(url.searchParams.get('per_page') || '100', 10) || 100));
+            const page = Math.max(1, Number.parseInt(url.searchParams.get('page') || '1', 10) || 1);
+            const startIdx = (page - 1) * perPage;
+            const slice = all.slice(startIdx, startIdx + perPage);
+            return send(res, 200, {
+              success: true, errors: [], messages: [],
+              result: slice,
+              result_info: { page, per_page: perPage, total_count: all.length, count: slice.length },
+            });
           }
           if (req.method === 'POST') {
             const body = JSON.parse((await readBody(req)).toString() || '{}');
@@ -159,12 +193,10 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
             return success(res, ns);
           }
         }
-        // Item: delete namespace or key ops
         if (nsId && !keyEncoded) {
           if (req.method === 'DELETE') {
             if (!state.kvNamespaces.has(nsId)) return notFound(res, `namespace ${nsId}`);
             state.kvNamespaces.delete(nsId);
-            // Cascade: forget every key under this namespace.
             for (const k of [...state.kvValues.keys()]) {
               if (k.startsWith(`${nsId}::`)) state.kvValues.delete(k);
             }
@@ -192,13 +224,43 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
         }
       }
 
-      // ------- Queues -------
-      const qMatch = path.match(/^\/accounts\/[^/]+\/queues(?:\/([^/]+))?(?:\/consumers)?$/);
+      // ------- Queues: list / create / delete / consumers / messages -------
+      const qMessagesMatch = path.match(/^\/accounts\/[^/]+\/queues\/([^/]+)\/messages$/);
+      if (qMessagesMatch && req.method === 'POST') {
+        const qid = qMessagesMatch[1];
+        if (!state.queues.has(qid)) return notFound(res, `queue ${qid}`);
+        const body = JSON.parse((await readBody(req)).toString() || '{}');
+        const messages = Array.isArray(body.messages) ? body.messages : [];
+        const q = state.queueMessages.get(qid) || [];
+        for (const m of messages) q.push({ body: m.body, ts: Date.now() });
+        state.queueMessages.set(qid, q);
+        setImmediate(() => startDrainer(qid));
+        return success(res, { count: messages.length });
+      }
+      const qConsumersMatch = path.match(/^\/accounts\/[^/]+\/queues\/([^/]+)\/consumers$/);
+      if (qConsumersMatch && req.method === 'POST') {
+        const qid = qConsumersMatch[1];
+        if (!state.queues.has(qid)) return notFound(res, `queue ${qid}`);
+        const body = JSON.parse((await readBody(req)).toString() || '{}');
+        const scriptName = body.script_name;
+        if (!state.workers.has(scriptName)) return send(res, 400, { success: false, errors: [{ message: `no such script ${scriptName}` }] });
+        state.workerConsumers.set(qid, scriptName);
+        return success(res, { consumer_id: `c-${Math.random().toString(36).slice(2, 10)}` });
+      }
+      const qMatch = path.match(/^\/accounts\/[^/]+\/queues(?:\/([^/]+))?$/);
       if (qMatch) {
         const qid = qMatch[1] || null;
-        const isConsumers = /\/consumers$/.test(path);
         if (!qid && req.method === 'GET') {
-          return success(res, [...state.queues.values()]);
+          const all = [...state.queues.values()];
+          const perPage = Math.max(1, Math.min(100, Number.parseInt(url.searchParams.get('per_page') || '100', 10) || 100));
+          const page = Math.max(1, Number.parseInt(url.searchParams.get('page') || '1', 10) || 1);
+          const startIdx = (page - 1) * perPage;
+          const slice = all.slice(startIdx, startIdx + perPage);
+          return send(res, 200, {
+            success: true, errors: [], messages: [],
+            result: slice,
+            result_info: { page, per_page: perPage, total_count: all.length, count: slice.length },
+          });
         }
         if (!qid && req.method === 'POST') {
           const body = JSON.parse((await readBody(req)).toString() || '{}');
@@ -208,55 +270,56 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
           state.queueMessages.set(id, []);
           return success(res, q);
         }
-        if (qid && !isConsumers && req.method === 'DELETE') {
+        if (qid && req.method === 'DELETE') {
           if (!state.queues.has(qid)) return notFound(res, `queue ${qid}`);
           state.queues.delete(qid);
           state.queueMessages.delete(qid);
           state.workerConsumers.delete(qid);
           return success(res, null);
         }
-        if (qid && isConsumers && req.method === 'POST') {
-          const body = JSON.parse((await readBody(req)).toString() || '{}');
-          if (!state.queues.has(qid)) return notFound(res, `queue ${qid}`);
-          const scriptName = body.script_name;
-          if (!state.workers.has(scriptName)) return send(res, 400, { success: false, errors: [{ message: `no such script ${scriptName}` }] });
-          state.workerConsumers.set(qid, scriptName);
-          state.workerTelemetry.set(scriptName, { published: 0, batches: 0, totalConsumed: 0, inFlight: 0, maxConcurrent: 0 });
-          return success(res, { consumer_id: `c-${Math.random().toString(36).slice(2, 10)}` });
-        }
       }
 
-      // ------- Workers scripts -------
-      const wMatch = path.match(/^\/accounts\/[^/]+\/workers\/scripts(?:\/([^/]+))?(?:\/(subdomain))?$/);
+      // ------- Workers scripts: list / upload / delete -------
+      const wMatch = path.match(/^\/accounts\/[^/]+\/workers\/scripts(?:\/([^/]+))?$/);
       if (wMatch) {
         const scriptName = wMatch[1] || null;
-        const sub = wMatch[2] || null;
         if (!scriptName && req.method === 'GET') {
-          return success(res, [...state.workers.values()].map((w) => ({ id: w.name, name: w.name })));
+          // Cursor-based pagination (Dave ruling 4e9ff62d item 5).
+          // Each page returns up to WORKER_PAGE_SIZE items and a
+          // cursor to the next page; empty cursor means final page.
+          const WORKER_PAGE_SIZE = 100;
+          const all = [...state.workers.values()].map((w) => ({ id: w.name, name: w.name }));
+          const cursorIn = url.searchParams.get('cursor') || '';
+          const startIdx = cursorIn ? Number.parseInt(cursorIn, 10) : 0;
+          const slice = all.slice(startIdx, startIdx + WORKER_PAGE_SIZE);
+          const nextIdx = startIdx + slice.length;
+          const nextCursor = nextIdx < all.length ? String(nextIdx) : '';
+          return send(res, 200, {
+            success: true, errors: [], messages: [],
+            result: slice,
+            result_info: { cursor: nextCursor, count: slice.length },
+          });
         }
-        if (scriptName && !sub && req.method === 'PUT') {
+        if (scriptName && req.method === 'PUT') {
           const raw = (await readBody(req)).toString();
-          state.workers.set(scriptName, { name: scriptName, script: raw.slice(0, 200), uploadedAt: Date.now() });
+          const metadata = extractMetadataFromMultipart(raw);
+          const bindings = (metadata && Array.isArray(metadata.bindings)) ? metadata.bindings : [];
+          state.workers.set(scriptName, {
+            name: scriptName,
+            script: raw.slice(0, 200),
+            bindings,
+            uploadedAt: Date.now(),
+          });
           return success(res, { id: scriptName, etag: `etag-${Date.now()}` });
         }
-        if (scriptName && !sub && req.method === 'DELETE') {
+        if (scriptName && req.method === 'DELETE') {
           if (!state.workers.has(scriptName)) return notFound(res, `script ${scriptName}`);
           state.workers.delete(scriptName);
-          state.workerTelemetry.delete(scriptName);
-          // Also detach as any consumer.
           for (const [qid, s] of [...state.workerConsumers.entries()]) {
             if (s === scriptName) state.workerConsumers.delete(qid);
           }
           return success(res, null);
         }
-        if (scriptName && sub === 'subdomain' && req.method === 'POST') {
-          return success(res, { enabled: true });
-        }
-      }
-
-      // ------- Workers subdomain (account-level) -------
-      if (path.match(/^\/accounts\/[^/]+\/workers\/subdomain$/) && req.method === 'GET') {
-        return success(res, { subdomain: state.workersSubdomain });
       }
 
       state.logs.push({ method: req.method, path });

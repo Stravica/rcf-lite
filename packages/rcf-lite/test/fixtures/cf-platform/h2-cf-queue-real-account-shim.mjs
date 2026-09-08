@@ -4,31 +4,42 @@
 // real-account-concurrency-smoke probe. AC-29108-2 requires a real
 // consumer to process the published messages ("the consumer processes
 // them concurrently up to the documented 250-invocation cap"), so the
-// fixture provisions BOTH a scratch Queue AND a throwaway consumer
-// Worker bound to that queue, then destroys both on teardown. The
-// happy-path teardown deletes by EXACT id and EXACT name only, and
-// the crash-recovery sweep filters over the account by the frozen
-// throwaway prefix and deletes each match by exact identity (Dave
-// hard constraints 1..4 8be06ee5).
+// fixture provisions:
+//   - a scratch Cloudflare Queue (prefix h2-cf-probe-integrity-scratch-q-);
+//   - a scratch KV namespace for consumer telemetry
+//     (prefix h2-cf-probe-integrity-scratch-kv- so the KV shim's own
+//     sweep also collects any residue);
+//   - a throwaway consumer Worker (prefix h2-cf-probe-integrity-
+//     scratch-w-) bound to the queue as consumer, with RCF_TEST_QUEUE
+//     (queue producer, shipped binding name) + RCF_TEST_TELEMETRY_KV
+//     (KV binding for the per-invocation telemetry records the driver
+//     reads back via the KV REST list + get endpoints).
 //
-// Throwaway prefixes:
-//   Queues:            h2-cf-probe-integrity-scratch-q-
-//   Worker scripts:    h2-cf-probe-integrity-scratch-w-
+// NO workers.dev subdomain enablement (Dave ruling 376b4f30): the
+// consumer is invoked BY THE QUEUE, not over HTTP; the driver
+// publishes via the CF Queues REST publish endpoint. The subdomain
+// endpoint is also a state change on the operator account that is
+// refused on review.
 //
-// The uploaded Worker's source lives in
-// h2-cf-queue-consumer-worker.mjs alongside; the shim never mutates
-// it. Every uploaded script name is generated ONCE, held in a scratch
-// record, and used as the exact identity for both the create and the
-// delete.
+// Happy-path teardown deletes worker (first, so the queue has no
+// active consumer at delete time), queue, then telemetry KV
+// namespace, each by EXACT id / EXACT name against the mint record
+// with three independent prefix guards. Separate crash-recovery
+// sweepOrphans code path filters over the account by the frozen
+// throwaway prefix constants and deletes each match by exact
+// identity; the sweep is structurally unable to select a
+// non-prefixed name (Dave hard constraints 1..4 8be06ee5).
 
 import { mkdir, readFile, writeFile, unlink } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   queueCreate, queueDelete, queueList, queueConsumerAttach,
-  workerUpload, workerDelete, workerList, workerEnableSubdomain,
+  workerUpload, workerDelete, workerList,
+  kvCreateNamespace, kvDeleteNamespace, kvListNamespaces,
 } from './h2-cf-account-api.mjs';
 import { CONSUMER_WORKER_SOURCE } from './h2-cf-queue-consumer-worker.mjs';
+import { NAMESPACE_PREFIX as KV_PREFIX } from './h2-cf-kv-real-account-shim.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SCRATCH_DIR = resolve(HERE, 'scratch');
@@ -36,6 +47,11 @@ const SCRATCH_PATH = join(SCRATCH_DIR, 'last-queue-fixture.json');
 
 export const QUEUE_PREFIX = 'h2-cf-probe-integrity-scratch-q-';
 export const WORKER_PREFIX = 'h2-cf-probe-integrity-scratch-w-';
+// Telemetry KV namespaces intentionally start with the KV shim's own
+// prefix so the KV shim's sweepOrphans also collects them; the tel-
+// infix keeps them distinguishable from KV-probe namespaces at a
+// glance.
+export const TELEMETRY_KV_PREFIX = `${KV_PREFIX}tel-`;
 
 // Every env var the probe / shim can skip or fail on. Copied verbatim
 // into probe report.extra.envDeclared (dispatch requirement 4).
@@ -59,6 +75,12 @@ function assertWorkerPrefix(name, where) {
   }
 }
 
+function assertTelemetryKvPrefix(title, where) {
+  if (typeof title !== 'string' || !title.startsWith(TELEMETRY_KV_PREFIX)) {
+    throw new Error(`${where}: refusing to act on telemetry KV namespace title ${JSON.stringify(title)} - prefix ${TELEMETRY_KV_PREFIX} not present`);
+  }
+}
+
 export function generateQueueName({ runId } = {}) {
   const rid = String(runId || process.env.GITHUB_RUN_ID || `local-${Date.now()}`);
   const rand = Math.random().toString(36).slice(2, 8);
@@ -71,32 +93,78 @@ export function generateWorkerName({ runId } = {}) {
   return `${WORKER_PREFIX}${rid}-${rand}`;
 }
 
-// Mint: create queue, upload worker with QUEUE binding at that queue's
-// id, attach worker as consumer, enable workers.dev subdomain so the
-// probe has an origin to drive. Records both names + ids in the
-// scratch file for follow-up teardown after a crash.
+export function generateTelemetryKvTitle({ runId } = {}) {
+  const rid = String(runId || process.env.GITHUB_RUN_ID || `local-${Date.now()}`);
+  const rand = Math.random().toString(36).slice(2, 8);
+  return `${TELEMETRY_KV_PREFIX}${rid}-${rand}`;
+}
+
+// Mint: telemetry KV first (so the Worker upload can bind it),
+// queue second, worker upload with both bindings, attach consumer.
+// Records ids + names in scratch file for follow-up teardown after
+// a crash.
 export async function mintScratchQueueAndWorker({ runId } = {}) {
   const queueName = generateQueueName({ runId });
   const workerName = generateWorkerName({ runId });
+  const telemetryKvTitle = generateTelemetryKvTitle({ runId });
   assertQueuePrefix(queueName, 'mintScratchQueueAndWorker(queue)');
   assertWorkerPrefix(workerName, 'mintScratchQueueAndWorker(worker)');
+  assertTelemetryKvPrefix(telemetryKvTitle, 'mintScratchQueueAndWorker(telemetry kv)');
 
-  const queue = await queueCreate({ name: queueName });
-  // Sanity: create returned exactly the name we asked for.
-  if (queue.name !== queueName) {
-    throw new Error(`mint: queue name drift (requested=${queueName} observed=${queue.name}); aborting before worker upload`);
+  const telemetryKv = await kvCreateNamespace({ title: telemetryKvTitle });
+  if (telemetryKv.title !== telemetryKvTitle) {
+    // Best-effort revert: kill the KV we just made and refuse to proceed.
+    await kvDeleteNamespace({ id: telemetryKv.id, title: telemetryKv.title }).catch(() => {});
+    throw new Error(`mint: telemetry KV name drift (requested=${telemetryKvTitle} observed=${telemetryKv.title}); aborting`);
   }
-  const upload = await workerUpload({
-    name: workerName,
-    scriptSource: CONSUMER_WORKER_SOURCE,
-    bindings: [{ type: 'queue', name: 'QUEUE', queue_name: queueName }],
-  });
-  await queueConsumerAttach({ queueId: queue.id, scriptName: workerName });
-  const sub = await workerEnableSubdomain({ name: workerName });
+
+  let queue;
+  try {
+    queue = await queueCreate({ name: queueName });
+  } catch (err) {
+    await kvDeleteNamespace({ id: telemetryKv.id, title: telemetryKv.title }).catch(() => {});
+    throw err;
+  }
+  if (queue.name !== queueName) {
+    await queueDelete({ id: queue.id, name: queue.name }).catch(() => {});
+    await kvDeleteNamespace({ id: telemetryKv.id, title: telemetryKv.title }).catch(() => {});
+    throw new Error(`mint: queue name drift (requested=${queueName} observed=${queue.name}); aborting`);
+  }
+
+  let upload;
+  try {
+    upload = await workerUpload({
+      name: workerName,
+      scriptSource: CONSUMER_WORKER_SOURCE,
+      bindings: [
+        // Shipped-convention producer binding name (Dave 376b4f30):
+        // RCF_TEST_QUEUE matches the wrangler.toml on
+        // packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Not read
+        // by the consumer body; declared for shape consistency with
+        // the shipped fixture Worker.
+        { type: 'queue', name: 'RCF_TEST_QUEUE', queue_name: queueName },
+        { type: 'kv_namespace', name: 'RCF_TEST_TELEMETRY_KV', namespace_id: telemetryKv.id },
+      ],
+    });
+  } catch (err) {
+    await queueDelete({ id: queue.id, name: queue.name }).catch(() => {});
+    await kvDeleteNamespace({ id: telemetryKv.id, title: telemetryKv.title }).catch(() => {});
+    throw err;
+  }
+
+  try {
+    await queueConsumerAttach({ queueId: queue.id, scriptName: workerName });
+  } catch (err) {
+    await workerDelete({ name: workerName }).catch(() => {});
+    await queueDelete({ id: queue.id, name: queue.name }).catch(() => {});
+    await kvDeleteNamespace({ id: telemetryKv.id, title: telemetryKv.title }).catch(() => {});
+    throw err;
+  }
 
   const record = {
     queue: { id: queue.id, name: queue.name },
-    worker: { name: workerName, url: sub.url, subdomain: sub.subdomain },
+    worker: { name: workerName },
+    telemetryKv: { id: telemetryKv.id, title: telemetryKv.title },
     createdAt: new Date().toISOString(),
     runId: String(runId || process.env.GITHUB_RUN_ID || 'local'),
     uploadResponse: upload.response || null,
@@ -104,18 +172,6 @@ export async function mintScratchQueueAndWorker({ runId } = {}) {
   await mkdir(SCRATCH_DIR, { recursive: true });
   await writeFile(SCRATCH_PATH, JSON.stringify(record, null, 2) + '\n', 'utf8');
   return record;
-}
-
-// Test hook: allow the test harness to override the origin URL the
-// probe drives against (the mock CF API serves worker origins under
-// /w/<scriptName>/...). Only fires when the env var is present.
-export function overrideWorkerUrl(record) {
-  const override = process.env.H2_CF_QUEUE_WORKER_URL_OVERRIDE;
-  if (!override || override.trim().length === 0) return record;
-  const clone = JSON.parse(JSON.stringify(record));
-  const base = override.replace(/\/$/, '');
-  clone.worker = { ...clone.worker, url: `${base}/w/${record.worker.name}` };
-  return clone;
 }
 
 export async function destroyScratchQueueAndWorker(record) {
@@ -128,41 +184,47 @@ export async function destroyScratchQueueAndWorker(record) {
       return { destroyed: null, reason: 'scratch-missing' };
     }
   }
-  if (!target.queue || !target.queue.id || !target.worker || !target.worker.name) {
-    throw new Error('destroyScratchQueueAndWorker: record missing queue.id or worker.name');
+  if (!target.queue || !target.queue.id || !target.worker || !target.worker.name || !target.telemetryKv || !target.telemetryKv.id) {
+    throw new Error('destroyScratchQueueAndWorker: record missing queue.id, worker.name, or telemetryKv.id');
   }
   // Two independent guards per resource (Dave hard constraint 3):
-  // exact-name equality against the record AND prefix assert. Live
-  // observation is a third belt-and-braces read.
+  // record-side prefix assert plus live-listing observation.
   assertQueuePrefix(target.queue.name, 'destroyScratchQueueAndWorker(queue prefix)');
   assertWorkerPrefix(target.worker.name, 'destroyScratchQueueAndWorker(worker prefix)');
+  assertTelemetryKvPrefix(target.telemetryKv.title, 'destroyScratchQueueAndWorker(kv prefix)');
   const liveQueues = await queueList();
   const observedQ = liveQueues.find((q) => q.id === target.queue.id);
   if (observedQ) assertQueuePrefix(observedQ.name, 'destroyScratchQueueAndWorker(queue live)');
   const liveWorkers = await workerList();
   const observedW = liveWorkers.find((w) => w.name === target.worker.name);
   if (observedW) assertWorkerPrefix(observedW.name, 'destroyScratchQueueAndWorker(worker live)');
+  const liveKv = await kvListNamespaces();
+  const observedKv = liveKv.find((n) => n.id === target.telemetryKv.id);
+  if (observedKv) assertTelemetryKvPrefix(observedKv.title, 'destroyScratchQueueAndWorker(kv live)');
 
-  // Delete worker FIRST so the queue has no consumer left when it
-  // goes away; if delete-order matters on Cloudflare the reverse is
-  // harmless (a Queue delete with consumers reports the block, our
-  // sweep collects the leak).
+  // Delete worker FIRST so the queue has no consumer at delete time;
+  // then queue; then telemetry KV (nothing points at it after the
+  // worker is gone).
   const workerResult = await workerDelete({ name: target.worker.name });
   const queueResult = await queueDelete({ id: target.queue.id, name: target.queue.name });
+  const kvResult = await kvDeleteNamespace({ id: target.telemetryKv.id, title: target.telemetryKv.title });
 
   try { await unlink(SCRATCH_PATH); } catch (_err) { /* fine */ }
   return {
-    destroyed: { queue: target.queue.id, worker: target.worker.name },
-    api: { worker: workerResult, queue: queueResult },
+    destroyed: {
+      queue: target.queue.id,
+      worker: target.worker.name,
+      telemetryKv: target.telemetryKv.id,
+    },
+    api: { worker: workerResult, queue: queueResult, telemetryKv: kvResult },
   };
 }
 
-// Sweep: list all workers, keep only those with WORKER_PREFIX; list
-// all queues, keep only those with QUEUE_PREFIX; delete each match by
-// exact identity. Structurally unable to select a non-prefixed name
-// (Dave hard constraint 4). No cutoff: we control the prefix, so a
-// match is unambiguously ours.
-export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq } = {}) {
+// Sweep: list all workers / queues / KV namespaces, keep only those
+// carrying our frozen throwaway prefixes, delete each match by exact
+// identity. Structurally unable to select a non-prefixed name (Dave
+// hard constraint 4).
+export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq, liveKvNamespaces: lk } = {}) {
   const workers = Array.isArray(lw) ? lw : await workerList();
   const workerCandidates = workers.filter((w) => typeof w.name === 'string' && w.name.startsWith(WORKER_PREFIX));
   const workerSwept = [];
@@ -187,9 +249,22 @@ export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq } = {}) {
       process.stderr.write(`sweepOrphans: queue delete ${q.name} failed: ${err.message}\n`);
     }
   }
+  const kvNamespaces = Array.isArray(lk) ? lk : await kvListNamespaces();
+  const kvCandidates = kvNamespaces.filter((n) => typeof n.title === 'string' && n.title.startsWith(TELEMETRY_KV_PREFIX));
+  const kvSwept = [];
+  for (const n of kvCandidates) {
+    assertTelemetryKvPrefix(n.title, 'sweepOrphans(telemetry kv)');
+    try {
+      await kvDeleteNamespace({ id: n.id, title: n.title });
+      kvSwept.push({ id: n.id, title: n.title });
+    } catch (err) {
+      process.stderr.write(`sweepOrphans: kv delete ${n.id} failed: ${err.message}\n`);
+    }
+  }
   return {
     workerSwept, workerSweptCount: workerSwept.length, workerCandidatesConsidered: workerCandidates.length, workersListed: workers.length,
     queueSwept, queueSweptCount: queueSwept.length, queueCandidatesConsidered: queueCandidates.length, queuesListed: queues.length,
+    kvSwept, kvSweptCount: kvSwept.length, kvCandidatesConsidered: kvCandidates.length, kvNamespacesListed: kvNamespaces.length,
   };
 }
 

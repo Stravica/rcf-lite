@@ -135,13 +135,93 @@ test('sweep-safety: KV sweep filter is a startsWith on the frozen prefix constan
   assert.match(src, /n\.title\.startsWith\(NAMESPACE_PREFIX\)/, 'sweep filter uses startsWith on the frozen constant');
 });
 
-test('sweep-safety: Queue+Worker sweep filter uses startsWith on the frozen prefix constants (structural assertion)', async () => {
+test('sweep-safety: Queue+Worker+telemetryKV sweep filter uses startsWith on the frozen prefix constants (structural assertion)', async () => {
   const qShim = await import('../h2-cf-queue-real-account-shim.mjs');
   const { readFile } = await import('node:fs/promises');
   const { fileURLToPath } = await import('node:url');
   const src = await readFile(fileURLToPath(new URL('../h2-cf-queue-real-account-shim.mjs', import.meta.url)), 'utf8');
   assert.equal(qShim.QUEUE_PREFIX, 'h2-cf-probe-integrity-scratch-q-');
   assert.equal(qShim.WORKER_PREFIX, 'h2-cf-probe-integrity-scratch-w-');
+  assert.equal(qShim.TELEMETRY_KV_PREFIX, 'h2-cf-probe-integrity-scratch-kv-tel-');
   assert.match(src, /w\.name\.startsWith\(WORKER_PREFIX\)/, 'worker sweep filter uses startsWith on frozen constant');
   assert.match(src, /q\.name\.startsWith\(QUEUE_PREFIX\)/, 'queue sweep filter uses startsWith on frozen constant');
+  assert.match(src, /n\.title\.startsWith\(TELEMETRY_KV_PREFIX\)/, 'telemetry KV sweep filter uses startsWith on frozen constant');
+});
+
+test('sweep-safety: no workers.dev subdomain surface anywhere in the client, shim, mock or tests (Dave ruling 376b4f30)', async () => {
+  // The words "workers.dev" and "subdomain" legitimately appear in
+  // comments that document their absence and cite the ruling; those
+  // must not fail the check. Instead assert on the CALLABLE / URL /
+  // ROUTE patterns that would indicate an active surface.
+  const { readFile, readdir } = await import('node:fs/promises');
+  const { fileURLToPath } = await import('node:url');
+  const { join, dirname } = await import('node:path');
+  const here = dirname(fileURLToPath(import.meta.url));
+  const roots = [join(here, '..'), here];
+  const files = [];
+  async function walk(dir) {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const e of entries) {
+      const full = join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name === 'node_modules' || e.name === 'dist' || e.name === '.wrangler' || e.name === 'scratch' || e.name === '.rcf') continue;
+        await walk(full);
+      } else if (/\.(mjs|js|json)$/.test(e.name)) {
+        files.push(full);
+      }
+    }
+  }
+  for (const r of roots) await walk(r);
+  for (const f of files) {
+    if (f === fileURLToPath(import.meta.url)) continue; // this test names the forbidden patterns
+    const s = await readFile(f, 'utf8');
+    // Template-literal or quoted string containing .workers.dev
+    // (would indicate a URL construction on that surface).
+    assert.equal(/[`'"][^`'"\n]*\.workers\.dev[^`'"\n]*[`'"]/.test(s), false, `no .workers.dev URL literal should remain in ${f}`);
+    // Callable named workerEnableSubdomain or any variant.
+    assert.equal(/workerEnableSubdomain\s*\(/.test(s), false, `workerEnableSubdomain call must be gone from ${f}`);
+    assert.equal(/export\s+(async\s+)?function\s+workerEnableSubdomain\b/.test(s), false, `workerEnableSubdomain export must be gone from ${f}`);
+    // POST /workers/scripts/<name>/subdomain route.
+    assert.equal(/\/workers\/scripts\/[^"'`\s]*\/subdomain/.test(s), false, `/workers/scripts/<name>/subdomain route must be gone from ${f}`);
+    // GET /workers/subdomain (account-level) route.
+    assert.equal(/\/workers\/subdomain\b/.test(s), false, `/workers/subdomain route must be gone from ${f}`);
+  }
+});
+
+test('sweep-safety: multi-page listings still catch every prefixed residue (pagination cover, Dave ruling 4e9ff62d item 5)', async () => {
+  await withMock(async (mock) => {
+    const kvShim = await import('../h2-cf-kv-real-account-shim.mjs');
+    const qShim = await import('../h2-cf-queue-real-account-shim.mjs');
+    // Seed 250 live-looking KV namespaces (> 2 pages at per_page=100),
+    // 250 live-looking queues, 250 live-looking workers. A page-one-
+    // only sweep would leave residues on pages 2+; a correct
+    // paginated sweep leaves the whole live set untouched.
+    for (let i = 0; i < 250; i++) {
+      const kvId = `live-kv-${i.toString().padStart(4, '0')}`;
+      mock.state.kvNamespaces.set(kvId, { id: kvId, title: `live-namespace-${i}` });
+      const qId = `live-q-${i.toString().padStart(4, '0')}`;
+      mock.state.queues.set(qId, { queue_id: qId, queue_name: `live-queue-${i}` });
+      const wName = `live-worker-${i.toString().padStart(4, '0')}`;
+      mock.state.workers.set(wName, { name: wName, script: 'live', uploadedAt: Date.now() });
+    }
+    // Sprinkle throwaway residues on the last, middle and first
+    // "pages" so a truncated sweep would visibly miss them.
+    const junk1 = await kvShim.mintScratchNamespace({ runId: 'multi-page-1' });
+    const junk2 = await qShim.mintScratchQueueAndWorker({ runId: 'multi-page-2' });
+    // A KV sweep should catch junk1 + junk2's telemetry KV.
+    const kvSweep = await kvShim.sweepOrphans();
+    // KV sweep filters on 'h2-cf-probe-integrity-scratch-kv-' which
+    // covers both the KV-probe scratch prefix AND the queue shim's
+    // telemetry KV prefix by design.
+    assert.equal(kvSweep.sweptCount, 2, `KV sweep should catch both scratch namespaces (probe + queue telemetry) across pages; got ${kvSweep.sweptCount}`);
+    // The queue sweep should catch junk2's queue + worker only (KV
+    // telemetry already gone via kvSweep).
+    const qSweep = await qShim.sweepOrphans();
+    assert.equal(qSweep.workerSweptCount, 1);
+    assert.equal(qSweep.queueSweptCount, 1);
+    // Every live-looking name survives.
+    assert.equal(mock.state.kvNamespaces.size, 250);
+    assert.equal(mock.state.queues.size, 250);
+    assert.equal(mock.state.workers.size, 250);
+  });
 });

@@ -14,7 +14,12 @@ H-2 follow-up (`w-2026-09-08-dave-017`, addendum item 6 fixture defect): the rea
 
 ### Added
 
-- Self-contained mock CF REST API at `packages/rcf-lite/test/fixtures/cf-platform/test/mock-cf-api-server.mjs` (Node `node:http` only, zero-dep) implementing the KV namespaces + values endpoints the shim hits. Test at `test/h2-cf-kv-probe-e2e.test.mjs` boots the mock in-process, points the shim at it via `CF_API_BASE_URL`, and drives the probe end-to-end to prove the mint / evidence-capture / teardown / zero-orphans loop before the HQ real-account run ever executes.
+- Self-contained mock CF REST API at `packages/rcf-lite/test/fixtures/cf-platform/test/mock-cf-api-server.mjs` (Node `node:http` only, zero-dep) implementing the KV namespaces + values + keys endpoints the shim hits, with page + per_page pagination on the namespaces list. Test at `test/h2-cf-kv-probe-e2e.test.mjs` boots the mock in-process, points the shim at it via `CF_API_BASE_URL`, and drives the probe end-to-end to prove the mint / evidence-capture / teardown / zero-orphans loop before the HQ real-account run ever executes.
+- `kvListNamespaces` in the shared CF REST client (`h2-cf-account-api.mjs`) paginates to completion via the documented `per_page` + `page` loop (Dave ruling 4e9ff62d item 5) so `sweepOrphans` is not silently truncated to page one on a busy account. `kvDeleteNamespace` is idempotent on 404 (Dave ruling 4e9ff62d items 3+4).
+
+### Local-proof scope note
+
+The local proof harness under `packages/rcf-lite/test/fixtures/cf-platform/test/` is a mock of Cloudflare's REST contract, not the wire. **The local run exercises OUR lifecycle logic against a mock of Cloudflare's contract; the real-account gate is the only surface that proves the wire format.** This probe is never described as "locally verified" - the local runs are our own lifecycle-logic proof; wire correctness is proven at the HQ real-account gate.
 
 ## 1.0.1 (2026-09-08)
 

@@ -1,21 +1,27 @@
 // h2-cf-queue-real-account-shim.test.mjs
 //
-// Local proof for the Queue + Consumer-Worker self-provisioning fixture.
-// Boots the mock CF REST API in-process, points the shim at it via
-// CF_API_BASE_URL, and exercises every path the HQ real-account run
-// will hit:
+// Lifecycle-logic proof for the Queue + Consumer-Worker + telemetry-KV
+// self-provisioning fixture (Dave ruling 376b4f30: local proof
+// exercises OUR lifecycle logic against a mock of the CF contract;
+// the real-account gate is the only surface that proves the wire
+// format). Boots the mock CF REST API in-process, points the shim at
+// it via CF_API_BASE_URL, and exercises every path the HQ real-
+// account run will hit:
 //
-//   1) mint queue + upload consumer worker + attach consumer + enable
-//      subdomain -> verify BEFORE=(0 queues, 0 workers) AFTER=(1 each)
-//      with the documented throwaway prefixes.
-//   2) destroy path -> zero queues, zero workers.
+//   1) mint (telemetry KV + queue + worker upload with RCF_TEST_QUEUE
+//      + RCF_TEST_TELEMETRY_KV bindings + consumer attach) -> verify
+//      BEFORE=(0 queues, 0 workers, 0 KV) AFTER=(1 each) with the
+//      documented throwaway prefixes. Worker declares the shipped
+//      convention binding name RCF_TEST_QUEUE (Dave ruling 376b4f30).
+//      No workers.dev subdomain call anywhere.
+//   2) destroy path -> zero queues, zero workers, zero KV namespaces.
 //   3) mid-run crash (mint then abort before destroy) -> sweepOrphans
-//      cleans both the residue worker and the residue queue.
+//      cleans all three residues (worker + queue + telemetry KV).
 //   4) sweep-safety: seed the account with the ten LIVE production
 //      Worker script names Dave enumerated (Dave hard constraint 4:
 //      feed the sweep live-looking names, assert zero selected). Same
-//      property for a plausible live-looking queue name that
-//      accidentally begins with our prefix substring.
+//      property for plausible live queue and KV namespace names,
+//      including mid-string-prefix decoys.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -48,42 +54,64 @@ async function withMock(fn) {
   }
 }
 
-test('Queue shim: mint (queue + worker + consumer + subdomain) then destroy leaves zero orphans', async () => {
+test('Queue shim: mint (telemetry KV + queue + worker + consumer) then destroy leaves zero orphans', async () => {
   await withMock(async (mock) => {
     const shim = await import('../h2-cf-queue-real-account-shim.mjs');
     assert.equal(mock.state.queues.size, 0);
     assert.equal(mock.state.workers.size, 0);
+    assert.equal(mock.state.kvNamespaces.size, 0);
     const rec = await shim.mintScratchQueueAndWorker({ runId: 'proof-q1' });
     assert.ok(rec.queue.id);
     assert.ok(rec.queue.name.startsWith(shim.QUEUE_PREFIX));
     assert.ok(rec.worker.name.startsWith(shim.WORKER_PREFIX));
+    assert.ok(rec.telemetryKv.id);
+    assert.ok(rec.telemetryKv.title.startsWith(shim.TELEMETRY_KV_PREFIX));
+    // No worker.url field on the record (workers.dev subdomain not enabled).
+    assert.equal(rec.worker.url, undefined, 'worker record must not carry a url (no subdomain enablement)');
     assert.equal(mock.state.queues.size, 1);
     assert.equal(mock.state.workers.size, 1);
-    // The consumer must be attached (mock state records it under the
-    // queue id).
+    assert.equal(mock.state.kvNamespaces.size, 1);
+    // Worker declares BOTH bindings, RCF_TEST_QUEUE (shipped
+    // convention) and RCF_TEST_TELEMETRY_KV.
+    const w = mock.state.workers.get(rec.worker.name);
+    assert.ok(w.bindings && w.bindings.length === 2, 'worker declares two bindings');
+    const queueBinding = w.bindings.find((b) => b.type === 'queue');
+    assert.equal(queueBinding.name, 'RCF_TEST_QUEUE', 'queue binding uses the shipped convention name RCF_TEST_QUEUE');
+    assert.equal(queueBinding.queue_name, rec.queue.name);
+    const kvBinding = w.bindings.find((b) => b.type === 'kv_namespace');
+    assert.equal(kvBinding.name, 'RCF_TEST_TELEMETRY_KV');
+    assert.equal(kvBinding.namespace_id, rec.telemetryKv.id);
+    // Consumer attached to the queue.
     assert.equal(mock.state.workerConsumers.get(rec.queue.id), rec.worker.name);
+    // Destroy
     const td = await shim.destroyScratchQueueAndWorker(rec);
     assert.equal(td.destroyed.queue, rec.queue.id);
     assert.equal(td.destroyed.worker, rec.worker.name);
+    assert.equal(td.destroyed.telemetryKv, rec.telemetryKv.id);
     assert.equal(mock.state.queues.size, 0);
     assert.equal(mock.state.workers.size, 0);
+    assert.equal(mock.state.kvNamespaces.size, 0);
   });
 });
 
-test('Queue shim: mid-run crash then sweep removes both residues', async () => {
+test('Queue shim: mid-run crash then sweep removes all three residues (worker, queue, telemetry KV)', async () => {
   await withMock(async (mock) => {
     const shim = await import('../h2-cf-queue-real-account-shim.mjs');
     const rec = await shim.mintScratchQueueAndWorker({ runId: 'crash-q1' });
     if (existsSync(shim._SCRATCH_PATH)) await unlink(shim._SCRATCH_PATH);
     assert.equal(mock.state.queues.size, 1);
     assert.equal(mock.state.workers.size, 1);
+    assert.equal(mock.state.kvNamespaces.size, 1);
     const sweep = await shim.sweepOrphans();
     assert.equal(sweep.queueSweptCount, 1);
     assert.equal(sweep.workerSweptCount, 1);
+    assert.equal(sweep.kvSweptCount, 1);
     assert.equal(sweep.queueSwept[0].id, rec.queue.id);
     assert.equal(sweep.workerSwept[0].name, rec.worker.name);
+    assert.equal(sweep.kvSwept[0].id, rec.telemetryKv.id);
     assert.equal(mock.state.queues.size, 0);
     assert.equal(mock.state.workers.size, 0);
+    assert.equal(mock.state.kvNamespaces.size, 0);
   });
 });
 
@@ -107,7 +135,6 @@ test('Queue shim: sweep-safety - ten LIVE production Worker script names survive
       'production-h2-cf-probe-integrity-scratch-w-should-survive',
     ];
     for (const n of liveWorkerNames) mock.state.workers.set(n, { name: n, script: 'live', uploadedAt: Date.now() });
-    // Plausible live-looking queue names.
     const liveQueueNames = [
       'rcf-lite-ci-queue-smoke',
       'production-orders',
@@ -118,18 +145,30 @@ test('Queue shim: sweep-safety - ten LIVE production Worker script names survive
       const id = `live-q-${Math.random().toString(36).slice(2)}`;
       mock.state.queues.set(id, { queue_id: id, queue_name: n });
     }
+    const liveKvTitles = [
+      'watchpost-heartbeat',
+      'urlc-admin-api-URL_CACHE',
+      'worker-compact_urls_kv',
+      'legacy-h2-cf-probe-integrity-scratch-kv-tel-should-survive',
+    ];
+    for (const t of liveKvTitles) {
+      const id = `live-kv-${Math.random().toString(36).slice(2)}`;
+      mock.state.kvNamespaces.set(id, { id, title: t });
+    }
     // Seed one throwaway of each.
     const junk = await shim.mintScratchQueueAndWorker({ runId: 'junk-q' });
     assert.equal(mock.state.workers.size, liveWorkerNames.length + 1);
     assert.equal(mock.state.queues.size, liveQueueNames.length + 1);
+    assert.equal(mock.state.kvNamespaces.size, liveKvTitles.length + 1);
 
     const sweep = await shim.sweepOrphans();
     assert.equal(sweep.workerSweptCount, 1);
     assert.equal(sweep.queueSweptCount, 1);
+    assert.equal(sweep.kvSweptCount, 1);
     assert.equal(sweep.workerSwept[0].name, junk.worker.name);
     assert.equal(sweep.queueSwept[0].id, junk.queue.id);
+    assert.equal(sweep.kvSwept[0].id, junk.telemetryKv.id);
 
-    // Verify EVERY live-looking name still present.
     for (const n of liveWorkerNames) {
       assert.ok(mock.state.workers.has(n), `live worker survived sweep: ${n}`);
     }
@@ -137,7 +176,9 @@ test('Queue shim: sweep-safety - ten LIVE production Worker script names survive
       const survivor = [...mock.state.queues.values()].find((q) => q.queue_name === n);
       assert.ok(survivor, `live queue survived sweep: ${n}`);
     }
-    assert.equal(mock.state.workers.size, liveWorkerNames.length);
-    assert.equal(mock.state.queues.size, liveQueueNames.length);
+    for (const t of liveKvTitles) {
+      const survivor = [...mock.state.kvNamespaces.values()].find((n) => n.title === t);
+      assert.ok(survivor, `live KV namespace survived sweep: ${t}`);
+    }
   });
 });

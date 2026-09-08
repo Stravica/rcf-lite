@@ -5,31 +5,35 @@
  * Self-provisioning: the fixture shim (packages/rcf-lite/test/fixtures/
  * cf-platform/h2-cf-queue-real-account-shim.mjs) mints a scratch
  * Cloudflare Queue under the throwaway prefix
- * `h2-cf-probe-integrity-scratch-q-`, uploads a throwaway consumer
- * Worker under `h2-cf-probe-integrity-scratch-w-` bound to that queue,
- * attaches the Worker as the queue's consumer, and enables its
- * workers.dev subdomain so the driver has an origin to hit. The
- * driver then POSTs 500 messages through the shipped producer facade
- * against the Worker's /publish-batch endpoint in 10 concurrent
- * batches of 50, polls /stats until totalConsumed >= published (drain
- * cap 120s), and asserts:
+ * `h2-cf-probe-integrity-scratch-q-`, a scratch KV namespace for
+ * consumer telemetry under `h2-cf-probe-integrity-scratch-kv-tel-`,
+ * and a throwaway consumer Worker under `h2-cf-probe-integrity-
+ * scratch-w-` bound to the queue (consumer) with RCF_TEST_QUEUE
+ * (shipped queue producer binding name) + RCF_TEST_TELEMETRY_KV
+ * bindings. NO workers.dev subdomain is enabled (Dave ruling
+ * 376b4f30): the consumer is invoked BY THE QUEUE, not over HTTP.
  *
- *   - every published message was consumed (totalConsumed === published)
- *   - observed concurrency exceeded 1 (maxConcurrent > 1)
- *   - observed concurrency did NOT exceed the documented push-consumer
- *     cap of 250 (maxConcurrent <= 250) per
- *     https://developers.cloudflare.com/queues/platform/limits/
+ * Driver:
+ *   1. Publishes 500 messages via the Cloudflare Queues REST publish
+ *      endpoint in 10 concurrent 50-message batches
+ *      (https://developers.cloudflare.com/api/operations/queue-publish-messages).
+ *   2. Polls the telemetry KV namespace via the KV REST list + get
+ *      endpoints until sum(batchSize) across records >= published
+ *      (drain cap 120s).
+ *   3. Computes maxConcurrent from an interval-overlap analysis on
+ *      the per-invocation (start, end) timestamps the Worker's
+ *      queue() handler recorded.
+ *   4. Asserts totalConsumed === published, maxConcurrent > 1, and
+ *      maxConcurrent <= 250 per Cloudflare's documented push-consumer
+ *      cap (https://developers.cloudflare.com/queues/platform/limits/).
  *
- * AC-29108-2 requires the consumer to actually process concurrently,
- * so this is the consumer-worker fixture shape (not a produce-only
- * light shape). Teardown deletes both the Worker (first, so the queue
- * has no active consumer at delete time) and the Queue on exit;
- * happy-path teardown uses exact identity only, and the shim's
- * separate sweepOrphans path lists over the account by frozen prefix
- * and deletes each match by exact identity (Dave hard constraints
- * 8be06ee5). The sweep is exercised locally against the ten live
- * production script names on the operator account by a dedicated
- * sweep-safety test.
+ * Local proof is a mock of Cloudflare's REST contract, not the wire.
+ * The local run exercises our lifecycle logic against a mock of the
+ * shipped contract; the real-account gate is the only surface that
+ * proves the wire format (Dave ruling 376b4f30). This probe is
+ * therefore never described as "locally verified" - the local runs
+ * are our own lifecycle-logic proof; wire correctness is proven at
+ * the HQ real-account gate.
  *
  * Declared env (dispatch requirement 4):
  *   CI_HAS_CLOUDFLARE_ACCOUNT   required to enter the driver path.
@@ -47,55 +51,18 @@
 
 import {
   mintScratchQueueAndWorker, destroyScratchQueueAndWorker,
-  overrideWorkerUrl, DECLARED_ENV, QUEUE_PREFIX, WORKER_PREFIX,
+  DECLARED_ENV, QUEUE_PREFIX, WORKER_PREFIX, TELEMETRY_KV_PREFIX,
 } from '../../../../packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs';
+import { queuePublishBatch, kvListKeys, kvGet } from '../../../../packages/rcf-lite/test/fixtures/cf-platform/h2-cf-account-api.mjs';
 
 const DEFAULT_MESSAGE_COUNT = 500;
 const BATCH_SIZE = 50;
 const DRAIN_POLL_INTERVAL_MS = 500;
 const DRAIN_TIMEOUT_MS = 120000;
-const PUBLISH_TIMEOUT_MS = 60000;
 const DOCUMENTED_PUSH_CAP = 250;
 
 export const anchorAcId = 'AC-29108-2';
 export const accountBound = true;
-
-function timeoutSignal(ms) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(new Error(`timeout after ${ms}ms`)), ms);
-  return { signal: controller.signal, cancel: () => clearTimeout(timer) };
-}
-
-async function postJson(url, body, timeoutMs) {
-  const guard = timeoutSignal(timeoutMs);
-  try {
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: guard.signal,
-    });
-    const text = await resp.text();
-    let json = null;
-    try { json = text ? JSON.parse(text) : null; } catch (_err) { /* keep as text */ }
-    return { ok: resp.ok, status: resp.status, json, text };
-  } finally {
-    guard.cancel();
-  }
-}
-
-async function getJson(url, timeoutMs) {
-  const guard = timeoutSignal(timeoutMs);
-  try {
-    const resp = await fetch(url, { method: 'GET', signal: guard.signal });
-    const text = await resp.text();
-    let json = null;
-    try { json = text ? JSON.parse(text) : null; } catch (_err) { /* keep as text */ }
-    return { ok: resp.ok, status: resp.status, json, text };
-  } finally {
-    guard.cancel();
-  }
-}
 
 function skipResult(detail) {
   return [{
@@ -104,14 +71,45 @@ function skipResult(detail) {
     detail,
     accountBoundSkipped: true,
     envDeclared: Array.from(DECLARED_ENV),
-    throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX },
+    throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
   }];
+}
+
+// Interval-overlap analysis: given records [{start, end, batchSize, ...}]
+// compute the peak simultaneous in-flight invocation count using a
+// sweep line over the (start, +1) / (end, -1) event list.
+function computeMaxConcurrent(records) {
+  const events = [];
+  for (const r of records) {
+    events.push([r.start, +1]);
+    events.push([r.end, -1]);
+  }
+  // Sort by time; process starts before ends at the same instant so a
+  // batch that finishes exactly when another begins does not
+  // artificially deflate the concurrency count.
+  events.sort((a, b) => (a[0] - b[0]) || (b[1] - a[1]));
+  let cur = 0, max = 0;
+  for (const [, delta] of events) {
+    cur += delta;
+    if (cur > max) max = cur;
+  }
+  return max;
+}
+
+async function readTelemetryRecords({ namespaceId }) {
+  const keys = await kvListKeys({ namespaceId, prefix: 'telemetry-', limit: 1000 });
+  const records = await Promise.all(keys.map(async (k) => {
+    const g = await kvGet({ namespaceId, key: k.name });
+    if (!g.ok) return null;
+    try { return JSON.parse(g.text); } catch (_err) { return null; }
+  }));
+  return records.filter((r) => r && typeof r.start === 'number' && typeof r.end === 'number' && typeof r.batchSize === 'number');
 }
 
 export default async function runProbe() {
   const hasAccount = process.env.CI_HAS_CLOUDFLARE_ACCOUNT === '1' || process.env.CI_HAS_CLOUDFLARE_ACCOUNT === 'true';
   if (!hasAccount) {
-    return skipResult(`accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_ACCOUNT_ID and CF_API_TOKEN. The fixture mints its own throwaway Queue + consumer Worker under the H-2 prefixes; no pre-provisioned CF_QUEUE_WORKER_URL is required (removed as of v1.0.2 per w-2026-09-08-dave-017). Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/. Message count: ${DEFAULT_MESSAGE_COUNT}.`);
+    return skipResult(`accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_ACCOUNT_ID and CF_API_TOKEN. The fixture mints its own throwaway Queue + consumer Worker + telemetry KV namespace under the H-2 prefixes; publishes via the CF Queues REST publish endpoint (no workers.dev subdomain enabled); reads telemetry via the KV REST list + get endpoints. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/. Message count: ${DEFAULT_MESSAGE_COUNT}.`);
   }
   if (!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN) {
     return [{
@@ -138,20 +136,6 @@ export default async function runProbe() {
   }
 
   try {
-    const effective = overrideWorkerUrl(mint);
-    const base = effective.worker.url.replace(/\/$/, '');
-
-    // Reset telemetry so a prior run does not leak counters.
-    const reset = await postJson(`${base}/reset`, {}, PUBLISH_TIMEOUT_MS).catch((err) => ({ ok: false, status: 0, text: String(err) }));
-    if (!reset.ok) {
-      return [{
-        anchorAcId: 'AC-29108-2',
-        verdict: 'fail',
-        detail: `POST ${base}/reset failed: status=${reset.status} text=${(reset.text || '').slice(-500)}. The throwaway consumer Worker must expose /reset before the concurrency driver runs.`,
-        envDeclared: Array.from(DECLARED_ENV),
-      }];
-    }
-
     const started = Date.now();
     const batches = [];
     for (let i = 0; i < messageCount; i += BATCH_SIZE) {
@@ -164,68 +148,62 @@ export default async function runProbe() {
     }
 
     const publishResults = await Promise.all(batches.map((slice) =>
-      postJson(`${base}/publish-batch`, { messages: slice }, PUBLISH_TIMEOUT_MS)
-        .catch((err) => ({ ok: false, status: 0, text: String(err) })),
+      queuePublishBatch({ queueId: mint.queue.id, messages: slice })
+        .then((r) => ({ ok: true, ...r }))
+        .catch((err) => ({ ok: false, error: err.message, status: err.status || 0 })),
     ));
-
     const publishFail = publishResults.find((r) => !r.ok);
     if (publishFail) {
       return [{
         anchorAcId: 'AC-29108-2',
         verdict: 'fail',
-        detail: `publish batch failed: status=${publishFail.status} text=${(publishFail.text || '').slice(-500)}`,
+        detail: `queuePublishBatch failed: status=${publishFail.status} error=${publishFail.error}`,
         envDeclared: Array.from(DECLARED_ENV),
       }];
     }
-    const publishedCount = publishResults.reduce((acc, r) => acc + (r.json?.count ?? 0), 0);
+    const publishedCount = publishResults.reduce((acc, r) => acc + (r.count ?? 0), 0);
 
-    let stats = null;
+    let records = [];
+    let totalConsumed = 0;
     const drainStart = Date.now();
     while (Date.now() - drainStart < DRAIN_TIMEOUT_MS) {
-      const s = await getJson(`${base}/stats`, PUBLISH_TIMEOUT_MS).catch((err) => ({ ok: false, status: 0, text: String(err), json: null }));
-      if (s.ok && s.json) {
-        stats = s.json;
-        if (stats.totalConsumed >= publishedCount) break;
-      }
+      records = await readTelemetryRecords({ namespaceId: mint.telemetryKv.id }).catch(() => []);
+      totalConsumed = records.reduce((a, r) => a + r.batchSize, 0);
+      if (totalConsumed >= publishedCount) break;
       await new Promise((r) => setTimeout(r, DRAIN_POLL_INTERVAL_MS));
     }
 
-    if (!stats) {
-      return [{
-        anchorAcId: 'AC-29108-2',
-        verdict: 'fail',
-        detail: `unable to read /stats endpoint from ${base} within ${DRAIN_TIMEOUT_MS}ms; the throwaway consumer Worker did not expose consumer telemetry.`,
-        envDeclared: Array.from(DECLARED_ENV),
-      }];
-    }
-
     const elapsed = Date.now() - started;
-    const drained = stats.totalConsumed >= publishedCount;
-    const withinCap = stats.maxConcurrent <= DOCUMENTED_PUSH_CAP;
-    const observedConcurrency = stats.maxConcurrent > 1;
+    const batchesConsumed = records.length;
+    const maxConcurrent = computeMaxConcurrent(records);
+    const drained = totalConsumed >= publishedCount;
+    const withinCap = maxConcurrent <= DOCUMENTED_PUSH_CAP;
+    const observedConcurrency = maxConcurrent > 1;
     const allOk = drained && withinCap && observedConcurrency;
 
     return [{
       anchorAcId: 'AC-29108-2',
       verdict: allOk ? 'pass' : 'fail',
       detail: allOk
-        ? `queue=${mint.queue.name} (id=${mint.queue.id}) consumerWorker=${mint.worker.name} url=${base}: published ${publishedCount} messages via ${batches.length} batches to ${base}/publish-batch; consumer telemetry (${elapsed}ms elapsed): totalConsumed=${stats.totalConsumed} batches=${stats.batches} maxConcurrent=${stats.maxConcurrent} (>1 observed, <= ${DOCUMENTED_PUSH_CAP} documented push cap per https://developers.cloudflare.com/queues/platform/limits/); teardown removed queue and consumer worker on exit.`
-        : `queue=${mint.queue.name} publishedCount=${publishedCount} totalConsumed=${stats.totalConsumed} maxConcurrent=${stats.maxConcurrent} batches=${stats.batches} elapsed=${elapsed}ms; drained=${drained} withinCap=${withinCap} observedConcurrency=${observedConcurrency}. Documented push cap: ${DOCUMENTED_PUSH_CAP} (https://developers.cloudflare.com/queues/platform/limits/).`,
-      workerUrl: base,
+        ? `queue=${mint.queue.name} (id=${mint.queue.id}) consumerWorker=${mint.worker.name} telemetryKv=${mint.telemetryKv.id}: published ${publishedCount} messages via ${batches.length} REST publish batches; consumer telemetry drawn from ${batchesConsumed} KV records in ${elapsed}ms elapsed: totalConsumed=${totalConsumed} batches=${batchesConsumed} maxConcurrent=${maxConcurrent} (>1 observed, <= ${DOCUMENTED_PUSH_CAP} documented push cap per https://developers.cloudflare.com/queues/platform/limits/); teardown removed worker, queue and telemetry KV namespace on exit.`
+        : `queue=${mint.queue.name} publishedCount=${publishedCount} totalConsumed=${totalConsumed} maxConcurrent=${maxConcurrent} batches=${batchesConsumed} elapsed=${elapsed}ms; drained=${drained} withinCap=${withinCap} observedConcurrency=${observedConcurrency}. Documented push cap: ${DOCUMENTED_PUSH_CAP} (https://developers.cloudflare.com/queues/platform/limits/).`,
       queueName: mint.queue.name,
       queueId: mint.queue.id,
       workerName: mint.worker.name,
+      telemetryKvId: mint.telemetryKv.id,
       publishedCount,
-      stats,
+      totalConsumed,
+      batches: batchesConsumed,
+      maxConcurrent,
       elapsedMs: elapsed,
       envDeclared: Array.from(DECLARED_ENV),
-      throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX },
+      throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
     }];
   } finally {
     try {
       await destroyScratchQueueAndWorker(mint);
     } catch (err) {
-      process.stderr.write(`h2-cf-queue probe: teardown failed for queue=${mint && mint.queue && mint.queue.id} worker=${mint && mint.worker && mint.worker.name}: ${err.message}; sweepOrphans will collect on next run.\n`);
+      process.stderr.write(`h2-cf-queue probe: teardown failed for queue=${mint && mint.queue && mint.queue.id} worker=${mint && mint.worker && mint.worker.name} telemetryKv=${mint && mint.telemetryKv && mint.telemetryKv.id}: ${err.message}; sweepOrphans will collect on next run.\n`);
     }
   }
 }

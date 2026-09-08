@@ -184,11 +184,14 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
   // provisioning shape; w-2026-09-08-dave-017).
   const body = await readFile(join(PROBES_DIR, 'real-account-concurrency-smoke.mjs'), 'utf8');
   assert.match(body, /h2-cf-queue-real-account-shim\.mjs/, 'driver imports the self-provisioning fixture shim');
-  assert.match(body, /mintScratchQueueAndWorker/, 'driver mints its own scratch queue + consumer worker');
-  assert.match(body, /destroyScratchQueueAndWorker/, 'driver destroys its scratch queue + consumer worker on teardown');
-  assert.match(body, /publish-batch/, 'driver posts against the throwaway worker publish-batch route');
-  assert.match(body, /\/stats/, 'driver polls the consumer-telemetry stats route');
+  assert.match(body, /mintScratchQueueAndWorker/, 'driver mints its own scratch queue + consumer worker + telemetry KV');
+  assert.match(body, /destroyScratchQueueAndWorker/, 'driver destroys its scratch resources on teardown');
+  assert.match(body, /queuePublishBatch/, 'driver publishes via the Cloudflare Queues REST publish endpoint');
+  assert.match(body, /kvListKeys/, 'driver reads consumer telemetry via the KV REST list endpoint');
   assert.match(body, /DOCUMENTED_PUSH_CAP\s*=\s*250|push[- ]invocation cap|push cap/i, 'driver references the documented Cloudflare push-invocation cap');
+  // Dave ruling 376b4f30: no HTTP surface to the consumer Worker; no
+  // workers.dev URL construction in the driver.
+  assert.equal(/[`'"][^`'"\n]*\.workers\.dev[^`'"\n]*[`'"]/.test(body), false, 'driver holds no .workers.dev URL literal');
   // Env-absent branch: pass with accountBoundSkipped shape.
   const savedAcct = process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
   delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
