@@ -10,4 +10,4 @@
  * convention 2026-09-08).
  */
 
-import '../../../../blueprints/object-storage-s3/contributions/probes/run-hetzner-object-storage-round-trip.mjs';
+import '../../../../../blueprints/object-storage-s3/contributions/probes/run-hetzner-object-storage-round-trip.mjs';
