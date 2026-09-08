@@ -32540,11 +32540,11 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-086-ac-5302-1-event-secrecy">
   <p><strong>TC-086-ac-5302-1-event-secrecy</strong> - covers <a href="#AC-5302-1">AC-5302-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-5302-1 via event-secrecy probe: no body bytes / PII / user id reach the sink even under a mutation-run</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEAK (TC-086-event-secrecy)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-cloudflare-kv-anatomy.test.js::event-secrecy probe passes on PII fixture and fails under fixture-side SIMULATE_PII_LEAK (TC-086-event-secrecy)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-07T10:20:32.919Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-07T10:21:02.065Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T15:28:06.407Z&quot;,
   &quot;purpose&quot;: &quot;Cover AC-5302-1 via event-secrecy probe with two-layer assertions and a mutation-run under SIMULATE_PII_LEAK&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
@@ -32559,7 +32559,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-5302-1&quot;,
       &quot;description&quot;: &quot;Cover AC-5302-1 via event-secrecy probe: no body bytes / PII / user id reach the sink even under a mutation-run&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEAK (TC-086-event-secrecy)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-cloudflare-kv-anatomy.test.js::event-secrecy probe passes on PII fixture and fails under fixture-side SIMULATE_PII_LEAK (TC-086-event-secrecy)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

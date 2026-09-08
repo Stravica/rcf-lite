@@ -12,7 +12,7 @@ H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch ac
 - Moved the `SIMULATE_CACHE_MISS` mutation switch out of `cache-aside-hit-then-miss.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-cache-aside-shim.mjs`; the probe body holds zero `SIMULATE_` token references (`AC-15401-1` mutation-purity rule).
 - Moved the `SIMULATE_PII_LEAK` mutation switch out of `event-secrecy.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-event-secrecy-shim.mjs`; the probe body holds zero `SIMULATE_` token references.
 - Reworded the "fake clock" comment on `cache-aside-hit-then-miss.mjs` header to name the local test double honestly ("elicited deterministic clock the fixture advances").
-- Reworded the "cannot yet gate" wording in the `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) sections to name the loader-capability uplift as follow-up work item `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability change, out of H-2's 0.25.x patch scope per Dave ruling 1).
+- Reworded the `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) entries on the loader `elicits[]` `when` block predicate to name the loader-capability uplift as follow-up work item `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability change, out of H-2's 0.25.x patch scope per Dave ruling 1). The entry describes the current shipped shape and points forward to the follow-up.
 
 ### Fixed
 

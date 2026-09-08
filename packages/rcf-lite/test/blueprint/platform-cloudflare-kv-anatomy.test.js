@@ -189,6 +189,68 @@ test('real-account eventual-consistency smoke records accountBoundSkipped withou
   }
 });
 
+// H-2 chain slice coverage.
+
+// TS-180 / TC-180-no-ac-5xxx-after-re-anchor (AC-15001-1):
+// No AC-5xxx string survives on the kv blueprint tree after the H-2 re-anchor.
+test('H-2 kv AC-15001-1 no AC-5xxx string survives on the kv blueprint tree after re-anchor', async () => {
+  async function walk(dir, hits) {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const e of entries) {
+      const full = join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name === 'node_modules' || e.name === '.rcf' || e.name === '.git') continue;
+        await walk(full, hits);
+      } else {
+        const s = await readFile(full, 'utf8').catch(() => '');
+        const re = /AC-5\d{3,}(?:-\d+)?/g;
+        let m;
+        while ((m = re.exec(s)) !== null) hits.push(`${full}:${m[0]}`);
+      }
+    }
+  }
+  const hits = [];
+  await walk(BLUEPRINT_ROOT, hits);
+  assert.equal(hits.length, 0, `expected no AC-5xxx references on the kv blueprint tree after H-2 re-anchor; observed: ${hits.slice(0, 6).join(' | ')}`);
+});
+
+// TS-180 / TC-180-shipped-kv-ac-coverage-union (AC-15001-2):
+// Every shipped kv AC appears in the union of shipped probe results with pass verdict.
+test('H-2 kv AC-15001-2 every shipped kv AC appears in the union of probe results with pass verdict', async () => {
+  const SHIPPED = [
+    'AC-31101-1', 'AC-31102-1', 'AC-31103-1', 'AC-31103-2', 'AC-31104-1',
+    'AC-31105-1', 'AC-31106-1', 'AC-31107-1', 'AC-31108-1',
+  ];
+  const probes = ['facade-round-trip', 'list-with-prefix', 'cache-aside-hit-then-miss', 'event-secrecy'];
+  const union = new Map();
+  const originalEnv = process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
+  delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
+  try {
+    for (const p of probes) {
+      const runProbe = (await import(pathToFileURL(join(PROBES_DIR, `${p}.mjs`)).href)).default;
+      const out = await runProbe();
+      const rs = Array.isArray(out) ? out : (out && out.results) || [];
+      for (const r of rs) {
+        const prev = union.get(r.anchorAcId);
+        if (!prev || (prev !== 'pass' && r.verdict === 'pass')) union.set(r.anchorAcId, r.verdict);
+      }
+    }
+    // real-account probe covers AC-31103-1 as an additional carrier; env unset -> pass with accountBoundSkipped.
+    const raRun = (await import(pathToFileURL(join(PROBES_DIR, 'real-account-eventual-consistency-smoke.mjs')).href)).default;
+    const raOut = await raRun();
+    const raRs = Array.isArray(raOut) ? raOut : (raOut && raOut.results) || [];
+    for (const r of raRs) {
+      const prev = union.get(r.anchorAcId);
+      if (!prev || (prev !== 'pass' && r.verdict === 'pass')) union.set(r.anchorAcId, r.verdict);
+    }
+  } finally {
+    if (originalEnv !== undefined) process.env.CI_HAS_CLOUDFLARE_ACCOUNT = originalEnv;
+  }
+  for (const ac of SHIPPED) {
+    assert.equal(union.get(ac), 'pass', `expected kv AC ${ac} to appear with pass verdict in the union of shipped probe results; observed=${union.get(ac) || 'absent'}`);
+  }
+});
+
 // Shelf-shape cross-check.
 
 test('blueprint.json declares 19 contributions with v1.0.1, capability keyValueStore and standardsTraceClause on every ADR contribution', async () => {

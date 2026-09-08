@@ -1,10 +1,10 @@
 {
-  "ok": false,
+  "ok": true,
   "strict": false,
   "totals": {
     "requirements": 92,
-    "covered": 87,
-    "coveredUnresolved": 5,
+    "covered": 92,
+    "coveredUnresolved": 0,
     "uncovered": 0
   },
   "requirements": [
@@ -2522,13 +2522,11 @@
         },
         {
           "id": "AC-5302-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-086-ac-5302-1-event-secrecy"
           ],
-          "unresolvedTestCases": [
-            "TC-086-ac-5302-1-event-secrecy"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -3485,222 +3483,127 @@
     },
     {
       "id": "REQ-150",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15001-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-180-no-ac-5xxx-after-re-anchor"
           ],
-          "unresolvedTestCases": [
-            "TC-180-no-ac-5xxx-after-re-anchor"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-15001-2",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-180-shipped-kv-ac-coverage-union"
           ],
-          "unresolvedTestCases": [
-            "TC-180-shipped-kv-ac-coverage-union"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-151",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15101-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-181-do-real-storage-round-trip-driver"
           ],
-          "unresolvedTestCases": [
-            "TC-181-do-real-storage-round-trip-driver"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-15101-2",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-181-do-thirteen-ac-coverage-union"
           ],
-          "unresolvedTestCases": [
-            "TC-181-do-thirteen-ac-coverage-union"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-152",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15201-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-182-queue-real-concurrency-500-msg"
           ],
-          "unresolvedTestCases": [
-            "TC-182-queue-real-concurrency-500-msg"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-153",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15301-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-183-tunnel-connector-healthy-real-driver"
           ],
-          "unresolvedTestCases": [
-            "TC-183-tunnel-connector-healthy-real-driver"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-15301-2",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-183-tunnel-hostname-routes-real-driver"
           ],
-          "unresolvedTestCases": [
-            "TC-183-tunnel-hostname-routes-real-driver"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-15301-3",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-183-manifest-schema-fail-with-pointer"
           ],
-          "unresolvedTestCases": [
-            "TC-183-manifest-schema-fail-with-pointer"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-154",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15401-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-184-simulate-purity-four-blueprints"
           ],
-          "unresolvedTestCases": [
-            "TC-184-simulate-purity-four-blueprints"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-15401-2",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-184-envelope-hygiene-four-blueprints"
           ],
-          "unresolvedTestCases": [
-            "TC-184-envelope-hygiene-four-blueprints"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-15401-3",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-184-marker-hygiene-four-blueprints"
           ],
-          "unresolvedTestCases": [
-            "TC-184-marker-hygiene-four-blueprints"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     }
   ],
-  "unresolvedTestPointers": [
-    {
-      "tsId": "TS-086",
-      "tcId": "TC-086-ac-5302-1-event-secrecy",
-      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEAK (TC-086-event-secrecy)",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-180",
-      "tcId": "TC-180-no-ac-5xxx-after-re-anchor",
-      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::H-2 kv AC-15001-1 no AC-5xxx string survives on the kv blueprint tree after re-anchor",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-180",
-      "tcId": "TC-180-shipped-kv-ac-coverage-union",
-      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::H-2 kv AC-15001-2 every shipped kv AC appears in the union of probe results with pass verdict",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-181",
-      "tcId": "TC-181-do-real-storage-round-trip-driver",
-      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::H-2 DO AC-15101-1 real-account-storage-smoke drives byte-equal round-trip via deployed Worker or wrangler-dev",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-181",
-      "tcId": "TC-181-do-thirteen-ac-coverage-union",
-      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::H-2 DO AC-15101-2 all thirteen shipped DO ACs appear in the union of probe results with pass verdict",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-182",
-      "tcId": "TC-182-queue-real-concurrency-500-msg",
-      "testPointer": "test/blueprint/messaging-queue-cloudflare-anatomy.test.js::H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages and asserts concurrent processing under cap",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-183",
-      "tcId": "TC-183-manifest-schema-fail-with-pointer",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::H-2 tunnel AC-15301-3 manifest-schema-validate fails with fixture-setup pointer when credentials placeholder is missing",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-183",
-      "tcId": "TC-183-tunnel-connector-healthy-real-driver",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::H-2 tunnel AC-15301-1 real-account-connector-healthy asserts healthy connector count via cloudflared tunnel info",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-183",
-      "tcId": "TC-183-tunnel-hostname-routes-real-driver",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::H-2 tunnel AC-15301-2 real-account-tunnel-hostname-routes drives undici and (with Access) two-identity JWT",
-      "reason": "test-missing"
-    },
-    {
-      "tsId": "TS-184",
-      "tcId": "TC-184-envelope-hygiene-four-blueprints",
-      "testPointer": "test/blueprint/h2-cf-platform-probe-integrity.test.js::H-2 hygiene AC-15401-2 no fail or warn envelope committed under .rcf/reports on the four blueprints",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-184",
-      "tcId": "TC-184-marker-hygiene-four-blueprints",
-      "testPointer": "test/blueprint/h2-cf-platform-probe-integrity.test.js::H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the four blueprints",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-184",
-      "tcId": "TC-184-simulate-purity-four-blueprints",
-      "testPointer": "test/blueprint/h2-cf-platform-probe-integrity.test.js::H-2 hygiene AC-15401-1 SIMULATE_ purity across the four Cloudflare-platform probe trees",
-      "reason": "file-missing"
-    }
-  ]
+  "unresolvedTestPointers": []
 }

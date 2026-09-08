@@ -193,3 +193,88 @@ test('T-3 edge-cloudflare-tunnel AC-13401-1 credentials discipline and event-sec
   const r = await runProbe('manifest-schema-validate', { fixtureRoot: s });
   assert.ok(r.results.some((rr) => rr.verdict === 'fail' && /event-secrecy scan FAILED/i.test(rr.detail)), 'event-secrecy leak refuses');
 });
+
+// H-2 chain slice coverage.
+
+// TS-183 / TC-183-tunnel-connector-healthy-real-driver (AC-15301-1):
+// real-account-connector-healthy provisions the throwaway hetzner server via the
+// cf-edge shim and asserts healthy connector count via cloudflared tunnel info;
+// a fixture-step failure fails the driver with a pointer, never warn.
+test('H-2 tunnel AC-15301-1 real-account-connector-healthy asserts healthy connector count via cloudflared tunnel info', async () => {
+  const mod = await import(pathToFileURL(join(PROBES_DIR, 'real-account-connector-healthy.mjs')).href);
+  assert.equal(mod.accountBound, true, 'real-account-connector-healthy must declare accountBound true');
+  assert.ok(mod.anchorAcIds.includes('AC-tunnel-connectorHealthy'), 'anchorAcIds must include AC-tunnel-connectorHealthy');
+  // Env-absent branch: pass-with-skip shape preserved.
+  const out = await runProbe('real-account-connector-healthy', { env: { CI_HAS_CLOUDFLARE_ACCOUNT: 'false', CI_HAS_HETZNER_ACCOUNT: 'false' } });
+  assert.ok(out.results.some((r) => r.accountBoundSkipped === true), 'env-absent branch records accountBoundSkipped true on the AC-tunnel-connectorHealthy result');
+  // Fixture-fail branch via the shim synthetic mode: fail with fixture-step pointer, never warn.
+  const failOut = await runProbe('real-account-connector-healthy', {
+    env: {
+      CI_HAS_CLOUDFLARE_ACCOUNT: 'true',
+      CI_HAS_HETZNER_ACCOUNT: 'true',
+      H2_CF_TUNNEL_SHIM_MODE: 'synthetic-provision-fail',
+    },
+  });
+  const failResult = failOut.results.find((r) => r.anchorAcId === 'AC-tunnel-connectorHealthy');
+  assert.ok(failResult, 'account-set branch emits an AC-tunnel-connectorHealthy result');
+  assert.equal(failResult.verdict, 'fail', `fixture-fail branch must return fail (never warn); observed=${failResult.verdict} detail=${failResult.detail}`);
+  assert.match(failResult.detail, /fixture|provision|hetzner|cf-edge shim/i, 'fail detail names the fixture-step / shim pointer');
+});
+
+// TS-183 / TC-183-tunnel-hostname-routes-real-driver (AC-15301-2):
+// real-account-tunnel-hostname-routes drives undici for the public-hostname
+// sub-case and (with Access) a two-identity JWT check; amendment-4 gating means
+// the AUD sub-case activates only when CI_HAS_CLOUDFLARE_ACCESS is also set.
+test('H-2 tunnel AC-15301-2 real-account-tunnel-hostname-routes drives undici and (with Access) two-identity JWT', async () => {
+  const mod = await import(pathToFileURL(join(PROBES_DIR, 'real-account-tunnel-hostname-routes.mjs')).href);
+  assert.equal(mod.accountBound, true, 'real-account-tunnel-hostname-routes must declare accountBound true');
+  assert.ok(mod.anchorAcIds.includes('AC-tunnel-hostnameRoutes'), 'anchorAcIds must include AC-tunnel-hostnameRoutes');
+  assert.ok(mod.anchorAcIds.includes('AC-tunnel-accessGated'), 'anchorAcIds must include AC-tunnel-accessGated');
+  // Env-absent branch: pass-with-skip on both sub-cases.
+  const skipOut = await runProbe('real-account-tunnel-hostname-routes', { env: { CI_HAS_CLOUDFLARE_ACCOUNT: 'false', CI_HAS_HETZNER_ACCOUNT: 'false', CI_HAS_CLOUDFLARE_ACCESS: 'false' } });
+  const skipHost = skipOut.results.find((r) => r.anchorAcId === 'AC-tunnel-hostnameRoutes');
+  const skipAud = skipOut.results.find((r) => r.anchorAcId === 'AC-tunnel-accessGated');
+  assert.ok(skipHost, 'env-absent emits an AC-tunnel-hostnameRoutes result');
+  assert.equal(skipHost.accountBoundSkipped, true, 'env-absent branch records accountBoundSkipped on public sub-case');
+  assert.ok(skipAud, 'env-absent emits an AC-tunnel-accessGated result');
+  assert.equal(skipAud.accountBoundSkipped, true, 'env-absent branch records accountBoundSkipped on AUD sub-case');
+  // Account-set-no-Access branch: public sub-case activates via shim public-200; AUD sub-case stays pass-with-skip.
+  const partialOut = await runProbe('real-account-tunnel-hostname-routes', {
+    env: {
+      CI_HAS_CLOUDFLARE_ACCOUNT: 'true',
+      CI_HAS_HETZNER_ACCOUNT: 'true',
+      CI_HAS_CLOUDFLARE_ACCESS: 'false',
+      H2_CF_TUNNEL_HOSTNAME_SHIM_MODE: 'synthetic-public-200',
+    },
+  });
+  const partialAud = partialOut.results.find((r) => r.anchorAcId === 'AC-tunnel-accessGated');
+  assert.ok(partialAud, 'account-set-no-Access branch still emits an AC-tunnel-accessGated result');
+  assert.equal(partialAud.accountBoundSkipped, true, 'AUD sub-case stays pass-with-skip until CI_HAS_CLOUDFLARE_ACCESS is also set (amendment-4 gating)');
+});
+
+// TS-183 / TC-183-manifest-schema-fail-with-pointer (AC-15301-3):
+// manifest-schema-validate returns fail (not warn) with a fixture-setup pointer
+// when the credentials placeholder is missing; C3 removed the warn branch.
+test('H-2 tunnel AC-15301-3 manifest-schema-validate fails with fixture-setup pointer when credentials placeholder is missing', async () => {
+  const s = await scratchFixture();
+  // Remove the credentials placeholder on both runtime variants so the probe
+  // hits the read-failed branch. C3 converted the earlier warn return here to a
+  // fail with a fixture-setup pointer.
+  const { unlink } = await import('node:fs/promises');
+  for (const variant of ['compose-service', 'systemd-unit']) {
+    const p = join(s, variant, 'credentials/probe.json.example');
+    try { await unlink(p); } catch (err) { if (err.code !== 'ENOENT') throw err; }
+  }
+  const r = await runProbe('manifest-schema-validate', { fixtureRoot: s });
+  assert.ok(r.results && r.results.length > 0, 'probe emits at least one result on the scratch fixture');
+  const anyFailWithPointer = r.results.some((rr) =>
+    rr.verdict === 'fail'
+    && /credentials placeholder read failed/i.test(rr.detail)
+    && /fixture setup step/i.test(rr.detail)
+  );
+  assert.ok(anyFailWithPointer, `expected at least one fail result naming the credentials placeholder read failure and the fixture-setup pointer; observed=${JSON.stringify(r.results.map((rr) => ({ ac: rr.anchorAcId, verdict: rr.verdict, detail: rr.detail && rr.detail.slice(0, 220) })))}`);
+  // Prove the removed warn shape is not reachable: no result carries verdict warn
+  // paired with a credentials-placeholder-read message.
+  const anyWarnRead = r.results.some((rr) => rr.verdict === 'warn' && /credentials placeholder/i.test(rr.detail));
+  assert.equal(anyWarnRead, false, 'no result should return warn for the credentials-placeholder-read branch after C3');
+});

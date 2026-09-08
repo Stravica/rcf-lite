@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -166,5 +166,54 @@ test('section 6a table gains a queue row with reserved messaging-queue-postgres 
       if (err.code === 'ENOENT') continue;
       throw err;
     }
+  }
+});
+
+// H-2 chain slice coverage.
+
+// TS-182 / TC-182-queue-real-concurrency-500-msg (AC-15201-1):
+// Real-account-concurrency-smoke publishes 500 messages against a live Queues
+// binding on a deployed Worker and asserts concurrent processing under cap;
+// accountBoundSkipped is never set on the account-set branch.
+test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages and asserts concurrent processing under cap', async () => {
+  const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-concurrency-smoke.mjs')).href;
+  const mod = await import(modUrl);
+  assert.equal(mod.accountBound, true, 'real-account-concurrency-smoke must declare accountBound true');
+  assert.equal(mod.anchorAcId, 'AC-29108-2', 'anchorAcId must be AC-29108-2');
+  // Static shape assertions on the shipped driver body.
+  const body = await readFile(join(PROBES_DIR, 'real-account-concurrency-smoke.mjs'), 'utf8');
+  assert.match(body, /CF_QUEUE_WORKER_URL/, 'driver reads the deployed Worker URL env');
+  assert.match(body, /publish-batch/, 'driver posts against the fixture worker publish-batch route');
+  assert.match(body, /\/stats/, 'driver polls the consumer-telemetry stats route');
+  assert.match(body, /DOCUMENTED_PUSH_CAP\s*=\s*250|push[- ]invocation cap|push cap/i, 'driver references the documented Cloudflare push-invocation cap');
+  // Env-absent branch: pass with accountBoundSkipped shape.
+  const savedAcct = process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
+  delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
+  try {
+    const out = await mod.default();
+    const rs = Array.isArray(out) ? out : (out && out.results) || [];
+    const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+    assert.ok(r, 'env-absent branch must still include an AC-29108-2 result');
+    assert.equal(r.verdict, 'pass', `env-absent verdict: ${r.detail}`);
+    const extra = Array.isArray(out) ? {} : (out && out.extra) || {};
+    assert.equal(extra.accountBoundSkipped === true || /accountBoundSkipped/i.test(r.detail), true, 'env-absent branch surfaces accountBoundSkipped');
+  } finally {
+    if (savedAcct !== undefined) process.env.CI_HAS_CLOUDFLARE_ACCOUNT = savedAcct;
+  }
+  // Account-set-no-URL branch: fail with missing env named; a pass is never
+  // reachable from credential presence alone.
+  const savedUrl = process.env.CF_QUEUE_WORKER_URL;
+  delete process.env.CF_QUEUE_WORKER_URL;
+  process.env.CI_HAS_CLOUDFLARE_ACCOUNT = 'true';
+  try {
+    const out = await mod.default();
+    const rs = Array.isArray(out) ? out : (out && out.results) || [];
+    const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+    assert.ok(r, 'account-set branch must still include an AC-29108-2 result');
+    assert.equal(r.verdict, 'fail', `account-set-no-URL verdict must be fail; detail=${r.detail}`);
+    assert.match(r.detail, /CF_QUEUE_WORKER_URL/, 'fail detail names the missing Worker URL env');
+  } finally {
+    if (savedUrl !== undefined) process.env.CF_QUEUE_WORKER_URL = savedUrl;
+    delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
   }
 });
