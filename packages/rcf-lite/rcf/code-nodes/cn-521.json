@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-521",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-cache-aside-shim.mjs",
+  "implementsAcIds": [
+    "AC-15401-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T12:22:47.292Z",
+  "updatedAt": "2026-09-08T12:23:44.676Z"
+}

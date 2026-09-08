@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-08T12:20:55.987Z",
+  "updatedAt": "2026-09-08T12:21:47.637Z",
+  "purpose": "Cover AC-15401-1 (SIMULATE_ purity across the four Cloudflare-platform blueprints), AC-15401-2 (envelope hygiene: no fail/warn envelopes committed) and AC-15401-3 (probe comment honesty on the four blueprints) via a new h2-cf-platform-probe-integrity anatomy test that greps the shipped tree and reads the committed envelopes",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15401-1",
+    "AC-15401-2",
+    "AC-15401-3"
+  ],
+  "id": "TS-184",
+  "usId": "US-15401",
+  "title": "H-2 cross-cutting probe hygiene: no SIMULATE_ in shipped probes on the four blueprints; no fail envelope committed; probe comments name test doubles honestly",
+  "testCases": [
+    {
+      "id": "TC-184-simulate-purity-four-blueprints",
+      "acId": "AC-15401-1",
+      "description": "Cover AC-15401-1 via new h2-cf-platform-probe-integrity anatomy test: a recursive grep for the token SIMULATE_ across contributions/probes/*.mjs on the four Cloudflare-platform blueprints returns zero hits; every fixture shim under packages/rcf-lite/test/fixtures/cf-platform/ and .../cf-edge/ that carries a mutation switch has a file name prefixed h2-cf-platform-probe-integrity or h2-cf; FAIL tails from each moved switch are recorded in the PR provenance transcript at Group D close.",
+      "status": "pending",
+      "testPointer": "test/blueprint/h2-cf-platform-probe-integrity.test.js::H-2 hygiene AC-15401-1 SIMULATE_ purity across the four Cloudflare-platform probe trees"
+    },
+    {
+      "id": "TC-184-envelope-hygiene-four-blueprints",
+      "acId": "AC-15401-2",
+      "description": "Cover AC-15401-2 via new h2-cf-platform-probe-integrity anatomy test: every committed envelope under .rcf/reports/blueprints/{platform-cloudflare-kv, platform-cloudflare-durable-objects, messaging-queue-cloudflare, edge-cloudflare-tunnel}/ carries aggregateVerdict pass; the previously committed fail envelope at .rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json is replaced with a shipped-code pass envelope.",
+      "status": "pending",
+      "testPointer": "test/blueprint/h2-cf-platform-probe-integrity.test.js::H-2 hygiene AC-15401-2 no fail or warn envelope committed under .rcf/reports on the four blueprints"
+    },
+    {
+      "id": "TC-184-marker-hygiene-four-blueprints",
+      "acId": "AC-15401-3",
+      "description": "Cover AC-15401-3 via new h2-cf-platform-probe-integrity anatomy test: every stage-1 marker-flagged probe comment or probe-utils comment on the four blueprints is either reworded to name the local test double honestly (in-memory KV driver realising the Workers KV binding shape; synthetic WebSocket pair; elicited deterministic clock; explicit follow-up work-item note in place of not-yet) or listed as adjudicated acceptable in the PR body's stage-1 adjudication table with a stated reason.",
+      "status": "pending",
+      "testPointer": "test/blueprint/h2-cf-platform-probe-integrity.test.js::H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the four blueprints"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-08T12:22:33.140Z",
+  "updatedAt": "2026-09-08T12:24:20.980Z",
+  "acIds": [
+    "AC-15401-1",
+    "AC-15401-2",
+    "AC-15401-3"
+  ],
+  "fbsId": "FBS-174",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 68,
+  "executionStatus": "notStarted",
+  "title": "H-2 cross-cutting probe hygiene: SIMULATE_ branches moved out of shipped probe bodies into fixture-side h2-cf-platform-probe-integrity shims across the four blueprints; committed fail envelope removed and shipped-code pass envelopes committed; probe comments name test doubles honestly; new h2-cf-platform-probe-integrity anatomy test asserts SIMULATE_ purity, envelope hygiene and marker honesty",
+  "summary": "H-2 cross-cutting probe hygiene: SIMULATE_ branches moved out of the shipped probe bodies on the four Cloudflare-platform blueprints (kv: cache-aside-hit-then-miss, event-secrecy; DO: sole-reader-scan, storage-round-trip, websocket-hub-broadcast) into fixture-side shim modules under packages/rcf-lite/test/fixtures/cf-platform/ and .../cf-edge/ whose file names carry the h2-cf-platform-probe-integrity slug prefix (short form h2-cf). Delete the committed fail envelope at .rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json and commit a shipped-code pass envelope in its place; regenerate the other kv envelopes and commit shipped-code pass envelopes for the DO/queue/tunnel probes. Rework or adjudicate probe comments flagged by stage-1 marker rows (kv fake clock; DO fake state, fake WebSocket pair; DO probe-utils lines 73 and 75; kv not-yet elicit gating). Add a new h2-cf-platform-probe-integrity anatomy test at packages/rcf-lite/test/blueprint/h2-cf-platform-probe-integrity.test.js that greps the four probe trees for SIMULATE_ (must be zero), walks committed envelopes for fail/warn aggregateVerdict (must be zero), and asserts marker rewording.",
+  "dependsOnFbsIds": []
+}

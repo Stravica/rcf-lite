@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-08T12:22:32.784Z",
+  "updatedAt": "2026-09-08T12:24:20.597Z",
+  "acIds": [
+    "AC-15301-1",
+    "AC-15301-2",
+    "AC-15301-3"
+  ],
+  "fbsId": "FBS-173",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 67,
+  "executionStatus": "notStarted",
+  "title": "H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against a throwaway hetzner server via T-1 fixture; hostname-routes drives undici + (with Access) two-identity JWT; manifest-schema-validate placeholder becomes fail-with-pointer; tunnel anatomy test assertions extended and the symbolic-anchor ruling recorded",
+  "summary": "H-2 tunnel real drivers: replace blueprints/edge-cloudflare-tunnel/contributions/probes/real-account-connector-healthy.mjs and real-account-tunnel-hostname-routes.mjs warn-on-env stubs with real drivers. connector-healthy provisions the throwaway hetzner server via the T-1 hetzner fixture surface (consumed as-is; hetzner-fixture defects are H-1 scope at HQ), brings a named cloudflared tunnel connector up, runs cloudflared tunnel info <name> through a cloudflared control shim, asserts healthy connector count is at least one, captures tunnelConnectorUp event. hostname-routes drives undici for the public-hostname sub-case and (when CI_HAS_CLOUDFLARE_ACCESS is set) a two-identity JWT sub-case (HQ note: Access is not enabled on the HQ account today, so at gate time the AUD sub-case stays pass-with-skip until HQ enables Access). manifest-schema-validate warn-on-missing-credentials-placeholder becomes fail with a fixture-setup pointer. Tunnel symbolic-anchor ruling (AC-tunnel-*) resolved and recorded in the PR body per brief C4.",
+  "dependsOnFbsIds": []
+}

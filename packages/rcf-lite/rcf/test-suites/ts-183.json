@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-08T12:20:55.592Z",
+  "updatedAt": "2026-09-08T12:21:46.445Z",
+  "purpose": "Cover AC-15301-1 (connector-healthy provisions hetzner throwaway server and asserts healthy connector count), AC-15301-2 (hostname-routes drives undici and JWT sub-cases with pass-only via real driver evidence), and AC-15301-3 (manifest-schema-validate placeholder becomes fail-with-pointer) via the tunnel anatomy test and the three tunnel probes",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15301-1",
+    "AC-15301-2",
+    "AC-15301-3"
+  ],
+  "id": "TS-183",
+  "usId": "US-15301",
+  "title": "H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against the throwaway hetzner host; hostname-routes drives undici and (with Access) a two-identity JWT probe; manifest-schema-validate placeholder becomes fail-with-pointer",
+  "testCases": [
+    {
+      "id": "TC-183-tunnel-connector-healthy-real-driver",
+      "acId": "AC-15301-1",
+      "description": "Cover AC-15301-1 via tunnel anatomy test: real-account-connector-healthy provisions the throwaway hetzner server via the T-1 hetzner fixture, brings a cloudflared connector up, runs cloudflared tunnel info <name> through a control shim, asserts healthy connector count is at least one, captures tunnelConnectorUp event; hetzner-fixture failure fails the driver with a fixture-step pointer, never warn.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::H-2 tunnel AC-15301-1 real-account-connector-healthy asserts healthy connector count via cloudflared tunnel info"
+    },
+    {
+      "id": "TC-183-tunnel-hostname-routes-real-driver",
+      "acId": "AC-15301-2",
+      "description": "Cover AC-15301-2 via tunnel anatomy test: real-account-tunnel-hostname-routes drives undici for the public-hostname sub-case (pass on HTTP 200 with expected body signature); when CI_HAS_CLOUDFLARE_ACCESS is set, the two-identity JWT sub-case succeeds with JWT and is denied without; accountBoundSkipped is never set on the account-set branch; AUD sub-case stays pass-with-skip when Access is unset.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::H-2 tunnel AC-15301-2 real-account-tunnel-hostname-routes drives undici and (with Access) two-identity JWT"
+    },
+    {
+      "id": "TC-183-manifest-schema-fail-with-pointer",
+      "acId": "AC-15301-3",
+      "description": "Cover AC-15301-3 via tunnel anatomy test: manifest-schema-validate returns aggregateVerdict fail (not warn) with a detail string naming the missing credentials placeholder file and the fixture-setup step that would create it; the warn-on-missing-credentials-placeholder branch is removed.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::H-2 tunnel AC-15301-3 manifest-schema-validate fails with fixture-setup pointer when credentials placeholder is missing"
+    }
+  ],
+  "status": "draft"
+}

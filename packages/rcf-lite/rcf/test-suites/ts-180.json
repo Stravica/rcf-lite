@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-08T12:20:54.397Z",
+  "updatedAt": "2026-09-08T12:21:44.136Z",
+  "purpose": "Cover AC-15001-1 (no AC-5xxx string survives in the kv blueprint tree) and AC-15001-2 (every shipped kv AC appears as an anchor on at least one probe result) via the kv-anatomy test file whose assertions moved with the re-anchor per dispatch addendum ruling 1",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15001-1",
+    "AC-15001-2"
+  ],
+  "id": "TS-180",
+  "usId": "US-15001",
+  "title": "H-2 kv re-anchor: probes cite shipped AC-31xxx band, README pointers align, every shipped kv AC covered by a probe with a runtime observable",
+  "testCases": [
+    {
+      "id": "TC-180-no-ac-5xxx-after-re-anchor",
+      "acId": "AC-15001-1",
+      "description": "Cover AC-15001-1 via kv-anatomy test: grep for AC-5 across the kv blueprint tree returns zero hits after H-2 re-anchor; every anchorAcId string in the five kv probes cites AC-31xxx; the kv README chain-slice pointer paragraph names US-31101..US-31108 and no AC-5xxx string remains.",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::H-2 kv AC-15001-1 no AC-5xxx string survives on the kv blueprint tree after re-anchor"
+    },
+    {
+      "id": "TC-180-shipped-kv-ac-coverage-union",
+      "acId": "AC-15001-2",
+      "description": "Cover AC-15001-2 via kv-anatomy test: each of the nine shipped kv ACs (AC-31101-1, AC-31102-1, AC-31103-1, AC-31103-2, AC-31104-1, AC-31105-1, AC-31106-1, AC-31107-1, AC-31108-1) appears in the union of shipped probe results and each cited result is pass; AC-31102-1 is observed via the runtime env.CACHE-grep result on facade-round-trip; AC-31107-1 is observed via the whitelist-scan result on event-secrecy.",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-kv-anatomy.test.js::H-2 kv AC-15001-2 every shipped kv AC appears in the union of probe results with pass verdict"
+    }
+  ],
+  "status": "draft"
+}

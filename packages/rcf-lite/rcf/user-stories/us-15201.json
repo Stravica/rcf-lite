@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-08T12:17:34.801Z",
+  "updatedAt": "2026-09-08T12:19:47.822Z",
+  "asA": "rcf-lite maintainer applying messaging-queue-cloudflare v1.0.0",
+  "iWant": "real-account-concurrency-smoke to publish 500 messages through the producer facade wired to a live Queues binding on a deployed Worker and assert concurrent processing up to the documented push-invocation cap when CI_HAS_CLOUDFLARE_ACCOUNT is set (or record accountBoundSkipped when it is not)",
+  "soThat": "the real-account run proves the queue actually processes messages concurrently on Cloudflare (not just that credentials are present) and the accountBoundSkipped pass-stub can never again be reached from account-flag presence alone",
+  "description": "Part of H-2. Cloudflare Queues does not support wrangler dev --remote, so the real-account driver rides a deployed Worker that binds the queue (queue name and binding parameterised via env; HQ supplies values at gate time, canonical queue rcf-lite-ci-queue-smoke per HQ runbook). The account-set branch publishes 500 messages, waits for delivery under a bounded timeout, and asserts concurrent processing per the documented push-invocation cap. Local proof against miniflare or wrangler dev (local queue simulation). The env-absent branch keeps pass-with-skip. The documented Cloudflare Queues limits URL (https://developers.cloudflare.com/queues/platform/limits/) is re-verified 200 at merge time and logged in the PR provenance transcript.",
+  "usId": "US-15201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-152",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages through the producer facade against a live Queues binding on a deployed Worker and asserts concurrent processing up to the documented push-invocation cap",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15201-1",
+      "description": "When CI_HAS_CLOUDFLARE_ACCOUNT is set with the deployed-Worker binding env vars, real-account-concurrency-smoke publishes 500 messages through the producer facade wired to a live Queues binding on the deployed Worker (queue name and binding parameterised via env, canonical queue rcf-lite-ci-queue-smoke), waits under a bounded timeout for all 500 to be observed on the consumer side, and asserts concurrent processing occurred (observed max-in-flight consumers greater than one, up to and not exceeding the documented push-invocation cap read from Cloudflare Queues limits). accountBoundSkipped is never set on the account-set branch; a pass is unreachable from account-flag presence alone. Local proof: the same driver path against miniflare or wrangler dev with local queue simulation. Env-absent branch keeps section 3.5 pass-with-skip. The documented limits URL https://developers.cloudflare.com/queues/platform/limits/ is fetched once at merge time, must answer 200 and is logged in the PR provenance transcript.",
+      "testable": true
+    }
+  ]
+}

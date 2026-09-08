@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-09-08T12:16:30.083Z",
+  "updatedAt": "2026-09-08T12:16:30.218Z",
+  "description": "The four Cloudflare-platform blueprints (platform-cloudflare-kv, platform-cloudflare-durable-objects, messaging-queue-cloudflare, edge-cloudflare-tunnel) carry mutation-purity, envelope-hygiene and marker-wording defects surfaced by stage-2 semantic and stage-1 mechanical passes: SIMULATE_ env reads in probe bodies (cache-aside-hit-then-miss, event-secrecy, sole-reader-scan, storage-round-trip, websocket-hub-broadcast); a committed fail envelope at .rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json; comments labelling local doubles as fake state / fake WebSocket pair / fake clock in ways the stage-1 marker sweep flagged. This train moves every probe-body SIMULATE_ branch into a fixture-side shim under packages/rcf-lite/test/fixtures/cf-platform/ or .../cf-edge/ (new shim files carry the h2-cf-platform-probe-integrity slug prefix, short form h2-cf acceptable), deletes the committed fail envelope and commits a shipped-code pass envelope in its place, regenerates the other kv envelopes so committed envelopes reflect the re-anchored shipped-code runs, and reworks probe comments to name the local test doubles honestly (or records adjudicated-acceptable with reason in the PR body). No capability change; 0.25.x patch scope.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "reqId": "REQ-154",
+  "prdId": "PRD-001",
+  "title": "H-2 cross-cutting probe hygiene: SIMULATE_ branches out of probe bodies into fixture shims; no fail envelope committed; probe comments name test doubles honestly",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T12:16:30.216Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "durable"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "delete"
+      }
+    ]
+  }
+}

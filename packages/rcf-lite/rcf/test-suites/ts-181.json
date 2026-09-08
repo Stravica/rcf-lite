@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-08T12:20:54.783Z",
+  "updatedAt": "2026-09-08T12:21:44.894Z",
+  "purpose": "Cover AC-15101-1 (real HTTP round-trip drives DO facade byte-equal; no pass on credential-presence alone) and AC-15101-2 (all thirteen shipped DO ACs bound as probe anchors) via the DO anatomy test and via the storage-round-trip probe module",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15101-1",
+    "AC-15101-2"
+  ],
+  "id": "TS-181",
+  "usId": "US-15101",
+  "title": "H-2 DO real storage driver and anchor coverage: real-account-storage-smoke drives a real round-trip against a deployed Worker; all thirteen DO ACs bound as probe anchors",
+  "testCases": [
+    {
+      "id": "TC-181-do-real-storage-round-trip-driver",
+      "acId": "AC-15101-1",
+      "description": "Cover AC-15101-1 via DO anatomy test: real-account-storage-smoke drives a byte-equal HTTP round trip against a deployed Worker route on the account-set branch (or local miniflare/wrangler-dev via wrangler-seam); pass is unreachable from credential-presence alone; the fixture-side mutation switch (returns wrong bytes on read) flips the probe to aggregateVerdict fail with observed and expected bytes named.",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::H-2 DO AC-15101-1 real-account-storage-smoke drives byte-equal round-trip via deployed Worker or wrangler-dev"
+    },
+    {
+      "id": "TC-181-do-thirteen-ac-coverage-union",
+      "acId": "AC-15101-2",
+      "description": "Cover AC-15101-2 via DO anatomy test: each of the thirteen shipped DO ACs (AC-33101-1..AC-33113-1) appears in the union of shipped DO probe results; the five previously-unbound DO ACs (AC-33106-1, AC-33108-1, AC-33109-1, AC-33110-1, AC-33111-1) are bound as additional-result anchors on the wrangler-seam, storage-round-trip and concurrent-increment probes with a runtime observable.",
+      "status": "pending",
+      "testPointer": "test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js::H-2 DO AC-15101-2 all thirteen shipped DO ACs appear in the union of probe results with pass verdict"
+    }
+  ],
+  "status": "draft"
+}

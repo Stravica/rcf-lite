@@ -1,0 +1,59 @@
+{
+  "createdAt": "2026-09-08T12:16:29.584Z",
+  "updatedAt": "2026-09-08T12:16:29.719Z",
+  "description": "The rcf-lite edge-cloudflare-tunnel blueprint's two real-account probes return warn when the env vars ARE set (account-bound path present but not exercised) and manifest-schema-validate warns on a missing credentials placeholder. This train replaces both warn-on-env stubs with real drivers and converts the placeholder to a fail. real-account-connector-healthy: with both CI_HAS_CLOUDFLARE_ACCOUNT and CI_HAS_HETZNER_ACCOUNT set, provision the throwaway server through the T-1 hetzner fixture surface, run cloudflared tunnel info <name> through a cloudflared control shim, assert healthy connector count, capture the tunnelConnectorUp event. Consume the hetzner fixture as-is; its defects are H-1 scope at HQ; if the fixture path fails locally the driver fails with a pointer naming the fixture step, never warn. real-account-tunnel-hostname-routes: undici fetch driver for the public-hostname sub-case activated on CI_HAS_CLOUDFLARE_ACCOUNT; two-identity JWT driver for the access-gated sub-case activated only when CI_HAS_CLOUDFLARE_ACCESS is ALSO set (HQ note: Access is not enabled on the HQ account, so the AUD sub-case stays pass-with-skip until HQ enables Access). Env-absent branch keeps pass-with-skip; a pass must never again be reachable from account-flag presence alone. manifest-schema-validate.mjs missing-credentials-placeholder becomes FAIL with a fixture-setup pointer.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "reqId": "REQ-153",
+  "prdId": "PRD-001",
+  "title": "H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against the throwaway hetzner server; hostname-routes drives undici and (when Access is enabled) a two-identity JWT probe; manifest-schema-validate placeholder becomes a fail-with-pointer",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "auth",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T12:16:29.717Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      }
+    ]
+  }
+}
