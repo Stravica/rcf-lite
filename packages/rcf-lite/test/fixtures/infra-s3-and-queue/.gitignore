@@ -1,0 +1,3 @@
+# wrangler dev --local writes miniflare state under .wrangler/. It is
+# a runtime artefact, not fixture source, and must not land in commits.
+.wrangler/
