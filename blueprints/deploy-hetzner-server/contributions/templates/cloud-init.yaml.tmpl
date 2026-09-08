@@ -1,0 +1,93 @@
+#cloud-config
+# deploy-hetzner-server v1.0.0 cloud-init user-data template.
+# Six-block hardening baseline per ADR-3804 (Debian unattended-upgrades wiki
+# and the estate baseline at
+# operator/knowledge/systems/environments/hetzner-cloud/overview.md
+# Security posture baseline). Placeholders in {{double-brace}} form are
+# substituted by the fixture's cloud-init-renderer.mjs against the applying
+# manifest.
+
+hostname: {{name}}
+
+# Block 1: SSH key-only. Password auth disabled at the sshd level too.
+users:
+  - name: deploy
+    groups: [sudo]
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+{{sshAuthorizedKeysBlock}}
+
+# Block 2: root disabled (PermitRootLogin no).
+# Block 1 continued: PasswordAuthentication no.
+write_files:
+  - path: /etc/ssh/sshd_config.d/hardening.conf
+    permissions: '0644'
+    content: |
+      # deploy-hetzner-server v1.0.0 hardening (baseline blocks 1 and 2).
+      PermitRootLogin no
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      ChallengeResponseAuthentication no
+  # Block 4: DOCKER-USER iptables chain drops non-conforming egress.
+  - path: /etc/iptables/rules.v4.d/docker-user.rules
+    permissions: '0644'
+    content: |
+      # deploy-hetzner-server v1.0.0 hardening baseline block 4:
+      # DOCKER-USER iptables chain wired to drop non-conforming egress.
+      *filter
+      :DOCKER-USER - [0:0]
+      -A DOCKER-USER -m conntrack --ctstate ESTABLISHED,RELATED -j RETURN
+      -A DOCKER-USER -j DROP
+      COMMIT
+  # Block 5: fail2ban SSH jail.
+  - path: /etc/fail2ban/jail.d/sshd.conf
+    permissions: '0644'
+    content: |
+      # deploy-hetzner-server v1.0.0 hardening baseline block 5:
+      # fail2ban SSH jail on port 22.
+      [sshd]
+      enabled = true
+      port = 22
+      maxretry = 5
+      findtime = 600
+      bantime = 3600
+  # Block 6: unattended-upgrades on (security updates).
+  - path: /etc/apt/apt.conf.d/50unattended-upgrades
+    permissions: '0644'
+    content: |
+      // deploy-hetzner-server v1.0.0 hardening baseline block 6:
+      // unattended-upgrades on for security updates
+      // per https://wiki.debian.org/UnattendedUpgrades
+      Unattended-Upgrade::Origins-Pattern {
+        "origin=Debian,codename=${distro_codename},label=Debian-Security";
+        "origin=Ubuntu,archive=${distro_codename}-security";
+      };
+      Unattended-Upgrade::Automatic-Reboot "false";
+  - path: /etc/apt/apt.conf.d/20auto-upgrades
+    permissions: '0644'
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+
+# Package install: ufw for block 3, fail2ban for block 5,
+# unattended-upgrades for block 6, iptables-persistent for block 4.
+packages:
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+  - iptables-persistent
+
+runcmd:
+  # Block 3: UFW default-deny incoming, allow 22 80 443.
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow 22/tcp
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw --force enable
+  - systemctl reload ssh || systemctl restart ssh
+  - systemctl enable --now fail2ban
+  - systemctl enable --now unattended-upgrades
+  # Load the DOCKER-USER iptables rules on boot.
+  - iptables-restore -n < /etc/iptables/rules.v4.d/docker-user.rules

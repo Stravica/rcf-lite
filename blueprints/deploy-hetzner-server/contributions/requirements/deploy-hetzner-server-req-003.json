@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-hetzner-server-REQ-003",
+  "prdId": "PRD-001",
+  "title": "Cloud-init template renders YAML that lands the six hardening baseline blocks on every provisioned server",
+  "description": "The blueprint ships a cloud-init user-data template at blueprints/deploy-hetzner-server/contributions/templates/cloud-init.yaml.tmpl. Rendering the template against a manifest lands the six baseline blocks named by the estate baseline at operator/knowledge/systems/environments/hetzner-cloud/overview.md Security posture baseline and by the Debian unattended-upgrades wiki: (1) SSH key-only (PasswordAuthentication no via write_files on /etc/ssh/sshd_config.d/hardening.conf), (2) root disabled (PermitRootLogin no via the same file), (3) UFW default-deny incoming with 22, 80, 443 allowed per the manifest firewall shape, (4) DOCKER-USER iptables chain wired to drop non-conforming egress, (5) fail2ban SSH jail, (6) unattended-upgrades on for security updates. A render-lint asserts every block appears in the rendered YAML; a mutation SIMULATE_HARDENING_DRIFT=true removes the unattended-upgrades block and the lint FAILS naming the missing line.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Hetzner round 7 spec (2026-09-07 section 5.1 REQ-003).",
+  "tags": [
+    "blueprint:deploy-hetzner-server",
+    "capability:cloudHost"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

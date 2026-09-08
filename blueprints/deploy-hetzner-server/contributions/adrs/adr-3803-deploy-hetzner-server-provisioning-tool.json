@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-3803-deploy-hetzner-server-provisioning-tool",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Provisioning tool: hcloud CLI default, raw Hetzner Cloud API alternative, Terraform rejected",
+  "context": "An applying project needs a documented answer to how the provisioner shells out to Hetzner Cloud. Options considered: hcloud CLI (small, self-documenting, JSON output on --output json, per https://github.com/hetznercloud/cli); the raw Hetzner Cloud REST API (no CLI dependency, useful when the target host cannot install a binary, per https://docs.hetzner.cloud/); Terraform (declarative, adds a second toolchain and a state file). Baz ruling 2026-09-07 09:50Z on decision 18 of the round-7 summary: hcloud not Terraform. Terraform adds a second toolchain and a state file that nobody in the estate needs.",
+  "decision": "The shipped v1.0.0 default is the hcloud CLI as the provisioning tool. Alternative elicited: raw-api (the provisioner fetches the Hetzner Cloud REST API directly). Terraform is a rejected alternative recorded in the blueprint README section 9 rejected-alternatives. elicited: true. recommendedDefault: hcloud. Standards trace clause: Hetzner Cloud CLI documented resource verbs per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "The applying project installs the hcloud binary on the operator laptop and every CI runner that provisions. The raw-api fork sits behind the same provisioner facade so no consumer code diverges. The provisioner-facade sole-reader guarantee holds on both paths.",
+  "alternativesConsidered": [
+    {
+      "id": "terraform",
+      "summary": "Terraform declaring the Hetzner resources with the hetznercloud provider.",
+      "rejectedBecause": "Adds a second toolchain and a state file. The state file becomes a new source of truth to reconcile with git and with the live account. Baz ruling 2026-09-07 09:50Z."
+    }
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

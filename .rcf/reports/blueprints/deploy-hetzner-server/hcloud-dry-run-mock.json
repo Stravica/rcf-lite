@@ -1,0 +1,71 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "hcloud-dry-run-mock",
+  "runAt": "2026-09-08T00:20:31.327Z",
+  "engine": {
+    "kind": "facade-round-trip",
+    "image": "hetzner-throwaway-server fixture provisioner facade against a mocked hcloud shim",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-37101-1",
+      "verdict": "pass",
+      "detail": "provisionerReady fired with metadata-only {tool, apiHost} payload."
+    },
+    {
+      "anchorAcId": "AC-37101-1",
+      "verdict": "pass",
+      "detail": "hetznerServerProvisioned fired with id=13775246 primaryIpv4=198.51.100.196 location=fsn1 serverType=cx23."
+    },
+    {
+      "anchorAcId": "AC-37109-1",
+      "verdict": "pass",
+      "detail": "event-secrecy scan across 4 event bodies found no leak of the token, ssh private key, or user-data content."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "eventCount": 4,
+  "events": [
+    {
+      "event": "provisionerReady",
+      "keys": [
+        "apiHost",
+        "event",
+        "tool"
+      ]
+    },
+    {
+      "event": "hetznerServerProvisioned",
+      "keys": [
+        "event",
+        "id",
+        "labels",
+        "location",
+        "primaryIpv4",
+        "serverType"
+      ]
+    },
+    {
+      "event": "hetznerSnapshotTaken",
+      "keys": [
+        "event",
+        "serverId",
+        "snapshotId",
+        "wallClockTime"
+      ]
+    },
+    {
+      "event": "hetznerServerDestroyed",
+      "keys": [
+        "event",
+        "id",
+        "wallClockTime"
+      ]
+    }
+  ],
+  "mutations": {
+    "jsonParseStrip": false,
+    "eventSecrecyLeak": false
+  }
+}

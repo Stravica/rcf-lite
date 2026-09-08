@@ -1,0 +1,23 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "manifest-schema-validate",
+  "runAt": "2026-09-08T00:20:31.304Z",
+  "engine": {
+    "kind": "schema-validate",
+    "image": "hetzner-throwaway-server fixture manifest directory (draft-07 subset in-process)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-37102-1",
+      "verdict": "pass",
+      "detail": "manifest ci-throwaway.json validates against hetzner-server.schema.json (nine required fields, firewall rule shape, snapshotCadence enum all satisfied)."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "manifestCount": 1,
+  "manifestNames": [
+    "ci-throwaway.json"
+  ],
+  "mutationActive": false
+}

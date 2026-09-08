@@ -1,0 +1,6 @@
+// Fixture-side reviewer boot for the cloud-init-render-lint probe.
+// Runs from the fixture directory as written:
+//   cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server && node ./run-cloud-init-render-lint.mjs
+// Delegates to the blueprint's own shim so probe logic and report path stay
+// in one place (blueprints/deploy-hetzner-server/contributions/probes/).
+import '../../../../../blueprints/deploy-hetzner-server/contributions/probes/run-cloud-init-render-lint.mjs';

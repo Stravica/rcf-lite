@@ -1,0 +1,19 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "real-account-snapshot-on-demand",
+  "runAt": "2026-09-08T00:20:31.384Z",
+  "engine": {
+    "kind": "real-account-snapshot",
+    "image": "Hetzner Cloud throwaway cx23 with snapshot verb via hcloud image create-image",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-37108-1",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "detail": "accountBound: CI_HAS_HETZNER_ACCOUNT unset; real-account snapshot on-demand skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the hcloud image create-image path."
+    }
+  ],
+  "aggregateVerdict": "pass"
+}

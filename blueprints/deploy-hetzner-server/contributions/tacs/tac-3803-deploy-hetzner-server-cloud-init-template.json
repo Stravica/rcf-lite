@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Cloud-init template and render lint",
+  "purpose": "One cloud-init user-data template that renders YAML landing the six hardening baseline blocks per ADR-3804 on every provisioned Hetzner server: SSH key-only, root disabled, UFW default-deny incoming, DOCKER-USER iptables chain, fail2ban SSH jail, unattended-upgrades. A local render-lint probe asserts every block appears in the rendered YAML; the SIMULATE_HARDENING_DRIFT mutation removes the unattended-upgrades block and the probe FAILS naming the missing line.",
+  "responsibilities": [
+    "Ship a cloud-init template at contributions/templates/cloud-init.yaml.tmpl that renders the six baseline blocks (AC-37104-1).",
+    "Render deterministically against a manifest via the fixture's cloud-init-renderer.mjs (AC-37104-1).",
+    "Cover the SIMULATE_HARDENING_DRIFT mutation with a probe FAILURE that names the missing line (AC-37104-1).",
+    "Document the runtime ssh baseline check that the account-bound probe drives against the throwaway server (AC-37105-1)."
+  ],
+  "internalStructure": "One template file at blueprints/deploy-hetzner-server/contributions/templates/cloud-init.yaml.tmpl using {{token}} placeholders substituted by the renderer; one renderer module at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/src/cloud-init-renderer.mjs; one probe cloud-init-render-lint.mjs asserts baseline lines.",
+  "interfaces": [
+    {
+      "name": "cloud-init.yaml.tmpl",
+      "kind": "template",
+      "summary": "Cloud-init user-data template with the six baseline blocks and templated substitutions."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

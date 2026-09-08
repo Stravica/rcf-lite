@@ -1,0 +1,25 @@
+{
+  "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Hetzner Cloud firewall rule shape",
+  "purpose": "One canonical firewall rule shape carried inside the server manifest. Rule set: 22 permitted only from a nonempty list of source-prefix ranges (the operator-nominated set; the schema refuses on 0.0.0.0/0 in this list); 80 and 443 permitted from 0.0.0.0/0 for the reverse proxy; all other inbound denied. The provisioner applies the rule set to the server at provision time via hcloud firewall create + apply-to-resource (or the raw-api equivalent).",
+  "responsibilities": [
+    "Define the firewall rule shape as a sub-schema in hetzner-server.schema.json (AC-37106-1).",
+    "Refuse via manifest-schema-validate on a manifest that opens 22 to 0.0.0.0/0 or drops 80/443 (AC-37106-1).",
+    "Enforce that the ssh rule's sourceIps is a nonempty array (AC-37106-1)."
+  ],
+  "internalStructure": "Rule shape lives inside the same hetzner-server.schema.json used by TAC-3802 (properties.firewallRules array items with protocol, port, direction, sourceIps). The applyFirewall verb on the provisioner facade consumes the parsed rule set.",
+  "interfaces": [
+    {
+      "name": "firewallRules sub-schema",
+      "kind": "jsonSchemaFragment",
+      "summary": "Rule-shape invariants inside hetzner-server.schema.json."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

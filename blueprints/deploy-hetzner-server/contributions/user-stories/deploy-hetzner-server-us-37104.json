@@ -1,0 +1,24 @@
+{
+  "usId": "deploy-hetzner-server-US-37104",
+  "prdId": "PRD-001",
+  "reqId": "deploy-hetzner-server-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Cloud-init template renders the six hardening baseline blocks",
+  "asA": "developer whose project provisions Hetzner servers that face the public internet",
+  "iWant": "the shipped cloud-init template to render YAML that lands SSH key-only, root disabled, UFW default-deny incoming, DOCKER-USER iptables chain, fail2ban SSH jail and unattended-upgrades on every server",
+  "soThat": "I inherit the six-block hardening baseline declaratively without hand-authoring per host",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-37104-1",
+      "description": "cloud-init-render-lint.mjs renders the template with the fixture manifest and asserts each of the six baseline blocks (SSH key-only, root disabled, UFW default-deny incoming, DOCKER-USER iptables chain, fail2ban SSH jail, unattended-upgrades) appears in the rendered YAML by grep; a mutation SIMULATE_HARDENING_DRIFT=true removes the unattended-upgrades block and the probe FAILS with a message naming the missing line.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3803-deploy-hetzner-server-cloud-init-template"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

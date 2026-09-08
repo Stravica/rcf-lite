@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-hetzner-server-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Four lifecycle events fire with metadata-only payloads and no secret ever crosses the sink boundary",
+  "description": "The provisioner facade emits four lifecycle events on the injected event sink: provisionerReady (tool, apiHost), hetznerServerProvisioned (id, primaryIpv4, location, serverType, labels), hetznerSnapshotTaken (serverId, snapshotId, wallClockTime), hetznerServerDestroyed (id, wallClockTime). Every payload carries only metadata; no event body carries the HETZNER_ACCOUNT_API_KEY value, an ssh private key, or a rendered user-data body. The event-secrecy check inside the hcloud-dry-run-mock probe accumulates every emitted event body across a full lifecycle run and asserts the token, an ssh private-key marker (BEGIN OPENSSH PRIVATE KEY), and the elicited user-data bytes appear in NO event body; a mutation SIMULATE_EVENT_SECRECY_LEAK=true injects the token into the hetznerServerProvisioned payload and the probe FAILS with a defensive-fake finding naming the leaked field.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Hetzner round 7 spec (2026-09-07 section 5.1 REQ-006).",
+  "tags": [
+    "blueprint:deploy-hetzner-server",
+    "capability:cloudHost"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

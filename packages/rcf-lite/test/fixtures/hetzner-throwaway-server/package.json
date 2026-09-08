@@ -1,0 +1,18 @@
+{
+  "name": "hetzner-throwaway-server-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared throwaway-Hetzner-server CI fixture for the round-7 tracks deploy-hetzner-server (mint), platform-docker-compose-host (extend, T-2), edge-cloudflare-tunnel (extend, T-3). Provisions a cx23 in fsn1 from ubuntu-24.04 per hetzner/servers/ci-throwaway.json, tags with role=rcf-lite-ci-throwaway, tears down in always() via destroy.mjs, and gates on CI_HAS_HETZNER_ACCOUNT per hetzner-round-7-spec-2026-09-07.md section 3.3.",
+  "scripts": {
+    "provision": "node ./provision.mjs",
+    "destroy": "node ./destroy.mjs",
+    "sweep-orphans": "node ./sweep-orphans.mjs",
+    "probe-cloud-init-render-lint": "node ./run-cloud-init-render-lint.mjs",
+    "probe-manifest-schema-validate": "node ./run-manifest-schema-validate.mjs",
+    "probe-hcloud-dry-run-mock": "node ./run-hcloud-dry-run-mock.mjs",
+    "probe-real-account-throwaway-server-provision": "node ./run-real-account-throwaway-server-provision.mjs",
+    "probe-real-account-cloud-init-hardened": "node ./run-real-account-cloud-init-hardened.mjs",
+    "probe-real-account-snapshot-on-demand": "node ./run-real-account-snapshot-on-demand.mjs"
+  }
+}
