@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Edge-cloudflare-tunnel manifest schema",
+  "purpose": "The tunnel manifest at cloudflare/tunnels/<name>.yaml under the applying project is the sole runtime source of truth for what the cloudflared connector serves. The shipped JSON schema requires a uuid-shaped tunnel id, a secretRef credentials reference (never a literal path or JSON body inline), and an ingress rules array whose last entry is a catch-all rule returning http_status 404. The schema refuses ingress rules whose service URL binds to a host public interface.",
+  "responsibilities": [
+    "Ship the JSON schema at contributions/probes/tunnel-manifest.schema.json (AC-tunnel-manifestSchema).",
+    "Validate the fixture manifests at cloudflared/*/cloudflare/tunnels/*.yaml on every reviewer boot (AC-tunnel-manifestSchema, AC-tunnel-hostnameRoutes).",
+    "Refuse ingress rules that bind to a host public port (AC-tunnel-noPublicOrigin).",
+    "Refuse a manifest whose credentials reference is not a secretRef (AC-tunnel-manifestSchema, AC-tunnel-credentialsDiscipline)."
+  ],
+  "internalStructure": "One JSON schema plus one probe module; the probe reads the resolved fixture root from env (defaulted to the canonical fixture path) and validates every tunnel yaml against the schema.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "facade",
+      "summary": "Manifest schema-validate facade exported from the blueprint probe module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

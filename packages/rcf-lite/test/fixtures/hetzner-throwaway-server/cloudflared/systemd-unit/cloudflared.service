@@ -1,0 +1,28 @@
+# Round-7 T-3 systemd unit for cloudflared (bare cloudHost variant).
+#
+# Shape per the vendor cloudflared as-a-service documented systemd unit:
+# https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/install-and-setup/tunnel-guide/local/as-a-service/
+#
+# Reads the tunnel manifest at /etc/cloudflared/probe.yaml (bind-mounted
+# in the fixture as ../cloudflared/systemd-unit/cloudflare/tunnels/probe.yaml)
+# and the credentials JSON at /etc/cloudflared/credentials.json at mode 0o400.
+# No public host ports required for the tunnel; the systemd unit runs as
+# the low-privilege cloudflared user per the vendor install script.
+[Unit]
+Description=Cloudflare Tunnel (rcf-lite-ci probe)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=cloudflared
+Group=cloudflared
+ExecStart=/usr/bin/cloudflared --no-autoupdate --config /etc/cloudflared/probe.yaml tunnel run
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=0
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

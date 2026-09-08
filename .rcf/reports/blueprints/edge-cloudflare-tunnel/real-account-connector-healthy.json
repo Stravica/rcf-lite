@@ -1,0 +1,27 @@
+{
+  "slug": "edge-cloudflare-tunnel",
+  "probeName": "real-account-connector-healthy",
+  "runAt": "2026-09-08T04:08:24.076Z",
+  "engine": {
+    "kind": "real-account-connector-healthy",
+    "image": "account-bound",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-tunnel-connectorHealthy",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "detail": "accountBound: CI_HAS_CLOUDFLARE_ACCOUNT or CI_HAS_HETZNER_ACCOUNT unset; real-account cloudflared tunnel info + tunnelConnectorUp capture not exercised. Set CI_HAS_CLOUDFLARE_ACCOUNT=true AND CI_HAS_HETZNER_ACCOUNT=true (with HCLOUD_TOKEN and CLOUDFLARE_API_TOKEN in the environment via security-secrets-management) to run the real-account path."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "envRequired": [
+    "CI_HAS_CLOUDFLARE_ACCOUNT",
+    "CI_HAS_HETZNER_ACCOUNT"
+  ],
+  "envPresent": {
+    "CI_HAS_CLOUDFLARE_ACCOUNT": false,
+    "CI_HAS_HETZNER_ACCOUNT": false
+  }
+}

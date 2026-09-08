@@ -1,0 +1,24 @@
+{
+  "usId": "edge-cloudflare-tunnel-US-39106",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-tunnel-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Access-gated composition: zeroTrustGate applied attaches originRequest.access.aud; absent omits the block",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel v1.0.0 alongside edge-cloudflare-access v1.0.0",
+  "iWant": "every ingress rule to attach an originRequest.access block naming the Access AUD when zeroTrustGate is applied and to omit the block when it is not",
+  "soThat": "the shape switches purely on the applied capability set and never silently degrades",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-tunnel-accessGated",
+      "description": "aud-presence-check probe reads each variant sidecar and asserts the ingress rules attach originRequest.access.aud on the access-gated variant and omit the block on the public-hostname variant. The shape flip is a pure function of the sidecar contents.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-4003-edge-cloudflare-tunnel-access-binding"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

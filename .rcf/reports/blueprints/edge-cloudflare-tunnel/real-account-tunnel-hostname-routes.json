@@ -1,0 +1,41 @@
+{
+  "slug": "edge-cloudflare-tunnel",
+  "probeName": "real-account-tunnel-hostname-routes",
+  "runAt": "2026-09-08T04:08:24.097Z",
+  "engine": {
+    "kind": "real-account-tunnel-hostname-routes",
+    "image": "account-bound",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-tunnel-hostnameRoutes",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "detail": "accountBound: CI_HAS_CLOUDFLARE_ACCOUNT or CI_HAS_HETZNER_ACCOUNT unset; public-hostname sub-case: undici curl against the scratch subdomain not exercised. Set CI_HAS_CLOUDFLARE_ACCOUNT=true AND CI_HAS_HETZNER_ACCOUNT=true to run this path."
+    },
+    {
+      "anchorAcId": "AC-tunnel-accessGated",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "detail": "accountBound: CI_HAS_CLOUDFLARE_ACCOUNT or CI_HAS_HETZNER_ACCOUNT or CI_HAS_CLOUDFLARE_ACCESS unset; access-gated sub-case: two-identity JWT check against the scratch subdomain not exercised. Requires all three env vars (CI_HAS_CLOUDFLARE_ACCESS added per Q4 ratification)."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "envRequired": {
+    "publicHostname": [
+      "CI_HAS_CLOUDFLARE_ACCOUNT",
+      "CI_HAS_HETZNER_ACCOUNT"
+    ],
+    "accessGated": [
+      "CI_HAS_CLOUDFLARE_ACCOUNT",
+      "CI_HAS_HETZNER_ACCOUNT",
+      "CI_HAS_CLOUDFLARE_ACCESS"
+    ]
+  },
+  "envPresent": {
+    "CI_HAS_CLOUDFLARE_ACCOUNT": false,
+    "CI_HAS_HETZNER_ACCOUNT": false,
+    "CI_HAS_CLOUDFLARE_ACCESS": false
+  }
+}

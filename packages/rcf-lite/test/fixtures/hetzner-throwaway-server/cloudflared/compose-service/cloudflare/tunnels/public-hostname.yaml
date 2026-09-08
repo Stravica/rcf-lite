@@ -1,0 +1,15 @@
+# Round-7 T-3 fixture tunnel manifest: compose-service runtime, public-hostname mode.
+#
+# Shape per hetzner-round-7-spec-2026-09-07.md section 5.3 REQ-131 and the
+# vendor local-configuration-file docs. The manifest is the sole runtime
+# source of truth for what the cloudflared connector serves. In public-
+# hostname mode (edge-cloudflare-access not applied), no ingress rule
+# carries an originRequest.access block; the tunnel serves openly on the
+# public hostname (protected by whatever the origin service itself carries).
+tunnel: 00000000-0000-4000-8000-000000000c01
+credentialsFile:
+  secretRef: hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_T3_COMPOSE
+ingress:
+  - hostname: probe.compose.rcf-lite-ci.example
+    service: http://web:8080
+  - service: http_status:404

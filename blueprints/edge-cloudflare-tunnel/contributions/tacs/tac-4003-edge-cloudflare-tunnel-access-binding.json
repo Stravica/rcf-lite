@@ -1,0 +1,25 @@
+{
+  "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Edge-cloudflare-tunnel Access AUD binding",
+  "purpose": "The blueprint reads the applying project sidecar rcf/blueprints/edge-cloudflare-tunnel.applied.json at apply time and inspects appliedCapabilities. When zeroTrustGate is present every ingress rule attaches an originRequest.access.aud block naming the Access AUD; when absent the block is omitted and the tunnel serves in public-hostname mode. The shape is a pure function of the sidecar and never silently degrades to open ingress.",
+  "responsibilities": [
+    "Ship the aud-presence-check probe module (AC-tunnel-accessGated, AC-tunnel-accessGatedRefuse).",
+    "Ship both fixture variants (access-gated and public-hostname) under cloudflared/sidecars/*.applied.json (AC-tunnel-accessGated).",
+    "Refuse when the gated variant drifts to open ingress (AC-tunnel-accessGatedRefuse)."
+  ],
+  "internalStructure": "One probe module reading the sidecar file resolved from the fixture root and validating the ingress shape flips correctly.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "facade",
+      "summary": "AUD-presence-check facade exported from the blueprint probe module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

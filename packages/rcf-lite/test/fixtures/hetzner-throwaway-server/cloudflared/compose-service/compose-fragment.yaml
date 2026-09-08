@@ -1,0 +1,33 @@
+# Round-7 T-3 compose fragment: the cloudflared connector as a compose
+# service alongside the T-2 web and caddy services on the same web-net
+# network. Merged into the T-2 fixture stack when the reviewer wants to
+# stand the connector alongside the healthchecked web service.
+#
+# No host ports (REQ-132 no public origin ports). Restart discipline
+# unless-stopped per T-2 REQ-123. Log driver journald per T-2 REQ-125.
+# The tunnel manifest at cloudflare/tunnels/probe.yaml is mounted read-only.
+# The credentials file location follows the vendor container image default
+# and is populated from a real tenant secret at deploy time via
+# security-secrets-management; the fixture ships a placeholder that
+# documents the 0o400 mode discipline.
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:2026.8.3
+    container_name: rcf-lite-throwaway-cloudflared
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --config
+      - /etc/cloudflared/probe.yaml
+      - run
+    depends_on:
+      web:
+        condition: service_healthy
+    volumes:
+      - ./cloudflared/compose-service/cloudflare/tunnels/probe.yaml:/etc/cloudflared/probe.yaml:ro
+      - ./cloudflared/compose-service/credentials/probe.json.example:/etc/cloudflared/credentials.json:ro
+    networks:
+      - web-net
+    restart: unless-stopped
+    logging:
+      driver: journald

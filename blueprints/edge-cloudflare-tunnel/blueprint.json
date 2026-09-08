@@ -1,0 +1,168 @@
+{
+  "slug": "edge-cloudflare-tunnel",
+  "version": "1.0.0",
+  "category": "edge",
+  "capabilities": [
+    "tunnelBridge"
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every cloudflaredReady, tunnelConnectorUp, tunnelConnectorDown, ingressRuleReloaded and accessGateRefused event writes through the applied logger; a logging companion supplies the factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A cloudflared exit, a JWT-check failure, an ingress-rule schema violation, a hostname-DNS-route API refusal constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "tunnel-name",
+      "prompt": "The Cloudflare Tunnel name (also the manifest filename under cloudflare/tunnels/<name>.yaml). Names the connector in cloudflared tunnel list and in the routing DNS entries.",
+      "kind": "string",
+      "default": "probe"
+    },
+    {
+      "id": "cloudflare-zone-secret",
+      "prompt": "security-secrets-management reference to the Cloudflare zone the tunnel serves under. Read at apply time to create the DNS route; never inlined into the manifest.",
+      "kind": "string",
+      "default": "hq-estate/CLOUDFLARE_ZONE_ID"
+    },
+    {
+      "id": "public-hostname-template",
+      "prompt": "Template for the public hostname (e.g. <service>.<zone>). The template is expanded per ingress rule at apply time.",
+      "kind": "string",
+      "default": "<service>.<zone>"
+    },
+    {
+      "id": "ingress-rules",
+      "prompt": "Ingress rules array: each entry names a public hostname and the internal service URL to route to. The last entry is a mandatory catch-all http_status 404 (added by the blueprint if omitted).",
+      "kind": "string",
+      "default": "[]"
+    },
+    {
+      "id": "access-aud",
+      "prompt": "Optional Access AUD tag for the Access-gated shape. When present AND edge-cloudflare-access is applied (zeroTrustGate on appliedCapabilities), every ingress rule attaches originRequest.access.aud with this value. When absent OR edge-cloudflare-access is not applied, the block is omitted and the tunnel serves in public-hostname mode.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "connector-runtime",
+      "prompt": "Connector runtime per ADR-4002. compose-service is the shipped default when containerHost is applied (T-2 platform-docker-compose-host on top of T-1 deploy-hetzner-server); systemd-unit is the alternative for a bare cloudHost per the cloudflared as-a-service local-configuration-file docs.",
+      "kind": "enum",
+      "options": [
+        "compose-service",
+        "systemd-unit"
+      ],
+      "default": "compose-service"
+    }
+  ],
+  "contributions": [
+    {
+      "id": "edge-cloudflare-tunnel-REQ-001",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-tunnel-req-001.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-REQ-002",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-tunnel-req-002.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-REQ-003",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-tunnel-req-003.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-REQ-004",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-tunnel-req-004.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-REQ-005",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-tunnel-req-005.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39101",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39101.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39102",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39102.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39103",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39103.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39104",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39104.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39105",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39105.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39106",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39106.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39107",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39107.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39108",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39108.json"
+    },
+    {
+      "id": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
+      "kind": "tac",
+      "path": "tacs/tac-4001-edge-cloudflare-tunnel-connector-shape.json"
+    },
+    {
+      "id": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+      "kind": "tac",
+      "path": "tacs/tac-4002-edge-cloudflare-tunnel-manifest-schema.json"
+    },
+    {
+      "id": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+      "kind": "tac",
+      "path": "tacs/tac-4003-edge-cloudflare-tunnel-access-binding.json"
+    },
+    {
+      "id": "ADR-4001-edge-cloudflare-tunnel-ingress-bridge-contract",
+      "kind": "adr",
+      "path": "adrs/adr-4001-edge-cloudflare-tunnel-ingress-bridge-contract.json",
+      "scope": "global",
+      "topic": "edgeIngressBridge",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Tunnel overview and get-started documented mechanics per hetzner-round-7-spec-2026-09-07.md"
+    },
+    {
+      "id": "ADR-4002-edge-cloudflare-tunnel-connector-runtime",
+      "kind": "adr",
+      "path": "adrs/adr-4002-edge-cloudflare-tunnel-connector-runtime.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Cloudflare cloudflared as-a-service documented systemd unit per hetzner-round-7-spec-2026-09-07.md"
+    },
+    {
+      "id": "ADR-4003-edge-cloudflare-tunnel-hostname-mode",
+      "kind": "adr",
+      "path": "adrs/adr-4003-edge-cloudflare-tunnel-hostname-mode.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Cloudflare Access self-hosted-public-app documented shape per hetzner-round-7-spec-2026-09-07.md"
+    }
+  ]
+}

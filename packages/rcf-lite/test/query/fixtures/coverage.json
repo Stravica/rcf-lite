@@ -1,10 +1,10 @@
 {
-  "ok": false,
+  "ok": true,
   "strict": false,
   "totals": {
     "requirements": 85,
-    "covered": 80,
-    "coveredUnresolved": 5,
+    "covered": 85,
+    "coveredUnresolved": 0,
     "uncovered": 0
   },
   "requirements": [
@@ -3354,168 +3354,103 @@
     },
     {
       "id": "REQ-130",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-13001-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-160-connector-shape-variants-shipped"
           ],
-          "unresolvedTestCases": [
-            "TC-160-connector-shape-variants-shipped"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-13002-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-160-real-account-connector-healthy-declared-and-skipped-shape"
           ],
-          "unresolvedTestCases": [
-            "TC-160-real-account-connector-healthy-declared-and-skipped-shape"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-131",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-13101-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-160-manifest-schema-validate-refuses-invalid"
           ],
-          "unresolvedTestCases": [
-            "TC-160-manifest-schema-validate-refuses-invalid"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-13102-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress"
           ],
-          "unresolvedTestCases": [
-            "TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-132",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-13201-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-160-no-public-origin-port-refused"
           ],
-          "unresolvedTestCases": [
-            "TC-160-no-public-origin-port-refused"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-133",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-13301-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-160-aud-presence-flip-on-both-fixture-variants"
           ],
-          "unresolvedTestCases": [
-            "TC-160-aud-presence-flip-on-both-fixture-variants"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-13302-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-160-aud-presence-check-refuses-on-drift"
           ],
-          "unresolvedTestCases": [
-            "TC-160-aud-presence-check-refuses-on-drift"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-134",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-13401-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-160-credentials-discipline-and-event-secrecy"
           ],
-          "unresolvedTestCases": [
-            "TC-160-credentials-discipline-and-event-secrecy"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     }
   ],
-  "unresolvedTestPointers": [
-    {
-      "tsId": "TS-160",
-      "tcId": "TC-160-aud-presence-check-refuses-on-drift",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13302-1 aud-presence-check refuses on drift (TC-160-aud-presence-check-refuses-on-drift)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-160",
-      "tcId": "TC-160-aud-presence-flip-on-both-fixture-variants",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13301-1 aud-presence-check flips on both fixture variants (TC-160-aud-presence-flip-on-both-fixture-variants)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-160",
-      "tcId": "TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13102-1 cloudflared-config-lint passes and refuses invalid ingress (TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-160",
-      "tcId": "TC-160-connector-shape-variants-shipped",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13001-1 connector shape variants shipped (TC-160-connector-shape-variants-shipped)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-160",
-      "tcId": "TC-160-credentials-discipline-and-event-secrecy",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13401-1 credentials discipline and event-secrecy scan (TC-160-credentials-discipline-and-event-secrecy)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-160",
-      "tcId": "TC-160-manifest-schema-validate-refuses-invalid",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13101-1 manifest schema validate refuses invalid (TC-160-manifest-schema-validate-refuses-invalid)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-160",
-      "tcId": "TC-160-no-public-origin-port-refused",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13201-1 no public origin port refused (TC-160-no-public-origin-port-refused)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-160",
-      "tcId": "TC-160-real-account-connector-healthy-declared-and-skipped-shape",
-      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13002-1 real-account-connector-healthy declared and skipped shape (TC-160-real-account-connector-healthy-declared-and-skipped-shape)",
-      "reason": "file-missing"
-    }
-  ]
+  "unresolvedTestPointers": []
 }
