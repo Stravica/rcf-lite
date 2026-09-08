@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-tunnel",
   "probeName": "manifest-schema-validate",
-  "runAt": "2026-09-08T04:40:17.440Z",
+  "runAt": "2026-09-08T04:49:45.174Z",
   "engine": {
     "kind": "schema-validate",
     "image": "edge-cloudflare-tunnel manifest schema (Ajv-free walker)",
@@ -11,7 +11,7 @@
     {
       "anchorAcId": "AC-tunnel-manifestSchema",
       "verdict": "pass",
-      "detail": "compose-service/public-hostname: manifest at /private/tmp/claude-501/-Users-thefoot-stravica-pa-agents-dave/621190f7-bce3-4515-aedf-fc604cd0e42e/scratchpad/round7-t3/wt/packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/cloudflare/tunnels/public-hostname.yaml validates against tunnel-manifest.schema.json"
+      "detail": "compose-service/public-hostname: manifest at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/cloudflare/tunnels/public-hostname.yaml validates against tunnel-manifest.schema.json"
     },
     {
       "anchorAcId": "AC-tunnel-noPublicOrigin",
@@ -31,7 +31,7 @@
     {
       "anchorAcId": "AC-tunnel-manifestSchema",
       "verdict": "pass",
-      "detail": "compose-service/access-gated: manifest at /private/tmp/claude-501/-Users-thefoot-stravica-pa-agents-dave/621190f7-bce3-4515-aedf-fc604cd0e42e/scratchpad/round7-t3/wt/packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/cloudflare/tunnels/access-gated.yaml validates against tunnel-manifest.schema.json"
+      "detail": "compose-service/access-gated: manifest at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/cloudflare/tunnels/access-gated.yaml validates against tunnel-manifest.schema.json"
     },
     {
       "anchorAcId": "AC-tunnel-noPublicOrigin",
@@ -51,7 +51,7 @@
     {
       "anchorAcId": "AC-tunnel-manifestSchema",
       "verdict": "pass",
-      "detail": "systemd-unit/public-hostname: manifest at /private/tmp/claude-501/-Users-thefoot-stravica-pa-agents-dave/621190f7-bce3-4515-aedf-fc604cd0e42e/scratchpad/round7-t3/wt/packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/systemd-unit/cloudflare/tunnels/public-hostname.yaml validates against tunnel-manifest.schema.json"
+      "detail": "systemd-unit/public-hostname: manifest at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/systemd-unit/cloudflare/tunnels/public-hostname.yaml validates against tunnel-manifest.schema.json"
     },
     {
       "anchorAcId": "AC-tunnel-noPublicOrigin",
@@ -71,7 +71,7 @@
     {
       "anchorAcId": "AC-tunnel-manifestSchema",
       "verdict": "pass",
-      "detail": "systemd-unit/access-gated: manifest at /private/tmp/claude-501/-Users-thefoot-stravica-pa-agents-dave/621190f7-bce3-4515-aedf-fc604cd0e42e/scratchpad/round7-t3/wt/packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/systemd-unit/cloudflare/tunnels/access-gated.yaml validates against tunnel-manifest.schema.json"
+      "detail": "systemd-unit/access-gated: manifest at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/systemd-unit/cloudflare/tunnels/access-gated.yaml validates against tunnel-manifest.schema.json"
     },
     {
       "anchorAcId": "AC-tunnel-noPublicOrigin",

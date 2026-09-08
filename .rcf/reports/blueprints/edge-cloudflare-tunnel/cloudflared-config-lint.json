@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-tunnel",
   "probeName": "cloudflared-config-lint",
-  "runAt": "2026-09-08T04:40:18.276Z",
+  "runAt": "2026-09-08T04:49:46.050Z",
   "engine": {
     "kind": "cloudflared-ingress-validate",
     "image": "cloudflare/cloudflared:2026.8.3",

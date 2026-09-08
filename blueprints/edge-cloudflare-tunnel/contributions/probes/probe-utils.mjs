@@ -75,10 +75,25 @@ export async function writeReport({ probeName, engine, results, extra }) {
     ...(extra ?? {}),
   };
   // Strip absolute builder scratchpad paths from persisted reports so
-  // the committed envelopes stay repo-relative and diff cleanly.
-  if (typeof report.fixtureRoot === 'string' && report.fixtureRoot.startsWith(PROJECT_ROOT)) {
-    report.fixtureRoot = report.fixtureRoot.slice(PROJECT_ROOT.length + 1) || '.';
+  // the committed envelopes stay repo-relative and diff cleanly. Walks
+  // every string in the report and rewrites PROJECT_ROOT-prefixed paths
+  // to their repo-relative form (covers report.fixtureRoot, results[].detail,
+  // extra.* and any nested string value future probes surface).
+  const prefix = PROJECT_ROOT + '/';
+  function stripPaths(node) {
+    if (typeof node === 'string') {
+      if (node === PROJECT_ROOT) return '.';
+      return node.split(prefix).join('');
+    }
+    if (Array.isArray(node)) return node.map(stripPaths);
+    if (node && typeof node === 'object') {
+      const out = {};
+      for (const [k, v] of Object.entries(node)) out[k] = stripPaths(v);
+      return out;
+    }
+    return node;
   }
+  Object.assign(report, stripPaths(report));
   const path = resolve(REPORT_DIR, `${probeName}.json`);
   await writeFile(path, JSON.stringify(report, null, 2) + '\n', 'utf8');
   return { report, path };
