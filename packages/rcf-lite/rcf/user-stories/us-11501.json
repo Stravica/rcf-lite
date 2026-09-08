@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T23:56:36.993Z",
+  "updatedAt": "2026-09-07T23:56:37.410Z",
+  "usId": "US-11501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-115",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 four lifecycle events fire with metadata-only payloads, no secret leaks through any event body",
+  "asA": "shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint",
+  "iWant": "the provisioner facade to fire the four lifecycle events (provisionerReady, hetznerServerProvisioned, hetznerSnapshotTaken, hetznerServerDestroyed) with metadata-only payloads (id, primaryIpv4, location, serverType, snapshotId, wallClockTime) and no secret content",
+  "soThat": "the observability sink carries the operational trail without ever leaking a token or an ssh key",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11501-1",
+      "description": "hcloud-dry-run-mock.mjs drives every lifecycle event through the facade against a mocked hcloud shim; the accumulated event stream carries only the metadata fields named; a mutation (event-secrecy leak: inject the token into the hetznerServerProvisioned payload) FAILS the probe with a defensive-fake finding.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3801-deploy-hetzner-server-provisioner"
+  ]
+}

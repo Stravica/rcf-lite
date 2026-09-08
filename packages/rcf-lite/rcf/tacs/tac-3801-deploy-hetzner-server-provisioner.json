@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-07T23:53:56.835Z",
+  "updatedAt": "2026-09-07T23:57:58.678Z",
+  "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "T-1 repo-chain TAC mirror for the shipped blueprints/deploy-hetzner-server/contributions/tacs/tac-3801-deploy-hetzner-server-provisioner.json contribution. Defines the provisioner Node module that wraps hcloud CLI verbs (create server, apply firewall, take snapshot, list snapshots, destroy server) and, under provisioningTool=raw-api, wraps the equivalent Hetzner Cloud REST endpoints. Sole-reader guarantee: only this module reads the HETZNER_ACCOUNT_API_KEY via security-secrets-management (or the project-scoped alternative). Anchors AC-11001-1 (repo chain).",
+  "responsibilities": [
+    "Wrap hcloud CLI verbs (create server, apply firewall, take snapshot, list snapshots, destroy server) and the raw Hetzner Cloud REST endpoints behind one facade (AC-11001-1, AC-11102-1, AC-11402-1).",
+    "Be the sole reader of HETZNER_ACCOUNT_API_KEY via security-secrets-management; every other module reads from the facade (AC-11001-1).",
+    "Emit provisionerReady, hetznerServerProvisioned, hetznerSnapshotTaken and hetznerServerDestroyed with metadata-only payloads (AC-11001-1, AC-11501-1)."
+  ],
+  "name": "deploy-hetzner-server provisioner module: sole reader of the Hetzner API token, hcloud shell path and raw-api fork",
+  "internalStructure": "One module blueprints/deploy-hetzner-server/contributions/tacs/tac-3801-deploy-hetzner-server-provisioner.json plus the provisioner facade proto shipped in the fixture (packages/rcf-lite/test/fixtures/hetzner-throwaway-server/src/provisioner-facade.mjs) reading the token from a single seam and firing provisionerReady on ready()."
+}

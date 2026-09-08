@@ -1,0 +1,32 @@
+{
+  "createdAt": "2026-09-07T23:53:24.971Z",
+  "updatedAt": "2026-09-07T23:53:41.419Z",
+  "description": "The applying project holds its server declarations as JSON documents under hetzner/servers/<name>.json, one file per server, matching a shipped JSON Schema that names type, location, image, ssh-key ids, firewall id, network id, cloud-init user-data path and labels. Applying the provisioner reads each manifest and creates a matching live server; the hetznerServerProvisioned event carries id, primary IPv4, location and server-type. Chain: HQ round-7 T-1 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-1 track of hetzner-round-7-spec-2026-09-07 section 5.1.",
+  "reqId": "REQ-111",
+  "prdId": "PRD-001",
+  "title": "T-1 deploy-hetzner-server v1.0.0 blueprint: server manifest schema at hetzner/servers/*.json applies to a live Hetzner Cloud server",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T23:53:25.012Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "Schema"
+      }
+    ]
+  }
+}

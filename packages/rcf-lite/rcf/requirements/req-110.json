@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-09-07T23:53:24.739Z",
+  "updatedAt": "2026-09-07T23:53:41.232Z",
+  "description": "The provisioner module wraps the hcloud CLI verbs (or the raw Hetzner Cloud API when provisioningTool=raw-api) and is the sole reader of the Hetzner API token via security-secrets-management. It opens on the applying project's boot path and emits a provisionerReady lifecycle event with metadata-only fields (tool, apiHost, sha of the shim). Chain: HQ round-7 T-1 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-110..119 / TS-140..149 / FBS-130..139 / CN-410..439). Round-7 T-1 track of hetzner-round-7-spec-2026-09-07 section 5.1.",
+  "reqId": "REQ-110",
+  "prdId": "PRD-001",
+  "title": "T-1 deploy-hetzner-server v1.0.0 blueprint: provisioner is sole reader of the Hetzner API token, opens on boot, fires provisionerReady event with metadata-only payload",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "httpApi",
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T23:53:24.779Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "API"
+      },
+      {
+        "source": "title",
+        "shape": "auth",
+        "match": "token"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "API"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "api"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "API"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "token"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "api"
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-07T23:56:33.351Z",
+  "updatedAt": "2026-09-07T23:56:33.765Z",
+  "usId": "US-11102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-111",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 applying the provisioner reads each manifest and creates a matching live server, hetznerServerProvisioned event carries id primary IPv4 location server-type",
+  "asA": "shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint against a Hetzner project",
+  "iWant": "applying the provisioner to read each manifest under hetzner/servers/, create a matching live Hetzner Cloud server, and emit hetznerServerProvisioned with id, primaryIpv4, location, serverType",
+  "soThat": "the manifest is the source of truth for what actually exists in the project",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11102-1",
+      "description": "The real-account-throwaway-server-provision probe (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) applies the ci-throwaway.json manifest via provision.mjs, asserts (a) hcloud server list --output json shows the new server whose id is written to the fixture scratch file, (b) hetznerServerProvisioned fired with id, primaryIpv4, location=fsn1, serverType=cx23; teardown via destroy.mjs runs regardless of probe verdict.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3801-deploy-hetzner-server-provisioner",
+    "TAC-3802-deploy-hetzner-server-manifest-schema"
+  ]
+}

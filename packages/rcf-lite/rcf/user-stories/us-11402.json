@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T23:56:36.391Z",
+  "updatedAt": "2026-09-07T23:56:36.806Z",
+  "usId": "US-11402",
+  "prdId": "PRD-001",
+  "reqId": "REQ-114",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 snapshot-on-demand verb fires the hcloud snapshot verb, tags the snapshot with server name and wall-clock time, hetznerSnapshotTaken event fires with snapshot id",
+  "asA": "shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint on a real Hetzner account",
+  "iWant": "the snapshot-on-demand verb on the provisioner to shell to hcloud image create-image (or the raw-api equivalent) and tag the snapshot with server name and wall-clock time; hetznerSnapshotTaken carries snapshot id and time",
+  "soThat": "the operator has a documented on-demand recovery point at any moment",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11402-1",
+      "description": "real-account-snapshot-on-demand.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) fires the snapshot verb on the throwaway server, then asserts hcloud image list --type=snapshot --output json shows a snapshot tagged with the server name and current wall-clock time; hetznerSnapshotTaken event carries snapshot id and time. Teardown via destroy.mjs.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3801-deploy-hetzner-server-provisioner"
+  ]
+}

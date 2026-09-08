@@ -1,0 +1,16 @@
+{
+  "createdAt": "2026-09-07T23:53:57.397Z",
+  "updatedAt": "2026-09-07T23:57:59.243Z",
+  "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "T-1 repo-chain TAC mirror for the shipped blueprints/deploy-hetzner-server/contributions/tacs/tac-3804-deploy-hetzner-server-firewall-shape.json contribution. Defines the Hetzner Cloud firewall rule shape carried inside the server manifest: 22 permitted only from an operator-nominated set of source-prefix ranges; 80/443 permitted from 0.0.0.0/0 for the reverse proxy; all other inbound denied. Manifest schema refuses on a rule set that opens 22 to 0.0.0.0/0 or drops 80/443. Anchors AC-11301-1 (repo chain).",
+  "responsibilities": [
+    "Define the firewall rule shape inside the manifest: 22 permitted only from a nonempty list of source-prefix ranges; 80 and 443 permitted; all other inbound denied (AC-11301-1).",
+    "Refuse (via manifest-schema-validate) on a manifest that opens 22 to 0.0.0.0/0 or drops 80/443."
+  ],
+  "name": "deploy-hetzner-server firewall rule shape: 22 from operator-nominated prefixes, 80/443 open, deny all else, applied at provision time",
+  "internalStructure": "Rule shape carried inside the same hetzner-server.schema.json used by TAC-3802; the applyFirewall verb on the provisioner facade consumes the parsed rule set."
+}

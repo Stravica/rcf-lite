@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-07T23:53:57.210Z",
+  "updatedAt": "2026-09-07T23:57:59.054Z",
+  "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "T-1 repo-chain TAC mirror for the shipped blueprints/deploy-hetzner-server/contributions/tacs/tac-3803-deploy-hetzner-server-cloud-init-template.json contribution. Defines the cloud-init user-data template landing the six hardening baseline blocks: SSH key-only, root disabled, UFW default-deny incoming, DOCKER-USER iptables chain, fail2ban SSH jail, unattended-upgrades. Local render-lint asserts every block appears in the rendered YAML. Anchors AC-11201-1 and AC-11202-1 (repo chain).",
+  "responsibilities": [
+    "Ship a cloud-init user-data template that renders the six hardening baseline blocks (AC-11201-1, AC-11202-1).",
+    "Provide the render-lint check that asserts each block appears in the rendered YAML (AC-11201-1).",
+    "Cover the SIMULATE_HARDENING_DRIFT mutation with a probe FAILURE that names the missing line (AC-11201-1)."
+  ],
+  "name": "deploy-hetzner-server cloud-init template with the six hardening baseline blocks and render lint",
+  "internalStructure": "One template file at blueprints/deploy-hetzner-server/contributions/templates/cloud-init.yaml.tmpl and one render module at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/src/cloud-init-renderer.mjs; the render-lint probe consumes the rendered output."
+}

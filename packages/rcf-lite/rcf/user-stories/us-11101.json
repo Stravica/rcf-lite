@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T23:56:32.763Z",
+  "updatedAt": "2026-09-07T23:56:33.164Z",
+  "usId": "US-11101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-111",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 server manifest schema at hetzner/servers/name.json validates and names type location image ssh-key ids firewall id network id cloud-init path labels",
+  "asA": "shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint",
+  "iWant": "the applying project's hetzner/servers/name.json manifests to validate against a shipped JSON Schema naming type, location, image, sshKeyIds, firewallId, networkId, cloudInitPath, labels, snapshotCadence",
+  "soThat": "the operator has a stable declarative source of truth for every server",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11101-1",
+      "description": "Every hetzner/servers/*.json under the shared throwaway-Hetzner-server fixture parses, validates against blueprints/deploy-hetzner-server/contributions/schemas/hetzner-server.schema.json, and carries the nine named fields with correct types; an induced defect (SIMULATE_MANIFEST_INVALID=true replaces location with an unknown token) fails schema validation naming the offending field.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3802-deploy-hetzner-server-manifest-schema"
+  ]
+}
