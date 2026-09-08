@@ -3,13 +3,14 @@
 // Puts 10 keys under the shared prefix flags/ through the facade,
 // calls facade.list({prefix: flags/}), asserts all 10 return with
 // correct metadata shape. Independent of the round-trip probe; the
-// round-trip probe also covers this AC but this probe carries the
-// mechanism as a first-class case for T-1 REQ-002.
+// round-trip probe also covers this AC as an additional result but
+// this probe carries the mechanism as a first-class case for
+// US-31104.
 //
-// anchorAcId: AC-5102-1.
+// anchorAcId: AC-31104-1.
 // accountBound: false.
 
-export const anchorAcId = 'AC-5102-1';
+export const anchorAcId = 'AC-31104-1';
 export const accountBound = false;
 
 export default async function runProbe() {
@@ -42,7 +43,7 @@ export default async function runProbe() {
 
   return {
     results: [{
-      anchorAcId: 'AC-5102-1',
+      anchorAcId: 'AC-31104-1',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
         ? `list({prefix: flags/}) returned 10 keys under the prefix; every entry carries {name, metadata} with metadata.v=1; decoy key outside prefix was NOT included`

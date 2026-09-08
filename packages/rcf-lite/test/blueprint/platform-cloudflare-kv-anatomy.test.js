@@ -1,6 +1,10 @@
 // Anatomy + shape + probe + fixture + shelf-doc test for the
 // platform-cloudflare-kv v1.0.0 blueprint (T-1 of the Cloudflare
-// round 6 spec, 2026-09-06 section 5.1). Covers TS-080..087.
+// round 6 spec, 2026-09-06 section 5.1). Covers TS-080..087 and
+// (post H-2 re-anchor) the shipped kv AC band AC-31101-1..AC-
+// 31108-1. Assertion ids moved from the defunct earlier AC band
+// to the shipped AC-31xxx band per dispatch addendum ruling 1,
+// H-2 (h2-cf-platform-probe-integrity) train.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -22,7 +26,7 @@ const OWN_TOPICS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 const SPA_TOPICS = join(REPO_ROOT, 'blueprints', 'application-spa', 'docs', 'topics.md');
 const AUTHORING = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md');
 
-// TS-080 (US-5001): facade opens on boot and emits facadeReady with metadata-only payload.
+// TS-080 (US-31101): facade opens on boot and emits facadeReady with metadata-only payload.
 
 test('facade opens on boot and emits facadeReady with metadata-only payload (TC-080-facade-ready)', async () => {
   const { createKvFacade } = await import(pathToFileURL(join(FIXTURE_ROOT, 'src', 'kv-facade.mjs')).href);
@@ -47,7 +51,7 @@ test('facade opens on boot and emits facadeReady with metadata-only payload (TC-
   assert.equal(ready[0].ttl, null);
 });
 
-// TS-081 (US-5002): env.CACHE binding is dereferenced in exactly one fixture source file.
+// TS-081 (US-31102): env.CACHE binding is dereferenced in exactly one fixture source file.
 
 test('env.CACHE binding is dereferenced in exactly one fixture source file (TC-081-sole-reader)', async () => {
   const src = join(FIXTURE_ROOT, 'src');
@@ -62,53 +66,53 @@ test('env.CACHE binding is dereferenced in exactly one fixture source file (TC-0
     `expected exactly src/kv-facade.mjs to dereference env.CACHE; observed ${JSON.stringify(hits)}`);
 });
 
-// TS-082 (US-5101): facade-round-trip probe passes on the fixture kv-driver.
+// TS-082 (US-31103): facade-round-trip probe passes on the fixture kv-driver.
 
 test('facade-round-trip probe passes on the fixture kv-driver (TC-082-round-trip)', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'facade-round-trip.mjs')).href)).default;
   const { results } = await runProbe();
-  const roundTrip = results.find((r) => r.anchorAcId === 'AC-5101-1');
-  assert.ok(roundTrip, 'facade-round-trip probe must include an AC-5101-1 result');
-  assert.equal(roundTrip.verdict, 'pass', `AC-5101-1 verdict: ${roundTrip.detail}`);
+  const roundTrip = results.find((r) => r.anchorAcId === 'AC-31103-1');
+  assert.ok(roundTrip, 'facade-round-trip probe must include an AC-31103-1 result');
+  assert.equal(roundTrip.verdict, 'pass', `AC-31103-1 verdict: ${roundTrip.detail}`);
 });
 
 test('facade-round-trip probe verifies delete-then-null branch (TC-082-delete-null)', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'facade-round-trip.mjs')).href)).default;
   const { results } = await runProbe();
-  const del = results.find((r) => r.anchorAcId === 'AC-5101-2');
-  assert.ok(del, 'facade-round-trip probe must include an AC-5101-2 result');
-  assert.equal(del.verdict, 'pass', `AC-5101-2 verdict: ${del.detail}`);
+  const del = results.find((r) => r.anchorAcId === 'AC-31103-2');
+  assert.ok(del, 'facade-round-trip probe must include an AC-31103-2 result');
+  assert.equal(del.verdict, 'pass', `AC-31103-2 verdict: ${del.detail}`);
 });
 
-// TS-083 (US-5102): list-with-prefix probe passes on 10 keys under a shared prefix.
+// TS-083 (US-31104): list-with-prefix probe passes on 10 keys under a shared prefix.
 
 test('list-with-prefix probe passes on 10 keys under a shared prefix (TC-083-list-prefix)', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'list-with-prefix.mjs')).href)).default;
   const { results } = await runProbe();
-  const listed = results.find((r) => r.anchorAcId === 'AC-5102-1');
-  assert.ok(listed, 'list-with-prefix probe must include an AC-5102-1 result');
-  assert.equal(listed.verdict, 'pass', `AC-5102-1 verdict: ${listed.detail}`);
+  const listed = results.find((r) => r.anchorAcId === 'AC-31104-1');
+  assert.ok(listed, 'list-with-prefix probe must include an AC-31104-1 result');
+  assert.equal(listed.verdict, 'pass', `AC-31104-1 verdict: ${listed.detail}`);
 });
 
-// TS-084 (US-5201): cache-aside-hit-then-miss probe under a fake clock.
+// TS-084 (US-31105, US-31106): cache-aside-hit-then-miss probe under an elicited deterministic clock.
 
 test('cache-aside-hit-then-miss probe: within-TTL cached branch (TC-084-hit-within-ttl)', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'cache-aside-hit-then-miss.mjs')).href)).default;
   const { results } = await runProbe();
-  const hit = results.find((r) => r.anchorAcId === 'AC-5201-1');
-  assert.ok(hit, 'cache-aside-hit-then-miss probe must include an AC-5201-1 result');
-  assert.equal(hit.verdict, 'pass', `AC-5201-1 verdict: ${hit.detail}`);
+  const hit = results.find((r) => r.anchorAcId === 'AC-31105-1');
+  assert.ok(hit, 'cache-aside-hit-then-miss probe must include an AC-31105-1 result');
+  assert.equal(hit.verdict, 'pass', `AC-31105-1 verdict: ${hit.detail}`);
 });
 
 test('cache-aside-hit-then-miss probe: past-TTL miss branch (TC-084-miss-past-ttl)', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'cache-aside-hit-then-miss.mjs')).href)).default;
   const { results } = await runProbe();
-  const miss = results.find((r) => r.anchorAcId === 'AC-5201-2');
-  assert.ok(miss, 'cache-aside-hit-then-miss probe must include an AC-5201-2 result');
-  assert.equal(miss.verdict, 'pass', `AC-5201-2 verdict: ${miss.detail}`);
+  const miss = results.find((r) => r.anchorAcId === 'AC-31106-1');
+  assert.ok(miss, 'cache-aside-hit-then-miss probe must include an AC-31106-1 result');
+  assert.equal(miss.verdict, 'pass', `AC-31106-1 verdict: ${miss.detail}`);
 });
 
-// TS-085 (US-5301): lifecycle events carry only the metadata-only whitelist.
+// TS-085 (US-31107): lifecycle events carry only the metadata-only whitelist.
 
 test('lifecycle events carry only the metadata-only whitelist (TC-085-metadata-only)', async () => {
   const { createKvFacade } = await import(pathToFileURL(join(FIXTURE_ROOT, 'src', 'kv-facade.mjs')).href);
@@ -134,19 +138,28 @@ test('lifecycle events carry only the metadata-only whitelist (TC-085-metadata-o
   }
 });
 
-// TS-086 (US-5302): event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEAK.
+// TS-086 (US-31108): event-secrecy probe passes on PII fixture and fails under the fixture-side SIMULATE_PII_LEAK mutation switch.
 
-test('event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEAK (TC-086-event-secrecy)', async () => {
-  // Shipped code path via the module (SIMULATE_PII_LEAK is
-  // captured at module load, so we invoke the probe module
-  // directly for the happy path).
+test('event-secrecy probe passes on PII fixture and fails under fixture-side SIMULATE_PII_LEAK (TC-086-event-secrecy)', async () => {
+  // Shipped code path via the module. Post H-2, SIMULATE_PII_LEAK
+  // is read by the fixture-side h2-cf-kv-event-secrecy-shim and
+  // captured at sink construction, so we invoke the probe module
+  // directly for the happy path.
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'event-secrecy.mjs')).href)).default;
   const { results } = await runProbe();
-  const es = results.find((r) => r.anchorAcId === 'AC-5302-1');
-  assert.ok(es, 'event-secrecy probe must include an AC-5302-1 result');
-  assert.equal(es.verdict, 'pass', `AC-5302-1 shipped-path verdict: ${es.detail}`);
+  const es = results.find((r) => r.anchorAcId === 'AC-31108-1');
+  assert.ok(es, 'event-secrecy probe must include an AC-31108-1 result');
+  assert.equal(es.verdict, 'pass', `AC-31108-1 shipped-path verdict: ${es.detail}`);
+  // AC-31107-1 whitelist-scan additional-result also lands on the
+  // shipped path.
+  const wl = results.find((r) => r.anchorAcId === 'AC-31107-1');
+  assert.ok(wl, 'event-secrecy probe must include an AC-31107-1 result (whitelist-only lifecycle events)');
+  assert.equal(wl.verdict, 'pass', `AC-31107-1 shipped-path verdict: ${wl.detail}`);
 
-  // Mutation-run: run the shim as a child process with the switch on.
+  // Mutation-run: run the shim as a child process with the switch
+  // on; the fixture-side shim reads SIMULATE_PII_LEAK and returns
+  // a polluted sink; the probe body still holds zero SIMULATE_
+  // reads.
   const shim = join(PROBES_DIR, 'run-event-secrecy.mjs');
   const child = spawnSync(process.execPath, [shim], {
     cwd: FIXTURE_ROOT,
@@ -158,7 +171,7 @@ test('event-secrecy probe passes on PII fixture and fails under SIMULATE_PII_LEA
   assert.match(child.stdout, /forbiddenKeys/i, 'mutation-run must name forbiddenKeys in the detail');
 });
 
-// TS-087 (US-5401): real-account eventual-consistency smoke.
+// TS-087 (US-31103 real-account carrier): real-account eventual-consistency smoke.
 
 test('real-account eventual-consistency smoke records accountBoundSkipped without the env var (TC-087-real-account-smoke)', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'real-account-eventual-consistency-smoke.mjs')).href)).default;
@@ -167,9 +180,9 @@ test('real-account eventual-consistency smoke records accountBoundSkipped withou
   delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
   try {
     const { results, extra } = await runProbe();
-    const r = results.find((x) => x.anchorAcId === 'AC-5401-1');
-    assert.ok(r, 'probe must emit an AC-5401-1 result');
-    assert.equal(r.verdict, 'pass', `AC-5401-1 skipped verdict: ${r.detail}`);
+    const r = results.find((x) => x.anchorAcId === 'AC-31103-1');
+    assert.ok(r, 'probe must emit an AC-31103-1 result');
+    assert.equal(r.verdict, 'pass', `AC-31103-1 skipped verdict: ${r.detail}`);
     assert.equal(extra && extra.accountBoundSkipped, true, 'without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true per spec section 3.5');
   } finally {
     if (originalEnv !== undefined) process.env.CI_HAS_CLOUDFLARE_ACCOUNT = originalEnv;

@@ -152,8 +152,27 @@ env vars.
 
 The anatomy test at
 `packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js`
-binds every AC on `US-5001..5401` (`AC-5001-1..AC-5401-1`) to a test
-case in that file with a resolvable `testPointer`. Repo-chain slice
-under `packages/rcf-lite/rcf/`: `REQ-050..054` (5), `US-5001..5401`
-(8), `TS-080..087` (8), `FBS-070` (1), `CN-230..234` (5) per the
-HQ round-6 T-1 reserved-block ruling 2026-09-07T10:12Z.
+binds every AC on the shipped kv user stories `US-31101..US-31108`
+(`AC-31101-1`, `AC-31102-1`, `AC-31103-1`, `AC-31103-2`,
+`AC-31104-1`, `AC-31105-1`, `AC-31106-1`, `AC-31107-1`,
+`AC-31108-1`) to a test case in that file with a resolvable
+`testPointer`, and to the union of the five contributed probe
+result records. The five probes carry the following anchors: the
+facade-round-trip probe holds `AC-31103-1` as primary and adds
+`AC-31101-1` (facadeReady), `AC-31103-2` (delete then kvMiss),
+`AC-31104-1` (list-with-prefix compact case) and `AC-31102-1`
+(sole-reader env.CACHE grep) as additional results; the
+list-with-prefix probe holds `AC-31104-1`; the
+cache-aside-hit-then-miss probe holds `AC-31105-1` and
+`AC-31106-1`; the event-secrecy probe holds `AC-31108-1` and
+`AC-31107-1` (whitelist scan); the real-account-eventual-
+consistency smoke re-covers `AC-31103-1` on a real Cloudflare KV
+namespace. The blueprint contribution IDs are namespaced
+`platform-cloudflare-kv-REQ-001..005` and
+`platform-cloudflare-kv-US-31101..31108` per the shelf-wide
+id-band registry. The prior chain-slice pointer
+paragraph cited a defunct earlier id band that never became chain
+rows on this repo; that citation was removed in the H-2
+(h2-cf-platform-probe-integrity) train per Dave ruling 4
+(2026-09-08 relay 582c2bca): the earlier band was not resurrected
+and every kv probe result now cites the shipped `AC-31xxx` band.
