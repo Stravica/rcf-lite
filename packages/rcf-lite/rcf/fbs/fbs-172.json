@@ -1,13 +1,13 @@
 {
   "createdAt": "2026-09-08T12:22:32.405Z",
-  "updatedAt": "2026-09-08T12:24:20.194Z",
+  "updatedAt": "2026-09-08T14:04:49.404Z",
   "acIds": [
     "AC-15201-1"
   ],
   "fbsId": "FBS-172",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 66,
+  "buildOrder": 67,
   "executionStatus": "notStarted",
   "title": "H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages against a live Queues binding on a deployed Worker and asserts concurrent processing up to the documented push-invocation cap; env-absent branch keeps pass-with-skip; queue anatomy test assertions extended",
   "summary": "H-2 queue real concurrency driver: replace the accountBoundSkipped pass-stub in blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs with a real driver that publishes 500 messages through the producer facade wired to a live Queues binding on a deployed Worker (queue name and binding parameterised via env; canonical queue rcf-lite-ci-queue-smoke, HQ supplies values at gate time) and asserts concurrent processing up to the documented push-invocation cap (Cloudflare Queues limits URL). Local proof via miniflare or wrangler dev with local queue simulation. Env-absent branch keeps section 3.5 pass-with-skip. Re-verify the Cloudflare Queues limits URL 200 at merge time and log in the PR provenance. Extend the queue anatomy test to assert the real-account round-trip shape.",

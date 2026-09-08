@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-08T12:22:32.025Z",
-  "updatedAt": "2026-09-08T12:24:19.770Z",
+  "updatedAt": "2026-09-08T14:04:49.784Z",
   "acIds": [
     "AC-15101-1",
     "AC-15101-2"
@@ -8,7 +8,7 @@
   "fbsId": "FBS-171",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 65,
+  "buildOrder": 66,
   "executionStatus": "notStarted",
   "title": "H-2 DO real storage round-trip driver and anchor coverage: real-account-storage-smoke replaces credential-readiness pass-stub with byte-equal put/get round-trip via deployed Worker (or wrangler-dev locally); five previously-unbound DO ACs bound as additional-result anchors on existing probes; DO anatomy test assertions extended for the new bindings",
   "summary": "H-2 DO storage round-trip driver and anchor coverage: replace the credential-readiness pass-stub in blueprints/platform-cloudflare-durable-objects/contributions/probes/real-account-storage-smoke.mjs with a real HTTP round-trip driver against a deployed Worker route (byte-equal read-back on 1 KiB payload); local proof via the existing wrangler-seam.mjs against miniflare or wrangler dev. Bind the five previously-unbound DO ACs (AC-33106-1, AC-33108-1, AC-33109-1, AC-33110-1, AC-33111-1) as additional-result anchors on the wrangler-seam, storage-round-trip and concurrent-increment probes; add a new probe body inside existing capability only if no existing probe carries the observable honestly. Extend the DO anatomy test to assert the thirteen-AC coverage union. Move the DO probe-body SIMULATE_ branches (sole-reader-scan, storage-round-trip, websocket-hub-broadcast) into fixture-side h2-cf shim modules (Group B scope, tracked by AC-15401-1).",

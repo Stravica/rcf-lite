@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 68,
-    "notStarted": 40,
+    "items": 69,
+    "notStarted": 41,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 30,
+    "actionable": 31,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -52,6 +52,7 @@
         "FBS-140",
         "FBS-150",
         "FBS-160",
+        "FBS-165",
         "FBS-170",
         "FBS-171",
         "FBS-172",
@@ -858,8 +859,18 @@
       "blockedBy": []
     },
     {
-      "fbsId": "FBS-170",
+      "fbsId": "FBS-165",
       "buildOrder": 64,
+      "tier": 0,
+      "title": "H-1 hardening: deploy-hetzner-server v1.0.0 to v1.0.1 patch train; fixes the nine defects the round-7 real-account gate run d-2026-09-08-010 found; makes the shared throwaway-server fixture consume the same rendered cloud-init the real path consumes",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-170",
+      "buildOrder": 65,
       "tier": 0,
       "title": "H-2 kv re-anchor and observability: five kv probes and README anchored to shipped AC-31xxx band; two previously-uncovered ACs gain runtime observables via facade-round-trip env.CACHE grep and event-secrecy whitelist scan; kv-anatomy test assertions moved with the re-anchor (addendum ruling 1)",
       "executionStatus": "notStarted",
@@ -869,7 +880,7 @@
     },
     {
       "fbsId": "FBS-171",
-      "buildOrder": 65,
+      "buildOrder": 66,
       "tier": 0,
       "title": "H-2 DO real storage round-trip driver and anchor coverage: real-account-storage-smoke replaces credential-readiness pass-stub with byte-equal put/get round-trip via deployed Worker (or wrangler-dev locally); five previously-unbound DO ACs bound as additional-result anchors on existing probes; DO anatomy test assertions extended for the new bindings",
       "executionStatus": "notStarted",
@@ -879,7 +890,7 @@
     },
     {
       "fbsId": "FBS-172",
-      "buildOrder": 66,
+      "buildOrder": 67,
       "tier": 0,
       "title": "H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages against a live Queues binding on a deployed Worker and asserts concurrent processing up to the documented push-invocation cap; env-absent branch keeps pass-with-skip; queue anatomy test assertions extended",
       "executionStatus": "notStarted",
@@ -889,7 +900,7 @@
     },
     {
       "fbsId": "FBS-173",
-      "buildOrder": 67,
+      "buildOrder": 68,
       "tier": 0,
       "title": "H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against a throwaway hetzner server via T-1 fixture; hostname-routes drives undici + (with Access) two-identity JWT; manifest-schema-validate placeholder becomes fail-with-pointer; tunnel anatomy test assertions extended and the symbolic-anchor ruling recorded",
       "executionStatus": "notStarted",
@@ -899,7 +910,7 @@
     },
     {
       "fbsId": "FBS-174",
-      "buildOrder": 68,
+      "buildOrder": 69,
       "tier": 0,
       "title": "H-2 cross-cutting probe hygiene: SIMULATE_ branches moved out of shipped probe bodies into fixture-side h2-cf-platform-probe-integrity shims across the four blueprints; committed fail envelope removed and shipped-code pass envelopes committed; probe comments name test doubles honestly; new h2-cf-platform-probe-integrity anatomy test asserts SIMULATE_ purity, envelope hygiene and marker honesty",
       "executionStatus": "notStarted",

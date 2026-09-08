@@ -135,13 +135,15 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Round-7 follow-up adapter added REQ-140 for the object-storage-s3
   // v1.1.0 Hetzner Object Storage adapter minor bump (85 -> 86) per HQ
   // reserved-block ruling 2026-09-08 (adapter block REQ-140..144).
+  // H-1 hardening train added REQ-145 for the deploy-hetzner-server
+  // 1.0.1 real-path fidelity patch (86 -> 87).
   // Shelf-audit H-2 train (h2-cf-platform-probe-integrity) added
   // REQ-150..154 for the Cloudflare-platform probe-integrity repair
   // (kv re-anchor + observability, DO storage round-trip + anchor
   // coverage, queue real concurrency driver, tunnel real drivers,
   // cross-cutting probe hygiene) per Dave reserved-block ruling
-  // 2026-09-08T10:35:10Z relay 582c2bca (86 -> 91).
-  assert.equal(tree.requirements.length, 91);
+  // 2026-09-08T10:35:10Z relay 582c2bca (87 -> 92).
+  assert.equal(tree.requirements.length, 92);
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
   // `rcf define blueprint remove-resolution` verb the doctor and spec
   // section 9 name as the redundant-resolution remedy. Core companions
@@ -192,11 +194,13 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Round-7 follow-up adapter added US-14001 derived from REQ-140 for
   // the object-storage-s3 v1.1.0 Hetzner Object Storage adapter minor
   // bump per HQ reserved-block ruling 2026-09-08 (142 -> 143).
+  // H-1 hardening train added US-14501 derived from REQ-145 for the
+  // deploy-hetzner-server 1.0.1 real-path fidelity patch (143 -> 144).
   // Shelf-audit H-2 train added US-15001, US-15101, US-15201,
   // US-15301, US-15401 derived from REQ-150..154 for the Cloudflare-
   // platform probe-integrity repair per Dave reserved-block ruling
-  // 2026-09-08T10:35:10Z relay 582c2bca (143 -> 148).
-  assert.equal(tree.userStories.length, 148);
+  // 2026-09-08T10:35:10Z relay 582c2bca (144 -> 149).
+  assert.equal(tree.userStories.length, 149);
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
   // shape per HQ reserved-block ruling 2026-09-07 (19 -> 23).
@@ -263,12 +267,14 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // the adapter AC AC-14001-1 for the object-storage-s3 v1.1.0
   // Hetzner Object Storage adapter minor bump per HQ reserved-block
   // ruling 2026-09-08 (62 -> 63).
-  // Shelf-audit H-2 train added FBS-170..174 (buildOrder 64..68 at
-  // mint; may re-derive at final rebase per brief) covering the
-  // five REQs of the Cloudflare-platform probe-integrity repair
-  // per Dave reserved-block ruling 2026-09-08T10:35:10Z relay
-  // 582c2bca (63 -> 68).
-  assert.equal(tree.fbsItems.length, 68);
+  // H-1 hardening train added FBS-165 (buildOrder 64) covering the
+  // AC of REQ-145 for deploy-hetzner-server 1.0.1 (63 -> 64).
+  // Shelf-audit H-2 train added FBS-170..174 (buildOrder 65..69
+  // after Group C rebase-time re-derivation onto H-1: FBS-165 took
+  // slot 64) covering the five REQs of the Cloudflare-platform
+  // probe-integrity repair per Dave reserved-block ruling
+  // 2026-09-08T10:35:10Z relay 582c2bca (64 -> 69).
+  assert.equal(tree.fbsItems.length, 69);
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
@@ -315,11 +321,13 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // adapter AC AC-14001-1 for the object-storage-s3 v1.1.0 Hetzner
   // Object Storage adapter minor bump per HQ reserved-block ruling
   // 2026-09-08 (118 -> 119).
+  // H-1 hardening train added TS-175 paired with US-14501 for
+  // deploy-hetzner-server 1.0.1 (119 -> 120).
   // Shelf-audit H-2 train added TS-180..184 paired with US-15001..
   // US-15401 for the Cloudflare-platform probe-integrity repair per
   // Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca
-  // (119 -> 124).
-  assert.equal(tree.testSuites.length, 124);
+  // (120 -> 125).
+  assert.equal(tree.testSuites.length, 125);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');
@@ -412,13 +420,14 @@ test('walkTree computes parentByChild by inverting child-borne parent fields', a
   assert.equal(tree.parentByChild.get('FBS-001'), 'BS-001');
 });
 
-test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 plus REQ-040, REQ-041, REQ-042, REQ-043, REQ-050..REQ-054, REQ-060..REQ-063, REQ-070..REQ-077, REQ-080..REQ-086, REQ-090..REQ-094, REQ-100..REQ-104, REQ-110..REQ-115, REQ-120..REQ-125, REQ-130..REQ-134, REQ-140, REQ-150..REQ-154)', async () => {
+test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 plus REQ-040, REQ-041, REQ-042, REQ-043, REQ-050..REQ-054, REQ-060..REQ-063, REQ-070..REQ-077, REQ-080..REQ-086, REQ-090..REQ-094, REQ-100..REQ-104, REQ-110..REQ-115, REQ-120..REQ-125, REQ-130..REQ-134, REQ-140, REQ-145, REQ-150..REQ-154)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   const reqChildren = tree.childrenByParent.get('PRD-001') ?? [];
   // Round-7 T-2 added REQ-120..125 for the platform-docker-compose-host v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07.
   // Round-7 follow-up adapter added REQ-140 for the object-storage-s3 v1.1.0 Hetzner Object Storage adapter minor bump per HQ reserved-block ruling 2026-09-08.
+  // H-1 hardening train added REQ-145 for the deploy-hetzner-server 1.0.1 real-path fidelity patch.
   // Shelf-audit H-2 train added REQ-150..154 for the Cloudflare-platform probe-integrity repair per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca.
-  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-029', 'REQ-030', 'REQ-040', 'REQ-041', 'REQ-042', 'REQ-043', 'REQ-050', 'REQ-051', 'REQ-052', 'REQ-053', 'REQ-054', 'REQ-060', 'REQ-061', 'REQ-062', 'REQ-063', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085', 'REQ-086', 'REQ-090', 'REQ-091', 'REQ-092', 'REQ-093', 'REQ-094', 'REQ-100', 'REQ-101', 'REQ-102', 'REQ-103', 'REQ-104', 'REQ-110', 'REQ-111', 'REQ-112', 'REQ-113', 'REQ-114', 'REQ-115', 'REQ-120', 'REQ-121', 'REQ-122', 'REQ-123', 'REQ-124', 'REQ-125', 'REQ-130', 'REQ-131', 'REQ-132', 'REQ-133', 'REQ-134', 'REQ-140', 'REQ-150', 'REQ-151', 'REQ-152', 'REQ-153', 'REQ-154']);
+  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-029', 'REQ-030', 'REQ-040', 'REQ-041', 'REQ-042', 'REQ-043', 'REQ-050', 'REQ-051', 'REQ-052', 'REQ-053', 'REQ-054', 'REQ-060', 'REQ-061', 'REQ-062', 'REQ-063', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085', 'REQ-086', 'REQ-090', 'REQ-091', 'REQ-092', 'REQ-093', 'REQ-094', 'REQ-100', 'REQ-101', 'REQ-102', 'REQ-103', 'REQ-104', 'REQ-110', 'REQ-111', 'REQ-112', 'REQ-113', 'REQ-114', 'REQ-115', 'REQ-120', 'REQ-121', 'REQ-122', 'REQ-123', 'REQ-124', 'REQ-125', 'REQ-130', 'REQ-131', 'REQ-132', 'REQ-133', 'REQ-134', 'REQ-140', 'REQ-145', 'REQ-150', 'REQ-151', 'REQ-152', 'REQ-153', 'REQ-154']);
   const tadChildren = tree.childrenByParent.get('TAD-001') ?? [];
   // TAD gathers both TAC and ADR children.
   for (const id of ['TAC-001', 'TAC-002', 'TAC-007', 'ADR-001', 'ADR-005']) {

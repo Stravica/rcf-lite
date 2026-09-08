@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-08T12:22:31.659Z",
-  "updatedAt": "2026-09-08T12:24:19.355Z",
+  "updatedAt": "2026-09-08T14:04:50.163Z",
   "acIds": [
     "AC-15001-1",
     "AC-15001-2"
@@ -8,7 +8,7 @@
   "fbsId": "FBS-170",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 64,
+  "buildOrder": 65,
   "executionStatus": "notStarted",
   "title": "H-2 kv re-anchor and observability: five kv probes and README anchored to shipped AC-31xxx band; two previously-uncovered ACs gain runtime observables via facade-round-trip env.CACHE grep and event-secrecy whitelist scan; kv-anatomy test assertions moved with the re-anchor (addendum ruling 1)",
   "summary": "H-2 kv re-anchor: renumber every anchorAcId in the five contributed kv probes (facade-round-trip, list-with-prefix, cache-aside-hit-then-miss, event-secrecy, real-account-eventual-consistency-smoke) and their header comments from AC-5xxx to the shipped AC-31xxx band; correct the kv README chain-slice pointer paragraph to name US-31101..US-31108; move kv-anatomy test assertions to the new AC-31xxx ids per dispatch addendum ruling 1; add a runtime env.CACHE-grep result on facade-round-trip covering AC-31102-1; add a whitelist-scan result on event-secrecy covering AC-31107-1; the real-account probe carries AC-31103-1 as its bound AC. Two ACs on this FBS: AC-15001-1 (no AC-5xxx string survives on the kv blueprint tree) and AC-15001-2 (every shipped kv AC appears as an anchor on a probe result with a runtime observable).",

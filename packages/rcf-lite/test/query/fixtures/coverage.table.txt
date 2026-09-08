@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 91  covered: 86  covered-unresolved: 5  uncovered: 0
+Requirements: 92  covered: 87  covered-unresolved: 5  uncovered: 0
 
 Requirement  Covered     AC          AC covered  Test cases
 -----------  ----------  ----------  ----------  ------------------------------------------------------------
@@ -356,6 +356,7 @@ REQ-133      yes         AC-13301-1  yes         TC-160-aud-presence-flip-on-bot
                          AC-13302-1  yes         TC-160-aud-presence-check-refuses-on-drift
 REQ-134      yes         AC-13401-1  yes         TC-160-credentials-discipline-and-event-secrecy
 REQ-140      yes         AC-14001-1  yes         TC-170-hetzner-endpoint-round-trip-and-skipped-shape
+REQ-145      yes         AC-14501-1  yes         TC-175-mock-consumes-rendered-file-and-probe-purity
 REQ-150      unresolved  AC-15001-1  unresolved  TC-180-no-ac-5xxx-after-re-anchor[unresolved]
                          AC-15001-2  unresolved  TC-180-shipped-kv-ac-coverage-union[unresolved]
 REQ-151      unresolved  AC-15101-1  unresolved  TC-181-do-real-storage-round-trip-driver[unresolved]

@@ -2,8 +2,8 @@
   "ok": false,
   "strict": false,
   "totals": {
-    "requirements": 91,
-    "covered": 86,
+    "requirements": 92,
+    "covered": 87,
     "coveredUnresolved": 5,
     "uncovered": 0
   },
@@ -3463,6 +3463,21 @@
           "covered": true,
           "testCases": [
             "TC-170-hetzner-endpoint-round-trip-and-skipped-shape"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-145",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-14501-1",
+          "covered": true,
+          "testCases": [
+            "TC-175-mock-consumes-rendered-file-and-probe-purity"
           ],
           "unresolvedTestCases": []
         }
