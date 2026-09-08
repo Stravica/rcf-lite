@@ -75,7 +75,7 @@ install routes:
   `blueprints/deploy-hetzner-server/contributions/templates/cloud-init.yaml.tmpl`
   against a manifest; the render-lint probe consumes the output and
   asserts the six baseline blocks.
-- `src/ssh-baseline-check.mjs`. Runs the six baseline checks over
+- `src/ssh-baseline-check.mjs`. Runs the six ssh baseline checks over
   ssh; called only from the real-account cloud-init-hardened probe.
 - `src/snapshot-verb.mjs`. Real-account snapshot verb; shells to
   `hcloud image create-image` and verifies via `hcloud image list`.
