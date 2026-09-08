@@ -13,6 +13,15 @@
  * accountBound: true. Skipped in CI without CI_HAS_HETZNER_OBJECT_STORAGE
  * per hetzner-round-7-spec-2026-09-07 section 3.5 and section 5.4.
  *
+ * Dependency-load discipline: the fixture-side facade module
+ * `object-store.mjs` imports `@aws-sdk/client-s3`, which is a
+ * fixture-scoped dependency installed by `npm install` inside the
+ * fixture directory (documented in the fixture README). To keep the
+ * accountBoundSkipped path loadable without that fixture install
+ * (surface inspection under `node --test`, tools that walk the probe
+ * module for its `accountBound` flag), the SDK-touching imports are
+ * DYNAMIC and gated on the CI_HAS_HETZNER_OBJECT_STORAGE env var.
+ *
  * Mutation-purity discipline (per HQ hard gate row 2026-09-08): this
  * module reads NO SIMULATE_ variable. Every fixture-side mutation
  * hook (SIMULATE_HETZNER_ENDPOINT_MISSHAPEN,
@@ -24,14 +33,6 @@
  * Anchors AC-28110-1 (label AC-hetznerObjectStorage-endpointRoundTrip).
  */
 
-import { createObjectStore } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
-import {
-  composeHetznerEndpoint,
-  hetznerCredentialsFromEnv,
-  makeHetznerEventDecorator,
-  assertMetadataOnlyEventRecords,
-  HETZNER_EVENT_WHITELIST,
-} from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/hetzner-endpoint.mjs';
 import { probeKey } from './probe-utils.mjs';
 
 export const accountBound = true;
@@ -47,6 +48,18 @@ export default async function runProbe() {
       accountBoundSkipped: true,
     }];
   }
+
+  // Dynamic imports so the accountBoundSkipped path above loads
+  // without the fixture-scoped @aws-sdk/client-s3 dependency.
+  const {
+    composeHetznerEndpoint,
+    hetznerCredentialsFromEnv,
+    makeHetznerEventDecorator,
+    assertMetadataOnlyEventRecords,
+    HETZNER_EVENT_WHITELIST,
+  } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/hetzner-endpoint.mjs');
+  const { createObjectStore } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs');
+
   const { accessKeyId, secretAccessKey, bucket, location } = hetznerCredentialsFromEnv();
   if (!accessKeyId || !secretAccessKey || !bucket || !location) {
     return [{
