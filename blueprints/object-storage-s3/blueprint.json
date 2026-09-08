@@ -1,6 +1,6 @@
 {
   "slug": "object-storage-s3",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "object-storage",
   "capabilities": ["objectStorage"],
   "requiresAppliedCapabilities": {
@@ -67,6 +67,17 @@
       "scope": "global",
       "topic": "objectStorageContract",
       "standardsTraceClause": "AWS S3 API and Cloudflare R2 S3-compatibility notes"
+    },
+    { "id": "object-storage-s3-REQ-101", "kind": "req", "path": "requirements/object-storage-s3-req-101.json" },
+    { "id": "object-storage-s3-US-28110", "kind": "us", "path": "user-stories/object-storage-s3-us-28110.json" },
+    { "id": "TAC-2904-object-storage-s3-hetzner-endpoint-helper", "kind": "tac", "path": "tacs/tac-2904-object-storage-s3-hetzner-endpoint-helper.json" },
+    {
+      "id": "ADR-2905-object-storage-s3-hetzner-object-storage-provider",
+      "kind": "adr",
+      "path": "adrs/adr-2905-object-storage-s3-hetzner-object-storage-provider.json",
+      "recommendedDefault": false,
+      "elicited": true,
+      "standardsTraceClause": "Hetzner Object Storage S3 compatibility documented endpoint shape"
     }
   ]
 }

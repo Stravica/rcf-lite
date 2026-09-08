@@ -1,0 +1,18 @@
+{
+  "reqId": "object-storage-s3-REQ-101",
+  "prdId": "PRD-001",
+  "title": "Hetzner Object Storage adapter: endpoint-shape helper composes <bucket>.<location>.your-objectstorage.com from an elicited bucket and location code",
+  "description": "The object-storage-s3 v1.1.0 minor bump adds a Hetzner Object Storage provider value under the shipped S3-API facade contract without changing the outward facade shape. The Hetzner Object Storage endpoint follows the vendor-documented pattern <bucket>.<location>.your-objectstorage.com per https://docs.hetzner.com/storage/object-storage/overview; a project applying the blueprint elicits a bucket name and a location code (fsn1 for Falkenstein, hel1 for Helsinki, nbg1 for Nuremberg per the same overview page) and the adapter composes the https endpoint URL through a single helper module. The helper is the sole composer of the vendor pattern for this provider so a project cannot accidentally construct an invalid endpoint by hand-concatenating the parts; the composed endpoint feeds the shipped S3 client (@aws-sdk/client-s3 on Node targets per ADR-2901) unchanged. The v1.0.0 Cloudflare R2, AWS S3 and MinIO paths stay byte-identical: the endpoint URL parameter on the facade remains freeform, and only projects that elicit hetznerObjectStorage as the provider consume the helper.",
+  "category": "functional",
+  "domain": "object-storage",
+  "priority": "must",
+  "rationale": "A single helper module for the Hetzner Object Storage endpoint pattern turns a documented vendor convention into a mechanical composition that the applied project cannot mis-shape by editing a config file. Reading the endpoint pattern from bucket plus location, in code, makes the composition observable to the probe (which asserts the composed value against the vendor pattern) and gives the mutation-purity switch a fixture-side seam (SIMULATE_HETZNER_ENDPOINT_MISSHAPEN alters the composed bucket segment on the INPUT side; the probe module never reads a SIMULATE_ variable and the composition module always composes correctly). The Cloudflare R2, AWS S3 and MinIO providers keep their v1.0.0 shape because their endpoint URLs are already documented on their own pages and each project applying those providers pastes the endpoint URL through the elicited freeform parameter; Hetzner Object Storage differs only in that the endpoint is derived from two elicited values rather than one pasted URL.",
+  "tags": [
+    "blueprint:object-storage-s3",
+    "category:07-hetzner-object-storage-adapter"
+  ],
+  "version": "1.1.0",
+  "status": "approved",
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

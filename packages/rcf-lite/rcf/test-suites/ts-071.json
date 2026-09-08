@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-06T17:50:13.712Z",
-  "updatedAt": "2026-09-06T17:51:32.845Z",
+  "updatedAt": "2026-09-08T09:26:29.965Z",
   "purpose": "Cover AC-4101-1..6 via unit tests over the shipped object-storage-s3 blueprint shape (contribution count, capabilities, suggestedCompanions, ADR standardsTraceClause), applies-clean-with-secrets and refuses-without behaviour, six Node-only probe module contract with anchorAcId cross-check, induced-failure switch documentation on the fixture README, and shelf-doc consistency (section 6a table row for objectStorage, shelf-wide docs/topics.md row for object-storage-s3 at 28101-28899 / 29xx).",
   "testLevel": "unit",
   "acIds": [
@@ -20,7 +20,7 @@
       "acId": "AC-4101-1",
       "description": "Cover AC-4101-1 via anatomy test",
       "status": "pending",
-      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::blueprint.json declares 21 contributions with capabilities objectStorage, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-071-blueprint-json-shape)"
+      "testPointer": "test/blueprint/object-storage-s3-anatomy.test.js::blueprint.json declares 25 contributions at v1.1.0 with capabilities objectStorage, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry including the Hetzner Object Storage provider entry (TC-071-blueprint-json-shape)"
     },
     {
       "id": "TC-071-applies-clean-with-secrets",

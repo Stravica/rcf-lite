@@ -25,7 +25,7 @@ The blueprint claims no new global topics at v1.0.0. Every ADR (navigation postu
 | application-account-settings | 25101-25899 | 26xx | shipped v1.0.0 | none |
 | application-onboarding-tour | 26101-26899 | 27xx | shipped v1.0.0 | none |
 | persistence-data-postgres | 27101-27899 | 28xx | shipped v1.0.0 | `persistenceStore`, `migrationDiscipline` |
-| object-storage-s3 | 28101-28899 | 29xx | shipped v1.0.0 | `objectStorage` |
+| object-storage-s3 | 28101-28899 | 29xx | shipped v1.1.0 | `objectStorage` |
 | messaging-queue-cloudflare | 29101-29899 | 30xx | shipped v1.0.0 | `deliverySemantics` |
 | jobs-background | 30101-30899 | 31xx | shipped v1.0.0 | `backgroundJobModel` |
 | platform-cloudflare-kv | 31101-31899 | 32xx | shipped v1.0.0 | `keyValueStoreContract` |

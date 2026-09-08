@@ -1,6 +1,8 @@
 // Anatomy + shape + probe-shape + fixture + shelf-doc test for the
-// object-storage-s3 v1.0.0 shelf blueprint (infra round 5 spec section 5.2).
-// Covers TS-071.
+// object-storage-s3 v1.1.0 shelf blueprint (round-7 follow-up spec
+// section 5.4; v1.0.0 anatomy per infra round 5 spec section 5.2).
+// Covers TS-071 (v1.0.0 shape) plus additive assertions for the
+// v1.1.0 Hetzner Object Storage adapter delta.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -15,21 +17,25 @@ const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures',
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md');
 
-test('blueprint.json declares 21 contributions with capabilities objectStorage, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-071-blueprint-json-shape)', async () => {
+test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objectStorage, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry including the Hetzner Object Storage provider entry (TC-071-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'object-storage-s3');
-  assert.equal(doc.version, '1.0.0');
+  // v1.1.0 follow-up (round-7 spec section 5.4) additive minor bump:
+  // v1.0.0 shipped 21 contributions (6 REQ, 8 US, 3 TAC, 4 ADR);
+  // v1.1.0 adds 4 delta contributions (1 REQ, 1 US, 1 TAC, 1 ADR)
+  // for the Hetzner Object Storage adapter (total 25).
+  assert.equal(doc.version, '1.1.0');
   assert.equal(doc.category, 'object-storage');
   assert.deepEqual(doc.capabilities, ['objectStorage']);
-  assert.equal(doc.contributions.length, 21);
+  assert.equal(doc.contributions.length, 25);
   const kinds = doc.contributions.reduce((acc, c) => {
     acc[c.kind] = (acc[c.kind] || 0) + 1;
     return acc;
   }, {});
-  assert.equal(kinds.req, 6);
-  assert.equal(kinds.us, 8);
-  assert.equal(kinds.tac, 3);
-  assert.equal(kinds.adr, 4);
+  assert.equal(kinds.req, 7);
+  assert.equal(kinds.us, 9);
+  assert.equal(kinds.tac, 4);
+  assert.equal(kinds.adr, 5);
   assert.equal(doc.suggestedCompanions.length, 2);
   const roles = doc.suggestedCompanions.map((c) => c.role).sort();
   assert.deepEqual(roles, ['errorHandling', 'logging']);
@@ -41,6 +47,33 @@ test('blueprint.json declares 21 contributions with capabilities objectStorage, 
   const globalAdrs = adrs.filter((a) => a.scope === 'global');
   assert.equal(globalAdrs.length, 1);
   assert.equal(globalAdrs[0].topic, 'objectStorageContract');
+  // v1.1.0 delta assertions: the four new contribution ids are present
+  // and every v1.0.0 shipped id remains untouched.
+  const ids = new Set(doc.contributions.map((c) => c.id));
+  for (const id of [
+    'object-storage-s3-REQ-101',
+    'object-storage-s3-US-28110',
+    'TAC-2904-object-storage-s3-hetzner-endpoint-helper',
+    'ADR-2905-object-storage-s3-hetzner-object-storage-provider',
+  ]) {
+    assert.ok(ids.has(id), `v1.1.0 delta contribution ${id} must be present`);
+  }
+  const shippedV100Ids = [
+    'object-storage-s3-REQ-001', 'object-storage-s3-REQ-002', 'object-storage-s3-REQ-003',
+    'object-storage-s3-REQ-004', 'object-storage-s3-REQ-005', 'object-storage-s3-REQ-006',
+    'object-storage-s3-US-28101', 'object-storage-s3-US-28102', 'object-storage-s3-US-28103',
+    'object-storage-s3-US-28104', 'object-storage-s3-US-28105', 'object-storage-s3-US-28106',
+    'object-storage-s3-US-28107', 'object-storage-s3-US-28108',
+    'TAC-2901-object-storage-s3-facade', 'TAC-2902-object-storage-s3-multipart-uploader',
+    'TAC-2903-object-storage-s3-event-sink',
+    'ADR-2901-object-storage-s3-adapter', 'ADR-2902-object-storage-s3-presigned-ttl-floor',
+    'ADR-2903-object-storage-s3-multipart-threshold', 'ADR-2904-object-storage-s3-contract',
+  ];
+  for (const id of shippedV100Ids) {
+    assert.ok(ids.has(id), `v1.0.0 contribution ${id} must remain present after the additive v1.1.0 bump`);
+  }
+  const hetznerAdr = adrs.find((a) => a.id === 'ADR-2905-object-storage-s3-hetzner-object-storage-provider');
+  assert.equal(hetznerAdr.standardsTraceClause, 'Hetzner Object Storage S3 compatibility documented endpoint shape');
 });
 
 test('apply object-storage-s3 refuses on a bare fixture without security-secrets-management and lands with --allow-no-secrets-yet (TC-071-apply-refusal-and-override)', async () => {

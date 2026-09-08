@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-08T09:02:48.558Z",
+  "updatedAt": "2026-09-08T09:05:33.736Z",
+  "description": "As a shelf consumer applying object-storage-s3 v1.1.0 on a Hetzner Object Storage bucket, I want an endpoint-shape helper that composes the vendor-documented endpoint pattern from an elicited bucket and location code, and a probe that proves the composed endpoint round-trips a byte-equal put/get/delete on either a real Hetzner Object Storage bucket (when CI_HAS_HETZNER_OBJECT_STORAGE is set) or records accountBoundSkipped true when not, so the R2 real-account smoke and the MinIO local-emulator flow both stay unaffected while the shelf gains a fourth provider value alongside R2, AWS, MinIO. Chain: HQ round-7 follow-up adapter block per HQ chain-block ruling 2026-09-08.",
+  "usId": "US-14001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-140",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-follow-up adapter object-storage-s3 v1.1.0 Hetzner: endpoint-shape helper composes <bucket>.<location>.your-objectstorage.com; new probe hetzner-object-storage-round-trip drives put/get/delete against the composed endpoint on the extended fixture; accountBound gated on CI_HAS_HETZNER_OBJECT_STORAGE",
+  "asA": "shelf consumer applying object-storage-s3 v1.1.0 on a Hetzner Object Storage bucket (fsn1, hel1 or nbg1 location)",
+  "iWant": "an endpoint-shape helper that composes <bucket>.<location>.your-objectstorage.com from an elicited bucket and location per the Hetzner storage overview, plus a new Node-only probe hetzner-object-storage-round-trip.mjs driven from the extended infra-s3-and-queue fixture that either round-trips a byte-equal put/get/delete against a real Hetzner Object Storage bucket when CI_HAS_HETZNER_OBJECT_STORAGE is set or records accountBoundSkipped true when unset",
+  "soThat": "the shelf gains a fourth provider value alongside R2, AWS and MinIO with no runtime dependency added to the applying project, no facade re-shape, and no regression to the shipped MinIO local-emulator or R2 real-account paths",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-14001-1",
+      "description": "Given the extended fixture packages/rcf-lite/test/fixtures/infra-s3-and-queue/ carrying hetzner-endpoint.mjs and run-hetzner-object-storage-round-trip.mjs, when node blueprints/object-storage-s3/contributions/probes/run-hetzner-object-storage-round-trip.mjs runs, then either (a) with CI_HAS_HETZNER_OBJECT_STORAGE set alongside HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID, HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY, HETZNER_OBJECT_STORAGE_BUCKET and HETZNER_OBJECT_STORAGE_LOCATION the composed endpoint is https://<bucket>.<location>.your-objectstorage.com per the Hetzner storage overview and put/get/delete round-trips a byte-equal 1 KiB payload with teardown scrubbing the object; or (b) without CI_HAS_HETZNER_OBJECT_STORAGE the probe records accountBoundSkipped true and the aggregate flips to pass per spec section 3.5. The endpoint-shape helper is the sole composer of the vendor pattern; SIMULATE_HETZNER_ENDPOINT_MISSHAPEN true composes an invalid endpoint via the fixture-side shim (INPUT-side mutation) and the probe FAILS naming the missing subdomain. Anchors the label AC-hetznerObjectStorage-endpointRoundTrip on the blueprint side.",
+      "testable": true
+    }
+  ]
+}

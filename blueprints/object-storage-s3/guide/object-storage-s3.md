@@ -185,6 +185,41 @@ Alternate providers (GitLab CI, CircleCI, Buildkite) map through the same four-p
 
 The `accountBound` flag on the probe module surface flips the delivery-ci-workflows aggregate to pass on the skipped path per section 3.5.
 
+## Hetzner Object Storage adapter (v1.1.0)
+
+The v1.1.0 follow-up recognises Hetzner Object Storage as a shipped provider value under the same S3-API facade. Hetzner Object Storage is S3-compatible per https://docs.hetzner.com/storage/object-storage/overview and speaks the S3 wire protocol through `@aws-sdk/client-s3` unchanged; the one thing that differs from R2 and AWS S3 is that the endpoint URL is composed from two elicited values, a bucket name and a location code (one of `fsn1` Falkenstein, `hel1` Helsinki, `nbg1` Nuremberg per the same page), rather than pasted whole.
+
+A small helper in the applying project composes the endpoint:
+
+```js
+import { composeHetznerEndpoint } from './hetzner-endpoint.mjs';
+
+const endpoint = composeHetznerEndpoint({
+  bucket: process.env.HETZNER_OBJECT_STORAGE_BUCKET,
+  location: process.env.HETZNER_OBJECT_STORAGE_LOCATION, // fsn1 | hel1 | nbg1
+});
+// endpoint === 'https://<bucket>.<location>.your-objectstorage.com'
+```
+
+The composed URL feeds `createObjectStore` unchanged through the elicited `endpointUrl` parameter; `region` defaults to `auto`, `forcePathStyle` defaults to `false` (virtual-hosted-style). The credential pair reaches the facade through the same `security-secrets-management` surface; a Hetzner-shaped project stores the key pair as `HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID` / `HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY` and reads them through the secrets facade.
+
+The helper refuses composition on any location code outside `{fsn1, hel1, nbg1}` (throws a named `Error` with `err.field === 'location'`), so an applying project cannot silently ship an invalid endpoint by editing a config file. A future vendor location code lands as a v1.2.0 minor bump on this blueprint (helper edit plus one more enum entry), not a project-side workaround.
+
+`node blueprints/object-storage-s3/contributions/probes/run-hetzner-object-storage-round-trip.mjs`:
+
+- Without `CI_HAS_HETZNER_OBJECT_STORAGE`: exits 0, writes a report with `verdict: pass, detail: "accountBound: skipped (no CI_HAS_HETZNER_OBJECT_STORAGE)", accountBoundSkipped: true`. Aggregate verdict pass.
+- With `CI_HAS_HETZNER_OBJECT_STORAGE` set alongside `HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID`, `HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY`, `HETZNER_OBJECT_STORAGE_BUCKET`, `HETZNER_OBJECT_STORAGE_LOCATION` on the runner env (or `.rcf/secrets/dev.env` locally): composes the endpoint, puts a 1 KiB payload, gets it back byte-equal, deletes the temporary object on exit, and asserts every lifecycle event carries only whitelisted metadata (`event`, `ts`, `endpointHost`, `bucketName`, `location`, `key`, `size`, `contentType`). Aggregate verdict pass.
+
+The Cloudflare R2 smoke stays gated on `CI_HAS_CLOUDFLARE_ACCOUNT` and is not affected by the Hetzner env var; the two smokes skip independently.
+
+### When to reach for Hetzner Object Storage
+
+- Storage region matters (European data-locality requirements or lower-latency reads from EU-hosted workloads). `fsn1`, `hel1`, `nbg1` cover Germany and Finland; R2 does not surface a per-region locality on the public shape.
+- Egress-pricing profile differs from R2's zero-egress-fee posture; a workload with high internal-only egress may prefer R2, while a workload with predictable public egress may prefer Hetzner's flat per-TB pricing.
+- The applying project already runs on Hetzner Cloud (deploy-hetzner-server v1.0.0 shipped in round 7 T-1) and pairing the storage on the same vendor account is operationally simpler.
+
+Reach for R2 for the zero-egress-fee posture, for AWS S3 for the widest feature surface (Object Lock, versioning, lifecycle policies), and for MinIO for local dev without any account.
+
 ## Elicited parameters
 
 | Parameter | Default | Notes |
@@ -204,4 +239,5 @@ The `accountBound` flag on the probe module surface flips the delivery-ci-workfl
 - Cloudflare R2 S3-compatibility surface: https://developers.cloudflare.com/r2/api/s3/api/ (supported ops, four deviations).
 - Cloudflare R2 overview and presigned URLs: https://developers.cloudflare.com/r2/.
 - MinIO S3 compatibility: https://docs.min.io/community/minio-object-store/administration/object-management/object-lifecycle-management.html.
+- Hetzner Object Storage overview (v1.1.0): https://docs.hetzner.com/storage/object-storage/overview (S3 compatibility, endpoint pattern `<bucket>.<location>.your-objectstorage.com`, three location codes fsn1, hel1, nbg1).
 - GitHub Actions service containers: https://docs.github.com/en/actions/using-containerized-services/about-service-containers.

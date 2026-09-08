@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 85  covered: 85  covered-unresolved: 0  uncovered: 0
+Requirements: 86  covered: 86  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -355,3 +355,4 @@ REQ-132      yes      AC-13201-1  yes         TC-160-no-public-origin-port-refus
 REQ-133      yes      AC-13301-1  yes         TC-160-aud-presence-flip-on-both-fixture-variants
                       AC-13302-1  yes         TC-160-aud-presence-check-refuses-on-drift
 REQ-134      yes      AC-13401-1  yes         TC-160-credentials-discipline-and-event-secrecy
+REQ-140      yes      AC-14001-1  yes         TC-170-hetzner-endpoint-round-trip-and-skipped-shape
