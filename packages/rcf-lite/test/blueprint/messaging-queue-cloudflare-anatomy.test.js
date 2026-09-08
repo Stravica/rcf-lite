@@ -18,7 +18,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 21 contributions with capabilities queue, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-072-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'messaging-queue-cloudflare');
-  assert.equal(doc.version, '1.0.1');
+  assert.equal(doc.version, '1.0.2');
   assert.equal(doc.category, 'messaging');
   assert.deepEqual(doc.capabilities, ['queue']);
   assert.equal(doc.contributions.length, 21);
@@ -180,10 +180,13 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true, 'real-account-concurrency-smoke must declare accountBound true');
   assert.equal(mod.anchorAcId, 'AC-29108-2', 'anchorAcId must be AC-29108-2');
-  // Static shape assertions on the shipped driver body.
+  // Static shape assertions on the shipped driver body (v1.0.2 self-
+  // provisioning shape; w-2026-09-08-dave-017).
   const body = await readFile(join(PROBES_DIR, 'real-account-concurrency-smoke.mjs'), 'utf8');
-  assert.match(body, /CF_QUEUE_WORKER_URL/, 'driver reads the deployed Worker URL env');
-  assert.match(body, /publish-batch/, 'driver posts against the fixture worker publish-batch route');
+  assert.match(body, /h2-cf-queue-real-account-shim\.mjs/, 'driver imports the self-provisioning fixture shim');
+  assert.match(body, /mintScratchQueueAndWorker/, 'driver mints its own scratch queue + consumer worker');
+  assert.match(body, /destroyScratchQueueAndWorker/, 'driver destroys its scratch queue + consumer worker on teardown');
+  assert.match(body, /publish-batch/, 'driver posts against the throwaway worker publish-batch route');
   assert.match(body, /\/stats/, 'driver polls the consumer-telemetry stats route');
   assert.match(body, /DOCUMENTED_PUSH_CAP\s*=\s*250|push[- ]invocation cap|push cap/i, 'driver references the documented Cloudflare push-invocation cap');
   // Env-absent branch: pass with accountBoundSkipped shape.
@@ -196,24 +199,28 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
     assert.ok(r, 'env-absent branch must still include an AC-29108-2 result');
     assert.equal(r.verdict, 'pass', `env-absent verdict: ${r.detail}`);
     const extra = Array.isArray(out) ? {} : (out && out.extra) || {};
-    assert.equal(extra.accountBoundSkipped === true || /accountBoundSkipped/i.test(r.detail), true, 'env-absent branch surfaces accountBoundSkipped');
+    assert.equal(extra.accountBoundSkipped === true || r.accountBoundSkipped === true || /accountBoundSkipped/i.test(r.detail), true, 'env-absent branch surfaces accountBoundSkipped');
   } finally {
     if (savedAcct !== undefined) process.env.CI_HAS_CLOUDFLARE_ACCOUNT = savedAcct;
   }
-  // Account-set-no-URL branch: fail with missing env named; a pass is never
-  // reachable from credential presence alone.
-  const savedUrl = process.env.CF_QUEUE_WORKER_URL;
-  delete process.env.CF_QUEUE_WORKER_URL;
+  // Account-set-no-tokens branch: fail with missing token env named; a
+  // pass is never reachable from CI_HAS_CLOUDFLARE_ACCOUNT alone
+  // (dispatch requirement 5, no third outcome).
+  const savedAcctId = process.env.CF_ACCOUNT_ID;
+  const savedToken = process.env.CF_API_TOKEN;
+  delete process.env.CF_ACCOUNT_ID;
+  delete process.env.CF_API_TOKEN;
   process.env.CI_HAS_CLOUDFLARE_ACCOUNT = 'true';
   try {
     const out = await mod.default();
     const rs = Array.isArray(out) ? out : (out && out.results) || [];
     const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
     assert.ok(r, 'account-set branch must still include an AC-29108-2 result');
-    assert.equal(r.verdict, 'fail', `account-set-no-URL verdict must be fail; detail=${r.detail}`);
-    assert.match(r.detail, /CF_QUEUE_WORKER_URL/, 'fail detail names the missing Worker URL env');
+    assert.equal(r.verdict, 'fail', `account-set-no-tokens verdict must be fail; detail=${r.detail}`);
+    assert.match(r.detail, /CF_ACCOUNT_ID|CF_API_TOKEN/, 'fail detail names the missing token env');
   } finally {
-    if (savedUrl !== undefined) process.env.CF_QUEUE_WORKER_URL = savedUrl;
+    if (savedAcctId !== undefined) process.env.CF_ACCOUNT_ID = savedAcctId;
+    if (savedToken !== undefined) process.env.CF_API_TOKEN = savedToken;
     delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
   }
 });

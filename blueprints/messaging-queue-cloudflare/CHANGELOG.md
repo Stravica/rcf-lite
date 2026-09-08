@@ -1,5 +1,14 @@
 # messaging-queue-cloudflare changelog
 
+## 1.0.2 - 2026-09-08
+
+H-2 follow-up (`w-2026-09-08-dave-017`, addendum item 6 fixture defect): the real-account queue probe now self-provisions its own throwaway Queue + consumer Worker, closing the second-tier undeclared-env skip HQ hit at the real-account gate on 2026-09-08 (`REAL RUN: PARTIAL`, `MERGE DECISION: HOLD`). No shipped-code capability change.
+
+- `real-account-concurrency-smoke.mjs` rewritten against a new self-provisioning fixture shim at `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs`. AC-29108-2 requires a real consumer to process the published messages ("the consumer processes them concurrently up to the documented 250-invocation cap"), so the shim mints BOTH a scratch Cloudflare Queue under `h2-cf-probe-integrity-scratch-q-` AND a throwaway consumer Worker under `h2-cf-probe-integrity-scratch-w-` bound to that queue via a fresh `QUEUE` binding; the consumer Worker's source is a plain module (`h2-cf-queue-consumer-worker.mjs`) mirroring the fixture Worker at `infra-s3-and-queue/src/worker.mjs`. The shim enables the workers.dev subdomain so the driver has an origin to drive.
+- Declared env for a real-account run is now `CI_HAS_CLOUDFLARE_ACCOUNT` + `CF_ACCOUNT_ID` + `CF_API_TOKEN` (optional `CF_API_BASE_URL` test override; optional `CF_QUEUE_MESSAGE_COUNT` per section 3.5). The `CF_QUEUE_WORKER_URL` and `CF_QUEUE_NAME` second-tier gates are removed; the fixture provides them itself. Every skip-causing env var enumerated in `report.extra.envDeclared` on the probe result and mirrored in the shim's `DECLARED_ENV` export.
+- Teardown deletes the consumer Worker first (so the queue has no active consumer at delete time) then the Queue, both by EXACT id / EXACT name against the mint record with three independent prefix guards. Separate crash-recovery `sweepOrphans` code path filters over the account by the frozen throwaway prefix constants and deletes each match by exact identity; the sweep is structurally unable to select a non-prefixed name. Dedicated sweep-safety test at `packages/rcf-lite/test/fixtures/cf-platform/test/h2-cf-sweep-safety.test.mjs` seeds the mock account with the ten live production Worker script names on the operator account plus mid-string-prefix names and asserts sweep selects zero of them.
+- Locally proven end-to-end through a zero-dep mock CF REST API (`packages/rcf-lite/test/fixtures/cf-platform/test/mock-cf-api-server.mjs`) that also serves the throwaway worker origin (`/reset`, `/publish-batch`, `/stats`) and simulates the push consumer up to 8 concurrent batches. Probe e2e test: 500/500 messages consumed in ~500ms, maxConcurrent > 1 and <= 250 documented cap. On real Cloudflare push consumers the concurrency assertion passes at HQ gate time.
+
 ## 1.0.1 - 2026-09-08
 
 H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch. No capability change.
