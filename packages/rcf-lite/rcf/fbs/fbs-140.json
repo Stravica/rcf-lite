@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T01:45:31.629Z",
+  "updatedAt": "2026-09-08T01:45:31.816Z",
+  "acIds": [
+    "AC-12001-1",
+    "AC-12101-1",
+    "AC-12102-1",
+    "AC-12201-1",
+    "AC-12202-1",
+    "AC-12301-1",
+    "AC-12401-1",
+    "AC-12402-1",
+    "AC-12501-1"
+  ],
+  "fbsId": "FBS-140",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 61,
+  "executionStatus": "notStarted",
+  "title": "T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service",
+  "summary": "HQ round-7 T-2: platform-docker-compose-host v1.0.0 blueprint on the shelf under blueprints/platform-docker-compose-host/ (23 contributions: 6 REQs, 9 USs, 4 TACs, 4 ADRs; inventory per hetzner-round-7-spec-2026-09-07 section 5.2). Extends the shared throwaway-Hetzner-server fixture minted by T-1 (packages/rcf-lite/test/fixtures/hetzner-throwaway-server/) with a compose stack (compose.yaml, caddy/Caddyfile, secrets/web-token file mount, src/serve.mjs healthchecked stub) plus five run-<probe>.mjs delegate shims. Five Node-only probes under blueprints/platform-docker-compose-host/contributions/probes/: compose-config-lint (AC-12201-1, AC-12301-1, AC-12501-1; SIMULATE_MISSING_HEALTHCHECK, SIMULATE_UNCLASSIFIED_RESTART, SIMULATE_UNCLASSIFIED_LOG_DRIVER, SIMULATE_EVENT_SECRECY_LEAK mutations), secrets-as-files-scan (AC-12101-1, AC-12102-1; SIMULATE_PLAINTEXT_SECRET mutation), caddyfile-validate (AC-12401-1; SIMULATE_INVALID_CADDYFILE mutation; runs the caddy:2 vendor container so a caddy binary on PATH is optional), real-account-minimal-stack-up (AC-12202-1; accountBound), real-account-reload-burst (AC-12402-1; accountBound). Blueprint README, guide, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep adding the platform-docker-compose-host row across every prior blueprint; section 6a containerHost row on packages/rcf-lite/docs/blueprint-authoring.md. New global topic minted: containerHostContract. Repo chain: REQ-120..125, US-12001, 12101, 12102, 12201, 12202, 12301, 12401, 12402, 12501, TS-150 with nine TCs, FBS-140, CN-440, TAC-3901..3904, ADR-3901..3904 minted via rcf define create --id per HQ round-7 T-2 reserved-block ruling (REQ-120..129 / TS-150..159 / FBS-140..149 / CN-440..469). Base commit origin/main 30f7b77.",
+  "dependsOnFbsIds": []
+}

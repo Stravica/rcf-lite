@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T01:42:44.888Z",
+  "updatedAt": "2026-09-08T01:42:45.499Z",
+  "usId": "US-12501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-125",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 log shipping to the elicited observability-logging sink (journald default; loki opt-in)",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that may run Grafana or the estate default",
+  "iWant": "the elicited log driver to be wired into every service in the compose file (journald default, loki opt-in) and the choice recorded on the log-driver ADR",
+  "soThat": "the container stdout and stderr reach the applied observability sink without a per-service edit",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12501-1",
+      "description": "Every service in the fixture compose.yaml declares a logging: driver: block whose driver value matches the elicited log driver (default journald). The compose-config-lint probe asserts (a) every service declares logging: driver, (b) the value is one of journald or loki, and (c) SIMULATE_UNCLASSIFIED_LOG_DRIVER=true sets a disallowed driver and the probe FAILS naming the service and the disallowed value.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3903-platform-docker-compose-host-healthcheck-lint"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T01:44:43.238Z",
+  "updatedAt": "2026-09-08T01:44:43.862Z",
+  "usId": "US-12102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-121",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 cross-cutting secretsAreFiles: the source-tree scan refuses any plaintext secret literal in compose.yaml or a referenced service config",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with sensitive material",
+  "iWant": "the secrets-as-files probe to walk compose.yaml and every service config in the fixture and refuse on any plaintext secret literal, naming the file and line",
+  "soThat": "a secret accidentally inlined in a review is caught by the probe before docker compose up runs",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12102-1",
+      "description": "The secrets-as-files-scan probe walks compose.yaml plus every referenced service config file in the fixture and asserts (a) no line contains a plaintext token pattern (the applied literal name plus the applied literal value), (b) every declared secret in the compose secrets: key has a file: source, and (c) SIMULATE_PLAINTEXT_SECRET=true writes a plaintext literal into compose.yaml and the probe FAILS naming the file and the literal.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3902-platform-docker-compose-host-secrets-mount"
+  ]
+}

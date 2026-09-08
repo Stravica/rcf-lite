@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T01:42:40.956Z",
+  "updatedAt": "2026-09-08T01:42:41.556Z",
+  "usId": "US-12201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-122",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 healthcheck contract: docker compose config refuses when an HTTP-terminating service is missing a healthcheck block",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that terminates HTTP inside a container",
+  "iWant": "the compose config lint to refuse at gate time on any HTTP-terminating service that is missing a healthcheck block, naming the service",
+  "soThat": "the stack never comes up with a service the container host cannot know is ready",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12201-1",
+      "description": "The compose-config-lint probe shells to docker compose config against the fixture compose.yaml, asserts exit 0, and additionally asserts every HTTP-terminating service declares a healthcheck: block. SIMULATE_MISSING_HEALTHCHECK=true strips the block from the web service and the probe FAILS naming the service.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3903-platform-docker-compose-host-healthcheck-lint"
+  ]
+}

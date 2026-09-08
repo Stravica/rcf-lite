@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-08T01:42:21.500Z",
+  "updatedAt": "2026-09-08T01:44:12.088Z",
+  "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy, traefik/traefik.yaml when reverseProxy=traefik) lives as a first-class checked-in artefact under the applying repo. The compose file bind-mounts the artefact read-only into the proxy service. The gate runs the vendor validator against the artefact and refuses on an invalid directive. Under the reload verb (docker compose exec caddy caddy reload or the Traefik equivalent), a burst against the proxy inside the elicited window sees no non-2xx and no dropped connection.",
+  "responsibilities": [
+    "Ship the reverse-proxy config as a checked-in artefact bind-mounted into the proxy (AC-12401-1).",
+    "Validate the artefact with the vendor validator at gate time (AC-12401-1).",
+    "Prove zero-downtime reload with a real-account burst (AC-12402-1).",
+    "Name the reload verb per proxy in the guide and the fixture README (AC-12401-1, AC-12402-1)."
+  ],
+  "name": "T-2 platform-docker-compose-host reverse-proxy artefact"
+}

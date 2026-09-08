@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T01:41:01.418Z",
+  "updatedAt": "2026-09-08T01:42:32.120Z",
+  "usId": "US-12001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-120",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 compose.yaml at repo root is the single-source runtime topology (service-per-container, named networks and volumes, .env for non-secret config)",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that runs its stack on a Hetzner cloudHost",
+  "iWant": "a single compose.yaml at the repo root to declare every service as one container with explicit named networks, named volumes, and non-secret config in a .env file",
+  "soThat": "the runtime topology has one auditable seam and the container host can bring the stack up from the file alone",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12001-1",
+      "description": "The shared throwaway-server fixture ships compose.yaml at the fixture root with (a) every service running exactly one container image (service-per-container), (b) at least one named network under the top-level networks key, (c) at least one named volume under the top-level volumes key, and (d) non-secret config values are read via a colocated .env file rather than inlined into service environment entries.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3901-platform-docker-compose-host-compose-layout"
+  ]
+}

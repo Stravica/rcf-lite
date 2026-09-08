@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T01:42:43.312Z",
+  "updatedAt": "2026-09-08T01:42:43.912Z",
+  "usId": "US-12401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-124",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 reverse-proxy config as a first-class versioned artefact (caddy/Caddyfile) validated by the vendor validator",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint with reverseProxy=caddy",
+  "iWant": "a checked-in caddy/Caddyfile bind-mounted into the proxy service so the reload verb picks up an operator change, validated at gate time by caddy validate",
+  "soThat": "a broken Caddyfile is caught before the reload burst runs, and there is one place in the tree the operator edits to route hostnames",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12401-1",
+      "description": "The fixture ships caddy/Caddyfile at the fixture root under a caddy/ directory, the compose file bind-mounts it read-only into the caddy service, and the caddyfile-validate probe shells to caddy validate against the file and asserts exit 0. SIMULATE_INVALID_CADDYFILE=true writes an invalid directive into a scratch copy and the probe FAILS naming the line. Skipped when the applied reverseProxy is not caddy.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-08T01:42:20.942Z",
+  "updatedAt": "2026-09-08T01:44:10.970Z",
+  "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "The applying project ships one compose.yaml at the repo root whose services key names every container the stack runs. Every entry is one image running one container; networks and volumes are top-level named entries; a colocated .env carries non-secret configuration values (never inline). The container host reads compose.yaml as the runtime topology source and refuses to bring the stack up on layout drift.",
+  "responsibilities": [
+    "Serve compose.yaml at the repo root as the sole topology surface (AC-12001-1, AC-12202-1).",
+    "Guarantee service-per-container: each entry under services: runs one image (AC-12001-1).",
+    "Declare all networks and volumes as top-level named entries: no bare defaults (AC-12001-1).",
+    "Bind non-secret configuration through a colocated .env: no inline literals (AC-12001-1)."
+  ],
+  "name": "T-2 platform-docker-compose-host compose layout"
+}

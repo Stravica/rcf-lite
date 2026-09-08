@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-08T01:40:05.035Z",
+  "updatedAt": "2026-09-08T01:40:05.264Z",
+  "description": "The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy; traefik/traefik.yaml when reverseProxy=traefik) is a first-class versioned artefact under the applying repo. The compose runtime bind-mounts the file into the proxy service so an operator change to the file is picked up by the reload verb. The reload verb is docker compose exec caddy caddy reload when Caddy, or the documented Traefik equivalent. The reload window is elicited (10 s default). During the window a client burst against the proxy sees no non-2xx and no dropped connection. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.",
+  "reqId": "REQ-124",
+  "prdId": "PRD-001",
+  "title": "T-2 platform-docker-compose-host: zero-downtime reverse-proxy reload via bind-mounted config; verb per proxy; no non-2xx or dropped connection inside the elicited window (10 s default)",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T01:40:05.078Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "sees"
+      }
+    ]
+  }
+}
