@@ -282,7 +282,7 @@ The count in the example is illustrative, not a floor. The count that lands is w
 
 ## 7b. Fixed and template acceptance criteria
 
-Section 7 asks whether an AC is runtime-observable; section 7a asks whether the AC SET on a story covers the runtime. This section asks a third question the first two do not: is each AC on the story the BLUEPRINT'S to fix or the APPLYING AGENT'S to set? A blueprint carries two different kinds of content, and treating them the same is how a blueprint drifts into being a project spec dressed in a blueprint's directory shape. Baz's ruling (2026-09-08) on the `platform-cloudflare-durable-objects` storage-limit ACs: "if the blueprint specifies something that works or doesn't work, then it's a spec not a blueprint. the ACs should be provided with the blueprint, but it's the agent's job to set them specifically for the project".
+Section 7 asks whether an AC is runtime-observable; section 7a asks whether the AC SET on a story covers the runtime. This section asks a third question the first two do not: is each AC on the story the BLUEPRINT'S to fix or the APPLYING AGENT'S to set? A blueprint carries two different kinds of content, and treating them the same is how a blueprint drifts into being a project spec dressed in a blueprint's directory shape. A blueprint that decides for a project what works and what does not is a specification, not a blueprint. Acceptance criteria ship with the blueprint, but setting them for the project is the applying agent's work, and the guide's job is to tell that agent how to verify.
 
 **Two categories, marked on every AC.**
 
