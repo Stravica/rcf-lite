@@ -1,55 +1,94 @@
-// provision.mjs
+// provision.mjs (v1.0.1)
 //
 // Real-account provisioner entry point for the shared throwaway-Hetzner-
 // server fixture. Requires HCLOUD_TOKEN on env and hcloud on PATH.
-// Reads hetzner/servers/ci-throwaway.json, adds run-scoped labels
-// (run=<runId>, blueprint=<slug>), shells to hcloud server create, writes
-// the created server id to a scratch file scratch/last-throwaway.json for
-// destroy.mjs, and returns the projected record.
 //
-// The scratch file is git-ignored (see .gitignore) so the fixture stays
-// clean between runs. Callers set { runId } to distinguish CI runs from
-// local invocations.
+// v1.0.1 behaviour:
+//   - Reads hetzner/servers/ci-throwaway.json for the manifest shape;
+//   - Applies the RCF_LITE_CI_SSH_KEY_NAME env override on manifest
+//     sshKeyIds (per-key comma-separated); the manifest value stays
+//     the default when the override is unset (H-1 defect (9));
+//   - Renders the shipped cloud-init template to
+//     hetzner/servers/rendered/<name>.cloud-init.yaml via
+//     src/cloud-init-renderer.mjs; the renderer resolves each ssh key
+//     name to its public-key material via hcloud ssh-key describe so
+//     the deploy user has a working authorized_keys entry (H-1
+//     defects (2), (3));
+//   - Shells hcloud server create --user-data-from-file <rendered>
+//     --output json and reads snake_case fields off the response
+//     (public_net.ipv4.ip, datacenter.location.name, server_type.name;
+//     H-1 defect (1));
+//   - Writes the created server id to scratch/last-throwaway.json for
+//     destroy.mjs to pick up in its always-block teardown.
+//
+// The scratch file and the rendered file both sit under git-ignored
+// directories (see .gitignore) so the fixture stays clean between
+// runs. Callers set { runId } to distinguish CI runs from local
+// invocations.
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
+import { renderCloudInitToFile } from './src/cloud-init-renderer.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MANIFEST_PATH = resolve(HERE, 'hetzner/servers/ci-throwaway.json');
 const SCRATCH_DIR = resolve(HERE, 'scratch');
 const SCRATCH_PATH = join(SCRATCH_DIR, 'last-throwaway.json');
+const RENDERED_DIR = resolve(HERE, 'hetzner/servers/rendered');
 
 export async function provisionThrowawayServer({ runId }) {
   const manifest = JSON.parse(await readFile(MANIFEST_PATH, 'utf8'));
+  applySshKeyOverride(manifest);
+  const { renderedPath } = await renderCloudInitToFile(manifest);
   const labelArgs = [
     ...Object.entries({ ...manifest.labels, run: String(runId) }).flatMap(([k, v]) => ['--label', `${k}=${v}`]),
   ];
+  const uniqueName = `${manifest.name}-${Date.now()}`;
   const args = [
     'server', 'create',
-    '--name', `${manifest.name}-${Date.now()}`,
+    '--name', uniqueName,
     '--type', manifest.serverType,
     '--location', manifest.location,
     '--image', manifest.image,
     ...manifest.sshKeyIds.flatMap((k) => ['--ssh-key', k]),
     ...labelArgs,
-    '--user-data-from-file', manifest.cloudInitPath,
+    '--user-data-from-file', renderedPath,
     '--output', 'json',
   ];
   const parsed = await hcloud(args);
-  const s = parsed.server;
+  const s = parsed.server ?? parsed;
   const record = {
     id: s.id,
-    name: s.name,
-    primaryIpv4: s.publicNet.ipv4.ip,
-    location: s.datacenter.location.name,
-    serverType: s.serverType.name,
+    name: s.name ?? uniqueName,
+    primaryIpv4: s.public_net?.ipv4?.ip,
+    location: s.location?.name ?? s.datacenter?.location?.name,
+    serverType: s.server_type?.name,
     labels: s.labels,
+    renderedCloudInitPath: relToFixture(renderedPath),
   };
   await mkdir(SCRATCH_DIR, { recursive: true });
   await writeFile(SCRATCH_PATH, JSON.stringify(record, null, 2) + '\n', 'utf8');
   return record;
+}
+
+// Apply the RCF_LITE_CI_SSH_KEY_NAME override on manifest sshKeyIds.
+// The env var may hold one name or a comma-separated list; the manifest
+// value stays the default when the override is unset or empty. Exported
+// for the mock and test consumers.
+export function applySshKeyOverride(manifest) {
+  const override = process.env.RCF_LITE_CI_SSH_KEY_NAME;
+  if (typeof override === 'string' && override.trim().length > 0) {
+    const names = override.split(',').map((s) => s.trim()).filter(Boolean);
+    manifest.sshKeyIds = names;
+  }
+  return manifest;
+}
+
+function relToFixture(absPath) {
+  const rel = absPath.startsWith(HERE) ? absPath.slice(HERE.length + 1) : absPath;
+  return rel;
 }
 
 function hcloud(argv) {
@@ -70,6 +109,10 @@ function hcloud(argv) {
     });
   });
 }
+
+// Keep RENDERED_DIR export for tests / consumers that inspect the
+// rendered artefact location without running provision.
+export { RENDERED_DIR };
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const runId = process.env.GITHUB_RUN_ID ?? 'local';

@@ -9,9 +9,14 @@
 // validator ships with the probe so the shelf gains no runtime dependency
 // on ajv or similar. See validate() at the bottom.
 //
-// SIMULATE_MANIFEST_INVALID=true replaces the manifest's location with an
-// unknown token and the probe FAILS naming the offending field per
-// hetzner-round-7-spec-2026-09-07.md section 3.4 lesson 4.
+// Purity: the probe reads only the manifest dir and the shipped schema;
+// no process.env.SIMULATE_ switch is read here. The fixture-side shim
+// packages/rcf-lite/test/fixtures/hetzner-throwaway-server/
+// run-manifest-schema-validate.mjs is the sole reader of
+// SIMULATE_MANIFEST_INVALID and it mutates INPUT (a temp manifest dir
+// pointed at via RCF_FIXTURE_MANIFEST_DIR) only; the probe then FAILS
+// naming the offending field per hetzner-round-7-spec-2026-09-07.md
+// section 3.4 lesson 4. H-1 (2026-09-08).
 
 import { readFile } from 'node:fs/promises';
 import { readManifestFiles, SCHEMA_PATH } from './probe-utils.mjs';
@@ -32,7 +37,6 @@ export default async function runProbe() {
     };
   }
   const results = [];
-  const mutationActive = process.env.SIMULATE_MANIFEST_INVALID === 'true';
   for (const f of files) {
     let doc;
     try {
@@ -45,7 +49,6 @@ export default async function runProbe() {
       });
       continue;
     }
-    if (mutationActive) doc = { ...doc, location: 'mars1' };
     const errors = validate(schema, doc, `#/${f.name}`);
     if (errors.length > 0) {
       for (const e of errors) {
@@ -69,7 +72,6 @@ export default async function runProbe() {
     extra: {
       manifestCount: files.length,
       manifestNames: files.map((f) => f.name),
-      mutationActive,
     },
   };
 }

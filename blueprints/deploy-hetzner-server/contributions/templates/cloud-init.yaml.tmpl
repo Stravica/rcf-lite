@@ -21,6 +21,18 @@ users:
 # Block 2: root disabled (PermitRootLogin no).
 # Block 1 continued: PasswordAuthentication no.
 write_files:
+  # Block 1 continued: NOPASSWD sudo for the deploy user (mode 0440,
+  # visudo-shaped fragment). Baseline hardening requires the deploy
+  # user to run sudoed baseline checks without a tty; the write_files
+  # entry ships the fragment in the same posture as the sshd config.
+  - path: /etc/sudoers.d/90-deploy-nopasswd
+    permissions: '0440'
+    content: |
+      # deploy-hetzner-server v1.0.1 hardening: passwordless sudo for
+      # the deploy user so the ssh baseline checks (cloud-init status
+      # --wait, ufw status, iptables -L, systemctl is-active fail2ban)
+      # never block on a tty prompt.
+      deploy ALL=(ALL) NOPASSWD:ALL
   - path: /etc/ssh/sshd_config.d/hardening.conf
     permissions: '0644'
     content: |
@@ -70,13 +82,17 @@ write_files:
       APT::Periodic::Update-Package-Lists "1";
       APT::Periodic::Unattended-Upgrade "1";
 
-# Package install: ufw for block 3, fail2ban for block 5,
-# unattended-upgrades for block 6, iptables-persistent for block 4.
+# Package install: ufw for block 3, fail2ban for block 5.
+# unattended-upgrades ships in the ubuntu-24.04 base image (v1.0.1 fix:
+# was in packages: v1.0.0 which caused a spurious NoNewestVersion line).
+# iptables-persistent conflicts with ufw on ubuntu-24.04 noble (ufw
+# Breaks: iptables-persistent), so we DO NOT install it; the DOCKER-USER
+# chain is loaded in runcmd via iptables directly (block 4 stays valid
+# for the running boot; reboot-persistence for the chain is a follow-up
+# item outside the H-1 hardening scope).
 packages:
   - ufw
   - fail2ban
-  - unattended-upgrades
-  - iptables-persistent
 
 runcmd:
   # Block 3: UFW default-deny incoming, allow 22 80 443.
@@ -89,5 +105,9 @@ runcmd:
   - systemctl reload ssh || systemctl restart ssh
   - systemctl enable --now fail2ban
   - systemctl enable --now unattended-upgrades
-  # Load the DOCKER-USER iptables rules on boot.
-  - iptables-restore -n < /etc/iptables/rules.v4.d/docker-user.rules
+  # Block 4 runtime: create the DOCKER-USER chain directly via iptables
+  # (v1.0.1 fix: iptables-persistent conflicts with ufw on Ubuntu 24.04
+  # noble; iptables itself is preinstalled, so the chain lands cleanly).
+  - iptables -N DOCKER-USER 2>/dev/null || true
+  - iptables -A DOCKER-USER -m conntrack --ctstate ESTABLISHED,RELATED -j RETURN
+  - iptables -A DOCKER-USER -j DROP

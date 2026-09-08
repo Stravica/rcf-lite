@@ -115,6 +115,12 @@ missing observable.
   `security-secrets-management` in a real applying project).
 - `RCF_LITE_CI_SSH_KEY` (optional; ssh key path for the runtime
   hardened check; falls back to the default ssh-agent key).
+- `RCF_LITE_CI_SSH_KEY_NAME` (optional; comma-separated list of
+  Hetzner Cloud ssh-key NAMES to use in place of the manifest
+  `sshKeyIds` at provision time; the manifest value stays the default
+  when the override is unset. Added in v1.0.1 so a project can point
+  the throwaway-server fixture at any real key on its own Hetzner
+  project without editing the manifest.).
 
 ## Cost ceiling per run
 

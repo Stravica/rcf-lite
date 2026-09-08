@@ -1,7 +1,7 @@
 {
   "slug": "deploy-hetzner-server",
   "probeName": "cloud-init-render-lint",
-  "runAt": "2026-09-08T00:20:31.280Z",
+  "runAt": "2026-09-08T11:53:48.156Z",
   "engine": {
     "kind": "template-render",
     "image": "hetzner-throwaway-server fixture (in-process template render)",
@@ -16,7 +16,7 @@
   ],
   "aggregateVerdict": "pass",
   "manifestName": "rcf-lite-ci-throwaway",
-  "renderedByteLength": 3244,
+  "renderedByteLength": 4582,
   "presentBlocks": [
     "sshKeyOnly",
     "rootDisabled",
@@ -25,6 +25,5 @@
     "fail2banSshJail",
     "unattendedUpgrades"
   ],
-  "missingBlocks": [],
-  "mutationActive": false
+  "missingBlocks": []
 }

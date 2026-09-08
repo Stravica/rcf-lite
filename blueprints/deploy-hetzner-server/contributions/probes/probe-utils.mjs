@@ -21,7 +21,13 @@ export const FIXTURE_DIR = resolve(
   PROJECT_ROOT,
   'packages/rcf-lite/test/fixtures/hetzner-throwaway-server',
 );
-export const MANIFEST_DIR = resolve(FIXTURE_DIR, 'hetzner/servers');
+// Config override, not a mutation switch: the fixture-side shim for
+// manifest-schema-validate may write a mutated copy to a scratch dir
+// and point MANIFEST_DIR at it via RCF_FIXTURE_MANIFEST_DIR so the
+// probe stays SIMULATE-free (H-1 mutation-purity gate row, 2026-09-08).
+export const MANIFEST_DIR = process.env.RCF_FIXTURE_MANIFEST_DIR
+  ? resolve(process.env.RCF_FIXTURE_MANIFEST_DIR)
+  : resolve(FIXTURE_DIR, 'hetzner/servers');
 export const SCHEMA_PATH = resolve(HERE, '..', 'schemas', 'hetzner-server.schema.json');
 export const REPORT_DIR = resolve(
   PROJECT_ROOT,

@@ -53,7 +53,7 @@ async function runProbe(name, env = {}) {
 test('T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.0.0');
+  assert.equal(bp.version, '1.0.1');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
@@ -187,4 +187,35 @@ test('T-1 shelf shape: section 6a cloudHost row and docs/topics.md registry entr
   assert.match(guide, /## When to reach for `cx23` vs `cx33`/);
   const ownTopics = await readFile(OWN_TOPICS, 'utf8');
   assert.match(ownTopics, /deploy-hetzner-server/);
+});
+
+// TC-175-mock-consumes-rendered-file-and-probe-purity (AC-14501-1):
+// H-1 hardening block asserts that (a) the hcloud-dry-run-mock probe
+// reads back the SAME rendered cloud-init file the real path consumes,
+// with an ssh public-key line for the deploy user and a NOPASSWD
+// directive naming that user; and (b) none of the three T-1 mocked
+// probe modules read process.env.SIMULATE_ inside the probe body.
+test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud-init and probes carry no SIMULATE reads (TC-175-mock-consumes-rendered-file-and-probe-purity)', async () => {
+  const out = await runProbe('hcloud-dry-run-mock');
+  const rendered = out.results.find((r) => r.anchorAcId === 'AC-14501-1');
+  assert.ok(rendered, 'expected a rendered-file assertion result');
+  assert.equal(rendered.verdict, 'pass', `rendered-file assertion should pass; got: ${rendered.detail}`);
+  assert.ok(out.extra.renderedPath, 'probe should report the rendered path');
+  assert.equal(out.extra.renderedAssertions.sshKeyLine, true);
+  assert.equal(out.extra.renderedAssertions.nopasswdLine, true);
+
+  // Mutation-purity: no probe body reads process.env.SIMULATE_.
+  const probes = ['cloud-init-render-lint', 'manifest-schema-validate', 'hcloud-dry-run-mock'];
+  for (const name of probes) {
+    const body = await readFile(join(PROBES_DIR, `${name}.mjs`), 'utf8');
+    // Strip block and line comments before scanning; the assertion
+    // must fail on process.env.SIMULATE_ reads only, not documentation.
+    const stripped = body
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '');
+    assert.ok(
+      !/process\.env\.SIMULATE_/.test(stripped),
+      `${name}.mjs probe body reads a process.env.SIMULATE_ switch; move it to the fixture-side shim per H-1 mutation-purity gate row.`,
+    );
+  }
 });

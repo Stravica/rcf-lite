@@ -45,11 +45,12 @@ export default async function runProbe() {
         })),
       };
     }
+    const blocks = report.checks.filter((c) => c.verdict === 'pass').map((c) => c.id);
     return {
       results: [{
         anchorAcId,
         verdict: 'pass',
-        detail: `cloud-init status --wait completed on server ${provisioned.id}; all six ssh baseline checks passed.`,
+        detail: `cloud-init reached terminal state on server ${provisioned.id} (cloud-init status --wait exit ${report.cloudInit ? report.cloudInit.code : 'skipped'}); six baseline hardening blocks observed: ${blocks.join(', ')}.`,
       }],
       extra: report,
     };
