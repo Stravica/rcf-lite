@@ -18038,18 +18038,23 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-15101 --&gt; AC-15101-1
   FBS-171[&quot;FBS-171&lt;br/&gt;H-2 DO real storage round-trip driver and anc...&quot;]
   AC-15101-1 -.-&gt;|delivered by| FBS-171
+  CN-524[&quot;CN-524&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-15101-1 -.-&gt;|implemented by| CN-524
   AC-15101-2[&quot;AC-15101-2&quot;]
   US-15101 --&gt; AC-15101-2
   AC-15101-2 -.-&gt;|delivered by| FBS-171
+  AC-15101-2 -.-&gt;|implemented by| CN-524
   click REQ-151 &quot;#REQ-151&quot;;
   click US-15101 &quot;#US-15101&quot;;
   click AC-15101-1 &quot;#AC-15101-1&quot;;
   click FBS-171 &quot;#FBS-171&quot;;
+  click CN-524 &quot;#CN-524&quot;;
   click AC-15101-2 &quot;#AC-15101-2&quot;;
   class REQ-151 req;
   class US-15101 us;
   class AC-15101-1 ac;
   class FBS-171 fbs;
+  class CN-524 cn;
   class AC-15101-2 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
@@ -18219,14 +18224,18 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-15201 --&gt; AC-15201-1
   FBS-172[&quot;FBS-172&lt;br/&gt;H-2 queue real concurrency driver: real-accou...&quot;]
   AC-15201-1 -.-&gt;|delivered by| FBS-172
+  CN-525[&quot;CN-525&lt;br/&gt;../../blueprints/messaging-queue-cloudflare/b...&quot;]
+  AC-15201-1 -.-&gt;|implemented by| CN-525
   click REQ-152 &quot;#REQ-152&quot;;
   click US-15201 &quot;#US-15201&quot;;
   click AC-15201-1 &quot;#AC-15201-1&quot;;
   click FBS-172 &quot;#FBS-172&quot;;
+  click CN-525 &quot;#CN-525&quot;;
   class REQ-152 req;
   class US-15201 us;
   class AC-15201-1 ac;
   class FBS-172 fbs;
+  class CN-525 cn;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
@@ -18323,22 +18332,28 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-15301 --&gt; AC-15301-1
   FBS-173[&quot;FBS-173&lt;br/&gt;H-2 tunnel real drivers: connector-healthy ru...&quot;]
   AC-15301-1 -.-&gt;|delivered by| FBS-173
+  CN-526[&quot;CN-526&lt;br/&gt;../../blueprints/edge-cloudflare-tunnel/bluep...&quot;]
+  AC-15301-1 -.-&gt;|implemented by| CN-526
   AC-15301-2[&quot;AC-15301-2&quot;]
   US-15301 --&gt; AC-15301-2
   AC-15301-2 -.-&gt;|delivered by| FBS-173
+  AC-15301-2 -.-&gt;|implemented by| CN-526
   AC-15301-3[&quot;AC-15301-3&quot;]
   US-15301 --&gt; AC-15301-3
   AC-15301-3 -.-&gt;|delivered by| FBS-173
+  AC-15301-3 -.-&gt;|implemented by| CN-526
   click REQ-153 &quot;#REQ-153&quot;;
   click US-15301 &quot;#US-15301&quot;;
   click AC-15301-1 &quot;#AC-15301-1&quot;;
   click FBS-173 &quot;#FBS-173&quot;;
+  click CN-526 &quot;#CN-526&quot;;
   click AC-15301-2 &quot;#AC-15301-2&quot;;
   click AC-15301-3 &quot;#AC-15301-3&quot;;
   class REQ-153 req;
   class US-15301 us;
   class AC-15301-1 ac;
   class FBS-173 fbs;
+  class CN-526 cn;
   class AC-15301-2 ac;
   class AC-15301-3 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
@@ -18502,6 +18517,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   AC-15401-3[&quot;AC-15401-3&quot;]
   US-15401 --&gt; AC-15401-3
   AC-15401-3 -.-&gt;|delivered by| FBS-174
+  CN-524[&quot;CN-524&lt;br/&gt;../../blueprints/platform-cloudflare-durable-...&quot;]
+  AC-15401-3 -.-&gt;|implemented by| CN-524
   click REQ-154 &quot;#REQ-154&quot;;
   click US-15401 &quot;#US-15401&quot;;
   click AC-15401-1 &quot;#AC-15401-1&quot;;
@@ -18511,6 +18528,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click AC-15401-2 &quot;#AC-15401-2&quot;;
   click CN-520 &quot;#CN-520&quot;;
   click AC-15401-3 &quot;#AC-15401-3&quot;;
+  click CN-524 &quot;#CN-524&quot;;
   class REQ-154 req;
   class US-15401 us;
   class AC-15401-1 ac;
@@ -18520,6 +18538,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class AC-15401-2 ac;
   class CN-520 cn;
   class AC-15401-3 ac;
+  class CN-524 cn;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
