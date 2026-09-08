@@ -2,7 +2,7 @@
 //
 // Opens the DO facade against an in-process pair of DO instances
 // (a SingleCellObject wired to the in-memory storage driver and a
-// HubObject wired to a fake state), calls ready(), asserts
+// HubObject wired to an in-process DO state double), calls ready(), asserts
 // namespaceReady fires on the injected sink with a metadata-only
 // payload {event, key, size, ttl, timestamp} and asserts the
 // facade exposes cell(name) and hub(name) handles that return the
@@ -19,7 +19,7 @@ export default async function runProbe() {
   const { SingleCellObject } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/src/do-single-cell.mjs');
   const { HubObject } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/src/do-hub.mjs');
   const { createDoFacadeInProcess } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/src/do-facade.mjs');
-  const { createFakeState } = await import('./probe-utils.mjs');
+  const { createInProcessDoState } = await import('./probe-utils.mjs');
 
   const events = [];
   const eventSink = (rec) => events.push(rec);
@@ -27,7 +27,7 @@ export default async function runProbe() {
   const cellStorage = createInMemoryDoStorage({ backend: 'sql' });
   const hubStorage = createInMemoryDoStorage({ backend: 'sql' });
   const singleCell = new SingleCellObject({ storage: cellStorage, eventSink, name: 'main' });
-  const hub = new HubObject({ state: createFakeState(), storage: hubStorage, eventSink, name: 'lobby' });
+  const hub = new HubObject({ state: createInProcessDoState(), storage: hubStorage, eventSink, name: 'lobby' });
   const facade = createDoFacadeInProcess({ singleCell, hub, eventSink });
 
   const results = [];
