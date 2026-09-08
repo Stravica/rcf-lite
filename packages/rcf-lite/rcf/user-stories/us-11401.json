@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T23:56:35.790Z",
+  "updatedAt": "2026-09-07T23:56:36.205Z",
+  "usId": "US-11401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-114",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 snapshot cadence file present under the manifest set, cadence value elicited (weekly default, daily and off alternatives) matches the schema",
+  "asA": "shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint",
+  "iWant": "the elicited snapshot cadence value on hetzner/servers/name.json to match the shipped enum (weekly, daily, off), with weekly the recommended default per ADR-3802",
+  "soThat": "the operator has a single project-wide answer for how often each server snapshots",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11401-1",
+      "description": "manifest-schema-validate.mjs asserts every fixture manifest carries snapshotCadence with a value in the shipped enum {weekly, daily, off}; a manifest missing the field fails schema validation naming the missing field.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3802-deploy-hetzner-server-manifest-schema"
+  ]
+}

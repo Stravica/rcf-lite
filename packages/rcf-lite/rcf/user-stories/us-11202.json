@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T23:56:34.564Z",
+  "updatedAt": "2026-09-07T23:57:58.489Z",
+  "usId": "US-11202",
+  "prdId": "PRD-001",
+  "reqId": "REQ-112",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 provisioned server is hardened at runtime: root ssh refused, password auth refused, UFW active default-deny, DOCKER-USER present, unattended-upgrades service active",
+  "asA": "shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint on a real Hetzner account",
+  "iWant": "the provisioned server to be hardened at runtime as the rendered cloud-init promised: root ssh refused, password auth refused, UFW active default-deny incoming, DOCKER-USER present, unattended-upgrades service active",
+  "soThat": "the operator can trust the cloud-init contract without ssh-in-and-check for every server",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11202-1",
+      "description": "real-account-cloud-init-hardened.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) waits for cloud-init status --wait on the throwaway server, then ssh-checks the six baseline blocks and asserts each check passes; failure names the missing block. Teardown via destroy.mjs runs regardless.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3803-deploy-hetzner-server-cloud-init-template"
+  ]
+}

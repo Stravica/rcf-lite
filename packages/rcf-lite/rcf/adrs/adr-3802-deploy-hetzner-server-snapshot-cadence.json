@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T23:54:35.461Z",
+  "updatedAt": "2026-09-07T23:55:17.558Z",
+  "adrId": "ADR-3802-deploy-hetzner-server-snapshot-cadence",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Snapshot cadence: weekly default, daily and off alternatives, Hetzner-managed backups elicited (scope global, new topic snapshotAndBackupCadence)",
+  "context": "T-1 repo-chain ADR mirror for the shipped blueprints/deploy-hetzner-server/contributions/adrs/adr-3802-deploy-hetzner-server-snapshot-cadence.json contribution. An applying project needs a discipline for how often the Hetzner Cloud server takes a snapshot and whether Hetzner-managed backups are enabled. Hetzner documents snapshots as manual-fire on-demand and Hetzner-managed backups as a paid subscription at 20 percent of monthly server price per https://docs.hetzner.com/cloud/servers/backups-snapshots/overview. Every cloud host needs one project-wide answer to the snapshotAndBackupCadence topic.",
+  "decision": "The shipped v1.0.0 default is weekly snapshot cadence with the snapshot fired by a scheduled runner in the applying project. Alternatives elicited: daily (higher recovery-point-objective, higher storage) and off (no automatic snapshot). Hetzner-managed backups are an elicited paid opt-in that costs 20 percent of monthly server price per the vendor docs; when opted-in, the scheduled snapshot runner still fires so the two mechanisms compose. The snapshotAndBackupCadence topic scope is global on this blueprint. recommendedDefault: true. Standards trace clause: Hetzner Cloud backups-and-snapshots documented pricing and mechanism per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "Weekly snapshot on a cx23 costs approximately EUR 0.005 per month in extra storage; daily is approximately EUR 0.035; Hetzner-managed backups add approximately EUR 0.80 per month per server at cx23. The scheduled snapshot runner emits hetznerSnapshotTaken with snapshot id and wall-clock time so the observability sink surfaces the cadence."
+}

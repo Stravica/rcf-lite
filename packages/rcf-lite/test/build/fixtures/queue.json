@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 59,
-    "notStarted": 31,
+    "items": 60,
+    "notStarted": 32,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 21,
+    "actionable": 22,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -47,7 +47,8 @@
         "FBS-100",
         "FBS-101",
         "FBS-110",
-        "FBS-120"
+        "FBS-120",
+        "FBS-130"
       ]
     },
     {
@@ -803,6 +804,16 @@
       "buildOrder": 59,
       "tier": 0,
       "title": "T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-130",
+      "buildOrder": 60,
+      "tier": 0,
+      "title": "T-1 deploy-hetzner-server v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 6 Node-only probes; shared hetzner-throwaway-server fixture mint with provision/destroy/sweep-orphans and dry-run mock",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

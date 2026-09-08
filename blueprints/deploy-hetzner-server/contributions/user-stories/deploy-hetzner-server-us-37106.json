@@ -1,0 +1,25 @@
+{
+  "usId": "deploy-hetzner-server-US-37106",
+  "prdId": "PRD-001",
+  "reqId": "deploy-hetzner-server-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Firewall rule shape restricts SSH to nominated prefixes, permits 80/443, denies all else",
+  "asA": "operator running Hetzner servers that face the public internet",
+  "iWant": "the firewall rule set carried in hetzner/servers/name.json to permit 22 only from an operator-nominated set of source-prefix ranges, permit 80 and 443 from any source for the reverse proxy, and deny all other inbound; the provisioner applies the rules at provision time",
+  "soThat": "I inherit a documented least-privilege firewall shape on every server without opening ssh to the world",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-37106-1",
+      "description": "manifest-schema-validate.mjs asserts every fixture manifest carries a firewallRules array matching the shape (22 permitted only from a nonempty list of source-prefix ranges with no 0.0.0.0/0; 80 and 443 permitted from 0.0.0.0/0; no other inbound rule); an induced defect (a manifest that opens 22 to 0.0.0.0/0) FAILS schema validation with a message naming the offending rule.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3802-deploy-hetzner-server-manifest-schema",
+    "TAC-3804-deploy-hetzner-server-firewall-shape"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

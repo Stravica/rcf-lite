@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://stravica.ai/rcf-lite/schemas/hetzner-server.schema.json",
+  "title": "Hetzner Cloud server manifest file",
+  "description": "One server per file under the applying project's hetzner/servers/ directory. Fields track the Hetzner Cloud API server resource shape at https://docs.hetzner.cloud/.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "serverType",
+    "location",
+    "image",
+    "sshKeyIds",
+    "firewallId",
+    "cloudInitPath",
+    "labels",
+    "firewallRules",
+    "snapshotCadence"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Operator-facing stable server name (kebab-case). Used as the Hetzner server name and prefixed onto snapshot names."
+    },
+    "serverType": {
+      "type": "string",
+      "enum": ["cx23", "cx33", "cx43", "cpx11", "cpx21", "cpx31", "cpx41", "cax11", "cax21", "cax31"],
+      "description": "Hetzner Cloud shared-vCPU server type. cx23 is the shipped default per the round-7 spec section 5.1."
+    },
+    "location": {
+      "type": "string",
+      "enum": ["fsn1", "nbg1", "hel1", "ash", "hil"],
+      "description": "Hetzner data centre location. fsn1 is the shipped default per Baz ruling 2026-09-07 09:50Z on the Q2 ratification."
+    },
+    "image": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Hetzner Cloud base image identifier. ubuntu-24.04 is the shipped default."
+    },
+    "sshKeyIds": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Nonempty array of Hetzner ssh-key references. Delegated to security-secrets-management for the actual key material."
+    },
+    "networkId": {
+      "type": ["string", "null"],
+      "description": "Optional Hetzner Cloud private network id. null for no attached private network."
+    },
+    "firewallId": {
+      "type": ["string", "null"],
+      "description": "Existing Hetzner Cloud firewall id to reuse; when null the provisioner creates one from firewallRules."
+    },
+    "cloudInitPath": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Relative path to the rendered cloud-init user-data file. The renderer at src/cloud-init-renderer.mjs consumes contributions/templates/cloud-init.yaml.tmpl and writes the output here."
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "required": [
+        "role",
+        "blueprint"
+      ],
+      "description": "Hetzner tag map. Must include role and blueprint. Under the shared throwaway-server fixture role=rcf-lite-ci-throwaway is required per section 3.3 of the round-7 spec."
+    },
+    "firewallRules": {
+      "type": "array",
+      "minItems": 3,
+      "description": "The rule shape from TAC-3804. Must include an ssh rule (protocol tcp, port 22, direction in, sourceIps nonempty and NOT containing 0.0.0.0/0), an http rule (protocol tcp, port 80, direction in, sourceIps [\"0.0.0.0/0\", \"::/0\"]) and an https rule (protocol tcp, port 443, direction in, sourceIps [\"0.0.0.0/0\", \"::/0\"]).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "protocol", "port", "direction", "sourceIps"],
+        "properties": {
+          "name": { "type": "string", "enum": ["ssh", "http", "https"] },
+          "protocol": { "type": "string", "enum": ["tcp", "udp", "icmp"] },
+          "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+          "direction": { "type": "string", "enum": ["in", "out"] },
+          "sourceIps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "snapshotCadence": {
+      "type": "string",
+      "enum": ["weekly", "daily", "off"],
+      "description": "Snapshot cadence per ADR-3802. weekly is the recommended default."
+    },
+    "hetznerManagedBackups": {
+      "type": "boolean",
+      "description": "Optional paid opt-in for Hetzner-managed backups per ADR-3802 (approximately 20 percent of monthly server price)."
+    }
+  }
+}

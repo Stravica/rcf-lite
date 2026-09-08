@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 68  covered: 68  covered-unresolved: 0  uncovered: 0
+Requirements: 74  covered: 74  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -329,3 +329,12 @@ REQ-102      yes      AC-10201-1  yes         TC-132-real-account-burst-and-429-
 REQ-103      yes      AC-10301-1  yes         TC-133-drift-audit-runner-diff
                       AC-10701-1  yes         TC-136-event-secrecy-pass-and-leak
 REQ-104      yes      AC-10401-1  yes         TC-134-composition-guide-section
+REQ-110      yes      AC-11001-1  yes         TC-140-provisioner-boot-and-sole-reader
+REQ-111      yes      AC-11101-1  yes         TC-140-manifest-schema-shape-valid
+                      AC-11102-1  yes         TC-140-manifest-applies-mocked-provision
+REQ-112      yes      AC-11201-1  yes         TC-140-cloud-init-render-baseline-present
+                      AC-11202-1  yes         TC-140-cloud-init-hardened-account-bound-probe
+REQ-113      yes      AC-11301-1  yes         TC-140-firewall-shape-valid-and-refuses-open-ssh
+REQ-114      yes      AC-11401-1  yes         TC-140-snapshot-cadence-enum
+                      AC-11402-1  yes         TC-140-snapshot-on-demand-account-bound-probe
+REQ-115      yes      AC-11501-1  yes         TC-140-lifecycle-events-metadata-only

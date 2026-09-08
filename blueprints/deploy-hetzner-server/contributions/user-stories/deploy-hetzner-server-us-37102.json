@@ -1,0 +1,24 @@
+{
+  "usId": "deploy-hetzner-server-US-37102",
+  "prdId": "PRD-001",
+  "reqId": "deploy-hetzner-server-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "hetzner/servers/name.json manifests validate against the shipped JSON Schema",
+  "asA": "developer whose project holds Hetzner server declarations in git",
+  "iWant": "every hetzner/servers/name.json file to validate against a shipped draft-07 JSON Schema naming type, location, image, sshKeyIds, firewallId, networkId, cloudInitPath, labels, firewallRules and snapshotCadence",
+  "soThat": "the operator has a stable declarative source of truth and manifest defects surface locally before they reach the API",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-37102-1",
+      "description": "manifest-schema-validate.mjs asserts every hetzner/servers/*.json under the shared throwaway-server fixture validates against blueprints/deploy-hetzner-server/contributions/schemas/hetzner-server.schema.json and carries every required field; a mutation SIMULATE_MANIFEST_INVALID=true replaces location with an unknown token and the probe FAILS naming the offending field.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3802-deploy-hetzner-server-manifest-schema"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

@@ -1435,6 +1435,48 @@ flowchart LR
   REQ-104 --> AC-10401-1
   TC-134-composition-guide-section["TC-134-composition-guide-section"]
   AC-10401-1 -.-> TC-134-composition-guide-section
+  REQ-110["REQ-110"]
+  AC-11001-1["AC-11001-1"]
+  REQ-110 --> AC-11001-1
+  TC-140-provisioner-boot-and-sole-reader["TC-140-provisioner-boot-and-sole-reader"]
+  AC-11001-1 -.-> TC-140-provisioner-boot-and-sole-reader
+  REQ-111["REQ-111"]
+  AC-11101-1["AC-11101-1"]
+  REQ-111 --> AC-11101-1
+  TC-140-manifest-schema-shape-valid["TC-140-manifest-schema-shape-valid"]
+  AC-11101-1 -.-> TC-140-manifest-schema-shape-valid
+  AC-11102-1["AC-11102-1"]
+  REQ-111 --> AC-11102-1
+  TC-140-manifest-applies-mocked-provision["TC-140-manifest-applies-mocked-provision"]
+  AC-11102-1 -.-> TC-140-manifest-applies-mocked-provision
+  REQ-112["REQ-112"]
+  AC-11201-1["AC-11201-1"]
+  REQ-112 --> AC-11201-1
+  TC-140-cloud-init-render-baseline-present["TC-140-cloud-init-render-baseline-present"]
+  AC-11201-1 -.-> TC-140-cloud-init-render-baseline-present
+  AC-11202-1["AC-11202-1"]
+  REQ-112 --> AC-11202-1
+  TC-140-cloud-init-hardened-account-bound-probe["TC-140-cloud-init-hardened-account-bound-probe"]
+  AC-11202-1 -.-> TC-140-cloud-init-hardened-account-bound-probe
+  REQ-113["REQ-113"]
+  AC-11301-1["AC-11301-1"]
+  REQ-113 --> AC-11301-1
+  TC-140-firewall-shape-valid-and-refuses-open-ssh["TC-140-firewall-shape-valid-and-refuses-open-ssh"]
+  AC-11301-1 -.-> TC-140-firewall-shape-valid-and-refuses-open-ssh
+  REQ-114["REQ-114"]
+  AC-11401-1["AC-11401-1"]
+  REQ-114 --> AC-11401-1
+  TC-140-snapshot-cadence-enum["TC-140-snapshot-cadence-enum"]
+  AC-11401-1 -.-> TC-140-snapshot-cadence-enum
+  AC-11402-1["AC-11402-1"]
+  REQ-114 --> AC-11402-1
+  TC-140-snapshot-on-demand-account-bound-probe["TC-140-snapshot-on-demand-account-bound-probe"]
+  AC-11402-1 -.-> TC-140-snapshot-on-demand-account-bound-probe
+  REQ-115["REQ-115"]
+  AC-11501-1["AC-11501-1"]
+  REQ-115 --> AC-11501-1
+  TC-140-lifecycle-events-metadata-only["TC-140-lifecycle-events-metadata-only"]
+  AC-11501-1 -.-> TC-140-lifecycle-events-metadata-only
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2187,6 +2229,30 @@ flowchart LR
   class REQ-104 req;
   class AC-10401-1 ac;
   class TC-134-composition-guide-section tc;
+  class REQ-110 req;
+  class AC-11001-1 ac;
+  class TC-140-provisioner-boot-and-sole-reader tc;
+  class REQ-111 req;
+  class AC-11101-1 ac;
+  class TC-140-manifest-schema-shape-valid tc;
+  class AC-11102-1 ac;
+  class TC-140-manifest-applies-mocked-provision tc;
+  class REQ-112 req;
+  class AC-11201-1 ac;
+  class TC-140-cloud-init-render-baseline-present tc;
+  class AC-11202-1 ac;
+  class TC-140-cloud-init-hardened-account-bound-probe tc;
+  class REQ-113 req;
+  class AC-11301-1 ac;
+  class TC-140-firewall-shape-valid-and-refuses-open-ssh tc;
+  class REQ-114 req;
+  class AC-11401-1 ac;
+  class TC-140-snapshot-cadence-enum tc;
+  class AC-11402-1 ac;
+  class TC-140-snapshot-on-demand-account-bound-probe tc;
+  class REQ-115 req;
+  class AC-11501-1 ac;
+  class TC-140-lifecycle-events-metadata-only tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

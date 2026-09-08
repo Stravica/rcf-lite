@@ -1,0 +1,33 @@
+{
+  "createdAt": "2026-09-07T23:53:25.436Z",
+  "updatedAt": "2026-09-07T23:53:41.809Z",
+  "description": "The firewall rule set lives inside the server manifest and is applied to the server at provision time. Rules: 22 permitted only from an operator-nominated set of source-prefix ranges; 80/443 permitted from anywhere for the reverse proxy; all other inbound traffic denied. Manifest schema validation refuses on a rule set that opens 22 to 0.0.0.0/0 or drops the 80/443 rules. Chain: HQ round-7 T-1 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-1 track of hetzner-round-7-spec-2026-09-07 section 5.1.",
+  "reqId": "REQ-113",
+  "prdId": "PRD-001",
+  "title": "T-1 deploy-hetzner-server v1.0.0 blueprint: firewall shape restricts SSH to operator-nominated prefixes, permits 80/443, denies all else",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "httpApi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T23:53:25.477Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "rest"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      }
+    ]
+  }
+}

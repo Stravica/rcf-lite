@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T23:54:35.833Z",
+  "updatedAt": "2026-09-07T23:55:18.681Z",
+  "adrId": "ADR-3804-deploy-hetzner-server-hardening-baseline",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Hardening baseline: SSH key-only, root disabled, UFW default-deny, DOCKER-USER chain, fail2ban, unattended-upgrades",
+  "context": "T-1 repo-chain ADR mirror for the shipped blueprints/deploy-hetzner-server/contributions/adrs/adr-3804-deploy-hetzner-server-hardening-baseline.json contribution. Every Hetzner server exposed to the public internet needs a minimum hardening set. Cloud-init landing the set at first boot is the operator-friendly shape (declarative, reproducible, in git). The Debian unattended-upgrades wiki documents the auto-update mechanism; the estate baseline at operator/knowledge/systems/environments/hetzner-cloud/overview.md Security posture baseline names the exact block set.",
+  "decision": "The shipped v1.0.0 hardening baseline is the six blocks: SSH key-only (PasswordAuthentication no), root disabled (PermitRootLogin no), UFW default-deny incoming with 22 and 80 and 443 permitted per the manifest firewall shape, DOCKER-USER iptables chain wired to drop non-conforming egress, fail2ban SSH jail, unattended-upgrades on for security updates. The render-lint probe asserts every block appears in the rendered cloud-init YAML; a mutation removes a block and the probe FAILS naming the missing line. recommendedDefault: true. Standards trace clause: Debian unattended-upgrades wiki AND the estate baseline at operator/knowledge/systems/environments/hetzner-cloud/overview.md Security posture baseline per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "The applying project inherits the six-block baseline on every provisioned server. Deviation costs a fresh ADR at the applying project level. The baseline is text plus a rendered template; extension (extra ssh key, extra fail2ban jail) sits on top without rewriting."
+}

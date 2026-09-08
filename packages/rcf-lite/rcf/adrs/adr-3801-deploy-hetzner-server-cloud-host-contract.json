@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T23:54:35.274Z",
+  "updatedAt": "2026-09-07T23:55:16.994Z",
+  "adrId": "ADR-3801-deploy-hetzner-server-cloud-host-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Cloud host contract: Hetzner Cloud VM as the shipped cloudHost shape (scope global, new topic linuxCloudHostContract)",
+  "context": "T-1 repo-chain ADR mirror for the shipped blueprints/deploy-hetzner-server/contributions/adrs/adr-3801-deploy-hetzner-server-cloud-host-contract.json contribution. An applying project needs a first-class Linux VM contract that container-orchestration and edge-ingress consumers can compose on. The Hetzner Cloud API server resource plus cloud-init user-data provides the shipped v1.0.0 shape per https://docs.hetzner.cloud/. Every applied cloud-host needs one project-wide answer to the linuxCloudHostContract topic; a future non-Hetzner sibling (Vultr, DigitalOcean, Fly.io) would conflict on the same topic.",
+  "decision": "The shipped v1.0.0 default is a Hetzner Cloud server as the linuxCloudHostContract provider. The provisioner reads its shape from the applying manifest and creates a matching live server via the hcloud verbs (or the raw Hetzner Cloud API when provisioningTool=raw-api). The linuxCloudHostContract topic scope is global on this blueprint. recommendedDefault: true. Standards trace clause: Hetzner Cloud API server resource and cloud-init user-data contract per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "Consumer blueprints that run on a Linux host (containers, systemd services, tunnel connectors) compose on capabilities: [cloudHost]. Rebuild-from-manifest is always possible: the manifest is the source of truth, the live server is derivative. Drift from the shipped manifest to the live server is out of scope for v1.0.0; a later minor may add a drift-audit runner."
+}

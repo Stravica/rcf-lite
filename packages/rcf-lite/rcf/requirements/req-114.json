@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-07T23:53:25.669Z",
+  "updatedAt": "2026-09-07T23:53:41.996Z",
+  "description": "The applying project elicits a snapshot cadence per ADR-3802 (default weekly, alternatives daily and off). When non-off, the scheduled snapshot runner fires the hcloud snapshot verb and tags the snapshot with server name and wall-clock time; a snapshot-on-demand verb fires the same shape. The hetznerSnapshotTaken event carries snapshot id and wall-clock time. Chain: HQ round-7 T-1 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-1 track of hetzner-round-7-spec-2026-09-07 section 5.1.",
+  "reqId": "REQ-114",
+  "prdId": "PRD-001",
+  "title": "T-1 deploy-hetzner-server v1.0.0 blueprint: snapshot cadence elicited (weekly default, daily and off alternatives), snapshot-on-demand fires a tagged snapshot",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-07T23:53:25.710Z"
+  }
+}

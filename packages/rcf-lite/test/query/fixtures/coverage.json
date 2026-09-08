@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 68,
-    "covered": 68,
+    "requirements": 74,
+    "covered": 74,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -3119,6 +3119,120 @@
           "covered": true,
           "testCases": [
             "TC-134-composition-guide-section"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-110",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-11001-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-provisioner-boot-and-sole-reader"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-111",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-11101-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-manifest-schema-shape-valid"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-11102-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-manifest-applies-mocked-provision"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-112",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-11201-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-cloud-init-render-baseline-present"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-11202-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-cloud-init-hardened-account-bound-probe"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-113",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-11301-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-firewall-shape-valid-and-refuses-open-ssh"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-114",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-11401-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-snapshot-cadence-enum"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-11402-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-snapshot-on-demand-account-bound-probe"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-115",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-11501-1",
+          "covered": true,
+          "testCases": [
+            "TC-140-lifecycle-events-metadata-only"
           ],
           "unresolvedTestCases": []
         }

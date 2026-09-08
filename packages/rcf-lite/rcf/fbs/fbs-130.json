@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T23:59:15.656Z",
+  "updatedAt": "2026-09-07T23:59:15.844Z",
+  "acIds": [
+    "AC-11001-1",
+    "AC-11101-1",
+    "AC-11102-1",
+    "AC-11201-1",
+    "AC-11202-1",
+    "AC-11301-1",
+    "AC-11401-1",
+    "AC-11402-1",
+    "AC-11501-1"
+  ],
+  "fbsId": "FBS-130",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 60,
+  "executionStatus": "notStarted",
+  "title": "T-1 deploy-hetzner-server v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 6 Node-only probes; shared hetzner-throwaway-server fixture mint with provision/destroy/sweep-orphans and dry-run mock",
+  "summary": "HQ round-7 T-1: deploy-hetzner-server v1.0.0 blueprint on the shelf under blueprints/deploy-hetzner-server/ (23 contributions: 6 REQs, 9 USs, 4 TACs, 4 ADRs; inventory per hetzner-round-7-spec-2026-09-07 section 5.1). Mints the shared throwaway-Hetzner-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ (provision.mjs, destroy.mjs, sweep-orphans.mjs, hcloud-mock shim, cloud-init renderer, provisioner-facade proto, hetzner/servers/ci-throwaway.json manifest, README) that T-2 and T-3 will extend. Six Node-only probes under blueprints/deploy-hetzner-server/contributions/probes/: cloud-init-render-lint (AC-11201-1; SIMULATE_HARDENING_DRIFT mutation), manifest-schema-validate (AC-11101-1, AC-11301-1, AC-11401-1; SIMULATE_MANIFEST_INVALID mutation), hcloud-dry-run-mock (AC-11001-1, AC-11501-1; JSON-parser-strip mutation plus event-secrecy leak mutation), real-account-throwaway-server-provision (AC-11102-1; accountBound), real-account-cloud-init-hardened (AC-11202-1; accountBound), real-account-snapshot-on-demand (AC-11402-1; accountBound). Blueprint README, guide, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep adding the deploy-hetzner-server row across every prior blueprint; section 6a cloudHost row on packages/rcf-lite/docs/blueprint-authoring.md. New global topics minted: linuxCloudHostContract, snapshotAndBackupCadence. Repo chain: REQ-110..115, US-11001, 11101, 11102, 11201, 11202, 11301, 11401, 11402, 11501, TS-140 with nine TCs, FBS-130, CN-410, TAC-3801..3804, ADR-3801..3804 minted via rcf define create --id per HQ round-7 T-1 reserved-block ruling (REQ-110..119 / TS-140..149 / FBS-130..139 / CN-410..439). Base commit origin/main 150d9c6.",
+  "dependsOnFbsIds": []
+}

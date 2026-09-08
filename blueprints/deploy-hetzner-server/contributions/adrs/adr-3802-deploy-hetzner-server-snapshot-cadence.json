@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3802-deploy-hetzner-server-snapshot-cadence",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Snapshot cadence: weekly default, daily and off alternatives, Hetzner-managed backups elicited (scope global, new topic snapshotAndBackupCadence)",
+  "context": "An applying project needs a discipline for how often the Hetzner Cloud server takes a snapshot and whether Hetzner-managed backups are enabled. Hetzner documents snapshots as manual on-demand actions kept on cloud storage, and Hetzner-managed backups as a paid subscription at approximately 20 percent of monthly server price per https://docs.hetzner.com/cloud/servers/backups-snapshots/overview. Every cloud host needs one project-wide answer to the snapshotAndBackupCadence topic; a future sibling snapshot mechanism would contribute the same topic string with a different answer and force a DELIBERATE conflict.",
+  "decision": "The shipped v1.0.0 default is weekly snapshot cadence fired by a scheduled snapshot runner in the applying project. Alternatives elicited: daily (higher recovery-point objective, higher storage cost) and off (no automatic snapshot). Hetzner-managed backups are an elicited paid opt-in (approximately 20 percent monthly per the vendor docs); when opted-in, the scheduled snapshot runner still fires so the two mechanisms compose. The snapshotAndBackupCadence topic scope is global on this blueprint. recommendedDefault: true. Standards trace clause: Hetzner Cloud backups-and-snapshots documented pricing and mechanism per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "Weekly snapshot on a cx23 costs approximately EUR 0.005 per month in extra storage; daily is approximately EUR 0.035; Hetzner-managed backups add approximately EUR 0.80 per month on a cx23. The scheduled snapshot runner emits hetznerSnapshotTaken with snapshot id and wall-clock time so the observability sink surfaces the cadence.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Hetzner server manifest schema",
+  "purpose": "One draft-07 JSON Schema declaring the shape of hetzner/servers/name.json in the applying project. Names required fields (name, serverType, location, image, sshKeyIds, firewallId, cloudInitPath, labels, firewallRules, snapshotCadence) and enforces enums (location, serverType, snapshotCadence) and rule-shape invariants (see TAC-3804). Manifest-schema-validate.mjs uses the schema to accept or refuse every fixture manifest.",
+  "responsibilities": [
+    "Ship a draft-07 JSON Schema for the hetzner-server manifest at contributions/schemas/hetzner-server.schema.json (AC-37102-1).",
+    "Refuse on missing required fields with an error message that names the offending field (AC-37102-1).",
+    "Refuse on firewall-rule-shape violations (22 opened to 0.0.0.0/0, or 80/443 missing) with an error message that names the offending rule (AC-37106-1).",
+    "Enforce snapshotCadence enum {weekly, daily, off} and refuse otherwise (AC-37107-1)."
+  ],
+  "internalStructure": "One JSON Schema file at blueprints/deploy-hetzner-server/contributions/schemas/hetzner-server.schema.json; one shipped example manifest under the shared throwaway-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/hetzner/servers/ci-throwaway.json.",
+  "interfaces": [
+    {
+      "name": "hetzner-server.schema.json",
+      "kind": "jsonSchema",
+      "summary": "draft-07 JSON Schema for the Hetzner server manifest."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

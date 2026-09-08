@@ -1,0 +1,40 @@
+{
+  "name": "rcf-lite-ci-throwaway",
+  "serverType": "cx23",
+  "location": "fsn1",
+  "image": "ubuntu-24.04",
+  "sshKeyIds": ["rcf-lite-ci"],
+  "networkId": null,
+  "firewallId": null,
+  "cloudInitPath": "hetzner/servers/rendered/ci-throwaway.cloud-init.yaml",
+  "labels": {
+    "role": "rcf-lite-ci-throwaway",
+    "blueprint": "deploy-hetzner-server",
+    "run": "local"
+  },
+  "firewallRules": [
+    {
+      "name": "ssh",
+      "protocol": "tcp",
+      "port": 22,
+      "direction": "in",
+      "sourceIps": ["203.0.113.0/24"]
+    },
+    {
+      "name": "http",
+      "protocol": "tcp",
+      "port": 80,
+      "direction": "in",
+      "sourceIps": ["0.0.0.0/0", "::/0"]
+    },
+    {
+      "name": "https",
+      "protocol": "tcp",
+      "port": 443,
+      "direction": "in",
+      "sourceIps": ["0.0.0.0/0", "::/0"]
+    }
+  ],
+  "snapshotCadence": "weekly",
+  "hetznerManagedBackups": false
+}

@@ -1,0 +1,27 @@
+{
+  "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Deploy-hetzner-server provisioner facade",
+  "purpose": "The single project-side module that dereferences HETZNER_ACCOUNT_API_KEY, wraps typed Hetzner Cloud verbs (createServer, applyFirewall, takeSnapshot, listSnapshots, destroyServer), and emits four lifecycle events to the injected event sink. Under provisioningTool=hcloud the module shells to hcloud CLI with --output json; under raw-api it fetches the equivalent Hetzner Cloud REST endpoints. Consumers never dereference the token; the facade is the one place vendor credentials live.",
+  "responsibilities": [
+    "Open the facade on boot via a bounded ready-check; be the ONLY module that reads the HETZNER_ACCOUNT_API_KEY value, and export no symbol that leaks it (AC-37101-1).",
+    "Expose typed verbs createServer, applyFirewall, takeSnapshot, listSnapshots and destroyServer as returned methods on the factory result; refuse a raw-token passthrough on the public surface (AC-37101-1, AC-37103-1, AC-37108-1).",
+    "Emit provisionerReady, hetznerServerProvisioned, hetznerSnapshotTaken and hetznerServerDestroyed on the injected event sink; every payload is metadata-only per REQ-006 (AC-37101-1, AC-37103-1, AC-37108-1, AC-37109-1).",
+    "Shell path (hcloud): call hcloud <verb> --output json, JSON.parse the stdout, project the documented fields (id, primaryIpv4, location, serverType, snapshotId) into the returned record (AC-37103-1, AC-37108-1).",
+    "Raw-api path: fetch the documented REST endpoints (POST /servers, POST /firewalls, POST /servers/{id}/actions/create_image, DELETE /servers/{id}) with the token in Authorization: Bearer and project the same records (AC-37103-1)."
+  ],
+  "internalStructure": "One module exporting createProvisionerFacade({ token, tool, apiHost, eventSink, hcloudPath?, fetch? }) returning a ProvisionerFacade whose methods are the typed verbs. The token capture lives at the top of the factory; the shell path passes the token via HCLOUD_TOKEN in the child environment (never on the argv); the raw-api path passes it in the Authorization header. Consumers call the returned methods for the process lifetime; the raw token never crosses the module boundary again.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "factory",
+      "summary": "Provisioner facade factory exported from the applied fixture module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

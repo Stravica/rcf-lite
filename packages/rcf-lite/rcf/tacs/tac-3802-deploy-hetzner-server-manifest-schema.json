@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-07T23:53:57.022Z",
+  "updatedAt": "2026-09-07T23:57:58.866Z",
+  "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "T-1 repo-chain TAC mirror for the shipped blueprints/deploy-hetzner-server/contributions/tacs/tac-3802-deploy-hetzner-server-manifest-schema.json contribution. Defines the JSON Schema shape for the Hetzner server manifest under hetzner/servers/<name>.json: type, location, image, sshKeyIds, firewallId, networkId, cloudInitPath, labels, snapshotCadence. Anchors AC-11101-1 and AC-11102-1 (repo chain).",
+  "responsibilities": [
+    "Ship a draft-07 JSON Schema for the hetzner-server manifest (AC-11101-1, AC-11301-1, AC-11401-1).",
+    "Refuse on required-field violations (missing type, location, image, sshKeyIds, firewallId, cloudInitPath, labels or snapshotCadence).",
+    "Refuse on firewall-rule-shape violations (22 opened to 0.0.0.0/0, or 80/443 missing) (AC-11301-1)."
+  ],
+  "name": "deploy-hetzner-server server manifest schema and file layout at hetzner/servers/*.json",
+  "internalStructure": "One draft-07 JSON Schema at blueprints/deploy-hetzner-server/contributions/schemas/hetzner-server.schema.json and one shipped example manifest under the shared throwaway-server fixture (packages/rcf-lite/test/fixtures/hetzner-throwaway-server/hetzner/servers/ci-throwaway.json)."
+}

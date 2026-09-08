@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3801-deploy-hetzner-server-cloud-host-contract",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Cloud host contract: Hetzner Cloud VM as the shipped cloudHost shape (scope global, new topic linuxCloudHostContract)",
+  "context": "An applying project needs a first-class Linux VM contract that container-orchestration and edge-ingress consumers (round-7 T-2 platform-docker-compose-host, T-3 edge-cloudflare-tunnel) can compose on. Hetzner Cloud servers plus cloud-init user-data provide the v1.0.0 shape per https://docs.hetzner.cloud/ and https://docs.hetzner.com/cloud/servers/overview. Every applied cloud host needs one project-wide answer to the linuxCloudHostContract topic; a future non-Hetzner sibling (Vultr, DigitalOcean, Fly.io) would contribute the same topic string with a different provider, forcing a DELIBERATE conflict the operator resolves per the round-2 conflict pattern.",
+  "decision": "The shipped v1.0.0 default is a Hetzner Cloud server as the linuxCloudHostContract provider. The provisioner reads its shape from the applying manifest at hetzner/servers/name.json (TAC-3802) and creates a matching live server via hcloud CLI verbs (ADR-3803) or the raw Hetzner Cloud API. The linuxCloudHostContract topic scope is global on this blueprint; the topic string is linuxCloudHostContract (lower camelCase, one concept per topic, no version suffix, per the round-2 rules-for-new-topics clause on the shelf registry). Standards trace clause: Hetzner Cloud API server resource and cloud-init user-data contract per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "Consumer blueprints that run on a Linux host declare capabilities: [cloudHost] on their applied contract; the round-7 T-2 platform-docker-compose-host reads this capability at apply-time. Rebuild-from-manifest is always possible: the manifest is the source of truth, the live server is derivative. Drift from the shipped manifest to the live server is out of scope for v1.0.0; a later minor may add a drift-audit runner.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

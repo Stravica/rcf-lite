@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-07T23:54:35.647Z",
+  "updatedAt": "2026-09-07T23:55:18.120Z",
+  "adrId": "ADR-3803-deploy-hetzner-server-provisioning-tool",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Provisioning tool: hcloud CLI default, raw Hetzner Cloud API alternative, Terraform rejected",
+  "context": "T-1 repo-chain ADR mirror for the shipped blueprints/deploy-hetzner-server/contributions/adrs/adr-3803-deploy-hetzner-server-provisioning-tool.json contribution. An applying project needs a documented answer to how the provisioner shells out to Hetzner Cloud. Options considered: hcloud CLI (small, self-documenting, JSON output), raw Hetzner Cloud REST API (no CLI dependency, useful when the target host cannot install a binary), Terraform (declarative, adds a second toolchain and a state file). Baz ruling 2026-09-07 09:50Z on decision 18: hcloud not Terraform.",
+  "decision": "The shipped v1.0.0 default is the hcloud CLI as the provisioning tool. Alternative elicited: raw-api (the provisioner fetches the Hetzner Cloud REST API directly). Terraform is a rejected alternative: adds a second toolchain and a state file, neither of which matches the shelf shape (see section 9 of hetzner-round-7-spec-2026-09-07.md). elicited: true. recommendedDefault: hcloud. Standards trace clause: Hetzner Cloud CLI documented resource verbs per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "The applying project installs the hcloud binary on the operator laptop and any CI runner that provisions. The raw-api fork is behind the same provisioner facade so no consumer code diverges. The provisioner-facade sole-reader guarantee holds on both paths."
+}

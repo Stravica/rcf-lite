@@ -1,0 +1,24 @@
+{
+  "usId": "deploy-hetzner-server-US-37101",
+  "prdId": "PRD-001",
+  "reqId": "deploy-hetzner-server-REQ-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The provisioner opens on boot as the sole token reader and emits provisionerReady",
+  "asA": "developer whose project provisions a Hetzner Cloud VM as its cloudHost",
+  "iWant": "one provisioner facade module to be the sole reader of HETZNER_ACCOUNT_API_KEY and to emit provisionerReady on boot with a metadata-only payload",
+  "soThat": "the token has one auditable seam and the observability sink surfaces boot ordering without ever carrying the secret",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-37101-1",
+      "description": "On process boot the provisioner facade opens against the token, and (a) only the provisioner module reads HETZNER_ACCOUNT_API_KEY (grep across the fixture source refuses any other reader), (b) provisionerReady fires on the injected event sink with a payload of exactly {tool, apiHost}.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3801-deploy-hetzner-server-provisioner"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

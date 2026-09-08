@@ -5,6 +5,7 @@ This file is the edge-cloudflare-rate-limiting half of the cross-blueprint contr
 ## Global ADR topics this blueprint contributes (exact strings)
 
 | Topic string | edge-cloudflare-rate-limiting contribution | Origin | Composition note |
+| deploy-hetzner-server | 37101-37899 | 38xx | shipped v1.0.0 | `linuxCloudHostContract`, `snapshotAndBackupCadence` |
 |---|---|---|---|
 | `edgeThrottleContract` | ADR-3701-edge-cloudflare-rate-limiting-throttle-contract | Minted by this blueprint. Names the wire-shape contract for the project-wide edge throttle; the shipped answer is Cloudflare WAF rate-limiting rules per `https://developers.cloudflare.com/waf/rate-limiting-rules/`. | The one project-wide decision on the edge throttle at the shipped-shape boundary. A future non-Cloudflare sibling (Fastly rate-limits, Vercel Edge Config throttles) would contribute the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR. |
 

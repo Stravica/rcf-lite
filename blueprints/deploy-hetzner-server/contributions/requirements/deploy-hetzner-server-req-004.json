@@ -1,0 +1,18 @@
+{
+  "reqId": "deploy-hetzner-server-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Firewall shape: 22 from operator-nominated prefixes, 80/443 open, all other inbound denied, applied at provision time",
+  "description": "Every hetzner/servers/name.json manifest carries a firewallRules array with the three-rule minimum shape: (a) an ssh rule permitting inbound TCP on 22 from a nonempty list of source-prefix ranges (the operator-nominated set; the schema refuses on 0.0.0.0/0 in this list), (b) an http rule permitting inbound TCP on 80 from any source, (c) an https rule permitting inbound TCP on 443 from any source, (d) an implicit deny for every other inbound rule. The provisioner applies the rule set to the server at provision time via hcloud firewall create (or reuse) plus hcloud firewall apply-to-resource. A raw-api provisioner posts the equivalent create-firewall and apply-to-resources bodies per https://docs.hetzner.cloud/#firewalls. Manifest schema validation refuses on any rule-set shape that violates (a) through (c).",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Hetzner round 7 spec (2026-09-07 section 5.1 REQ-004).",
+  "tags": [
+    "blueprint:deploy-hetzner-server",
+    "capability:cloudHost"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

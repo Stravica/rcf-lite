@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-07T23:55:32.229Z",
+  "updatedAt": "2026-09-07T23:55:46.775Z",
+  "usId": "US-11001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-110",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-1 provisioner opens on boot with sole HETZNER_ACCOUNT_API_KEY reader and emits provisionerReady with metadata-only payload",
+  "asA": "shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint on a Node project that provisions a Hetzner Cloud VM",
+  "iWant": "the provisioner facade to be the sole reader of the Hetzner API token (via security-secrets-management) and to fire provisionerReady with a metadata-only payload when it opens on boot",
+  "soThat": "the applying project has one auditable seam for the token and the observability sink surfaces the ready event without a secret",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11001-1",
+      "description": "On boot of the shared throwaway-Hetzner-server fixture the provisioner facade opens, and (a) only the provisioner module reads HETZNER_ACCOUNT_API_KEY (grep across the fixture source refuses any other reader), (b) the facade emits a provisionerReady event whose payload carries tool and apiHost only (no token, no ssh key, no user data body).",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3801-deploy-hetzner-server-provisioner"
+  ]
+}

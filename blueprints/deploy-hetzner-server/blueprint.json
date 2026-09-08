@@ -1,0 +1,233 @@
+{
+  "slug": "deploy-hetzner-server",
+  "version": "1.0.0",
+  "category": "deploy",
+  "capabilities": [
+    "cloudHost"
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every provisioner lifecycle event (provisionerReady, hetznerServerProvisioned, hetznerSnapshotTaken, hetznerServerDestroyed) writes through the applied logger; a logging companion supplies the factory."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "An hcloud CLI non-zero exit, a rate-limited API call, a firewall-apply failure, a cloud-init timeout constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "provisioning-tool",
+      "prompt": "Provisioning tool for Hetzner Cloud verbs: hcloud (default per ADR-3803, small self-documenting CLI with --output json) or raw-api (the provisioner fetches the Hetzner Cloud REST API directly, useful when the CI runner cannot install the binary).",
+      "kind": "enum",
+      "options": [
+        "hcloud",
+        "raw-api"
+      ],
+      "default": "hcloud"
+    },
+    {
+      "id": "server-type",
+      "prompt": "Hetzner Cloud shared-vCPU server type. cx23 is the cheapest shipped default; cx33 has more RAM and vCPU for a small compose stack.",
+      "kind": "enum",
+      "options": [
+        "cx23",
+        "cx33",
+        "cx43",
+        "cpx11",
+        "cpx21",
+        "cpx31",
+        "cpx41",
+        "cax11",
+        "cax21",
+        "cax31"
+      ],
+      "default": "cx23"
+    },
+    {
+      "id": "location",
+      "prompt": "Hetzner data centre. fsn1 (Falkenstein) is the shipped default per Baz ruling 2026-09-07 09:50Z on the Q2 ratification.",
+      "kind": "enum",
+      "options": [
+        "fsn1",
+        "nbg1",
+        "hel1",
+        "ash",
+        "hil"
+      ],
+      "default": "fsn1"
+    },
+    {
+      "id": "image",
+      "prompt": "Base image. ubuntu-24.04 is the shipped default; the six-block hardening baseline in the cloud-init template targets Debian and Ubuntu shapes.",
+      "kind": "string",
+      "default": "ubuntu-24.04"
+    },
+    {
+      "id": "ssh-source-prefixes",
+      "prompt": "Comma-separated CIDR list permitted on port 22 (operator-nominated set; the manifest schema refuses on 0.0.0.0/0). Populates firewallRules[ssh].sourceIps per TAC-3804.",
+      "kind": "string",
+      "default": "203.0.113.0/24"
+    },
+    {
+      "id": "firewall-id",
+      "prompt": "Reuse an existing Hetzner Cloud firewall id, or leave empty to have the provisioner create one from firewallRules.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "snapshot-cadence",
+      "prompt": "Snapshot cadence per ADR-3802. weekly is the recommended default; daily has higher recovery-point objective and cost; off skips the scheduled snapshot runner.",
+      "kind": "enum",
+      "options": [
+        "weekly",
+        "daily",
+        "off"
+      ],
+      "default": "weekly"
+    },
+    {
+      "id": "hetzner-managed-backups",
+      "prompt": "Opt-in to Hetzner-managed backups (paid, approximately 20 percent of monthly server price per ADR-3802).",
+      "kind": "enum",
+      "options": [
+        "true",
+        "false"
+      ],
+      "default": "false"
+    }
+  ],
+  "contributions": [
+    {
+      "id": "deploy-hetzner-server-REQ-001",
+      "kind": "req",
+      "path": "requirements/deploy-hetzner-server-req-001.json"
+    },
+    {
+      "id": "deploy-hetzner-server-REQ-002",
+      "kind": "req",
+      "path": "requirements/deploy-hetzner-server-req-002.json"
+    },
+    {
+      "id": "deploy-hetzner-server-REQ-003",
+      "kind": "req",
+      "path": "requirements/deploy-hetzner-server-req-003.json"
+    },
+    {
+      "id": "deploy-hetzner-server-REQ-004",
+      "kind": "req",
+      "path": "requirements/deploy-hetzner-server-req-004.json"
+    },
+    {
+      "id": "deploy-hetzner-server-REQ-005",
+      "kind": "req",
+      "path": "requirements/deploy-hetzner-server-req-005.json"
+    },
+    {
+      "id": "deploy-hetzner-server-REQ-006",
+      "kind": "req",
+      "path": "requirements/deploy-hetzner-server-req-006.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37101",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37101.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37102",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37102.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37103",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37103.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37104",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37104.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37105",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37105.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37106",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37106.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37107",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37107.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37108",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37108.json"
+    },
+    {
+      "id": "deploy-hetzner-server-US-37109",
+      "kind": "us",
+      "path": "user-stories/deploy-hetzner-server-us-37109.json"
+    },
+    {
+      "id": "TAC-3801-deploy-hetzner-server-provisioner",
+      "kind": "tac",
+      "path": "tacs/tac-3801-deploy-hetzner-server-provisioner.json"
+    },
+    {
+      "id": "TAC-3802-deploy-hetzner-server-manifest-schema",
+      "kind": "tac",
+      "path": "tacs/tac-3802-deploy-hetzner-server-manifest-schema.json"
+    },
+    {
+      "id": "TAC-3803-deploy-hetzner-server-cloud-init-template",
+      "kind": "tac",
+      "path": "tacs/tac-3803-deploy-hetzner-server-cloud-init-template.json"
+    },
+    {
+      "id": "TAC-3804-deploy-hetzner-server-firewall-shape",
+      "kind": "tac",
+      "path": "tacs/tac-3804-deploy-hetzner-server-firewall-shape.json"
+    },
+    {
+      "id": "ADR-3801-deploy-hetzner-server-cloud-host-contract",
+      "kind": "adr",
+      "path": "adrs/adr-3801-deploy-hetzner-server-cloud-host-contract.json",
+      "scope": "global",
+      "topic": "linuxCloudHostContract",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Hetzner Cloud API server resource and cloud-init user-data contract per hetzner-round-7-spec-2026-09-07.md"
+    },
+    {
+      "id": "ADR-3802-deploy-hetzner-server-snapshot-cadence",
+      "kind": "adr",
+      "path": "adrs/adr-3802-deploy-hetzner-server-snapshot-cadence.json",
+      "scope": "global",
+      "topic": "snapshotAndBackupCadence",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Hetzner Cloud backups-and-snapshots documented pricing and mechanism per hetzner-round-7-spec-2026-09-07.md"
+    },
+    {
+      "id": "ADR-3803-deploy-hetzner-server-provisioning-tool",
+      "kind": "adr",
+      "path": "adrs/adr-3803-deploy-hetzner-server-provisioning-tool.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Hetzner Cloud CLI documented resource verbs per hetzner-round-7-spec-2026-09-07.md"
+    },
+    {
+      "id": "ADR-3804-deploy-hetzner-server-hardening-baseline",
+      "kind": "adr",
+      "path": "adrs/adr-3804-deploy-hetzner-server-hardening-baseline.json",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Debian unattended-upgrades wiki AND the estate baseline at operator/knowledge/systems/environments/hetzner-cloud/overview.md Security posture baseline per hetzner-round-7-spec-2026-09-07.md"
+    }
+  ]
+}
