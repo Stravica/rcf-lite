@@ -191,10 +191,10 @@ test('real-account eventual-consistency smoke records accountBoundSkipped withou
 
 // Shelf-shape cross-check.
 
-test('blueprint.json declares 19 contributions with v1.0.0, capability keyValueStore and standardsTraceClause on every ADR contribution', async () => {
+test('blueprint.json declares 19 contributions with v1.0.1, capability keyValueStore and standardsTraceClause on every ADR contribution', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'platform-cloudflare-kv');
-  assert.equal(doc.version, '1.0.0');
+  assert.equal(doc.version, '1.0.1');
   assert.equal(doc.category, 'platform');
   assert.deepEqual(doc.capabilities, ['keyValueStore']);
   assert.equal(doc.contributions.length, 19);

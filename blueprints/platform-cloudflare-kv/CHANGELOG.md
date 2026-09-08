@@ -2,6 +2,26 @@
 
 All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.0.1 (2026-09-08)
+
+H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch across the four Cloudflare-platform blueprints. No capability change.
+
+### Changed
+
+- Re-anchored all five KV probes and the README from the defunct `AC-5xxx` id space to the shipped `AC-31xxx` band (nine shipped ACs: `AC-31101-1`, `AC-31102-1`, `AC-31103-1`, `AC-31103-2`, `AC-31104-1`, `AC-31105-1`, `AC-31106-1`, `AC-31107-1`, `AC-31108-1`). Every one of the nine now has a runtime observable through a re-anchored probe. Anatomy-test assertions in `packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js` moved with the re-anchor. Dispatch addendum ruling 1.
+- Moved the `SIMULATE_CACHE_MISS` mutation switch out of `cache-aside-hit-then-miss.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-cache-aside-shim.mjs`; the probe body holds zero `SIMULATE_` token references (`AC-15401-1` mutation-purity rule).
+- Moved the `SIMULATE_PII_LEAK` mutation switch out of `event-secrecy.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-event-secrecy-shim.mjs`; the probe body holds zero `SIMULATE_` token references.
+- Reworded the "fake clock" comment on `cache-aside-hit-then-miss.mjs` header to name the local test double honestly ("elicited deterministic clock the fixture advances").
+- Reworded the "cannot yet gate" wording in the `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) sections to name the loader-capability uplift as follow-up work item `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability change, out of H-2's 0.25.x patch scope per Dave ruling 1).
+
+### Fixed
+
+- Removed the committed fail envelope at `.rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json`; committed a shipped-code pass envelope in its place. Regenerated the other KV envelopes so committed envelopes reflect the re-anchored shipped-code runs.
+
+### Chain slice
+
+- Train chain slice minted inside the reserved H-2 block: `REQ-150..154`, `US-15001..15401`, twelve `AC-15xxx` ACs, `TS-180..184` with eleven TCs, `FBS-170..174`, `CN-520..529` (seven used, three reserved). Full mint transcript in the H-2 PR provenance.
+
 ## 1.0.0 (2026-09-07)
 
 ### Added
@@ -18,4 +38,4 @@ All notable changes to `platform-cloudflare-kv` are recorded here. The shape fol
 
 - The `real-account-eventual-consistency-smoke` probe records `accountBoundSkipped: true` and aggregates to `pass` when `CI_HAS_CLOUDFLARE_ACCOUNT` is unset (spec section 3.5 pass-with-skip). Full mechanism reach requires a CI environment with the paired `CF_ACCOUNT_ID`, `CF_KV_NAMESPACE_ID` and `CF_API_TOKEN` env vars.
 - The four local probes drive an in-memory KV driver whose shape matches the Workers KV binding at the facade boundary. Vendor surface changes beyond that boundary (a new list cursor format, a header-only limit) are not caught by the local probes; the real-account smoke is the mechanism-reach closure for that gap.
-- The loader's supported `when` block on `elicits[]` only accepts `requiresCapability` arrays, so the elicited `kv-metadata-field-pattern` cannot yet gate on an `elicitedNonEmpty` predicate for `kv-binding-name`. A future loader minor extending `validateElicits` would close that gap; the elicit fires unconditionally today and the guide teaches the pattern.
+- The loader's supported `when` block on `elicits[]` currently accepts only `requiresCapability` arrays, so the elicited `kv-metadata-field-pattern` fires unconditionally rather than gating on an `elicitedNonEmpty` predicate for `kv-binding-name`. The elicit fires unconditionally today and the guide teaches the pattern; a loader-capability uplift extending `validateElicits` to accept an `elicitedNonEmpty` predicate is captured as follow-up work item `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability change, out of H-2's 0.25.x patch scope per Dave ruling 1).

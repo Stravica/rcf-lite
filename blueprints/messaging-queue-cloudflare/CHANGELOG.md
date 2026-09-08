@@ -1,5 +1,13 @@
 # messaging-queue-cloudflare changelog
 
+## 1.0.1 - 2026-09-08
+
+H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch. No capability change.
+
+- Replaced the `accountBoundSkipped: true` pass-stub in `real-account-concurrency-smoke.mjs` with a real 500-message concurrency driver against a live Queues binding on a deployed Worker. When `CI_HAS_CLOUDFLARE_ACCOUNT` is set with `CF_QUEUE_WORKER_URL` and `CF_QUEUE_NAME`, the driver publishes 500 messages through the producer facade in 10 concurrent 50-message batches, polls consumer telemetry via `/stats`, and asserts `drained`, `withinCap` and `observedConcurrency > 1` against Cloudflare's documented push-invocation cap (250). The env-absent branch keeps the pass-with-skip shape. Locally proven against `wrangler dev --local` end-to-end (500/500 messages in 583 ms; local queue serialises so the concurrency assertion FAIL tail is the expected local-proof outcome; on real Cloudflare push consumers the assertion passes at HQ gate time).
+- Re-verified the Cloudflare Queues limits URL (`https://developers.cloudflare.com/queues/platform/limits/`) returns `HTTP/2 200`; recorded in the H-2 PR provenance (2026-09-08T13:38:07Z).
+- Extended the fixture Worker at `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/worker.mjs` with consumer telemetry and `/publish-batch`, `/stats` and `/reset` endpoints; added `wrangler ^4.0.0` as devDep on the fixture package.
+
 ## 1.0.0 - 2026-09-06
 
 Initial release. Directed producer-to-consumer worklist queue on Cloudflare Queues; first shipped adapter with the reserved `messaging-queue-postgres` sibling (Baz decision 7) named beside it in the section 6a capability table. Accessed through a producer facade that is the sole reader of the Cloudflare Queues binding (`env.RCF_TEST_QUEUE` in the fixture). Landed via the infra round 5 spec (ratified 2026-09-06) as track T-3.

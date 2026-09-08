@@ -118,11 +118,15 @@ env vars.
   the aggregate flips to `pass` with `accountBoundSkipped: true` per
   spec section 3.5. Full mechanism reach requires a CI environment
   with the paired env vars set.
-- The elicited `kv-metadata-field-pattern` cannot yet gate on an
-  `elicitedNonEmpty` predicate for `kv-binding-name`; the loader's
-  `validateElicits` accepts only `requiresCapability` on the `when`
-  block. The elicit fires unconditionally and the guide teaches the
-  pattern.
+- The elicited `kv-metadata-field-pattern` fires unconditionally
+  rather than gating on an `elicitedNonEmpty` predicate for
+  `kv-binding-name`; the loader's `validateElicits` accepts only
+  `requiresCapability` on the `when` block today. The guide teaches
+  the pattern; a loader-capability uplift extending
+  `validateElicits` to accept an `elicitedNonEmpty` predicate is
+  captured as follow-up work item
+  `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability
+  change, out of H-2's 0.25.x patch scope per Dave ruling 1).
 
 ## Companion suggestions
 

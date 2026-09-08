@@ -2,6 +2,21 @@
 
 All notable changes to `platform-cloudflare-durable-objects` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.0.1 (2026-09-08)
+
+H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch. No capability change.
+
+### Changed
+
+- Replaced the credential-readiness pass-stub in `real-account-storage-smoke.mjs` with a real HTTP PUT-then-GET storage round-trip driver against a deployed Worker route (`/cell/:id/storage/:key`) that opens the DO facade, writes a fixture key, reads it back, and asserts byte equality. Activated when `CI_HAS_CLOUDFLARE_ACCOUNT` is set with `CF_DO_WORKER_URL`, `CF_ACCOUNT_ID`, `CF_DO_NAMESPACE_ID` and `CF_API_TOKEN`. Locally proven against `wrangler dev --local` (64-byte round-trip byte-equal). A pass is no longer reachable from credential presence alone.
+- Extended anatomy-level anchor coverage for the five previously-unbound ACs (`AC-33106-1`, `AC-33108-1`, `AC-33109-1`, `AC-33110-1`, `AC-33111-1`) via multi-anchor `TC-H2-B2-*` assertions on the existing carrier probes (websocket-hub-broadcast, wrangler-seam, single-cell-concurrent-increment, storage-round-trip). No new probe body minted; every one of the 13 shipped DO ACs is now asserted at anatomy level.
+- Moved DO mutation switches out of probe bodies into fixture-side shims: `SIMULATE_NON_FACADE_IMPORT` (sole-reader-scan) into `h2-cf-do-sole-reader-shim.mjs`; `SIMULATE_STORAGE_BACKEND_MISMATCH` (storage-round-trip) into `h2-cf-do-storage-round-trip-shim.mjs`; `SIMULATE_PII_LEAK` and `SIMULATE_HUB_HANG` (websocket-hub-broadcast) into `h2-cf-do-websocket-hub-shim.mjs`. All three DO probe bodies now hold zero `SIMULATE_` token references (`AC-15401-1` mutation-purity rule).
+- Reworded the "fake state" and "fake WebSocket pair" comments on `namespace-facade-ready.mjs`, `websocket-hub-broadcast.mjs` and `probe-utils.mjs` to name the local test doubles honestly ("in-process DO state double", "in-process paired WebSockets"). `createFakeSocketPair` helper renamed `createInProcessSocketPair` with a back-compat alias.
+
+### Fixed
+
+- Extended the fixture Worker at `packages/rcf-lite/test/fixtures/cf-platform/src/do-single-cell.mjs` and `src/index.mjs` with the `/cell/:id/storage/:key` route on the DO facade so the real-account driver has a runtime carrier.
+
 ## 1.0.0 (2026-09-07)
 
 ### Added

@@ -313,7 +313,7 @@ test('AC-33111-1 backend field on every returned driver has a runtime observable
 test('blueprint.json declares slug, version, capabilities, elicits, contributions', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-cloudflare-durable-objects');
-  assert.equal(bp.version, '1.0.0');
+  assert.equal(bp.version, '1.0.1');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['strongConsistencyCell', 'hibernatableWebSocket']);
   assert.equal(Array.isArray(bp.elicits), true);
