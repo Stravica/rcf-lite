@@ -252,6 +252,30 @@ miss, feed unreachable) say nothing to the operator; freshness is a
 convenience, not a gate. Never run the upgrade without the operator's
 explicit go.
 
+### RULE 15: On blueprint apply, dispose every AC.
+
+A blueprint's acceptance criteria come in two shapes: `fixed`
+(mechanism-invariant, true for every applying project) and `template`
+(shape given, values project-specific). When you apply a blueprint
+(`rcf define blueprint add ...`), walk every AC the blueprint
+contributed. A `fixed` AC stands as authored: do not weaken or drop
+one, and if one appears wrong for the project, that is a defect against
+the blueprint, escalated on the blueprint's repo, not edited locally. A
+`template` AC is a starting shape: actively dispose of it by accepting
+as written, adjusting with the project's values, or dropping with a
+stated reason recorded against the story. Silent inheritance of a
+`template` AC is a defect. After you have disposed of every `template`
+AC, re-sweep the applied AC set against the scenario-class prompt list
+(credential missing, non-2xx, rate limit, timeout, partial write,
+permission denied, malformed input, already exists, gone, concurrent
+access, quota exhausted, dependency not ready, first-vs-repeat run,
+idempotency, empty and maximal collections, boundary values) so the
+story still covers the mechanism's documented failure paths. Any AC
+that rests on a third-party platform fact must show its vendor
+documentation URL and the ISO-8601 date the fact was verified; a
+citation older than the operator's tolerance is re-verified before the
+AC is treated as ground truth.
+
 ### Session start
 
 Run `rcf define validate`. A broken tree is fixed or reported before anything

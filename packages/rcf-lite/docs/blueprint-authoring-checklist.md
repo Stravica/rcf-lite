@@ -56,6 +56,9 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
 - [ ] Every failure path, error condition and boundary the blueprint's own `guide/<slug>.md` and `contributions/tacs/*.json` describe is traceable to at least one AC on the story that owns the mechanism. AC-set sufficiency rule from the standard, section 7a.
 - [ ] Every story's AC set has been swept against the scenario-class prompt list in the standard section 7a (credential missing, non-2xx, rate limit, timeout, partial or interrupted write, permission denied, malformed input, resource already exists, resource gone, concurrent access, quota exhausted, dependency not ready, first-vs-repeat run, idempotency of a retried operation, empty and maximal collections, boundary values). A class the mechanism does not touch is skipped without an AC; a class the guide names as a real path is bound to one.
 - [ ] A story that ships with a single AC carries a one-line note stating that the mechanism has no documented failure path in the guide (or the anchored TAC), so the absence is traceable to a decision. Single-AC-legality clause from the standard, section 7a.
+- [ ] Every AC on every story carries a disposition marker: `fixed` (mechanism-invariant, true for every applying project) or `template` (shape given, values project-specific). Fixed vs template rule from the standard, section 7b.
+- [ ] Every `template` AC names the values the applying agent must set for the project (elicit ids, binding names, path segments, sizing knobs), so the disposition step is a fill-in rather than a rewrite. Section 7b.
+- [ ] Every AC or guide statement that rests on a third-party platform fact carries the vendor documentation URL and the ISO-8601 date the fact was verified. Vendor-citation rule from the standard, section 7b.
 
 ## 7. Documentation
 
