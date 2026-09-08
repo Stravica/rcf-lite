@@ -1,0 +1,149 @@
+{
+  "createdAt": "2026-09-08T09:02:25.166Z",
+  "updatedAt": "2026-09-08T09:02:37.052Z",
+  "description": "The object-storage-s3 blueprint gains a Hetzner Object Storage provider value under its shipped v1.0.0 S3-API facade contract. The delta adds an endpoint-shape helper hetzner-endpoint.mjs composing the vendor-documented pattern <bucket>.<location>.your-objectstorage.com from an elicited bucket and location (fsn1 fal, hel1 hel, nbg1 nur per the Hetzner storage overview); a new probe hetzner-object-storage-round-trip.mjs drives put/get/delete against the composed endpoint with accountBound true gated on CI_HAS_HETZNER_OBJECT_STORAGE (records accountBoundSkipped when unset per spec section 3.5); one blueprint-owned REQ (object-storage-s3-REQ-101) and one blueprint-owned US (object-storage-s3-US-28110) anchor the AC AC-28110-1; one blueprint TAC (TAC-2904-object-storage-s3-hetzner-endpoint-helper) formalises the helper contract; one blueprint ADR (ADR-2905-object-storage-s3-hetzner-object-storage-provider, scope local) documents the Hetzner provider value alongside R2, AWS, MinIO with standardsTraceClause Hetzner Object Storage S3 compatibility documented endpoint shape. The existing MinIO local emulator round-trip and R2 real-account smoke stay byte-identical; blueprint bumps 1.0.0 to 1.1.0; rcf-lite package version does NOT bump (spec 8). Chain: HQ round-7 follow-up per HQ chain-block ruling 2026-09-08 (adapter block REQ-140..144, TS-170..174, FBS-160..164, CN-500..509). Section 5.4 of hetzner-round-7-spec-2026-09-07.",
+  "reqId": "REQ-140",
+  "prdId": "PRD-001",
+  "title": "Adapter object-storage-s3 v1.1.0 Hetzner Object Storage: endpoint-shape helper composes <bucket>.<location>.your-objectstorage.com per Hetzner storage overview; delta contributions add hetzner-object-storage-round-trip probe (accountBound gated on CI_HAS_HETZNER_OBJECT_STORAGE); MinIO and R2 paths unchanged",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T09:02:25.212Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "Storage"
+      },
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "endpoint"
+      },
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "Storage"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "API"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "endpoint"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "endpoint"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "put"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "get"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "delete"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "endpoint"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "endpoint"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "Storage"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "endpoint"
+      }
+    ]
+  }
+}

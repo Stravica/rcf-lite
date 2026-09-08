@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-08T09:03:22.340Z",
+  "updatedAt": "2026-09-08T09:03:32.202Z",
+  "purpose": "Cover the adapter chain AC via the shipped anatomy test at test/blueprint/object-storage-s3-hetzner-anatomy.test.js and via the new probe module hetzner-object-storage-round-trip.mjs driven from the extended infra-s3-and-queue fixture (accountBoundSkipped path without CI_HAS_HETZNER_OBJECT_STORAGE, endpoint-composition mutation via SIMULATE_HETZNER_ENDPOINT_MISSHAPEN)",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-14001-1"
+  ],
+  "id": "TS-170",
+  "usId": "US-14001",
+  "title": "Adapter object-storage-s3 v1.1.0 Hetzner Object Storage: probe module anatomy and fixture-side helper contract",
+  "testCases": [
+    {
+      "id": "TC-170-hetzner-endpoint-round-trip-and-skipped-shape",
+      "acId": "AC-14001-1",
+      "description": "Cover AC-14001-1 via anatomy test: hetzner-endpoint helper composes the vendor pattern <bucket>.<location>.your-objectstorage.com from an elicited bucket and location; the run-hetzner-object-storage-round-trip probe records accountBoundSkipped true and aggregateVerdict pass without CI_HAS_HETZNER_OBJECT_STORAGE; the extended fixture ships hetzner-endpoint.mjs and run-hetzner-object-storage-round-trip.mjs alongside the shipped MinIO and R2 assets; SIMULATE_HETZNER_ENDPOINT_MISSHAPEN true composes an invalid endpoint via the fixture-side shim and the probe FAILS naming the missing subdomain",
+      "status": "pending",
+      "testPointer": "test/blueprint/object-storage-s3-hetzner-anatomy.test.js::adapter object-storage-s3 v1.1.0 hetzner AC-14001-1 endpoint round-trip and skipped shape (TC-170-hetzner-endpoint-round-trip-and-skipped-shape)"
+    }
+  ],
+  "status": "draft"
+}

@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 62,
-    "notStarted": 34,
+    "items": 63,
+    "notStarted": 35,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 24,
+    "actionable": 25,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -50,7 +50,8 @@
         "FBS-120",
         "FBS-130",
         "FBS-140",
-        "FBS-150"
+        "FBS-150",
+        "FBS-160"
       ]
     },
     {
@@ -836,6 +837,16 @@
       "buildOrder": 62,
       "tier": 0,
       "title": "T-3 edge-cloudflare-tunnel v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with cloudflared connector (compose-service and systemd-unit variants; access-gated and public-hostname sidecar modes)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-160",
+      "buildOrder": 63,
+      "tier": 0,
+      "title": "Adapter object-storage-s3 v1.1.0 Hetzner Object Storage: minor bump adds hetznerObjectStorage provider; new hetzner-endpoint helper on the fixture side; new hetzner-object-storage-round-trip probe (accountBound gated on CI_HAS_HETZNER_OBJECT_STORAGE); MinIO round-5 T-2 probes and R2 smoke unchanged",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",
