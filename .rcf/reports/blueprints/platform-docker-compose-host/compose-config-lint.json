@@ -1,0 +1,41 @@
+{
+  "slug": "platform-docker-compose-host",
+  "probeName": "compose-config-lint",
+  "runAt": "2026-09-08T02:07:41.459Z",
+  "engine": {
+    "kind": "compose-config-lint",
+    "image": "platform-docker-compose-host fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-composeHost-healthcheckLint",
+      "verdict": "pass",
+      "detail": "docker compose config exit 0 on the applied compose.yaml"
+    },
+    {
+      "anchorAcId": "AC-composeHost-healthcheckLint",
+      "verdict": "pass",
+      "detail": "composeStackReady event body carries no secret literal (event-secrecy scan clean)"
+    },
+    {
+      "anchorAcId": "AC-composeHost-healthcheckLint",
+      "verdict": "pass",
+      "detail": "compose-config-lint pass: services web, caddy; healthcheck + restart + logging + event-secrecy scans all clean"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "serviceNames": [
+    "web",
+    "caddy"
+  ],
+  "mutations": {
+    "missingHealthcheck": false,
+    "unclassifiedRestart": false,
+    "unclassifiedLogDriver": false,
+    "eventSecrecyLeak": false
+  },
+  "dockerVersion": "29.6.2",
+  "dockerComposeConfigExit": 0,
+  "eventBodyByteLength": 140
+}

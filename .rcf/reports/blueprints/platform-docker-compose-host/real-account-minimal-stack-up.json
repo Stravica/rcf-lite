@@ -1,0 +1,20 @@
+{
+  "slug": "platform-docker-compose-host",
+  "probeName": "real-account-minimal-stack-up",
+  "runAt": "2026-09-08T02:01:58.672Z",
+  "engine": {
+    "kind": "real-account-minimal-stack-up",
+    "image": "platform-docker-compose-host fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-composeHost-upClean",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "detail": "accountBound: CI_HAS_HETZNER_ACCOUNT unset; no throwaway server provisioned; minimal-stack-up not exercised"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "skipped": true
+}

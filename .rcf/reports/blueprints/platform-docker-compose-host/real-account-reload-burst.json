@@ -1,0 +1,20 @@
+{
+  "slug": "platform-docker-compose-host",
+  "probeName": "real-account-reload-burst",
+  "runAt": "2026-09-08T02:01:58.695Z",
+  "engine": {
+    "kind": "real-account-reload-burst",
+    "image": "platform-docker-compose-host fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-composeHost-zeroDowntimeReload",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "detail": "accountBound: CI_HAS_HETZNER_ACCOUNT unset; no throwaway server provisioned; reload-burst not exercised"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "skipped": true
+}

@@ -1,0 +1,18 @@
+{
+  "reqId": "platform-docker-compose-host-REQ-004",
+  "prdId": "PRD-001",
+  "title": "Restart discipline enforced at lint time: unless-stopped on long-running services, on-failure on jobs; unclassified value refuses",
+  "description": "Every service declares a restart policy. Long-running services declare restart: unless-stopped. Jobs (short-lived services that exit after completion) declare restart: on-failure. Any service that declares neither, or declares a value outside the two allowed policies, refuses at the compose-config-lint gate before docker compose up runs. The lint names the service and the offending value.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Hetzner round 7 spec (2026-09-07 section 5.2 REQ-004). Ships as v1.0.0 of platform-docker-compose-host.",
+  "tags": [
+    "blueprint:platform-docker-compose-host",
+    "capability:containerHost"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

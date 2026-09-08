@@ -1,0 +1,26 @@
+{
+  "slug": "platform-docker-compose-host",
+  "probeName": "caddyfile-validate",
+  "runAt": "2026-09-08T02:07:41.683Z",
+  "engine": {
+    "kind": "caddyfile-validate",
+    "image": "platform-docker-compose-host fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-composeHost-reverseProxyArtefactValid",
+      "verdict": "pass",
+      "detail": "caddy validate exit 0 (caddy:2 container (docker run --rm)); tail: nce\",\"cache\":\"0x2edea432d480\"}\n{\"level\":\"info\",\"ts\":1788833261.616501,\"logger\":\"tls.cache.maintenance\",\"msg\":\"stopped background certificate maintenance\",\"cache\":\"0x2edea432d480\"}\nValid configuration\n"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "mutations": {
+    "invalidCaddyfile": false
+  },
+  "reverseProxy": "caddy",
+  "caddyLocal": null,
+  "dockerLocal": "29.6.2",
+  "exitStatus": 0,
+  "engineLabel": "caddy:2 container (docker run --rm)"
+}

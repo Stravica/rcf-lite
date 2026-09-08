@@ -136,3 +136,59 @@ baseline. T-3 mounts its `cloudflared` connector on the compose
 runtime T-2 stands up. Neither track modifies the ci-throwaway
 manifest; both add their own `run-<probe>.mjs` shims here that call
 their own blueprint probes with the same delegate pattern.
+
+## T-2 (platform-docker-compose-host v1.0.0) extension
+
+Round-7 T-2 extends this fixture with a minimal compose stack that proves
+the platform-docker-compose-host v1.0.0 blueprint contract:
+
+- `compose.yaml`: two services (`web`, `caddy`), one named network
+  (`web-net`), three named volumes (`web-data`, `caddy-data`,
+  `caddy-config`), one compose secret (`web-token`, mounted at
+  `/run/secrets/web-token` at 0o400 inside the web container).
+- `caddy/Caddyfile`: reverse-proxies the web service under `/` with a
+  `/live` handler, admin at `:2019` for the container healthcheck.
+- `secrets/web-token`: fixture-only secret material, mode 0o600 on the
+  host, mounted read-only by docker as 0o400 inside the container.
+- `src/serve.mjs`: Node stub the web service runs; listens on port 8080
+  (via `WEB_LISTEN_PORT` from `.env`), returns 200 on `/live`.
+
+## T-2 reviewer boot (mocked, no account)
+
+Every T-2 local probe runs from THIS directory as written. Docker must
+be reachable for `compose-config-lint` and `caddyfile-validate` (which
+uses the `caddy:2` container when a local `caddy` binary is not on
+PATH); the two real-account probes skip without `CI_HAS_HETZNER_ACCOUNT`.
+
+```
+cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
+node ./run-compose-config-lint.mjs && node ./run-secrets-as-files-scan.mjs && node ./run-caddyfile-validate.mjs
+```
+
+## T-2 reviewer boot (real account, throwaway server)
+
+```
+cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
+CI_HAS_HETZNER_ACCOUNT=true HCLOUD_TOKEN=$HETZNER_ACCOUNT_API_KEY node ./run-real-account-minimal-stack-up.mjs && node ./run-real-account-reload-burst.mjs
+```
+
+## T-2 induced-failure switches (mutation checks)
+
+- `SIMULATE_MISSING_HEALTHCHECK=true` on `run-compose-config-lint.mjs`:
+  strips the healthcheck: block from the web service; the lint FAILS
+  naming the service.
+- `SIMULATE_UNCLASSIFIED_RESTART=true` on `run-compose-config-lint.mjs`:
+  rewrites the web restart policy to `always`; the lint FAILS naming
+  the disallowed value.
+- `SIMULATE_UNCLASSIFIED_LOG_DRIVER=true` on `run-compose-config-lint.mjs`:
+  rewrites the web logging driver to `syslog`; the lint FAILS naming
+  the disallowed value.
+- `SIMULATE_EVENT_SECRECY_LEAK=true` on `run-compose-config-lint.mjs`:
+  injects the fixture web-token literal into the composeStackReady
+  event body; the event-secrecy scan FAILS naming the leaked field.
+- `SIMULATE_PLAINTEXT_SECRET=true` on `run-secrets-as-files-scan.mjs`:
+  writes a plaintext WEB_TOKEN literal into a scratch copy of
+  compose.yaml; the probe FAILS naming the file and the literal.
+- `SIMULATE_INVALID_CADDYFILE=true` on `run-caddyfile-validate.mjs`:
+  appends an unclosed-block syntax error to a scratch copy of the
+  Caddyfile; `caddy validate` exits non-zero and the probe FAILS.

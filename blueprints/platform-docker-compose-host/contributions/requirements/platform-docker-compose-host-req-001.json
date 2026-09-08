@@ -1,0 +1,18 @@
+{
+  "reqId": "platform-docker-compose-host-REQ-001",
+  "prdId": "PRD-001",
+  "title": "The compose.yaml at the applying repo root is the single-source runtime topology, with service-per-container, named networks and volumes, and .env for non-secret config",
+  "description": "The applying project runs its containerised services from a single compose.yaml at the repo root. Every entry under services: is one image running as one container (service-per-container). Networks and volumes are declared with explicit names under the top-level networks: and volumes: keys. Non-secret configuration values live in a colocated .env file loaded by compose, never inlined into service environment blocks. The container host reads compose.yaml as the topology source of truth and refuses to bring the stack up on layout drift.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Hetzner round 7 spec (2026-09-07 section 5.2 REQ-001). Ships as v1.0.0 of platform-docker-compose-host.",
+  "tags": [
+    "blueprint:platform-docker-compose-host",
+    "capability:containerHost"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

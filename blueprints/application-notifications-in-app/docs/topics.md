@@ -38,6 +38,7 @@ The `application-notifications-` prefix is reserved for the sibling channel blue
 | edge-cloudflare-turnstile | 35101-35899 | 36xx | shipped v1.0.0 | `humanVerificationGate` |
 | edge-cloudflare-rate-limiting | 36101-36899 | 37xx | shipped v1.0.0 | `edgeThrottleContract` |
 | deploy-hetzner-server | 37101-37899 | 38xx | shipped v1.0.0 | `linuxCloudHostContract`, `snapshotAndBackupCadence` |
+| platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 | application-notifications-email (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
 | application-notifications-push (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |
 | application-notifications-webhook (reserved) | to be claimed at ship | to be claimed at ship | name-only doc reservation (not shipped) | tba |

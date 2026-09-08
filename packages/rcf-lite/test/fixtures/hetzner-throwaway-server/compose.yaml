@@ -1,0 +1,74 @@
+# Round-7 T-2 fixture: minimal healthchecked compose stack proving the
+# platform-docker-compose-host v1.0.0 blueprint contract on the shared
+# throwaway-Hetzner-server fixture.
+#
+# Contract lines this file makes observable:
+# - service-per-container (REQ-120): one image per entry under services
+# - named networks and volumes (REQ-120): top-level web-net + web-data
+# - .env for non-secret config (REQ-120): env_file loads WEB_LISTEN_PORT
+# - secrets-as-files (REQ-121): web-token is a compose secret with file:
+#   source at secrets/web-token, no plaintext literal appears here
+# - healthcheck contract (REQ-122): every HTTP-terminating service (web)
+#   declares a healthcheck block; caddy declares one too since it fronts HTTP
+# - restart discipline (REQ-123): every service declares a policy in the
+#   allowed set (unless-stopped for long-running, on-failure for jobs)
+# - reverse-proxy artefact (REQ-124): caddy bind-mounts caddy/Caddyfile
+#   read-only; docker compose exec caddy caddy reload is the reload verb
+# - log-driver classification (REQ-125): every service declares a
+#   logging driver in the allowed set (journald or loki)
+services:
+  web:
+    image: node:20-alpine
+    container_name: rcf-lite-throwaway-web
+    working_dir: /app
+    command: ["node", "/app/serve.mjs"]
+    env_file:
+      - .env
+    volumes:
+      - ./src/serve.mjs:/app/serve.mjs:ro
+      - web-data:/var/lib/rcf-lite-web
+    secrets:
+      - web-token
+    networks:
+      - web-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 5s
+    restart: unless-stopped
+    logging:
+      driver: journald
+  caddy:
+    image: caddy:2
+    container_name: rcf-lite-throwaway-caddy
+    depends_on:
+      web:
+        condition: service_healthy
+    ports: []
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - web-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:2019/config/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+    restart: unless-stopped
+    logging:
+      driver: journald
+networks:
+  web-net:
+    driver: bridge
+volumes:
+  web-data: {}
+  caddy-data: {}
+  caddy-config: {}
+secrets:
+  web-token:
+    file: ./secrets/web-token

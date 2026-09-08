@@ -59,6 +59,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | edge-cloudflare-turnstile | 35101-35899 | 36xx | shipped v1.0.0 | `humanVerificationGate` |
 | edge-cloudflare-rate-limiting | 36101-36899 | 37xx | shipped v1.0.0 | `edgeThrottleContract` |
 | deploy-hetzner-server | 37101-37899 | 38xx | shipped v1.0.0 | `linuxCloudHostContract`, `snapshotAndBackupCadence` |
+| platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 
 US 5101-5111 sit at the LOW end of the 5101-5899 band on purpose. A project-side story that mechanically derives from `persistence-data-sqlite-REQ-011` into the number `5111` would collide against persistence-data-sqlite-US-5111 in this package; the band leaves headroom at the HIGH end (US 5181-5899) so a project's own stories anchored to persistence-data-sqlite REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 

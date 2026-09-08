@@ -55,6 +55,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | edge-cloudflare-turnstile | 35101-35899 | 36xx | shipped v1.0.0 | `humanVerificationGate` |
 | edge-cloudflare-rate-limiting | 36101-36899 | 37xx | shipped v1.0.0 | `edgeThrottleContract` |
 | deploy-hetzner-server | 37101-37899 | 38xx | shipped v1.0.0 | `linuxCloudHostContract`, `snapshotAndBackupCadence` |
+| platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 
 US 28101-28108 sit at the LOW end of the 28101-28899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from an object-storage-s3 REQ id into the number 28110 would collide against a shipped US-28110; band headroom (28109-28899) leaves that space.
 

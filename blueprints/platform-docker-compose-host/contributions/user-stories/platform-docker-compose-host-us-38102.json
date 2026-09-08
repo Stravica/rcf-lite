@@ -1,0 +1,24 @@
+{
+  "usId": "platform-docker-compose-host-US-38102",
+  "prdId": "PRD-001",
+  "reqId": "platform-docker-compose-host-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "secrets flow via docker compose secrets file mounts, no plaintext literal in compose.yaml",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with secret material bound to a container",
+  "iWant": "every secret to be declared under the compose secrets top-level key and mounted into the service via secrets: rather than inlined as an environment literal",
+  "soThat": "the compose file is safe to read at review time and the mounted file inherits 0o400 inside the container",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-composeHost-secretShape",
+      "description": "The applied compose.yaml declares at least one secret under the top-level secrets: key with a file: source and references it from the consuming service through the service-level secrets: array. The mounted secret file lands at mode 0o400 inside the container.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3902-platform-docker-compose-host-secrets-mount"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}
