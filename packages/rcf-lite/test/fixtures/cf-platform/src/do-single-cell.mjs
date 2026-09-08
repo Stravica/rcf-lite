@@ -146,6 +146,38 @@ export class SingleCellObject {
         headers: { 'content-type': 'application/json' },
       });
     }
+    // Storage round-trip route used by the H-2 real-account
+    // storage smoke driver. Path shape: /cell/:id/storage/:key.
+    // PUT writes the request body as bytes under this.storage;
+    // GET reads and returns the persisted bytes. This is a
+    // fixture-surface extension of the SingleCellObject; the
+    // shipped shape is per-instance storage under a key of the
+    // caller's choosing, and the DO namespace-per-name id path
+    // guarantees the same instance across PUT then GET on a
+    // deployed Worker or wrangler dev --local run.
+    const storageMatch = path.match(/\/storage\/([^/]+)$/);
+    if (storageMatch) {
+      const key = decodeURIComponent(storageMatch[1]);
+      if (request.method === 'PUT') {
+        const buf = new Uint8Array(await request.arrayBuffer());
+        await this.storage.put(`h2/${key}`, buf);
+        return new Response(JSON.stringify({ ok: true, bytes: buf.byteLength }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      if (request.method === 'GET') {
+        const got = await this.storage.get(`h2/${key}`);
+        if (got === undefined || got === null) {
+          return new Response('key not found', { status: 404 });
+        }
+        const buf = got instanceof Uint8Array ? got : new Uint8Array(Object.values(got));
+        return new Response(buf, {
+          status: 200,
+          headers: { 'content-type': 'application/octet-stream' },
+        });
+      }
+    }
     return new Response('not found', { status: 404 });
   }
 }
