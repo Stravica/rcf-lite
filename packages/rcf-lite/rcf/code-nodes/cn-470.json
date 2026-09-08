@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-470",
+  "path": "../../blueprints/edge-cloudflare-tunnel/blueprint.json",
+  "implementsAcIds": [
+    "AC-13001-1",
+    "AC-13002-1",
+    "AC-13101-1",
+    "AC-13102-1",
+    "AC-13201-1",
+    "AC-13301-1",
+    "AC-13302-1",
+    "AC-13401-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T03:25:10.642Z",
+  "updatedAt": "2026-09-08T03:25:10.642Z"
+}

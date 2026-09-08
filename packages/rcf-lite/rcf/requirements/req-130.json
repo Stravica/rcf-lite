@@ -1,0 +1,32 @@
+{
+  "createdAt": "2026-09-08T03:20:33.239Z",
+  "updatedAt": "2026-09-08T03:20:33.285Z",
+  "description": "The edge-cloudflare-tunnel v1.0.0 blueprint contributes a cloudflared connector whose runtime shape switches on the applied capability set: when the containerHost capability is applied (T-2 platform-docker-compose-host on top of T-1 deploy-hetzner-server), the connector ships as a compose service alongside the applying project's other services on the same web-net network; when the host runs bare (only T-1 applied), the connector ships as a systemd unit per the cloudflared as-a-service local-configuration-file docs. Either shape emits cloudflaredReady on boot with connector id, region and version metadata (metadata only; no token or tunnel credentials in the payload). Chain: HQ round-7 T-3 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-130..139 / TS-160..169 / FBS-150..159 / CN-470..499). Round-7 T-3 track of hetzner-round-7-spec-2026-09-07 section 5.3.",
+  "reqId": "REQ-130",
+  "prdId": "PRD-001",
+  "title": "T-3 edge-cloudflare-tunnel v1.0.0 blueprint: cloudflared connector install shape (compose-service default on containerHost, systemd-unit alternative on bare cloudHost); cloudflaredReady fires on boot",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T03:20:33.284Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "token"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      }
+    ]
+  }
+}

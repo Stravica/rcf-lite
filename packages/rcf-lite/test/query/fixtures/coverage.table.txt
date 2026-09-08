@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 80  covered: 80  covered-unresolved: 0  uncovered: 0
+Requirements: 85  covered: 85  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -347,3 +347,11 @@ REQ-123      yes      AC-12301-1  yes         TC-150-restart-discipline-lint-ref
 REQ-124      yes      AC-12401-1  yes         TC-150-caddyfile-validate-refuses-invalid-directive
                       AC-12402-1  yes         TC-150-real-account-reload-burst-declared-and-skipped-shape
 REQ-125      yes      AC-12501-1  yes         TC-150-log-driver-classification
+REQ-130      yes      AC-13001-1  yes         TC-160-connector-shape-variants-shipped
+                      AC-13002-1  yes         TC-160-real-account-connector-healthy-declared-and-skippe...
+REQ-131      yes      AC-13101-1  yes         TC-160-manifest-schema-validate-refuses-invalid
+                      AC-13102-1  yes         TC-160-cloudflared-config-lint-passes-and-refuses-invalid...
+REQ-132      yes      AC-13201-1  yes         TC-160-no-public-origin-port-refused
+REQ-133      yes      AC-13301-1  yes         TC-160-aud-presence-flip-on-both-fixture-variants
+                      AC-13302-1  yes         TC-160-aud-presence-check-refuses-on-drift
+REQ-134      yes      AC-13401-1  yes         TC-160-credentials-discipline-and-event-secrecy

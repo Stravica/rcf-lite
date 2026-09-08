@@ -1,0 +1,24 @@
+{
+  "usId": "edge-cloudflare-tunnel-US-39105",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-tunnel-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "No public origin ports on the host (firewall stays 22 open plus 80/443 only when a reverse proxy is applied; manifest refuses origin-port request)",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel v1.0.0 without a reverse proxy",
+  "iWant": "the host firewall to stay closed on 80/443 and the manifest schema to refuse any ingress rule whose service URL binds to a host public interface",
+  "soThat": "the tunnel remains the only path from the edge to the origin",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-tunnel-noPublicOrigin",
+      "description": "manifest-schema-validate refuses under SIMULATE_ORIGIN_PORT_OPEN when an ingress rule service URL binds to 0.0.0.0 or a host public interface; the T-1 firewall on the ci-throwaway manifest stays 22 open plus 80/443 open only when a reverse proxy is applied.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

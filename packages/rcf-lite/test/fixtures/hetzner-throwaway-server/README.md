@@ -192,3 +192,83 @@ CI_HAS_HETZNER_ACCOUNT=true HCLOUD_TOKEN=$HETZNER_ACCOUNT_API_KEY node ./run-rea
 - `SIMULATE_INVALID_CADDYFILE=true` on `run-caddyfile-validate.mjs`:
   appends an unclosed-block syntax error to a scratch copy of the
   Caddyfile; `caddy validate` exits non-zero and the probe FAILS.
+
+## T-3 (edge-cloudflare-tunnel v1.0.0) extension
+
+Round-7 T-3 extends this fixture with a cloudflared connector in both
+runtime shapes (compose-service alongside the T-2 web and caddy services
+when `containerHost` is applied; systemd-unit for a bare `cloudHost`) and
+both hostname modes (access-gated when `zeroTrustGate` is applied;
+public-hostname when absent):
+
+- `cloudflared/compose-service/compose-fragment.yaml`: the cloudflared
+  compose service (no host ports; restart unless-stopped; journald
+  logging).
+- `cloudflared/compose-service/cloudflare/tunnels/{public-hostname,access-gated}.yaml`:
+  tunnel manifests, differing only in whether the ingress rule attaches
+  `originRequest.access.aud`.
+- `cloudflared/compose-service/credentials/probe.json.example`:
+  placeholder documenting the 0o400 host-mode plus secretRef discipline.
+- `cloudflared/systemd-unit/cloudflared.service`: vendor as-a-service
+  systemd unit; reads `/etc/cloudflared/probe.yaml`.
+- `cloudflared/systemd-unit/cloudflare/tunnels/{public-hostname,access-gated}.yaml`:
+  loopback service URLs for the bare cloudHost path.
+- `cloudflared/systemd-unit/credentials/probe.json.example`.
+- `cloudflared/sidecars/{access-gated,public-hostname}.applied.json`:
+  the two applied-blueprint sidecars aud-presence-check reads to prove
+  the shape flips.
+
+## T-3 reviewer boot (mocked, no account)
+
+Three local probes; the tunnel schema validator is named
+`run-tunnel-manifest-schema-validate.mjs` to avoid colliding with T-1's
+`run-manifest-schema-validate.mjs` (T-1's shim still delegates to the
+deploy-hetzner-server probe as it did before).
+
+```
+cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
+node ./run-tunnel-manifest-schema-validate.mjs && node ./run-cloudflared-config-lint.mjs && node ./run-aud-presence-check.mjs
+```
+
+`cloudflared-config-lint` shells to a local `cloudflared` binary when
+one is on PATH; when it is not, it runs `cloudflared tunnel --config
+/etc/cloudflared/<mode>.yaml ingress validate` via the vendor container
+image `cloudflare/cloudflared:2026.8.3` (docker must be reachable).
+
+## T-3 reviewer boot (real account, throwaway server)
+
+```
+cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
+CI_HAS_HETZNER_ACCOUNT=true CI_HAS_CLOUDFLARE_ACCOUNT=true \
+  node ./run-real-account-connector-healthy.mjs
+CI_HAS_HETZNER_ACCOUNT=true CI_HAS_CLOUDFLARE_ACCOUNT=true CI_HAS_CLOUDFLARE_ACCESS=true \
+  node ./run-real-account-tunnel-hostname-routes.mjs
+```
+
+The access-gated sub-case additionally reads `CI_HAS_CLOUDFLARE_ACCESS`
+per the round-7 Q4 ratification; sub-cases skip independently.
+
+## T-3 induced-failure switches (mutation checks)
+
+Every switch lives in the fixture-side delegate shim (the probe modules
+never read a `SIMULATE_` env var, per the T-2 gate ruling).
+
+- `SIMULATE_MANIFEST_INVALID_TUNNEL_ID=true` on `run-tunnel-manifest-schema-validate.mjs`:
+  rewrites the tunnel-id to a non-uuid literal; schema validate FAILS.
+- `SIMULATE_MANIFEST_CREDENTIALS_INLINE=true` on `run-tunnel-manifest-schema-validate.mjs`:
+  writes credentials inline (bypassing secretRef); the probe FAILS.
+- `SIMULATE_MANIFEST_MISSING_CATCHALL=true` on `run-tunnel-manifest-schema-validate.mjs`:
+  strips the catch-all http_status rule; the probe FAILS.
+- `SIMULATE_ORIGIN_PORT_OPEN=true` on `run-tunnel-manifest-schema-validate.mjs`:
+  rewrites an ingress service URL to `http://0.0.0.0:80`; the probe
+  FAILS naming the host public interface bind.
+- `SIMULATE_EVENT_SECRECY_LEAK=true` on `run-tunnel-manifest-schema-validate.mjs`:
+  seeds a `_leakedEvent` object on the credentials placeholder; the
+  event-secrecy scan FAILS naming the leaked field.
+- `SIMULATE_INGRESS_INVALID=true` on `run-cloudflared-config-lint.mjs`:
+  rewrites the ingress service URL to an invalid address; cloudflared
+  tunnel ingress validate exits non-zero and the probe FAILS.
+- `SIMULATE_AUD_DROP=true` on `run-aud-presence-check.mjs`:
+  removes the `originRequest.access` block from the access-gated
+  manifest; the probe FAILS with a defensive-against-silent-degradation
+  finding.

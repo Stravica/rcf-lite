@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-08T03:23:09.794Z",
+  "updatedAt": "2026-09-08T03:23:09.794Z",
+  "adrId": "ADR-4003-edge-cloudflare-tunnel-hostname-mode",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "T-3 hostname mode: access-gated when zeroTrustGate applied (ingress attaches AUD); public-hostname when absent (block omitted)",
+  "context": "A tunnel can serve a public hostname openly (any request reaches the origin, protected only by whatever authentication the origin itself carries) or Access-gated (cloudflared refuses at the edge any request without a valid Access JWT for a named AUD, per the vendor self-hosted-public-app docs). The hostname mode is not elicited: it is DISCOVERED from the applied capability set. When zeroTrustGate is applied (edge-cloudflare-access v1.0.0), the tunnel binds the Access AUD; when it is not, the tunnel serves in public-hostname mode. Standards trace clause: Cloudflare Access self-hosted-public-app documented shape per hetzner-round-7-spec-2026-09-07.md.",
+  "decision": "ADR-4003 records the hostname mode as elicited: false and discovered from applied capabilities via the sidecar rcf/blueprints/edge-cloudflare-tunnel.applied.json. When appliedCapabilities includes zeroTrustGate, every ingress rule under the tunnel manifest attaches an originRequest.access block naming the AUD; when it does not, the block is omitted. The aud-presence-check probe runs on both fixture variants and asserts the shape flips correctly. Standards trace clause: Cloudflare Access self-hosted-public-app documented shape per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "A project that applies zeroTrustGate later inherits the Access-gated shape on the next reapply of edge-cloudflare-tunnel without a manual manifest edit; a project that removes zeroTrustGate drops to public-hostname mode explicitly. A silent drift (the sidecar keeps zeroTrustGate but the ingress loses the AUD block) is caught by aud-presence-check refusing before the shape ships. Fixture variants live under cloudflared/*/access-gated and cloudflared/*/public-hostname; the SIMULATE_AUD_DROP mutation on the gated fixture proves the refuse path."
+}

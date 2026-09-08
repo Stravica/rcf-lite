@@ -1,0 +1,48 @@
+{
+  "slug": "edge-cloudflare-tunnel",
+  "probeName": "cloudflared-config-lint",
+  "runAt": "2026-09-08T04:49:46.050Z",
+  "engine": {
+    "kind": "cloudflared-ingress-validate",
+    "image": "cloudflare/cloudflared:2026.8.3",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-tunnel-hostnameRoutes",
+      "verdict": "pass",
+      "detail": "compose-service/public-hostname: cloudflared tunnel ingress validate exit 0 (docker cloudflare/cloudflared:2026.8.3)"
+    },
+    {
+      "anchorAcId": "AC-tunnel-hostnameRoutes",
+      "verdict": "pass",
+      "detail": "compose-service/access-gated: cloudflared tunnel ingress validate exit 0 (docker cloudflare/cloudflared:2026.8.3)"
+    },
+    {
+      "anchorAcId": "AC-tunnel-hostnameRoutes",
+      "verdict": "pass",
+      "detail": "systemd-unit/public-hostname: cloudflared tunnel ingress validate exit 0 (docker cloudflare/cloudflared:2026.8.3)"
+    },
+    {
+      "anchorAcId": "AC-tunnel-hostnameRoutes",
+      "verdict": "pass",
+      "detail": "systemd-unit/access-gated: cloudflared tunnel ingress validate exit 0 (docker cloudflare/cloudflared:2026.8.3)"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "fixtureRoot": "packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared",
+  "cloudflaredVersion": null,
+  "dockerVersion": "29.6.2",
+  "compose-service/public-hostname": {
+    "exit": 0
+  },
+  "compose-service/access-gated": {
+    "exit": 0
+  },
+  "systemd-unit/public-hostname": {
+    "exit": 0
+  },
+  "systemd-unit/access-gated": {
+    "exit": 0
+  }
+}

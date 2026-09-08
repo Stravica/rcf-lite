@@ -58,6 +58,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | edge-cloudflare-rate-limiting | 36101-36899 | 37xx | shipped v1.0.0 | `edgeThrottleContract` |
 | deploy-hetzner-server | 37101-37899 | 38xx | shipped v1.0.0 | `linuxCloudHostContract`, `snapshotAndBackupCadence` |
 | platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
+| edge-cloudflare-tunnel | 39101-39899 | 40xx | shipped v1.0.0 | `edgeIngressBridge` |
 
 US 33101-33112 sit at the LOW end of the 33101-33899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a platform-cloudflare-durable-objects REQ id into the number 33113 would collide against a shipped US-33113; band headroom (33113-33899) leaves that space.
 

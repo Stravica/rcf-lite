@@ -1,0 +1,13 @@
+# Round-7 T-3 fixture tunnel manifest: systemd-unit runtime, access-gated mode.
+tunnel: 00000000-0000-4000-8000-000000000d02
+credentialsFile:
+  secretRef: hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_T3_SYSTEMD
+ingress:
+  - hostname: probe.systemd.rcf-lite-ci.example
+    service: http://127.0.0.1:8080
+    originRequest:
+      access:
+        aud: AUD-fixture-rcf-lite-ci-throwaway
+        teamName: rcf-lite-ci
+        required: true
+  - service: http_status:404

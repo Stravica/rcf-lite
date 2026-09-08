@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stravica.ai/schemas/edge-cloudflare-tunnel/tunnel-manifest.v1.json",
+  "title": "edge-cloudflare-tunnel tunnel manifest v1.0.0",
+  "type": "object",
+  "required": ["tunnel", "credentialsFile", "ingress"],
+  "additionalProperties": false,
+  "properties": {
+    "tunnel": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      "description": "uuid-shaped Cloudflare Tunnel id per the vendor tunnel primitive"
+    },
+    "credentialsFile": {
+      "type": "object",
+      "required": ["secretRef"],
+      "additionalProperties": false,
+      "properties": {
+        "secretRef": {
+          "type": "string",
+          "minLength": 1,
+          "description": "security-secrets-management reference to the credentials JSON; never a literal path or JSON body"
+        }
+      }
+    },
+    "ingress": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "hostname": { "type": "string", "minLength": 1 },
+          "service": { "type": "string", "minLength": 1 },
+          "originRequest": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "access": {
+                "type": "object",
+                "required": ["aud"],
+                "properties": {
+                  "aud": { "type": "string", "minLength": 1 },
+                  "teamName": { "type": "string" },
+                  "required": { "type": "boolean" }
+                }
+              }
+            }
+          }
+        },
+        "required": ["service"]
+      }
+    }
+  }
+}

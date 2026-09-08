@@ -18,6 +18,11 @@
     "probe-secrets-as-files-scan": "node ./run-secrets-as-files-scan.mjs",
     "probe-caddyfile-validate": "node ./run-caddyfile-validate.mjs",
     "probe-real-account-minimal-stack-up": "node ./run-real-account-minimal-stack-up.mjs",
-    "probe-real-account-reload-burst": "node ./run-real-account-reload-burst.mjs"
+    "probe-real-account-reload-burst": "node ./run-real-account-reload-burst.mjs",
+    "probe-tunnel-manifest-schema-validate": "node ./run-tunnel-manifest-schema-validate.mjs",
+    "probe-cloudflared-config-lint": "node ./run-cloudflared-config-lint.mjs",
+    "probe-aud-presence-check": "node ./run-aud-presence-check.mjs",
+    "probe-real-account-connector-healthy": "node ./run-real-account-connector-healthy.mjs",
+    "probe-real-account-tunnel-hostname-routes": "node ./run-real-account-tunnel-hostname-routes.mjs"
   }
 }

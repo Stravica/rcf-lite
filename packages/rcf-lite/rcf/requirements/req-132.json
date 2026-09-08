@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-09-08T03:20:33.710Z",
+  "updatedAt": "2026-09-08T03:20:33.755Z",
+  "description": "The applying project MUST NOT open a public port on the host firewall for the origin path when only edge-cloudflare-tunnel provides ingress. T-1 deploy-hetzner-server's firewall shape allows port 22 unconditionally and ports 80/443 only when a reverse proxy is applied on the host. A project that applies only T-1 plus T-3 (no reverse proxy) declares zero 80/443 firewall rules; the tunnel manifest schema check refuses the apply if an ingress rule tries to bind a port on the host directly (the ingress URL must reference an internal address, never the public interface). Chain: HQ round-7 T-3 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-3 track of hetzner-round-7-spec-2026-09-07 section 5.3.",
+  "reqId": "REQ-132",
+  "prdId": "PRD-001",
+  "title": "T-3 edge-cloudflare-tunnel v1.0.0 blueprint: no public origin ports on the host (firewall stays 22 plus 80/443-only-when-reverse-proxy; manifest refuses if an origin port is asked for)",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T03:20:33.754Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      }
+    ]
+  }
+}

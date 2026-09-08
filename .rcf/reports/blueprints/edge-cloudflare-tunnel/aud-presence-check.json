@@ -1,0 +1,36 @@
+{
+  "slug": "edge-cloudflare-tunnel",
+  "probeName": "aud-presence-check",
+  "runAt": "2026-09-08T04:49:46.081Z",
+  "engine": {
+    "kind": "sidecar-read",
+    "image": "edge-cloudflare-tunnel aud-presence facade",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-tunnel-accessGated",
+      "verdict": "pass",
+      "detail": "compose-service/access-gated: all 1 non-catch-all rule(s) attach originRequest.access.aud=AUD-fixture-rcf-lite-ci-throwaway"
+    },
+    {
+      "anchorAcId": "AC-tunnel-accessGated",
+      "verdict": "pass",
+      "detail": "compose-service/public-hostname: manifest omits originRequest.access on every ingress rule (open ingress by design)"
+    },
+    {
+      "anchorAcId": "AC-tunnel-accessGated",
+      "verdict": "pass",
+      "detail": "systemd-unit/access-gated: all 1 non-catch-all rule(s) attach originRequest.access.aud=AUD-fixture-rcf-lite-ci-throwaway"
+    },
+    {
+      "anchorAcId": "AC-tunnel-accessGated",
+      "verdict": "pass",
+      "detail": "systemd-unit/public-hostname: manifest omits originRequest.access on every ingress rule (open ingress by design)"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "fixtureRoot": "packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared",
+  "gatedSidecarZtg": true,
+  "publicSidecarZtg": false
+}

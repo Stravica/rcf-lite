@@ -1,0 +1,24 @@
+{
+  "usId": "edge-cloudflare-tunnel-US-39107",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-tunnel-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Access-gated shape does not silently degrade to open ingress when the AUD block drifts absent (aud-presence-check refuses)",
+  "asA": "shelf consumer who applied edge-cloudflare-tunnel v1.0.0 with zeroTrustGate on",
+  "iWant": "a probe that asserts the ingress rule keeps its originRequest.access.aud block on every reapply and refuses if the block drifts absent",
+  "soThat": "a silent config drift to open ingress is caught at gate rather than at first probing",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-tunnel-accessGatedRefuse",
+      "description": "aud-presence-check FAILS under SIMULATE_AUD_DROP when the gated fixture ingress drifts to omit the originRequest.access block. The finding names the affected rule and the missing AUD value.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-4003-edge-cloudflare-tunnel-access-binding"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 80,
-    "covered": 80,
+    "requirements": 85,
+    "covered": 85,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -3347,6 +3347,105 @@
           "covered": true,
           "testCases": [
             "TC-150-log-driver-classification"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-130",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-13001-1",
+          "covered": true,
+          "testCases": [
+            "TC-160-connector-shape-variants-shipped"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-13002-1",
+          "covered": true,
+          "testCases": [
+            "TC-160-real-account-connector-healthy-declared-and-skipped-shape"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-131",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-13101-1",
+          "covered": true,
+          "testCases": [
+            "TC-160-manifest-schema-validate-refuses-invalid"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-13102-1",
+          "covered": true,
+          "testCases": [
+            "TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-132",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-13201-1",
+          "covered": true,
+          "testCases": [
+            "TC-160-no-public-origin-port-refused"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-133",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-13301-1",
+          "covered": true,
+          "testCases": [
+            "TC-160-aud-presence-flip-on-both-fixture-variants"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-13302-1",
+          "covered": true,
+          "testCases": [
+            "TC-160-aud-presence-check-refuses-on-drift"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-134",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-13401-1",
+          "covered": true,
+          "testCases": [
+            "TC-160-credentials-discipline-and-event-secrecy"
           ],
           "unresolvedTestCases": []
         }

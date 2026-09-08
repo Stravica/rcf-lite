@@ -1,0 +1,111 @@
+{
+  "slug": "edge-cloudflare-tunnel",
+  "probeName": "manifest-schema-validate",
+  "runAt": "2026-09-08T04:49:45.174Z",
+  "engine": {
+    "kind": "schema-validate",
+    "image": "edge-cloudflare-tunnel manifest schema (Ajv-free walker)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-tunnel-manifestSchema",
+      "verdict": "pass",
+      "detail": "compose-service/public-hostname: manifest at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/cloudflare/tunnels/public-hostname.yaml validates against tunnel-manifest.schema.json"
+    },
+    {
+      "anchorAcId": "AC-tunnel-noPublicOrigin",
+      "verdict": "pass",
+      "detail": "compose-service/public-hostname: every ingress service URL binds to an internal address; no host public port exposed"
+    },
+    {
+      "anchorAcId": "AC-tunnel-credentialsDiscipline",
+      "verdict": "pass",
+      "detail": "compose-service/public-hostname: credentialsFile.secretRef = hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_T3_COMPOSE"
+    },
+    {
+      "anchorAcId": "AC-tunnel-credentialsDiscipline",
+      "verdict": "pass",
+      "detail": "event-secrecy scan clean; cloudflaredReady body carries metadata only"
+    },
+    {
+      "anchorAcId": "AC-tunnel-manifestSchema",
+      "verdict": "pass",
+      "detail": "compose-service/access-gated: manifest at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/cloudflare/tunnels/access-gated.yaml validates against tunnel-manifest.schema.json"
+    },
+    {
+      "anchorAcId": "AC-tunnel-noPublicOrigin",
+      "verdict": "pass",
+      "detail": "compose-service/access-gated: every ingress service URL binds to an internal address; no host public port exposed"
+    },
+    {
+      "anchorAcId": "AC-tunnel-credentialsDiscipline",
+      "verdict": "pass",
+      "detail": "compose-service/access-gated: credentialsFile.secretRef = hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_T3_COMPOSE"
+    },
+    {
+      "anchorAcId": "AC-tunnel-credentialsDiscipline",
+      "verdict": "pass",
+      "detail": "event-secrecy scan clean; cloudflaredReady body carries metadata only"
+    },
+    {
+      "anchorAcId": "AC-tunnel-manifestSchema",
+      "verdict": "pass",
+      "detail": "systemd-unit/public-hostname: manifest at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/systemd-unit/cloudflare/tunnels/public-hostname.yaml validates against tunnel-manifest.schema.json"
+    },
+    {
+      "anchorAcId": "AC-tunnel-noPublicOrigin",
+      "verdict": "pass",
+      "detail": "systemd-unit/public-hostname: every ingress service URL binds to an internal address; no host public port exposed"
+    },
+    {
+      "anchorAcId": "AC-tunnel-credentialsDiscipline",
+      "verdict": "pass",
+      "detail": "systemd-unit/public-hostname: credentialsFile.secretRef = hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_T3_SYSTEMD"
+    },
+    {
+      "anchorAcId": "AC-tunnel-credentialsDiscipline",
+      "verdict": "pass",
+      "detail": "event-secrecy scan clean; cloudflaredReady body carries metadata only"
+    },
+    {
+      "anchorAcId": "AC-tunnel-manifestSchema",
+      "verdict": "pass",
+      "detail": "systemd-unit/access-gated: manifest at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/systemd-unit/cloudflare/tunnels/access-gated.yaml validates against tunnel-manifest.schema.json"
+    },
+    {
+      "anchorAcId": "AC-tunnel-noPublicOrigin",
+      "verdict": "pass",
+      "detail": "systemd-unit/access-gated: every ingress service URL binds to an internal address; no host public port exposed"
+    },
+    {
+      "anchorAcId": "AC-tunnel-credentialsDiscipline",
+      "verdict": "pass",
+      "detail": "systemd-unit/access-gated: credentialsFile.secretRef = hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_T3_SYSTEMD"
+    },
+    {
+      "anchorAcId": "AC-tunnel-credentialsDiscipline",
+      "verdict": "pass",
+      "detail": "event-secrecy scan clean; cloudflaredReady body carries metadata only"
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "fixtureRoot": "packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared",
+  "schemaId": "https://stravica.ai/schemas/edge-cloudflare-tunnel/tunnel-manifest.v1.json",
+  "compose-service/public-hostname": {
+    "tunnel": "00000000-0000-4000-8000-000000000c01",
+    "ingressCount": 2
+  },
+  "compose-service/access-gated": {
+    "tunnel": "00000000-0000-4000-8000-000000000c02",
+    "ingressCount": 2
+  },
+  "systemd-unit/public-hostname": {
+    "tunnel": "00000000-0000-4000-8000-000000000d01",
+    "ingressCount": 2
+  },
+  "systemd-unit/access-gated": {
+    "tunnel": "00000000-0000-4000-8000-000000000d02",
+    "ingressCount": 2
+  }
+}

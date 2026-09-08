@@ -1,0 +1,24 @@
+{
+  "usId": "edge-cloudflare-tunnel-US-39104",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-tunnel-REQ-002",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Cloudflared tunnel ingress validate exits 0 on the fixture manifest (routes public hostname to internal service URL)",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel v1.0.0 with a compose service listening on an internal port",
+  "iWant": "the ingress rule mapping the public hostname to the internal service URL (http://web:8080 in the compose-service variant, http://127.0.0.1:8080 in the systemd-unit variant) to pass cloudflared tunnel ingress validate cleanly",
+  "soThat": "a rule that would fail at boot fails at gate instead",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-tunnel-hostnameRoutes",
+      "description": "cloudflared-config-lint probe runs cloudflared tunnel ingress validate against the fixture manifest (through the cloudflare/cloudflared:2026.8.3 container image when the binary is not on PATH) and exits 0 on the canonical fixture; SIMULATE_INGRESS_INVALID rewrites the service URL to an unresolvable scheme and the probe FAILS.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

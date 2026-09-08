@@ -152,7 +152,7 @@ const expectedCounts = {
   // v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (68 -> 74).
   // Round-7 T-2 added REQ-120..125 for the platform-docker-compose-host
   // v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (74 -> 80).
-  req: 80,
+  req: 85, // Round-7 T-3 added REQ-130..134 for the edge-cloudflare-tunnel v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (80 -> 85).
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -202,7 +202,7 @@ const expectedCounts = {
   // Round-7 T-2 added US-12001, 12101, 12102, 12201, 12202, 12301,
   // 12401, 12402, 12501 derived from REQ-120..125 per HQ reserved-block
   // ruling 2026-09-07 (125 -> 134).
-  userStory: 134,
+  userStory: 142, // Round-7 T-3 added US-13001, 13002, 13101, 13102, 13201, 13301, 13302, 13401 derived from REQ-130..134 per HQ reserved-block ruling 2026-09-07 (134 -> 142).
   tad: 1,
   // Cloudflare round 6 T-4 added TAC-3501..3504 (Access JWT validator,
   // application declaration, policy shape, audit sink) plus TAC-2214
@@ -216,7 +216,7 @@ const expectedCounts = {
   // Round-7 T-2 added TAC-3901..3904 (compose layout, secrets mount,
   // healthcheck lint, reverse-proxy artefact) per HQ reserved-block
   // ruling 2026-09-07 (23 -> 27).
-  tac: 27,
+  tac: 30, // Round-7 T-3 added TAC-4001..4003 (edge-cloudflare-tunnel connector shape, manifest schema, Access AUD binding) per HQ reserved-block ruling 2026-09-07 (27 -> 30).
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
   // AC sets. See test/store/walker.test.js's expected-count comment.
   //
@@ -236,7 +236,7 @@ const expectedCounts = {
   // Round-7 T-2 added ADR-3901..3904 (container host contract, reverse
   // proxy, reject Coolify, log driver) per HQ reserved-block ruling
   // 2026-09-07 (26 -> 30).
-  adr: 30, // Cloudflare round 6 T-5 added ADR-3601 (verifier contract, scope global on new topic humanVerificationGate), ADR-3602 (widget mode elicit enum) and ADR-3603 (refuse-if-token-missing 400 with error-code body) per HQ reserved-block ruling 2026-09-07 (15 -> 18).
+  adr: 33, // Round-7 T-3 added ADR-4001..4003 (edge-cloudflare-tunnel ingress bridge contract on new topic edgeIngressBridge, connector runtime, hostname mode) per HQ reserved-block ruling 2026-09-07 (30 -> 33).
   buildSequence: 1,
   // FBS-027 covers the remove-resolution verb (US-1204). Core companions
   // train added FBS-028..034 (7 FBSs, one per US on REQ-013/014/015).
@@ -276,7 +276,7 @@ const expectedCounts = {
   // buildOrder 57) (55 -> 57).
   // Round-7 T-2 added FBS-140 (buildOrder 61) per HQ reserved-block
   // ruling 2026-09-07 (60 -> 61).
-  fbs: 61, // Round-7 T-1 added FBS-130 (buildOrder 60) per HQ reserved-block ruling 2026-09-07 (59 -> 60) // Cloudflare round 6 T-5 added FBS-110 (edge-cloudflare-turnstile v1.0.0) with buildOrder 58 per HQ reserved-block ruling 2026-09-07 (57 -> 58).
+  fbs: 62, // Round-7 T-3 added FBS-150 (buildOrder 62) covering the eight T-3 ACs per HQ reserved-block ruling 2026-09-07 (61 -> 62).
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -398,7 +398,7 @@ const expectedCounts = {
   // (232 -> 234).
   // Round-7 T-2 added CN-440 anchoring the platform-docker-compose-host
   // blueprint.json per HQ reserved-block ruling 2026-09-07 (237 -> 238).
-  codeNode: 238, // Cloudflare round 6 T-5 added CN-350 (edge-cloudflare-turnstile blueprint.json anchoring the eight edge ACs) per HQ reserved-block ruling 2026-09-07 (234 -> 235).
+  codeNode: 239, // Round-7 T-3 added CN-470 anchoring blueprints/edge-cloudflare-tunnel/blueprint.json per HQ reserved-block ruling 2026-09-07 (238 -> 239).
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -441,7 +441,7 @@ const expectedCounts = {
   // T-5 USs per HQ reserved-block ruling 2026-09-07 (100 -> 107).
   // Round-7 T-2 added TS-150 with nine TCs paired with the nine T-2 USs
   // per HQ reserved-block ruling 2026-09-07 (116 -> 117).
-  testSuite: 117,
+  testSuite: 118, // Round-7 T-3 added TS-160 with eight TCs covering the T-3 ACs per HQ reserved-block ruling 2026-09-07 (117 -> 118).
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,

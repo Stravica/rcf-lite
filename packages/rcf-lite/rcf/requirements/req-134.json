@@ -1,0 +1,42 @@
+{
+  "createdAt": "2026-09-08T03:20:34.180Z",
+  "updatedAt": "2026-09-08T03:20:34.226Z",
+  "description": "The tunnel credentials file the cloudflared connector reads at boot MUST land on the host at mode 0o400 (owner read only), MUST be referenced from the tunnel manifest as a secretRef (never as a literal path to a committed file), MUST NOT be committed to the applying project's git tree (a grep across the working tree for the credentials-file body's uuid-shaped tunnel id and its account-tag literal refuses if either appears in a tracked file), and MUST NOT appear in any cloudflaredReady, tunnelConnectorUp or ingressRuleReloaded event body. A leaked credentials file gives an attacker lateral movement across every hostname the tunnel serves; the discipline is defensive against silent loss. Chain: HQ round-7 T-3 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-3 track of hetzner-round-7-spec-2026-09-07 section 5.3.",
+  "reqId": "REQ-134",
+  "prdId": "PRD-001",
+  "title": "T-3 edge-cloudflare-tunnel v1.0.0 blueprint: credentials-file discipline (JSON at mode 0o400, referenced via security-secrets-management, not committed to the applying tree, grep-refuse on the literal)",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T03:20:34.225Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      }
+    ]
+  }
+}

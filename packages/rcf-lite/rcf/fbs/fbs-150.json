@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-08T03:25:02.808Z",
+  "updatedAt": "2026-09-08T03:25:02.808Z",
+  "acIds": [
+    "AC-13001-1",
+    "AC-13002-1",
+    "AC-13101-1",
+    "AC-13102-1",
+    "AC-13201-1",
+    "AC-13301-1",
+    "AC-13302-1",
+    "AC-13401-1"
+  ],
+  "fbsId": "FBS-150",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 62,
+  "executionStatus": "notStarted",
+  "title": "T-3 edge-cloudflare-tunnel v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with cloudflared connector (compose-service and systemd-unit variants; access-gated and public-hostname sidecar modes)",
+  "summary": "HQ round-7 T-3: edge-cloudflare-tunnel v1.0.0 blueprint on the shelf under blueprints/edge-cloudflare-tunnel/ (five REQs, eight USs, three TACs, three ADRs; inventory per hetzner-round-7-spec-2026-09-07 section 5.3). Extends the shared throwaway-Hetzner-server fixture minted by T-1 and extended by T-2 (packages/rcf-lite/test/fixtures/hetzner-throwaway-server/) with a cloudflared connector in both runtime shapes (compose-service alongside the T-2 web and caddy services when containerHost is applied; systemd-unit for a bare cloudHost) and both hostname modes (access-gated when zeroTrustGate is applied; public-hostname when absent), all under cloudflared/{compose-service,systemd-unit}/{access-gated,public-hostname}/. Five Node-only probes under blueprints/edge-cloudflare-tunnel/contributions/probes/: manifest-schema-validate (AC-13101-1, AC-13201-1, AC-13401-1; fixture-side SIMULATE_MANIFEST_INVALID_TUNNEL_ID, SIMULATE_MANIFEST_CREDENTIALS_INLINE, SIMULATE_MANIFEST_MISSING_CATCHALL, SIMULATE_ORIGIN_PORT_OPEN, SIMULATE_EVENT_SECRECY_LEAK mutations), cloudflared-config-lint (AC-13102-1; SIMULATE_INGRESS_INVALID mutation; runs the cloudflare/cloudflared vendor container so a cloudflared binary on PATH is optional), aud-presence-check (AC-13301-1, AC-13302-1; SIMULATE_AUD_DROP mutation; runs on both fixture variants and asserts the sidecar-read shape flips), real-account-connector-healthy (AC-13002-1; accountBound on CI_HAS_CLOUDFLARE_ACCOUNT plus CI_HAS_HETZNER_ACCOUNT), real-account-tunnel-hostname-routes (AC-13102-1 (secondary), AC-13301-1 (Access-gated sub-case); accountBound; the Access-gated sub-case additionally reads CI_HAS_CLOUDFLARE_ACCESS per Q4 ratification). Blueprint README, guide, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep adding the edge-cloudflare-tunnel row across every prior blueprint; section 6a tunnelBridge row on packages/rcf-lite/docs/blueprint-authoring.md. New global topic minted: edgeIngressBridge. Repo chain: REQ-130..134, US-13001, 13002, 13101, 13102, 13201, 13301, 13302, 13401, TS-160 with eight TCs, FBS-150, CN-470, TAC-4001..4003, ADR-4001..4003 minted via rcf define create --id per HQ round-7 T-3 reserved-block ruling (REQ-130..139 / TS-160..169 / FBS-150..159 / CN-470..499). Base commit origin/main 6b4df05.",
+  "dependsOnFbsIds": []
+}

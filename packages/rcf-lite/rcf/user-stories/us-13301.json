@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T03:21:17.575Z",
+  "updatedAt": "2026-09-08T03:21:17.575Z",
+  "usId": "US-13301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-133",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 Access-gated composition: when zeroTrustGate is applied, ingress rules attach originRequest.access.aud",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel v1.0.0 alongside edge-cloudflare-access v1.0.0",
+  "iWant": "every ingress rule to attach an originRequest.access block naming the Access AUD",
+  "soThat": "cloudflared refuses at the edge any request that arrives without a valid Access JWT for that AUD",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13301-1",
+      "description": "aud-presence-check probe passes on BOTH fixture variants: on the access-gated variant every ingress rule attaches originRequest.access.aud read from the sidecar rcf/blueprints/edge-cloudflare-tunnel.applied.json (appliedCapabilities includes zeroTrustGate); on the public-hostname variant the originRequest.access block is absent from every rule (appliedCapabilities excludes zeroTrustGate). The shape flip is a pure function of the sidecar contents.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4003-edge-cloudflare-tunnel-access-binding"
+  ]
+}

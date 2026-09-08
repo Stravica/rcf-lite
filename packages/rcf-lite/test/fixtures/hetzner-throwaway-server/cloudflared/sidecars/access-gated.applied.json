@@ -1,0 +1,12 @@
+{
+  "slug": "edge-cloudflare-tunnel",
+  "version": "1.0.0",
+  "appliedCapabilities": [
+    "cloudHost",
+    "containerHost",
+    "secretsProvider",
+    "zeroTrustGate"
+  ],
+  "accessAud": "AUD-fixture-rcf-lite-ci-throwaway",
+  "note": "Access-gated sidecar variant. edge-cloudflare-access v1.0.0 is applied on the project (zeroTrustGate present); every ingress rule attaches originRequest.access.aud per ADR-4003. aud-presence-check reads this file and asserts the ingress rule shape."
+}

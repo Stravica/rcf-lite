@@ -1,0 +1,18 @@
+{
+  "reqId": "edge-cloudflare-tunnel-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Credentials-file discipline: JSON at mode 0o400, referenced via secretRef, not committed, grep-refuse on the literal, no leak in event bodies",
+  "description": "The tunnel credentials JSON file lands on the host at mode 0o400 (owner read only), is referenced from the manifest as a secretRef (never a literal committed file body), MUST NOT be committed to the applying project tree (grep-refuse on the tunnel id and account tag literals across the working tree), and MUST NOT appear in any cloudflaredReady, tunnelConnectorUp or ingressRuleReloaded event body.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Ratified in the Hetzner round 7 spec (2026-09-07 section 5.3 edge-cloudflare-tunnel-REQ-005). Ships as v1.0.0 of edge-cloudflare-tunnel.",
+  "tags": [
+    "blueprint:edge-cloudflare-tunnel",
+    "capability:tunnelBridge"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

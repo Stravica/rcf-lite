@@ -1,0 +1,10 @@
+{
+  "slug": "edge-cloudflare-tunnel",
+  "version": "1.0.0",
+  "appliedCapabilities": [
+    "cloudHost",
+    "containerHost",
+    "secretsProvider"
+  ],
+  "note": "Public-hostname sidecar variant. edge-cloudflare-access v1.0.0 is NOT applied on the project (zeroTrustGate absent); ingress rules omit the originRequest.access block and serve in public-hostname mode per ADR-4003."
+}

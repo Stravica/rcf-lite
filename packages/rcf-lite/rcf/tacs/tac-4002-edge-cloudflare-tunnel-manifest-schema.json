@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-08T03:23:09.027Z",
+  "updatedAt": "2026-09-08T03:23:09.027Z",
+  "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "The tunnel manifest at cloudflare/tunnels/<name>.yaml under the applying project is the sole runtime source of truth for what the cloudflared connector serves. The shipped JSON schema requires a uuid-shaped tunnel id, a secretRef credentials reference (never a literal path or JSON body inline), and an ingress rules array whose last entry is a catch-all rule returning http_status 404. The schema refuses ingress rules whose service URL binds to a host public interface (only internal addresses reachable through the compose network or a loopback interface are allowed).",
+  "responsibilities": [
+    "Ship the JSON schema at blueprints/edge-cloudflare-tunnel/contributions/probes/tunnel-manifest.schema.json (AC-13101-1).",
+    "Validate the fixture manifests at cloudflared/*/cloudflare/tunnels/probe.yaml on every reviewer boot (AC-13101-1, AC-13102-1).",
+    "Refuse ingress rules that bind to a host public port (AC-13201-1).",
+    "Refuse a manifest whose credentials reference is not a secretRef (AC-13101-1, AC-13401-1)."
+  ],
+  "name": "edge-cloudflare-tunnel TAC"
+}

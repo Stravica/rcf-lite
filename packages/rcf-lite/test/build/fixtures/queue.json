@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 61,
-    "notStarted": 33,
+    "items": 62,
+    "notStarted": 34,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 23,
+    "actionable": 24,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -49,7 +49,8 @@
         "FBS-110",
         "FBS-120",
         "FBS-130",
-        "FBS-140"
+        "FBS-140",
+        "FBS-150"
       ]
     },
     {
@@ -825,6 +826,16 @@
       "buildOrder": 61,
       "tier": 0,
       "title": "T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-150",
+      "buildOrder": 62,
+      "tier": 0,
+      "title": "T-3 edge-cloudflare-tunnel v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with cloudflared connector (compose-service and systemd-unit variants; access-gated and public-hostname sidecar modes)",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

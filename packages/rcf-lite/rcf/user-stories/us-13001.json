@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T03:21:16.415Z",
+  "updatedAt": "2026-09-08T03:21:16.415Z",
+  "usId": "US-13001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-130",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 cloudflared connector install shape switches on applied containerHost (compose-service default; systemd-unit fallback for bare cloudHost)",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel v1.0.0 alongside deploy-hetzner-server (and optionally platform-docker-compose-host)",
+  "iWant": "the cloudflared connector to install as a compose service when the containerHost capability is applied and as a systemd unit when the host runs bare",
+  "soThat": "the runtime shape matches the applied platform rather than forcing a container onto a bare host or a bare service into a compose-managed stack",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13001-1",
+      "description": "The blueprint declares its connector runtime via ADR-4002 with elicited enum {compose-service, systemd-unit} and recommendedDefault compose-service. The shared fixture ships both variants under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/{compose-service,systemd-unit}/; the compose-service variant defines a cloudflared service alongside the T-2 web and caddy services on the same web-net network with restart unless-stopped, no host ports and a healthcheck; the systemd-unit variant ships a cloudflared.service unit file per the vendor local-configuration-file docs.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4001-edge-cloudflare-tunnel-connector-shape"
+  ]
+}
