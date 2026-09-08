@@ -2,6 +2,20 @@
 
 All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.0.2 (2026-09-08)
+
+H-2 follow-up (`w-2026-09-08-dave-017`, addendum item 6 fixture defect): the real-account KV probe now self-provisions its own throwaway namespace, closing the second-tier undeclared-env skip HQ hit at the real-account gate on 2026-09-08 (`REAL RUN: PARTIAL`, `MERGE DECISION: HOLD`). No shipped-code capability change.
+
+### Changed
+
+- `real-account-eventual-consistency-smoke.mjs` rewritten against a new self-provisioning fixture shim at `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-real-account-shim.mjs`. The shim mints a scratch KV namespace under the frozen throwaway prefix `h2-cf-probe-integrity-scratch-kv-`, writes a fixture key under `h2-storage-smoke-`, polls up to 60 seconds bounded for same-region visibility, deletes the key, and destroys the namespace on exit. Positive evidence captured on every real-account run: namespace id, exact scratch title, key, PUT / GET / DELETE status codes, elapsed ms.
+- Removed the second-tier `CF_KV_NAMESPACE_ID` gate that produced the undeclared skip at the H-2 real-account gate. The declared env for a real-account run is now `CI_HAS_CLOUDFLARE_ACCOUNT` + `CF_ACCOUNT_ID` + `CF_API_TOKEN` (optional test override `CF_API_BASE_URL`), enumerated in the probe's `report.extra.envDeclared` and mirrored in the shim's `DECLARED_ENV` export.
+- Teardown is fail-safe and idempotent: a mid-run crash surfaces the minted id through the shim's persisted scratch record; the shim's separate `sweepOrphans` entry point lists over the account and filters on the throwaway prefix. Sweep is structurally unable to select a non-prefixed name (three independent guards: prefix assert on mint, prefix assert on destroy against the record, prefix assert on the live-listing observation; sweep-only prefix filter mirrors the destroy assertions). A dedicated sweep-safety test at `packages/rcf-lite/test/fixtures/cf-platform/test/h2-cf-kv-real-account-shim.test.mjs` seeds the mock account with the ten live production script names on the operator account plus a sneaky mid-string-prefix name and asserts sweep selects zero of them.
+
+### Added
+
+- Self-contained mock CF REST API at `packages/rcf-lite/test/fixtures/cf-platform/test/mock-cf-api-server.mjs` (Node `node:http` only, zero-dep) implementing the KV namespaces + values endpoints the shim hits. Test at `test/h2-cf-kv-probe-e2e.test.mjs` boots the mock in-process, points the shim at it via `CF_API_BASE_URL`, and drives the probe end-to-end to prove the mint / evidence-capture / teardown / zero-orphans loop before the HQ real-account run ever executes.
+
 ## 1.0.1 (2026-09-08)
 
 H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch across the four Cloudflare-platform blueprints. No capability change.
