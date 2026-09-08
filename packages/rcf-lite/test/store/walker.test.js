@@ -128,7 +128,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // US-10701, US-10801 / TS-130..137 / FBS-120 / CN-380 (63 -> 68).
   // Round-7 T-1 added REQ-110..115 for the deploy-hetzner-server v1.0.0
   // blueprint (68 -> 74) per HQ reserved-block ruling 2026-09-07.
-  assert.equal(tree.requirements.length, 74);
+  // Round-7 T-2 added REQ-120..125 for the platform-docker-compose-host
+  // v1.0.0 blueprint (74 -> 80) per HQ reserved-block ruling 2026-09-07.
+  assert.equal(tree.requirements.length, 80);
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
   // `rcf define blueprint remove-resolution` verb the doctor and spec
   // section 9 name as the redundant-resolution remedy. Core companions

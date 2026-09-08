@@ -1,10 +1,10 @@
 {
-  "ok": false,
+  "ok": true,
   "strict": false,
   "totals": {
     "requirements": 80,
-    "covered": 74,
-    "coveredUnresolved": 6,
+    "covered": 80,
+    "coveredUnresolved": 0,
     "uncovered": 0
   },
   "requirements": [
@@ -3240,191 +3240,118 @@
     },
     {
       "id": "REQ-120",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-12001-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-compose-layout-shape-valid"
           ],
-          "unresolvedTestCases": [
-            "TC-150-compose-layout-shape-valid"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-121",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-12101-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-secrets-file-mount-shape"
           ],
-          "unresolvedTestCases": [
-            "TC-150-secrets-file-mount-shape"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-12102-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-secrets-scan-fails-on-plaintext"
           ],
-          "unresolvedTestCases": [
-            "TC-150-secrets-scan-fails-on-plaintext"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-122",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-12201-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-compose-config-lint-refuses-missing-healthcheck"
           ],
-          "unresolvedTestCases": [
-            "TC-150-compose-config-lint-refuses-missing-healthcheck"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-12202-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-real-account-minimal-stack-up-declared-and-skipped-shape"
           ],
-          "unresolvedTestCases": [
-            "TC-150-real-account-minimal-stack-up-declared-and-skipped-shape"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-123",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-12301-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-restart-discipline-lint-refuses-unclassified"
           ],
-          "unresolvedTestCases": [
-            "TC-150-restart-discipline-lint-refuses-unclassified"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-124",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-12401-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-caddyfile-validate-refuses-invalid-directive"
           ],
-          "unresolvedTestCases": [
-            "TC-150-caddyfile-validate-refuses-invalid-directive"
-          ]
+          "unresolvedTestCases": []
         },
         {
           "id": "AC-12402-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-real-account-reload-burst-declared-and-skipped-shape"
           ],
-          "unresolvedTestCases": [
-            "TC-150-real-account-reload-burst-declared-and-skipped-shape"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-125",
-      "covered": false,
-      "coverageClass": "covered-unresolved",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-12501-1",
-          "covered": false,
+          "covered": true,
           "testCases": [
             "TC-150-log-driver-classification"
           ],
-          "unresolvedTestCases": [
-            "TC-150-log-driver-classification"
-          ]
+          "unresolvedTestCases": []
         }
       ]
     }
   ],
-  "unresolvedTestPointers": [
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-caddyfile-validate-refuses-invalid-directive",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-compose-config-lint-refuses-missing-healthcheck",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-compose-layout-shape-valid",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-log-driver-classification",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-real-account-minimal-stack-up-declared-and-skipped-shape",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-real-account-reload-burst-declared-and-skipped-shape",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-restart-discipline-lint-refuses-unclassified",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-secrets-file-mount-shape",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)",
-      "reason": "file-missing"
-    },
-    {
-      "tsId": "TS-150",
-      "tcId": "TC-150-secrets-scan-fails-on-plaintext",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)",
-      "reason": "file-missing"
-    }
-  ]
+  "unresolvedTestPointers": []
 }
