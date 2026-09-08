@@ -1519,6 +1519,51 @@ flowchart LR
   REQ-125 --> AC-12501-1
   TC-150-log-driver-classification["TC-150-log-driver-classification"]
   AC-12501-1 -.-> TC-150-log-driver-classification
+  REQ-130["REQ-130"]
+  AC-13001-1["AC-13001-1"]
+  REQ-130 --> AC-13001-1
+  TC-160-connector-shape-variants-shipped["TC-160-connector-shape-variants-shipped"]
+  AC-13001-1 -.-> TC-160-connector-shape-variants-shipped
+  AC-13002-1["AC-13002-1"]
+  REQ-130 --> AC-13002-1
+  TC-160-real-account-connector-healthy-declared-and-skipped-shape["TC-160-real-account-connector-healthy-declared-and-skipped-shape"]
+  AC-13002-1 -.-> TC-160-real-account-connector-healthy-declared-and-skipped-shape
+  REQ-131["REQ-131"]
+  AC-13101-1["AC-13101-1"]
+  REQ-131 --> AC-13101-1
+  TC-160-manifest-schema-validate-refuses-invalid["TC-160-manifest-schema-validate-refuses-invalid"]
+  AC-13101-1 -.-> TC-160-manifest-schema-validate-refuses-invalid
+  AC-13102-1["AC-13102-1"]
+  REQ-131 --> AC-13102-1
+  TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress["TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress"]
+  AC-13102-1 -.-> TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress
+  REQ-132["REQ-132"]
+  AC-13201-1["AC-13201-1"]
+  REQ-132 --> AC-13201-1
+  TC-160-no-public-origin-port-refused["TC-160-no-public-origin-port-refused"]
+  AC-13201-1 -.-> TC-160-no-public-origin-port-refused
+  REQ-133["REQ-133"]
+  AC-13301-1["AC-13301-1"]
+  REQ-133 --> AC-13301-1
+  TC-160-aud-presence-flip-on-both-fixture-variants["TC-160-aud-presence-flip-on-both-fixture-variants"]
+  AC-13301-1 -.-> TC-160-aud-presence-flip-on-both-fixture-variants
+  AC-13302-1["AC-13302-1"]
+  REQ-133 --> AC-13302-1
+  TC-160-aud-presence-check-refuses-on-drift["TC-160-aud-presence-check-refuses-on-drift"]
+  AC-13302-1 -.-> TC-160-aud-presence-check-refuses-on-drift
+  REQ-134["REQ-134"]
+  AC-13401-1["AC-13401-1"]
+  REQ-134 --> AC-13401-1
+  TC-160-credentials-discipline-and-event-secrecy["TC-160-credentials-discipline-and-event-secrecy"]
+  AC-13401-1 -.-> TC-160-credentials-discipline-and-event-secrecy
+  class TC-160-connector-shape-variants-shipped broken;
+  class TC-160-real-account-connector-healthy-declared-and-skipped-shape broken;
+  class TC-160-manifest-schema-validate-refuses-invalid broken;
+  class TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress broken;
+  class TC-160-no-public-origin-port-refused broken;
+  class TC-160-aud-presence-flip-on-both-fixture-variants broken;
+  class TC-160-aud-presence-check-refuses-on-drift broken;
+  class TC-160-credentials-discipline-and-event-secrecy broken;
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2319,6 +2364,27 @@ flowchart LR
   class REQ-125 req;
   class AC-12501-1 ac;
   class TC-150-log-driver-classification tc;
+  class REQ-130 req;
+  class AC-13001-1 ac;
+  class TC-160-connector-shape-variants-shipped tc;
+  class AC-13002-1 ac;
+  class TC-160-real-account-connector-healthy-declared-and-skipped-shape tc;
+  class REQ-131 req;
+  class AC-13101-1 ac;
+  class TC-160-manifest-schema-validate-refuses-invalid tc;
+  class AC-13102-1 ac;
+  class TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress tc;
+  class REQ-132 req;
+  class AC-13201-1 ac;
+  class TC-160-no-public-origin-port-refused tc;
+  class REQ-133 req;
+  class AC-13301-1 ac;
+  class TC-160-aud-presence-flip-on-both-fixture-variants tc;
+  class AC-13302-1 ac;
+  class TC-160-aud-presence-check-refuses-on-drift tc;
+  class REQ-134 req;
+  class AC-13401-1 ac;
+  class TC-160-credentials-discipline-and-event-secrecy tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

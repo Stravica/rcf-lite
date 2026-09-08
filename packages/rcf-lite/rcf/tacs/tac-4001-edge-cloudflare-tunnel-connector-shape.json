@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-08T03:23:08.838Z",
+  "updatedAt": "2026-09-08T03:23:08.838Z",
+  "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "The cloudflared connector installs in one of two runtime shapes as selected by ADR-4002 from the applied capability set. When containerHost is applied (T-2 platform-docker-compose-host on top of T-1 deploy-hetzner-server) the connector ships as a compose service alongside the applying project services on the same web-net network with no host ports and a healthcheck. When the host runs bare (only T-1 applied) the connector ships as a systemd unit per the vendor local-configuration-file docs. Either shape emits cloudflaredReady on boot with connector id, region and version metadata (metadata only).",
+  "responsibilities": [
+    "Ship the compose-service variant under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/ (AC-13001-1).",
+    "Ship the systemd-unit variant under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/systemd-unit/ (AC-13001-1).",
+    "Emit cloudflaredReady on boot with connector id, region and version metadata (AC-13002-1).",
+    "Never expose an origin port on the host firewall (AC-13201-1)."
+  ],
+  "name": "edge-cloudflare-tunnel TAC"
+}

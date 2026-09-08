@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-09-08T03:20:33.475Z",
+  "updatedAt": "2026-09-08T03:20:33.520Z",
+  "description": "The applying project ships one tunnel manifest per named tunnel at cloudflare/tunnels/<name>.yaml. The schema requires: a tunnel id (uuid-shaped string), a credentials-file reference into security-secrets-management (secretRef, never a literal path or JSON body inline), and an ingress rules array mapping public hostname to internal service URL with a mandatory catch-all rule returning http_status 404. The manifest is the single source of truth for what the connector serves; cloudflared refuses to boot if it fails the shipped JSON-schema validation. Chain: HQ round-7 T-3 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-3 track of hetzner-round-7-spec-2026-09-07 section 5.3.",
+  "reqId": "REQ-131",
+  "prdId": "PRD-001",
+  "title": "T-3 edge-cloudflare-tunnel v1.0.0 blueprint: tunnel manifest schema at cloudflare/tunnels/<name>.yaml (tunnel id, credentials secretRef, ingress rules with catch-all 404)",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "httpApi",
+      "auth",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T03:20:33.519Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "title",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "JSON body"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      }
+    ]
+  }
+}

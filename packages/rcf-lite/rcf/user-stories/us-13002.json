@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T03:21:16.655Z",
+  "updatedAt": "2026-09-08T03:21:16.655Z",
+  "usId": "US-13002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-130",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 cloudflared connector reports healthy on boot (tunnelConnectorUp fires with connector id, region, version)",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel v1.0.0 on a cloudHost",
+  "iWant": "the connector to emit a tunnelConnectorUp event on boot with connector id, region and version metadata (metadata only)",
+  "soThat": "the observability sink proves the tunnel is up without a shell into the host",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13002-1",
+      "description": "real-account-connector-healthy probe declares accountBound true (on CI_HAS_CLOUDFLARE_ACCOUNT AND CI_HAS_HETZNER_ACCOUNT) and records accountBoundSkipped when either env var is unset. When both are set the probe drives cloudflared tunnel info against the fixture tunnel and asserts at least one healthy connector plus a tunnelConnectorUp event with connector id, region and version.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4001-edge-cloudflare-tunnel-connector-shape"
+  ]
+}

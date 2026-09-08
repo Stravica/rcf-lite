@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-09-08T03:24:23.156Z",
+  "updatedAt": "2026-09-08T03:24:51.162Z",
+  "purpose": "Cover the T-3 chain ACs via the shipped anatomy test at test/blueprint/edge-cloudflare-tunnel-anatomy.test.js and via the three local probe modules driven from the shared throwaway-server fixture (which T-3 extends with cloudflared/compose-service and cloudflared/systemd-unit variants, each in both public-hostname and access-gated sidecar modes).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-13001-1",
+    "AC-13002-1",
+    "AC-13101-1",
+    "AC-13102-1",
+    "AC-13201-1",
+    "AC-13301-1",
+    "AC-13302-1",
+    "AC-13401-1"
+  ],
+  "id": "TS-160",
+  "usId": "US-13001",
+  "title": "T-3 edge-cloudflare-tunnel anatomy proof: probe modules and cloudflared connector fixture assertions",
+  "testCases": [
+    {
+      "id": "TC-160-connector-shape-variants-shipped",
+      "acId": "AC-13001-1",
+      "description": "Cover AC-13001-1 via anatomy test: the shared fixture ships both cloudflared/compose-service/ and cloudflared/systemd-unit/ variants and the compose-service variant defines a cloudflared service alongside T-2 web and caddy on the same web-net network with no host ports; the systemd-unit variant ships a cloudflared.service unit file per the vendor local-configuration-file docs.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13001-1 connector shape variants shipped (TC-160-connector-shape-variants-shipped)"
+    },
+    {
+      "id": "TC-160-real-account-connector-healthy-declared-and-skipped-shape",
+      "acId": "AC-13002-1",
+      "description": "Cover AC-13002-1 via anatomy test: real-account-connector-healthy probe declares accountBound true and records accountBoundSkipped when CI_HAS_CLOUDFLARE_ACCOUNT or CI_HAS_HETZNER_ACCOUNT is unset.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13002-1 real-account-connector-healthy declared and skipped shape (TC-160-real-account-connector-healthy-declared-and-skipped-shape)"
+    },
+    {
+      "id": "TC-160-manifest-schema-validate-refuses-invalid",
+      "acId": "AC-13101-1",
+      "description": "Cover AC-13101-1 via anatomy test: manifest-schema-validate probe passes on the canonical fixture manifests and fails under the three fixture-side mutations SIMULATE_MANIFEST_INVALID_TUNNEL_ID, SIMULATE_MANIFEST_CREDENTIALS_INLINE and SIMULATE_MANIFEST_MISSING_CATCHALL naming the offending field.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13101-1 manifest schema validate refuses invalid (TC-160-manifest-schema-validate-refuses-invalid)"
+    },
+    {
+      "id": "TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress",
+      "acId": "AC-13102-1",
+      "description": "Cover AC-13102-1 via anatomy test: cloudflared-config-lint probe runs cloudflared tunnel ingress validate through the cloudflare/cloudflared container image and exits 0 on the canonical fixture; fails under SIMULATE_INGRESS_INVALID naming the offending line.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13102-1 cloudflared-config-lint passes and refuses invalid ingress (TC-160-cloudflared-config-lint-passes-and-refuses-invalid-ingress)"
+    },
+    {
+      "id": "TC-160-no-public-origin-port-refused",
+      "acId": "AC-13201-1",
+      "description": "Cover AC-13201-1 via anatomy test: manifest-schema-validate refuses under SIMULATE_ORIGIN_PORT_OPEN when an ingress rule service URL binds to a host public interface; the T-1 firewall on the ci-throwaway manifest stays 22 open plus 80/443 open only when a reverse proxy is applied.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13201-1 no public origin port refused (TC-160-no-public-origin-port-refused)"
+    },
+    {
+      "id": "TC-160-aud-presence-flip-on-both-fixture-variants",
+      "acId": "AC-13301-1",
+      "description": "Cover AC-13301-1 via anatomy test: aud-presence-check reads each variant sidecar and asserts the ingress rules attach originRequest.access.aud on the access-gated variant and omit the block on the public-hostname variant.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13301-1 aud-presence-check flips on both fixture variants (TC-160-aud-presence-flip-on-both-fixture-variants)"
+    },
+    {
+      "id": "TC-160-aud-presence-check-refuses-on-drift",
+      "acId": "AC-13302-1",
+      "description": "Cover AC-13302-1 via anatomy test: aud-presence-check FAILS under SIMULATE_AUD_DROP when the gated fixture ingress drifts to omit the originRequest.access block; the finding names the affected rule.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13302-1 aud-presence-check refuses on drift (TC-160-aud-presence-check-refuses-on-drift)"
+    },
+    {
+      "id": "TC-160-credentials-discipline-and-event-secrecy",
+      "acId": "AC-13401-1",
+      "description": "Cover AC-13401-1 via anatomy test: the fixture credentials placeholder documents the 0o400 host mode and secretRef discipline; the event-secrecy scan across lifecycle event bodies passes on canonical fixture and FAILS under SIMULATE_EVENT_SECRECY_LEAK naming the leaked field.",
+      "status": "pending",
+      "testPointer": "test/blueprint/edge-cloudflare-tunnel-anatomy.test.js::T-3 edge-cloudflare-tunnel AC-13401-1 credentials discipline and event-secrecy scan (TC-160-credentials-discipline-and-event-secrecy)"
+    }
+  ],
+  "status": "draft"
+}

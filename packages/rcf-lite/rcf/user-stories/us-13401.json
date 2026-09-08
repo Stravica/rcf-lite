@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T03:21:18.038Z",
+  "updatedAt": "2026-09-08T03:21:18.038Z",
+  "usId": "US-13401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-134",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 credentials-file discipline (JSON at mode 0o400, referenced via secretRef, not committed, grep-refuses on the literal, no leak in event bodies)",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel v1.0.0 on a cloudHost",
+  "iWant": "the tunnel credentials file to land at mode 0o400 on the host, be referenced from the manifest as a secretRef, never be committed to the applying project tree (grep-refuse on the tunnel id and account tag literals), and never appear in any lifecycle event body",
+  "soThat": "a leaked credentials file cannot happen through a review-time miss",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13401-1",
+      "description": "The fixture credentials placeholder at cloudflared/credentials/probe.json.example carries a note that a real credentials file must land at mode 0o400 on the host; the manifest references it via a secretRef; the grep-refuse pattern is documented in the guide; every cloudflaredReady, tunnelConnectorUp and ingressRuleReloaded event body captured by the in-process facade carries metadata only, and SIMULATE_EVENT_SECRECY_LEAK inserts the credentials literal into a lifecycle event body and the scan FAILS naming the leaked field.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
+  ]
+}

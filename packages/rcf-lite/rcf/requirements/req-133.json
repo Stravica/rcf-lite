@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-08T03:20:33.944Z",
+  "updatedAt": "2026-09-08T03:20:33.990Z",
+  "description": "The blueprint reads the applying project's sidecar rcf/blueprints/edge-cloudflare-tunnel.applied.json at apply time and inspects appliedCapabilities. When zeroTrustGate is present (i.e. edge-cloudflare-access v1.0.0 has been applied on the same project), every ingress rule under the tunnel manifest attaches an originRequest.access block naming the Access AUD; cloudflared then refuses at the edge any request that arrives without a valid Access JWT for that AUD. When zeroTrustGate is absent, the block is omitted and the tunnel serves in public-hostname mode (open ingress on the public hostname). The aud-presence-check probe asserts the shape flips correctly on both fixture variants; the shape MUST NOT silently degrade to open ingress on a project that intended the gated shape. Chain: HQ round-7 T-3 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-3 track of hetzner-round-7-spec-2026-09-07 section 5.3.",
+  "reqId": "REQ-133",
+  "prdId": "PRD-001",
+  "title": "T-3 edge-cloudflare-tunnel v1.0.0 blueprint: Access-gated composition (when zeroTrustGate is applied, the ingress rule sets originRequest.access.aud; when absent, the block is omitted and the tunnel serves in public-hostname mode)",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T03:20:33.989Z"
+  }
+}

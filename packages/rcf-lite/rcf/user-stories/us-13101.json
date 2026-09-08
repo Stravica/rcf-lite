@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T03:21:16.885Z",
+  "updatedAt": "2026-09-08T03:21:16.885Z",
+  "usId": "US-13101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-131",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-3 tunnel manifest schema at cloudflare/tunnels/<name>.yaml validates on shape (tunnel id, credentials secretRef, ingress rules with catch-all 404)",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel v1.0.0",
+  "iWant": "the tunnel manifest at cloudflare/tunnels/<name>.yaml to validate against a shipped JSON schema (uuid-shaped tunnel id, secretRef credentials, ingress rules with a mandatory catch-all http_status 404)",
+  "soThat": "a mis-shaped manifest is caught at apply-time rather than at first inbound request",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-13101-1",
+      "description": "manifest-schema-validate probe passes on the canonical fixture at cloudflared/*/cloudflare/tunnels/probe.yaml and fails when the fixture is mutated: SIMULATE_MANIFEST_INVALID_TUNNEL_ID rewrites the tunnel-id field to a non-uuid literal; SIMULATE_MANIFEST_CREDENTIALS_INLINE writes the credentials JSON body inline (bypassing the secretRef); SIMULATE_MANIFEST_MISSING_CATCHALL removes the catch-all rule. Each mutation FAILS naming the offending field.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
+  ]
+}
