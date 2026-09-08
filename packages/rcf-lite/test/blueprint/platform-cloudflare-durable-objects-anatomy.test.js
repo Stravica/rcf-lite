@@ -235,6 +235,79 @@ test('wrangler-seam probe module exports anchorAcId AC-33113-1 and shape (TC-wra
   assert.equal(typeof mod.default, 'function');
 });
 
+// H-2 (h2-cf-platform-probe-integrity) B2 anchor coverage: the five
+// ACs listed as unbound in finding f-2026-09-08-stage2-075 (AC-33106-1,
+// AC-33108-1, AC-33109-1, AC-33110-1, AC-33111-1) all carry runtime
+// observables through additional-result entries on existing probes.
+// These assertions surface the coverage at the anatomy level so a
+// grep for the AC id against probe modules alone no longer misses
+// the observable. Anatomy assertions added per dispatch addendum
+// ruling 1 alongside the DO probe changes on this train.
+
+test('AC-33106-1 event-secrecy has a runtime observable via websocket-hub-broadcast (TC-H2-B2-33106)', async () => {
+  const originalLeak = process.env.SIMULATE_PII_LEAK;
+  const originalHang = process.env.SIMULATE_HUB_HANG;
+  delete process.env.SIMULATE_PII_LEAK;
+  delete process.env.SIMULATE_HUB_HANG;
+  try {
+    const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'websocket-hub-broadcast.mjs')).href)).default;
+    const { results } = await runProbe();
+    const secrecy = results.find((r) => r.anchorAcId === 'AC-33106-1');
+    assert.ok(secrecy, 'websocket-hub-broadcast must include an AC-33106-1 result (event-secrecy scan on the sink)');
+    assert.equal(secrecy.verdict, 'pass', `AC-33106-1 verdict on shipped path: ${secrecy.detail}`);
+  } finally {
+    if (originalLeak !== undefined) process.env.SIMULATE_PII_LEAK = originalLeak;
+    if (originalHang !== undefined) process.env.SIMULATE_HUB_HANG = originalHang;
+  }
+});
+
+test('AC-33108-1 wrangler.toml DO bindings and migrations has a runtime observable via wrangler-seam (TC-H2-B2-33108)', async () => {
+  const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'wrangler-seam.mjs')).href)).default;
+  const { results } = await runProbe();
+  const grep = results.find((r) => r.anchorAcId === 'AC-33108-1');
+  assert.ok(grep, 'wrangler-seam must include an AC-33108-1 result (wrangler.toml literal-string grep)');
+  assert.equal(grep.verdict, 'pass', `AC-33108-1 verdict on shipped path: ${grep.detail}`);
+});
+
+test('AC-33109-1 witness field present on every increment has a runtime observable via single-cell-concurrent-increment (TC-H2-B2-33109)', async () => {
+  const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'single-cell-concurrent-increment.mjs')).href)).default;
+  const { results } = await runProbe();
+  const witness = results.find((r) => r.anchorAcId === 'AC-33109-1');
+  assert.ok(witness, 'single-cell-concurrent-increment must include an AC-33109-1 result (witness field on every resolved increment)');
+  assert.equal(witness.verdict, 'pass', `AC-33109-1 verdict on shipped path: ${witness.detail}`);
+});
+
+test('AC-33110-1 hibernate-and-wake round trip has a runtime observable via websocket-hub-broadcast (TC-H2-B2-33110)', async () => {
+  const originalLeak = process.env.SIMULATE_PII_LEAK;
+  const originalHang = process.env.SIMULATE_HUB_HANG;
+  delete process.env.SIMULATE_PII_LEAK;
+  delete process.env.SIMULATE_HUB_HANG;
+  try {
+    const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'websocket-hub-broadcast.mjs')).href)).default;
+    const { results } = await runProbe();
+    const hib = results.find((r) => r.anchorAcId === 'AC-33110-1');
+    assert.ok(hib, 'websocket-hub-broadcast must include an AC-33110-1 result (hibernate-and-wake round trip)');
+    assert.equal(hib.verdict, 'pass', `AC-33110-1 verdict on shipped path: ${hib.detail}`);
+  } finally {
+    if (originalLeak !== undefined) process.env.SIMULATE_PII_LEAK = originalLeak;
+    if (originalHang !== undefined) process.env.SIMULATE_HUB_HANG = originalHang;
+  }
+});
+
+test('AC-33111-1 backend field on every returned driver has a runtime observable via storage-round-trip (TC-H2-B2-33111)', async () => {
+  const originalSim = process.env.SIMULATE_STORAGE_BACKEND_MISMATCH;
+  delete process.env.SIMULATE_STORAGE_BACKEND_MISMATCH;
+  try {
+    const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'storage-round-trip.mjs')).href)).default;
+    const { results } = await runProbe();
+    const backend = results.find((r) => r.anchorAcId === 'AC-33111-1');
+    assert.ok(backend, 'storage-round-trip must include an AC-33111-1 result (driver.backend field present with elicited answer)');
+    assert.equal(backend.verdict, 'pass', `AC-33111-1 verdict on shipped path: ${backend.detail}`);
+  } finally {
+    if (originalSim !== undefined) process.env.SIMULATE_STORAGE_BACKEND_MISMATCH = originalSim;
+  }
+});
+
 // Blueprint shape.
 
 test('blueprint.json declares slug, version, capabilities, elicits, contributions', async () => {
