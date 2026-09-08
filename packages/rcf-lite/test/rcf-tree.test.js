@@ -152,7 +152,7 @@ const expectedCounts = {
   // v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (68 -> 74).
   // Round-7 T-2 added REQ-120..125 for the platform-docker-compose-host
   // v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (74 -> 80).
-  req: 86, // Round-7 T-3 added REQ-130..134 for the edge-cloudflare-tunnel v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (80 -> 85). Round-7 follow-up adapter added REQ-140 for the object-storage-s3 v1.1.0 Hetzner Object Storage adapter minor bump per HQ reserved-block ruling 2026-09-08 (85 -> 86).
+  req: 87, // Round-7 T-3 added REQ-130..134 for the edge-cloudflare-tunnel v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (80 -> 85). Round-7 follow-up adapter added REQ-140 for the object-storage-s3 v1.1.0 Hetzner Object Storage adapter minor bump per HQ reserved-block ruling 2026-09-08 (85 -> 86). H-1 hardening block added REQ-145 for the deploy-hetzner-server 1.0.1 patch train real-path fidelity per HQ reserved-block ruling 2026-09-08 (86 -> 87).
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -202,7 +202,7 @@ const expectedCounts = {
   // Round-7 T-2 added US-12001, 12101, 12102, 12201, 12202, 12301,
   // 12401, 12402, 12501 derived from REQ-120..125 per HQ reserved-block
   // ruling 2026-09-07 (125 -> 134).
-  userStory: 143, // Round-7 T-3 added US-13001, 13002, 13101, 13102, 13201, 13301, 13302, 13401 derived from REQ-130..134 per HQ reserved-block ruling 2026-09-07 (134 -> 142). Round-7 follow-up adapter added US-14001 derived from REQ-140 per HQ reserved-block ruling 2026-09-08 (142 -> 143).
+  userStory: 144, // Round-7 T-3 added US-13001, 13002, 13101, 13102, 13201, 13301, 13302, 13401 derived from REQ-130..134 per HQ reserved-block ruling 2026-09-07 (134 -> 142). Round-7 follow-up adapter added US-14001 derived from REQ-140 per HQ reserved-block ruling 2026-09-08 (142 -> 143). H-1 hardening block added US-14501 derived from REQ-145 for the deploy-hetzner-server 1.0.1 patch train per HQ reserved-block ruling 2026-09-08 (143 -> 144).
   tad: 1,
   // Cloudflare round 6 T-4 added TAC-3501..3504 (Access JWT validator,
   // application declaration, policy shape, audit sink) plus TAC-2214
@@ -276,7 +276,7 @@ const expectedCounts = {
   // buildOrder 57) (55 -> 57).
   // Round-7 T-2 added FBS-140 (buildOrder 61) per HQ reserved-block
   // ruling 2026-09-07 (60 -> 61).
-  fbs: 63, // Round-7 T-3 added FBS-150 (buildOrder 62) covering the eight T-3 ACs per HQ reserved-block ruling 2026-09-07 (61 -> 62). Round-7 follow-up adapter added FBS-160 (buildOrder 63) covering AC-14001-1 per HQ reserved-block ruling 2026-09-08 (62 -> 63).
+  fbs: 64, // Round-7 T-3 added FBS-150 (buildOrder 62) covering the eight T-3 ACs per HQ reserved-block ruling 2026-09-07 (61 -> 62). Round-7 follow-up adapter added FBS-160 (buildOrder 63) covering AC-14001-1 per HQ reserved-block ruling 2026-09-08 (62 -> 63). H-1 hardening block added FBS-165 (buildOrder 64) covering AC-14501-1 per HQ reserved-block ruling 2026-09-08 (63 -> 64).
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -398,7 +398,7 @@ const expectedCounts = {
   // (232 -> 234).
   // Round-7 T-2 added CN-440 anchoring the platform-docker-compose-host
   // blueprint.json per HQ reserved-block ruling 2026-09-07 (237 -> 238).
-  codeNode: 240, // Round-7 T-3 added CN-470 anchoring blueprints/edge-cloudflare-tunnel/blueprint.json per HQ reserved-block ruling 2026-09-07 (238 -> 239). Round-7 follow-up adapter added CN-500 anchoring blueprints/object-storage-s3/blueprint.json per HQ reserved-block ruling 2026-09-08 (239 -> 240).
+  codeNode: 241, // Round-7 T-3 added CN-470 anchoring blueprints/edge-cloudflare-tunnel/blueprint.json per HQ reserved-block ruling 2026-09-07 (238 -> 239). Round-7 follow-up adapter added CN-500 anchoring blueprints/object-storage-s3/blueprint.json per HQ reserved-block ruling 2026-09-08 (239 -> 240). H-1 hardening block added CN-510 anchoring blueprints/deploy-hetzner-server/blueprint.json per HQ reserved-block ruling 2026-09-08 (240 -> 241).
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -441,7 +441,7 @@ const expectedCounts = {
   // T-5 USs per HQ reserved-block ruling 2026-09-07 (100 -> 107).
   // Round-7 T-2 added TS-150 with nine TCs paired with the nine T-2 USs
   // per HQ reserved-block ruling 2026-09-07 (116 -> 117).
-  testSuite: 119, // Round-7 T-3 added TS-160 with eight TCs covering the T-3 ACs per HQ reserved-block ruling 2026-09-07 (117 -> 118). Round-7 follow-up adapter added TS-170 with TC-170-hetzner-endpoint-round-trip-and-skipped-shape covering AC-14001-1 per HQ reserved-block ruling 2026-09-08 (118 -> 119).
+  testSuite: 120, // Round-7 T-3 added TS-160 with eight TCs covering the T-3 ACs per HQ reserved-block ruling 2026-09-07 (117 -> 118). Round-7 follow-up adapter added TS-170 with TC-170-hetzner-endpoint-round-trip-and-skipped-shape covering AC-14001-1 per HQ reserved-block ruling 2026-09-08 (118 -> 119). H-1 hardening block added TS-175 with TC-175-mock-consumes-rendered-file-and-probe-purity covering AC-14501-1 per HQ reserved-block ruling 2026-09-08 (119 -> 120).
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,
