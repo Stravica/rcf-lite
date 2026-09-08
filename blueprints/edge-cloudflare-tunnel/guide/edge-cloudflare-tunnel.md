@@ -158,7 +158,7 @@ Every reviewer boot exercises the three local probes on the fixture:
 
 ```
 cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
-node ./run-manifest-schema-validate.mjs
+node ./run-tunnel-manifest-schema-validate.mjs
 node ./run-cloudflared-config-lint.mjs
 node ./run-aud-presence-check.mjs
 ```
@@ -170,11 +170,11 @@ under the repo root.
 Mutations (fixture-side, one per switch; the probe modules never read
 `SIMULATE_` env vars):
 
-- `SIMULATE_MANIFEST_INVALID_TUNNEL_ID=true` on `run-manifest-schema-validate.mjs`
-- `SIMULATE_MANIFEST_CREDENTIALS_INLINE=true` on `run-manifest-schema-validate.mjs`
-- `SIMULATE_MANIFEST_MISSING_CATCHALL=true` on `run-manifest-schema-validate.mjs`
-- `SIMULATE_ORIGIN_PORT_OPEN=true` on `run-manifest-schema-validate.mjs`
-- `SIMULATE_EVENT_SECRECY_LEAK=true` on `run-manifest-schema-validate.mjs`
+- `SIMULATE_MANIFEST_INVALID_TUNNEL_ID=true` on `run-tunnel-manifest-schema-validate.mjs`
+- `SIMULATE_MANIFEST_CREDENTIALS_INLINE=true` on `run-tunnel-manifest-schema-validate.mjs`
+- `SIMULATE_MANIFEST_MISSING_CATCHALL=true` on `run-tunnel-manifest-schema-validate.mjs`
+- `SIMULATE_ORIGIN_PORT_OPEN=true` on `run-tunnel-manifest-schema-validate.mjs`
+- `SIMULATE_EVENT_SECRECY_LEAK=true` on `run-tunnel-manifest-schema-validate.mjs`
 - `SIMULATE_INGRESS_INVALID=true` on `run-cloudflared-config-lint.mjs`
 - `SIMULATE_AUD_DROP=true` on `run-aud-presence-check.mjs`
 

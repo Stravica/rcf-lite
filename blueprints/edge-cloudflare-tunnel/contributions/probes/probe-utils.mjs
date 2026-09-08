@@ -74,6 +74,11 @@ export async function writeReport({ probeName, engine, results, extra }) {
     aggregateVerdict,
     ...(extra ?? {}),
   };
+  // Strip absolute builder scratchpad paths from persisted reports so
+  // the committed envelopes stay repo-relative and diff cleanly.
+  if (typeof report.fixtureRoot === 'string' && report.fixtureRoot.startsWith(PROJECT_ROOT)) {
+    report.fixtureRoot = report.fixtureRoot.slice(PROJECT_ROOT.length + 1) || '.';
+  }
   const path = resolve(REPORT_DIR, `${probeName}.json`);
   await writeFile(path, JSON.stringify(report, null, 2) + '\n', 'utf8');
   return { report, path };

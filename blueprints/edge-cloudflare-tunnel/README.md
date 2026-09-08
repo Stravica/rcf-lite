@@ -226,7 +226,7 @@ Reviewer boot (mocked, no account) from the fixture directory:
 
 ```
 cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
-node ./run-manifest-schema-validate.mjs && node ./run-cloudflared-config-lint.mjs && node ./run-aud-presence-check.mjs
+node ./run-tunnel-manifest-schema-validate.mjs && node ./run-cloudflared-config-lint.mjs && node ./run-aud-presence-check.mjs
 ```
 
 Reviewer boot (real account, throwaway server): set

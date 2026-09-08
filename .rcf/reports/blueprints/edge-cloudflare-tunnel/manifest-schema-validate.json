@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-tunnel",
   "probeName": "manifest-schema-validate",
-  "runAt": "2026-09-08T04:08:23.161Z",
+  "runAt": "2026-09-08T04:40:17.440Z",
   "engine": {
     "kind": "schema-validate",
     "image": "edge-cloudflare-tunnel manifest schema (Ajv-free walker)",
@@ -90,7 +90,7 @@
     }
   ],
   "aggregateVerdict": "pass",
-  "fixtureRoot": "/private/tmp/claude-501/-Users-thefoot-stravica-pa-agents-dave/621190f7-bce3-4515-aedf-fc604cd0e42e/scratchpad/round7-t3/wt/packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared",
+  "fixtureRoot": "packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared",
   "schemaId": "https://stravica.ai/schemas/edge-cloudflare-tunnel/tunnel-manifest.v1.json",
   "compose-service/public-hostname": {
     "tunnel": "00000000-0000-4000-8000-000000000c01",
