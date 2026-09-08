@@ -240,6 +240,46 @@ Adherence to a blueprint is expressed as ACs; the blueprint ships no test files 
 
 **Author-side check.** Before you ship a blueprint category, walk every AC on it and answer: which project-side gate will refuse the FBS if this AC is not realised at the runtime surface? If your only answer is "the operator reads the AC and does the work", the category has a mechanism-reach gap. Log the gap in the blueprint's README under "Known mechanism-reach gaps" so the operator knows what to watch for; open a v1.1 issue on the rcf-lite repo for the mechanism side.
 
+## 7a. AC-set sufficiency
+
+Section 7 asks whether an AC is runtime-observable, which is coverage of MECHANISM. This section asks whether the AC SET on a story covers the story's runtime, which is coverage of SCENARIO. A story can satisfy the mechanism-reach principle on every AC it carries and still ship with the deployed surface silent on documented failure paths, because the mechanism-reach check bites one AC at a time.
+
+**The rule.** Every failure path, error condition and boundary the blueprint's own implementation guide and TAC records describe must be traceable to at least one acceptance criterion on the story that owns the mechanism. A story whose mechanism has documented failure paths and asserts only the happy path is incomplete.
+
+The rule is checkable against artefacts every blueprint already ships: the guide at `guide/<slug>.md`, the TAC records at `contributions/tacs/*.json`, and any standards-trace text on the ADR contribution entries. If the guide names a way the mechanism can fail and no AC on the owning story binds that way, the AC set is short.
+
+**Scenario-class prompt list.** When authoring or reviewing a story, sweep the mechanism against every class the blueprint's guide or TACs describe. The list is a prompt, not a quota: a class the mechanism genuinely does not touch is skipped without an AC, and a class the guide names as a real path gets one.
+
+- credential missing or invalid
+- upstream non-2xx response
+- rate limited or throttled
+- request or wait timed out
+- partial or interrupted write
+- permission denied
+- malformed input
+- resource already exists
+- resource gone or not found
+- concurrent access on the same resource
+- quota exhausted
+- dependency not ready
+- first run versus repeat run
+- idempotency of a retried operation
+- empty collection and maximal collection
+- boundary values (zero, one, N, N+1)
+
+**Worked example (illustrative).** The `deploy-hetzner-server` blueprint's `US-37101` (the provisioner facade opens on boot as the sole reader of `HETZNER_ACCOUNT_API_KEY` and fires `provisionerReady`) is a story whose guide describes two failure paths for the same mechanism: `HETZNER_ACCOUNT_API_KEY` unset in the applied secrets facade, and the `hcloud` binary absent from `PATH` when the elicited `provisioningTool` is `hcloud` (`blueprints/deploy-hetzner-server/guide/deploy-hetzner-server.md` prerequisites). A story with one happy-path AC leaves both silent. The AC set that closes the coverage looks like this:
+
+- `AC-37101-1` (happy path). Given `HETZNER_ACCOUNT_API_KEY` set in the applied secrets facade and `hcloud` on `PATH`, when the provisioner opens on process boot, then only the provisioner module reads `HETZNER_ACCOUNT_API_KEY` (a source-tree scan refuses any other reader) and `provisionerReady` fires on the injected event sink with a payload of exactly `{tool, apiHost}`.
+- `AC-37101-2` (credential missing). Given `HETZNER_ACCOUNT_API_KEY` unset in the applied secrets facade, when the provisioner opens, then the facade refuses with a named error kind, no `provisionerReady` fires, and the error record carries no token substring.
+- `AC-37101-3` (dependency not ready). Given `provisioningTool: hcloud` and `hcloud` absent from `PATH`, when the provisioner opens, then the facade refuses with a named error kind and no `provisionerReady` fires.
+- `AC-37101-4` (repeat boot idempotency). Given a completed first boot, when the process boots a second time against the same token, then the facade opens again and `provisionerReady` fires once per boot with the same payload shape (no accumulator drift across boots).
+
+The count in the example is illustrative, not a floor. The count that lands is whatever the mechanism's documented paths require: two named paths in the guide implies at least two failure-mode ACs alongside the happy path, and edge cases the guide or TAC calls out (idempotency, empty and maximal inputs, boundary values) add one each.
+
+**Single-AC stories are legal only where the mechanism has no documented failure path.** The check is a trace: read the guide entry and the anchored TAC, walk the failure paths named there, and count. If any named path lacks an AC on the owning story, the AC set is short and the story is incomplete. If no path is named and the mechanism is genuinely single-assertion (a manifest that either validates or does not; a metadata event with a fixed shape and no dependency on outside state), one AC is enough and the story carries a one-line note stating that the mechanism has no documented failure path in the guide, so the absence is traceable to a decision rather than an oversight.
+
+**Where the machine-checkable enforcement lands.** The baseline-AC sweep under `packages/rcf-lite/src/req-baseline/` and `src/core/baseline-catalog/` is the mechanism the estate will grow to enforce this rule at gate time, by extending its `reqShapeClassification.shapes` enum to cover every blueprint family and populating `shapeClassification` on shipped REQ contributions. That extension is a separate follow-up and is not a prerequisite for this section taking effect. Until the gate fires, the rule is author-owned and reviewer-checked; the rows in section 6 of the [authoring checklist](blueprint-authoring-checklist.md) are the gate today.
+
 ## 8. Versioning and re-apply
 
 `blueprint.json:version` is semver. What re-apply does (`packages/rcf-lite/src/blueprint/apply.js`):
