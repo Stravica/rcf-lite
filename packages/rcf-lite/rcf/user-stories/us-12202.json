@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-09-08T01:42:41.742Z",
+  "updatedAt": "2026-09-08T01:42:42.341Z",
+  "usId": "US-12202",
+  "prdId": "PRD-001",
+  "reqId": "REQ-122",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 cross-cutting upClean: the stack comes up clean and every declared service reaches healthy",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a Hetzner cloudHost",
+  "iWant": "the real-account minimal-stack-up probe to scp the compose.yaml to the throwaway server, run docker compose up -d --wait, and assert every declared service reaches healthy inside the elicited timeout",
+  "soThat": "the composeStackReady claim is proven on real docker before the blueprint ships",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12202-1",
+      "description": "The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, provisions the throwaway server, scps the compose.yaml, runs docker compose up -d --wait, asserts every declared service reaches healthy inside the elicited timeout, and tears down the stack plus the server in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3901-platform-docker-compose-host-compose-layout",
+    "TAC-3903-platform-docker-compose-host-healthcheck-lint"
+  ]
+}

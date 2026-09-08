@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3902-platform-docker-compose-host-reverse-proxy",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Reverse proxy choice: caddy default (matches dev-01 and ops-01), traefik alternative for docker-label auto-discovery, none for tunnel-fronted projects (elicited)",
+  "context": "Compose stacks need a reverse-proxy for HTTPS termination and hostname-to-service routing. Caddy is the estate baseline (dev-01 and ops-01 already run it per Baz decision 19 on 2026-09-07 09:50Z). Traefik has a docker-label auto-discovery model some projects prefer. Some projects front their stack only with the round-7 tunnel and skip a reverse proxy inside compose.",
+  "decision": "The reverse-proxy choice is elicited via the reverseProxy parameter. The shipped default is caddy per Baz decision 19. The alternatives are traefik (for projects that want docker-label auto-discovery) and none (for projects fronted only by the round-7 tunnel). Standards trace clause: Caddy docs AND Traefik docs per hetzner-round-7-spec-2026-09-07.md.",
+  "consequences": "A project applying reverseProxy=caddy gets the caddy/Caddyfile artefact and the caddy reload verb. A project applying reverseProxy=traefik gets the traefik/traefik.yaml artefact and the Traefik equivalent reload verb; docker-label auto-discovery is a project-side pattern the guide names. A project applying reverseProxy=none omits the reverse-proxy service and must apply edge-cloudflare-tunnel (T-3) so ingress terminates at the CF edge.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

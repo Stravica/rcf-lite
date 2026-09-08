@@ -1,0 +1,42 @@
+{
+  "createdAt": "2026-09-08T01:40:04.619Z",
+  "updatedAt": "2026-09-08T01:40:04.848Z",
+  "description": "Every service declares a restart policy. Long-running services declare restart: unless-stopped. Jobs (short-lived services that exit after completion) declare restart: on-failure. Any service that declares neither, or declares an unclassified value outside the two allowed policies, refuses at the compose-config-lint gate before docker compose up runs. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.",
+  "reqId": "REQ-123",
+  "prdId": "PRD-001",
+  "title": "T-2 platform-docker-compose-host: restart discipline (unless-stopped on long-running, on-failure on jobs); refuses at lint on unclassified",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "httpApi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T01:40:04.662Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "rest"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "rest"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "rest"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "rest"
+      }
+    ]
+  }
+}

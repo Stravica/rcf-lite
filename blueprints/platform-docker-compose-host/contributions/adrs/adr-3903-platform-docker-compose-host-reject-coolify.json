@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3903-platform-docker-compose-host-reject-coolify",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Coolify rejected per Baz decision 20 (it shadows what the blueprints contract and adds its own DB and UI as a second source of state)",
+  "context": "Coolify was proposed as a candidate platform-* sibling in the round-7 proposal. It is a self-hosted PaaS with its own database and UI. Baz decision 20 on 2026-09-07 09:50Z ruled Coolify out for round 7.",
+  "decision": "reject; it shadows what the blueprints contract and adds its own DB and UI as a second source of state.",
+  "consequences": "No platform-coolify-host blueprint is scoped in round 7 and no reserved slot is allocated. A future platform-coolify-host sibling mints on operator demand under a fresh scope PR. The standards trace clause on the contribution entry is generic enterprise practice; no vendor-doc URL is claimed for the reject decision.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

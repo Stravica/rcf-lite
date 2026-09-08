@@ -1,0 +1,18 @@
+{
+  "reqId": "platform-docker-compose-host-REQ-002",
+  "prdId": "PRD-001",
+  "title": "Every secret is injected via a docker compose secrets file mount; the compose file carries no plaintext secret literal (grep-refuse); references security-secrets-management when applied",
+  "description": "Every secret referenced by any compose service is declared under the top-level secrets: key with a file: source, and the service references it through its service-level secrets: array so docker mounts the value at 0o400 inside the container. The compose file contains no plaintext secret literal on any argument, environment entry, or command clause (grep-refuse). When security-secrets-management is applied, the secret source path resolves through that facade; when it is not, the guide documents a file-based fallback path.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Ratified in the Hetzner round 7 spec (2026-09-07 section 5.2 REQ-002). Ships as v1.0.0 of platform-docker-compose-host.",
+  "tags": [
+    "blueprint:platform-docker-compose-host",
+    "capability:containerHost"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

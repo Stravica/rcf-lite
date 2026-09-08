@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-docker-compose-host healthcheck and lifecycle lint",
+  "purpose": "A lint pass runs before docker compose up. It asserts every HTTP-terminating service declares a healthcheck: block; every service declares a restart: policy whose value is one of unless-stopped or on-failure; every service declares a logging: driver: entry whose value is one of journald or loki. The lint refuses on any missing or unclassified line, naming the service and the offending field.",
+  "responsibilities": [
+    "Assert every HTTP-terminating service declares a healthcheck: block (AC-composeHost-healthcheckLint).",
+    "Assert every service declares a restart policy in the allowed set (AC-composeHost-restartClassification).",
+    "Assert every service declares a logging driver in the allowed set (AC-composeHost-logDriverClassification).",
+    "Refuse on missing or unclassified fields, naming the service (AC-composeHost-healthcheckLint, AC-composeHost-restartClassification, AC-composeHost-logDriverClassification)."
+  ],
+  "internalStructure": "The compose-config-lint probe module orchestrates docker compose config, healthcheck presence, restart classification and logging driver classification through one parsed compose document; mutation switches drive the four failure paths.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "facade",
+      "summary": "Compose stack scan facade exported from the applied fixture module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

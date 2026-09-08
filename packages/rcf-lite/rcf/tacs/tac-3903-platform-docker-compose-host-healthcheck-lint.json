@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-08T01:42:21.313Z",
+  "updatedAt": "2026-09-08T01:44:11.716Z",
+  "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "purpose": "A lint pass runs before docker compose up. It asserts every HTTP-terminating service declares a healthcheck: block; every service declares a restart: policy whose value is one of unless-stopped or on-failure; every service declares a logging: driver: entry whose value is one of journald or loki. The lint refuses on any missing or unclassified line, naming the service and the offending field.",
+  "responsibilities": [
+    "Assert every HTTP-terminating service declares a healthcheck: block (AC-12201-1).",
+    "Assert every service declares a restart policy in the allowed set (AC-12301-1).",
+    "Assert every service declares a logging driver in the allowed set (AC-12501-1).",
+    "Refuse on missing or unclassified fields, naming the service (AC-12201-1, AC-12301-1, AC-12501-1)."
+  ],
+  "name": "T-2 platform-docker-compose-host healthcheck and lifecycle lint"
+}

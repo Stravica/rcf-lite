@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T01:42:44.098Z",
+  "updatedAt": "2026-09-08T01:42:44.701Z",
+  "usId": "US-12402",
+  "prdId": "PRD-001",
+  "reqId": "REQ-124",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 cross-cutting zeroDowntimeReload: a client burst against the proxy during a config reload sees no non-2xx and no dropped connection inside the elicited window",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint",
+  "iWant": "the real-account reload-burst probe to fire an undici burst against the reverse proxy while docker compose exec caddy caddy reload runs and assert no non-2xx or dropped connection inside the elicited window",
+  "soThat": "the zero-downtime reload claim is proven on real docker before the blueprint ships",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12402-1",
+      "description": "The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici GETs against the proxy service on the throwaway server while docker compose exec caddy caddy reload runs, asserts every request returns a 2xx status inside the elicited window (10 s default), asserts no dropped connection, tears the stack down in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact"
+  ]
+}

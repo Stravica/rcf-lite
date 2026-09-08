@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-docker-compose-host compose layout",
+  "purpose": "The applying project ships one compose.yaml at the repo root whose services key names every container the stack runs. Every entry is one image running one container; networks and volumes are top-level named entries; a colocated .env carries non-secret configuration values (never inline). The container host reads compose.yaml as the runtime topology source and refuses to bring the stack up on layout drift.",
+  "responsibilities": [
+    "Serve compose.yaml at the repo root as the sole topology surface (AC-composeHost-topologyValid, AC-composeHost-upClean).",
+    "Guarantee service-per-container: each entry under services: runs one image (AC-composeHost-topologyValid).",
+    "Declare all networks and volumes as top-level named entries: no bare defaults (AC-composeHost-topologyValid).",
+    "Bind non-secret configuration through a colocated .env: no inline literals (AC-composeHost-topologyValid)."
+  ],
+  "internalStructure": "One module exporting a compose.yaml discovery helper that resolves the applied fixture root and returns the parsed document; consumers scan services/networks/volumes/env-file/logging by walking the parsed document.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "facade",
+      "summary": "Compose stack scan facade exported from the applied fixture module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

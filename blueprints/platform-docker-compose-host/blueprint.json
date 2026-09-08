@@ -1,0 +1,209 @@
+{
+  "slug": "platform-docker-compose-host",
+  "version": "1.0.0",
+  "category": "platform",
+  "capabilities": [
+    "containerHost"
+  ],
+  "suggestedCompanions": [
+    {
+      "role": "logging",
+      "reason": "Every composeStackReady, containerHealthy, containerCrashed and reverseProxyReloaded event writes through the applied logger; a logging companion supplies the factory and the log-driver binding."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A healthcheck timeout, a compose lint refusal, a secret-file-mode mismatch, a reload window overshoot constructs an internal error record; an error-handling companion supplies the record factory and the boundary."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "reverse-proxy",
+      "prompt": "Reverse proxy in front of the compose services. caddy is the shipped default per Baz decision 19 (matches dev-01 and ops-01); traefik is the alternative for docker-label auto-discovery; none is the alternative for projects fronted only by the round-7 tunnel.",
+      "kind": "enum",
+      "options": [
+        "caddy",
+        "traefik",
+        "none"
+      ],
+      "default": "caddy"
+    },
+    {
+      "id": "docker-engine-channel",
+      "prompt": "Docker Engine apt channel per the Docker Engine install-on-Ubuntu docs. stable is the shipped default; test is for pre-release verification; the vendor also documents nightly builds available separately.",
+      "kind": "enum",
+      "options": [
+        "stable",
+        "test"
+      ],
+      "default": "stable"
+    },
+    {
+      "id": "compose-file-location",
+      "prompt": "Where the compose.yaml lives in the applying repo. repo-root is the shipped default; the alternative name is used when a project already owns compose.yaml for another purpose.",
+      "kind": "enum",
+      "options": [
+        "repo-root",
+        "compose/compose.yaml"
+      ],
+      "default": "repo-root"
+    },
+    {
+      "id": "healthcheck-default-kind",
+      "prompt": "Default healthcheck kind per service. http covers the common web service (curl or wget to a /health path); tcp covers a database or plain socket service; command lets the operator supply a bespoke test string.",
+      "kind": "enum",
+      "options": [
+        "http",
+        "tcp",
+        "command"
+      ],
+      "default": "http"
+    },
+    {
+      "id": "log-driver",
+      "prompt": "Container log driver per ADR-3904. journald is the shipped default matching the Debian 12 and Ubuntu 24.04 baseline T-1 sets up; loki is the opt-in alternative when the project runs Grafana.",
+      "kind": "enum",
+      "options": [
+        "journald",
+        "loki"
+      ],
+      "default": "journald"
+    },
+    {
+      "id": "reload-window-seconds",
+      "prompt": "Zero-downtime reverse-proxy reload window in seconds (the maximum time a client burst may see any non-2xx or dropped connection during a reload). 10 is the shipped default per REQ-005.",
+      "kind": "string",
+      "default": "10"
+    }
+  ],
+  "contributions": [
+    {
+      "id": "platform-docker-compose-host-REQ-001",
+      "kind": "req",
+      "path": "requirements/platform-docker-compose-host-req-001.json"
+    },
+    {
+      "id": "platform-docker-compose-host-REQ-002",
+      "kind": "req",
+      "path": "requirements/platform-docker-compose-host-req-002.json"
+    },
+    {
+      "id": "platform-docker-compose-host-REQ-003",
+      "kind": "req",
+      "path": "requirements/platform-docker-compose-host-req-003.json"
+    },
+    {
+      "id": "platform-docker-compose-host-REQ-004",
+      "kind": "req",
+      "path": "requirements/platform-docker-compose-host-req-004.json"
+    },
+    {
+      "id": "platform-docker-compose-host-REQ-005",
+      "kind": "req",
+      "path": "requirements/platform-docker-compose-host-req-005.json"
+    },
+    {
+      "id": "platform-docker-compose-host-REQ-006",
+      "kind": "req",
+      "path": "requirements/platform-docker-compose-host-req-006.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38101",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38101.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38102",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38102.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38103",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38103.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38104",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38104.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38105",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38105.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38106",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38106.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38107",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38107.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38108",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38108.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38109",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38109.json"
+    },
+    {
+      "id": "TAC-3901-platform-docker-compose-host-compose-layout",
+      "kind": "tac",
+      "path": "tacs/tac-3901-platform-docker-compose-host-compose-layout.json"
+    },
+    {
+      "id": "TAC-3902-platform-docker-compose-host-secrets-mount",
+      "kind": "tac",
+      "path": "tacs/tac-3902-platform-docker-compose-host-secrets-mount.json"
+    },
+    {
+      "id": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+      "kind": "tac",
+      "path": "tacs/tac-3903-platform-docker-compose-host-healthcheck-lint.json"
+    },
+    {
+      "id": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+      "kind": "tac",
+      "path": "tacs/tac-3904-platform-docker-compose-host-reverse-proxy-artefact.json"
+    },
+    {
+      "id": "ADR-3901-platform-docker-compose-host-contract",
+      "kind": "adr",
+      "path": "adrs/adr-3901-platform-docker-compose-host-contract.json",
+      "scope": "global",
+      "topic": "containerHostContract",
+      "recommendedDefault": true,
+      "elicited": false,
+      "standardsTraceClause": "Docker Compose file reference AND Docker Engine install-on-Ubuntu docs per hetzner-round-7-spec-2026-09-07.md"
+    },
+    {
+      "id": "ADR-3902-platform-docker-compose-host-reverse-proxy",
+      "kind": "adr",
+      "path": "adrs/adr-3902-platform-docker-compose-host-reverse-proxy.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "Caddy docs AND Traefik docs per hetzner-round-7-spec-2026-09-07.md"
+    },
+    {
+      "id": "ADR-3903-platform-docker-compose-host-reject-coolify",
+      "kind": "adr",
+      "path": "adrs/adr-3903-platform-docker-compose-host-reject-coolify.json",
+      "recommendedDefault": false,
+      "elicited": false,
+      "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-3904-platform-docker-compose-host-log-driver",
+      "kind": "adr",
+      "path": "adrs/adr-3904-platform-docker-compose-host-log-driver.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "generic enterprise practice"
+    }
+  ]
+}

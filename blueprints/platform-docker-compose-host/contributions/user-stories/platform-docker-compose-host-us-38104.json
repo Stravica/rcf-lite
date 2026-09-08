@@ -1,0 +1,24 @@
+{
+  "usId": "platform-docker-compose-host-US-38104",
+  "prdId": "PRD-001",
+  "reqId": "platform-docker-compose-host-REQ-003",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "healthcheck contract enforced by docker compose config: refuses on any HTTP-terminating service missing a healthcheck block",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that terminates HTTP inside a container",
+  "iWant": "the compose-config-lint to refuse at gate time on any HTTP-terminating service that is missing a healthcheck block, naming the service",
+  "soThat": "the stack never comes up with a service the container host cannot know is ready",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-composeHost-healthcheckLint",
+      "description": "The compose-config-lint probe shells to docker compose config against the applied compose.yaml, asserts exit 0, and additionally asserts every HTTP-terminating service declares a healthcheck: block. SIMULATE_MISSING_HEALTHCHECK=true strips the block from the web service and the probe FAILS naming the service.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3903-platform-docker-compose-host-healthcheck-lint"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-08T01:41:59.208Z",
+  "updatedAt": "2026-09-08T01:42:32.309Z",
+  "usId": "US-12101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-121",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "T-2 secrets flow via docker compose secrets file mounts (no plaintext literal in compose.yaml)",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with secret material bound to a container",
+  "iWant": "every secret to be declared under the compose secrets top-level key and mounted into the service via secrets: rather than inlined as an environment literal",
+  "soThat": "the compose file is safe to read at review time and the mounted file inherits 0o400 inside the container",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-12101-1",
+      "description": "The fixture compose.yaml declares at least one secret under the top-level secrets key with a file: source, references it from the web service through the service-level secrets: array, and no plaintext value for that secret appears anywhere in compose.yaml (grep-refuses on the literal). The secret file mode is 0o400 inside the container.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-3902-platform-docker-compose-host-secrets-mount"
+  ]
+}

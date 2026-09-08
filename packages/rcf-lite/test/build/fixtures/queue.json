@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 60,
-    "notStarted": 32,
+    "items": 61,
+    "notStarted": 33,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 22,
+    "actionable": 23,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -48,7 +48,8 @@
         "FBS-101",
         "FBS-110",
         "FBS-120",
-        "FBS-130"
+        "FBS-130",
+        "FBS-140"
       ]
     },
     {
@@ -814,6 +815,16 @@
       "buildOrder": 60,
       "tier": 0,
       "title": "T-1 deploy-hetzner-server v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 6 Node-only probes; shared hetzner-throwaway-server fixture mint with provision/destroy/sweep-orphans and dry-run mock",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-140",
+      "buildOrder": 61,
+      "tier": 0,
+      "title": "T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [],
       "state": "actionable",

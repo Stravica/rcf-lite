@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-08T01:40:05.460Z",
+  "updatedAt": "2026-09-08T01:40:05.690Z",
+  "description": "Every container writes stdout and stderr through the elicited log driver. Journald is the shipped default matching the Debian 12 and Ubuntu 24.04 baselines the T-1 cloud-init sets up. Loki is the opt-in alternative when the applying project runs Grafana. The choice is elicited via the log-driver ADR. When observability-logging is applied, the compose file wires the elicited driver to that companion. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.",
+  "reqId": "REQ-125",
+  "prdId": "PRD-001",
+  "title": "T-2 platform-docker-compose-host: log shipping to the elicited observability-logging sink (journald default; loki opt-in when the project runs Grafana)",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T01:40:05.504Z"
+  }
+}

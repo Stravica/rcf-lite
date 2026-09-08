@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 74  covered: 74  covered-unresolved: 0  uncovered: 0
+Requirements: 80  covered: 80  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -338,3 +338,12 @@ REQ-113      yes      AC-11301-1  yes         TC-140-firewall-shape-valid-and-re
 REQ-114      yes      AC-11401-1  yes         TC-140-snapshot-cadence-enum
                       AC-11402-1  yes         TC-140-snapshot-on-demand-account-bound-probe
 REQ-115      yes      AC-11501-1  yes         TC-140-lifecycle-events-metadata-only
+REQ-120      yes      AC-12001-1  yes         TC-150-compose-layout-shape-valid
+REQ-121      yes      AC-12101-1  yes         TC-150-secrets-file-mount-shape
+                      AC-12102-1  yes         TC-150-secrets-scan-fails-on-plaintext
+REQ-122      yes      AC-12201-1  yes         TC-150-compose-config-lint-refuses-missing-healthcheck
+                      AC-12202-1  yes         TC-150-real-account-minimal-stack-up-declared-and-skipped...
+REQ-123      yes      AC-12301-1  yes         TC-150-restart-discipline-lint-refuses-unclassified
+REQ-124      yes      AC-12401-1  yes         TC-150-caddyfile-validate-refuses-invalid-directive
+                      AC-12402-1  yes         TC-150-real-account-reload-burst-declared-and-skipped-shape
+REQ-125      yes      AC-12501-1  yes         TC-150-log-driver-classification

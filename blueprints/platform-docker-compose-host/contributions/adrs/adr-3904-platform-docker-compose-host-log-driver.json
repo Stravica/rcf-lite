@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-3904-platform-docker-compose-host-log-driver",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Log driver: journald default matching Debian 12 and Ubuntu 24.04 baseline; loki opt-in when the project runs Grafana (elicited)",
+  "context": "Containers write stdout and stderr to a log driver. Debian 12 and Ubuntu 24.04 (the T-1 cloud-init baseline) ship journald. Grafana users on the estate reach for loki as a native sink. A one-choice hard-code loses either journald parity with the OS or loki when the operator runs Grafana.",
+  "decision": "The log driver is elicited via the log-driver parameter. The shipped default is journald matching the Debian 12 and Ubuntu 24.04 baselines T-1 sets up. The alternative is loki, opted into when the applying project runs Grafana. When observability-logging is applied, the compose file wires the elicited driver to that companion. Standards trace clause: generic enterprise practice.",
+  "consequences": "A project applying log-driver=journald gets the systemd-native path; the journald sink is queried via journalctl. A project applying log-driver=loki targets the Grafana loki endpoint; the observability-logging companion supplies the endpoint address. Neither choice adds a runtime npm dependency. The compose-config-lint refuses on any driver value outside the allowed set.",
+  "alternativesConsidered": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

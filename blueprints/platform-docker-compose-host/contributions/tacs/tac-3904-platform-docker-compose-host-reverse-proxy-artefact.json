@@ -1,0 +1,26 @@
+{
+  "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Platform-docker-compose-host reverse-proxy artefact",
+  "purpose": "The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy, traefik/traefik.yaml when reverseProxy=traefik) lives as a first-class checked-in artefact under the applying repo. The compose file bind-mounts the artefact read-only into the proxy service. The gate runs the vendor validator against the artefact and refuses on an invalid directive. Under the reload verb (docker compose exec caddy caddy reload or the Traefik equivalent), a burst against the proxy inside the elicited window sees no non-2xx and no dropped connection.",
+  "responsibilities": [
+    "Ship the reverse-proxy config as a checked-in artefact bind-mounted into the proxy (AC-composeHost-reverseProxyArtefactValid).",
+    "Validate the artefact with the vendor validator at gate time (AC-composeHost-reverseProxyArtefactValid).",
+    "Prove zero-downtime reload with a real-account burst (AC-composeHost-zeroDowntimeReload).",
+    "Name the reload verb per proxy in the guide and the fixture README (AC-composeHost-reverseProxyArtefactValid, AC-composeHost-zeroDowntimeReload)."
+  ],
+  "internalStructure": "The caddyfile-validate probe shells to caddy validate (local binary or caddy:2 container image) with SIMULATE_INVALID_CADDYFILE writing a broken directive into a scratch copy; the real-account-reload-burst probe drives an undici burst on the throwaway server while docker compose exec caddy caddy reload runs.",
+  "interfaces": [
+    {
+      "name": "default export",
+      "kind": "facade",
+      "summary": "Compose stack scan facade exported from the applied fixture module."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

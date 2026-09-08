@@ -42,7 +42,7 @@
 <section class="field-list"><h4>Out of scope</h4><ul><li>The schema package itself, which is the separately published rcf-schemas contract</li><li>A hosted service: MCP is local stdio and the CLI is a local binary</li><li>A web application with a server, authentication or a database</li><li>Language-agnostic tooling: Build Lite is Node 24 ESM</li><li>The one-off v1 to v2 migration script, which is not a product feature</li><li>Generation of executable test code: verification artefacts accrue per implementation phase</li></ul></section>
 <section class="field-list"><h4>Objectives</h4><ul><li>Make the full RCF chain usable with minimal user effort while keeping the method full-strength</li><li>Guarantee the in-repository differentiator by operating directly on local files as the source of truth</li><li>Keep every RCF document valid against the published schemas at all times</li><li>Surface the whole tree visually so a non-coder can review what is being built in their name</li><li>Stay harness-agnostic so the tooling survives a change of AI harness</li></ul></section>
 <section class="field-list"><h4>Constraints</h4><ul><li>Node 24 ESM, plain JavaScript, no TypeScript pin</li><li>Apache 2.0 license</li><li>Depends on the published rcf-schemas package as an external contract</li><li>Local filesystem is the source of truth; no network source of truth</li><li>MCP transport is local stdio only</li></ul></section>
-<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a>, <a href="#REQ-080">REQ-080</a>, <a href="#REQ-081">REQ-081</a>, <a href="#REQ-082">REQ-082</a>, <a href="#REQ-083">REQ-083</a>, <a href="#REQ-084">REQ-084</a>, <a href="#REQ-085">REQ-085</a>, <a href="#REQ-086">REQ-086</a>, <a href="#REQ-090">REQ-090</a>, <a href="#REQ-091">REQ-091</a>, <a href="#REQ-092">REQ-092</a>, <a href="#REQ-093">REQ-093</a>, <a href="#REQ-094">REQ-094</a>, <a href="#REQ-100">REQ-100</a>, <a href="#REQ-101">REQ-101</a>, <a href="#REQ-102">REQ-102</a>, <a href="#REQ-103">REQ-103</a>, <a href="#REQ-104">REQ-104</a>, <a href="#REQ-110">REQ-110</a>, <a href="#REQ-111">REQ-111</a>, <a href="#REQ-112">REQ-112</a>, <a href="#REQ-113">REQ-113</a>, <a href="#REQ-114">REQ-114</a>, <a href="#REQ-115">REQ-115</a></p></section>
+<section class="field-list"><h4>Requirements</h4><p><a href="#REQ-001">REQ-001</a>, <a href="#REQ-002">REQ-002</a>, <a href="#REQ-003">REQ-003</a>, <a href="#REQ-004">REQ-004</a>, <a href="#REQ-005">REQ-005</a>, <a href="#REQ-006">REQ-006</a>, <a href="#REQ-007">REQ-007</a>, <a href="#REQ-008">REQ-008</a>, <a href="#REQ-009">REQ-009</a>, <a href="#REQ-010">REQ-010</a>, <a href="#REQ-011">REQ-011</a>, <a href="#REQ-012">REQ-012</a>, <a href="#REQ-013">REQ-013</a>, <a href="#REQ-014">REQ-014</a>, <a href="#REQ-015">REQ-015</a>, <a href="#REQ-016">REQ-016</a>, <a href="#REQ-017">REQ-017</a>, <a href="#REQ-018">REQ-018</a>, <a href="#REQ-019">REQ-019</a>, <a href="#REQ-020">REQ-020</a>, <a href="#REQ-021">REQ-021</a>, <a href="#REQ-022">REQ-022</a>, <a href="#REQ-023">REQ-023</a>, <a href="#REQ-024">REQ-024</a>, <a href="#REQ-025">REQ-025</a>, <a href="#REQ-026">REQ-026</a>, <a href="#REQ-027">REQ-027</a>, <a href="#REQ-028">REQ-028</a>, <a href="#REQ-029">REQ-029</a>, <a href="#REQ-030">REQ-030</a>, <a href="#REQ-040">REQ-040</a>, <a href="#REQ-041">REQ-041</a>, <a href="#REQ-042">REQ-042</a>, <a href="#REQ-043">REQ-043</a>, <a href="#REQ-050">REQ-050</a>, <a href="#REQ-051">REQ-051</a>, <a href="#REQ-052">REQ-052</a>, <a href="#REQ-053">REQ-053</a>, <a href="#REQ-054">REQ-054</a>, <a href="#REQ-060">REQ-060</a>, <a href="#REQ-061">REQ-061</a>, <a href="#REQ-062">REQ-062</a>, <a href="#REQ-063">REQ-063</a>, <a href="#REQ-070">REQ-070</a>, <a href="#REQ-071">REQ-071</a>, <a href="#REQ-072">REQ-072</a>, <a href="#REQ-073">REQ-073</a>, <a href="#REQ-074">REQ-074</a>, <a href="#REQ-075">REQ-075</a>, <a href="#REQ-076">REQ-076</a>, <a href="#REQ-077">REQ-077</a>, <a href="#REQ-080">REQ-080</a>, <a href="#REQ-081">REQ-081</a>, <a href="#REQ-082">REQ-082</a>, <a href="#REQ-083">REQ-083</a>, <a href="#REQ-084">REQ-084</a>, <a href="#REQ-085">REQ-085</a>, <a href="#REQ-086">REQ-086</a>, <a href="#REQ-090">REQ-090</a>, <a href="#REQ-091">REQ-091</a>, <a href="#REQ-092">REQ-092</a>, <a href="#REQ-093">REQ-093</a>, <a href="#REQ-094">REQ-094</a>, <a href="#REQ-100">REQ-100</a>, <a href="#REQ-101">REQ-101</a>, <a href="#REQ-102">REQ-102</a>, <a href="#REQ-103">REQ-103</a>, <a href="#REQ-104">REQ-104</a>, <a href="#REQ-110">REQ-110</a>, <a href="#REQ-111">REQ-111</a>, <a href="#REQ-112">REQ-112</a>, <a href="#REQ-113">REQ-113</a>, <a href="#REQ-114">REQ-114</a>, <a href="#REQ-115">REQ-115</a>, <a href="#REQ-120">REQ-120</a>, <a href="#REQ-121">REQ-121</a>, <a href="#REQ-122">REQ-122</a>, <a href="#REQ-123">REQ-123</a>, <a href="#REQ-124">REQ-124</a>, <a href="#REQ-125">REQ-125</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;productName&quot;: &quot;RCF Lite&quot;,
@@ -16023,6 +16023,855 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </article>
 </details></section>
 </details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-120">
+  <summary><span class="summary-label">REQ-120 - T-2 platform-docker-compose-host v1.0.0 blueprint: compose.yaml at repo root is the source of truth (service-per-container, named networks and volumes, .env for non-secret config)</span><span class="status draft">draft</span></summary>
+  <article id="REQ-120" class="doc doc-req">
+  <h3>REQ-120 - T-2 platform-docker-compose-host v1.0.0 blueprint: compose.yaml at repo root is the source of truth (service-per-container, named networks and volumes, .env for non-secret config)</h3>
+  
+  <p><strong>Description:</strong> The applying project runs its containerised services from a single compose.yaml at the repo root. Each service is one container. Networks and volumes are declared with explicit names. Non-secret config lives in a .env file loaded by compose. The compose file is the single source of truth for the runtime topology; the container host reads it to bring the stack up and refuses on unclassified or malformed shape. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-120..129 / TS-150..159 / FBS-140..149 / CN-440..469). Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-120[&quot;REQ-120&lt;br/&gt;T-2 platform-docker-compose-host v1.0.0 bluep...&quot;]
+  US-12001[&quot;US-12001&lt;br/&gt;T-2 compose.yaml at repo root is the single-s...&quot;]
+  REQ-120 --&gt; US-12001
+  AC-12001-1[&quot;AC-12001-1&quot;]
+  US-12001 --&gt; AC-12001-1
+  FBS-140[&quot;FBS-140&lt;br/&gt;T-2 platform-docker-compose-host v1.0.0: 6 RE...&quot;]
+  AC-12001-1 -.-&gt;|delivered by| FBS-140
+  CN-440[&quot;CN-440&lt;br/&gt;../../blueprints/platform-docker-compose-host...&quot;]
+  AC-12001-1 -.-&gt;|implemented by| CN-440
+  click REQ-120 &quot;#REQ-120&quot;;
+  click US-12001 &quot;#US-12001&quot;;
+  click AC-12001-1 &quot;#AC-12001-1&quot;;
+  click FBS-140 &quot;#FBS-140&quot;;
+  click CN-440 &quot;#CN-440&quot;;
+  class REQ-120 req;
+  class US-12001 us;
+  class AC-12001-1 ac;
+  class FBS-140 fbs;
+  class CN-440 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:39:09.362Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:39:28.241Z&quot;,
+  &quot;description&quot;: &quot;The applying project runs its containerised services from a single compose.yaml at the repo root. Each service is one container. Networks and volumes are declared with explicit names. Non-secret config lives in a .env file loaded by compose. The compose file is the single source of truth for the runtime topology; the container host reads it to bring the stack up and refuses on unclassified or malformed shape. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-120..129 / TS-150..159 / FBS-140..149 / CN-440..469). Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.&quot;,
+  &quot;reqId&quot;: &quot;REQ-120&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 platform-docker-compose-host v1.0.0 blueprint: compose.yaml at repo root is the source of truth (service-per-container, named networks and volumes, .env for non-secret config)&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;none&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-08T01:39:09.405Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-12001">
+  <summary><span class="summary-label">US-12001 - T-2 compose.yaml at repo root is the single-source runtime topology (service-per-container, named networks and volumes, .env for non-secret config)</span><span class="status draft">draft</span></summary>
+  <article id="US-12001" class="doc doc-us">
+  <h3>US-12001 - T-2 compose.yaml at repo root is the single-source runtime topology (service-per-container, named networks and volumes, .env for non-secret config)</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that runs its stack on a Hetzner cloudHost</p>
+  <p><strong>I want:</strong> a single compose.yaml at the repo root to declare every service as one container with explicit named networks, named volumes, and non-secret config in a .env file</p>
+  <p><strong>So that:</strong> the runtime topology has one auditable seam and the container host can bring the stack up from the file alone</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-120">REQ-120</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12001-1" class="ac-item"><strong>AC-12001-1</strong> - The shared throwaway-server fixture ships compose.yaml at the fixture root with (a) every service running exactly one container image (service-per-container), (b) at least one named network under the top-level networks key, (c) at least one named volume under the top-level volumes key, and (d) non-secret config values are read via a colocated .env file rather than inlined into service environment entries.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:41:01.418Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:42:32.120Z&quot;,
+  &quot;usId&quot;: &quot;US-12001&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-120&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 compose.yaml at repo root is the single-source runtime topology (service-per-container, named networks and volumes, .env for non-secret config)&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that runs its stack on a Hetzner cloudHost&quot;,
+  &quot;iWant&quot;: &quot;a single compose.yaml at the repo root to declare every service as one container with explicit named networks, named volumes, and non-secret config in a .env file&quot;,
+  &quot;soThat&quot;: &quot;the runtime topology has one auditable seam and the container host can bring the stack up from the file alone&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12001-1&quot;,
+      &quot;description&quot;: &quot;The shared throwaway-server fixture ships compose.yaml at the fixture root with (a) every service running exactly one container image (service-per-container), (b) at least one named network under the top-level networks key, (c) at least one named volume under the top-level volumes key, and (d) non-secret config values are read via a colocated .env file rather than inlined into service environment entries.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3901-platform-docker-compose-host-compose-layout&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-121">
+  <summary><span class="summary-label">REQ-121 - T-2 platform-docker-compose-host: secrets as file mounts, no plaintext literal in compose (grep-refuse); references security-secrets-management when applied</span><span class="status draft">draft</span></summary>
+  <article id="REQ-121" class="doc doc-req">
+  <h3>REQ-121 - T-2 platform-docker-compose-host: secrets as file mounts, no plaintext literal in compose (grep-refuse); references security-secrets-management when applied</h3>
+  
+  <p><strong>Description:</strong> Every secret used by any compose service is injected as a file mount under the compose secrets top-level key. The compose file contains no plaintext secret literal on any service argument, environment variable, or command clause (grep-refuse). When security-secrets-management is applied, the secret is sourced through that facade; when it is not, the guide names a documented file-based fallback path. The mounted secret file lands at mode 0o400 inside the container. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-121[&quot;REQ-121&lt;br/&gt;T-2 platform-docker-compose-host: secrets as ...&quot;]
+  US-12101[&quot;US-12101&lt;br/&gt;T-2 secrets flow via docker compose secrets f...&quot;]
+  REQ-121 --&gt; US-12101
+  AC-12101-1[&quot;AC-12101-1&quot;]
+  US-12101 --&gt; AC-12101-1
+  FBS-140[&quot;FBS-140&lt;br/&gt;T-2 platform-docker-compose-host v1.0.0: 6 RE...&quot;]
+  AC-12101-1 -.-&gt;|delivered by| FBS-140
+  CN-440[&quot;CN-440&lt;br/&gt;../../blueprints/platform-docker-compose-host...&quot;]
+  AC-12101-1 -.-&gt;|implemented by| CN-440
+  US-12102[&quot;US-12102&lt;br/&gt;T-2 cross-cutting secretsAreFiles: the source...&quot;]
+  REQ-121 --&gt; US-12102
+  AC-12102-1[&quot;AC-12102-1&quot;]
+  US-12102 --&gt; AC-12102-1
+  AC-12102-1 -.-&gt;|delivered by| FBS-140
+  AC-12102-1 -.-&gt;|implemented by| CN-440
+  click REQ-121 &quot;#REQ-121&quot;;
+  click US-12101 &quot;#US-12101&quot;;
+  click AC-12101-1 &quot;#AC-12101-1&quot;;
+  click FBS-140 &quot;#FBS-140&quot;;
+  click CN-440 &quot;#CN-440&quot;;
+  click US-12102 &quot;#US-12102&quot;;
+  click AC-12102-1 &quot;#AC-12102-1&quot;;
+  class REQ-121 req;
+  class US-12101 us;
+  class AC-12101-1 ac;
+  class FBS-140 fbs;
+  class CN-440 cn;
+  class US-12102 us;
+  class AC-12102-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:40:03.788Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:40:04.018Z&quot;,
+  &quot;description&quot;: &quot;Every secret used by any compose service is injected as a file mount under the compose secrets top-level key. The compose file contains no plaintext secret literal on any service argument, environment variable, or command clause (grep-refuse). When security-secrets-management is applied, the secret is sourced through that facade; when it is not, the guide names a documented file-based fallback path. The mounted secret file lands at mode 0o400 inside the container. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.&quot;,
+  &quot;reqId&quot;: &quot;REQ-121&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 platform-docker-compose-host: secrets as file mounts, no plaintext literal in compose (grep-refuse); references security-secrets-management when applied&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;none&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-08T01:40:03.831Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-12101">
+  <summary><span class="summary-label">US-12101 - T-2 secrets flow via docker compose secrets file mounts (no plaintext literal in compose.yaml)</span><span class="status draft">draft</span></summary>
+  <article id="US-12101" class="doc doc-us">
+  <h3>US-12101 - T-2 secrets flow via docker compose secrets file mounts (no plaintext literal in compose.yaml)</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with secret material bound to a container</p>
+  <p><strong>I want:</strong> every secret to be declared under the compose secrets top-level key and mounted into the service via secrets: rather than inlined as an environment literal</p>
+  <p><strong>So that:</strong> the compose file is safe to read at review time and the mounted file inherits 0o400 inside the container</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-121">REQ-121</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12101-1" class="ac-item"><strong>AC-12101-1</strong> - The fixture compose.yaml declares at least one secret under the top-level secrets key with a file: source, references it from the web service through the service-level secrets: array, and no plaintext value for that secret appears anywhere in compose.yaml (grep-refuses on the literal). The secret file mode is 0o400 inside the container.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:41:59.208Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:42:32.309Z&quot;,
+  &quot;usId&quot;: &quot;US-12101&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-121&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 secrets flow via docker compose secrets file mounts (no plaintext literal in compose.yaml)&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with secret material bound to a container&quot;,
+  &quot;iWant&quot;: &quot;every secret to be declared under the compose secrets top-level key and mounted into the service via secrets: rather than inlined as an environment literal&quot;,
+  &quot;soThat&quot;: &quot;the compose file is safe to read at review time and the mounted file inherits 0o400 inside the container&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12101-1&quot;,
+      &quot;description&quot;: &quot;The fixture compose.yaml declares at least one secret under the top-level secrets key with a file: source, references it from the web service through the service-level secrets: array, and no plaintext value for that secret appears anywhere in compose.yaml (grep-refuses on the literal). The secret file mode is 0o400 inside the container.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3902-platform-docker-compose-host-secrets-mount&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-12102">
+  <summary><span class="summary-label">US-12102 - T-2 cross-cutting secretsAreFiles: the source-tree scan refuses any plaintext secret literal in compose.yaml or a referenced service config</span><span class="status draft">draft</span></summary>
+  <article id="US-12102" class="doc doc-us">
+  <h3>US-12102 - T-2 cross-cutting secretsAreFiles: the source-tree scan refuses any plaintext secret literal in compose.yaml or a referenced service config</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with sensitive material</p>
+  <p><strong>I want:</strong> the secrets-as-files probe to walk compose.yaml and every service config in the fixture and refuse on any plaintext secret literal, naming the file and line</p>
+  <p><strong>So that:</strong> a secret accidentally inlined in a review is caught by the probe before docker compose up runs</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-121">REQ-121</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12102-1" class="ac-item"><strong>AC-12102-1</strong> - The secrets-as-files-scan probe walks compose.yaml plus every referenced service config file in the fixture and asserts (a) no line contains a plaintext token pattern (the applied literal name plus the applied literal value), (b) every declared secret in the compose secrets: key has a file: source, and (c) SIMULATE_PLAINTEXT_SECRET=true writes a plaintext literal into compose.yaml and the probe FAILS naming the file and the literal.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:44:43.238Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:43.862Z&quot;,
+  &quot;usId&quot;: &quot;US-12102&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-121&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 cross-cutting secretsAreFiles: the source-tree scan refuses any plaintext secret literal in compose.yaml or a referenced service config&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with sensitive material&quot;,
+  &quot;iWant&quot;: &quot;the secrets-as-files probe to walk compose.yaml and every service config in the fixture and refuse on any plaintext secret literal, naming the file and line&quot;,
+  &quot;soThat&quot;: &quot;a secret accidentally inlined in a review is caught by the probe before docker compose up runs&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12102-1&quot;,
+      &quot;description&quot;: &quot;The secrets-as-files-scan probe walks compose.yaml plus every referenced service config file in the fixture and asserts (a) no line contains a plaintext token pattern (the applied literal name plus the applied literal value), (b) every declared secret in the compose secrets: key has a file: source, and (c) SIMULATE_PLAINTEXT_SECRET=true writes a plaintext literal into compose.yaml and the probe FAILS naming the file and the literal.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3902-platform-docker-compose-host-secrets-mount&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-122">
+  <summary><span class="summary-label">REQ-122 - T-2 platform-docker-compose-host: healthcheck contract on every HTTP-terminating service refuses at docker compose config on missing</span><span class="status draft">draft</span></summary>
+  <article id="REQ-122" class="doc doc-req">
+  <h3>REQ-122 - T-2 platform-docker-compose-host: healthcheck contract on every HTTP-terminating service refuses at docker compose config on missing</h3>
+  
+  <p><strong>Description:</strong> Every service that terminates HTTP declares a healthcheck block. The compose file refuses at docker compose config time when any HTTP-terminating service is missing the block. The healthcheck defaults per service kind are elicited (http default, tcp and command alternatives). The stack is not considered up until every declared service reaches healthy inside the elicited timeout. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-122[&quot;REQ-122&lt;br/&gt;T-2 platform-docker-compose-host: healthcheck...&quot;]
+  US-12201[&quot;US-12201&lt;br/&gt;T-2 healthcheck contract: docker compose conf...&quot;]
+  REQ-122 --&gt; US-12201
+  AC-12201-1[&quot;AC-12201-1&quot;]
+  US-12201 --&gt; AC-12201-1
+  FBS-140[&quot;FBS-140&lt;br/&gt;T-2 platform-docker-compose-host v1.0.0: 6 RE...&quot;]
+  AC-12201-1 -.-&gt;|delivered by| FBS-140
+  CN-440[&quot;CN-440&lt;br/&gt;../../blueprints/platform-docker-compose-host...&quot;]
+  AC-12201-1 -.-&gt;|implemented by| CN-440
+  US-12202[&quot;US-12202&lt;br/&gt;T-2 cross-cutting upClean: the stack comes up...&quot;]
+  REQ-122 --&gt; US-12202
+  AC-12202-1[&quot;AC-12202-1&quot;]
+  US-12202 --&gt; AC-12202-1
+  AC-12202-1 -.-&gt;|delivered by| FBS-140
+  AC-12202-1 -.-&gt;|implemented by| CN-440
+  click REQ-122 &quot;#REQ-122&quot;;
+  click US-12201 &quot;#US-12201&quot;;
+  click AC-12201-1 &quot;#AC-12201-1&quot;;
+  click FBS-140 &quot;#FBS-140&quot;;
+  click CN-440 &quot;#CN-440&quot;;
+  click US-12202 &quot;#US-12202&quot;;
+  click AC-12202-1 &quot;#AC-12202-1&quot;;
+  class REQ-122 req;
+  class US-12201 us;
+  class AC-12201-1 ac;
+  class FBS-140 fbs;
+  class CN-440 cn;
+  class US-12202 us;
+  class AC-12202-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:40:04.204Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:40:04.433Z&quot;,
+  &quot;description&quot;: &quot;Every service that terminates HTTP declares a healthcheck block. The compose file refuses at docker compose config time when any HTTP-terminating service is missing the block. The healthcheck defaults per service kind are elicited (http default, tcp and command alternatives). The stack is not considered up until every declared service reaches healthy inside the elicited timeout. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.&quot;,
+  &quot;reqId&quot;: &quot;REQ-122&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 platform-docker-compose-host: healthcheck contract on every HTTP-terminating service refuses at docker compose config on missing&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;none&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-08T01:40:04.247Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-12201">
+  <summary><span class="summary-label">US-12201 - T-2 healthcheck contract: docker compose config refuses when an HTTP-terminating service is missing a healthcheck block</span><span class="status draft">draft</span></summary>
+  <article id="US-12201" class="doc doc-us">
+  <h3>US-12201 - T-2 healthcheck contract: docker compose config refuses when an HTTP-terminating service is missing a healthcheck block</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that terminates HTTP inside a container</p>
+  <p><strong>I want:</strong> the compose config lint to refuse at gate time on any HTTP-terminating service that is missing a healthcheck block, naming the service</p>
+  <p><strong>So that:</strong> the stack never comes up with a service the container host cannot know is ready</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-122">REQ-122</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12201-1" class="ac-item"><strong>AC-12201-1</strong> - The compose-config-lint probe shells to docker compose config against the fixture compose.yaml, asserts exit 0, and additionally asserts every HTTP-terminating service declares a healthcheck: block. SIMULATE_MISSING_HEALTHCHECK=true strips the block from the web service and the probe FAILS naming the service.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:40.956Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:42:41.556Z&quot;,
+  &quot;usId&quot;: &quot;US-12201&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-122&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 healthcheck contract: docker compose config refuses when an HTTP-terminating service is missing a healthcheck block&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that terminates HTTP inside a container&quot;,
+  &quot;iWant&quot;: &quot;the compose config lint to refuse at gate time on any HTTP-terminating service that is missing a healthcheck block, naming the service&quot;,
+  &quot;soThat&quot;: &quot;the stack never comes up with a service the container host cannot know is ready&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12201-1&quot;,
+      &quot;description&quot;: &quot;The compose-config-lint probe shells to docker compose config against the fixture compose.yaml, asserts exit 0, and additionally asserts every HTTP-terminating service declares a healthcheck: block. SIMULATE_MISSING_HEALTHCHECK=true strips the block from the web service and the probe FAILS naming the service.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3903-platform-docker-compose-host-healthcheck-lint&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-12202">
+  <summary><span class="summary-label">US-12202 - T-2 cross-cutting upClean: the stack comes up clean and every declared service reaches healthy</span><span class="status draft">draft</span></summary>
+  <article id="US-12202" class="doc doc-us">
+  <h3>US-12202 - T-2 cross-cutting upClean: the stack comes up clean and every declared service reaches healthy</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a Hetzner cloudHost</p>
+  <p><strong>I want:</strong> the real-account minimal-stack-up probe to scp the compose.yaml to the throwaway server, run docker compose up -d --wait, and assert every declared service reaches healthy inside the elicited timeout</p>
+  <p><strong>So that:</strong> the composeStackReady claim is proven on real docker before the blueprint ships</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-122">REQ-122</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12202-1" class="ac-item"><strong>AC-12202-1</strong> - The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, provisions the throwaway server, scps the compose.yaml, runs docker compose up -d --wait, asserts every declared service reaches healthy inside the elicited timeout, and tears down the stack plus the server in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:41.742Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:42:42.341Z&quot;,
+  &quot;usId&quot;: &quot;US-12202&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-122&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 cross-cutting upClean: the stack comes up clean and every declared service reaches healthy&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a Hetzner cloudHost&quot;,
+  &quot;iWant&quot;: &quot;the real-account minimal-stack-up probe to scp the compose.yaml to the throwaway server, run docker compose up -d --wait, and assert every declared service reaches healthy inside the elicited timeout&quot;,
+  &quot;soThat&quot;: &quot;the composeStackReady claim is proven on real docker before the blueprint ships&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12202-1&quot;,
+      &quot;description&quot;: &quot;The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, provisions the throwaway server, scps the compose.yaml, runs docker compose up -d --wait, asserts every declared service reaches healthy inside the elicited timeout, and tears down the stack plus the server in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3901-platform-docker-compose-host-compose-layout&quot;,
+    &quot;TAC-3903-platform-docker-compose-host-healthcheck-lint&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-123">
+  <summary><span class="summary-label">REQ-123 - T-2 platform-docker-compose-host: restart discipline (unless-stopped on long-running, on-failure on jobs); refuses at lint on unclassified</span><span class="status draft">draft</span></summary>
+  <article id="REQ-123" class="doc doc-req">
+  <h3>REQ-123 - T-2 platform-docker-compose-host: restart discipline (unless-stopped on long-running, on-failure on jobs); refuses at lint on unclassified</h3>
+  
+  <p><strong>Description:</strong> Every service declares a restart policy. Long-running services declare restart: unless-stopped. Jobs (short-lived services that exit after completion) declare restart: on-failure. Any service that declares neither, or declares an unclassified value outside the two allowed policies, refuses at the compose-config-lint gate before docker compose up runs. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-123[&quot;REQ-123&lt;br/&gt;T-2 platform-docker-compose-host: restart dis...&quot;]
+  US-12301[&quot;US-12301&lt;br/&gt;T-2 restart discipline: unless-stopped on lon...&quot;]
+  REQ-123 --&gt; US-12301
+  AC-12301-1[&quot;AC-12301-1&quot;]
+  US-12301 --&gt; AC-12301-1
+  FBS-140[&quot;FBS-140&lt;br/&gt;T-2 platform-docker-compose-host v1.0.0: 6 RE...&quot;]
+  AC-12301-1 -.-&gt;|delivered by| FBS-140
+  CN-440[&quot;CN-440&lt;br/&gt;../../blueprints/platform-docker-compose-host...&quot;]
+  AC-12301-1 -.-&gt;|implemented by| CN-440
+  click REQ-123 &quot;#REQ-123&quot;;
+  click US-12301 &quot;#US-12301&quot;;
+  click AC-12301-1 &quot;#AC-12301-1&quot;;
+  click FBS-140 &quot;#FBS-140&quot;;
+  click CN-440 &quot;#CN-440&quot;;
+  class REQ-123 req;
+  class US-12301 us;
+  class AC-12301-1 ac;
+  class FBS-140 fbs;
+  class CN-440 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:40:04.619Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:40:04.848Z&quot;,
+  &quot;description&quot;: &quot;Every service declares a restart policy. Long-running services declare restart: unless-stopped. Jobs (short-lived services that exit after completion) declare restart: on-failure. Any service that declares neither, or declares an unclassified value outside the two allowed policies, refuses at the compose-config-lint gate before docker compose up runs. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.&quot;,
+  &quot;reqId&quot;: &quot;REQ-123&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 platform-docker-compose-host: restart discipline (unless-stopped on long-running, on-failure on jobs); refuses at lint on unclassified&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;httpApi&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-08T01:40:04.662Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;title&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;rest&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;rest&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;rest&quot;
+      },
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;httpApi&quot;,
+        &quot;match&quot;: &quot;rest&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-12301">
+  <summary><span class="summary-label">US-12301 - T-2 restart discipline: unless-stopped on long-running, on-failure on jobs; unclassified value refuses at lint</span><span class="status draft">draft</span></summary>
+  <article id="US-12301" class="doc doc-us">
+  <h3>US-12301 - T-2 restart discipline: unless-stopped on long-running, on-failure on jobs; unclassified value refuses at lint</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the compose config lint to enforce a restart policy on every service and refuse on any value outside the two allowed policies (unless-stopped for long-running, on-failure for jobs)</p>
+  <p><strong>So that:</strong> the operator sees a wrong or missing restart policy at gate time rather than as a stuck container</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-123">REQ-123</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12301-1" class="ac-item"><strong>AC-12301-1</strong> - The compose-config-lint probe asserts every service in the compose.yaml declares a restart policy AND every declared value is one of unless-stopped or on-failure. SIMULATE_UNCLASSIFIED_RESTART=true sets restart: always on the web service and the probe FAILS naming the service and the disallowed value.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:42.527Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:42:43.125Z&quot;,
+  &quot;usId&quot;: &quot;US-12301&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-123&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 restart discipline: unless-stopped on long-running, on-failure on jobs; unclassified value refuses at lint&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the compose config lint to enforce a restart policy on every service and refuse on any value outside the two allowed policies (unless-stopped for long-running, on-failure for jobs)&quot;,
+  &quot;soThat&quot;: &quot;the operator sees a wrong or missing restart policy at gate time rather than as a stuck container&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12301-1&quot;,
+      &quot;description&quot;: &quot;The compose-config-lint probe asserts every service in the compose.yaml declares a restart policy AND every declared value is one of unless-stopped or on-failure. SIMULATE_UNCLASSIFIED_RESTART=true sets restart: always on the web service and the probe FAILS naming the service and the disallowed value.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3903-platform-docker-compose-host-healthcheck-lint&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-124">
+  <summary><span class="summary-label">REQ-124 - T-2 platform-docker-compose-host: zero-downtime reverse-proxy reload via bind-mounted config; verb per proxy; no non-2xx or dropped connection inside the elicited window (10 s default)</span><span class="status draft">draft</span></summary>
+  <article id="REQ-124" class="doc doc-req">
+  <h3>REQ-124 - T-2 platform-docker-compose-host: zero-downtime reverse-proxy reload via bind-mounted config; verb per proxy; no non-2xx or dropped connection inside the elicited window (10 s default)</h3>
+  
+  <p><strong>Description:</strong> The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy; traefik/traefik.yaml when reverseProxy=traefik) is a first-class versioned artefact under the applying repo. The compose runtime bind-mounts the file into the proxy service so an operator change to the file is picked up by the reload verb. The reload verb is docker compose exec caddy caddy reload when Caddy, or the documented Traefik equivalent. The reload window is elicited (10 s default). During the window a client burst against the proxy sees no non-2xx and no dropped connection. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-124[&quot;REQ-124&lt;br/&gt;T-2 platform-docker-compose-host: zero-downti...&quot;]
+  US-12401[&quot;US-12401&lt;br/&gt;T-2 reverse-proxy config as a first-class ver...&quot;]
+  REQ-124 --&gt; US-12401
+  AC-12401-1[&quot;AC-12401-1&quot;]
+  US-12401 --&gt; AC-12401-1
+  FBS-140[&quot;FBS-140&lt;br/&gt;T-2 platform-docker-compose-host v1.0.0: 6 RE...&quot;]
+  AC-12401-1 -.-&gt;|delivered by| FBS-140
+  CN-440[&quot;CN-440&lt;br/&gt;../../blueprints/platform-docker-compose-host...&quot;]
+  AC-12401-1 -.-&gt;|implemented by| CN-440
+  US-12402[&quot;US-12402&lt;br/&gt;T-2 cross-cutting zeroDowntimeReload: a clien...&quot;]
+  REQ-124 --&gt; US-12402
+  AC-12402-1[&quot;AC-12402-1&quot;]
+  US-12402 --&gt; AC-12402-1
+  AC-12402-1 -.-&gt;|delivered by| FBS-140
+  AC-12402-1 -.-&gt;|implemented by| CN-440
+  click REQ-124 &quot;#REQ-124&quot;;
+  click US-12401 &quot;#US-12401&quot;;
+  click AC-12401-1 &quot;#AC-12401-1&quot;;
+  click FBS-140 &quot;#FBS-140&quot;;
+  click CN-440 &quot;#CN-440&quot;;
+  click US-12402 &quot;#US-12402&quot;;
+  click AC-12402-1 &quot;#AC-12402-1&quot;;
+  class REQ-124 req;
+  class US-12401 us;
+  class AC-12401-1 ac;
+  class FBS-140 fbs;
+  class CN-440 cn;
+  class US-12402 us;
+  class AC-12402-1 ac;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:40:05.035Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:40:05.264Z&quot;,
+  &quot;description&quot;: &quot;The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy; traefik/traefik.yaml when reverseProxy=traefik) is a first-class versioned artefact under the applying repo. The compose runtime bind-mounts the file into the proxy service so an operator change to the file is picked up by the reload verb. The reload verb is docker compose exec caddy caddy reload when Caddy, or the documented Traefik equivalent. The reload window is elicited (10 s default). During the window a client burst against the proxy sees no non-2xx and no dropped connection. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.&quot;,
+  &quot;reqId&quot;: &quot;REQ-124&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 platform-docker-compose-host: zero-downtime reverse-proxy reload via bind-mounted config; verb per proxy; no non-2xx or dropped connection inside the elicited window (10 s default)&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;webUi&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-08T01:40:05.078Z&quot;,
+    &quot;signals&quot;: [
+      {
+        &quot;source&quot;: &quot;description&quot;,
+        &quot;shape&quot;: &quot;webUi&quot;,
+        &quot;match&quot;: &quot;sees&quot;
+      }
+    ]
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-12401">
+  <summary><span class="summary-label">US-12401 - T-2 reverse-proxy config as a first-class versioned artefact (caddy/Caddyfile) validated by the vendor validator</span><span class="status draft">draft</span></summary>
+  <article id="US-12401" class="doc doc-us">
+  <h3>US-12401 - T-2 reverse-proxy config as a first-class versioned artefact (caddy/Caddyfile) validated by the vendor validator</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint with reverseProxy=caddy</p>
+  <p><strong>I want:</strong> a checked-in caddy/Caddyfile bind-mounted into the proxy service so the reload verb picks up an operator change, validated at gate time by caddy validate</p>
+  <p><strong>So that:</strong> a broken Caddyfile is caught before the reload burst runs, and there is one place in the tree the operator edits to route hostnames</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-124">REQ-124</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12401-1" class="ac-item"><strong>AC-12401-1</strong> - The fixture ships caddy/Caddyfile at the fixture root under a caddy/ directory, the compose file bind-mounts it read-only into the caddy service, and the caddyfile-validate probe shells to caddy validate against the file and asserts exit 0. SIMULATE_INVALID_CADDYFILE=true writes an invalid directive into a scratch copy and the probe FAILS naming the line. Skipped when the applied reverseProxy is not caddy.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:43.312Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:42:43.912Z&quot;,
+  &quot;usId&quot;: &quot;US-12401&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-124&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 reverse-proxy config as a first-class versioned artefact (caddy/Caddyfile) validated by the vendor validator&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint with reverseProxy=caddy&quot;,
+  &quot;iWant&quot;: &quot;a checked-in caddy/Caddyfile bind-mounted into the proxy service so the reload verb picks up an operator change, validated at gate time by caddy validate&quot;,
+  &quot;soThat&quot;: &quot;a broken Caddyfile is caught before the reload burst runs, and there is one place in the tree the operator edits to route hostnames&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12401-1&quot;,
+      &quot;description&quot;: &quot;The fixture ships caddy/Caddyfile at the fixture root under a caddy/ directory, the compose file bind-mounts it read-only into the caddy service, and the caddyfile-validate probe shells to caddy validate against the file and asserts exit 0. SIMULATE_INVALID_CADDYFILE=true writes an invalid directive into a scratch copy and the probe FAILS naming the line. Skipped when the applied reverseProxy is not caddy.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3904-platform-docker-compose-host-reverse-proxy-artefact&quot;
+  ]
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-us-wrap" data-doc-id="US-12402">
+  <summary><span class="summary-label">US-12402 - T-2 cross-cutting zeroDowntimeReload: a client burst against the proxy during a config reload sees no non-2xx and no dropped connection inside the elicited window</span><span class="status draft">draft</span></summary>
+  <article id="US-12402" class="doc doc-us">
+  <h3>US-12402 - T-2 cross-cutting zeroDowntimeReload: a client burst against the proxy during a config reload sees no non-2xx and no dropped connection inside the elicited window</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint</p>
+  <p><strong>I want:</strong> the real-account reload-burst probe to fire an undici burst against the reverse proxy while docker compose exec caddy caddy reload runs and assert no non-2xx or dropped connection inside the elicited window</p>
+  <p><strong>So that:</strong> the zero-downtime reload claim is proven on real docker before the blueprint ships</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-124">REQ-124</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12402-1" class="ac-item"><strong>AC-12402-1</strong> - The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici GETs against the proxy service on the throwaway server while docker compose exec caddy caddy reload runs, asserts every request returns a 2xx status inside the elicited window (10 s default), asserts no dropped connection, tears the stack down in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:44.098Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:42:44.701Z&quot;,
+  &quot;usId&quot;: &quot;US-12402&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-124&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 cross-cutting zeroDowntimeReload: a client burst against the proxy during a config reload sees no non-2xx and no dropped connection inside the elicited window&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint&quot;,
+  &quot;iWant&quot;: &quot;the real-account reload-burst probe to fire an undici burst against the reverse proxy while docker compose exec caddy caddy reload runs and assert no non-2xx or dropped connection inside the elicited window&quot;,
+  &quot;soThat&quot;: &quot;the zero-downtime reload claim is proven on real docker before the blueprint ships&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12402-1&quot;,
+      &quot;description&quot;: &quot;The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici GETs against the proxy service on the throwaway server while docker compose exec caddy caddy reload runs, asserts every request returns a 2xx status inside the elicited window (10 s default), asserts no dropped connection, tears the stack down in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3904-platform-docker-compose-host-reverse-proxy-artefact&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
+<details class="doc-details doc-req-wrap" data-doc-id="REQ-125">
+  <summary><span class="summary-label">REQ-125 - T-2 platform-docker-compose-host: log shipping to the elicited observability-logging sink (journald default; loki opt-in when the project runs Grafana)</span><span class="status draft">draft</span></summary>
+  <article id="REQ-125" class="doc doc-req">
+  <h3>REQ-125 - T-2 platform-docker-compose-host: log shipping to the elicited observability-logging sink (journald default; loki opt-in when the project runs Grafana)</h3>
+  
+  <p><strong>Description:</strong> Every container writes stdout and stderr through the elicited log driver. Journald is the shipped default matching the Debian 12 and Ubuntu 24.04 baselines the T-1 cloud-init sets up. Loki is the opt-in alternative when the applying project runs Grafana. The choice is elicited via the log-driver ADR. When observability-logging is applied, the compose file wires the elicited driver to that companion. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.</p>
+  <p><strong>Category:</strong> functional</p>
+  <p><strong>Domain:</strong> functional</p>
+  <p><strong>Priority:</strong> must</p>
+  
+  
+  <section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">flowchart LR
+  REQ-125[&quot;REQ-125&lt;br/&gt;T-2 platform-docker-compose-host: log shippin...&quot;]
+  US-12501[&quot;US-12501&lt;br/&gt;T-2 log shipping to the elicited observabilit...&quot;]
+  REQ-125 --&gt; US-12501
+  AC-12501-1[&quot;AC-12501-1&quot;]
+  US-12501 --&gt; AC-12501-1
+  FBS-140[&quot;FBS-140&lt;br/&gt;T-2 platform-docker-compose-host v1.0.0: 6 RE...&quot;]
+  AC-12501-1 -.-&gt;|delivered by| FBS-140
+  CN-440[&quot;CN-440&lt;br/&gt;../../blueprints/platform-docker-compose-host...&quot;]
+  AC-12501-1 -.-&gt;|implemented by| CN-440
+  click REQ-125 &quot;#REQ-125&quot;;
+  click US-12501 &quot;#US-12501&quot;;
+  click AC-12501-1 &quot;#AC-12501-1&quot;;
+  click FBS-140 &quot;#FBS-140&quot;;
+  click CN-440 &quot;#CN-440&quot;;
+  class REQ-125 req;
+  class US-12501 us;
+  class AC-12501-1 ac;
+  class FBS-140 fbs;
+  class CN-440 cn;
+classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
+  classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
+  classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
+  classDef ac fill:#e0e7ff,stroke:#3730a3,color:#1f2937;
+  classDef tad fill:#fecaca,stroke:#991b1b,color:#1f2937;
+  classDef tac fill:#fed7aa,stroke:#9a3412,color:#1f2937;
+  classDef adr fill:#fbcfe8,stroke:#9d174d,color:#1f2937;
+  classDef bs fill:#ddd6fe,stroke:#5b21b6,color:#1f2937;
+  classDef fbs fill:#c7d2fe,stroke:#3730a3,color:#1f2937;
+  classDef ts fill:#99f6e4,stroke:#115e59,color:#1f2937;
+  classDef tc fill:#d9f99d,stroke:#3f6212,color:#1f2937;
+  classDef cn fill:#a5b4fc,stroke:#312e81,color:#1f2937;
+  classDef broken stroke:#dc2626,stroke-width:2px,stroke-dasharray:5 5,color:#7f1d1d;</pre></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:40:05.460Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:40:05.690Z&quot;,
+  &quot;description&quot;: &quot;Every container writes stdout and stderr through the elicited log driver. Journald is the shipped default matching the Debian 12 and Ubuntu 24.04 baselines the T-1 cloud-init sets up. Loki is the opt-in alternative when the applying project runs Grafana. The choice is elicited via the log-driver ADR. When observability-logging is applied, the compose file wires the elicited driver to that companion. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.&quot;,
+  &quot;reqId&quot;: &quot;REQ-125&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;title&quot;: &quot;T-2 platform-docker-compose-host: log shipping to the elicited observability-logging sink (journald default; loki opt-in when the project runs Grafana)&quot;,
+  &quot;category&quot;: &quot;functional&quot;,
+  &quot;domain&quot;: &quot;functional&quot;,
+  &quot;priority&quot;: &quot;must&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;shapeClassification&quot;: {
+    &quot;shapes&quot;: [
+      &quot;none&quot;
+    ],
+    &quot;reason&quot;: &quot;keyword-scan&quot;,
+    &quot;classifiedAt&quot;: &quot;2026-09-08T01:40:05.504Z&quot;
+  }
+}
+</pre></details>
+</article>
+<section class="nested-details"><h4>User stories</h4><details class="doc-details doc-us-wrap" data-doc-id="US-12501">
+  <summary><span class="summary-label">US-12501 - T-2 log shipping to the elicited observability-logging sink (journald default; loki opt-in)</span><span class="status draft">draft</span></summary>
+  <article id="US-12501" class="doc doc-us">
+  <h3>US-12501 - T-2 log shipping to the elicited observability-logging sink (journald default; loki opt-in)</h3>
+  
+  <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that may run Grafana or the estate default</p>
+  <p><strong>I want:</strong> the elicited log driver to be wired into every service in the compose file (journald default, loki opt-in) and the choice recorded on the log-driver ADR</p>
+  <p><strong>So that:</strong> the container stdout and stderr reach the applied observability sink without a per-service edit</p>
+  
+  <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-125">REQ-125</a></p></section>
+  <section class="acceptance-criteria">
+    <h4>Acceptance criteria</h4>
+    <ul class="ac-list">
+      <li id="AC-12501-1" class="ac-item"><strong>AC-12501-1</strong> - Every service in the fixture compose.yaml declares a logging: driver: block whose driver value matches the elicited log driver (default journald). The compose-config-lint probe asserts (a) every service declares logging: driver, (b) the value is one of journald or loki, and (c) SIMULATE_UNCLASSIFIED_LOG_DRIVER=true sets a disallowed driver and the probe FAILS naming the service and the disallowed value.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-140">FBS-140</a></p></li>
+    </ul>
+  </section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:44.888Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:42:45.499Z&quot;,
+  &quot;usId&quot;: &quot;US-12501&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;reqId&quot;: &quot;REQ-125&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;title&quot;: &quot;T-2 log shipping to the elicited observability-logging sink (journald default; loki opt-in)&quot;,
+  &quot;asA&quot;: &quot;shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that may run Grafana or the estate default&quot;,
+  &quot;iWant&quot;: &quot;the elicited log driver to be wired into every service in the compose file (journald default, loki opt-in) and the choice recorded on the log-driver ADR&quot;,
+  &quot;soThat&quot;: &quot;the container stdout and stderr reach the applied observability sink without a per-service edit&quot;,
+  &quot;acceptanceCriteria&quot;: [
+    {
+      &quot;id&quot;: &quot;AC-12501-1&quot;,
+      &quot;description&quot;: &quot;Every service in the fixture compose.yaml declares a logging: driver: block whose driver value matches the elicited log driver (default journald). The compose-config-lint probe asserts (a) every service declares logging: driver, (b) the value is one of journald or loki, and (c) SIMULATE_UNCLASSIFIED_LOG_DRIVER=true sets a disallowed driver and the probe FAILS naming the service and the disallowed value.&quot;,
+      &quot;testable&quot;: true
+    }
+  ],
+  &quot;tacIds&quot;: [
+    &quot;TAC-3903-platform-docker-compose-host-healthcheck-lint&quot;
+  ]
+}
+</pre></details>
+</article>
+</details></section>
+</details>
 
     </section>
     <section id="tab-architecture" role="tabpanel" hidden>
@@ -16055,8 +16904,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <dt>eventModel</dt><dd>None. Operations are synchronous filesystem reads and writes.</dd></dl></section>
 <section class="field-list"><h4>Operational concerns</h4><dl><dt>healthChecks</dt><dd>Not applicable for a local binary; a validate command reports project health by validating every document and listing broken references.</dd>
 <dt>logging</dt><dd>Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics.</dd></dl></section>
-  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a>, <a href="#TAC-2214-application-admin-console-access-gated-signin-surface">TAC-2214-application-admin-console-access-gated-signin-surface</a>, <a href="#TAC-3501-edge-cloudflare-access-jwt-validator">TAC-3501-edge-cloudflare-access-jwt-validator</a>, <a href="#TAC-3502-edge-cloudflare-access-application-declaration">TAC-3502-edge-cloudflare-access-application-declaration</a>, <a href="#TAC-3503-edge-cloudflare-access-policy-shape">TAC-3503-edge-cloudflare-access-policy-shape</a>, <a href="#TAC-3504-edge-cloudflare-access-audit-sink">TAC-3504-edge-cloudflare-access-audit-sink</a>, <a href="#TAC-3601-edge-cloudflare-turnstile-widget-mount">TAC-3601-edge-cloudflare-turnstile-widget-mount</a>, <a href="#TAC-3602-edge-cloudflare-turnstile-server-verifier">TAC-3602-edge-cloudflare-turnstile-server-verifier</a>, <a href="#TAC-3603-edge-cloudflare-turnstile-magic-link-hook">TAC-3603-edge-cloudflare-turnstile-magic-link-hook</a>, <a href="#TAC-3701-edge-cloudflare-rate-limiting-manifest-schema">TAC-3701-edge-cloudflare-rate-limiting-manifest-schema</a>, <a href="#TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc">TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc</a>, <a href="#TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner">TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner</a>, <a href="#TAC-3801-deploy-hetzner-server-provisioner">TAC-3801-deploy-hetzner-server-provisioner</a>, <a href="#TAC-3802-deploy-hetzner-server-manifest-schema">TAC-3802-deploy-hetzner-server-manifest-schema</a>, <a href="#TAC-3803-deploy-hetzner-server-cloud-init-template">TAC-3803-deploy-hetzner-server-cloud-init-template</a>, <a href="#TAC-3804-deploy-hetzner-server-firewall-shape">TAC-3804-deploy-hetzner-server-firewall-shape</a></p></section>
-  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a>, <a href="#ADR-010">ADR-010</a>, <a href="#ADR-2214-application-admin-console-consume-zero-trust-gate">ADR-2214-application-admin-console-consume-zero-trust-gate</a>, <a href="#ADR-3501-edge-cloudflare-access-jwt-gate">ADR-3501-edge-cloudflare-access-jwt-gate</a>, <a href="#ADR-3502-edge-cloudflare-access-identity-provider">ADR-3502-edge-cloudflare-access-identity-provider</a>, <a href="#ADR-3503-edge-cloudflare-access-policy-scope">ADR-3503-edge-cloudflare-access-policy-scope</a>, <a href="#ADR-3504-edge-cloudflare-access-audit-retention">ADR-3504-edge-cloudflare-access-audit-retention</a>, <a href="#ADR-3601-edge-cloudflare-turnstile-verifier-contract">ADR-3601-edge-cloudflare-turnstile-verifier-contract</a>, <a href="#ADR-3602-edge-cloudflare-turnstile-widget-mode">ADR-3602-edge-cloudflare-turnstile-widget-mode</a>, <a href="#ADR-3603-edge-cloudflare-turnstile-refuse-shape">ADR-3603-edge-cloudflare-turnstile-refuse-shape</a>, <a href="#ADR-3701-edge-cloudflare-rate-limiting-throttle-contract">ADR-3701-edge-cloudflare-rate-limiting-throttle-contract</a>, <a href="#ADR-3702-edge-cloudflare-rate-limiting-layering">ADR-3702-edge-cloudflare-rate-limiting-layering</a>, <a href="#ADR-3703-edge-cloudflare-rate-limiting-manifest-shape">ADR-3703-edge-cloudflare-rate-limiting-manifest-shape</a>, <a href="#ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence">ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence</a>, <a href="#ADR-3801-deploy-hetzner-server-cloud-host-contract">ADR-3801-deploy-hetzner-server-cloud-host-contract</a>, <a href="#ADR-3802-deploy-hetzner-server-snapshot-cadence">ADR-3802-deploy-hetzner-server-snapshot-cadence</a>, <a href="#ADR-3803-deploy-hetzner-server-provisioning-tool">ADR-3803-deploy-hetzner-server-provisioning-tool</a>, <a href="#ADR-3804-deploy-hetzner-server-hardening-baseline">ADR-3804-deploy-hetzner-server-hardening-baseline</a></p></section>
+  <section class="field-list"><h4>Components (TACs)</h4><p><a href="#TAC-001">TAC-001</a>, <a href="#TAC-002">TAC-002</a>, <a href="#TAC-003">TAC-003</a>, <a href="#TAC-004">TAC-004</a>, <a href="#TAC-005">TAC-005</a>, <a href="#TAC-006">TAC-006</a>, <a href="#TAC-007">TAC-007</a>, <a href="#TAC-008">TAC-008</a>, <a href="#TAC-2214-application-admin-console-access-gated-signin-surface">TAC-2214-application-admin-console-access-gated-signin-surface</a>, <a href="#TAC-3501-edge-cloudflare-access-jwt-validator">TAC-3501-edge-cloudflare-access-jwt-validator</a>, <a href="#TAC-3502-edge-cloudflare-access-application-declaration">TAC-3502-edge-cloudflare-access-application-declaration</a>, <a href="#TAC-3503-edge-cloudflare-access-policy-shape">TAC-3503-edge-cloudflare-access-policy-shape</a>, <a href="#TAC-3504-edge-cloudflare-access-audit-sink">TAC-3504-edge-cloudflare-access-audit-sink</a>, <a href="#TAC-3601-edge-cloudflare-turnstile-widget-mount">TAC-3601-edge-cloudflare-turnstile-widget-mount</a>, <a href="#TAC-3602-edge-cloudflare-turnstile-server-verifier">TAC-3602-edge-cloudflare-turnstile-server-verifier</a>, <a href="#TAC-3603-edge-cloudflare-turnstile-magic-link-hook">TAC-3603-edge-cloudflare-turnstile-magic-link-hook</a>, <a href="#TAC-3701-edge-cloudflare-rate-limiting-manifest-schema">TAC-3701-edge-cloudflare-rate-limiting-manifest-schema</a>, <a href="#TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc">TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc</a>, <a href="#TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner">TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner</a>, <a href="#TAC-3801-deploy-hetzner-server-provisioner">TAC-3801-deploy-hetzner-server-provisioner</a>, <a href="#TAC-3802-deploy-hetzner-server-manifest-schema">TAC-3802-deploy-hetzner-server-manifest-schema</a>, <a href="#TAC-3803-deploy-hetzner-server-cloud-init-template">TAC-3803-deploy-hetzner-server-cloud-init-template</a>, <a href="#TAC-3804-deploy-hetzner-server-firewall-shape">TAC-3804-deploy-hetzner-server-firewall-shape</a>, <a href="#TAC-3901-platform-docker-compose-host-compose-layout">TAC-3901-platform-docker-compose-host-compose-layout</a>, <a href="#TAC-3902-platform-docker-compose-host-secrets-mount">TAC-3902-platform-docker-compose-host-secrets-mount</a>, <a href="#TAC-3903-platform-docker-compose-host-healthcheck-lint">TAC-3903-platform-docker-compose-host-healthcheck-lint</a>, <a href="#TAC-3904-platform-docker-compose-host-reverse-proxy-artefact">TAC-3904-platform-docker-compose-host-reverse-proxy-artefact</a></p></section>
+  <section class="field-list"><h4>Architectural decisions (ADRs)</h4><p><a href="#ADR-001">ADR-001</a>, <a href="#ADR-002">ADR-002</a>, <a href="#ADR-003">ADR-003</a>, <a href="#ADR-004">ADR-004</a>, <a href="#ADR-005">ADR-005</a>, <a href="#ADR-006">ADR-006</a>, <a href="#ADR-007">ADR-007</a>, <a href="#ADR-008">ADR-008</a>, <a href="#ADR-009">ADR-009</a>, <a href="#ADR-010">ADR-010</a>, <a href="#ADR-2214-application-admin-console-consume-zero-trust-gate">ADR-2214-application-admin-console-consume-zero-trust-gate</a>, <a href="#ADR-3501-edge-cloudflare-access-jwt-gate">ADR-3501-edge-cloudflare-access-jwt-gate</a>, <a href="#ADR-3502-edge-cloudflare-access-identity-provider">ADR-3502-edge-cloudflare-access-identity-provider</a>, <a href="#ADR-3503-edge-cloudflare-access-policy-scope">ADR-3503-edge-cloudflare-access-policy-scope</a>, <a href="#ADR-3504-edge-cloudflare-access-audit-retention">ADR-3504-edge-cloudflare-access-audit-retention</a>, <a href="#ADR-3601-edge-cloudflare-turnstile-verifier-contract">ADR-3601-edge-cloudflare-turnstile-verifier-contract</a>, <a href="#ADR-3602-edge-cloudflare-turnstile-widget-mode">ADR-3602-edge-cloudflare-turnstile-widget-mode</a>, <a href="#ADR-3603-edge-cloudflare-turnstile-refuse-shape">ADR-3603-edge-cloudflare-turnstile-refuse-shape</a>, <a href="#ADR-3701-edge-cloudflare-rate-limiting-throttle-contract">ADR-3701-edge-cloudflare-rate-limiting-throttle-contract</a>, <a href="#ADR-3702-edge-cloudflare-rate-limiting-layering">ADR-3702-edge-cloudflare-rate-limiting-layering</a>, <a href="#ADR-3703-edge-cloudflare-rate-limiting-manifest-shape">ADR-3703-edge-cloudflare-rate-limiting-manifest-shape</a>, <a href="#ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence">ADR-3704-edge-cloudflare-rate-limiting-drift-audit-cadence</a>, <a href="#ADR-3801-deploy-hetzner-server-cloud-host-contract">ADR-3801-deploy-hetzner-server-cloud-host-contract</a>, <a href="#ADR-3802-deploy-hetzner-server-snapshot-cadence">ADR-3802-deploy-hetzner-server-snapshot-cadence</a>, <a href="#ADR-3803-deploy-hetzner-server-provisioning-tool">ADR-3803-deploy-hetzner-server-provisioning-tool</a>, <a href="#ADR-3804-deploy-hetzner-server-hardening-baseline">ADR-3804-deploy-hetzner-server-hardening-baseline</a>, <a href="#ADR-3901-platform-docker-compose-host-contract">ADR-3901-platform-docker-compose-host-contract</a>, <a href="#ADR-3902-platform-docker-compose-host-reverse-proxy">ADR-3902-platform-docker-compose-host-reverse-proxy</a>, <a href="#ADR-3903-platform-docker-compose-host-reject-coolify">ADR-3903-platform-docker-compose-host-reject-coolify</a>, <a href="#ADR-3904-platform-docker-compose-host-log-driver">ADR-3904-platform-docker-compose-host-log-driver</a></p></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;tadId&quot;: &quot;TAD-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -17180,6 +18029,134 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3901-platform-docker-compose-host-compose-layout">
+  <summary><span class="summary-label">TAC-3901-platform-docker-compose-host-compose-layout - T-2 platform-docker-compose-host compose layout</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3901-platform-docker-compose-host-compose-layout" class="doc doc-tac">
+  <h3>TAC-3901-platform-docker-compose-host-compose-layout - T-2 platform-docker-compose-host compose layout</h3>
+  
+  <p><strong>Purpose:</strong> The applying project ships one compose.yaml at the repo root whose services key names every container the stack runs. Every entry is one image running one container; networks and volumes are top-level named entries; a colocated .env carries non-secret configuration values (never inline). The container host reads compose.yaml as the runtime topology source and refuses to bring the stack up on layout drift.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Serve compose.yaml at the repo root as the sole topology surface (AC-12001-1, AC-12202-1).</li><li>Guarantee service-per-container: each entry under services: runs one image (AC-12001-1).</li><li>Declare all networks and volumes as top-level named entries: no bare defaults (AC-12001-1).</li><li>Bind non-secret configuration through a colocated .env: no inline literals (AC-12001-1).</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:20.942Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:10.970Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-3901-platform-docker-compose-host-compose-layout&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;purpose&quot;: &quot;The applying project ships one compose.yaml at the repo root whose services key names every container the stack runs. Every entry is one image running one container; networks and volumes are top-level named entries; a colocated .env carries non-secret configuration values (never inline). The container host reads compose.yaml as the runtime topology source and refuses to bring the stack up on layout drift.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Serve compose.yaml at the repo root as the sole topology surface (AC-12001-1, AC-12202-1).&quot;,
+    &quot;Guarantee service-per-container: each entry under services: runs one image (AC-12001-1).&quot;,
+    &quot;Declare all networks and volumes as top-level named entries: no bare defaults (AC-12001-1).&quot;,
+    &quot;Bind non-secret configuration through a colocated .env: no inline literals (AC-12001-1).&quot;
+  ],
+  &quot;name&quot;: &quot;T-2 platform-docker-compose-host compose layout&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3902-platform-docker-compose-host-secrets-mount">
+  <summary><span class="summary-label">TAC-3902-platform-docker-compose-host-secrets-mount - T-2 platform-docker-compose-host secrets mount</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3902-platform-docker-compose-host-secrets-mount" class="doc doc-tac">
+  <h3>TAC-3902-platform-docker-compose-host-secrets-mount - T-2 platform-docker-compose-host secrets mount</h3>
+  
+  <p><strong>Purpose:</strong> The compose file declares each secret under its top-level secrets: key with a file: source. Services reference secrets through their service-level secrets: array so docker mounts them as files at 0o400 inside the container. When security-secrets-management is applied, the source path resolves through that facade; when it is not, the guide names a file-based fallback. No plaintext secret literal appears anywhere in compose.yaml or a referenced service config (grep-refuse).</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Declare every secret through a compose secrets: file mount (AC-12101-1, AC-12102-1).</li><li>Refuse a plaintext secret literal anywhere in compose.yaml (AC-12102-1).</li><li>Mount each secret file at 0o400 inside the container (AC-12101-1).</li><li>Bind to security-secrets-management when applied; document the file-based fallback (AC-12101-1).</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:21.128Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:11.343Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-3902-platform-docker-compose-host-secrets-mount&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;purpose&quot;: &quot;The compose file declares each secret under its top-level secrets: key with a file: source. Services reference secrets through their service-level secrets: array so docker mounts them as files at 0o400 inside the container. When security-secrets-management is applied, the source path resolves through that facade; when it is not, the guide names a file-based fallback. No plaintext secret literal appears anywhere in compose.yaml or a referenced service config (grep-refuse).&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Declare every secret through a compose secrets: file mount (AC-12101-1, AC-12102-1).&quot;,
+    &quot;Refuse a plaintext secret literal anywhere in compose.yaml (AC-12102-1).&quot;,
+    &quot;Mount each secret file at 0o400 inside the container (AC-12101-1).&quot;,
+    &quot;Bind to security-secrets-management when applied; document the file-based fallback (AC-12101-1).&quot;
+  ],
+  &quot;name&quot;: &quot;T-2 platform-docker-compose-host secrets mount&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3903-platform-docker-compose-host-healthcheck-lint">
+  <summary><span class="summary-label">TAC-3903-platform-docker-compose-host-healthcheck-lint - T-2 platform-docker-compose-host healthcheck and lifecycle lint</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3903-platform-docker-compose-host-healthcheck-lint" class="doc doc-tac">
+  <h3>TAC-3903-platform-docker-compose-host-healthcheck-lint - T-2 platform-docker-compose-host healthcheck and lifecycle lint</h3>
+  
+  <p><strong>Purpose:</strong> A lint pass runs before docker compose up. It asserts every HTTP-terminating service declares a healthcheck: block; every service declares a restart: policy whose value is one of unless-stopped or on-failure; every service declares a logging: driver: entry whose value is one of journald or loki. The lint refuses on any missing or unclassified line, naming the service and the offending field.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Assert every HTTP-terminating service declares a healthcheck: block (AC-12201-1).</li><li>Assert every service declares a restart policy in the allowed set (AC-12301-1).</li><li>Assert every service declares a logging driver in the allowed set (AC-12501-1).</li><li>Refuse on missing or unclassified fields, naming the service (AC-12201-1, AC-12301-1, AC-12501-1).</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:21.313Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:11.716Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-3903-platform-docker-compose-host-healthcheck-lint&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;purpose&quot;: &quot;A lint pass runs before docker compose up. It asserts every HTTP-terminating service declares a healthcheck: block; every service declares a restart: policy whose value is one of unless-stopped or on-failure; every service declares a logging: driver: entry whose value is one of journald or loki. The lint refuses on any missing or unclassified line, naming the service and the offending field.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Assert every HTTP-terminating service declares a healthcheck: block (AC-12201-1).&quot;,
+    &quot;Assert every service declares a restart policy in the allowed set (AC-12301-1).&quot;,
+    &quot;Assert every service declares a logging driver in the allowed set (AC-12501-1).&quot;,
+    &quot;Refuse on missing or unclassified fields, naming the service (AC-12201-1, AC-12301-1, AC-12501-1).&quot;
+  ],
+  &quot;name&quot;: &quot;T-2 platform-docker-compose-host healthcheck and lifecycle lint&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-tac-wrap" data-doc-id="TAC-3904-platform-docker-compose-host-reverse-proxy-artefact">
+  <summary><span class="summary-label">TAC-3904-platform-docker-compose-host-reverse-proxy-artefact - T-2 platform-docker-compose-host reverse-proxy artefact</span><span class="status draft">draft</span></summary>
+  <article id="TAC-3904-platform-docker-compose-host-reverse-proxy-artefact" class="doc doc-tac">
+  <h3>TAC-3904-platform-docker-compose-host-reverse-proxy-artefact - T-2 platform-docker-compose-host reverse-proxy artefact</h3>
+  
+  <p><strong>Purpose:</strong> The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy, traefik/traefik.yaml when reverseProxy=traefik) lives as a first-class checked-in artefact under the applying repo. The compose file bind-mounts the artefact read-only into the proxy service. The gate runs the vendor validator against the artefact and refuses on an invalid directive. Under the reload verb (docker compose exec caddy caddy reload or the Traefik equivalent), a burst against the proxy inside the elicited window sees no non-2xx and no dropped connection.</p>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Ship the reverse-proxy config as a checked-in artefact bind-mounted into the proxy (AC-12401-1).</li><li>Validate the artefact with the vendor validator at gate time (AC-12401-1).</li><li>Prove zero-downtime reload with a real-account burst (AC-12402-1).</li><li>Name the reload verb per proxy in the guide and the fixture README (AC-12401-1, AC-12402-1).</li></ul></section>
+  
+  
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:21.500Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:12.088Z&quot;,
+  &quot;tacId&quot;: &quot;TAC-3904-platform-docker-compose-host-reverse-proxy-artefact&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;draft&quot;,
+  &quot;purpose&quot;: &quot;The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy, traefik/traefik.yaml when reverseProxy=traefik) lives as a first-class checked-in artefact under the applying repo. The compose file bind-mounts the artefact read-only into the proxy service. The gate runs the vendor validator against the artefact and refuses on an invalid directive. Under the reload verb (docker compose exec caddy caddy reload or the Traefik equivalent), a burst against the proxy inside the elicited window sees no non-2xx and no dropped connection.&quot;,
+  &quot;responsibilities&quot;: [
+    &quot;Ship the reverse-proxy config as a checked-in artefact bind-mounted into the proxy (AC-12401-1).&quot;,
+    &quot;Validate the artefact with the vendor validator at gate time (AC-12401-1).&quot;,
+    &quot;Prove zero-downtime reload with a real-account burst (AC-12402-1).&quot;,
+    &quot;Name the reload verb per proxy in the guide and the fixture README (AC-12401-1, AC-12402-1).&quot;
+  ],
+  &quot;name&quot;: &quot;T-2 platform-docker-compose-host reverse-proxy artefact&quot;
+}
+</pre></details>
+</article>
+</details>
 <h3 class="group-heading">Architectural decisions</h3>
 <details class="doc-details doc-adr-wrap" data-doc-id="ADR-001">
   <summary><span class="summary-label">ADR-001 - Local filesystem is the single source of truth</span><span class="status accepted">accepted</span></summary>
@@ -18024,6 +19001,118 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 </pre></details>
 </article>
 </details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3901-platform-docker-compose-host-contract">
+  <summary><span class="summary-label">ADR-3901-platform-docker-compose-host-contract - T-2 container host contract: docker compose as source of truth (scope global, new topic containerHostContract)</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-3901-platform-docker-compose-host-contract" class="doc doc-adr">
+  <h3>ADR-3901-platform-docker-compose-host-contract - T-2 container host contract: docker compose as source of truth (scope global, new topic containerHostContract)</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> An applying project running its stack on a Linux cloudHost needs one shipped contract for how services are declared, wired and brought up on a container-orchestration surface. Round-7 T-2 mints the containerHostContract topic on this ADR. Docker Compose is the shipped v1.0.0 surface (compose.yaml as source of truth, healthchecks required, secrets as files, restart discipline, reverse-proxy as artefact). Every applied container host needs one project-wide answer to the containerHostContract topic; a future non-compose sibling (Docker Swarm, Nomad) would contribute the same topic string with a different mechanism, forcing a DELIBERATE conflict the operator resolves per the round-2 conflict pattern. Standards trace clause: Docker Compose file reference AND Docker Engine install-on-Ubuntu docs per hetzner-round-7-spec-2026-09-07.md.</p>
+  <p><strong>Decision:</strong> The shipped v1.0.0 default is docker compose on a cloudHost as the containerHostContract provider. A canonical compose.yaml at the repo root drives docker compose up on the applied cloudHost (T-1 deploy-hetzner-server); healthchecks refuse at docker compose config on missing; secrets are file mounts; restart policies are unless-stopped or on-failure; the reverse-proxy config is a first-class versioned artefact per TAC-3904. The containerHostContract topic scope is global on this blueprint; the topic string is containerHostContract (lower camelCase, one concept per topic, no version suffix, per the round-2 rules-for-new-topics clause on the shelf registry). Standards trace clause: Docker Compose file reference AND Docker Engine install-on-Ubuntu docs per hetzner-round-7-spec-2026-09-07.md.</p>
+  <p><strong>Consequences:</strong> Consumer blueprints that ship as containers declare capabilities: [containerHost] on their applied contract; the round-7 T-3 edge-cloudflare-tunnel reads this capability at apply-time to choose the compose-service runtime. Rebuild-from-manifest is always possible: the compose file is the source of truth, the running stack is derivative. Compose is famously many right ways; over-specifying alienates a project with a defensible different shape, so v1.0.0 pins the small load-bearing set (healthchecks, secrets-as-files, restart discipline, reverse-proxy-as-artefact) and leaves everything else to project-owned ADRs.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:21.686Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:12.275Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-3901-platform-docker-compose-host-contract&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;T-2 container host contract: docker compose as source of truth (scope global, new topic containerHostContract)&quot;,
+  &quot;context&quot;: &quot;An applying project running its stack on a Linux cloudHost needs one shipped contract for how services are declared, wired and brought up on a container-orchestration surface. Round-7 T-2 mints the containerHostContract topic on this ADR. Docker Compose is the shipped v1.0.0 surface (compose.yaml as source of truth, healthchecks required, secrets as files, restart discipline, reverse-proxy as artefact). Every applied container host needs one project-wide answer to the containerHostContract topic; a future non-compose sibling (Docker Swarm, Nomad) would contribute the same topic string with a different mechanism, forcing a DELIBERATE conflict the operator resolves per the round-2 conflict pattern. Standards trace clause: Docker Compose file reference AND Docker Engine install-on-Ubuntu docs per hetzner-round-7-spec-2026-09-07.md.&quot;,
+  &quot;decision&quot;: &quot;The shipped v1.0.0 default is docker compose on a cloudHost as the containerHostContract provider. A canonical compose.yaml at the repo root drives docker compose up on the applied cloudHost (T-1 deploy-hetzner-server); healthchecks refuse at docker compose config on missing; secrets are file mounts; restart policies are unless-stopped or on-failure; the reverse-proxy config is a first-class versioned artefact per TAC-3904. The containerHostContract topic scope is global on this blueprint; the topic string is containerHostContract (lower camelCase, one concept per topic, no version suffix, per the round-2 rules-for-new-topics clause on the shelf registry). Standards trace clause: Docker Compose file reference AND Docker Engine install-on-Ubuntu docs per hetzner-round-7-spec-2026-09-07.md.&quot;,
+  &quot;consequences&quot;: &quot;Consumer blueprints that ship as containers declare capabilities: [containerHost] on their applied contract; the round-7 T-3 edge-cloudflare-tunnel reads this capability at apply-time to choose the compose-service runtime. Rebuild-from-manifest is always possible: the compose file is the source of truth, the running stack is derivative. Compose is famously many right ways; over-specifying alienates a project with a defensible different shape, so v1.0.0 pins the small load-bearing set (healthchecks, secrets-as-files, restart discipline, reverse-proxy-as-artefact) and leaves everything else to project-owned ADRs.&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3902-platform-docker-compose-host-reverse-proxy">
+  <summary><span class="summary-label">ADR-3902-platform-docker-compose-host-reverse-proxy - T-2 reverse proxy choice: caddy default per Baz decision 19; traefik alternative for docker-label auto-discovery; none for tunnel-fronted projects (elicited)</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-3902-platform-docker-compose-host-reverse-proxy" class="doc doc-adr">
+  <h3>ADR-3902-platform-docker-compose-host-reverse-proxy - T-2 reverse proxy choice: caddy default per Baz decision 19; traefik alternative for docker-label auto-discovery; none for tunnel-fronted projects (elicited)</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> Compose stacks need a reverse-proxy for HTTPS termination and hostname-to-service routing. Caddy is the estate baseline (dev-01 and ops-01 already run it per Baz decision 19 on 2026-09-07 09:50Z). Traefik has a docker-label auto-discovery model some projects prefer. Some projects front their stack only with the round-7 tunnel and skip a reverse proxy inside compose.</p>
+  <p><strong>Decision:</strong> The reverse-proxy choice is elicited via the reverseProxy parameter. The shipped default is caddy per Baz decision 19. The alternatives are traefik (for projects that want docker-label auto-discovery) and none (for projects fronted only by the round-7 tunnel). Standards trace clause: Caddy docs AND Traefik docs per hetzner-round-7-spec-2026-09-07.md.</p>
+  <p><strong>Consequences:</strong> A project applying reverseProxy=caddy gets the caddy/Caddyfile artefact and the caddy reload verb. A project applying reverseProxy=traefik gets the traefik/traefik.yaml artefact and the Traefik equivalent reload verb; docker-label auto-discovery is a project-side pattern the guide names. A project applying reverseProxy=none omits the reverse-proxy service and must apply edge-cloudflare-tunnel (T-3) so ingress terminates at the CF edge.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:21.872Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:12.461Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-3902-platform-docker-compose-host-reverse-proxy&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;T-2 reverse proxy choice: caddy default per Baz decision 19; traefik alternative for docker-label auto-discovery; none for tunnel-fronted projects (elicited)&quot;,
+  &quot;context&quot;: &quot;Compose stacks need a reverse-proxy for HTTPS termination and hostname-to-service routing. Caddy is the estate baseline (dev-01 and ops-01 already run it per Baz decision 19 on 2026-09-07 09:50Z). Traefik has a docker-label auto-discovery model some projects prefer. Some projects front their stack only with the round-7 tunnel and skip a reverse proxy inside compose.&quot;,
+  &quot;decision&quot;: &quot;The reverse-proxy choice is elicited via the reverseProxy parameter. The shipped default is caddy per Baz decision 19. The alternatives are traefik (for projects that want docker-label auto-discovery) and none (for projects fronted only by the round-7 tunnel). Standards trace clause: Caddy docs AND Traefik docs per hetzner-round-7-spec-2026-09-07.md.&quot;,
+  &quot;consequences&quot;: &quot;A project applying reverseProxy=caddy gets the caddy/Caddyfile artefact and the caddy reload verb. A project applying reverseProxy=traefik gets the traefik/traefik.yaml artefact and the Traefik equivalent reload verb; docker-label auto-discovery is a project-side pattern the guide names. A project applying reverseProxy=none omits the reverse-proxy service and must apply edge-cloudflare-tunnel (T-3) so ingress terminates at the CF edge.&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3903-platform-docker-compose-host-reject-coolify">
+  <summary><span class="summary-label">ADR-3903-platform-docker-compose-host-reject-coolify - T-2 Coolify rejected per Baz decision 20 (it shadows what the blueprints contract and adds its own DB and UI as a second source of state)</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-3903-platform-docker-compose-host-reject-coolify" class="doc doc-adr">
+  <h3>ADR-3903-platform-docker-compose-host-reject-coolify - T-2 Coolify rejected per Baz decision 20 (it shadows what the blueprints contract and adds its own DB and UI as a second source of state)</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> Coolify was proposed as a candidate platform-* sibling in the round-7 proposal. It is a self-hosted PaaS with its own database and UI. Baz decision 20 on 2026-09-07 09:50Z ruled Coolify out for round 7.</p>
+  <p><strong>Decision:</strong> reject; it shadows what the blueprints contract and adds its own DB and UI as a second source of state.</p>
+  <p><strong>Consequences:</strong> No platform-coolify-host blueprint is scoped in round 7 and no reserved slot is allocated. A future platform-coolify-host sibling mints on operator demand under a fresh scope PR. The standards trace clause on this contribution entry is generic enterprise practice; no vendor-doc URL is claimed for the reject decision.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:22.057Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:12.646Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-3903-platform-docker-compose-host-reject-coolify&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;T-2 Coolify rejected per Baz decision 20 (it shadows what the blueprints contract and adds its own DB and UI as a second source of state)&quot;,
+  &quot;context&quot;: &quot;Coolify was proposed as a candidate platform-* sibling in the round-7 proposal. It is a self-hosted PaaS with its own database and UI. Baz decision 20 on 2026-09-07 09:50Z ruled Coolify out for round 7.&quot;,
+  &quot;decision&quot;: &quot;reject; it shadows what the blueprints contract and adds its own DB and UI as a second source of state.&quot;,
+  &quot;consequences&quot;: &quot;No platform-coolify-host blueprint is scoped in round 7 and no reserved slot is allocated. A future platform-coolify-host sibling mints on operator demand under a fresh scope PR. The standards trace clause on this contribution entry is generic enterprise practice; no vendor-doc URL is claimed for the reject decision.&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-adr-wrap" data-doc-id="ADR-3904-platform-docker-compose-host-log-driver">
+  <summary><span class="summary-label">ADR-3904-platform-docker-compose-host-log-driver - T-2 log driver choice: journald default matching Debian 12 and Ubuntu 24.04 baseline; loki opt-in when the project runs Grafana (elicited)</span><span class="status accepted">accepted</span></summary>
+  <article id="ADR-3904-platform-docker-compose-host-log-driver" class="doc doc-adr">
+  <h3>ADR-3904-platform-docker-compose-host-log-driver - T-2 log driver choice: journald default matching Debian 12 and Ubuntu 24.04 baseline; loki opt-in when the project runs Grafana (elicited)</h3>
+  
+  <p><strong>Status:</strong> accepted</p>
+  <p><strong>Context:</strong> Containers write stdout and stderr to a log driver. Debian 12 and Ubuntu 24.04 (the T-1 cloud-init baseline) ship journald. Grafana users on the estate reach for loki as a native sink. A one-choice hard-code loses either journald parity with the OS or loki when the operator runs Grafana.</p>
+  <p><strong>Decision:</strong> The log driver is elicited via the log-driver parameter. The shipped default is journald matching the Debian 12 and Ubuntu 24.04 baselines T-1 sets up. The alternative is loki, opted into when the applying project runs Grafana. When observability-logging is applied, the compose file wires the elicited driver to that companion. Standards trace clause: generic enterprise practice.</p>
+  <p><strong>Consequences:</strong> A project applying log-driver=journald gets the systemd-native path; the journald sink is queried via journalctl. A project applying log-driver=loki targets the Grafana loki endpoint; the observability-logging companion supplies the endpoint address. Neither choice adds a runtime npm dependency. The compose-config-lint refuses on any driver value outside the allowed set.</p>
+  
+  
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:42:22.244Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:44:12.833Z&quot;,
+  &quot;adrId&quot;: &quot;ADR-3904-platform-docker-compose-host-log-driver&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;tadId&quot;: &quot;TAD-001&quot;,
+  &quot;version&quot;: &quot;0.1.0&quot;,
+  &quot;status&quot;: &quot;accepted&quot;,
+  &quot;title&quot;: &quot;T-2 log driver choice: journald default matching Debian 12 and Ubuntu 24.04 baseline; loki opt-in when the project runs Grafana (elicited)&quot;,
+  &quot;context&quot;: &quot;Containers write stdout and stderr to a log driver. Debian 12 and Ubuntu 24.04 (the T-1 cloud-init baseline) ship journald. Grafana users on the estate reach for loki as a native sink. A one-choice hard-code loses either journald parity with the OS or loki when the operator runs Grafana.&quot;,
+  &quot;decision&quot;: &quot;The log driver is elicited via the log-driver parameter. The shipped default is journald matching the Debian 12 and Ubuntu 24.04 baselines T-1 sets up. The alternative is loki, opted into when the applying project runs Grafana. When observability-logging is applied, the compose file wires the elicited driver to that companion. Standards trace clause: generic enterprise practice.&quot;,
+  &quot;consequences&quot;: &quot;A project applying log-driver=journald gets the systemd-native path; the journald sink is queried via journalctl. A project applying log-driver=loki targets the Grafana loki endpoint; the observability-logging companion supplies the endpoint address. Neither choice adds a runtime npm dependency. The compose-config-lint refuses on any driver value outside the allowed set.&quot;
+}
+</pre></details>
+</article>
+</details>
 
     </section>
     <section id="tab-build" role="tabpanel" hidden>
@@ -18034,7 +19123,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li><li><strong>58.</strong> <a href="#FBS-110">FBS-110</a> - <span class="status notStarted">notStarted</span> - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</li><li><strong>59.</strong> <a href="#FBS-120">FBS-120</a> - <span class="status notStarted">notStarted</span> - T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches</li><li><strong>60.</strong> <a href="#FBS-130">FBS-130</a> - <span class="status notStarted">notStarted</span> - T-1 deploy-hetzner-server v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 6 Node-only probes; shared hetzner-throwaway-server fixture mint with provision/destroy/sweep-orphans and dry-run mock</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li><li><strong>58.</strong> <a href="#FBS-110">FBS-110</a> - <span class="status notStarted">notStarted</span> - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</li><li><strong>59.</strong> <a href="#FBS-120">FBS-120</a> - <span class="status notStarted">notStarted</span> - T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches</li><li><strong>60.</strong> <a href="#FBS-130">FBS-130</a> - <span class="status notStarted">notStarted</span> - T-1 deploy-hetzner-server v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 6 Node-only probes; shared hetzner-throwaway-server fixture mint with provision/destroy/sweep-orphans and dry-run mock</li><li><strong>61.</strong> <a href="#FBS-140">FBS-140</a> - <span class="status notStarted">notStarted</span> - T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -22949,6 +24038,103 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;executionStatus&quot;: &quot;notStarted&quot;,
   &quot;title&quot;: &quot;T-1 deploy-hetzner-server v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 6 Node-only probes; shared hetzner-throwaway-server fixture mint with provision/destroy/sweep-orphans and dry-run mock&quot;,
   &quot;summary&quot;: &quot;HQ round-7 T-1: deploy-hetzner-server v1.0.0 blueprint on the shelf under blueprints/deploy-hetzner-server/ (23 contributions: 6 REQs, 9 USs, 4 TACs, 4 ADRs; inventory per hetzner-round-7-spec-2026-09-07 section 5.1). Mints the shared throwaway-Hetzner-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ (provision.mjs, destroy.mjs, sweep-orphans.mjs, hcloud-mock shim, cloud-init renderer, provisioner-facade proto, hetzner/servers/ci-throwaway.json manifest, README) that T-2 and T-3 will extend. Six Node-only probes under blueprints/deploy-hetzner-server/contributions/probes/: cloud-init-render-lint (AC-11201-1; SIMULATE_HARDENING_DRIFT mutation), manifest-schema-validate (AC-11101-1, AC-11301-1, AC-11401-1; SIMULATE_MANIFEST_INVALID mutation), hcloud-dry-run-mock (AC-11001-1, AC-11501-1; JSON-parser-strip mutation plus event-secrecy leak mutation), real-account-throwaway-server-provision (AC-11102-1; accountBound), real-account-cloud-init-hardened (AC-11202-1; accountBound), real-account-snapshot-on-demand (AC-11402-1; accountBound). Blueprint README, guide, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep adding the deploy-hetzner-server row across every prior blueprint; section 6a cloudHost row on packages/rcf-lite/docs/blueprint-authoring.md. New global topics minted: linuxCloudHostContract, snapshotAndBackupCadence. Repo chain: REQ-110..115, US-11001, 11101, 11102, 11201, 11202, 11301, 11401, 11402, 11501, TS-140 with nine TCs, FBS-130, CN-410, TAC-3801..3804, ADR-3801..3804 minted via rcf define create --id per HQ round-7 T-1 reserved-block ruling (REQ-110..119 / TS-140..149 / FBS-130..139 / CN-410..439). Base commit origin/main 150d9c6.&quot;,
+  &quot;dependsOnFbsIds&quot;: []
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-fbs-wrap" data-doc-id="FBS-140">
+  <summary><span class="summary-label">FBS-140 - T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service</span><span class="status notStarted">notStarted</span></summary>
+  <article id="FBS-140" class="doc doc-fbs">
+  <h3>FBS-140 - T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service</h3>
+  
+  <p><strong>Summary:</strong> HQ round-7 T-2: platform-docker-compose-host v1.0.0 blueprint on the shelf under blueprints/platform-docker-compose-host/ (23 contributions: 6 REQs, 9 USs, 4 TACs, 4 ADRs; inventory per hetzner-round-7-spec-2026-09-07 section 5.2). Extends the shared throwaway-Hetzner-server fixture minted by T-1 (packages/rcf-lite/test/fixtures/hetzner-throwaway-server/) with a compose stack (compose.yaml, caddy/Caddyfile, secrets/web-token file mount, src/serve.mjs healthchecked stub) plus five run-&lt;probe&gt;.mjs delegate shims. Five Node-only probes under blueprints/platform-docker-compose-host/contributions/probes/: compose-config-lint (AC-12201-1, AC-12301-1, AC-12501-1; SIMULATE_MISSING_HEALTHCHECK, SIMULATE_UNCLASSIFIED_RESTART, SIMULATE_UNCLASSIFIED_LOG_DRIVER, SIMULATE_EVENT_SECRECY_LEAK mutations), secrets-as-files-scan (AC-12101-1, AC-12102-1; SIMULATE_PLAINTEXT_SECRET mutation), caddyfile-validate (AC-12401-1; SIMULATE_INVALID_CADDYFILE mutation; runs the caddy:2 vendor container so a caddy binary on PATH is optional), real-account-minimal-stack-up (AC-12202-1; accountBound), real-account-reload-burst (AC-12402-1; accountBound). Blueprint README, guide, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep adding the platform-docker-compose-host row across every prior blueprint; section 6a containerHost row on packages/rcf-lite/docs/blueprint-authoring.md. New global topic minted: containerHostContract. Repo chain: REQ-120..125, US-12001, 12101, 12102, 12201, 12202, 12301, 12401, 12402, 12501, TS-150 with nine TCs, FBS-140, CN-440, TAC-3901..3904, ADR-3901..3904 minted via rcf define create --id per HQ round-7 T-2 reserved-block ruling (REQ-120..129 / TS-150..159 / FBS-140..149 / CN-440..469). Base commit origin/main 30f7b77.</p>
+  
+  <div class="ac-pills"><a class="ac-pill" href="#AC-12001-1">AC-12001-1</a><a class="ac-pill" href="#AC-12101-1">AC-12101-1</a><a class="ac-pill" href="#AC-12102-1">AC-12102-1</a><a class="ac-pill" href="#AC-12201-1">AC-12201-1</a><a class="ac-pill" href="#AC-12202-1">AC-12202-1</a><a class="ac-pill" href="#AC-12301-1">AC-12301-1</a><a class="ac-pill" href="#AC-12401-1">AC-12401-1</a><a class="ac-pill" href="#AC-12402-1">AC-12402-1</a><a class="ac-pill" href="#AC-12501-1">AC-12501-1</a></div>
+  <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
+  <p><strong><a href="#AC-12001-1">AC-12001-1</a></strong> - The shared throwaway-server fixture ships compose.yaml at the fixture root with (a) every service running exactly one container image (service-per-container), (b) at least one named network under the top-level networks key, (c) at least one named volume under the top-level volumes key, and (d) non-secret config values are read via a colocated .env file rather than inlined into service environment entries.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-12101-1">AC-12101-1</a></strong> - The fixture compose.yaml declares at least one secret under the top-level secrets key with a file: source, references it from the web service through the service-level secrets: array, and no plaintext value for that secret appears anywhere in compose.yaml (grep-refuses on the literal). The secret file mode is 0o400 inside the container.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-12102-1">AC-12102-1</a></strong> - The secrets-as-files-scan probe walks compose.yaml plus every referenced service config file in the fixture and asserts (a) no line contains a plaintext token pattern (the applied literal name plus the applied literal value), (b) every declared secret in the compose secrets: key has a file: source, and (c) SIMULATE_PLAINTEXT_SECRET=true writes a plaintext literal into compose.yaml and the probe FAILS naming the file and the literal.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-12201-1">AC-12201-1</a></strong> - The compose-config-lint probe shells to docker compose config against the fixture compose.yaml, asserts exit 0, and additionally asserts every HTTP-terminating service declares a healthcheck: block. SIMULATE_MISSING_HEALTHCHECK=true strips the block from the web service and the probe FAILS naming the service.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-12202-1">AC-12202-1</a></strong> - The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, provisions the throwaway server, scps the compose.yaml, runs docker compose up -d --wait, asserts every declared service reaches healthy inside the elicited timeout, and tears down the stack plus the server in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-12301-1">AC-12301-1</a></strong> - The compose-config-lint probe asserts every service in the compose.yaml declares a restart policy AND every declared value is one of unless-stopped or on-failure. SIMULATE_UNCLASSIFIED_RESTART=true sets restart: always on the web service and the probe FAILS naming the service and the disallowed value.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-12401-1">AC-12401-1</a></strong> - The fixture ships caddy/Caddyfile at the fixture root under a caddy/ directory, the compose file bind-mounts it read-only into the caddy service, and the caddyfile-validate probe shells to caddy validate against the file and asserts exit 0. SIMULATE_INVALID_CADDYFILE=true writes an invalid directive into a scratch copy and the probe FAILS naming the line. Skipped when the applied reverseProxy is not caddy.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-12402-1">AC-12402-1</a></strong> - The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici GETs against the proxy service on the throwaway server while docker compose exec caddy caddy reload runs, asserts every request returns a 2xx status inside the elicited window (10 s default), asserts no dropped connection, tears the stack down in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-12501-1">AC-12501-1</a></strong> - Every service in the fixture compose.yaml declares a logging: driver: block whose driver value matches the elicited log driver (default journald). The compose-config-lint probe asserts (a) every service declares logging: driver, (b) the value is one of journald or loki, and (c) SIMULATE_UNCLASSIFIED_LOG_DRIVER=true sets a disallowed driver and the probe FAILS naming the service and the disallowed value.</p>
+  
+  
+  
+</div></section>
+  
+  
+  
+  
+  
+  
+  <p><strong>Build order:</strong> 61</p>
+  <p><strong>Execution status:</strong> notStarted</p>
+  
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:45:31.629Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:45:31.816Z&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-12001-1&quot;,
+    &quot;AC-12101-1&quot;,
+    &quot;AC-12102-1&quot;,
+    &quot;AC-12201-1&quot;,
+    &quot;AC-12202-1&quot;,
+    &quot;AC-12301-1&quot;,
+    &quot;AC-12401-1&quot;,
+    &quot;AC-12402-1&quot;,
+    &quot;AC-12501-1&quot;
+  ],
+  &quot;fbsId&quot;: &quot;FBS-140&quot;,
+  &quot;prdId&quot;: &quot;PRD-001&quot;,
+  &quot;bsId&quot;: &quot;BS-001&quot;,
+  &quot;buildOrder&quot;: 61,
+  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;title&quot;: &quot;T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service&quot;,
+  &quot;summary&quot;: &quot;HQ round-7 T-2: platform-docker-compose-host v1.0.0 blueprint on the shelf under blueprints/platform-docker-compose-host/ (23 contributions: 6 REQs, 9 USs, 4 TACs, 4 ADRs; inventory per hetzner-round-7-spec-2026-09-07 section 5.2). Extends the shared throwaway-Hetzner-server fixture minted by T-1 (packages/rcf-lite/test/fixtures/hetzner-throwaway-server/) with a compose stack (compose.yaml, caddy/Caddyfile, secrets/web-token file mount, src/serve.mjs healthchecked stub) plus five run-&lt;probe&gt;.mjs delegate shims. Five Node-only probes under blueprints/platform-docker-compose-host/contributions/probes/: compose-config-lint (AC-12201-1, AC-12301-1, AC-12501-1; SIMULATE_MISSING_HEALTHCHECK, SIMULATE_UNCLASSIFIED_RESTART, SIMULATE_UNCLASSIFIED_LOG_DRIVER, SIMULATE_EVENT_SECRECY_LEAK mutations), secrets-as-files-scan (AC-12101-1, AC-12102-1; SIMULATE_PLAINTEXT_SECRET mutation), caddyfile-validate (AC-12401-1; SIMULATE_INVALID_CADDYFILE mutation; runs the caddy:2 vendor container so a caddy binary on PATH is optional), real-account-minimal-stack-up (AC-12202-1; accountBound), real-account-reload-burst (AC-12402-1; accountBound). Blueprint README, guide, CHANGELOG, docs/topics.md; shelf-wide topics.md sweep adding the platform-docker-compose-host row across every prior blueprint; section 6a containerHost row on packages/rcf-lite/docs/blueprint-authoring.md. New global topic minted: containerHostContract. Repo chain: REQ-120..125, US-12001, 12101, 12102, 12201, 12202, 12301, 12401, 12402, 12501, TS-150 with nine TCs, FBS-140, CN-440, TAC-3901..3904, ADR-3901..3904 minted via rcf define create --id per HQ round-7 T-2 reserved-block ruling (REQ-120..129 / TS-150..159 / FBS-140..149 / CN-440..469). Base commit origin/main 30f7b77.&quot;,
   &quot;dependsOnFbsIds&quot;: []
 }
 </pre></details>
@@ -30806,6 +31992,150 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;description&quot;: &quot;Cover AC-11501-1 via anatomy test: hcloud dry-run mock drives four lifecycle events, payloads carry only metadata fields, event-secrecy mutation FAILS&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-140-lifecycle-events-metadata-only)&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-150">
+  <summary><span class="summary-label">TS-150 - T-2 platform-docker-compose-host anatomy proof: probe modules and compose-stack fixture assertions</span><span class="status draft">draft</span></summary>
+  <article id="TS-150" class="doc doc-ts">
+  <h3>TS-150 - T-2 platform-docker-compose-host anatomy proof: probe modules and compose-stack fixture assertions</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-12001">US-12001</a></p>
+  <p><strong>Purpose:</strong> Cover the T-2 chain ACs via the shipped anatomy test at test/blueprint/platform-docker-compose-host-anatomy.test.js and via the five blueprint probes driven from the shared throwaway-server fixture (which T-2 extends with a compose stack, Caddyfile, secret file mount and healthchecked service)</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-12001-1">AC-12001-1</a>, <a href="#AC-12101-1">AC-12101-1</a>, <a href="#AC-12102-1">AC-12102-1</a>, <a href="#AC-12201-1">AC-12201-1</a>, <a href="#AC-12202-1">AC-12202-1</a>, <a href="#AC-12301-1">AC-12301-1</a>, <a href="#AC-12401-1">AC-12401-1</a>, <a href="#AC-12402-1">AC-12402-1</a>, <a href="#AC-12501-1">AC-12501-1</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-150-compose-layout-shape-valid">
+  <p><strong>TC-150-compose-layout-shape-valid</strong> - covers <a href="#AC-12001-1">AC-12001-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12001-1 via anatomy test: fixture compose.yaml declares service-per-container, named networks and volumes, and a .env for non-secret config</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)</code></p>
+</div>
+<div class="tc" id="TC-150-secrets-file-mount-shape">
+  <p><strong>TC-150-secrets-file-mount-shape</strong> - covers <a href="#AC-12101-1">AC-12101-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12101-1 via anatomy test: compose.yaml declares secrets under top-level secrets with a file source and mounts them into the web service; the mounted file is 0o400</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)</code></p>
+</div>
+<div class="tc" id="TC-150-secrets-scan-fails-on-plaintext">
+  <p><strong>TC-150-secrets-scan-fails-on-plaintext</strong> - covers <a href="#AC-12102-1">AC-12102-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12102-1 via anatomy test: secrets-as-files-scan probe passes on the canonical fixture and fails under SIMULATE_PLAINTEXT_SECRET naming the literal</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)</code></p>
+</div>
+<div class="tc" id="TC-150-compose-config-lint-refuses-missing-healthcheck">
+  <p><strong>TC-150-compose-config-lint-refuses-missing-healthcheck</strong> - covers <a href="#AC-12201-1">AC-12201-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12201-1 via anatomy test: compose-config-lint probe passes on canonical fixture and fails under SIMULATE_MISSING_HEALTHCHECK naming the service</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)</code></p>
+</div>
+<div class="tc" id="TC-150-real-account-minimal-stack-up-declared-and-skipped-shape">
+  <p><strong>TC-150-real-account-minimal-stack-up-declared-and-skipped-shape</strong> - covers <a href="#AC-12202-1">AC-12202-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12202-1 via anatomy test: real-account-minimal-stack-up probe declares accountBound true and records accountBoundSkipped when the env var is unset</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)</code></p>
+</div>
+<div class="tc" id="TC-150-restart-discipline-lint-refuses-unclassified">
+  <p><strong>TC-150-restart-discipline-lint-refuses-unclassified</strong> - covers <a href="#AC-12301-1">AC-12301-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12301-1 via anatomy test: compose-config-lint enforces restart policy classification and fails under SIMULATE_UNCLASSIFIED_RESTART naming the service</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)</code></p>
+</div>
+<div class="tc" id="TC-150-caddyfile-validate-refuses-invalid-directive">
+  <p><strong>TC-150-caddyfile-validate-refuses-invalid-directive</strong> - covers <a href="#AC-12401-1">AC-12401-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12401-1 via anatomy test: caddyfile-validate probe passes on canonical Caddyfile and fails under SIMULATE_INVALID_CADDYFILE naming the line</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)</code></p>
+</div>
+<div class="tc" id="TC-150-real-account-reload-burst-declared-and-skipped-shape">
+  <p><strong>TC-150-real-account-reload-burst-declared-and-skipped-shape</strong> - covers <a href="#AC-12402-1">AC-12402-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12402-1 via anatomy test: real-account-reload-burst probe declares accountBound true and records accountBoundSkipped when the env var is unset</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)</code></p>
+</div>
+<div class="tc" id="TC-150-log-driver-classification">
+  <p><strong>TC-150-log-driver-classification</strong> - covers <a href="#AC-12501-1">AC-12501-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-12501-1 via anatomy test: compose-config-lint asserts every service declares a logging driver and fails under SIMULATE_UNCLASSIFIED_LOG_DRIVER naming the service</p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-08T01:44:51.205Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-08T01:45:31.442Z&quot;,
+  &quot;purpose&quot;: &quot;Cover the T-2 chain ACs via the shipped anatomy test at test/blueprint/platform-docker-compose-host-anatomy.test.js and via the five blueprint probes driven from the shared throwaway-server fixture (which T-2 extends with a compose stack, Caddyfile, secret file mount and healthchecked service)&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-12001-1&quot;,
+    &quot;AC-12101-1&quot;,
+    &quot;AC-12102-1&quot;,
+    &quot;AC-12201-1&quot;,
+    &quot;AC-12202-1&quot;,
+    &quot;AC-12301-1&quot;,
+    &quot;AC-12401-1&quot;,
+    &quot;AC-12402-1&quot;,
+    &quot;AC-12501-1&quot;
+  ],
+  &quot;id&quot;: &quot;TS-150&quot;,
+  &quot;usId&quot;: &quot;US-12001&quot;,
+  &quot;title&quot;: &quot;T-2 platform-docker-compose-host anatomy proof: probe modules and compose-stack fixture assertions&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-150-compose-layout-shape-valid&quot;,
+      &quot;acId&quot;: &quot;AC-12001-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12001-1 via anatomy test: fixture compose.yaml declares service-per-container, named networks and volumes, and a .env for non-secret config&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-150-secrets-file-mount-shape&quot;,
+      &quot;acId&quot;: &quot;AC-12101-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12101-1 via anatomy test: compose.yaml declares secrets under top-level secrets with a file source and mounts them into the web service; the mounted file is 0o400&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-150-secrets-scan-fails-on-plaintext&quot;,
+      &quot;acId&quot;: &quot;AC-12102-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12102-1 via anatomy test: secrets-as-files-scan probe passes on the canonical fixture and fails under SIMULATE_PLAINTEXT_SECRET naming the literal&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-150-compose-config-lint-refuses-missing-healthcheck&quot;,
+      &quot;acId&quot;: &quot;AC-12201-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12201-1 via anatomy test: compose-config-lint probe passes on canonical fixture and fails under SIMULATE_MISSING_HEALTHCHECK naming the service&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-150-real-account-minimal-stack-up-declared-and-skipped-shape&quot;,
+      &quot;acId&quot;: &quot;AC-12202-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12202-1 via anatomy test: real-account-minimal-stack-up probe declares accountBound true and records accountBoundSkipped when the env var is unset&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-150-restart-discipline-lint-refuses-unclassified&quot;,
+      &quot;acId&quot;: &quot;AC-12301-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12301-1 via anatomy test: compose-config-lint enforces restart policy classification and fails under SIMULATE_UNCLASSIFIED_RESTART naming the service&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-150-caddyfile-validate-refuses-invalid-directive&quot;,
+      &quot;acId&quot;: &quot;AC-12401-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12401-1 via anatomy test: caddyfile-validate probe passes on canonical Caddyfile and fails under SIMULATE_INVALID_CADDYFILE naming the line&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-150-real-account-reload-burst-declared-and-skipped-shape&quot;,
+      &quot;acId&quot;: &quot;AC-12402-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12402-1 via anatomy test: real-account-reload-burst probe declares accountBound true and records accountBoundSkipped when the env var is unset&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-150-log-driver-classification&quot;,
+      &quot;acId&quot;: &quot;AC-12501-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-12501-1 via anatomy test: compose-config-lint asserts every service declares a logging driver and fails under SIMULATE_UNCLASSIFIED_LOG_DRIVER naming the service&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

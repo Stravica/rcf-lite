@@ -1477,6 +1477,48 @@ flowchart LR
   REQ-115 --> AC-11501-1
   TC-140-lifecycle-events-metadata-only["TC-140-lifecycle-events-metadata-only"]
   AC-11501-1 -.-> TC-140-lifecycle-events-metadata-only
+  REQ-120["REQ-120"]
+  AC-12001-1["AC-12001-1"]
+  REQ-120 --> AC-12001-1
+  TC-150-compose-layout-shape-valid["TC-150-compose-layout-shape-valid"]
+  AC-12001-1 -.-> TC-150-compose-layout-shape-valid
+  REQ-121["REQ-121"]
+  AC-12101-1["AC-12101-1"]
+  REQ-121 --> AC-12101-1
+  TC-150-secrets-file-mount-shape["TC-150-secrets-file-mount-shape"]
+  AC-12101-1 -.-> TC-150-secrets-file-mount-shape
+  AC-12102-1["AC-12102-1"]
+  REQ-121 --> AC-12102-1
+  TC-150-secrets-scan-fails-on-plaintext["TC-150-secrets-scan-fails-on-plaintext"]
+  AC-12102-1 -.-> TC-150-secrets-scan-fails-on-plaintext
+  REQ-122["REQ-122"]
+  AC-12201-1["AC-12201-1"]
+  REQ-122 --> AC-12201-1
+  TC-150-compose-config-lint-refuses-missing-healthcheck["TC-150-compose-config-lint-refuses-missing-healthcheck"]
+  AC-12201-1 -.-> TC-150-compose-config-lint-refuses-missing-healthcheck
+  AC-12202-1["AC-12202-1"]
+  REQ-122 --> AC-12202-1
+  TC-150-real-account-minimal-stack-up-declared-and-skipped-shape["TC-150-real-account-minimal-stack-up-declared-and-skipped-shape"]
+  AC-12202-1 -.-> TC-150-real-account-minimal-stack-up-declared-and-skipped-shape
+  REQ-123["REQ-123"]
+  AC-12301-1["AC-12301-1"]
+  REQ-123 --> AC-12301-1
+  TC-150-restart-discipline-lint-refuses-unclassified["TC-150-restart-discipline-lint-refuses-unclassified"]
+  AC-12301-1 -.-> TC-150-restart-discipline-lint-refuses-unclassified
+  REQ-124["REQ-124"]
+  AC-12401-1["AC-12401-1"]
+  REQ-124 --> AC-12401-1
+  TC-150-caddyfile-validate-refuses-invalid-directive["TC-150-caddyfile-validate-refuses-invalid-directive"]
+  AC-12401-1 -.-> TC-150-caddyfile-validate-refuses-invalid-directive
+  AC-12402-1["AC-12402-1"]
+  REQ-124 --> AC-12402-1
+  TC-150-real-account-reload-burst-declared-and-skipped-shape["TC-150-real-account-reload-burst-declared-and-skipped-shape"]
+  AC-12402-1 -.-> TC-150-real-account-reload-burst-declared-and-skipped-shape
+  REQ-125["REQ-125"]
+  AC-12501-1["AC-12501-1"]
+  REQ-125 --> AC-12501-1
+  TC-150-log-driver-classification["TC-150-log-driver-classification"]
+  AC-12501-1 -.-> TC-150-log-driver-classification
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2253,6 +2295,30 @@ flowchart LR
   class REQ-115 req;
   class AC-11501-1 ac;
   class TC-140-lifecycle-events-metadata-only tc;
+  class REQ-120 req;
+  class AC-12001-1 ac;
+  class TC-150-compose-layout-shape-valid tc;
+  class REQ-121 req;
+  class AC-12101-1 ac;
+  class TC-150-secrets-file-mount-shape tc;
+  class AC-12102-1 ac;
+  class TC-150-secrets-scan-fails-on-plaintext tc;
+  class REQ-122 req;
+  class AC-12201-1 ac;
+  class TC-150-compose-config-lint-refuses-missing-healthcheck tc;
+  class AC-12202-1 ac;
+  class TC-150-real-account-minimal-stack-up-declared-and-skipped-shape tc;
+  class REQ-123 req;
+  class AC-12301-1 ac;
+  class TC-150-restart-discipline-lint-refuses-unclassified tc;
+  class REQ-124 req;
+  class AC-12401-1 ac;
+  class TC-150-caddyfile-validate-refuses-invalid-directive tc;
+  class AC-12402-1 ac;
+  class TC-150-real-account-reload-burst-declared-and-skipped-shape tc;
+  class REQ-125 req;
+  class AC-12501-1 ac;
+  class TC-150-log-driver-classification tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

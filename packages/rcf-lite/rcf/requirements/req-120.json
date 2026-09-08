@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-08T01:39:09.362Z",
+  "updatedAt": "2026-09-08T01:39:28.241Z",
+  "description": "The applying project runs its containerised services from a single compose.yaml at the repo root. Each service is one container. Networks and volumes are declared with explicit names. Non-secret config lives in a .env file loaded by compose. The compose file is the single source of truth for the runtime topology; the container host reads it to bring the stack up and refuses on unclassified or malformed shape. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07 (REQ-120..129 / TS-150..159 / FBS-140..149 / CN-440..469). Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.",
+  "reqId": "REQ-120",
+  "prdId": "PRD-001",
+  "title": "T-2 platform-docker-compose-host v1.0.0 blueprint: compose.yaml at repo root is the source of truth (service-per-container, named networks and volumes, .env for non-secret config)",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T01:39:09.405Z"
+  }
+}

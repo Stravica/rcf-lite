@@ -1,0 +1,20 @@
+{
+  "cnId": "CN-440",
+  "path": "../../blueprints/platform-docker-compose-host/blueprint.json",
+  "implementsAcIds": [
+    "AC-12001-1",
+    "AC-12101-1",
+    "AC-12102-1",
+    "AC-12201-1",
+    "AC-12202-1",
+    "AC-12301-1",
+    "AC-12401-1",
+    "AC-12402-1",
+    "AC-12501-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T01:45:43.708Z",
+  "updatedAt": "2026-09-08T01:45:43.708Z"
+}

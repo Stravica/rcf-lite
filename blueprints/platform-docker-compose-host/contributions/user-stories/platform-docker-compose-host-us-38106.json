@@ -1,0 +1,24 @@
+{
+  "usId": "platform-docker-compose-host-US-38106",
+  "prdId": "PRD-001",
+  "reqId": "platform-docker-compose-host-REQ-004",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "restart discipline enforced at lint: unless-stopped or on-failure only",
+  "asA": "shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint",
+  "iWant": "the compose-config-lint to enforce a restart policy on every service and refuse on any value outside the two allowed policies (unless-stopped for long-running, on-failure for jobs)",
+  "soThat": "the operator sees a wrong or missing restart policy at gate time rather than as a stuck container",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-composeHost-restartClassification",
+      "description": "The compose-config-lint probe asserts every service in the compose.yaml declares a restart policy AND every declared value is one of unless-stopped or on-failure. SIMULATE_UNCLASSIFIED_RESTART=true sets restart: always on the web service and the probe FAILS naming the service and the disallowed value.",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-3903-platform-docker-compose-host-healthcheck-lint"
+  ],
+  "createdAt": "2026-09-08T00:00:00.000Z",
+  "updatedAt": "2026-09-08T00:00:00.000Z"
+}

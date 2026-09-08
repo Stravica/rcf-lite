@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 74,
-    "covered": 74,
+    "requirements": 80,
+    "covered": 80,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -3233,6 +3233,120 @@
           "covered": true,
           "testCases": [
             "TC-140-lifecycle-events-metadata-only"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-120",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-12001-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-compose-layout-shape-valid"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-121",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-12101-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-secrets-file-mount-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-12102-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-secrets-scan-fails-on-plaintext"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-122",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-12201-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-compose-config-lint-refuses-missing-healthcheck"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-12202-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-real-account-minimal-stack-up-declared-and-skipped-shape"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-123",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-12301-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-restart-discipline-lint-refuses-unclassified"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-124",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-12401-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-caddyfile-validate-refuses-invalid-directive"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-12402-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-real-account-reload-burst-declared-and-skipped-shape"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-125",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-12501-1",
+          "covered": true,
+          "testCases": [
+            "TC-150-log-driver-classification"
           ],
           "unresolvedTestCases": []
         }
