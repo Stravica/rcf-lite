@@ -1,7 +1,7 @@
 {
   "slug": "platform-docker-compose-host",
   "probeName": "real-account-minimal-stack-up",
-  "runAt": "2026-09-08T02:01:58.672Z",
+  "runAt": "2026-09-08T02:59:59.496Z",
   "engine": {
     "kind": "real-account-minimal-stack-up",
     "image": "platform-docker-compose-host fixture",

@@ -179,12 +179,9 @@ export default async function runProbe() {
         detail: 'docker compose config exit 0 on the applied compose.yaml',
       });
     } else {
-      const canonicalPass = !(process.env.SIMULATE_MISSING_HEALTHCHECK === 'true'
-        || process.env.SIMULATE_UNCLASSIFIED_RESTART === 'true'
-        || process.env.SIMULATE_UNCLASSIFIED_LOG_DRIVER === 'true');
       results.push({
         anchorAcId: 'AC-composeHost-healthcheckLint',
-        verdict: canonicalPass ? 'fail' : 'pass',
+        verdict: 'fail',
         detail: `docker compose config exit ${cfg.status}: ${(cfg.stderr || cfg.stdout || '').slice(0, 400)}`,
       });
     }

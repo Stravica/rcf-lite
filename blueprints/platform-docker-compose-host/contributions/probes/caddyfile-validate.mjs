@@ -84,17 +84,15 @@ export default async function runProbe() {
     extra.engineLabel = engineLabel;
     const tail = ((r.stderr || '') + (r.stdout || '')).split('\n').slice(-10).join('\n');
     if (r.status === 0) {
-      const canonicalPass = process.env.SIMULATE_INVALID_CADDYFILE !== 'true';
       results.push({
         anchorAcId,
-        verdict: canonicalPass ? 'pass' : 'fail',
+        verdict: 'pass',
         detail: `caddy validate exit 0 (${engineLabel}); tail: ${tail.slice(-200)}`,
       });
     } else {
-      const canonicalFail = process.env.SIMULATE_INVALID_CADDYFILE === 'true';
       results.push({
         anchorAcId,
-        verdict: canonicalFail ? 'pass' : 'fail',
+        verdict: 'fail',
         detail: `caddy validate exit ${r.status} (${engineLabel}); tail: ${tail.slice(-400)}`,
       });
     }
