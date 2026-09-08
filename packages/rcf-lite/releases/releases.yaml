@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.24.0"
+latest: "0.25.0"
 releases:
+  - version: "0.25.0"
+    date: "2026-09-08"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.25.0 opens the Hetzner line with three blueprints in one round: a Hetzner Cloud server as the shipped Linux VM shape with the estate hardening baseline and a snapshot cadence, a docker-compose platform on top with healthchecks, secrets as file mounts and a first-class reverse-proxy artefact, and a Cloudflare Tunnel bridge that composes with Access when Zero Trust is applied and drops to public-hostname mode when it is not."
+      - "Every real-account probe across the round ships accountBoundSkipped pending the Hetzner and Cloudflare token vault ruling; the local probes carry the ship-time verdicts."
+      - "The follow-up Hetzner Object Storage adapter ships as a sequential PR under object-storage-s3 v1.1.0 after this release; the rcf-lite package version does not bump for it."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.24.0"
     date: "2026-09-08"
     breaking: false
