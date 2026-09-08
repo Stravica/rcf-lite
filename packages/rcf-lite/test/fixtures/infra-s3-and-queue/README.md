@@ -82,6 +82,25 @@ Two additional switches from the spec's original enumeration (event-secrecy leak
 - Without `CI_HAS_CLOUDFLARE_ACCOUNT`: exits 0 with `accountBoundSkipped: true` per spec section 3.5.
 - With `CI_HAS_CLOUDFLARE_ACCOUNT` set alongside `R2_ACCOUNT_ID`, `R2_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` in `.rcf/secrets/dev.env` (or the environment), runs a real round-trip against the R2 bucket.
 
+## Hetzner Object Storage real-account smoke (added by object-storage-s3 v1.1.0 follow-up)
+
+The v1.1.0 follow-up adapter (round-7 spec section 5.4) adds a Hetzner Object Storage provider value under the shipped S3-API facade. Two new files land in this fixture:
+
+- `src/hetzner-endpoint.mjs`: the sole composer of the vendor endpoint pattern `<bucket>.<location>.your-objectstorage.com` per https://docs.hetzner.com/storage/object-storage/overview. Accepts `{ bucket, location }`; refuses any location outside `{fsn1, hel1, nbg1}` (Falkenstein, Helsinki, Nuremberg per the same page). Also exports `hetznerCredentialsFromEnv`, `makeHetznerEventDecorator` and `assertMetadataOnlyEventRecords` used by the probe.
+- `run-hetzner-object-storage-round-trip.mjs`: fixture-root shim that delegates to the blueprint-side probe shim; the file name carries the blueprint slug per the shared-fixture-shim naming convention.
+
+`node ../../../../blueprints/object-storage-s3/contributions/probes/run-hetzner-object-storage-round-trip.mjs` (or `node run-hetzner-object-storage-round-trip.mjs` from this fixture root):
+
+- Without `CI_HAS_HETZNER_OBJECT_STORAGE`: exits 0 with `accountBoundSkipped: true` per spec section 3.5.
+- With `CI_HAS_HETZNER_OBJECT_STORAGE` set alongside `HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID`, `HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY`, `HETZNER_OBJECT_STORAGE_BUCKET`, `HETZNER_OBJECT_STORAGE_LOCATION` (any of fsn1, hel1, nbg1), composes the endpoint via `composeHetznerEndpoint({ bucket, location })`, runs a 1 KiB byte-equal put/get/delete round-trip against the composed `<bucket>.<location>.your-objectstorage.com` endpoint through the shipped `object-store.mjs` facade (unchanged), asserts every lifecycle event record carries only whitelisted metadata (`event`, `ts`, `endpointHost`, `bucketName`, `location`, `key`, `size`, `contentType`), and deletes the scratch object on exit.
+
+Two fixture-side mutation switches (INPUT-only, per the 2026-09-08 mutation-purity discipline: the probe module reads no `SIMULATE_` variable, every switch lives on this fixture side):
+
+- `SIMULATE_HETZNER_ENDPOINT_MISSHAPEN=true`: `composeHetznerEndpoint` returns `https://<bucket>.<location>.example.invalid` (drops the vendor subdomain); the probe FAILS naming the missing subdomain `your-objectstorage.com` before any network call.
+- `SIMULATE_HETZNER_EVENT_LEAK=true`: `makeHetznerEventDecorator` appends fixture-labelled credential fields (`accessKeyId: AKIA-FIXTURE-LEAK-DO-NOT-USE`, `secretAccessKey: FIXTURE-SECRET-LEAK-DO-NOT-USE`) to every event record; `assertMetadataOnlyEventRecords` refuses on the leaked field names.
+
+The R2 smoke stays gated on `CI_HAS_CLOUDFLARE_ACCOUNT` and is not affected by `CI_HAS_HETZNER_OBJECT_STORAGE`; the two smokes skip independently.
+
 ## Tear down
 
 ```sh

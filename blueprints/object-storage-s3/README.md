@@ -19,12 +19,14 @@ Object storage on the S3 API, accessed through a store facade that is the sole r
 | REQ-004 | Multipart-upload above the ADR-2903 threshold (default 8 MiB); abort-on-failure with no orphan in-flight uploads. |
 | REQ-005 | Four lifecycle events with metadata-only fields; event-secrecy probe asserts against a PII fixture. |
 | REQ-006 | Credential-pair discipline via `security-secrets-management`; refuses composition without with stable message id `object-storage-s3-no-secrets`. |
+| REQ-101 (v1.1.0) | Hetzner Object Storage adapter: endpoint-shape helper composes `<bucket>.<location>.your-objectstorage.com` from an elicited bucket and location; MinIO and R2 paths unchanged. |
 
 ## The three TACs
 
 - **TAC-2901 facade**: the object-storage S3 facade module.
 - **TAC-2902 multipart uploader**: initiate/part-upload/complete with abort-on-failure.
 - **TAC-2903 event sink**: metadata-only lifecycle event contract.
+- **TAC-2904 Hetzner endpoint helper (v1.1.0)**: sole composer of `<bucket>.<location>.your-objectstorage.com`; enum-refuses unknown location codes.
 
 ## The four ADRs
 
@@ -32,10 +34,19 @@ Object storage on the S3 API, accessed through a store facade that is the sole r
 - **ADR-2902 presigned URL TTL**: default 15 minutes, floor 1 minute; elicited ceiling. Standards trace clause: generic enterprise practice.
 - **ADR-2903 multipart threshold**: default 8 MiB, elicited. Standards trace clause: generic enterprise practice.
 - **ADR-2904 object storage contract** (scope: global, topic `objectStorageContract`): S3 API as the shipped shape; conflicts by design with future non-S3-shape siblings. Standards trace clause: AWS S3 API and R2 S3-compatibility notes.
+- **ADR-2905 Hetzner Object Storage provider (v1.1.0)**: recognises `hetznerObjectStorage` as a shipped provider value under the shipped S3-API facade; endpoint pattern `<bucket>.<location>.your-objectstorage.com` composed via TAC-2904; MinIO and R2 paths unchanged. Standards trace clause: Hetzner Object Storage S3 compatibility documented endpoint shape.
 
 ## Elicited parameters
 
-Endpoint URL (R2 `https://<account-id>.r2.cloudflarestorage.com`, AWS S3 `https://s3.<region>.amazonaws.com`, MinIO `http://localhost:9000`, any S3-compatible remote); bucket name; credential-pair reference via `security-secrets-management` (never value); adapter (`awsSdk` or `aws4fetch`); presigned-URL default TTL (default 15 minutes); presigned-URL ceiling (elicited, no shipped default, S3 API 7-day outer bound); multipart-upload threshold (default 8 MiB); force path style (`true` for MinIO, `false` for AWS/R2 with virtual-hosted style); server-side encryption default (`sseNone` on R2 per the R2 compatibility notes; `sseS3` on AWS S3 when the operator elicits it).
+Endpoint URL (R2 `https://<account-id>.r2.cloudflarestorage.com`, AWS S3 `https://s3.<region>.amazonaws.com`, MinIO `http://localhost:9000`, Hetzner Object Storage `https://<bucket>.<location>.your-objectstorage.com` composed from a bucket and location via the v1.1.0 helper, any S3-compatible remote); bucket name; credential-pair reference via `security-secrets-management` (never value); adapter (`awsSdk` or `aws4fetch`); presigned-URL default TTL (default 15 minutes); presigned-URL ceiling (elicited, no shipped default, S3 API 7-day outer bound); multipart-upload threshold (default 8 MiB); force path style (`true` for MinIO, `false` for AWS/R2 and Hetzner Object Storage with virtual-hosted style); server-side encryption default (`sseNone` on R2 per the R2 compatibility notes; `sseS3` on AWS S3 when the operator elicits it).
+
+## Hetzner Object Storage adapter (v1.1.0)
+
+Since v1.1.0 the blueprint recognises `hetznerObjectStorage` as a shipped provider value under the existing S3-API facade contract. Hetzner Object Storage is S3-compatible per https://docs.hetzner.com/storage/object-storage/overview; the endpoint follows the vendor-documented pattern `<bucket>.<location>.your-objectstorage.com`. Three location codes are shipped: `fsn1` (Falkenstein), `hel1` (Helsinki), `nbg1` (Nuremberg), matching the same page. A project applying the blueprint with the Hetzner provider elicits the bucket and location; a small helper (`composeHetznerEndpoint`, TAC-2904) composes the https endpoint URL and hands it to the shipped facade unchanged. `region` defaults to `auto` (matching the R2 shape); `forcePathStyle` defaults to `false` (virtual-hosted-style, matching R2 and AWS S3). The Cloudflare R2 real-account smoke stays gated on `CI_HAS_CLOUDFLARE_ACCOUNT` and does not read the new env vars; the MinIO local emulator flow stays byte-identical. Reach for Hetzner over R2 for a European storage region with a different egress-pricing profile; reach for R2 for the zero-egress-fee posture; reach for MinIO for local dev without any account.
+
+Runtime dependency: none added. The shipped `@aws-sdk/client-s3` client signs and speaks the S3 wire protocol against the composed Hetzner endpoint unchanged.
+
+A new Node-only probe `hetzner-object-storage-round-trip.mjs` binds AC-28110-1: with `CI_HAS_HETZNER_OBJECT_STORAGE` set (plus `HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID`, `HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY`, `HETZNER_OBJECT_STORAGE_BUCKET`, `HETZNER_OBJECT_STORAGE_LOCATION`) it round-trips a byte-equal 1 KiB payload against a real Hetzner Object Storage bucket; without the env var it records `accountBoundSkipped: true` per spec section 3.5.
 
 ## Companions
 
@@ -58,6 +69,7 @@ Each probe is a Node module under `contributions/probes/` exporting the round-5 
 | `multipart-upload` | AC-28104-1, AC-28104-2 | 10 MiB payload above the 8 MiB threshold round-trips byte-equal via multipart; no orphan in-flight uploads after complete; abort-on-failure with `SIMULATE_PART_UPLOAD_FAIL=true`. | false |
 | `event-secrecy` | AC-28105-1 | Every event record carries only whitelisted metadata fields; no PII fixture text; no forbidden field name. | false |
 | `r2-real-account-smoke` | AC-28108-1 | Real R2 round-trip when `CI_HAS_CLOUDFLARE_ACCOUNT` is set; records `accountBoundSkipped: true` when it is not. | true |
+| `hetzner-object-storage-round-trip` (v1.1.0) | AC-28110-1 | Composes `<bucket>.<location>.your-objectstorage.com` via `composeHetznerEndpoint`; real Hetzner Object Storage round-trip when `CI_HAS_HETZNER_OBJECT_STORAGE` is set; records `accountBoundSkipped: true` when it is not. | true |
 
 ## How to run the probes locally
 
@@ -73,6 +85,7 @@ node ../../../../blueprints/object-storage-s3/contributions/probes/run-presigned
 node ../../../../blueprints/object-storage-s3/contributions/probes/run-multipart-upload.mjs
 node ../../../../blueprints/object-storage-s3/contributions/probes/run-event-secrecy.mjs
 node ../../../../blueprints/object-storage-s3/contributions/probes/run-r2-real-account-smoke.mjs
+node ../../../../blueprints/object-storage-s3/contributions/probes/run-hetzner-object-storage-round-trip.mjs
 docker compose down -v
 ```
 

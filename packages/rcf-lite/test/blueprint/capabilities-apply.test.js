@@ -103,7 +103,10 @@ test('object-storage-s3 --allow-no-secrets-yet override writes sidecar with secr
   const raw = await readFile(join(scratch, result.sidecarPath), 'utf8');
   const doc = JSON.parse(raw);
   assert.equal(doc.slug, 'object-storage-s3');
-  assert.equal(doc.version, '1.0.0');
+  // Follow-up adapter minor bump (round-7 spec section 5.4) took the
+  // blueprint to v1.1.0; the shipped requiresAppliedCapabilities /
+  // allowSkipFlag shape is unchanged.
+  assert.equal(doc.version, '1.1.0');
   assert.equal(doc.allowNoAuthYet, true);
   assert.deepEqual(doc.appliedCapabilities, []);
   // Predecessor-family word is derived from the allowSkipFlag name;

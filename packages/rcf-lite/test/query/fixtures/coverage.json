@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 85,
-    "covered": 85,
+    "requirements": 86,
+    "covered": 86,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -3446,6 +3446,21 @@
           "covered": true,
           "testCases": [
             "TC-160-credentials-discipline-and-event-secrecy"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-140",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-14001-1",
+          "covered": true,
+          "testCases": [
+            "TC-170-hetzner-endpoint-round-trip-and-skipped-shape"
           ],
           "unresolvedTestCases": []
         }
