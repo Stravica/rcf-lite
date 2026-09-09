@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-kv",
   "probeName": "event-secrecy",
-  "runAt": "2026-09-09T13:37:42.278Z",
+  "runAt": "2026-09-08T13:14:31.533Z",
   "engine": {
     "kind": "kv",
     "image": "in-memory KV driver realising Workers KV binding shape",
@@ -9,10 +9,15 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-5302-1",
-      "verdict": "fail",
-      "detail": "SIMULATE_PII_LEAK=true: mutation-run forwarded body/userId/ssn to the sink; forbiddenKeys=[\"body\",\"ssn\",\"userId\"] piiHits=[\"REDACTED-fixture\",\"1234\",\"ssn\"] (expected empty on the shipped code path)"
+      "anchorAcId": "AC-31107-1",
+      "verdict": "pass",
+      "detail": "every lifecycle event record carries only the metadata-only whitelist {event,key,size,ttl,timestamp}; 4 records observed (facadeReady, kvWrite, kvHit, kvMiss on the PII fixture)"
+    },
+    {
+      "anchorAcId": "AC-31108-1",
+      "verdict": "pass",
+      "detail": "every event record carries only the whitelist; forbiddenKeys=[] piiHits=[]; 4 records observed for put/get/delete/facadeReady on the PII fixture"
     }
   ],
-  "aggregateVerdict": "fail"
+  "aggregateVerdict": "pass"
 }
