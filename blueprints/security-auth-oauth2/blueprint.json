@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-oauth2",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "category": "security",
   "capabilities": [
     "principalDirectory",
@@ -166,6 +166,36 @@
       "id": "ADR-1106-security-auth-oauth2-multi-provider-routing",
       "kind": "adr",
       "path": "adrs/adr-1106-security-auth-oauth2-multi-provider-routing.json"
+    },
+    {
+      "id": "security-auth-oauth2-REQ-011",
+      "kind": "req",
+      "path": "requirements/security-auth-oauth2-req-011.json"
+    },
+    {
+      "id": "security-auth-oauth2-US-10112",
+      "kind": "us",
+      "path": "user-stories/security-auth-oauth2-us-10112.json"
+    },
+    {
+      "id": "security-auth-oauth2-REQ-012",
+      "kind": "req",
+      "path": "requirements/security-auth-oauth2-req-012.json"
+    },
+    {
+      "id": "security-auth-oauth2-US-10113",
+      "kind": "us",
+      "path": "user-stories/security-auth-oauth2-us-10113.json"
+    },
+    {
+      "id": "security-auth-oauth2-REQ-013",
+      "kind": "req",
+      "path": "requirements/security-auth-oauth2-req-013.json"
+    },
+    {
+      "id": "security-auth-oauth2-US-10114",
+      "kind": "us",
+      "path": "user-stories/security-auth-oauth2-us-10114.json"
     }
   ]
 }

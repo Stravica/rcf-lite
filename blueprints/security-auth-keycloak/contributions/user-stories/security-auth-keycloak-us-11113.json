@@ -16,7 +16,8 @@
       "when": "the harness starts the container as part of a runtime-verify session",
       "then": "the container is running within the timeout; a discovery HTTP GET on `<containerBase>/realms/example/.well-known/openid-configuration` returns 200 with a JSON body carrying the standard OIDC endpoints; the placeholder admin credentials never appear in a committed file or in an audit event; the harness's environment file is listed in the project's `.gitignore` shape and the test verifies the file is not tracked by git",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11113-2",
@@ -25,7 +26,8 @@
       "when": "the seed file is inspected on disk before application",
       "then": "the realm name equals the placeholder value declared in the asset (or a project-chosen renamed placeholder); the client id is the seed's placeholder value; the client secret is not present in the seed file (the harness sets it after client creation and stores it in the operator's environment file); user credentials are placeholders; every leakage grep the project runs (real domain names, real client secrets, real realm ids, real user emails) against the seed file returns zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

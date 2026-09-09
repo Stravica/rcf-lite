@@ -16,7 +16,8 @@
       "when": "each response body is captured",
       "then": "every captured body is byte-identical",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3106-2",
@@ -25,7 +26,8 @@
       "when": "each response status is captured",
       "then": "every status is 200",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3106-3",
@@ -34,7 +36,8 @@
       "when": "POST /login is exercised with a registered submission and an unregistered submission over 20 samples each",
       "then": "no observed wall-clock is less than N, and the mean absolute difference between the two sample sets is under 25 milliseconds",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

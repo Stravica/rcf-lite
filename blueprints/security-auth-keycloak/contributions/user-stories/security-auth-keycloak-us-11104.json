@@ -16,7 +16,8 @@
       "when": "the verifier is invoked",
       "then": "the response is a 4xx with body error code `KEYCLOAK_JWT_EXPIRED`; no session cookie is set on the response; the audit log records one `keycloak.jwt_refused` event carrying realmSlug and reason class `expired` and no token value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11104-2",
@@ -25,7 +26,12 @@
       "when": "the verifier is invoked",
       "then": "the verifier observes one JWKS refresh against the injected httpFetch, then refuses the token with `KEYCLOAK_JWT_SIGNATURE_INVALID`; no session cookie is set; the audit log records one `keycloak.jwt_refused` event carrying realmSlug and reason class `signature`; the reason class is `signature`, not `kid-unknown` (the kid appears in JWKS; the signature under that kid does not verify)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "interfaces.httpFetch.name"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

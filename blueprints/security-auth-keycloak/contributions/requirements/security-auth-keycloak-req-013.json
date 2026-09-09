@@ -1,0 +1,22 @@
+{
+  "reqId": "security-auth-keycloak-REQ-013",
+  "prdId": "PRD-001",
+  "title": "Password change, reset and recovery are delegated to the realm's Keycloak account console",
+  "description": "The blueprint contributes the `credentialSelfService` capability by resolving and exposing the realm's Keycloak account console (`<issuerBaseUrl>/realms/<realm>/account`) as the sole self-service surface for password change, password reset, account recovery, and MFA enrolment. No project route renders a credential-change form of its own. The realm-config record declares an `accountConsoleUrl` field that the discovery client verifies on boot (the URL responds with a 2xx from an unauthenticated GET); a realm whose account console is disabled or unreachable is refused at boot with `KEYCLOAK_ACCOUNT_CONSOLE_UNREACHABLE`. The project exposes a project-authored `getCredentialSelfServiceUrl()` helper that returns the resolved account console URL for the current realm; a project page linking to self-service reads that helper rather than hard-coding a URL.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A capability declaration without a delegated-self-service contract lets a consumer bind against `credentialSelfService` and render a self-service link that either resolves to nothing or lands on a broken realm surface. Naming the realm-config field and the boot-time verification is what makes the capability observable at apply time.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:13-credential-self-service"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+    "field": "responsibilities.accountConsoleUrl"
+  }
+}

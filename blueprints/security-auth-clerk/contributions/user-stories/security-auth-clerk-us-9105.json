@@ -16,7 +16,8 @@
       "when": "the handler calls `can(principal, 'document.read', { organisationId: 'org-A' })` and then `can(principal, 'document.read', { organisationId: 'org-B' })`",
       "then": "the first call returns `true`; the second call returns `false`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9105-2",
@@ -25,7 +26,8 @@
       "when": "the handler calls `can(principal, 'document.read', {})` and `can(principal, 'document.read')`",
       "then": "both calls return `true`; no organisation membership check is performed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

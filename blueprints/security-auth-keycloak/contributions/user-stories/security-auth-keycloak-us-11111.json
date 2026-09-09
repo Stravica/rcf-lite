@@ -16,7 +16,8 @@
       "when": "the process boots and the discovery client runs its boot-time fetch",
       "then": "the process exits with error code `KEYCLOAK_DISCOVERY_UNREACHABLE` naming the realm slug and the fetch-failure class; no listener is bound; the audit log records one `keycloak.discovery_refused` event with reason class `unreachable`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11111-2",
@@ -25,7 +26,12 @@
       "when": "the process boots and the retry loop runs against the test-injected clock and retryScheduler",
       "then": "the process is bound on its listener; requests routed to the realm through the provider-router refuse with `KEYCLOAK_REALM_UNAVAILABLE` while the realm is unhealthy; the audit log records `keycloak.realm_unhealthy` at boot and `keycloak.realm_healthy` on the fourth attempt's success; the retryScheduler observes exponential backoff bounded by the 30-second cap",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "interfaces.retryScheduler.name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-11111-3",
@@ -34,7 +40,12 @@
       "when": "the process boots, then a project-authored admin route invokes `discoveryClient.refresh('r1')` after boot",
       "then": "at boot the realm is `unhealthy` and no refresh loop is running; on the admin-route invocation the discovery client fetches, populates the record, marks the realm `healthy`, and emits `keycloak.realm_healthy`; no `keycloak.discovery_refused` events are emitted for this realm during the standby window before the refresh",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "interfaces.discoveryClient.name"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

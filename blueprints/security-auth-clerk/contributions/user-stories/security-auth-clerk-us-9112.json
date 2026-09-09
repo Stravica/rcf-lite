@@ -1,0 +1,102 @@
+{
+  "usId": "security-auth-clerk-US-9112",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-010",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A signed-in caller lists their sessions, revokes one, and revokes all others in one call",
+  "asA": "operator signed in through the project's Clerk-hosted sign-in surface on two browsers at once",
+  "iWant": "the account-settings surface to show me every active session, let me terminate any one of them, and let me terminate every one except the current in one action",
+  "soThat": "I can end a stolen or forgotten session from wherever I am currently signed in, and I do not have to sign in on every device again to clean the list",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9112-1",
+      "description": "A `list()` call from an authenticated caller returns one row per active Clerk session for that caller, each row carrying `sessionId`, `deviceLabel`, `lastActive` and `currentSession`.",
+      "given": "a caller signed in on two browsers, browser A holding the active `__session` cookie for session S1 and browser B for session S2",
+      "when": "browser A calls the session verifier's `sessionInventory.list()` interface",
+      "then": "the return value is an array of exactly two rows, one with `sessionId=S1` and `currentSession=true`, one with `sessionId=S2` and `currentSession=false`; each row carries a non-empty `deviceLabel` string and a `lastActive` ISO-8601 timestamp not in the future",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-9112-2",
+      "description": "`revoke(sessionId)` on a non-current session invalidates that session on Clerk's server; a subsequent request from the revoked browser fails verification.",
+      "given": "the two-browser setup from AC-9112-1 and the returned `sessionId=S2` row for browser B",
+      "when": "browser A calls `sessionInventory.revoke(\"S2\")` and then browser B replays a protected-route request carrying its `__session` cookie",
+      "then": "the revoke call returns successfully with no error; browser B's next request is treated as unauthenticated by the middleware within the `revocationCheckIntervalMs` window declared by ADR-1005; the audit sink records one `session_inventory.revoked` event carrying operation, a prefix of the session id, and a wall-clock timestamp, and no field carries the full session id or a cookie value",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-9112-3",
+      "description": "`revokeAllExceptCurrent()` invalidates every active session for the caller other than the one making the call; the caller's own session survives.",
+      "given": "a caller with three active sessions S1 (current), S2, S3",
+      "when": "the caller's browser calls `sessionInventory.revokeAllExceptCurrent()`",
+      "then": "the return value is `2`; a subsequent `list()` from the same browser returns exactly one row for S1 with `currentSession=true`; a replay from S2 or S3 is treated as unauthenticated within the ADR-1005 window",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-9112-4",
+      "description": "An unauthenticated call to any `sessionInventory` operation refuses with `SESSION_INVENTORY_UNAUTHENTICATED` and no side effect.",
+      "given": "a request with no `__session` cookie or a cookie that fails verification",
+      "when": "the caller invokes `sessionInventory.list()`, `sessionInventory.revoke(anySessionId)`, or `sessionInventory.revokeAllExceptCurrent()`",
+      "then": "each call throws `SESSION_INVENTORY_UNAUTHENTICATED`; no Clerk-side state changes for any active session; the audit sink records one `session_inventory.unauthenticated` event and no other",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-9112-5",
+      "description": "`revoke(sessionId)` against a session id the caller does not own, or a session already invalidated, refuses without a side effect.",
+      "given": "an authenticated caller and a `sessionId` value that either belongs to a different principal or names a session that Clerk already revoked",
+      "when": "the caller invokes `sessionInventory.revoke(sessionId)`",
+      "then": "the call throws `SESSION_INVENTORY_UNKNOWN_SESSION` naming the operation class and a prefix of the session id; no Clerk-side session state changes; the audit sink records one `session_inventory.unknown_session` event carrying operation, session id prefix and wall-clock timestamp",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-9112-6",
+      "description": "Every `sessionInventory` operation emits exactly one structured audit event that carries no cookie value and no full session id.",
+      "given": "an authenticated caller making one call each of `list`, `revoke(sessionId)`, and `revokeAllExceptCurrent`",
+      "when": "the three calls run in sequence",
+      "then": "the audit sink records exactly three events, one per call, each carrying `{ operation, sessionIdPrefix, at }`; no event's payload contains the `__session` cookie value, a full session id, or a raw Clerk claim; the `sessionIdPrefix` field is a substring of length no greater than eight characters",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-1003-security-auth-clerk-session-verifier"
+  ],
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

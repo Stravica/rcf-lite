@@ -1,0 +1,22 @@
+{
+  "reqId": "security-auth-keycloak-REQ-014",
+  "prdId": "PRD-001",
+  "title": "The caller's active project sessions are enumerable, revocable one at a time, and revocable in bulk-except-current",
+  "description": "The blueprint contributes the `sessionInventory` capability against its own project-issued session store (the opaque-handle session store the session-vs-token contract chooses when the record is in opaque-handle mode). An authenticated caller can list their active project sessions, revoke one non-current session by id, and revoke every active session except the one making the call. Each list row carries `{ sessionId, deviceLabel, lastActive, currentSession }`; the interface shape is inherited by reference from `security-auth-clerk` `TAC-1003` `interfaces.sessionInventory` and is not restated on keycloak. Every operation refuses an unauthenticated caller with `SESSION_INVENTORY_UNAUTHENTICATED`; every operation emits one structured audit event carrying operation, session id prefix and wall-clock timestamp; no field carries a full session id or a raw Keycloak token.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A capability declaration without a REQ backing the surface leaves consumers to bind against a contract keycloak never wrote down. The cross-blueprint reference keeps the interface shape single-owner (clerk's TAC-1003) while letting each auth blueprint fulfil the capability against its own session store.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:14-session-inventory"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+    "field": "responsibilities.sessionInventory"
+  }
+}

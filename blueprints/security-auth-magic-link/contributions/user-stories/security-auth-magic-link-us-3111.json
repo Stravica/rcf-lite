@@ -16,7 +16,12 @@
       "when": "the outgoing calls to the registry interface are enumerated",
       "then": "only isRegistered is invoked, with only the submitted email string, and only the resolved boolean is consumed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-505-security-auth-magic-link-principal-registry",
+        "field": "interfaces.isRegistered.name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-3111-2",
@@ -25,7 +30,8 @@
       "when": "the two responses are compared",
       "then": "the response bodies are byte-identical, the statuses are equal, and the Content-Type headers are equal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3111-3",
@@ -34,7 +40,12 @@
       "when": "isRegistered is called with the configured email, a different email, an empty string, and a malformed value in turn",
       "then": "the resolved boolean is true only for the configured email and false for every other case",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-505-security-auth-magic-link-principal-registry",
+        "field": "interfaces.isRegistered.name"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

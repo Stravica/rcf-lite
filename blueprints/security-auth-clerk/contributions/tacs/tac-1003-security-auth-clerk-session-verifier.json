@@ -11,7 +11,8 @@
     "Reject tampered cookies (signature mismatch, malformed shape, unknown session id) without a cached-hit shortcut; every rejection contributes an audit event carrying the failure class and no cookie value (AC-9101-3).",
     "Honour Clerk-side revocation within the `revocationCheckIntervalMs` window declared by ADR-1005; a session revoked more than `revocationCheckIntervalMs` ago must not verify (AC-9107-2).",
     "Emit an audit event on every verification attempt (success and failure) with fields `{ outcome, reasonClass?, sessionIdPrefix, at }`; no field carries the cookie value, no field carries a full session id, no field carries a raw claim (AC-9101-3).",
-    "Confine the import of Clerk's server SDK to this module and the middleware wiring (TAC-1001); do not export the SDK's internal types across the module boundary (AC-9102-2)."
+    "Confine the import of Clerk's server SDK to this module and the middleware wiring (TAC-1001); do not export the SDK's internal types across the module boundary (AC-9102-2).",
+    "Expose `sessionInventory` for the authenticated caller: `list()` returns the caller's active Clerk sessions each as `{ sessionId, deviceLabel, lastActive, currentSession }`; `revoke(sessionId)` invalidates one non-current session on Clerk's server; `revokeAllExceptCurrent()` invalidates every other active session for the caller. Refuse every call from an unauthenticated caller with a stable-coded `SESSION_INVENTORY_UNAUTHENTICATED` error; refuse a `revoke` of a session already gone with `SESSION_INVENTORY_UNKNOWN_SESSION` without a side effect; every operation emits one structured audit event carrying `{ operation, sessionIdPrefix, at }` with no cookie value and no full session id (AC-9112-1, AC-9112-2, AC-9112-3, AC-9112-4, AC-9112-5)."
   ],
   "internalStructure": "One stateless class over an injected Clerk SDK client and an injected audit sink. The verifier is instantiated once at process boot with the Clerk publishable and secret keys read from the project's secrets manifest under placeholder-named entries (`CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`). The revocation check is either the Clerk SDK's native revocation-aware verify (preferred when the SDK exposes it at the project's build time) or a bounded-freshness cache the verifier maintains itself; ADR-1005 documents which shape the default vendor default expects.",
   "interfaces": [
@@ -29,6 +30,11 @@
       "name": "clock",
       "kind": "clock",
       "description": "Injectable clock returning the current instant; used for revocation-window bounding and for the audit event's `at` field."
+    },
+    {
+      "name": "sessionInventory",
+      "kind": "query",
+      "description": "sessionInventory({ callerPrincipal }) -> { list() -> SessionRow[], revoke(sessionId) -> void, revokeAllExceptCurrent() -> number }. SessionRow shape: { sessionId, deviceLabel, lastActive (ISO-8601), currentSession }. The consumer contract in application-account-settings TAC-2604 reads this interface verbatim; do not restate the shape from another blueprint."
     }
   ],
   "dependencies": [],
