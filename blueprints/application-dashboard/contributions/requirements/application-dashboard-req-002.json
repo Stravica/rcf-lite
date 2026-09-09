@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "The primary KPI is the reader's anchor on a dashboard glance; the F-scan reading pattern (NN/g dashboard design research) puts the top-left tile at the reader's first fixation. Codifying the placement as a runtime-observable CSS Grid position at the three ratified breakpoints turns a design convention into a check a Playwright probe can drive.",
-  "tags": ["blueprint:application-dashboard", "category:02-primary-kpi-hierarchy"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-dashboard",
+    "category:02-primary-kpi-hierarchy"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-04T22:10:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2001-application-dashboard-tile-grid",
+    "field": "responsibilities"
+  }
 }

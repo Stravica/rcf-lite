@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19105",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The filter chrome exposes accessible controls and refetches every tile with the same boundary",
   "asA": "operator narrowing the dashboard with a filter chip or a filter input",
@@ -16,7 +16,8 @@
       "when": "the accessibility tree is read",
       "then": "every filter control is a labelled interactive element keyboard-reachable in reading order",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-19105-2",
@@ -25,11 +26,16 @@
       "when": "the request log is read",
       "then": "every refetch carries the same active-filters set and the shell attribute updates",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2002-application-dashboard-filter-chrome"],
-  "tags": ["blueprint:application-dashboard"],
+  "tacIds": [
+    "TAC-2002-application-dashboard-filter-chrome"
+  ],
+  "tags": [
+    "blueprint:application-dashboard"
+  ],
   "createdAt": "2026-09-04T22:10:00Z",
   "updatedAt": "2026-09-04T22:10:00Z"
 }

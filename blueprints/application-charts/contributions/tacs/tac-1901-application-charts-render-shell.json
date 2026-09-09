@@ -2,7 +2,7 @@
   "tacId": "TAC-1901-application-charts-render-shell",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Chart render shell",
   "purpose": "Owns the rendered chart surface: the mount seam every chart on the shipped surface routes through, the accessible-defaults palette hook (ADR-1902), the text-alternative slot (a `<table>` in the same landmark as the chart), and the reduced-motion respect via the application-spa motion tokens (ADR-1903). The shell is the substitutable interface every AC in this blueprint anchors on, and the applying project's chosen chart engine (ADR-1901) mounts against this contract.",

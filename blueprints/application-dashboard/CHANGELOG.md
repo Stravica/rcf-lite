@@ -1,5 +1,11 @@
 # application-dashboard CHANGELOG
 
+## 1.0.1 (B6a application core hardening, 2026-09-09)
+
+- B6a hardening pass: chain-consistency lint zero (pass1 + pass2); added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b, closed `primary-KPI` case drifts in AC-19107-2, ADR-2001 and the guide body to match the `primary-kpi` spelling owned by TAC-2001.responsibilities[0].
+- Added AC-19104-2 (fan-out partial failure: failed tiles render error state with aria-live and retry control, shared refresh-stamp advances only after every tile has settled) covering the 2026-09-08 review finding F-1 on TAC-2002.responsibilities[3]. Added AC-19106-2 and AC-19106-3 (export success and rejection cases: valid blob/filename on the current slice, no download on rejection with an announced failure) covering F-2 on TAC-2003.interfaces[0].
+
+
 ## 1.0.0 (visual round T-3, spec 2026-09-04)
 
 - First ratified version of the shelf's application-dashboard blueprint. Five REQs (shell composition; primary-KPI top-left visual hierarchy on the F-scan across 1440, 1024 and 360; per-tile four-state contract with role region, aria-live polite and non-colour distinction; timeframe and filter chrome refetch fan-out with matching as-of stamp; export handle with format delegation to charts), seven USs binding runtime-observable ACs plus one on packaged-guidance adherence, three TACs (tile grid with CSS Grid position semantics and breakpoint reflow; timeframe picker and filter chrome with the fan-out contract; export handle with delegation to the application-charts render shell), three ADRs (primary-KPI kinds enum with elicited overrides; timeframe presets with recommendedDefault and elicited overrides plus auto-refresh off by default; export formats with recommendedDefault and elicited overrides). No new global topics.

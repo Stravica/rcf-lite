@@ -2,7 +2,7 @@
   "adrId": "ADR-2003-application-dashboard-export-formats",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Ship three export formats by recommendedDefault (CSV, PDF, PNG-of-chart) with elicited overrides and PNG delegation to the charts render shell",
   "context": "Export is a legal-and-audit necessity on most shipped dashboards, and the accessibility posture of an export handle is often the last thing anyone reviews. The three most-requested formats are CSV (data extract), PDF (whole-dashboard snapshot), and PNG (one-chart download). SVG, XLSX and a Slack-share button are common project-side additions. A dashboard shell that carries its own PNG generator is a common defect because it produces a chart image that drifts from the shipped chart.",

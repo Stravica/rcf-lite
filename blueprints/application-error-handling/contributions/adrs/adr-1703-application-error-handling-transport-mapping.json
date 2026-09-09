@@ -2,7 +2,7 @@
   "adrId": "ADR-1703-application-error-handling-transport-mapping",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "The transport blueprint's error-envelope ADR writes the wire shape from the internal record; delegation via TAC-1701 writeErrorResponse",
   "context": "The internal record shape (ADR-1701) is transport-agnostic; the wire envelope is a transport-specific decision. For REST, application-api-rest owns 'errorEnvelope' with an RFC 7807-style body plus code/correlationId fields. For gRPC or message-consumer transports, a future transport blueprint claims its own errorEnvelope-family topic. The boundary must delegate the mapping so this blueprint does not have to know every transport.",

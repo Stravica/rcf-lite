@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18104",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Interactive charts expose a keyboard traversal path with a stable announced-string contract",
   "asA": "keyboard-only user reading an interactive chart",
@@ -16,7 +16,8 @@
       "when": "the operator tabs through the chart with prefers-reduced-motion set",
       "then": "each data point receives focus in reading order, the announced string matches the format, and transitions are suppressed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-18104-2",
@@ -25,11 +26,17 @@
       "when": "the pack runs",
       "then": "the AC-18104-1 keyboard-traversal rule does not apply and the pack records applicable false",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1901-application-charts-render-shell", "TAC-1902-application-charts-keyboard-traversal"],
-  "tags": ["blueprint:application-charts"],
+  "tacIds": [
+    "TAC-1901-application-charts-render-shell",
+    "TAC-1902-application-charts-keyboard-traversal"
+  ],
+  "tags": [
+    "blueprint:application-charts"
+  ],
   "createdAt": "2026-09-04T21:00:00Z",
   "updatedAt": "2026-09-04T21:00:00Z"
 }

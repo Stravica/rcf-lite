@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "Sort is the single-most-used interaction on a datatable and the most common source of hidden accessibility regressions. Anchoring the direction announcement and the keyboard reach at the surface level closes both.",
-  "tags": ["blueprint:application-datatable", "category:02-sort"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-datatable",
+    "category:02-sort"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-04T19:45:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1801-application-datatable-shell",
+    "field": "responsibilities"
+  }
 }

@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16107",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The boundary is substitutable via the framework interface so tests exercise it without booting the whole stack",
   "asA": "test author verifying that a specific exception produces the expected record",
@@ -16,10 +16,17 @@
       "when": "the test invokes handle with a synthetic exception",
       "then": "the stub loggerFactory records one error() call with the constructed record and the stub transportWriter records one write with the mapped wire body",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "tacIds": [
+    "TAC-1701-application-error-handling-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

@@ -2,7 +2,7 @@
   "tacId": "TAC-2002-application-dashboard-filter-chrome",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Timeframe picker and filter chrome with refetch fan-out contract",
   "purpose": "Owns the shell's timeframe picker and filter chrome, and the refetch fan-out contract: a preset change or a filter change issues one refetch per tile and one per rendered chart, every fetch carrying the same boundary and the same preset name, and once the batch has returned the shell updates one `data-as-of` attribute the tiles inherit. The fan-out contract is the substitutable interface the pack asserts on (AC-19104-1).",

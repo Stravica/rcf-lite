@@ -1,5 +1,11 @@
 # application-charts CHANGELOG
 
+## 1.0.1 (B6a application core hardening, 2026-09-09)
+
+- B6a hardening pass: chain-consistency lint zero (pass1 + pass2 already clean at baseline); added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b.
+- Added AC-18106-3 and AC-18106-4 (mount refusal before any DOM attaches and the render-log warning contract with one entry per refused declaration and no duplication on compliant re-mount) covering the 2026-09-08 review finding F-1 on TAC-1901.responsibilities[5].
+
+
 ## 1.0.0 (visual round T-2, spec 2026-09-04)
 
 - First ratified version of the shelf's charts blueprint. Four REQs (chart form set, non-colour distinction, text-alternative table, keyboard traversal), six USs binding runtime-observable ACs, two TACs (render shell, keyboard traversal), three ADRs (elicited chart engine with canvas-only refusal, accessible palette light and dark, reduced motion via application-spa tokens). No new global topics.

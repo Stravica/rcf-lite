@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "A chart is a visual encoding of data; a text-alternative table is the only assistive-tech-reachable form of the same data that fits the existing table-navigation vocabulary. Screen-reader users receive the same information; a canvas-only chart with no text-alternative is inaccessible.",
-  "tags": ["blueprint:application-charts", "category:03-text-alternative"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-charts",
+    "category:03-text-alternative"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-04T21:00:00Z"
+  "updatedAt": "2026-09-04T21:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1901-application-charts-render-shell",
+    "field": "responsibilities"
+  }
 }

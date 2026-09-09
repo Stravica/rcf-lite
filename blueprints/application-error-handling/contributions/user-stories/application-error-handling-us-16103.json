@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16103",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The record factory refuses to construct a record without code and category, and preserves the cause chain across nested wrappings",
   "asA": "developer wrapping a low-level exception into a higher-level record",
@@ -16,7 +16,8 @@
       "when": "the factory is called",
       "then": "the factory throws with a message naming the missing field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-16103-2",
@@ -25,10 +26,13 @@
       "when": "the outermost record is emitted",
       "then": "the emitted JSON carries the full cause chain in the same shape as the top-level record fields, nested under cause",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1702-application-error-handling-record-factory"],
+  "tacIds": [
+    "TAC-1702-application-error-handling-record-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

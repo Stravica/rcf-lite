@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "The form set is where teams reach for a chart library and pick the wrong tool. Enumerating the forms in the contract closes the ambiguity at ship: every rendered chart on the surface names one of the six forms and inherits its rendering discipline, its accessibility affordances and its text-alternative shape from the shell.",
-  "tags": ["blueprint:application-charts", "category:01-form-set"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-charts",
+    "category:01-form-set"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-04T21:00:00Z"
+  "updatedAt": "2026-09-04T21:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1901-application-charts-render-shell",
+    "field": "responsibilities"
+  }
 }

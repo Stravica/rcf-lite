@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "WCAG 2.5.7 makes drag-only interactions non-conformant. Naming the keyboard alternative for each of the three column controls prevents the shipped surface from failing the standard at the last moment.",
-  "tags": ["blueprint:application-datatable", "category:06-columns"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-datatable",
+    "category:06-columns"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-04T19:45:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1801-application-datatable-shell",
+    "field": "responsibilities"
+  }
 }

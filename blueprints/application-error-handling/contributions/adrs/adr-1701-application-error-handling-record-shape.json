@@ -2,7 +2,7 @@
   "adrId": "ADR-1701-application-error-handling-record-shape",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Internal error record shape: code, category, message, correlationId, cause chain, redacted context",
   "context": "Without a shared record shape, every consumer of error data (log ingestion pipelines, alerting rules, wire-response mappers, retry policies) invents its own view. The record loses information at each hop and downstream tools reconstruct it from string parsing. The 'errorHandling' global topic is minted here (distinct from 'errorEnvelope', which stays with application-api-rest as the REST wire shape): errorHandling is the internal record shape and the uncaught-exception boundary; errorEnvelope is the wire format one transport chooses to translate the record into.",

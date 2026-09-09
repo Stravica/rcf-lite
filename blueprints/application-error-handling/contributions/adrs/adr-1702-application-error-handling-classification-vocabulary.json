@@ -2,7 +2,7 @@
   "adrId": "ADR-1702-application-error-handling-classification-vocabulary",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Classification vocabulary: transient, permanent, unknown by recommended default; operator elicits additions",
   "context": "Retry policies are the difference between a self-healing system and a burning one. Classification at the source (where the code knows whether the failure was a transient network blip or a permanent authorisation refusal) puts the decision where the information is; classifying downstream on the wire is the source of most retry-storm outages. The recommended default set is deliberately small; per-domain additions land through elicited additions.",

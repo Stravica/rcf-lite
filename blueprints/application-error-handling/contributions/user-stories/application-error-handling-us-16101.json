@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16101",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "A process-level uncaught exception constructs the record, emits it, and terminates cleanly with exit 1",
   "asA": "operator running the application under a supervising process",
@@ -16,10 +16,27 @@
       "when": "an uncaught exception is thrown from any code path",
       "then": "one log line is emitted at error level with the record shape (code, category unknown, message, correlationId, cause, context), and process.exitCode equals 1",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-16101-2",
+      "description": "Given an unhandled promise rejection fires on the process (a rejected Promise with no `.catch` handler), when the process-level boundary observes the event, then one error record is written under the `unknown` category with the rejection value serialised as its cause, and the process terminates with exit code 1.",
+      "given": "a process with the error-handling boundary armed and a promise rejection with no attached handler",
+      "when": "the unhandledRejection event fires",
+      "then": "one record under category `unknown` is written and the process exits with code 1",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "interfaces[0].name"
+      }
     }
   ],
-  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "tacIds": [
+    "TAC-1701-application-error-handling-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

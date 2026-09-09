@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16106",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Records emit through the logging companion; the fallback stderr path fires only when no companion is applied",
   "asA": "operator debugging why an error record did not appear in the log ingestion pipeline",
@@ -16,10 +16,13 @@
       "when": "an error is emitted from the boundary",
       "then": "the first case emits via the logging companion (nothing on stderr from the boundary itself); the second case emits one JSON line on stderr with the warning",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "tacIds": [
+    "TAC-1701-application-error-handling-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

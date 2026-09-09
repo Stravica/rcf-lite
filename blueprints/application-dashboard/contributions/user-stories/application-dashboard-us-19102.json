@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19102",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The primary KPI tile sits top-left in DOM order and in CSS Grid position across the ratified breakpoints",
   "asA": "reader glancing at the shipped dashboard on a laptop, a tablet and a phone",
@@ -16,7 +16,8 @@
       "when": "the DOM order and the computed CSS Grid position are read",
       "then": "the primary KPI tile is first in DOM order and top-left in CSS Grid at each of the three widths",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-19102-2",
@@ -25,11 +26,16 @@
       "when": "the surface is reviewed",
       "then": "the surface supersedes REQ-002 with a project-authored REQ or fails review",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2001-application-dashboard-tile-grid"],
-  "tags": ["blueprint:application-dashboard"],
+  "tacIds": [
+    "TAC-2001-application-dashboard-tile-grid"
+  ],
+  "tags": [
+    "blueprint:application-dashboard"
+  ],
   "createdAt": "2026-09-04T22:10:00Z",
   "updatedAt": "2026-09-04T22:10:00Z"
 }

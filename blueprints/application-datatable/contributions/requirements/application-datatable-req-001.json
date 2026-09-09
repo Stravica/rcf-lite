@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "The shell decision closes two families of failure at once: the accessibility mode picked (table vs grid), and the pagination contract the query adapter feeds. Without this, projects reinvent both per surface and every downstream discipline (state contract, selection, sort) rides on ad-hoc assumptions.",
-  "tags": ["blueprint:application-datatable", "category:01-shell"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-datatable",
+    "category:01-shell"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-04T19:45:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1801-application-datatable-shell",
+    "field": "responsibilities"
+  }
 }

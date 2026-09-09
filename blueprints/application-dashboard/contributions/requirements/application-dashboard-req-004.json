@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "The fan-out contract is what stops a dashboard from lying to the reader: two tiles at different boundaries render numbers the reader compares as if they were the same period, and the comparison is silently wrong. Codifying the same-boundary rule and pinning it to a single as-of stamp is the runtime check that makes the fan-out contract inspectable.",
-  "tags": ["blueprint:application-dashboard", "category:04-fanout-contract"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-dashboard",
+    "category:04-fanout-contract"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-04T22:10:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2001-application-dashboard-tile-grid",
+    "field": "responsibilities"
+  }
 }

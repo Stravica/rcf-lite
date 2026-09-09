@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "Export is one of the shelf's most-requested affordances and one of the most under-reviewed for accessibility: a hover-only dropdown or a mouse-only download button is common. Naming the accessible-list contract explicitly and delegating PNG-of-chart to the charts blueprint is what keeps the export handle honest and prevents a duplicate PNG generator inside the dashboard shell.",
-  "tags": ["blueprint:application-dashboard", "category:05-export-handle"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-dashboard",
+    "category:05-export-handle"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-04T22:10:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2001-application-dashboard-tile-grid",
+    "field": "responsibilities"
+  }
 }

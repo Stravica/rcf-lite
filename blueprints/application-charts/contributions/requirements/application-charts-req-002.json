@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "Colour blindness is the most common visual disability and colour-only series distinction is the most common accessibility defect on chart libraries; the tri-cue (colour, pattern, label) is what WCAG 1.4.1 asks for and what a build-scan or runtime check can prove at the DOM level.",
-  "tags": ["blueprint:application-charts", "category:02-non-colour-distinction"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-charts",
+    "category:02-non-colour-distinction"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-04T21:00:00Z"
+  "updatedAt": "2026-09-04T21:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1901-application-charts-render-shell",
+    "field": "responsibilities"
+  }
 }

@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17104",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Bulk actions on selected rows open a confirmation dialog and return focus to the originating row on close",
   "asA": "operator applying an action to multiple rows",
@@ -16,7 +16,8 @@
       "when": "the operator toggles a row checkbox",
       "then": "the accessible selection count updates by one",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17104-2",
@@ -25,7 +26,8 @@
       "when": "the operator activates the bulk action",
       "then": "the dialog opens with `role=\"dialog\"`, `aria-modal=\"true\"`, `aria-labelledby` and `aria-describedby` set, and the confirm control receives initial focus",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17104-3",
@@ -34,11 +36,17 @@
       "when": "the operator closes the dialog (confirm or cancel)",
       "then": "focus returns to the originating row's control (the row-scoped focus target), not to the document body or an unrelated element",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1803-application-datatable-selection-model"],
-  "tags": ["blueprint:application-datatable"],
+  "tacIds": [
+    "TAC-1801-application-datatable-shell",
+    "TAC-1803-application-datatable-selection-model"
+  ],
+  "tags": [
+    "blueprint:application-datatable"
+  ],
   "createdAt": "2026-09-04T19:45:00Z",
   "updatedAt": "2026-09-04T19:45:00Z"
 }

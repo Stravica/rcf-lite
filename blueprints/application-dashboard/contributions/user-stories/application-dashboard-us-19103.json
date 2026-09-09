@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19103",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-003",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Every tile honours the four-state contract with distinct visuals, role region, aria-live polite and non-colour distinction",
   "asA": "screen-reader user and colour-blind reader on the shipped dashboard",
@@ -16,7 +16,8 @@
       "when": "the DOM and the accessibility tree are read",
       "then": "each state carries role region, aria-live polite, data-tile-state, a non-colour visual cue and the announced name",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-19103-2",
@@ -25,11 +26,16 @@
       "when": "the transition renders",
       "then": "the aria-live polite region announces the new state's accessible name and the visual cue changes",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2001-application-dashboard-tile-grid"],
-  "tags": ["blueprint:application-dashboard"],
+  "tacIds": [
+    "TAC-2001-application-dashboard-tile-grid"
+  ],
+  "tags": [
+    "blueprint:application-dashboard"
+  ],
   "createdAt": "2026-09-04T22:10:00Z",
   "updatedAt": "2026-09-04T22:10:00Z"
 }

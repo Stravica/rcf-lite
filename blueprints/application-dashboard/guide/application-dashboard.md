@@ -2,7 +2,7 @@
 
 ## What it is
 
-A shipped, vendor-neutral analytics-dashboard contract for a rcf-lite application. One tile grid with primary-KPI hierarchy at the ratified breakpoints (TAC-2001), one timeframe picker and filter chrome with a refetch fan-out contract (TAC-2002), one export handle with format delegation to charts (TAC-2003), a packaged design-guidance asset the applying agent reads at apply, and a shipped Playwright probe pack that gates ship on the three runtime-observable surfaces the shelf assures: the primary KPI sits top-left at every ratified breakpoint, a timeframe change refetches every tile with the same boundary and one as-of stamp, and every tile honours the four-state contract with role region, aria-live polite and non-colour distinction.
+A shipped, vendor-neutral analytics-dashboard contract for a rcf-lite application. One tile grid with primary-kpi hierarchy at the ratified breakpoints (TAC-2001), one timeframe picker and filter chrome with a refetch fan-out contract (TAC-2002), one export handle with format delegation to charts (TAC-2003), a packaged design-guidance asset the applying agent reads at apply, and a shipped Playwright probe pack that gates ship on the three runtime-observable surfaces the shelf assures: the primary KPI sits top-left at every ratified breakpoint, a timeframe change refetches every tile with the same boundary and one as-of stamp, and every tile honours the four-state contract with role region, aria-live polite and non-colour distinction.
 
 ## What it deliberately is not
 
@@ -14,7 +14,7 @@ A shipped, vendor-neutral analytics-dashboard contract for a rcf-lite applicatio
 ## When to reach for it
 
 - Any shipped surface that renders a mix of stat tiles and one or more charts with a shared timeframe control. Analytics dashboards, admin overview surfaces, per-organisation summary views, ops screens.
-- Projects that want the primary-KPI-hierarchy discipline enforced at ship without hand-authoring per surface.
+- Projects that want the primary-kpi-hierarchy discipline enforced at ship without hand-authoring per surface.
 - Any project that already applies application-charts and needs the composed dashboard shape on top.
 
 ## When it does not fit
@@ -29,7 +29,7 @@ Every dashboard surface renders the five labelled regions. The primary KPI tile 
 
 ## The operator decisions that remain open
 
-- **Primary-KPI kind** (ADR-2001). One of revenue, active-users, error-rate, throughput, custom. A `custom` value carries a short operator name.
+- **primary-kpi kind** (ADR-2001). One of revenue, active-users, error-rate, throughput, custom. A `custom` value carries a short operator name.
 - **Timeframe presets and auto-refresh** (ADR-2002). Three presets by recommendedDefault; operator elicits an override. Auto-refresh off unless the operator elicits an interval.
 - **Export formats** (ADR-2003). Three formats by recommendedDefault (CSV, PDF, PNG-of-chart); operator elicits an override.
 - **Tile inventory and slots**. The full tile list and each tile's CSS Grid slot.

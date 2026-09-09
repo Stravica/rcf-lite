@@ -2,7 +2,7 @@
   "tacId": "TAC-1701-application-error-handling-boundary",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Error-handling boundary",
   "purpose": "Owns the two boundaries a application error-handling contract requires: the process-level uncaught-exception boundary and the framework-level request-pipeline boundary. Both accept a runtime exception, invoke the record factory (TAC-1702), emit the record through the applied logging companion factory, and hand the record to the transport response writer per ADR-1703. Substitutable interface for hermetic tests.",

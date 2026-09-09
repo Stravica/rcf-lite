@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16105",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-003",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The record's classification drives the transport response's retry hint",
   "asA": "caller of an application endpoint that failed",
@@ -16,10 +16,13 @@
       "when": "each request runs",
       "then": "the transport response bodies and headers reflect the per-class contract above",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "tacIds": [
+    "TAC-1701-application-error-handling-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

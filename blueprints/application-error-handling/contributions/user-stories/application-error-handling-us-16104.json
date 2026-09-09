@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16104",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The record's context field is redacted at record construction, not at emission",
   "asA": "operator concerned about PII in error records",
@@ -16,10 +16,13 @@
       "when": "the factory returns",
       "then": "the returned record's context.email equals [REDACTED:pii.email] and the caller's context object still holds the original value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1702-application-error-handling-record-factory"],
+  "tacIds": [
+    "TAC-1702-application-error-handling-record-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

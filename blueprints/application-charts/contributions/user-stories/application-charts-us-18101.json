@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18101",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Every chart on the shipped surface names one of the six committed forms and honours the render-shell contract",
   "asA": "product owner responsible for the shipped surface's data affordances",
@@ -16,7 +16,8 @@
       "when": "the surface is reviewed against the shelf",
       "then": "the chart's declared form is one of the six committed forms or a documented project deviation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-18101-2",
@@ -25,11 +26,16 @@
       "when": "the mount seam is inspected",
       "then": "the chart is mounted through TAC-1901's render shell",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1901-application-charts-render-shell"],
-  "tags": ["blueprint:application-charts"],
+  "tacIds": [
+    "TAC-1901-application-charts-render-shell"
+  ],
+  "tags": [
+    "blueprint:application-charts"
+  ],
   "createdAt": "2026-09-04T21:00:00Z",
   "updatedAt": "2026-09-04T21:00:00Z"
 }

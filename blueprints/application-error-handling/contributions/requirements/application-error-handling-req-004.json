@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "The logging companion owns the redaction boundary, the correlation identifier propagation, the environment/service/version stamping and the level filter. Bypassing it for error emission produces lines that ingestion pipelines cannot parse alongside the rest of the logs and PII the redaction pass would have caught. The fallback stderr path exists so a project that has not applied a logging companion still gets a diagnostic.",
-  "tags": ["blueprint:application-error-handling", "category:04-emission-through-logging"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-error-handling",
+    "category:04-emission-through-logging"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-04T12:20:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1701-application-error-handling-boundary",
+    "field": "responsibilities"
+  }
 }

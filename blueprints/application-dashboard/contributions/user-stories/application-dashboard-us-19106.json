@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19106",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-005",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The export handle exposes an accessible format list and delegates PNG-of-chart to the application-charts render shell",
   "asA": "operator downloading the current dashboard slice",
@@ -11,25 +11,45 @@
   "acceptanceCriteria": [
     {
       "id": "AC-19106-1",
-      "description": "Given a rendered dashboard surface, the export handle region contains one labelled `<button>` (accessible name reads `Export` or an operator-configured equivalent) that on activation exposes a keyboard-reachable list of formats (a menu, a listbox or a set of `<button>` elements). The rendered format list carries at least the three shipped formats (CSV, PDF, PNG-of-chart) unless ADR-2003's elicited override replaces the set; every format entry carries a `data-export-format` attribute whose value is one of `csv`, `pdf`, `png-chart` or the elicited value. Escape closes the list and returns focus to the export button. Hover-only export dropdowns fail project-side review.",
+      "description": "Given a rendered dashboard surface, the export handle region contains one labelled `<button>` (accessible name reads `Export` or an operator-configured equivalent) that on activation exposes a keyboard-reachable list of formats (a menu, a listbox or a set of `<button>` elements). The rendered format list carries at least the three shipped formats (CSV, PDF, PNG-of-chart) unless ADR-2003's elicited override replaces the set; every format entry carries a `data-export-format` attribute whose value is one of `csv`, `pdf`, `png-chart` or the elicited value. Escape closes the list and returns focus to the export button. Hover-only export dropdowns fail project-side review. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "a rendered dashboard with an export handle",
       "when": "the operator activates the export button",
       "then": "an accessible format list opens with the shipped formats, keyboard-reachable, closable on Escape",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-19106-2",
-      "description": "Given a PNG-of-chart export selection, the export handle delegates the PNG generation to the application-charts render shell (TAC-1901): the handle names the chart the operator picked from the chart region (a `data-chart-id` reference on the format entry, or a runtime prompt asking which chart) and the charts shell owns the PNG output. A dashboard shell that ships its own PNG generator inside the dashboard code fails project-side review. This AC is a project-side contract; the pack does not exercise the PNG generation today (no download-capture seam on the pack browser), and the README names the delegation-observation gap under known mechanism-reach gaps.",
+      "description": "Given a PNG-of-chart export selection, the export handle delegates the PNG generation to the application-charts render shell (TAC-1901): the handle names the chart the operator picked from the chart region (a `data-chart-id` reference on the format entry, or a runtime prompt asking which chart) and the charts shell owns the PNG output. A dashboard shell that ships its own PNG generator inside the dashboard code fails project-side review. This AC is a project-side contract; the pack does not exercise the PNG generation today (no download-capture seam on the pack browser), and the README names the delegation-observation gap under known mechanism-reach gaps. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "a PNG-of-chart export selection",
       "when": "the export handle activates",
       "then": "PNG generation delegates to the application-charts render shell",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-19106-3",
+      "description": "Given `onExportRequest` rejects (for example because the slice is empty, the format is unsupported, or a downstream service refuses), when the operator invokes export, then no download or blob is delivered, an accessible failure message is announced via an `aria-live` region naming the rejection reason, and the surface's control returns to its idle state.",
+      "given": "an export handle whose promise rejects on the requested slice",
+      "when": "the operator triggers export",
+      "then": "no blob is produced, an announced failure names the reason, and the control returns to idle",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2003-application-dashboard-export-handle",
+        "field": "interfaces[0].name"
+      }
     }
   ],
-  "tacIds": ["TAC-2003-application-dashboard-export-handle"],
-  "tags": ["blueprint:application-dashboard"],
+  "tacIds": [
+    "TAC-2003-application-dashboard-export-handle"
+  ],
+  "tags": [
+    "blueprint:application-dashboard"
+  ],
   "createdAt": "2026-09-04T22:10:00Z",
   "updatedAt": "2026-09-04T22:10:00Z"
 }

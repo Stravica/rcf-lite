@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17107",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The rendered table shell uses the ARIA APG pattern that matches the surface's interactivity",
   "asA": "assistive-tech user reading the datatable",
@@ -16,7 +16,8 @@
       "when": "the shell renders",
       "then": "the rendered table has `role=\"grid\"` and header cells scoped to `col`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17107-2",
@@ -25,7 +26,8 @@
       "when": "assistive tech reads the action controls",
       "then": "each action's accessible name identifies the acted-on row",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17107-3",
@@ -34,11 +36,16 @@
       "when": "assistive tech traverses a data cell",
       "then": "the announced context includes the column header the cell resolves to",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1801-application-datatable-shell"],
-  "tags": ["blueprint:application-datatable"],
+  "tacIds": [
+    "TAC-1801-application-datatable-shell"
+  ],
+  "tags": [
+    "blueprint:application-datatable"
+  ],
   "createdAt": "2026-09-04T19:45:00Z",
   "updatedAt": "2026-09-04T19:45:00Z"
 }
